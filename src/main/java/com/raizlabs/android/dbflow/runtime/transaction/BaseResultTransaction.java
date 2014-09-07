@@ -15,7 +15,7 @@ public abstract class BaseResultTransaction<ModelClass extends Model> extends Ba
 
     protected ResultReceiver<List<ModelClass>> mReceiver;
 
-    protected BaseResultTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> mReceiver) {
+    public BaseResultTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> mReceiver) {
         super(dbTransactionInfo);
         this.mReceiver = mReceiver;
     }

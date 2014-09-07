@@ -4,6 +4,8 @@ import com.raizlabs.android.core.AppContext;
 import com.raizlabs.android.core.StringUtils;
 import com.raizlabs.android.dbflow.ReflectionUtils;
 import com.raizlabs.android.dbflow.config.DBConfiguration;
+import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.PrimaryWhereQueryBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,9 +29,12 @@ public class DBStructure {
 
     private Map<Class<? extends Model>, TableStructure> mTableStructure;
 
+    private Map<Class<? extends Model>, PrimaryWhereQueryBuilder> mPrimaryWhereQueryBuilderMap;
+
 
     public DBStructure(DBConfiguration dbConfiguration) {
         mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
+        mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, PrimaryWhereQueryBuilder>();
     }
 
     /**
@@ -57,6 +62,25 @@ public class DBStructure {
                 mTableStructure.put(modelClass, tableStructure);
             }
         }
+    }
+
+    public TableStructure getTableStructureForClass(Class<? extends Model> modelClass) {
+        return getTableStructure().get(modelClass);
+    }
+
+    /**
+     * Returns the Where Primary key query string from the cache for a specific model.
+     * @param modelTable
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <ModelClass extends Model> AbstractWhereQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> modelTable) {
+        AbstractWhereQueryBuilder<ModelClass> abstractWhereQueryBuilder = getWhereQueryBuilderMap().get(modelTable);
+        if(abstractWhereQueryBuilder == null ){
+            abstractWhereQueryBuilder = new PrimaryWhereQueryBuilder<ModelClass>(modelTable);
+            getWhereQueryBuilderMap().put(modelTable, abstractWhereQueryBuilder);
+        }
+        return abstractWhereQueryBuilder;
     }
 
     private List<Class<? extends Model>> generateModelFromSource() throws IOException {
@@ -170,5 +194,9 @@ public class DBStructure {
 
     public Map<Class<? extends Model>, TableStructure> getTableStructure() {
         return mTableStructure;
+    }
+
+    public Map<Class<? extends Model>, AbstractWhereQueryBuilder> getWhereQueryBuilderMap() {
+        return mPrimaryWhereQueryBuilderMap;
     }
 }

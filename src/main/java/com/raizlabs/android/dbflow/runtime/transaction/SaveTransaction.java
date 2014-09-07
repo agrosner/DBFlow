@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
-import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -11,32 +10,17 @@ import java.util.List;
  * Contributors: { }
  * Description: Saves all of the {@link ModelClass} into the DB in one transaction.
  */
-public class SaveTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
+public class SaveTransaction<ModelClass extends Model> extends BaseModeListTransaction<ModelClass> {
 
-    private List<ModelClass> mModels;
 
     public SaveTransaction(DBTransactionInfo transactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
                            List<ModelClass> models) {
-        super(transactionInfo, resultReceiver);
-        mModels = models;
+        super(transactionInfo, resultReceiver, models);
     }
 
     @Override
-    public boolean onReady() {
-        return mModels != null && !mModels.isEmpty();
+    protected void processModel(ModelClass model) {
+        model.save(false);
     }
 
-    @Override
-    public List<ModelClass> onExecute() {
-        FlowConfig.transact(new Runnable() {
-            @Override
-            public void run() {
-                for(ModelClass model: mModels) {
-                    model.save();
-                }
-            }
-        });
-
-        return mModels;
-    }
 }

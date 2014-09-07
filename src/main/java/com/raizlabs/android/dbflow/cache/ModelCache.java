@@ -15,8 +15,6 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class ModelCache {
 
-    private LruCache<Class<? extends Model>, Model> mModelCache;
-
     private DBConfiguration mDbConfiguration;
 
     private DBStructure mStructure;
@@ -33,16 +31,11 @@ public class ModelCache {
 
     public void initialize(DBConfiguration dbConfiguration, DatabaseHelperListener helperListener) {
         mDbConfiguration = dbConfiguration;
-        mModelCache = new LruCache<Class<? extends Model>, Model>(dbConfiguration.getCacheSize());
 
         mStructure = new DBStructure(dbConfiguration);
 
         mHelper = new FlowSQLiteOpenHelper(dbConfiguration);
         mHelper.setDatabaseListener(helperListener);
-    }
-
-    public LruCache<Class<? extends Model>, Model> getModelCache() {
-        return mModelCache;
     }
 
     public DBConfiguration getDbConfiguration() {

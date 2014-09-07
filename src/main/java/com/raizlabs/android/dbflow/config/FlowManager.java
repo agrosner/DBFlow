@@ -5,34 +5,39 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.cache.ModelCache;
-import com.raizlabs.android.singleton.Singleton;
 
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Holds the {@link com.raizlabs.android.dbflow.cache.ModelCache} and provides helper methods
+ * for the singleton.
  */
-public class FlowConfig {
+public class FlowManager {
+
+    private static ModelCache cache;
 
     public static void initialize(DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
-        ModelCache modelCache = new ModelCache();
-        modelCache.initialize(dbConfiguration, databaseHelperListener);
-
-        // Create and store our singleton instance
-        new Singleton<ModelCache>(modelCache);
-    }
-
-
-    public static Singleton<ModelCache> getCacheSingleton() {
-        return new Singleton<ModelCache>(ModelCache.class);
+        cache = new ModelCache();
+        cache.initialize(dbConfiguration, databaseHelperListener);
     }
 
     public static ModelCache getCache() {
-        return getCacheSingleton().getInstance();
+        if(cache == null) {
+            cache = new ModelCache();
+        }
+        return cache;
     }
 
+    /**
+     * Gets the {@link android.database.sqlite.SQLiteOpenHelper} from the cache.
+     * @return
+     */
     public static SQLiteOpenHelper getSqlHelper() {
         return getCache().getHelper();
+    }
+
+    public static SQLiteDatabase getWritableDatabase() {
+        return getSqlHelper().getWritableDatabase();
     }
 
     /**
@@ -40,7 +45,7 @@ public class FlowConfig {
      * @param runnable
      */
     public static void transact(Runnable runnable) {
-        SQLiteDatabase database = getSqlHelper().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
         database.beginTransaction();
         try{
             runnable.run();

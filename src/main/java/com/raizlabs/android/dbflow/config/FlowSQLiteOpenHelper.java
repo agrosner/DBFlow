@@ -130,7 +130,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private void executeCreations(SQLiteDatabase database) {
         database.beginTransaction();
 
-        Collection<TableStructure> tableStructures = FlowConfig.getCache()
+        Collection<TableStructure> tableStructures = FlowManager.getCache()
                 .getStructure().getTableStructure().values();
         for(TableStructure tableStructure : tableStructures) {
             database.execSQL(tableStructure.getCreationQuery().getQuery());

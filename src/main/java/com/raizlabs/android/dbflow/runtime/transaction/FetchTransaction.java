@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class FetchTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
 
-    private From mFrom;
+    private From<ModelClass> mFrom;
 
     /**
      * Creates an instance of this classs with defaulted {@link com.raizlabs.android.dbflow.sql.Select} all.
@@ -40,7 +40,7 @@ public class FetchTransaction<ModelClass extends Model> extends BaseResultTransa
      * @param from The completed Sql Statement we will use to fetch the models
      * @param resultReceiver
      */
-    public FetchTransaction(From from, ResultReceiver<List<ModelClass>> resultReceiver) {
+    public FetchTransaction(From<ModelClass> from, ResultReceiver<List<ModelClass>> resultReceiver) {
         super(DBTransactionInfo.createFetch(), resultReceiver);
         mFrom = from;
     }

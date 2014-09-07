@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql;
 
 import android.text.TextUtils;
 
+import com.raizlabs.android.dbflow.sql.builder.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -42,8 +43,8 @@ public class Select implements Query {
         return this;
     }
 
-    public From from(Class<? extends Model> table) {
-        return new From(this, table);
+    public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
+        return new From<ModelClass>(this, table);
     }
 
     @Override

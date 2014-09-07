@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql;
 
-import com.raizlabs.android.dbflow.config.FlowConfig;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.builder.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -66,7 +67,7 @@ public class Join implements Query {
 
         queryBuilder.append("JOIN")
                 .appendSpace()
-                .append(FlowConfig.getCache().getTableName(mTable))
+                .append(FlowManager.getCache().getTableName(mTable))
                 .appendSpace();
 
         if (mAlias != null) {

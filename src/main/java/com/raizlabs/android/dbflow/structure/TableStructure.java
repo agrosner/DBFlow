@@ -1,14 +1,17 @@
 package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.ReflectionUtils;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.TableCreationQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.TableCreationQueryBuilder;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Author: andrewgrosner
@@ -35,15 +38,17 @@ public class TableStructure<ModelType extends Model> {
      */
     private Map<Field, String> mColumnNames;
 
+    private Map<String, Field> mFieldFromNames;
+
     /**
      * The primary keys of this table. They must not be empty.
      */
-    private List<Field> mPrimaryKeys;
+    private LinkedHashMap<String, Field> mPrimaryKeys;
 
     /**
      * The foreign keys of this table.
      */
-    private List<Field> mForeignKeys;
+    private LinkedHashMap<String, Field> mForeignKeys;
 
     /**
      * Holds the Creation Query in this table for reference when we create it
@@ -53,11 +58,13 @@ public class TableStructure<ModelType extends Model> {
     /**
      * Builds the structure of this table based on the {@link com.raizlabs.android.dbflow.structure.Model}
      * class passed in.
+     *
      * @param modelType
      */
     public TableStructure(Class<ModelType> modelType) {
 
         mColumnNames = new HashMap<Field, String>();
+        mFieldFromNames = new HashMap<String, Field>();
 
         mModelType = modelType;
 
@@ -69,7 +76,7 @@ public class TableStructure<ModelType extends Model> {
         }
 
         List<Field> fields = new ArrayList<Field>();
-        fields = ReflectionUtils.getAllFields(fields, mModelType);
+        fields = ReflectionUtils.getAllColumns(fields, mModelType);
 
         // Generating creation query on the fly to be processed later
         mCreationQuery = new TableCreationQueryBuilder();
@@ -92,19 +99,20 @@ public class TableStructure<ModelType extends Model> {
             }
 
             mColumnNames.put(field, columnName);
+            mFieldFromNames.put(columnName, field);
 
             if (column.columnType().type() == ColumnType.PRIMARY_KEY
                     || column.columnType().type() == ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
-                mPrimaryKeys.add(field);
+                mPrimaryKeys.put(columnName, field);
             } else if (column.columnType().type() == ColumnType.FOREIGN_KEY) {
-                mForeignKeys.add(field);
+                mForeignKeys.put(columnName, field);
             }
 
-            if(SQLiteType.containsClass(type)) {
+            if (SQLiteType.containsClass(type)) {
                 tableCreationQuery.append(columnName)
                         .appendSpace()
                         .appendType(type);
-            } else if(ReflectionUtils.isSubclassOf(type, Enum.class)) {
+            } else if (ReflectionUtils.isSubclassOf(type, Enum.class)) {
                 tableCreationQuery.append(columnName)
                         .appendSpace()
                         .appendSQLiteType(SQLiteType.TEXT);
@@ -113,37 +121,40 @@ public class TableStructure<ModelType extends Model> {
             mColumnDefinitions.add(tableCreationQuery.appendColumn(column));
         }
 
-        if(mPrimaryKeys.isEmpty()) {
+        if (mPrimaryKeys.isEmpty()) {
             throw new PrimaryKeyNotFoundException("Table: " + mTableName + " must define a primary key");
         }
 
-        int count = 0;
         QueryBuilder primaryKeyQueryBuilder = new QueryBuilder().append("PRIMARY KEY(");
-        for(int i  =0 ; i< mPrimaryKeys.size(); i++){
-            Column primaryKey = mPrimaryKeys.get(i).getAnnotation(Column.class);
-            if(primaryKey.columnType().type() != ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
+        Collection<Field> primaryKeys = getPrimaryKeys();
+        int count = 0;
+        int index = 0;
+        for (Field field : primaryKeys) {
+            Column primaryKey = field.getAnnotation(Column.class);
+            if (primaryKey.columnType().type() != ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
                 count++;
-                primaryKeyQueryBuilder.append(mColumnNames.get(mPrimaryKeys.get(i)));
-                if (i < mPrimaryKeys.size() - 1) {
+                primaryKeyQueryBuilder.append(mColumnNames.get(field));
+                if (index < mPrimaryKeys.size() - 1) {
                     primaryKeyQueryBuilder.append(", ");
                 }
             }
+            index++;
         }
 
-        if(count>0) {
+        if (count > 0) {
             primaryKeyQueryBuilder.append(")");
             mColumnDefinitions.add(primaryKeyQueryBuilder);
         }
 
         QueryBuilder foreignKeyQueryBuilder;
-        for(int i = 0; i < mForeignKeys.size(); i++){
-            Field foreignKeyField = mForeignKeys.get(i);
+        Collection<Field> foreignKeys = getForeignKeys();
+        for (Field foreignKeyField : foreignKeys) {
             foreignKeyQueryBuilder = new QueryBuilder().append("FOREIGN KEY(");
 
             Column foreignKey = foreignKeyField.getAnnotation(Column.class);
 
             foreignKeyQueryBuilder.append(mColumnNames.get(foreignKeyField))
-                    .append(") REFERENCES ")
+                    .append(")").appendSpaceSeparated("REFERENCES")
                     .append(mTableName)
                     .append("(").append(foreignKey.foreignColumn()).append(")");
 
@@ -157,6 +168,7 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns the query that we use to create this table.
+     *
      * @return
      */
     public QueryBuilder getCreationQuery() {
@@ -165,9 +177,36 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns this table name
+     *
      * @return
      */
     public String getTableName() {
         return mTableName;
+    }
+
+    /**
+     * Returns the column name for the specified field.
+     *
+     * @param field
+     * @return
+     */
+    public String getColumnName(Field field) {
+        return mColumnNames.get(field);
+    }
+
+    public Collection<Field> getForeignKeys() {
+        return mForeignKeys.values();
+    }
+
+    public Collection<Field> getPrimaryKeys() {
+        return mPrimaryKeys.values();
+    }
+
+    public Set<String> getPrimaryKeyNames() {
+        return mPrimaryKeys.keySet();
+    }
+
+    public Field getField(String name) {
+        return mFieldFromNames.get(name);
     }
 }

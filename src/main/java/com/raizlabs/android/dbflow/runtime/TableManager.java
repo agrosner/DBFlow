@@ -1,6 +1,11 @@
 package com.raizlabs.android.dbflow.runtime;
 
+import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
+import com.raizlabs.android.dbflow.sql.Select;
 import com.raizlabs.android.dbflow.structure.Model;
+
+import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -8,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  * Description: This class manages a single table, wrapping all of the
  * {@link com.raizlabs.android.dbflow.runtime.DatabaseManager} operations with the {@link ModelClass}
  */
-public class TableManager<ModelClass extends Model> extends DatabaseManager<ModelClass> {
+public class TableManager<ModelClass extends Model> extends DatabaseManager {
 
     private Class<ModelClass> mTableClass;
 
@@ -30,5 +35,20 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager<Mode
     }
 
 
+    public void selectAllFromTable(ResultReceiver<List<ModelClass>> resultReceiver) {
+        super.selectAllFromTable(mTableClass, resultReceiver);
+    }
 
+    public void selectFromTable(Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
+        super.selectFromTable(mTableClass, select, resultReceiver);
+    }
+
+    public void deleteTable(DBTransactionInfo transactionInfo) {
+        super.deleteTable(transactionInfo, mTableClass);
+    }
+
+    public void deleteModelsWithQuery(DBTransactionInfo transctionInfo,
+                                                                 DeleteTransaction.DeleteWhereArgs deleteWhereArgs) {
+        super.deleteModelsWithQuery(transctionInfo, deleteWhereArgs, mTableClass);
+    }
 }

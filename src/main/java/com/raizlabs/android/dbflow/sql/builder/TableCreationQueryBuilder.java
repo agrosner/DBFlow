@@ -1,7 +1,8 @@
-package com.raizlabs.android.dbflow.sql;
+package com.raizlabs.android.dbflow.sql.builder;
 
 import android.text.TextUtils;
 
+import com.raizlabs.android.dbflow.sql.builder.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Column;
 import com.raizlabs.android.dbflow.structure.ColumnType;
 

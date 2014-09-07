@@ -1,8 +1,12 @@
 package com.raizlabs.android.dbflow.sql;
 
 import android.database.DatabaseUtils;
+import android.text.TextUtils;
 
-import com.raizlabs.android.dbflow.config.FlowConfig;
+import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.FromQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.Arrays;
@@ -13,11 +17,11 @@ import java.util.List;
  * Contributors: { }
  * Description:
  */
-public class From implements Query{
+public class From<ModelClass extends Model> implements Query{
 
     private Query mQueryBuilderBase;
 
-    private Class<? extends Model> mType;
+    private Class<ModelClass> mType;
 
     private String mAlias;
 
@@ -37,23 +41,23 @@ public class From implements Query{
 
     private List<Object> mArguments;
 
-    public From(Query querybase, Class<? extends Model> table) {
+    public From(Query querybase, Class<ModelClass> table) {
         mQueryBuilderBase = querybase;
         mType = table;
     }
 
-    public From as(String alias) {
+    public From<ModelClass> as(String alias) {
         mAlias = alias;
         return this;
     }
 
-    public Join join(Class<? extends Model> table, Join.JoinType joinType) {
+    public Join join(Class<ModelClass> table, Join.JoinType joinType) {
         Join join = new Join(this, table, joinType);
         mJoins.add(join);
         return join;
     }
 
-    public From where(String where, Object... args) {
+    public From<ModelClass> where(String where, Object... args) {
         mWhere = where;
         mArguments.clear();
         if(args.length > 0) {
@@ -63,26 +67,31 @@ public class From implements Query{
         return this;
     }
 
-    public From groupBy(String groupBy) {
+    public From<ModelClass> where(AbstractWhereQueryBuilder abstractWhereQueryBuilder, String[] primaries) {
+        mWhere = abstractWhereQueryBuilder.getWhereQueryForModel(primaries);
+        return this;
+    }
+
+    public From<ModelClass> groupBy(String groupBy) {
         mGroupBy = groupBy;
         return this;
     }
 
-    public From having(String having) {
+    public From<ModelClass> having(String having) {
         mHaving = having;
         return this;
     }
 
-    public From orderBy(String orderBy) {
+    public From<ModelClass> orderBy(String orderBy) {
         mOrderBy = orderBy;
         return this;
     }
 
-    public From limit(Object limit) {
+    public From<ModelClass> limit(Object limit) {
         return limit(String.valueOf(limit));
     }
 
-    public From offset(Object offset) {
+    public From<Model> offset(Object offset) {
         return offset(String.valueOf(offset));
     }
 
@@ -91,13 +100,28 @@ public class From implements Query{
     }
 
     public long count() {
-        return DatabaseUtils.longForQuery(FlowConfig.getCache().getHelper().getWritableDatabase(),
+        return DatabaseUtils.longForQuery(FlowManager.getCache().getHelper().getWritableDatabase(),
                     getQuery(), getArguments());
     }
 
-    public <ModelClass extends Model> List<ModelClass> queryList() {
+    public void query() {
+        // Query the sql here
+        FlowManager.getWritableDatabase().rawQuery(getQuery(), getArguments());
+    }
+
+    public List<ModelClass> queryList() {
         if(mQueryBuilderBase instanceof Select) {
-            //return FlowConfig.getSqlHelper().getWritableDatabase().rawQuery(mT)
+            return SqlUtils.queryList(mType, getQuery(), getArguments());
+        } else {
+            throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
+        }
+    }
+
+    public ModelClass querySingle() {
+        if(mQueryBuilderBase instanceof Select) {
+            return SqlUtils.querySingle(mType, getQuery(), getArguments());
+        } else {
+            throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
         }
     }
 
@@ -117,7 +141,7 @@ public class From implements Query{
         FromQueryBuilder queryBuilder = new FromQueryBuilder()
                 .append(mQueryBuilderBase.getQuery())
                 .append("FROM")
-                .appendSpaceSeparated(FlowConfig.getCache().getTableName(mType))
+                .appendSpaceSeparated(FlowManager.getCache().getTableName(mType))
                 .appendQualifier("AS", mAlias);
 
         for (Join join : mJoins) {
@@ -131,11 +155,12 @@ public class From implements Query{
                 .appendQualifier("LIMIT", mLimit)
                 .appendQualifier("OFFSET", mOffset);
 
-        /*// Don't wast time building the string
+        // Don't wast time building the string
         // unless we're going to log it.
-        if (AALog.isEnabled()) {
-            AALog.v(sql.toString() + " " + TextUtils.join(",", getArguments()));
-        }*/
+        if (FlowLog.isEnabled()) {
+            FlowLog.v(getClass().getSimpleName(), queryBuilder.toString() + " " +
+                    TextUtils.join(",", getArguments()));
+        }
 
         return queryBuilder.getQuery().trim();
     }
