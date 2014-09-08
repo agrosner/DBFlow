@@ -125,10 +125,11 @@ public class SqlUtils {
         return entities;
     }
 
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void save(ModelClass model, boolean async, int mode) {
         if (!async) {
-            PrimaryWhereQueryBuilder<ModelClass> primaryWhereQueryBuilder =
-                    new PrimaryWhereQueryBuilder<ModelClass>((Class<ModelClass>) model.getClass());
+            PrimaryWhereQueryBuilder primaryWhereQueryBuilder = (PrimaryWhereQueryBuilder)
+                    FlowManager.getCache().getStructure().getPrimaryWhereQuery(model.getClass());
 
 
             final SQLiteDatabase db = FlowManager.getWritableDatabase();
@@ -193,7 +194,9 @@ public class SqlUtils {
                         if (!key.name().equals("")) {
                             fieldName = field.getAnnotation(Column.class).name();
                         }
-                        values.put(fieldName, ((Model) value).getId());
+                        Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
+                        ForeignKeyConverter foreignKeyConverter = FlowManager.getCache().getStructure().getForeignKeyConverterForclass(entityType);
+                        values.put(fieldName, foreignKeyConverter.getDBValue((Model) value));
                     } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
                         values.put(fieldName, ((Enum<?>) value).name());
                     }
@@ -287,14 +290,14 @@ public class SqlUtils {
                 } else if (StructureUtils.isForeignKey(field) && ReflectionUtils.implementsModel(fieldType)) {
                     // If field is foreign key, we convert it's id
                     final String entityId = cursor.getString(columnIndex);
-
-                    ForeignKeyConverter converter = null;
-                    if(ForeignKeyConverter.class.isAssignableFrom(fieldType)) {
-                        converter = (ForeignKeyConverter)
-                    }
                     final Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
-                    AbstractWhereQueryBuilder whereQueryBuilder = new PrimaryWhereQueryBuilder(entityType);
-                    value = new Select().from(entityType).where(whereQueryBuilder, entityId).querySingle();
+
+                    // Get converter to use for foreign keys
+                    ForeignKeyConverter converter = FlowManager.getCache().getStructure().getForeignKeyConverterForclass(entityType);
+
+                    // Build the primary key query using the converter and querybuilder
+                    AbstractWhereQueryBuilder whereQueryBuilder = FlowManager.getCache().getStructure().getPrimaryWhereQuery(entityType);
+                    value = new Select().from(entityType).where(whereQueryBuilder, converter.getForeignKeys(entityId)).querySingle();
                 } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
                     @SuppressWarnings("rawtypes")
                     final Class<? extends Enum> enumType = (Class<? extends Enum>) fieldType;
@@ -320,10 +323,11 @@ public class SqlUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void delete(final ModelClass model, boolean async) {
         if (!async) {
             TableStructure tableStructure = FlowManager.getTableStructureForClass(model.getClass());
-            PrimaryWhereQueryBuilder<ModelClass> whereQueryBuilder = new PrimaryWhereQueryBuilder<ModelClass>((Class<ModelClass>) model.getClass());
+            AbstractWhereQueryBuilder<ModelClass> whereQueryBuilder = FlowManager.getCache().getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
             FlowManager.getWritableDatabase().delete(tableStructure.getTableName(), whereQueryBuilder.getWhereQueryForModel(model), null);
         } else {
             DatabaseManager.getSharedInstance().addTransaction(new BaseTransaction<ModelClass>() {
@@ -336,6 +340,7 @@ public class SqlUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> boolean exists(ModelClass model) {
         PrimaryWhereQueryBuilder<ModelClass> whereQueryBuilder = new PrimaryWhereQueryBuilder<ModelClass>((Class<ModelClass>) model.getClass());
         Model existing = new Select().from(model.getClass()).where(whereQueryBuilder.getWhereQueryForModel(model)).querySingle();

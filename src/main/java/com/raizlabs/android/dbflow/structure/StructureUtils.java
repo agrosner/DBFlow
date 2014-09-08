@@ -5,6 +5,7 @@ import com.raizlabs.android.core.StringUtils;
 import com.raizlabs.android.dbflow.ReflectionUtils;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.converter.ForeignKeyConverter;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 
 import java.io.File;
@@ -142,20 +143,25 @@ public class StructureUtils {
             try {
                 Class<?> discoveredClass = Class.forName(className, false, classLoader);
 
-                // First checks if it implements model, then if its not abstract class,
-                // then if its not the Model class itself, and then if its not ignored
-                if (ReflectionUtils.implementsModel(discoveredClass) &&
-                        !Modifier.isAbstract(discoveredClass.getModifiers())
-                        && !discoveredClass.equals(Model.class)
-                        && !discoveredClass.isAnnotationPresent(Ignore.class)) {
-                    @SuppressWarnings("unchecked")
-                    Class<? extends Model> modelClass = (Class<? extends Model>) discoveredClass;
-                    modelClasses.add(modelClass);
-                } else if (ReflectionUtils.implementsTypeConverter(discoveredClass)
-                        && !discoveredClass.isAnnotationPresent(Ignore.class)) {
-                    @SuppressWarnings("unchecked")
-                    Class<? extends TypeConverter> typeConverterClass = (Class<? extends TypeConverter>)  discoveredClass;
-                    FlowManager.getCache().getStructure().putTypeConverterForClass(typeConverterClass);
+                if(!discoveredClass.isAnnotationPresent(Ignore.class)) {
+                    // First checks if it implements model, then if its not abstract class,
+                    // then if its not the Model class itself, and then if its not ignored
+                    if (ReflectionUtils.implementsModel(discoveredClass) &&
+                            !Modifier.isAbstract(discoveredClass.getModifiers())
+                            && !discoveredClass.equals(Model.class)) {
+                        @SuppressWarnings("unchecked")
+                        Class<? extends Model> modelClass = (Class<? extends Model>) discoveredClass;
+                        modelClasses.add(modelClass);
+                    } else if (ReflectionUtils.implementsTypeConverter(discoveredClass)) {
+                        @SuppressWarnings("unchecked")
+                        Class<? extends TypeConverter> typeConverterClass = (Class<? extends TypeConverter>) discoveredClass;
+                        FlowManager.getCache().getStructure().putTypeConverterForClass(typeConverterClass);
+                    } else if (ReflectionUtils.implementsForeignKeyConverter(discoveredClass)) {
+                        @SuppressWarnings("unchecked")
+                        Class<? extends ForeignKeyConverter> foreignKeyConverterClass = ((Class<? extends ForeignKeyConverter>) discoveredClass);
+                        FlowManager.getCache().getStructure().putForeignKeyConverterForClass(foreignKeyConverterClass);
+                    }
+
                 }
             } catch (ClassNotFoundException e) {
                 FlowLog.e(StructureUtils.class.getSimpleName(), "Couldn't create class.", e);

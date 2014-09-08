@@ -26,6 +26,11 @@ public class DefaultForeignKeyConverter implements ForeignKeyConverter {
         return converter;
     }
 
+    @Override
+    public Class getModelClass() {
+        return Class.class;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public String getDBValue(Model model) {

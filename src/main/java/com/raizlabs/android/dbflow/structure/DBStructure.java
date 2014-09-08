@@ -2,23 +2,22 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.location.Location;
 
-import com.raizlabs.android.core.AppContext;
-import com.raizlabs.android.dbflow.ReflectionUtils;
 import com.raizlabs.android.dbflow.config.DBConfiguration;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.converter.CalendarConverter;
 import com.raizlabs.android.dbflow.converter.DateConverter;
 import com.raizlabs.android.dbflow.converter.DefaultForeignKeyConverter;
 import com.raizlabs.android.dbflow.converter.ForeignKeyConverter;
+import com.raizlabs.android.dbflow.converter.JsonConverter;
 import com.raizlabs.android.dbflow.converter.LocationConverter;
 import com.raizlabs.android.dbflow.converter.SqlDateConverter;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.PrimaryWhereQueryBuilder;
 
-import java.io.File;
+import org.json.JSONObject;
+
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +39,7 @@ public class DBStructure {
             put(java.sql.Date.class, new SqlDateConverter());
             put(java.util.Date.class, new DateConverter());
             put(Location.class, new LocationConverter());
+            put(JSONObject.class, new JsonConverter());
         }
     };
 
@@ -59,7 +59,7 @@ public class DBStructure {
      * @param dbConfiguration
      */
     private void initializeStructure(DBConfiguration dbConfiguration) {
-        List<Class<? extends Model> modelList = null;
+        List<Class<? extends Model>> modelList = null;
         if (dbConfiguration.hasModelClasses()) {
             modelList = dbConfiguration.getModelClasses();
         } else {
@@ -91,7 +91,7 @@ public class DBStructure {
     void putTypeConverterForClass(Class typeConverterClass) {
         try {
             TypeConverter typeConverter = (TypeConverter) typeConverterClass.newInstance();
-            mTypeConverters.put(typeConverterClass, typeConverter);
+            mTypeConverters.put(typeConverter.getModelType(), typeConverter);
         } catch (Throwable e) {
             FlowLog.e(DBStructure.class.getSimpleName(), e.getMessage(), e);
         }
@@ -127,6 +127,15 @@ public class DBStructure {
         return foreignKeyConverter;
     }
 
+    public void putForeignKeyConverterForClass(Class<? extends ForeignKeyConverter> foreignKeyConverterClass) {
+        try {
+            ForeignKeyConverter foreignKeyConverter = foreignKeyConverterClass.newInstance();
+            mForeignKeyConverters.put(foreignKeyConverter.getModelClass(), foreignKeyConverter);
+        } catch (Throwable e) {
+            FlowLog.e(DBStructure.class.getSimpleName(), e.getMessage(), e);
+        }
+    }
+
     public Map<Class<? extends Model>, TableStructure> getTableStructure() {
         return mTableStructure;
     }
@@ -138,4 +147,5 @@ public class DBStructure {
     public Map<Class<?>, ForeignKeyConverter> getForeignKeyConverterMap() {
         return mForeignKeyConverters;
     }
+
 }

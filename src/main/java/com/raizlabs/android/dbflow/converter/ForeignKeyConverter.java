@@ -9,6 +9,8 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public interface ForeignKeyConverter<ModelClass extends Model> {
 
+    public Class<ModelClass> getModelClass();
+
     /**
      * Returns the Database value for this class. This is what will be stored in the referent class' table.
      * @return

@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime;
 import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
 import com.raizlabs.android.dbflow.sql.Select;
+import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -48,7 +49,7 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
     }
 
     public void deleteModelsWithQuery(DBTransactionInfo transctionInfo,
-                                                                 DeleteTransaction.DeleteWhereArgs deleteWhereArgs) {
-        super.deleteModelsWithQuery(transctionInfo, deleteWhereArgs, mTableClass);
+                                      AbstractWhereQueryBuilder<ModelClass> abstractWhereQueryBuilder) {
+        super.deleteModelsWithQuery(transctionInfo, abstractWhereQueryBuilder, mTableClass);
     }
 }

@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow;
 
+import com.raizlabs.android.dbflow.converter.ForeignKeyConverter;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.structure.Column;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -83,5 +84,15 @@ public class ReflectionUtils {
      */
     public static boolean implementsTypeConverter(Class discoveredClass) {
         return TypeConverter.class.isAssignableFrom(discoveredClass);
+    }
+
+    /**
+     * Returns whether the passed in class implements {@link com.raizlabs.android.dbflow.converter.ForeignKeyConverter}
+     *
+     * @param discoveredClass
+     * @return true if class can be assigned to ForeignKeyConverter
+     */
+    public static boolean implementsForeignKeyConverter(Class discoveredClass) {
+        return ForeignKeyConverter.class.isAssignableFrom(discoveredClass);
     }
 }
