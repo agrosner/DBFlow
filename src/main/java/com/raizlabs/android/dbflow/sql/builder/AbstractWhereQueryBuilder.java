@@ -2,7 +2,9 @@ package com.raizlabs.android.dbflow.sql.builder;
 
 import android.database.DatabaseUtils;
 
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.TableStructure;
 
@@ -16,16 +18,13 @@ import java.util.List;
  */
 public abstract class AbstractWhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<AbstractWhereQueryBuilder> {
 
-    private Class<ModelClass> mModelClass;
-
     private TableStructure<ModelClass> mTableStructure;
 
     private List<String> mFieldNames;
 
     public AbstractWhereQueryBuilder(Class<ModelClass> tableClass) {
 
-        mModelClass = tableClass;
-        mTableStructure = FlowManager.getCache().getStructure().getTableStructureForClass(tableClass);
+        mTableStructure = FlowManager.getTableStructureForClass(tableClass);
 
         mFieldNames = getFieldNames(mTableStructure);
 
@@ -54,7 +53,7 @@ public abstract class AbstractWhereQueryBuilder<ModelClass extends Model> extend
      * @param fieldValues the array of field values as strings
      * @return The full SQL query with the "?" filled in.
      */
-    public String getWhereQueryForModel(String[] fieldValues) {
+    public String getWhereQueryForArgs(String[] fieldValues) {
         String query = getQuery();
 
         for (int i = 0; i < fieldValues.length; i++) {
@@ -73,5 +72,63 @@ public abstract class AbstractWhereQueryBuilder<ModelClass extends Model> extend
             }
         }
         return query;
+    }
+
+    /**
+     * Builds the "where" query section for the model with it's {@link com.raizlabs.android.dbflow.converter.TypeConverter}
+     * values.
+     * @param model
+     * @return
+     */
+    public String getWhereQueryForModel(ModelClass model) {
+        String sql = getQuery();
+
+        int size = mFieldNames.size();
+        for(int i = 0; i < size; i++){
+            final Field field = mTableStructure.getField(mFieldNames.get(i));
+            field.setAccessible(true);
+            try {
+                Object object = field.get(model);
+                if(object==null){
+                    throw new PrimaryKeyCannotBeNullException("The primary key: " + field.getName()
+                            + "from " + mTableStructure.getTableName() + " cannot be null.");
+                } else {
+                    final TypeConverter typeSerializer = FlowManager.getCache()
+                            .getStructure().getTypeConverterForClass(field.getType());
+                    if (typeSerializer != null) {
+                        // serialize data
+                        object = typeSerializer.getDBValue(object);
+                        // set new object type
+                        if (object != null) {
+                            Class fieldType = object.getClass();
+                            // check that the serializer returned what it promised
+                            if (!fieldType.equals(typeSerializer.getDatabaseType())) {
+                                FlowLog.w(getClass().getSimpleName(), String.format("TypeSerializer returned wrong type: expected a %s but got a %s",
+                                        typeSerializer.getDatabaseType(), fieldType));
+                            }
+                        }
+                    }
+
+                    if (object instanceof Number) {
+                        sql = sql.replaceFirst("\\?", object.toString());
+                    } else {
+                        String escaped = DatabaseUtils.sqlEscapeString(object.toString());
+
+                        sql = sql.replaceFirst("\\?", escaped);
+                    }
+                }
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return sql;
+    }
+
+    public List<String> getFieldNames() {
+        return mFieldNames;
+    }
+
+    public TableStructure<ModelClass> getTableStructure() {
+        return mTableStructure;
     }
 }

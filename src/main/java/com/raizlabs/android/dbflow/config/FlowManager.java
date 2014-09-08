@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.TableStructure;
 
 /**
  * Author: andrewgrosner
@@ -14,11 +16,22 @@ import com.raizlabs.android.dbflow.cache.ModelCache;
  */
 public class FlowManager {
 
+    private static boolean isInitialized = false;
+
     private static ModelCache cache;
 
     public static void initialize(DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
-        cache = new ModelCache();
-        cache.initialize(dbConfiguration, databaseHelperListener);
+        if(!isInitialized) {
+            getCache().initialize(dbConfiguration, databaseHelperListener);
+        } else {
+            FlowLog.v(FlowManager.class.getSimpleName(), "DBFlow is already initialized.");
+        }
+    }
+
+    public static void destroy() {
+        getCache().destroy();
+        cache = null;
+        isInitialized = false;
     }
 
     public static ModelCache getCache() {
@@ -38,6 +51,10 @@ public class FlowManager {
 
     public static SQLiteDatabase getWritableDatabase() {
         return getSqlHelper().getWritableDatabase();
+    }
+
+    public static <ModelClass extends Model> TableStructure getTableStructureForClass(Class<ModelClass> modelClass) {
+        return getCache().getStructure().getTableStructureForClass(modelClass);
     }
 
     /**

@@ -36,6 +36,8 @@ public class ModelCache {
 
         mHelper = new FlowSQLiteOpenHelper(dbConfiguration);
         mHelper.setDatabaseListener(helperListener);
+
+        getHelper().getWritableDatabase();
     }
 
     public DBConfiguration getDbConfiguration() {
@@ -52,5 +54,9 @@ public class ModelCache {
 
     public FlowSQLiteOpenHelper getHelper() {
         return mHelper;
+    }
+
+    public void destroy() {
+        mHelper.close();
     }
 }

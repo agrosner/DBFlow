@@ -119,7 +119,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private void checkForeignKeySupport(SQLiteDatabase database) {
         if(foreignKeysSupported) {
             database.execSQL("PRAGMA foreign_keys=ON;");
-            //AALog.i("Foreign Keys supported. Enabling foreign key features.");
+            FlowLog.i(getClass().getSimpleName(), "Foreign Keys supported. Enabling foreign key features.");
         }
     }
 

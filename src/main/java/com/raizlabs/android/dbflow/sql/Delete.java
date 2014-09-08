@@ -13,8 +13,8 @@ public class Delete implements Query {
     public Delete() {
     }
 
-    public From from(Class<? extends Model> table) {
-        return new From(this, table);
+    public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
+        return new From<ModelClass>(this, table);
     }
 
     @Override

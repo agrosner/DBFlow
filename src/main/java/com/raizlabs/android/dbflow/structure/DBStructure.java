@@ -1,23 +1,28 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.location.Location;
+
 import com.raizlabs.android.core.AppContext;
-import com.raizlabs.android.core.StringUtils;
 import com.raizlabs.android.dbflow.ReflectionUtils;
 import com.raizlabs.android.dbflow.config.DBConfiguration;
+import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.converter.CalendarConverter;
+import com.raizlabs.android.dbflow.converter.DateConverter;
+import com.raizlabs.android.dbflow.converter.DefaultForeignKeyConverter;
+import com.raizlabs.android.dbflow.converter.ForeignKeyConverter;
+import com.raizlabs.android.dbflow.converter.LocationConverter;
+import com.raizlabs.android.dbflow.converter.SqlDateConverter;
+import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.PrimaryWhereQueryBuilder;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import dalvik.system.DexFile;
 
 /**
  * Author: andrewgrosner
@@ -28,6 +33,17 @@ import dalvik.system.DexFile;
 public class DBStructure {
 
     private Map<Class<? extends Model>, TableStructure> mTableStructure;
+
+    private Map<Class<?>, TypeConverter> mTypeConverters = new HashMap<Class<?>, TypeConverter>() {
+        {
+            put(Calendar.class, new CalendarConverter());
+            put(java.sql.Date.class, new SqlDateConverter());
+            put(java.util.Date.class, new DateConverter());
+            put(Location.class, new LocationConverter());
+        }
+    };
+
+    private Map<Class<?>, ForeignKeyConverter> mForeignKeyConverters = new HashMap<Class<?>, ForeignKeyConverter>();
 
     private Map<Class<? extends Model>, PrimaryWhereQueryBuilder> mPrimaryWhereQueryBuilderMap;
 
@@ -48,10 +64,9 @@ public class DBStructure {
             modelList = dbConfiguration.getModelClasses();
         } else {
             try {
-                modelList = generateModelFromSource();
+                modelList = StructureUtils.generateModelFromSource();
             } catch (IOException e) {
-                //TODO: add logging
-                e.printStackTrace();
+                FlowLog.e(getClass().getSimpleName(), e.getMessage(), e);
             }
         }
 
@@ -68,135 +83,59 @@ public class DBStructure {
         return getTableStructure().get(modelClass);
     }
 
+    @SuppressWarnings("unchecked")
+    public <ModelClass> TypeConverter<?, ModelClass> getTypeConverterForClass(Class<ModelClass> modelClass) {
+        return mTypeConverters.get(modelClass);
+    }
+
+    void putTypeConverterForClass(Class typeConverterClass) {
+        try {
+            TypeConverter typeConverter = (TypeConverter) typeConverterClass.newInstance();
+            mTypeConverters.put(typeConverterClass, typeConverter);
+        } catch (Throwable e) {
+            FlowLog.e(DBStructure.class.getSimpleName(), e.getMessage(), e);
+        }
+    }
+
     /**
      * Returns the Where Primary key query string from the cache for a specific model.
+     *
      * @param modelTable
      * @return
      */
     @SuppressWarnings("unchecked")
     public <ModelClass extends Model> AbstractWhereQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> modelTable) {
         AbstractWhereQueryBuilder<ModelClass> abstractWhereQueryBuilder = getWhereQueryBuilderMap().get(modelTable);
-        if(abstractWhereQueryBuilder == null ){
+        if (abstractWhereQueryBuilder == null) {
             abstractWhereQueryBuilder = new PrimaryWhereQueryBuilder<ModelClass>(modelTable);
-            getWhereQueryBuilderMap().put(modelTable, abstractWhereQueryBuilder);
+            getWhereQueryBuilderMap().put(modelTable, (PrimaryWhereQueryBuilder) abstractWhereQueryBuilder);
         }
         return abstractWhereQueryBuilder;
     }
 
-    private List<Class<? extends Model>> generateModelFromSource() throws IOException {
-        String packageName = AppContext.getInstance().getPackageName();
-
-        String sourcePath = AppContext.getInstance().getApplicationInfo().sourceDir;
-
-        List<String> paths = new ArrayList<String>();
-
-        if (StringUtils.isNotNullOrEmpty(sourcePath)
-                && !(new File(sourcePath).isDirectory())) {
-            DexFile dexFile = new DexFile(sourcePath);
-            Enumeration<String> entries = dexFile.entries();
-
-            while (entries.hasMoreElements()) {
-                String path = entries.nextElement();
-                for (String modelPath : ModelPathManager.getPaths()) {
-                    if (path.startsWith(modelPath)) {
-                        paths.add(path);
-                        break;
-                    }
-                }
-            }
-
-            dexFile.close();
-        } else {
-
-            // RoboElectric fallback
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            Enumeration<URL> resources = classLoader.getResources("");
-
-            while (resources.hasMoreElements()) {
-                String path = resources.nextElement().getFile();
-                if (path.contains("bin") || path.contains("classes")) {
-                    paths.add(path);
-                }
-            }
+    /**
+     * Returns either the specified {@link com.raizlabs.android.dbflow.converter.ForeignKeyConverter} or the
+     * {@link com.raizlabs.android.dbflow.converter.DefaultForeignKeyConverter} if not found.
+     * @param modelClass
+     * @return
+     */
+    public ForeignKeyConverter getForeignKeyConverterForclass(Class<? extends Model> modelClass) {
+        ForeignKeyConverter foreignKeyConverter = getForeignKeyConverterMap().get(modelClass);
+        if (foreignKeyConverter == null) {
+            foreignKeyConverter = DefaultForeignKeyConverter.getSharedConverter();
         }
-
-        List<Class<? extends Model>> modelClasses = new ArrayList<Class<? extends Model>>();
-        for (String path : paths) {
-            File modelFile = new File(path);
-            addModelClassesFromSource(modelFile, packageName, modelClasses);
-        }
-
-        return modelClasses;
-    }
-
-    private void addModelClassesFromSource(File modelFile, String packageName,
-                                           List<Class<? extends Model>> modelClasses) {
-        ClassLoader classLoader = AppContext.getInstance().getClassLoader();
-
-        if (modelFile.isDirectory()) {
-            File[] modelFiles = modelFile.listFiles();
-            for (File file : modelFiles) {
-                addModelClassesFromSource(file, packageName, modelClasses);
-            }
-        } else {
-            String className = modelFile.getName();
-
-            // RoboElectric fallback
-            if (!modelFile.getPath().equals(className)) {
-                className = modelFile.getPath();
-
-                if (className.endsWith(".class")) {
-                    className = className.substring(0, className.length() - 6);
-                } else {
-                    return;
-                }
-
-                className = className.replace("/", "");
-
-                int packageNameIndex = className.lastIndexOf(packageName);
-                if (packageNameIndex < 0) {
-                    return;
-                }
-
-                className = className.substring(packageNameIndex);
-            }
-
-            try {
-                Class<?> discoveredClass = Class.forName(className, false, classLoader);
-
-                // First checks if it implements model, then if its not abstract class,
-                // then if its not the Model class itself, and then if its not ignored
-                if (ReflectionUtils.implementsModel(discoveredClass) &&
-                        !Modifier.isAbstract(discoveredClass.getModifiers())
-                        && !discoveredClass.equals(Model.class)
-                        && !discoveredClass.isAnnotationPresent(Ignore.class)) {
-                    @SuppressWarnings("unchecked")
-                    Class<? extends Model> modelClass = (Class<? extends Model>) discoveredClass;
-                    modelClasses.add(modelClass);
-                }
-
-                // TODO: add TypeConverters
-                /*else if (ReflectionUtils.isTypeSerializer(discoveredClass) && !discoveredClass.isAnnotationPresent(Ignore.class)) {
-                    TypeSerializer instance = (TypeSerializer) discoveredClass.newInstance();
-                    mTypeSerializers.put(instance.getDeserializedType(), instance);
-                }*/
-            } catch (ClassNotFoundException e) {
-                //AALog.e("Couldn't create class.", e);
-            } catch (InstantiationException e) {
-                //AALog.e("Couldn't instantiate TypeSerializer.", e);
-            } catch (IllegalAccessException e) {
-                //AALog.e("IllegalAccessException", e);
-            }
-        }
-
-
+        return foreignKeyConverter;
     }
 
     public Map<Class<? extends Model>, TableStructure> getTableStructure() {
         return mTableStructure;
     }
 
-    public Map<Class<? extends Model>, AbstractWhereQueryBuilder> getWhereQueryBuilderMap() {
+    public Map<Class<? extends Model>, PrimaryWhereQueryBuilder> getWhereQueryBuilderMap() {
         return mPrimaryWhereQueryBuilderMap;
+    }
+
+    public Map<Class<?>, ForeignKeyConverter> getForeignKeyConverterMap() {
+        return mForeignKeyConverters;
     }
 }

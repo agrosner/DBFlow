@@ -67,8 +67,8 @@ public class From<ModelClass extends Model> implements Query{
         return this;
     }
 
-    public From<ModelClass> where(AbstractWhereQueryBuilder abstractWhereQueryBuilder, String[] primaries) {
-        mWhere = abstractWhereQueryBuilder.getWhereQueryForModel(primaries);
+    public From<ModelClass> where(AbstractWhereQueryBuilder<ModelClass> abstractWhereQueryBuilder, String...fieldValues) {
+        mWhere = abstractWhereQueryBuilder.getWhereQueryForArgs(fieldValues);
         return this;
     }
 

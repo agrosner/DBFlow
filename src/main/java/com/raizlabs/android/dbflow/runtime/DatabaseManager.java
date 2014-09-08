@@ -257,7 +257,17 @@ public class DatabaseManager {
     // region Database Save methods
 
     /**
-     * Saves al of the passed in models to the {@link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}.
+     * Saves the passed in model to the {@link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}.
+     * This method is recommended for saving large amounts of continuous data as to batch up as much data as possible in a save.
+     * @param model The model to save
+     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
+     */
+    public <ModelClass extends Model> void saveOnSaveQueue(ModelClass model) {
+        getSaveQueue().add(model);
+    }
+
+    /**
+     * Saves all of the passed in models to the {@link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}.
      * This method is recommended for saving large amounts of continuous data as to batch up as much data as possible in a save.
      * @param models The list of models to save
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
@@ -307,16 +317,17 @@ public class DatabaseManager {
     }
 
     /**
-     * Deletes all of the models in the specified table with the {@link com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction.DeleteWhereArgs}
+     * Deletes all of the models in the specified table with the {@link com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder}
      * on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param transctionInfo The information on how we should approach this request.
-     * @param deleteWhereArgs The arguments of the deletion
+     * @param whereQueryBuilder The where arguments of the deletion
      * @param table The table to delete models from.
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void deleteModelsWithQuery(DBTransactionInfo transctionInfo,
-                                                                 DeleteTransaction.DeleteWhereArgs deleteWhereArgs, Class<ModelClass> table) {
-        addTransaction(new DeleteTransaction<ModelClass>(transctionInfo, deleteWhereArgs, table));
+                                                                 AbstractWhereQueryBuilder<ModelClass> whereQueryBuilder,
+                                                                 Class<ModelClass> table) {
+        addTransaction(new DeleteTransaction<ModelClass>(transctionInfo, whereQueryBuilder, table));
     }
 
     /**

@@ -194,6 +194,10 @@ public class TableStructure<ModelType extends Model> {
         return mColumnNames.get(field);
     }
 
+    public Set<Field> getColumns() {
+        return mColumnNames.keySet();
+    }
+
     public Collection<Field> getForeignKeys() {
         return mForeignKeys.values();
     }

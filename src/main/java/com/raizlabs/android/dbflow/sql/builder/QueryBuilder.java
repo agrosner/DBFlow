@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.structure.SQLiteType;
 
+import java.util.List;
+
 /**
  * Author: andrewgrosner
  * Contributors: { }
@@ -37,6 +39,10 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     public QueryClass appendArray(Object[] objects) {
+        return append(TextUtils.join(", ", objects));
+    }
+
+    public QueryClass appendList(List<?> objects) {
         return append(TextUtils.join(", ", objects));
     }
 
