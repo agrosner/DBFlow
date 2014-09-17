@@ -61,7 +61,7 @@ public class DBTransactionQueue extends Thread{
                     final BaseTransaction finalTransaction = transaction;
 
                     // Run the result on the FG
-                    DatabaseManager.getSharedInstance().processOnForeground(new Runnable() {
+                    DatabaseManager.getSharedInstance().processOnRequestHandler(new Runnable() {
                         @Override
                         public void run() {
                             finalTransaction.onPostExecute(result);

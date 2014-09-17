@@ -46,6 +46,13 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
         return append(TextUtils.join(", ", objects));
     }
 
+    public QueryClass appendQualifier(String name, String value) {
+        if(!TextUtils.isEmpty(value)) {
+            append(name).appendSpaceSeparated(value);
+        }
+        return castThis();
+    }
+
     @SuppressWarnings("unchecked")
     protected QueryClass castThis() {
         return (QueryClass) this;

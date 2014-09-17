@@ -66,11 +66,7 @@ public class ReflectionUtils {
 
     public static boolean isSubclassOf(Class type, Class superClass) {
         if (type.getSuperclass() != null) {
-            if (type.getSuperclass().equals(superClass)) {
-                return true;
-            }
-
-            return isSubclassOf(type.getSuperclass(), superClass);
+            return type.getSuperclass().equals(superClass) || isSubclassOf(type.getSuperclass(), superClass);
         }
 
         return false;

@@ -12,8 +12,7 @@ import com.raizlabs.android.dbflow.converter.JsonConverter;
 import com.raizlabs.android.dbflow.converter.LocationConverter;
 import com.raizlabs.android.dbflow.converter.SqlDateConverter;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
-import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.PrimaryWhereQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.WhereQueryBuilder;
 
 import org.json.JSONObject;
 
@@ -47,12 +46,12 @@ public class DBStructure {
 
     private Map<Class<?>, ForeignKeyConverter> mForeignKeyConverters = new HashMap<Class<?>, ForeignKeyConverter>();
 
-    private Map<Class<? extends Model>, PrimaryWhereQueryBuilder> mPrimaryWhereQueryBuilderMap;
+    private Map<Class<? extends Model>, WhereQueryBuilder> mPrimaryWhereQueryBuilderMap;
 
 
     public DBStructure(DBConfiguration dbConfiguration) {
         mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
-        mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, PrimaryWhereQueryBuilder>();
+        mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, WhereQueryBuilder>();
         mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
 
         initializeStructure(dbConfiguration);
@@ -84,7 +83,8 @@ public class DBStructure {
         }
     }
 
-    public TableStructure getTableStructureForClass(Class<? extends Model> modelClass) {
+    @SuppressWarnings("unchecked")
+    public <ModelClass extends Model> TableStructure<ModelClass> getTableStructureForClass(Class<ModelClass> modelClass) {
         return getTableStructure().get(modelClass);
     }
 
@@ -109,13 +109,13 @@ public class DBStructure {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <ModelClass extends Model> AbstractWhereQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> modelTable) {
-        AbstractWhereQueryBuilder<ModelClass> abstractWhereQueryBuilder = getWhereQueryBuilderMap().get(modelTable);
-        if (abstractWhereQueryBuilder == null) {
-            abstractWhereQueryBuilder = new PrimaryWhereQueryBuilder<ModelClass>(modelTable);
-            getWhereQueryBuilderMap().put(modelTable, (PrimaryWhereQueryBuilder) abstractWhereQueryBuilder);
+    public <ModelClass extends Model> WhereQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> modelTable) {
+        WhereQueryBuilder<ModelClass> whereQueryBuilder = getWhereQueryBuilderMap().get(modelTable);
+        if (whereQueryBuilder == null) {
+            whereQueryBuilder = new WhereQueryBuilder<ModelClass>(modelTable).emptyPrimaryParams();
+            getWhereQueryBuilderMap().put(modelTable, whereQueryBuilder);
         }
-        return abstractWhereQueryBuilder;
+        return whereQueryBuilder;
     }
 
     /**
@@ -145,7 +145,7 @@ public class DBStructure {
         return mTableStructure;
     }
 
-    public Map<Class<? extends Model>, PrimaryWhereQueryBuilder> getWhereQueryBuilderMap() {
+    public Map<Class<? extends Model>, WhereQueryBuilder> getWhereQueryBuilderMap() {
         return mPrimaryWhereQueryBuilderMap;
     }
 

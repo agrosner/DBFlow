@@ -53,7 +53,7 @@ public class FlowManager {
         return getSqlHelper().getWritableDatabase();
     }
 
-    public static <ModelClass extends Model> TableStructure getTableStructureForClass(Class<ModelClass> modelClass) {
+    public static <ModelClass extends Model> TableStructure<ModelClass> getTableStructureForClass(Class<ModelClass> modelClass) {
         return getCache().getStructure().getTableStructureForClass(modelClass);
     }
 

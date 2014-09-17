@@ -22,5 +22,5 @@ public interface ForeignKeyConverter<ModelClass extends Model> {
      * @param dbValue
      * @return
      */
-    public String[] getForeignKeys(String dbValue);
+    public Object[] getForeignKeys(String dbValue);
 }

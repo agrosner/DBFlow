@@ -2,34 +2,34 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.sql.Delete;
-import com.raizlabs.android.dbflow.sql.From;
-import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
+import com.raizlabs.android.dbflow.sql.Where;
+import com.raizlabs.android.dbflow.sql.builder.WhereQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Runs a delete command on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
  */
 public class DeleteTransaction<ModelClass extends Model> extends BaseTransaction<Void> {
 
 
-    private From<ModelClass> mFrom;
+    private Where<ModelClass> Where;
 
     public DeleteTransaction(DBTransactionInfo dbTransactionInfo, Class<ModelClass> table) {
         super(dbTransactionInfo);
-        mFrom = new Delete().from(table);
+        Where = new Delete().from(table).where();
     }
 
-    public DeleteTransaction(DBTransactionInfo dbTransactionInfo, AbstractWhereQueryBuilder<ModelClass> whereArgs,
-                             Class<ModelClass> table, String... args) {
+    public DeleteTransaction(DBTransactionInfo dbTransactionInfo, Class<ModelClass> table,
+                             WhereQueryBuilder<ModelClass> whereArgs) {
         super(dbTransactionInfo);
-        mFrom = new Delete().from(table).where(whereArgs, args);
+        Where = new Delete().from(table).where().whereQuery(whereArgs);
     }
 
     @Override
     public Void onExecute() {
-        mFrom.query();
+        Where.query();
         return null;
     }
 

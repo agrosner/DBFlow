@@ -213,4 +213,8 @@ public class TableStructure<ModelType extends Model> {
     public Field getField(String name) {
         return mFieldFromNames.get(name);
     }
+
+    public Class<ModelType> getModelType() {
+        return mModelType;
+    }
 }

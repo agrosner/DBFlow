@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.runtime;
 
 import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
 import com.raizlabs.android.dbflow.sql.Select;
-import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.WhereQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -39,23 +39,23 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
     }
 
     public void selectAllFromTable(ResultReceiver<List<ModelClass>> resultReceiver) {
-        super.selectAllFromTable(mTableClass, resultReceiver);
+        super.fetchAllFromTable(mTableClass, resultReceiver);
     }
 
     public void selectFromTable(Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
-        super.selectFromTable(mTableClass, select, resultReceiver);
+        super.fetchFromTable(mTableClass, select, resultReceiver);
     }
 
-    public ModelClass selectModelWithWhere(AbstractWhereQueryBuilder<ModelClass> whereQueryBuilder, String... values) {
-        return super.selectModelWithWhere(mTableClass, whereQueryBuilder, values);
+    public ModelClass selectModelWithWhere(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
+        return super.selectModelWithWhere(mTableClass, whereQueryBuilder);
     }
 
     public ModelClass selectModelById(String... ids) {
         return super.selectModelById(mTableClass, ids);
     }
 
-    public void selectModelWithWhere(ResultReceiver<ModelClass> resultReceiver, AbstractWhereQueryBuilder<ModelClass> whereQueryBuilder, String... ids) {
-        super.selectModelWithWhere(mTableClass, resultReceiver, whereQueryBuilder, ids);
+    public void selectModelWithWhere(ResultReceiver<ModelClass> resultReceiver, WhereQueryBuilder<ModelClass> whereQueryBuilder) {
+        super.selectModelWithWhere(mTableClass, resultReceiver, whereQueryBuilder);
     }
 
     public void selectModelById(ResultReceiver<ModelClass> resultReceiver, String... ids) {
@@ -67,7 +67,7 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
     }
 
     public void deleteModelsWithQuery(DBTransactionInfo transctionInfo,
-                                      AbstractWhereQueryBuilder<ModelClass> abstractWhereQueryBuilder) {
-        super.deleteModelsWithQuery(transctionInfo, abstractWhereQueryBuilder, mTableClass);
+                                      WhereQueryBuilder<ModelClass> whereQueryBuilder) {
+        super.deleteModelsWithQuery(transctionInfo, mTableClass, whereQueryBuilder);
     }
 }

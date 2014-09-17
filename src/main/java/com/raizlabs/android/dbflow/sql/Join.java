@@ -14,7 +14,7 @@ public class Join implements Query {
         LEFT,
         OUTER,
         INNER,
-        CROSS;
+        CROSS
     }
 
     private Class<? extends Model> mTable;
@@ -42,12 +42,6 @@ public class Join implements Query {
 
     public From on(String on) {
         mOn = on;
-        return mFrom;
-    }
-
-    public From on(String on, Object... args) {
-        mOn = on;
-        mFrom.addArguments(args);
         return mFrom;
     }
 
