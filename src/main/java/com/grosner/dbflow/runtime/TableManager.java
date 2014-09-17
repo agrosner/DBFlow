@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: This class manages a single table, wrapping all of the
+ * Description: This class manages a single table, wrapping all of the relevant
  * {@link com.grosner.dbflow.runtime.DatabaseManager} operations with the {@link ModelClass}
  */
 public class TableManager<ModelClass extends Model> extends DatabaseManager {
@@ -38,11 +38,11 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
         this.mTableClass = mTableClass;
     }
 
-    public void selectAllFromTable(ResultReceiver<List<ModelClass>> resultReceiver) {
+    public void fetchAllFromTable(ResultReceiver<List<ModelClass>> resultReceiver) {
         super.fetchAllFromTable(mTableClass, resultReceiver);
     }
 
-    public void selectFromTable(Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
+    public void fetchFromTable(Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
         super.fetchFromTable(mTableClass, select, resultReceiver);
     }
 
@@ -50,7 +50,7 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
         return super.selectModelWithWhere(mTableClass, whereQueryBuilder);
     }
 
-    public ModelClass selectModelById(String... ids) {
+    public ModelClass selectModelById(Object... ids) {
         return super.selectModelById(mTableClass, ids);
     }
 
@@ -58,7 +58,7 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
         super.selectModelWithWhere(mTableClass, resultReceiver, whereQueryBuilder);
     }
 
-    public void selectModelById(ResultReceiver<ModelClass> resultReceiver, String... ids) {
+    public void selectModelById(ResultReceiver<ModelClass> resultReceiver, Object... ids) {
         super.selectModelById(mTableClass, resultReceiver, ids);
     }
 
@@ -66,8 +66,8 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
         super.deleteTable(transactionInfo, mTableClass);
     }
 
-    public void deleteModelsWithQuery(DBTransactionInfo transctionInfo,
-                                      WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        super.deleteModelsWithQuery(transctionInfo, mTableClass, whereQueryBuilder);
+    public void deleteModelsWithQuery(DBTransactionInfo transactionInfo, WhereQueryBuilder<ModelClass> whereQueryBuilder) {
+        super.deleteModelsWithQuery(transactionInfo, mTableClass, whereQueryBuilder);
     }
+
 }
