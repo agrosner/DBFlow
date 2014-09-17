@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.runtime;
 
-import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
 import com.raizlabs.android.dbflow.sql.Select;
 import com.raizlabs.android.dbflow.sql.builder.AbstractWhereQueryBuilder;
@@ -30,11 +29,14 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
         this.mTableClass = mTableClass;
     }
 
+    /**
+     * Constructs a new instance.
+     * @param mTableClass The table class this manager corresponds to
+     */
     public TableManager(Class<ModelClass> mTableClass) {
         super(mTableClass.getSimpleName(), false);
         this.mTableClass = mTableClass;
     }
-
 
     public void selectAllFromTable(ResultReceiver<List<ModelClass>> resultReceiver) {
         super.selectAllFromTable(mTableClass, resultReceiver);
@@ -42,6 +44,22 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
 
     public void selectFromTable(Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
         super.selectFromTable(mTableClass, select, resultReceiver);
+    }
+
+    public ModelClass selectModelWithWhere(AbstractWhereQueryBuilder<ModelClass> whereQueryBuilder, String... values) {
+        return super.selectModelWithWhere(mTableClass, whereQueryBuilder, values);
+    }
+
+    public ModelClass selectModelById(String... ids) {
+        return super.selectModelById(mTableClass, ids);
+    }
+
+    public void selectModelWithWhere(ResultReceiver<ModelClass> resultReceiver, AbstractWhereQueryBuilder<ModelClass> whereQueryBuilder, String... ids) {
+        super.selectModelWithWhere(mTableClass, resultReceiver, whereQueryBuilder, ids);
+    }
+
+    public void selectModelById(ResultReceiver<ModelClass> resultReceiver, String... ids) {
+        super.selectModelById(mTableClass, resultReceiver, ids);
     }
 
     public void deleteTable(DBTransactionInfo transactionInfo) {

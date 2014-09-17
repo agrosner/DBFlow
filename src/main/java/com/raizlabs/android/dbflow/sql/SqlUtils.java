@@ -119,7 +119,7 @@ public class SqlUtils {
         } catch (IllegalArgumentException i) {
             throw new RuntimeException("Default constructor for: " + table.getName() + " was not found.");
         } catch (Exception e) {
-            FlowLog.e(SqlUtils.class.getSimpleName(), "Failed to process cursor.", e);
+            FlowLog.log(FlowLog.Level.E, "Failed to process cursor.", e);
         }
 
         return entities;
@@ -158,7 +158,7 @@ public class SqlUtils {
                                 fieldType = value.getClass();
                                 // check that the serializer returned what it promised
                                 if (!fieldType.equals(typeSerializer.getDatabaseType())) {
-                                    FlowLog.w(SqlUtils.class.getSimpleName(), String.format("TypeSerializer returned wrong type: expected a %s but got a %s",
+                                    FlowLog.log(FlowLog.Level.W, String.format(TypeConverter.class.getSimpleName() + " returned wrong type: expected a %s but got a %s",
                                             typeSerializer.getDatabaseType(), fieldType));
                                 }
                             }
@@ -201,9 +201,9 @@ public class SqlUtils {
                         values.put(fieldName, ((Enum<?>) value).name());
                     }
                 } catch (IllegalArgumentException e) {
-                    FlowLog.e(SqlUtils.class.getSimpleName(), e.getClass().getName(), e);
+                    FlowLog.logError(e);
                 } catch (IllegalAccessException e) {
-                    FlowLog.e(SqlUtils.class.getSimpleName(), e.getClass().getName(), e);
+                    FlowLog.logError(e);
                 }
             }
 
@@ -314,11 +314,11 @@ public class SqlUtils {
                     field.set(model, value);
                 }
             } catch (IllegalArgumentException e) {
-                FlowLog.e(SqlUtils.class.getSimpleName(), e.getClass().getName(), e);
+                FlowLog.logError(e);
             } catch (IllegalAccessException e) {
-                FlowLog.e(SqlUtils.class.getSimpleName(), e.getClass().getName(), e);
+                FlowLog.logError(e);
             } catch (SecurityException e) {
-                FlowLog.e(SqlUtils.class.getSimpleName(), e.getClass().getName(), e);
+                FlowLog.logError(e);
             }
         }
     }

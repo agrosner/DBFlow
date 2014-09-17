@@ -31,7 +31,7 @@ public class JsonConverter implements TypeConverter<String,JSONObject> {
         try {
             return new JSONObject(data);
         } catch (JSONException e) {
-            FlowLog.e(JsonConverter.class.getSimpleName(), e.getMessage(), e);
+            FlowLog.logError(e);
             return null;
         }
     }

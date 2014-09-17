@@ -43,6 +43,8 @@ public class DBStructure {
         }
     };
 
+    private Map<Class<? extends ModelView>, ModelView> mModelViews;
+
     private Map<Class<?>, ForeignKeyConverter> mForeignKeyConverters = new HashMap<Class<?>, ForeignKeyConverter>();
 
     private Map<Class<? extends Model>, PrimaryWhereQueryBuilder> mPrimaryWhereQueryBuilderMap;
@@ -51,6 +53,9 @@ public class DBStructure {
     public DBStructure(DBConfiguration dbConfiguration) {
         mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
         mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, PrimaryWhereQueryBuilder>();
+        mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
+
+        initializeStructure(dbConfiguration);
     }
 
     /**
@@ -66,7 +71,7 @@ public class DBStructure {
             try {
                 modelList = StructureUtils.generateModelFromSource();
             } catch (IOException e) {
-                FlowLog.e(getClass().getSimpleName(), e.getMessage(), e);
+                FlowLog.logError(e);
             }
         }
 
@@ -93,7 +98,7 @@ public class DBStructure {
             TypeConverter typeConverter = (TypeConverter) typeConverterClass.newInstance();
             mTypeConverters.put(typeConverter.getModelType(), typeConverter);
         } catch (Throwable e) {
-            FlowLog.e(DBStructure.class.getSimpleName(), e.getMessage(), e);
+            FlowLog.logError(e);
         }
     }
 
@@ -132,7 +137,7 @@ public class DBStructure {
             ForeignKeyConverter foreignKeyConverter = foreignKeyConverterClass.newInstance();
             mForeignKeyConverters.put(foreignKeyConverter.getModelClass(), foreignKeyConverter);
         } catch (Throwable e) {
-            FlowLog.e(DBStructure.class.getSimpleName(), e.getMessage(), e);
+            FlowLog.logError(e);
         }
     }
 
@@ -148,4 +153,7 @@ public class DBStructure {
         return mForeignKeyConverters;
     }
 
+    public Map<Class<? extends ModelView>, ModelView> getModelViews() {
+        return mModelViews;
+    }
 }

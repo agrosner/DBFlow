@@ -24,7 +24,7 @@ public class FlowManager {
         if(!isInitialized) {
             getCache().initialize(dbConfiguration, databaseHelperListener);
         } else {
-            FlowLog.v(FlowManager.class.getSimpleName(), "DBFlow is already initialized.");
+            FlowLog.log(FlowLog.Level.V, "DBFlow is already initialized.");
         }
     }
 

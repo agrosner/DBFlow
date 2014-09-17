@@ -93,18 +93,18 @@ public abstract class AbstractWhereQueryBuilder<ModelClass extends Model> extend
                     throw new PrimaryKeyCannotBeNullException("The primary key: " + field.getName()
                             + "from " + mTableStructure.getTableName() + " cannot be null.");
                 } else {
-                    final TypeConverter typeSerializer = FlowManager.getCache()
+                    final TypeConverter typeConverter = FlowManager.getCache()
                             .getStructure().getTypeConverterForClass(field.getType());
-                    if (typeSerializer != null) {
+                    if (typeConverter != null) {
                         // serialize data
-                        object = typeSerializer.getDBValue(object);
+                        object = typeConverter.getDBValue(object);
                         // set new object type
                         if (object != null) {
                             Class fieldType = object.getClass();
                             // check that the serializer returned what it promised
-                            if (!fieldType.equals(typeSerializer.getDatabaseType())) {
-                                FlowLog.w(getClass().getSimpleName(), String.format("TypeSerializer returned wrong type: expected a %s but got a %s",
-                                        typeSerializer.getDatabaseType(), fieldType));
+                            if (!fieldType.equals(typeConverter.getDatabaseType())) {
+                                FlowLog.log(FlowLog.Level.W, String.format(TypeConverter.class.getSimpleName() + " returned wrong type: expected a %s but got a %s",
+                                        typeConverter.getDatabaseType(), fieldType));
                             }
                         }
                     }

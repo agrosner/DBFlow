@@ -157,8 +157,8 @@ public class From<ModelClass extends Model> implements Query{
 
         // Don't wast time building the string
         // unless we're going to log it.
-        if (FlowLog.isEnabled()) {
-            FlowLog.v(getClass().getSimpleName(), queryBuilder.toString() + " " +
+        if (FlowLog.isEnabled(FlowLog.Level.V)) {
+            FlowLog.log(FlowLog.Level.V, queryBuilder.toString() + " " +
                     TextUtils.join(",", getArguments()));
         }
 

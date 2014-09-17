@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.config;
 
+import android.os.Build;
 import android.util.Log;
 
 /**
@@ -9,189 +10,126 @@ import android.util.Log;
  */
 public class FlowLog {
 
-    private static boolean sEnabled = false;
+    public static final String TAG = FlowLog.class.getSimpleName();
 
-    public static void setLoggingEnabled(boolean enabled) {
-        sEnabled = enabled;
-    }
-
-    public static boolean isEnabled() {
-        return sEnabled;
-    }
     /**
-     * Send a {@link android.util.Log#VERBOSE} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
+     * Defines a log level that will execute
      */
-    public static void v(String tag, String msg) {
-        if(sEnabled) {
-            Log.v(tag, msg);
+    public enum Level {
+        V {
+            @Override
+            void call(String tag, String message, Throwable throwable) {
+                Log.v(tag, message, throwable);
+            }
+        },
+        D {
+            @Override
+            void call(String tag, String message, Throwable throwable) {
+                Log.d(tag, message, throwable);
+            }
+        },
+        I {
+            @Override
+            void call(String tag, String message, Throwable throwable) {
+                Log.i(tag, message, throwable);
+            }
+        },
+        W {
+            @Override
+            void call(String tag, String message, Throwable throwable) {
+                Log.w(tag, message, throwable);
+            }
+        },
+        E {
+            @Override
+            void call(String tag, String message, Throwable throwable) {
+                Log.e(tag, message, throwable);
+            }
+        },
+        WTF {
+            @Override
+            void call(String tag, String message, Throwable throwable) {
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.FROYO) {
+                    Log.wtf(tag, message, throwable);
+                } else {
+                    // If on older platform, we will just exaggerate the log message in the error level
+                    Log.e(tag, "!!!!!!!!*******" + message + "********!!!!!!", throwable);
+                }
+            }
+        };
+
+        abstract void call(String tag, String message, Throwable throwable);
+    }
+
+    private static Level sLevel = Level.E;
+
+    /**
+     * Sets the minimum level that we wish to print out log statements with.
+     * The default is {@link com.raizlabs.android.dbflow.config.FlowLog.Level#E}.
+     * @param level
+     */
+    public static void setMinimumLoggingLevel(Level level) {
+        sLevel = level;
+    }
+
+    /**
+     * Returns true if the logging level is lower than the specified {@link com.raizlabs.android.dbflow.config.FlowLog.Level}
+     * @return
+     */
+    public static boolean isEnabled(Level level) {
+        return level.ordinal()>=sLevel.ordinal();
+    }
+
+    /**
+     * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
+     * @param level The log level to use
+     * @param tag The tag of the log
+     * @param message The message to print out
+     * @param throwable The optional stack trace to print
+     */
+    public static void log(Level level, String tag, String message, Throwable throwable) {
+        if (isEnabled(level)) {
+            level.call(tag, message, throwable);
         }
     }
 
     /**
-     * Send a {@link android.util.Log#VERBOSE} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
-     * @param tr An exception to log
+     * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
+     * It uses the {@link #TAG} for messages
+     * @param level The log level to use
+     * @param message The message to print out
+     * @param throwable The optional stack trace to print
      */
-    public static void v(String tag, String msg, Throwable tr) {
-        if(sEnabled) {
-            Log.v(tag, msg, tr);
-        }
+    public static void log(Level level, String message, Throwable throwable) {
+        log(level, TAG, message, throwable);
     }
 
     /**
-     * Send a {@link android.util.Log#DEBUG} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
+     * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
+     * It uses the {@link #TAG} for messages and sends a null throwable.
+     * @param level The log level to use
+     * @param message The message to print out
      */
-    public static void d(String tag, String msg) {
-        if(sEnabled) {
-            Log.d(tag, msg);
-        }
+    public static void log(Level level, String message) {
+        log(level, message, null);
     }
 
     /**
-     * Send a {@link android.util.Log#DEBUG} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
-     * @param tr An exception to log
+     * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
+     * It uses the {@link #TAG} for messages and sends an empty message
+     * @param level The log level to use
+     * @param throwable The stack trace to print
      */
-    public static void d(String tag, String msg, Throwable tr) {
-        if(sEnabled) {
-            Log.d(tag, msg, tr);
-        }
+    public static void log(Level level, Throwable throwable) {
+        log(level, TAG, "", throwable);
     }
 
     /**
-     * Send an {@link android.util.Log#INFO} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
+     * Logs a {@link java.lang.Throwable} as an error.
+     * @param throwable The stack trace to print
      */
-    public static void i(String tag, String msg) {
-        if(sEnabled) {
-            Log.i(tag, msg);
-        }
+    public static void logError(Throwable throwable) {
+        log(Level.E, throwable);
     }
 
-    /**
-     * Send a {@link android.util.Log#INFO} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
-     * @param tr An exception to log
-     */
-    public static void i(String tag, String msg, Throwable tr) {
-        if(sEnabled) {
-            Log.i(tag, msg, tr);
-        }
-    }
-
-    /**
-     * Send a {@link android.util.Log#WARN} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
-     */
-    public static void w(String tag, String msg) {
-        if(sEnabled) {
-            Log.w(tag, msg);
-        }
-    }
-
-    /**
-     * Send a {@link android.util.Log#WARN} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
-     * @param tr An exception to log
-     */
-    public static void w(String tag, String msg, Throwable tr) {
-        if(sEnabled) {
-            Log.w(tag, msg, tr);
-        }
-    }
-
-    /**
-     * Send a {@link android.util.Log#WARN} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param tr An exception to log
-     */
-    public static void w(String tag, Throwable tr) {
-        if(sEnabled) {
-            Log.w(tag, tr);
-        }
-    }
-
-    /**
-     * Send an {@link android.util.Log#ERROR} log message.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
-     */
-    public static void e(String tag, String msg) {
-        if(sEnabled) {
-            Log.e(tag, msg);
-        }
-    }
-
-    /**
-     * Send a {@link android.util.Log#ERROR} log message and log the exception.
-     * @param tag Used to identify the source of a log message.  It usually identifies
-     *        the class or activity where the log call occurs.
-     * @param msg The message you would like logged.
-     * @param tr An exception to log
-     */
-    public static void e(String tag, String msg, Throwable tr) {
-        if(sEnabled) {
-            Log.e(tag, msg, tr);
-        }
-    }
-
-    /**
-     * What a Terrible Failure: Report a condition that should never happen.
-     * The error will always be logged at level ASSERT with the call stack.
-     * Depending on system configuration, a report may be added to the
-     * {@link android.os.DropBoxManager} and/or the process may be terminated
-     * immediately with an error dialog.
-     * @param tag Used to identify the source of a log message.
-     * @param msg The message you would like logged.
-     */
-    public static void wtf(String tag, String msg) {
-        if(sEnabled) {
-            Log.wtf(tag, msg);
-        }
-    }
-
-    /**
-     * What a Terrible Failure: Report an exception that should never happen.
-     * Similar to {@link #wtf(String, String)}, with an exception to log.
-     * @param tag Used to identify the source of a log message.
-     * @param tr An exception to log.
-     */
-    public static void wtf(String tag, Throwable tr) {
-        if(sEnabled) {
-            Log.wtf(tag, tr);
-        }
-    }
-
-    /**
-     * What a Terrible Failure: Report an exception that should never happen.
-     * Similar to {@link #wtf(String, Throwable)}, with a message as well.
-     * @param tag Used to identify the source of a log message.
-     * @param msg The message you would like logged.
-     * @param tr An exception to log.  May be null.
-     */
-    public static void wtf(String tag, String msg, Throwable tr) {
-        if(sEnabled) {
-            Log.wtf(tag, msg, tr);
-        }
-    }
 }

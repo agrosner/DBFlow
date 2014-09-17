@@ -47,7 +47,7 @@ public class DefaultForeignKeyConverter implements ForeignKeyConverter {
                     query.append(",");
                 }
             } catch (IllegalAccessException e) {
-                FlowLog.e(getClass().getSimpleName(), e.getMessage(), e);
+                FlowLog.logError(e);
             }
             count++;
         }

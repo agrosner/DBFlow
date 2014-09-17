@@ -40,5 +40,5 @@ android {
 
 dependencies {
     raizJarCompile "android-support-v4", "com.android.support:support-v4:20.+"
-    raizCompile "Singleton", "Core"
+    raizCompile "Core"
 }

@@ -164,7 +164,7 @@ public class StructureUtils {
 
                 }
             } catch (ClassNotFoundException e) {
-                FlowLog.e(StructureUtils.class.getSimpleName(), "Couldn't create class.", e);
+                FlowLog.log(FlowLog.Level.E, "Couldn't create class with name: " + className, e);
             }
         }
 
