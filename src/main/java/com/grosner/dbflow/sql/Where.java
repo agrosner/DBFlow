@@ -52,7 +52,17 @@ public class Where<ModelClass extends Model> implements Query {
         return this;
     }
 
-    public Where<ModelClass> params(Map<String, String> params) {
+    public Where<ModelClass> param(String key, String operator, Object value) {
+        mWhereQueryBuilder.param(key, operator, value);
+        return this;
+    }
+
+    public Where<ModelClass> param(String key, WhereQueryBuilder.WhereArgs whereArgs) {
+        mWhereQueryBuilder.param(key, whereArgs);
+        return this;
+    }
+
+    public Where<ModelClass> params(Map<String, WhereQueryBuilder.WhereArgs> params) {
         mWhereQueryBuilder.params(params);
         return this;
     }
