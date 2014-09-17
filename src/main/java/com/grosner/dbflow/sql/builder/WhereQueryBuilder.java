@@ -5,6 +5,7 @@ import android.database.DatabaseUtils;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.TypeConverter;
+import com.grosner.dbflow.sql.Where;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.TableStructure;
 
@@ -21,6 +22,30 @@ import java.util.Set;
  */
 public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<WhereQueryBuilder<ModelClass>> {
 
+    /**
+     * Holds information related to each "where" piece
+     */
+    public static class WhereArgs {
+
+        private final String mOperation;
+
+        private final String mValue;
+
+        public WhereArgs(String operation, String value) {
+            mOperation = operation;
+            mValue = value;
+        }
+
+        public String operation() {
+            return mOperation;
+        }
+
+        public String value() {
+            return mValue;
+        }
+    }
+
+
     private static final String EMPTY_PARAM = "?";
 
     /**
@@ -31,7 +56,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * The parameters to build this query with
      */
-    private LinkedHashMap<String, String> mParams = new LinkedHashMap<String, String>();
+    private LinkedHashMap<String, WhereArgs> mParams = new LinkedHashMap<String, WhereArgs>();
 
     /**
      * Whether there is a new param, we will rebuild the query.
@@ -49,6 +74,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
     /**
      * Appends all primary field parameters with the specified value to this query statement.
+     *
      * @param values The values of the primary keys we wish to query for. Must match the length of primary keys
      * @return
      */
@@ -63,10 +89,11 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
     /**
      * Appends all the parameters from the specified map
+     *
      * @param params The mapping between column names and the string-represented value
      * @return
      */
-    public WhereQueryBuilder<ModelClass> params(Map<String, String> params) {
+    public WhereQueryBuilder<ModelClass> params(Map<String, WhereArgs> params) {
         mParams.putAll(params);
         isChanged = true;
         return this;
@@ -74,6 +101,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
     /**
      * Appends an empty param to this map that will be represented with a "?". All params must either be empty or not.
+     *
      * @param columnName The name of the column in the DB
      * @return
      */
@@ -85,23 +113,39 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
+     * EX: columnName = value
+     *
      * @param columnName The name of the column in the DB
-     * @param value The value of the column we are looking for
+     * @param value      The value of the column we are looking for
      * @return
      */
     public WhereQueryBuilder<ModelClass> param(String columnName, Object value) {
-        if(useEmptyParams && !EMPTY_PARAM.equals(value)) {
+        return param(columnName, "=", value);
+    }
+
+    /**
+     * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
+     * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
+     *
+     * @param columnName The name of the column in the DB
+     * @param operator   The operator to use "=", "<", etc.
+     * @param value      The value of the column we are looking for
+     * @return
+     */
+    public WhereQueryBuilder<ModelClass> param(String columnName, String operator, Object value) {
+        if (useEmptyParams && !EMPTY_PARAM.equals(value)) {
             throw new IllegalStateException("The " + WhereQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
 
-        mParams.put(columnName, convertValueToString(columnName, value));
+        mParams.put(columnName, new WhereArgs(operator, convertValueToString(columnName, value)));
         isChanged = true;
         return this;
     }
 
     /**
      * Appends a bunch of fields to the params list. It will retrieve the proper column name for the passed fields.
+     *
      * @param fields
      * @param values
      * @return
@@ -110,7 +154,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
         if (!useEmptyParams && fields.size() != values.length) {
             throw new IllegalArgumentException("The count of values MUST match the number of fields they correspond to for " +
                     mTableStructure.getTableName());
-        } else if(useEmptyParams) {
+        } else if (useEmptyParams) {
             values = new Object[fields.size()];
             for (int i = 0; i < values.length; i++) {
                 values[i] = EMPTY_PARAM;
@@ -130,23 +174,25 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
     /**
      * Internal utility method for appending a where param
+     *
      * @param columnName The name of the column in the DB
-     * @param value The value of the column we are looking for
+     * @param whereArgs  The value of the column we are looking for
      * @return
      */
-    WhereQueryBuilder<ModelClass> appendParam(String columnName, String value) {
-        return append(columnName).appendSpaceSeparated("=").append(value);
+    WhereQueryBuilder<ModelClass> appendParam(String columnName, WhereArgs whereArgs) {
+        return append(columnName).appendSpaceSeparated(whereArgs.operation()).append(whereArgs.value());
     }
 
     /**
      * Converts the given value for the column
+     *
      * @param columnName
      * @param value
      * @return
      */
     protected String convertValueToString(String columnName, Object value) {
         String stringVal;
-        if(!useEmptyParams) {
+        if (!useEmptyParams) {
             final TypeConverter typeConverter = FlowManager.getCache()
                     .getStructure().getTypeConverterForClass(mTableStructure.getField(columnName).getType());
             if (typeConverter != null) {
@@ -169,7 +215,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
             stringVal = String.valueOf(value);
         } else {
             stringVal = String.valueOf(value);
-            if(!stringVal.equals(EMPTY_PARAM)) {
+            if (!stringVal.equals(EMPTY_PARAM)) {
                 stringVal = DatabaseUtils.sqlEscapeString(stringVal);
             }
         }
@@ -207,7 +253,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
         Set<String> columnNames = mParams.keySet();
 
         int count = 0;
-        for(String columnName: columnNames) {
+        for (String columnName : columnNames) {
             whereQueryBuilder.param(columnName, values[count]);
             count++;
         }
@@ -218,6 +264,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Builds the "where" query section for the model with it's {@link com.grosner.dbflow.converter.TypeConverter}
      * values.
+     *
      * @param model
      * @return
      */
@@ -226,15 +273,15 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     }
 
     public static <ModelClass extends Model> String getModelBackedWhere(WhereQueryBuilder<ModelClass> existing,
-                                                                 Collection<Field> fields, ModelClass model) {
+                                                                        Collection<Field> fields, ModelClass model) {
         String query = existing.getQuery();
         int size = fields.size();
-        for(Field primaryField: fields){
+        for (Field primaryField : fields) {
             String columnName = existing.mTableStructure.getColumnName(primaryField);
             primaryField.setAccessible(true);
             try {
                 Object object = primaryField.get(model);
-                if(object==null){
+                if (object == null) {
                     throw new PrimaryKeyCannotBeNullException("The primary key: " + primaryField.getName()
                             + "from " + existing.mTableStructure.getTableName() + " cannot be null.");
                 } else {

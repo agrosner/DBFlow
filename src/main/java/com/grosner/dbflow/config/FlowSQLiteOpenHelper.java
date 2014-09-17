@@ -158,7 +158,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                     QueryBuilder queryBuilder = new QueryBuilder()
                             .append("CREATE VIEW AS")
                             .appendSpaceSeparated(modelView.getName())
-                            .append(modelView.getFrom().getQuery());
+                            .append(modelView.getWhere().getQuery());
                     database.execSQL(queryBuilder.getQuery());
                 }
             }
