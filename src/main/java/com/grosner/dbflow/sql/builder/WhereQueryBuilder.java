@@ -137,8 +137,19 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
             throw new IllegalStateException("The " + WhereQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
+        return param(columnName, new WhereArgs(operator, convertValueToString(columnName, value));
 
-        mParams.put(columnName, new WhereArgs(operator, convertValueToString(columnName, value)));
+    }
+
+    /**
+     * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
+     * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
+     * @param columnName The name of the column in the DB
+     * @param whereArgs The where arguments. We can specify other operators than just "="
+     * @return
+     */
+    public WhereQueryBuilder<ModelClass> param(String columnName, WhereArgs whereArgs) {
+        mParams.put(columnName, whereArgs);
         isChanged = true;
         return this;
     }
