@@ -1,30 +1,19 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven { url 'http://dl.bintray.com/jfrog/jfrog-jars' }
-        maven {
-            url "${artifactory_contextUrl}/android-dev"
-            credentials {
-                username = "${artifactory_user}"
-                password = "${artifactory_password}"
-            }
-        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.12.+'
-        classpath 'com.raizlabs.android-modules:RaizLibraryPlugin:1.0.0'
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:2.2.4"
     }
 }
 apply plugin: 'com.android.library'
-apply plugin: 'RaizLibraryPlugin'
 
 android {
     compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.raizlabs.android.dbflow"
+        applicationId "com.grosner.dbflow"
         minSdkVersion 4
         targetSdkVersion 20
         versionName = version.replace("-SNAPSHOT", "")
@@ -39,6 +28,5 @@ android {
 }
 
 dependencies {
-    raizJarCompile "android-support-v4", "com.android.support:support-v4:20.+"
-    raizCompile "Core"
+    compile "com.android.support:support-v4:20.+"
 }
