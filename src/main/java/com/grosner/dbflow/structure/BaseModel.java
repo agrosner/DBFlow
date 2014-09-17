@@ -31,4 +31,9 @@ public class BaseModel implements Model {
     public void load(Cursor cursor) {
         SqlUtils.loadFromCursor(this, cursor);
     }
+
+    @Override
+    public boolean exists() {
+        return SqlUtils.exists(this);
+    }
 }

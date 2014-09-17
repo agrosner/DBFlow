@@ -137,7 +137,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
             throw new IllegalStateException("The " + WhereQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return param(columnName, new WhereArgs(operator, convertValueToString(columnName, value));
+        return param(columnName, new WhereArgs(operator, convertValueToString(columnName, value)));
 
     }
 

@@ -33,4 +33,10 @@ public interface Model {
      */
     public void load(Cursor cursor);
 
+    /**
+     * Returns whether this Model exists or not
+     * @return
+     */
+    public boolean exists();
+
 }
