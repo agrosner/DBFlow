@@ -241,8 +241,8 @@ public class TransactionManager {
     /**
      * Selects a single model with the specified ids on the same thread this is called. It
      *
-     * @param tableClass
-     * @param ids
+     * @param tableClass The table to select the model from
+     * @param ids The list of ids given by the {@link ModelClass}
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return
      */
@@ -269,7 +269,7 @@ public class TransactionManager {
      * The order of the ids must match the ordered they're declared.
      *
      * @param tableClass        The table to select the model from.
-     * @param whereQueryBuilder
+     * @param whereQueryBuilder The where query we will use
      * @param resultReceiver    The result will be passed here.
      */
     public <ModelClass extends Model> void fetchModelWithWhere(Class<ModelClass> tableClass,

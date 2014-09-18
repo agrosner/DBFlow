@@ -43,34 +43,72 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
         this.mTableClass = mTableClass;
     }
 
+    /**
+     * @param resultReceiver The result of the selection will be placed here on the main thread.
+     * @see #fetchAllFromTable(Class, com.grosner.dbflow.runtime.transaction.ResultReceiver)
+     */
     public void fetchAllFromTable(ResultReceiver<List<ModelClass>> resultReceiver) {
         super.fetchAllFromTable(mTableClass, resultReceiver);
     }
 
+    /**
+     * @param select         The select statement to run
+     * @param resultReceiver The result of the selection will be placed here on the main thread.
+     * @see #fetchFromTable(com.grosner.dbflow.sql.Select, com.grosner.dbflow.runtime.transaction.ResultReceiver)
+     */
     public void fetchFromTable(Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
         super.fetchFromTable(mTableClass, select, resultReceiver);
     }
 
+    /**
+     * @param whereQueryBuilder The where query we will use
+     * @return the first model from the database cursor.
+     * @see #selectModelWithWhere(com.grosner.dbflow.sql.builder.WhereQueryBuilder)
+     */
     public ModelClass selectModelWithWhere(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
         return super.selectModelWithWhere(mTableClass, whereQueryBuilder);
     }
 
+    /**
+     * @param ids The list of ids given by the {@link ModelClass}
+     * @return
+     * @see #selectModelById(Class, Object...)
+     */
     public ModelClass selectModelById(Object... ids) {
         return super.selectModelById(mTableClass, ids);
     }
 
+    /**
+     * @param whereQueryBuilder The where query we will use
+     * @param resultReceiver    The result will be passed here.
+     * @see #selectModelWithWhere(com.grosner.dbflow.runtime.transaction.ResultReceiver, com.grosner.dbflow.sql.builder.WhereQueryBuilder)
+     */
     public void selectModelWithWhere(ResultReceiver<ModelClass> resultReceiver, WhereQueryBuilder<ModelClass> whereQueryBuilder) {
         super.fetchModelWithWhere(mTableClass, whereQueryBuilder, resultReceiver);
     }
 
+    /**
+     * @param resultReceiver The result will be passed here.
+     * @param ids            The list of ids given by the {@link ModelClass}
+     * @see #selectModelById(Class, com.grosner.dbflow.runtime.transaction.ResultReceiver, Object...)
+     */
     public void selectModelById(ResultReceiver<ModelClass> resultReceiver, Object... ids) {
         super.selectModelById(mTableClass, resultReceiver, ids);
     }
 
+    /**
+     * @param transactionInfo The information on how we should approach this request.
+     * @see #deleteTable(DBTransactionInfo, Class)
+     */
     public void deleteTable(DBTransactionInfo transactionInfo) {
         super.deleteTable(transactionInfo, mTableClass);
     }
 
+    /**
+     * @param transactionInfo   The information on how we should approach this request.
+     * @param whereQueryBuilder The where query we will use
+     * @see #deleteModelsWithQuery(DBTransactionInfo, Class, com.grosner.dbflow.sql.builder.WhereQueryBuilder)
+     */
     public void deleteModelsWithQuery(DBTransactionInfo transactionInfo, WhereQueryBuilder<ModelClass> whereQueryBuilder) {
         super.deleteModelsWithQuery(transactionInfo, mTableClass, whereQueryBuilder);
     }
