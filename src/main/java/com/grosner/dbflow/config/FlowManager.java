@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class FlowManager {
 
-    private static boolean isInitialized = false;
+    private boolean isInitialized = false;
 
     private static FlowManager manager;
 

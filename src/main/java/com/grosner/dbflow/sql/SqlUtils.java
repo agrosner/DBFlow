@@ -266,7 +266,7 @@ public class SqlUtils {
                 }
             }
         } else {
-            DatabaseManager.getSharedInstance().saveOnSaveQueue(model);
+            DatabaseManager.getInstance().saveOnSaveQueue(model);
         }
     }
 
@@ -363,7 +363,7 @@ public class SqlUtils {
             WhereQueryBuilder<ModelClass> whereQueryBuilder = flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
             flowManager.getWritableDatabase().delete(tableStructure.getTableName(), WhereQueryBuilder.getPrimaryModelWhere(whereQueryBuilder, model), null);
         } else {
-            DatabaseManager.getSharedInstance().addTransaction(new BaseTransaction<ModelClass>() {
+            DatabaseManager.getInstance().addTransaction(new BaseTransaction<ModelClass>() {
                 @Override
                 public ModelClass onExecute() {
                     model.delete(false);

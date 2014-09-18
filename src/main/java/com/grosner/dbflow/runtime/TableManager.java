@@ -58,7 +58,7 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
     }
 
     public void selectModelWithWhere(ResultReceiver<ModelClass> resultReceiver, WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        super.selectModelWithWhere(mTableClass, resultReceiver, whereQueryBuilder);
+        super.fetchModelWithWhere(mTableClass, whereQueryBuilder, resultReceiver);
     }
 
     public void selectModelById(ResultReceiver<ModelClass> resultReceiver, Object... ids) {

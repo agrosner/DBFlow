@@ -1,24 +1,13 @@
 package com.grosner.dbflow.structure;
 
-import android.location.Location;
-
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.converter.CalendarConverter;
-import com.grosner.dbflow.converter.DateConverter;
 import com.grosner.dbflow.converter.DefaultForeignKeyConverter;
 import com.grosner.dbflow.converter.ForeignKeyConverter;
-import com.grosner.dbflow.converter.JsonConverter;
-import com.grosner.dbflow.converter.LocationConverter;
-import com.grosner.dbflow.converter.SqlDateConverter;
-import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

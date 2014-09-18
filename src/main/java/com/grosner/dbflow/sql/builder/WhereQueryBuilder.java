@@ -69,6 +69,15 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     private boolean useEmptyParams = false;
 
     /**
+     * Constructs an instance of this class with the shared {@link com.grosner.dbflow.config.FlowManager}
+     * and {@link ModelClass}.
+     * @param tableClass
+     */
+    public WhereQueryBuilder(Class<ModelClass> tableClass) {
+        mTableStructure = FlowManager.getInstance().getTableStructureForClass(tableClass);
+    }
+
+    /**
      * Constructs an instance of this class with the specified {@link com.grosner.dbflow.config.FlowManager}
      * and {@link ModelClass}.
      * @param flowManager

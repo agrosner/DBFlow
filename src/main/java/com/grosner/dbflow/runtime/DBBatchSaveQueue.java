@@ -71,7 +71,7 @@ public class DBBatchSaveQueue extends Thread{
             }
             if(tmpModels.size()>0) {
                 //onExecute this on the DBManager thread
-                DatabaseManager.getSharedInstance().save(DBTransactionInfo.create("Batch Saving"), null, tmpModels);
+                DatabaseManager.getInstance().save(DBTransactionInfo.create("Batch Saving"), tmpModels, null);
             }
 
             try {
