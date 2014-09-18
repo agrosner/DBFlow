@@ -30,10 +30,21 @@ import java.util.Map;
  */
 public class FlowManager {
 
+    /**
+     * Whether this database has already been initialized. This is to prevent multiple instantiations.
+     */
     private boolean isInitialized = false;
 
+    /**
+     * The shared manager for the application. Most use cases will only require one DB
+     */
     private static FlowManager manager;
 
+    /**
+     * Returns the shared manager for this app. It exists for most use cases as the only DB, but to define
+     * more DB, create another one.
+     * @return
+     */
     public static FlowManager getInstance() {
         if(manager == null) {
             manager = new FlowManager();
@@ -41,18 +52,26 @@ public class FlowManager {
         return manager;
     }
 
-    public static Context getSharedContext() {
-        return getInstance().getContext();
-    }
-
+    /**
+     * The configuration of this {@link com.grosner.dbflow.config.FlowManager} database
+     */
     private DBConfiguration mDbConfiguration;
 
+    /**
+     * This holds the inherit structure of the database
+     */
     private DBStructure mStructure;
 
+    /**
+     * This adds extra functionality to the {@link android.database.sqlite.SQLiteOpenHelper}
+     */
     private FlowSQLiteOpenHelper mHelper;
 
     private Context context;
 
+    /**
+     * The default {@link com.grosner.dbflow.converter.TypeConverter} for this manager.
+     */
     private Map<Class<?>, TypeConverter> mTypeConverters = new HashMap<Class<?>, TypeConverter>() {
         {
             put(Calendar.class, new CalendarConverter());
@@ -63,6 +82,10 @@ public class FlowManager {
         }
     };
 
+    /**
+     * Will throw an exception if this class is not initialized yet in {@link #initialize(android.content.Context, DBConfiguration)}
+     * @return
+     */
     public Context getContext() {
         if(context == null) {
             throw new IllegalStateException("Context cannot be null for FlowManager");
@@ -70,6 +93,11 @@ public class FlowManager {
         return context;
     }
 
+    /**
+     * Call this in your applications {@link android.app.Application#onCreate()} method.
+     * @param context
+     * @param dbConfiguration
+     */
     public void initialize(Context context, DBConfiguration dbConfiguration) {
         initialize(context, dbConfiguration, null);
     }

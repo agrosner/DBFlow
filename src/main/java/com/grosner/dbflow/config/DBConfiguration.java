@@ -9,20 +9,29 @@ import java.util.List;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Defines the configuration for the database including version, name, if foreign keys are supported,
+ * and can optionally specify the Model Classes for the database manually (instead of searching in class files).
  */
 public class DBConfiguration {
 
-    static final int DEFAULT_CACHE_SIZE = 1024;
-
+    /**
+     * The name of this database in private app data
+     */
     String mDatabaseName;
 
+    /**
+     * The version of the database
+     */
     int mDatabaseVersion;
 
-    int mCacheSize;
-
+    /**
+     * The optional list of model classes that this DB will use
+     */
     List<Class<? extends Model>> mModelClasses;
 
+    /**
+     * Whether we want to support foreign keys
+     */
     boolean foreignKeysSupported = false;
 
     public String getDatabaseName() {
@@ -31,10 +40,6 @@ public class DBConfiguration {
 
     public int getDatabaseVersion() {
         return mDatabaseVersion;
-    }
-
-    public int getCacheSize() {
-        return mCacheSize;
     }
 
     public List<Class<? extends Model>> getModelClasses() {
@@ -49,45 +54,50 @@ public class DBConfiguration {
         return foreignKeysSupported;
     }
 
+    /**
+     * Used to build the database configuration.
+     */
     public static class Builder {
 
+        /**
+         * The inner configuration we will use.
+         */
         private DBConfiguration mConfiguration;
 
+        /**
+         * Constructs a new instance of this class and {@link com.grosner.dbflow.config.DBConfiguration}
+         */
         public Builder() {
             mConfiguration = new DBConfiguration();
-            mConfiguration.mCacheSize = DEFAULT_CACHE_SIZE;
         }
 
-        public Builder cacheSize(int size) {
-            mConfiguration.mCacheSize = size;
-            return this;
-        }
-
+        /**
+         * Specify the database name. The .db is not necessary. This also must match any prepackaged database.
+         * @param databaseName The name of the database in private app data
+         * @return The builder
+         */
         public Builder databaseName(String databaseName) {
             mConfiguration.mDatabaseName = databaseName;
             return this;
         }
 
+        /**
+         * The db version. Incrementing this value will trigger
+         * {@link com.grosner.dbflow.DatabaseHelperListener#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)}
+         * .
+         * @param databaseVersion
+         * @return
+         */
         public Builder databaseVersion(int databaseVersion) {
             mConfiguration.mDatabaseVersion = databaseVersion;
             return this;
         }
 
-        public Builder addModelClass(Class<? extends Model> modelClass) {
-            if(mConfiguration.mModelClasses == null) {
-                mConfiguration.mModelClasses = new ArrayList<Class<? extends Model>>();
-            }
-
-            mConfiguration.mModelClasses.add(modelClass);
-
-            return this;
-        }
-
-        public Builder foreignKeysSupported() {
-            mConfiguration.foreignKeysSupported = true;
-            return this;
-        }
-
+        /**
+         * Adds specific model classes to be evaluated (or created with a new db)
+         * @param modelClasses
+         * @return
+         */
         public Builder addModelClasses(Class<? extends Model>... modelClasses) {
             if (mConfiguration.mModelClasses == null) {
                 mConfiguration.mModelClasses = new ArrayList<Class<? extends Model>>();
@@ -99,6 +109,15 @@ public class DBConfiguration {
 
         public Builder setModelClasses(Class<? extends Model>... modelClasses) {
             mConfiguration.mModelClasses = Arrays.asList(modelClasses);
+            return this;
+        }
+
+        /**
+         * Will make foreign keys supported in this DB.
+         * @return
+         */
+        public Builder foreignKeysSupported() {
+            mConfiguration.foreignKeysSupported = true;
             return this;
         }
 

@@ -77,7 +77,7 @@ public class DatabaseManager {
      */
     public static DatabaseManager getInstance() {
         if (manager == null) {
-            manager = new DatabaseManager(FlowManager.getInstance(), "SingleDBManager", true);
+            manager = new DatabaseManager(FlowManager.getInstance(), DatabaseManager.class.getSimpleName(), true);
         }
         return manager;
     }
