@@ -94,14 +94,22 @@ public class FlowManager {
     }
 
     /**
-     * Call this in your applications {@link android.app.Application#onCreate()} method.
+     * Call this in your application's {@link android.app.Application#onCreate()} method.
      * @param context
      * @param dbConfiguration
+     * @see #initialize(android.content.Context, DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)
      */
     public void initialize(Context context, DBConfiguration dbConfiguration) {
         initialize(context, dbConfiguration, null);
     }
 
+    /**
+     * Call this in your application's {@link android.app.Application#onCreate()} method. Initializes the database,
+     * the structure cache, and opens the database.
+     * @param context
+     * @param dbConfiguration
+     * @param databaseHelperListener
+     */
     public void initialize(Context context, DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
         if(!isInitialized) {
             this.context = context;
@@ -119,19 +127,19 @@ public class FlowManager {
         }
     }
 
+    /**
+     * Releases references to the structure, configuration, and closes the DB.
+     */
     public void destroy() {
         mDbConfiguration = null;
         mStructure = null;
+        mHelper.getWritableDatabase().close();
         mHelper = null;
         isInitialized = false;
     }
 
     // region Getters
 
-    /**
-     * Gets the {@link android.database.sqlite.SQLiteOpenHelper} from the cache.
-     * @return
-     */
     public SQLiteOpenHelper getSqlHelper() {
         return mHelper;
     }
@@ -144,12 +152,23 @@ public class FlowManager {
         return mStructure;
     }
 
+    /**
+     * Returns a {@link com.grosner.dbflow.structure.TableStructure} for a specific model class
+     * @param modelClass The table class we want to retrieve
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return the table structure for this model class
+     */
     public <ModelClass extends Model> TableStructure<ModelClass> getTableStructureForClass(Class<ModelClass> modelClass) {
         return getStructure().getTableStructureForClass(modelClass);
     }
 
-    public String getTableName(Class<? extends Model> model) {
-        return mStructure.getTableStructure().get(model).getTableName();
+    /**
+     * Returns the table name for the specific model class
+     * @param modelClass The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return The table name, which can be different than the {@link com.grosner.dbflow.structure.Model} class name
+     */
+    public String getTableName(Class<? extends Model> modelClass) {
+        return mStructure.getTableStructure().get(modelClass).getTableName();
     }
 
     public DBConfiguration getDbConfiguration() {
@@ -160,6 +179,13 @@ public class FlowManager {
         return mHelper;
     }
 
+    /***
+     * Returns the specific {@link com.grosner.dbflow.converter.TypeConverter} for this model. It defines
+     * how the class is stored in the DB
+     * @param modelClass The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public <ModelClass> TypeConverter<?, ModelClass> getTypeConverterForClass(Class<ModelClass> modelClass) {
         return mTypeConverters.get(modelClass);
@@ -168,6 +194,10 @@ public class FlowManager {
     // endregion
 
 
+    /**
+     * Adds a new {@link com.grosner.dbflow.converter.TypeConverter} to this map
+     * @param typeConverterClass
+     */
     public void putTypeConverterForClass(Class typeConverterClass) {
         try {
             TypeConverter typeConverter = (TypeConverter) typeConverterClass.newInstance();

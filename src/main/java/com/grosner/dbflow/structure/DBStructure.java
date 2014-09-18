@@ -65,6 +65,12 @@ public class DBStructure {
         }
     }
 
+    /**
+     * Returns a {@link com.grosner.dbflow.structure.TableStructure} for a specific model class
+     * @param modelClass The table class we want to retrieve
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return the table structure for this model class
+     */
     @SuppressWarnings("unchecked")
     public <ModelClass extends Model> TableStructure<ModelClass> getTableStructureForClass(Class<ModelClass> modelClass) {
         return getTableStructure().get(modelClass);
