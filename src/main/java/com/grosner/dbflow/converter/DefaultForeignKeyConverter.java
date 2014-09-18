@@ -33,8 +33,8 @@ public class DefaultForeignKeyConverter implements ForeignKeyConverter {
 
     @SuppressWarnings("unchecked")
     @Override
-    public String getDBValue(Model model) {
-        TableStructure tableStructure = FlowManager.getTableStructureForClass(model.getClass());
+    public String getDBValue(FlowManager flowManager, Model model) {
+        TableStructure tableStructure = flowManager.getTableStructureForClass(model.getClass());
         Collection<Field> primaries = tableStructure.getPrimaryKeys();
         QueryBuilder query = new QueryBuilder();
         int count = 0;

@@ -1,5 +1,6 @@
 package com.grosner.dbflow.runtime.transaction;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.Where;
@@ -14,8 +15,8 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
 
     private Where<ModelClass> mFrom;
 
-    public SelectSingleModelTransaction(Class<ModelClass> tableClass, ResultReceiver<ModelClass> resultReceiver) {
-        this(tableClass, new Select(), resultReceiver);
+    public SelectSingleModelTransaction(FlowManager flowManager, Class<ModelClass> tableClass, ResultReceiver<ModelClass> resultReceiver) {
+        this(tableClass, new Select(flowManager), resultReceiver);
     }
 
     /**

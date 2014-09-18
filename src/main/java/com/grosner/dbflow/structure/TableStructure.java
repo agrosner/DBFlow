@@ -1,6 +1,7 @@
 package com.grosner.dbflow.structure;
 
 import com.grosner.dbflow.ReflectionUtils;
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.TableCreationQueryBuilder;
 
@@ -56,13 +57,18 @@ public class TableStructure<ModelType extends Model> {
     private TableCreationQueryBuilder mCreationQuery;
 
     /**
+     * Manages the DB that this structure is in
+     */
+    private FlowManager mManager;
+
+    /**
      * Builds the structure of this table based on the {@link com.grosner.dbflow.structure.Model}
      * class passed in.
      *
      * @param modelType
      */
-    public TableStructure(Class<ModelType> modelType) {
-
+    public TableStructure(FlowManager flowManager, Class<ModelType> modelType) {
+        mManager = flowManager;
         mColumnNames = new HashMap<Field, String>();
         mFieldFromNames = new HashMap<String, Field>();
         mPrimaryKeys = new LinkedHashMap<String, Field>();
@@ -218,5 +224,9 @@ public class TableStructure<ModelType extends Model> {
 
     public Class<ModelType> getModelType() {
         return mModelType;
+    }
+
+    public FlowManager getManager() {
+        return mManager;
     }
 }

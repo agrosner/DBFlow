@@ -61,10 +61,10 @@ public class StructureUtils {
         return isPrimary;
     }
 
-    static List<Class<? extends Model>> generateModelFromSource() throws IOException {
-        String packageName = FlowManager.getContext().getPackageName();
+    static List<Class<? extends Model>> generateModelFromSource(FlowManager flowManager) throws IOException {
+        String packageName = flowManager.getContext().getPackageName();
 
-        String sourcePath = FlowManager.getContext().getApplicationInfo().sourceDir;
+        String sourcePath = flowManager.getContext().getApplicationInfo().sourceDir;
 
         List<String> paths = new ArrayList<String>();
 
@@ -101,20 +101,20 @@ public class StructureUtils {
         List<Class<? extends Model>> modelClasses = new ArrayList<Class<? extends Model>>();
         for (String path : paths) {
             File modelFile = new File(path);
-            addModelClassesFromSource(modelFile, packageName, modelClasses);
+            addModelClassesFromSource(flowManager, modelFile, packageName, modelClasses);
         }
 
         return modelClasses;
     }
 
-    private static void addModelClassesFromSource(File modelFile, String packageName,
+    private static void addModelClassesFromSource(FlowManager flowManager, File modelFile, String packageName,
                                                   List<Class<? extends Model>> modelClasses) {
-        ClassLoader classLoader = FlowManager.getContext().getClassLoader();
+        ClassLoader classLoader = flowManager.getContext().getClassLoader();
 
         if (modelFile.isDirectory()) {
             File[] modelFiles = modelFile.listFiles();
             for (File file : modelFiles) {
-                addModelClassesFromSource(file, packageName, modelClasses);
+                addModelClassesFromSource(flowManager, file, packageName, modelClasses);
             }
         } else {
             String className = modelFile.getName();
@@ -154,11 +154,11 @@ public class StructureUtils {
                     } else if (ReflectionUtils.implementsTypeConverter(discoveredClass)) {
                         @SuppressWarnings("unchecked")
                         Class<? extends TypeConverter> typeConverterClass = (Class<? extends TypeConverter>) discoveredClass;
-                        FlowManager.getCache().getStructure().putTypeConverterForClass(typeConverterClass);
+                        flowManager.putTypeConverterForClass(typeConverterClass);
                     } else if (ReflectionUtils.implementsForeignKeyConverter(discoveredClass)) {
                         @SuppressWarnings("unchecked")
                         Class<? extends ForeignKeyConverter> foreignKeyConverterClass = ((Class<? extends ForeignKeyConverter>) discoveredClass);
-                        FlowManager.getCache().getStructure().putForeignKeyConverterForClass(foreignKeyConverterClass);
+                        flowManager.getStructure().putForeignKeyConverterForClass(foreignKeyConverterClass);
                     }
 
                 }

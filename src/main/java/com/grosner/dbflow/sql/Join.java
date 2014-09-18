@@ -29,7 +29,10 @@ public class Join implements Query {
 
     private String[] mUsing;
 
-    Join(From from, Class<? extends Model> table, JoinType joinType) {
+    private final FlowManager mManager;
+
+    Join(FlowManager flowManager, From from, Class<? extends Model> table, JoinType joinType) {
+        mManager = flowManager;
         mFrom = from;
         mTable = table;
         mJoinType = joinType;
@@ -61,7 +64,7 @@ public class Join implements Query {
 
         queryBuilder.append("JOIN")
                 .appendSpace()
-                .append(FlowManager.getCache().getTableName(mTable))
+                .append(mManager.getTableName(mTable))
                 .appendSpace();
 
         if (mAlias != null) {

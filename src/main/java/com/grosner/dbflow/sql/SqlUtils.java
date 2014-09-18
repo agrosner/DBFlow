@@ -32,20 +32,20 @@ import java.util.Set;
 public class SqlUtils {
 
     /**
-     * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)} operation
-     * as checking to see if the model exists before saving.
+     * This marks the {@link #save(com.grosner.dbflow.config.FlowManager, com.grosner.dbflow.structure.Model, boolean, int)}
+     * operation as checking to see if the model exists before saving.
      */
     public static int SAVE_MODE_DEFAULT = 0;
 
     /**
-     * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)} operation
-     * as updating only without checking for it to exist. This is when we know the data exists.
+     * This marks the {@link #save(com.grosner.dbflow.config.FlowManager, com.grosner.dbflow.structure.Model, boolean, int)}
+     * operation as updating only without checking for it to exist. This is when we know the data exists.
      */
     public static int SAVE_MODE_UPDATE = 1;
 
     /**
-     * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)} operation
-     * as inserting only without checking for it to exist. This is for when we know the data is new.
+     * This marks the {@link #save(com.grosner.dbflow.config.FlowManager, com.grosner.dbflow.structure.Model, boolean, int)}
+     * operation as inserting only without checking for it to exist. This is for when we know the data is new.
      */
     public static int SAVE_MODE_INSERT = 2;
 
@@ -60,8 +60,8 @@ public class SqlUtils {
      * @param <ModelClass> The class implements {@link com.grosner.dbflow.structure.Model}
      * @return a list of {@link ModelClass}
      */
-    public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql, String... args) {
-        Cursor cursor = FlowManager.getWritableDatabase().rawQuery(sql, args);
+    public static <ModelClass extends Model> List<ModelClass> queryList(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
+        Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = convertToList(modelClass, cursor);
         cursor.close();
         return list;
@@ -79,15 +79,15 @@ public class SqlUtils {
      * @param <ModelClass> The class implements {@link com.grosner.dbflow.structure.Model}
      * @return a single {@link ModelClass}
      */
-    public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql, String... args) {
-        Cursor cursor = FlowManager.getWritableDatabase().rawQuery(sql, args);
+    public static <ModelClass extends Model> ModelClass querySingle(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
+        Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         ModelClass retModel = convertToModel(modelClass, cursor);
         cursor.close();
         return retModel;
     }
 
-    public static <ModelClass extends Model> boolean hasData(Class<ModelClass> modelClass, String sql, String...args) {
-        Cursor cursor = FlowManager.getWritableDatabase().rawQuery(sql, args);
+    public static <ModelClass extends Model> boolean hasData(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String...args) {
+        Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();
         return hasData;
@@ -159,13 +159,13 @@ public class SqlUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void save(ModelClass model, boolean async, int mode) {
+    public static <ModelClass extends Model> void save(FlowManager flowManager, ModelClass model, boolean async, int mode) {
         if (!async) {
             WhereQueryBuilder<ModelClass> primaryWhereQueryBuilder = (WhereQueryBuilder<ModelClass>)
-                    FlowManager.getCache().getStructure().getPrimaryWhereQuery(model.getClass());
+                    flowManager.getStructure().getPrimaryWhereQuery(model.getClass());
 
 
-            final SQLiteDatabase db = FlowManager.getWritableDatabase();
+            final SQLiteDatabase db = flowManager.getWritableDatabase();
             final ContentValues values = new ContentValues();
 
             TableStructure<ModelClass> tableStructure = primaryWhereQueryBuilder.getTableStructure();
@@ -181,8 +181,7 @@ public class SqlUtils {
                     Object value = field.get(model);
 
                     if (value != null) {
-                        final TypeConverter typeSerializer = FlowManager.getCache()
-                                .getStructure().getTypeConverterForClass(fieldType);
+                        final TypeConverter typeSerializer = flowManager.getTypeConverterForClass(fieldType);
                         if (typeSerializer != null) {
                             // serialize data
                             value = typeSerializer.getDBValue(value);
@@ -228,8 +227,8 @@ public class SqlUtils {
                             fieldName = field.getAnnotation(Column.class).name();
                         }
                         Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
-                        ForeignKeyConverter foreignKeyConverter = FlowManager.getCache().getStructure().getForeignKeyConverterForclass(entityType);
-                        values.put(fieldName, foreignKeyConverter.getDBValue((Model) value));
+                        ForeignKeyConverter foreignKeyConverter = flowManager.getStructure().getForeignKeyConverterForclass(entityType);
+                        values.put(fieldName, foreignKeyConverter.getDBValue(flowManager, (Model) value));
                     } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
                         values.put(fieldName, ((Enum<?>) value).name());
                     }
@@ -242,7 +241,7 @@ public class SqlUtils {
 
             boolean exists = false;
             if (mode == SAVE_MODE_DEFAULT) {
-                exists = exists(model);
+                exists = exists(flowManager, model);
             } else if (mode == SAVE_MODE_UPDATE) {
                 exists = true;
             }
@@ -272,8 +271,8 @@ public class SqlUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void loadFromCursor(ModelClass model, Cursor cursor) {
-        TableStructure<ModelClass> tableStructure = FlowManager.getTableStructureForClass((Class<ModelClass>)model.getClass());
+    public static <ModelClass extends Model> void loadFromCursor(FlowManager flowManager, ModelClass model, Cursor cursor) {
+        TableStructure<ModelClass> tableStructure = flowManager.getTableStructureForClass((Class<ModelClass>)model.getClass());
         Set<Field> fields = tableStructure.getColumns();
         for (Field field : fields) {
             final String fieldName = tableStructure.getColumnName(field);
@@ -288,8 +287,7 @@ public class SqlUtils {
 
             try {
                 boolean columnIsNull = cursor.isNull(columnIndex);
-                TypeConverter typeSerializer = FlowManager.getCache()
-                        .getStructure().getTypeConverterForClass(fieldType);
+                TypeConverter typeSerializer = flowManager.getTypeConverterForClass(fieldType);
                 Object value = null;
 
                 if (typeSerializer != null) {
@@ -326,11 +324,11 @@ public class SqlUtils {
                     final Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
 
                     // Get converter to use for foreign keys
-                    ForeignKeyConverter converter = FlowManager.getCache().getStructure().getForeignKeyConverterForclass(entityType);
+                    ForeignKeyConverter converter = FlowManager.getInstance().getStructure().getForeignKeyConverterForclass(entityType);
 
                     // Build the primary key query using the converter and querybuilder
-                    WhereQueryBuilder whereQueryBuilder = FlowManager.getCache().getStructure().getPrimaryWhereQuery(entityType);
-                    value = new Select().from(entityType).where()
+                    WhereQueryBuilder whereQueryBuilder = FlowManager.getInstance().getStructure().getPrimaryWhereQuery(entityType);
+                    value = new Select(flowManager).from(entityType).where()
                             .whereQuery(whereQueryBuilder.replaceEmptyParams(converter.getForeignKeys(entityId)))
                             .querySingle();
                 } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
@@ -359,11 +357,11 @@ public class SqlUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void delete(final ModelClass model, boolean async) {
+    public static <ModelClass extends Model> void delete(FlowManager flowManager, final ModelClass model, boolean async) {
         if (!async) {
-            TableStructure tableStructure = FlowManager.getTableStructureForClass(model.getClass());
-            WhereQueryBuilder<ModelClass> whereQueryBuilder = FlowManager.getCache().getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
-            FlowManager.getWritableDatabase().delete(tableStructure.getTableName(), WhereQueryBuilder.getPrimaryModelWhere(whereQueryBuilder, model), null);
+            TableStructure tableStructure = flowManager.getTableStructureForClass(model.getClass());
+            WhereQueryBuilder<ModelClass> whereQueryBuilder = flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
+            flowManager.getWritableDatabase().delete(tableStructure.getTableName(), WhereQueryBuilder.getPrimaryModelWhere(whereQueryBuilder, model), null);
         } else {
             DatabaseManager.getSharedInstance().addTransaction(new BaseTransaction<ModelClass>() {
                 @Override
@@ -376,8 +374,8 @@ public class SqlUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> boolean exists(ModelClass model) {
-        WhereQueryBuilder<ModelClass> whereQueryBuilder = (WhereQueryBuilder<ModelClass>) FlowManager.getCache().getStructure().getPrimaryWhereQuery(model.getClass());
-        return new Select().from(model.getClass()).where().whereClause(WhereQueryBuilder.getPrimaryModelWhere(whereQueryBuilder, model)).hasData();
+    public static <ModelClass extends Model> boolean exists(FlowManager flowManager, ModelClass model) {
+        WhereQueryBuilder<ModelClass> whereQueryBuilder = (WhereQueryBuilder<ModelClass>) flowManager.getStructure().getPrimaryWhereQuery(model.getClass());
+        return new Select(flowManager).from(model.getClass()).where().whereClause(WhereQueryBuilder.getPrimaryModelWhere(whereQueryBuilder, model)).hasData();
     }
 }

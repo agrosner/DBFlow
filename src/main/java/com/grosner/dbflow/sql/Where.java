@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class Where<ModelClass extends Model> implements Query {
 
-    private From<ModelClass> mFrom;
+    private final From<ModelClass> mFrom;
 
     private WhereQueryBuilder<ModelClass> mWhereQueryBuilder;
 
@@ -32,9 +32,12 @@ public class Where<ModelClass extends Model> implements Query {
 
     private String mOffset;
 
-    public Where(From<ModelClass> from) {
+    private final FlowManager mManager;
+
+    public Where(FlowManager manager, From<ModelClass> from) {
+        mManager = manager;
         mFrom = from;
-        mWhereQueryBuilder = new WhereQueryBuilder<ModelClass>(mFrom.getType());
+        mWhereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, mFrom.getType());
     }
 
     public Where<ModelClass> whereClause(String whereClause) {
@@ -98,18 +101,17 @@ public class Where<ModelClass extends Model> implements Query {
     }
 
     public long count() {
-        return DatabaseUtils.longForQuery(FlowManager.getCache().getHelper().getWritableDatabase(),
-                getQuery(), null);
+        return DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
     }
 
     public void query() {
         // Query the sql here
-        FlowManager.getWritableDatabase().rawQuery(getQuery(), null);
+        mManager.getWritableDatabase().rawQuery(getQuery(), null);
     }
 
     public List<ModelClass> queryList() {
         if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.queryList(mFrom.getType(), getQuery());
+            return SqlUtils.queryList(mManager, mFrom.getType(), getQuery());
         } else {
             throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
         }
@@ -117,7 +119,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     public ModelClass querySingle() {
         if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.querySingle(mFrom.getType(), getQuery());
+            return SqlUtils.querySingle(mManager, mFrom.getType(), getQuery());
         } else {
             throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
         }
@@ -125,7 +127,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     public boolean hasData() {
         if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.hasData(mFrom.getType(), getQuery());
+            return SqlUtils.hasData(mManager, mFrom.getType(), getQuery());
         } else {
             throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
         }

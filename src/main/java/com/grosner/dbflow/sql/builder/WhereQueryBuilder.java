@@ -68,8 +68,14 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      */
     private boolean useEmptyParams = false;
 
-    public WhereQueryBuilder(Class<ModelClass> tableClass) {
-        mTableStructure = FlowManager.getTableStructureForClass(tableClass);
+    /**
+     * Constructs an instance of this class with the specified {@link com.grosner.dbflow.config.FlowManager}
+     * and {@link ModelClass}.
+     * @param flowManager
+     * @param tableClass
+     */
+    public WhereQueryBuilder(FlowManager flowManager, Class<ModelClass> tableClass) {
+        mTableStructure = flowManager.getTableStructureForClass(tableClass);
     }
 
     /**
@@ -204,8 +210,8 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     protected String convertValueToString(String columnName, Object value) {
         String stringVal;
         if (!useEmptyParams) {
-            final TypeConverter typeConverter = FlowManager.getCache()
-                    .getStructure().getTypeConverterForClass(mTableStructure.getField(columnName).getType());
+            final TypeConverter typeConverter = mTableStructure.getManager()
+                    .getTypeConverterForClass(mTableStructure.getField(columnName).getType());
             if (typeConverter != null) {
                 // serialize data
                 value = typeConverter.getDBValue(value);
@@ -260,7 +266,8 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
                     mTableStructure.getTableName());
         }
 
-        WhereQueryBuilder<ModelClass> whereQueryBuilder = new WhereQueryBuilder<ModelClass>(mTableStructure.getModelType());
+        WhereQueryBuilder<ModelClass> whereQueryBuilder =
+                new WhereQueryBuilder<ModelClass>(mTableStructure.getManager(), mTableStructure.getModelType());
         Set<String> columnNames = mParams.keySet();
 
         int count = 0;
@@ -308,4 +315,6 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     public TableStructure<ModelClass> getTableStructure() {
         return mTableStructure;
     }
+
+
 }

@@ -2,6 +2,7 @@ package com.grosner.dbflow.sql;
 
 import android.text.TextUtils;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
@@ -20,12 +21,19 @@ public class Select implements Query {
 
     public static final int COUNT = 2;
 
-    private String[] mColumns;
+    private final String[] mColumns;
 
     private int mSelectQualifier = NONE;
 
+    private final FlowManager mManager;
+
     public Select(String...columns) {
+        this(FlowManager.getInstance(), columns);
+    }
+
+    public Select(FlowManager flowManager, String...columns) {
         mColumns = columns;
+        mManager = flowManager;
     }
 
     public Select distinct() {
@@ -44,7 +52,7 @@ public class Select implements Query {
     }
 
     public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
-        return new From<ModelClass>(this, table);
+        return new From<ModelClass>(mManager, this, table);
     }
 
     @Override

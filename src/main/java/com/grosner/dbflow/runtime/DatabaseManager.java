@@ -48,11 +48,17 @@ public class DatabaseManager {
     private final boolean hasOwnQueue;
 
     /**
+     * Provides full control over the DB
+     */
+    private FlowManager mManager;
+
+    /**
      * Creates the DatabaseManager while starting its own request queue
      *
      * @param name
      */
-    public DatabaseManager(String name, boolean createNewQueue) {
+    public DatabaseManager(FlowManager flowManager, String name, boolean createNewQueue) {
+        mManager = flowManager;
         mName = name;
         hasOwnQueue = createNewQueue;
         checkThread();
@@ -63,13 +69,15 @@ public class DatabaseManager {
     /**
      * Returns the application's only needed DBManager.
      * Note: this manager must be created on the main thread, otherwise a
-     * {@link com.grosner.dbflow.runtime.DBManagerNotOnMainException} will be thrown
+     * {@link com.grosner.dbflow.runtime.DBManagerNotOnMainException} will be thrown. It uses the
+     * shared {@link com.grosner.dbflow.config.FlowManager}. If you wish to use a different DB from the norm,
+     * create a new instance of this class with the manager you want.
      *
      * @return
      */
     public static DatabaseManager getSharedInstance() {
         if (manager == null) {
-            manager = new DatabaseManager("SingleDBManager", true);
+            manager = new DatabaseManager(FlowManager.getInstance(), "SingleDBManager", true);
         }
         return manager;
     }
@@ -163,7 +171,7 @@ public class DatabaseManager {
      */
     public <ModelClass extends Model> void fetchAllFromTable(Class<ModelClass> tableClass,
                                                              ResultReceiver<List<ModelClass>> resultReceiver) {
-        addTransaction(new SelectListTransaction<ModelClass>(tableClass, resultReceiver));
+        addTransaction(new SelectListTransaction<ModelClass>(mManager, tableClass, resultReceiver));
     }
 
     /**
@@ -202,7 +210,7 @@ public class DatabaseManager {
      */
     public <ModelClass extends Model> ModelClass selectModelWithWhere(Class<ModelClass> tableClass,
                                                                       WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        return new Select().from(tableClass).where(whereQueryBuilder).querySingle();
+        return new Select(mManager).from(tableClass).where(whereQueryBuilder).querySingle();
     }
 
     /**
@@ -214,7 +222,7 @@ public class DatabaseManager {
      * @return
      */
     public <ModelClass extends Model> ModelClass selectModelById(Class<ModelClass> tableClass, Object... ids) {
-        WhereQueryBuilder<ModelClass> queryBuilder = FlowManager.getCache().getStructure().getPrimaryWhereQuery(tableClass);
+        WhereQueryBuilder<ModelClass> queryBuilder = mManager.getStructure().getPrimaryWhereQuery(tableClass);
         return selectModelWithWhere(tableClass, queryBuilder.replaceEmptyParams(ids));
     }
 
@@ -243,7 +251,7 @@ public class DatabaseManager {
     public <ModelClass extends Model> void selectModelWithWhere(Class<ModelClass> tableClass,
                                                                 final ResultReceiver<ModelClass> resultReceiver,
                                                                 WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        Where<ModelClass> modelFrom = new Select().from(tableClass).where(whereQueryBuilder);
+        Where<ModelClass> modelFrom = new Select(mManager).from(tableClass).where(whereQueryBuilder);
         fetchModel(modelFrom, resultReceiver);
     }
 
@@ -259,7 +267,7 @@ public class DatabaseManager {
     public <ModelClass extends Model> void selectModelById(Class<ModelClass> tableClass,
                                                            final ResultReceiver<ModelClass> resultReceiver,
                                                            Object... ids) {
-        WhereQueryBuilder<ModelClass> queryBuilder = FlowManager.getCache().getStructure().getPrimaryWhereQuery(tableClass);
+        WhereQueryBuilder<ModelClass> queryBuilder = mManager.getStructure().getPrimaryWhereQuery(tableClass);
         selectModelWithWhere(tableClass, resultReceiver, queryBuilder.replaceEmptyParams(ids));
     }
 
@@ -328,7 +336,7 @@ public class DatabaseManager {
      * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void deleteTable(DBTransactionInfo transactionInfo, Class<ModelClass> table) {
-        addTransaction(new DeleteTransaction<ModelClass>(transactionInfo, table));
+        addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, table));
     }
 
     /**
@@ -343,7 +351,7 @@ public class DatabaseManager {
     public <ModelClass extends Model> void deleteModelsWithQuery(DBTransactionInfo transactionInfo,
                                                                  Class<ModelClass> table,
                                                                  WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        addTransaction(new DeleteTransaction<ModelClass>(transactionInfo, table, whereQueryBuilder));
+        addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, table, whereQueryBuilder));
     }
 
     /**

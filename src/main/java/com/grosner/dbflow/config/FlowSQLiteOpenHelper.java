@@ -1,5 +1,6 @@
 package com.grosner.dbflow.config;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -36,10 +37,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private final boolean foreignKeysSupported;
 
-    public FlowSQLiteOpenHelper(DBConfiguration dbConfiguration) {
-        super(FlowManager.getContext(), dbConfiguration.mDatabaseName, null, dbConfiguration.mDatabaseVersion);
-        movePrepackagedDB(dbConfiguration.mDatabaseName);
+    private FlowManager mManager;
 
+    public FlowSQLiteOpenHelper(FlowManager flowManager, DBConfiguration dbConfiguration) {
+        super(flowManager.getContext(), dbConfiguration.mDatabaseName, null, dbConfiguration.mDatabaseVersion);
+        mManager = flowManager;
+        movePrepackagedDB(dbConfiguration.mDatabaseName);
         foreignKeysSupported = dbConfiguration.foreignKeysSupported;
     }
 
@@ -59,7 +62,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * @param databaseName
      */
     public void movePrepackagedDB(String databaseName) {
-        final File dbPath = FlowManager.getContext().getDatabasePath(databaseName);
+        final File dbPath = mManager.getContext().getDatabasePath(databaseName);
 
         // If the database already exists, return
         if (dbPath.exists()) {
@@ -71,7 +74,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         // Try to copy database file
         try {
-            final InputStream inputStream = FlowManager.getContext().getAssets().open(databaseName);
+            final InputStream inputStream = mManager.getContext().getAssets().open(databaseName);
             final OutputStream output = new FileOutputStream(dbPath);
 
             byte[] buffer = new byte[1024];
@@ -85,8 +88,6 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             output.close();
             inputStream.close();
 
-            // Delete attached DB from the app so we save space
-            dbPath.delete();
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to open file", e);
         }
@@ -145,14 +146,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         FlowManager.transact(database, new Runnable() {
             @Override
             public void run() {
-                Collection<TableStructure> tableStructures = FlowManager.getCache()
-                        .getStructure().getTableStructure().values();
+                Collection<TableStructure> tableStructures = mManager.getStructure().getTableStructure().values();
                 for (TableStructure tableStructure : tableStructures) {
                     database.execSQL(tableStructure.getCreationQuery().getQuery());
                 }
 
-                Collection<ModelView> modelViews = FlowManager.getCache()
-                        .getStructure().getModelViews().values();
+                Collection<ModelView> modelViews = mManager.getStructure().getModelViews().values();
 
                 for (ModelView modelView : modelViews) {
                     QueryBuilder queryBuilder = new QueryBuilder()
@@ -167,7 +166,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private void executeMigrations(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         try {
-            final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(MIGRATION_PATH));
+            final List<String> files = Arrays.asList(mManager.getContext().getAssets().list(MIGRATION_PATH));
             Collections.sort(files, new NaturalOrderComparator());
 
             FlowManager.transact(db, new Runnable() {
@@ -194,7 +193,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private void executeSqlScript(SQLiteDatabase db, String file) {
         try {
-            final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + file);
+            final InputStream input = mManager.getContext().getAssets().open(MIGRATION_PATH + "/" + file);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String line = null;
 

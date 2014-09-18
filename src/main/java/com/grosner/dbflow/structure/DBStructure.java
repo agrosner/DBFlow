@@ -4,6 +4,7 @@ import android.location.Location;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowLog;
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.CalendarConverter;
 import com.grosner.dbflow.converter.DateConverter;
 import com.grosner.dbflow.converter.DefaultForeignKeyConverter;
@@ -32,24 +33,16 @@ public class DBStructure {
 
     private Map<Class<? extends Model>, TableStructure> mTableStructure;
 
-    private Map<Class<?>, TypeConverter> mTypeConverters = new HashMap<Class<?>, TypeConverter>() {
-        {
-            put(Calendar.class, new CalendarConverter());
-            put(java.sql.Date.class, new SqlDateConverter());
-            put(java.util.Date.class, new DateConverter());
-            put(Location.class, new LocationConverter());
-            put(JSONObject.class, new JsonConverter());
-        }
-    };
-
     private Map<Class<? extends ModelView>, ModelView> mModelViews;
 
     private Map<Class<?>, ForeignKeyConverter> mForeignKeyConverters = new HashMap<Class<?>, ForeignKeyConverter>();
 
     private Map<Class<? extends Model>, WhereQueryBuilder> mPrimaryWhereQueryBuilderMap;
 
+    private FlowManager mManager;
 
-    public DBStructure(DBConfiguration dbConfiguration) {
+    public DBStructure(FlowManager flowManager, DBConfiguration dbConfiguration) {
+        mManager = flowManager;
         mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
         mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, WhereQueryBuilder>();
         mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
@@ -68,7 +61,7 @@ public class DBStructure {
             modelList = dbConfiguration.getModelClasses();
         } else {
             try {
-                modelList = StructureUtils.generateModelFromSource();
+                modelList = StructureUtils.generateModelFromSource(mManager);
             } catch (IOException e) {
                 FlowLog.logError(e);
             }
@@ -77,7 +70,7 @@ public class DBStructure {
         if (modelList != null) {
             for (Class<? extends Model> modelClass : modelList) {
                 @SuppressWarnings("unchecked")
-                TableStructure tableStructure = new TableStructure(modelClass);
+                TableStructure tableStructure = new TableStructure(mManager, modelClass);
                 mTableStructure.put(modelClass, tableStructure);
             }
         }
@@ -86,20 +79,6 @@ public class DBStructure {
     @SuppressWarnings("unchecked")
     public <ModelClass extends Model> TableStructure<ModelClass> getTableStructureForClass(Class<ModelClass> modelClass) {
         return getTableStructure().get(modelClass);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <ModelClass> TypeConverter<?, ModelClass> getTypeConverterForClass(Class<ModelClass> modelClass) {
-        return mTypeConverters.get(modelClass);
-    }
-
-    void putTypeConverterForClass(Class typeConverterClass) {
-        try {
-            TypeConverter typeConverter = (TypeConverter) typeConverterClass.newInstance();
-            mTypeConverters.put(typeConverter.getModelType(), typeConverter);
-        } catch (Throwable e) {
-            FlowLog.logError(e);
-        }
     }
 
     /**
@@ -112,7 +91,7 @@ public class DBStructure {
     public <ModelClass extends Model> WhereQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> modelTable) {
         WhereQueryBuilder<ModelClass> whereQueryBuilder = getWhereQueryBuilderMap().get(modelTable);
         if (whereQueryBuilder == null) {
-            whereQueryBuilder = new WhereQueryBuilder<ModelClass>(modelTable).emptyPrimaryParams();
+            whereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, modelTable).emptyPrimaryParams();
             getWhereQueryBuilderMap().put(modelTable, whereQueryBuilder);
         }
         return whereQueryBuilder;

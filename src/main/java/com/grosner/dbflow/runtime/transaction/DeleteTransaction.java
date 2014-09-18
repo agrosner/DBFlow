@@ -1,5 +1,6 @@
 package com.grosner.dbflow.runtime.transaction;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.sql.Delete;
 import com.grosner.dbflow.sql.Where;
@@ -16,15 +17,15 @@ public class DeleteTransaction<ModelClass extends Model> extends BaseTransaction
 
     private Where<ModelClass> Where;
 
-    public DeleteTransaction(DBTransactionInfo dbTransactionInfo, Class<ModelClass> table) {
+    public DeleteTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo, Class<ModelClass> table) {
         super(dbTransactionInfo);
-        Where = new Delete().from(table).where();
+        Where = new Delete(flowManager).from(table).where();
     }
 
-    public DeleteTransaction(DBTransactionInfo dbTransactionInfo, Class<ModelClass> table,
+    public DeleteTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo, Class<ModelClass> table,
                              WhereQueryBuilder<ModelClass> whereArgs) {
         super(dbTransactionInfo);
-        Where = new Delete().from(table).where().whereQuery(whereArgs);
+        Where = new Delete(flowManager).from(table).where().whereQuery(whereArgs);
     }
 
     @Override

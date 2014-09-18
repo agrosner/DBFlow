@@ -23,7 +23,10 @@ public class From<ModelClass extends Model> implements Query{
 
     private List<Join> mJoins = new ArrayList<Join>();
 
-    public From(Query querybase, Class<ModelClass> table) {
+    private final FlowManager mManager;
+
+    public From(FlowManager flowManager, Query querybase, Class<ModelClass> table) {
+        mManager = flowManager;
         mQueryBuilderBase = querybase;
         mType = table;
     }
@@ -34,13 +37,13 @@ public class From<ModelClass extends Model> implements Query{
     }
 
     public Join join(Class<ModelClass> table, Join.JoinType joinType) {
-        Join join = new Join(this, table, joinType);
+        Join join = new Join(mManager, this, table, joinType);
         mJoins.add(join);
         return join;
     }
 
     public Where<ModelClass> where() {
-        return new Where<ModelClass>(this);
+        return new Where<ModelClass>(mManager, this);
     }
 
     public Where<ModelClass> where(String whereClause) {
@@ -56,7 +59,7 @@ public class From<ModelClass extends Model> implements Query{
         QueryBuilder queryBuilder = new QueryBuilder()
                 .append(mQueryBuilderBase.getQuery())
                 .append("FROM")
-                .appendSpaceSeparated(FlowManager.getCache().getTableName(mType))
+                .appendSpaceSeparated(mManager.getTableName(mType))
                 .appendQualifier("AS", mAlias);
 
         for (Join join : mJoins) {

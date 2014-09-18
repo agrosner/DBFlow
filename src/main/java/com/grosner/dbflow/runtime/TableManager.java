@@ -1,5 +1,6 @@
 package com.grosner.dbflow.runtime;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
@@ -21,20 +22,22 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
      * Constructs a new instance. If createNewQueue is true, it will create a new looper. So only use this
      * if you need to have a second queue to have certain transactions go faster. If you create a new queue,
      * it will use up much more memory.
+     * @param flowManager The manager of the whole DB structure
      * @param createNewQueue Create a separate request queue from the shared one.
      * @param mTableClass The table class this manager corresponds to
      */
-    public TableManager(boolean createNewQueue, Class<ModelClass> mTableClass) {
-        super(mTableClass.getSimpleName(), createNewQueue);
+    public TableManager(FlowManager flowManager, boolean createNewQueue, Class<ModelClass> mTableClass) {
+        super(flowManager, mTableClass.getSimpleName(), createNewQueue);
         this.mTableClass = mTableClass;
     }
 
     /**
-     * Constructs a new instance.
+     * Constructs a new instance of this class with the shared {@link com.grosner.dbflow.config.FlowManager} and
+     * uses the shared {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      * @param mTableClass The table class this manager corresponds to
      */
     public TableManager(Class<ModelClass> mTableClass) {
-        super(mTableClass.getSimpleName(), false);
+        super(FlowManager.getInstance(), mTableClass.getSimpleName(), false);
         this.mTableClass = mTableClass;
     }
 
