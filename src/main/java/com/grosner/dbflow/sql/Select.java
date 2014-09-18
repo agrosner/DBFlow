@@ -27,11 +27,11 @@ public class Select implements Query {
 
     private final FlowManager mManager;
 
-    public Select(String...columns) {
+    public Select(String... columns) {
         this(FlowManager.getInstance(), columns);
     }
 
-    public Select(FlowManager flowManager, String...columns) {
+    public Select(FlowManager flowManager, String... columns) {
         mColumns = columns;
         mManager = flowManager;
     }
@@ -60,20 +60,20 @@ public class Select implements Query {
         QueryBuilder queryBuilder = new QueryBuilder();
         queryBuilder.append("SELECT").appendSpace();
 
-        if(mSelectQualifier != NONE) {
-            if(mSelectQualifier == DISTINCT) {
+        if (mSelectQualifier != NONE) {
+            if (mSelectQualifier == DISTINCT) {
                 queryBuilder.append("DISTINCT");
-            } else if(mSelectQualifier == ALL) {
+            } else if (mSelectQualifier == ALL) {
                 queryBuilder.append("ALL");
-            } else if(mSelectQualifier == COUNT) {
+            } else if (mSelectQualifier == COUNT) {
                 queryBuilder.append("COUNT(*)");
             }
             queryBuilder.appendSpace();
         }
 
-        if(mColumns != null && mColumns.length > 0) {
+        if (mColumns != null && mColumns.length > 0) {
             queryBuilder.append(TextUtils.join(", ", mColumns));
-        } else if(mSelectQualifier != COUNT) {
+        } else if (mSelectQualifier != COUNT) {
             queryBuilder.append("*");
         }
         queryBuilder.appendSpace();

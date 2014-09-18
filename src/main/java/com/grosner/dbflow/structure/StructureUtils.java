@@ -55,7 +55,7 @@ public class StructureUtils {
     public static boolean isPrimaryKeyAutoIncrement(Field field) {
         Column column = field.getAnnotation(Column.class);
         boolean isPrimary = column != null;
-        if(isPrimary) {
+        if (isPrimary) {
             isPrimary = column.value().value() == ColumnType.PRIMARY_KEY_AUTO_INCREMENT;
         }
         return isPrimary;
@@ -142,7 +142,7 @@ public class StructureUtils {
             try {
                 Class<?> discoveredClass = Class.forName(className, false, classLoader);
 
-                if(!discoveredClass.isAnnotationPresent(Ignore.class)) {
+                if (!discoveredClass.isAnnotationPresent(Ignore.class)) {
                     // First checks if it implements model, then if its not abstract class,
                     // then if its not the Model class itself, and then if its not ignored
                     if (ReflectionUtils.implementsModel(discoveredClass) &&

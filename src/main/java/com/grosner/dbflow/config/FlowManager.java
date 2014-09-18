@@ -43,10 +43,11 @@ public class FlowManager {
     /**
      * Returns the shared manager for this app. It exists for most use cases as the only DB, but to define
      * more DB, create another one.
+     *
      * @return
      */
     public static FlowManager getInstance() {
-        if(manager == null) {
+        if (manager == null) {
             manager = new FlowManager();
         }
         return manager;
@@ -84,10 +85,11 @@ public class FlowManager {
 
     /**
      * Will throw an exception if this class is not initialized yet in {@link #initialize(android.content.Context, DBConfiguration)}
+     *
      * @return
      */
     public Context getContext() {
-        if(context == null) {
+        if (context == null) {
             throw new IllegalStateException("Context cannot be null for FlowManager");
         }
         return context;
@@ -95,6 +97,7 @@ public class FlowManager {
 
     /**
      * Call this in your application's {@link android.app.Application#onCreate()} method.
+     *
      * @param context
      * @param dbConfiguration
      * @see #initialize(android.content.Context, DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)
@@ -106,12 +109,13 @@ public class FlowManager {
     /**
      * Call this in your application's {@link android.app.Application#onCreate()} method. Initializes the database,
      * the structure cache, and opens the database.
+     *
      * @param context
      * @param dbConfiguration
      * @param databaseHelperListener
      */
     public void initialize(Context context, DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
-        if(!isInitialized) {
+        if (!isInitialized) {
             this.context = context;
             ModelPathManager.addPath(this.context.getPackageName());
 
@@ -154,7 +158,8 @@ public class FlowManager {
 
     /**
      * Returns a {@link com.grosner.dbflow.structure.TableStructure} for a specific model class
-     * @param modelClass The table class we want to retrieve
+     *
+     * @param modelClass   The table class we want to retrieve
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return the table structure for this model class
      */
@@ -164,6 +169,7 @@ public class FlowManager {
 
     /**
      * Returns the table name for the specific model class
+     *
      * @param modelClass The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return The table name, which can be different than the {@link com.grosner.dbflow.structure.Model} class name
      */
@@ -179,10 +185,11 @@ public class FlowManager {
         return mHelper;
     }
 
-    /***
+    /**
      * Returns the specific {@link com.grosner.dbflow.converter.TypeConverter} for this model. It defines
      * how the class is stored in the DB
-     * @param modelClass The class that implements {@link com.grosner.dbflow.structure.Model}
+     *
+     * @param modelClass   The class that implements {@link com.grosner.dbflow.structure.Model}
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return
      */
@@ -196,6 +203,7 @@ public class FlowManager {
 
     /**
      * Adds a new {@link com.grosner.dbflow.converter.TypeConverter} to this map
+     *
      * @param typeConverterClass
      */
     public void putTypeConverterForClass(Class typeConverterClass) {
@@ -209,11 +217,12 @@ public class FlowManager {
 
     /**
      * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
+     *
      * @param runnable
      */
     public static void transact(SQLiteDatabase database, Runnable runnable) {
         database.beginTransaction();
-        try{
+        try {
             runnable.run();
             database.setTransactionSuccessful();
         } finally {
@@ -223,9 +232,10 @@ public class FlowManager {
 
     /**
      * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
+     *
      * @param runnable
      */
     public static void transact(Runnable runnable) {
-       transact(getInstance().getWritableDatabase(), runnable);
+        transact(getInstance().getWritableDatabase(), runnable);
     }
 }

@@ -13,7 +13,7 @@ import java.util.concurrent.PriorityBlockingQueue;
  * Contributors:
  * Description: will handle concurrent requests to the DB based on priority
  */
-public class DBTransactionQueue extends Thread{
+public class DBTransactionQueue extends Thread {
 
     /**
      * Queue of requests
@@ -24,6 +24,7 @@ public class DBTransactionQueue extends Thread{
 
     /**
      * Creates a queue with the specified name to ID it.
+     *
      * @param name
      */
     public DBTransactionQueue(String name) {
@@ -37,11 +38,11 @@ public class DBTransactionQueue extends Thread{
         Looper.prepare();
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         BaseTransaction transaction;
-        while (true){
-            try{
+        while (true) {
+            try {
                 transaction = mQueue.take();
-            } catch (InterruptedException e){
-                if(mQuit){
+            } catch (InterruptedException e) {
+                if (mQuit) {
                     synchronized (mQueue) {
                         mQueue.clear();
                     }
@@ -50,9 +51,9 @@ public class DBTransactionQueue extends Thread{
                 continue;
             }
 
-            try{
+            try {
                 // If the transaction is ready
-                if(transaction.onReady()) {
+                if (transaction.onReady()) {
                     //if(AALog.isEnabled()) {
                     //AALog.d("DBRequestQueue + " + getName(), "Size is: " + mQueue.size() + " executing:" + runnable.getName());
                     //}
@@ -61,21 +62,21 @@ public class DBTransactionQueue extends Thread{
                     final BaseTransaction finalTransaction = transaction;
 
                     // Run the result on the FG
-                    DatabaseManager.getInstance().processOnRequestHandler(new Runnable() {
+                    TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
                         @Override
                         public void run() {
                             finalTransaction.onPostExecute(result);
                         }
                     });
                 }
-            } catch (Throwable t){
+            } catch (Throwable t) {
                 throw new RuntimeException(t);
             }
         }
 
     }
 
-    public void add(BaseTransaction runnable){
+    public void add(BaseTransaction runnable) {
         if (!mQueue.contains(runnable)) {
             mQueue.add(runnable);
         }
@@ -83,9 +84,10 @@ public class DBTransactionQueue extends Thread{
 
     /**
      * Cancels the specified request.
+     *
      * @param runnable
      */
-    public void cancel(BaseTransaction runnable){
+    public void cancel(BaseTransaction runnable) {
         if (mQueue.contains(runnable)) {
             mQueue.remove(runnable);
         }
@@ -93,14 +95,15 @@ public class DBTransactionQueue extends Thread{
 
     /**
      * Cancels all requests by a specific tag
+     *
      * @param tag
      */
-    public void cancel(String tag){
-        synchronized (mQueue){
+    public void cancel(String tag) {
+        synchronized (mQueue) {
             Iterator<BaseTransaction> it = mQueue.iterator();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 BaseTransaction next = it.next();
-                if(next.getName().equals(tag)){
+                if (next.getName().equals(tag)) {
                     it.remove();
                 }
             }
@@ -110,7 +113,7 @@ public class DBTransactionQueue extends Thread{
     /**
      * Quits this process
      */
-    public void quit(){
+    public void quit() {
         mQuit = true;
         interrupt();
     }

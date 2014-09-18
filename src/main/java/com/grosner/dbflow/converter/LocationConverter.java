@@ -5,9 +5,9 @@ import android.location.Location;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Defines how we store and retrieve a {@link android.location.Location}
  */
-public class LocationConverter implements TypeConverter<String,Location> {
+public class LocationConverter implements TypeConverter<String, Location> {
     @Override
     public Class<String> getDatabaseType() {
         return String.class;
@@ -26,7 +26,7 @@ public class LocationConverter implements TypeConverter<String,Location> {
     @Override
     public Location getModelValue(String data) {
         String[] values = data.split(",");
-        if(values.length < 2) {
+        if (values.length < 2) {
             return null;
         } else {
             Location location = new Location("");

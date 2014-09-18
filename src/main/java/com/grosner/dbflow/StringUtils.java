@@ -8,6 +8,6 @@ package com.grosner.dbflow;
 public class StringUtils {
 
     public static boolean isNotNullOrEmpty(String sourcePath) {
-        return sourcePath!=null && !sourcePath.equals("") && sourcePath.length()>0;
+        return sourcePath != null && !sourcePath.equals("") && sourcePath.length() > 0;
     }
 }

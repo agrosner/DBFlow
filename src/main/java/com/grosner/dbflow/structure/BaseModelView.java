@@ -16,7 +16,7 @@ public abstract class BaseModelView<ModelClass extends Model> implements ModelVi
     /**
      * Gets thrown when an operation is not valid for the SQL {@link com.grosner.dbflow.structure.ModelView}
      */
-    private static class InvalidSqlViewOperationException extends RuntimeException{
+    private static class InvalidSqlViewOperationException extends RuntimeException {
 
         private InvalidSqlViewOperationException(String detailMessage) {
             super(detailMessage);

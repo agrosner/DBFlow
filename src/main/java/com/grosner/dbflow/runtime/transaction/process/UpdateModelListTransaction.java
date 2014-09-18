@@ -12,8 +12,17 @@ import java.util.List;
  * Description: Updates all of the {@link ModelClass} in one transaction.
  */
 public class UpdateModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
-    public UpdateModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> mReceiver, List<ModelClass> models) {
-        super(dbTransactionInfo, mReceiver, models);
+
+    /**
+     * Constructs this transaction with a list of models.
+     *
+     * @param dbTransactionInfo The information about this transaction
+     * @param resultReceiver    Will be called when the transaction completes.
+     * @param models            The list of models to act on
+     */
+    public UpdateModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
+                                      List<ModelClass> models) {
+        super(dbTransactionInfo, resultReceiver, models);
     }
 
     @Override

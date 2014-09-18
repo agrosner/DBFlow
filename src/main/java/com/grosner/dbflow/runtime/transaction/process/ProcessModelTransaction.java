@@ -21,26 +21,28 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
 
     /**
      * Constructs this transaction with a single model enabled.
+     *
      * @param dbTransactionInfo The information about this transaction
-     * @param mReceiver Will be called when the transaction completes.
-     * @param model The single model we wish to act on
+     * @param resultReceiver    Will be called when the transaction completes.
+     * @param model             The single model we wish to act on
      */
-    public ProcessModelTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> mReceiver,
+    public ProcessModelTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
                                    ModelClass model) {
-        super(dbTransactionInfo, mReceiver);
+        super(dbTransactionInfo, resultReceiver);
         mModels = new ArrayList<ModelClass>();
         mModels.add(model);
     }
 
     /**
-     * Constructs this transaction with a single model enabled.
-     * @param dbTransactionInfo
-     * @param mReceiver
-     * @param models
+     * Constructs this transaction with a list of models.
+     *
+     * @param dbTransactionInfo The information about this transaction
+     * @param resultReceiver    Will be called when the transaction completes.
+     * @param models            The list of models to act on
      */
-    public ProcessModelTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> mReceiver,
+    public ProcessModelTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
                                    List<ModelClass> models) {
-        super(dbTransactionInfo, mReceiver);
+        super(dbTransactionInfo, resultReceiver);
         mModels = models;
     }
 
@@ -66,7 +68,8 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
 
     /**
      * Called when we are on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and looping
-     * through the models. Run the specific {@link com.grosner.dbflow.structure.Model} method here.
+     * through the models. Run a specific {@link com.grosner.dbflow.structure.Model} method here.
+     *
      * @param model
      */
     protected abstract void processModel(ModelClass model);

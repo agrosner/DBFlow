@@ -73,6 +73,7 @@ public class DBConfiguration {
 
         /**
          * Specify the database name. The .db is not necessary. This also must match any prepackaged database.
+         *
          * @param databaseName The name of the database in private app data
          * @return The builder
          */
@@ -85,6 +86,7 @@ public class DBConfiguration {
          * The db version. Incrementing this value will trigger
          * {@link com.grosner.dbflow.DatabaseHelperListener#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)}
          * .
+         *
          * @param databaseVersion
          * @return
          */
@@ -95,6 +97,7 @@ public class DBConfiguration {
 
         /**
          * Adds specific model classes to be evaluated (or created with a new db)
+         *
          * @param modelClasses
          * @return
          */
@@ -114,6 +117,7 @@ public class DBConfiguration {
 
         /**
          * Will make foreign keys supported in this DB.
+         *
          * @return
          */
         public Builder foreignKeysSupported() {

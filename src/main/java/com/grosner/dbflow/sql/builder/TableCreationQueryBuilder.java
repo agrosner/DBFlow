@@ -21,7 +21,7 @@ public class TableCreationQueryBuilder extends QueryBuilder {
             mQuery.append(")");
         }
 
-        if(column.value().value() == ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
+        if (column.value().value() == ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
             mQuery.append(" PRIMARY KEY AUTOINCREMENT");
         }
 
@@ -44,6 +44,7 @@ public class TableCreationQueryBuilder extends QueryBuilder {
 
     /**
      * Appends all of the column definitions here
+     *
      * @param columnDefinitions
      * @return
      */

@@ -71,6 +71,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Constructs an instance of this class with the shared {@link com.grosner.dbflow.config.FlowManager}
      * and {@link ModelClass}.
+     *
      * @param tableClass
      */
     public WhereQueryBuilder(Class<ModelClass> tableClass) {
@@ -80,6 +81,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Constructs an instance of this class with the specified {@link com.grosner.dbflow.config.FlowManager}
      * and {@link ModelClass}.
+     *
      * @param flowManager
      * @param tableClass
      */
@@ -159,8 +161,9 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
+     *
      * @param columnName The name of the column in the DB
-     * @param whereArgs The where arguments. We can specify other operators than just "="
+     * @param whereArgs  The where arguments. We can specify other operators than just "="
      * @return
      */
     public WhereQueryBuilder<ModelClass> param(String columnName, WhereArgs whereArgs) {

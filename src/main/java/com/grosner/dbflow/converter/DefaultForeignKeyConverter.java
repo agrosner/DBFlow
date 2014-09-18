@@ -17,8 +17,16 @@ import java.util.Collection;
  */
 public class DefaultForeignKeyConverter implements ForeignKeyConverter {
 
+    /**
+     * The shared converter
+     */
     private static DefaultForeignKeyConverter converter;
 
+    /**
+     * Returns the shared type converter that all Foreign keys will use as default unless otherwise defined.
+     *
+     * @return
+     */
     public static DefaultForeignKeyConverter getSharedConverter() {
         if (converter == null) {
             converter = new DefaultForeignKeyConverter();

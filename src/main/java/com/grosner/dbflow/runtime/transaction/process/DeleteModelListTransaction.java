@@ -9,11 +9,11 @@ import java.util.List;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: Deletes models passed into this class from the DB.
+ * Description: Deletes a list of models passed into this class from the DB.
  */
 public class DeleteModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
     public DeleteModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> mReceiver,
-                                         List<ModelClass> models) {
+                                      List<ModelClass> models) {
         super(dbTransactionInfo, mReceiver, models);
     }
 

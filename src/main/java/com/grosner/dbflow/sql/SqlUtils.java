@@ -9,7 +9,7 @@ import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
-import com.grosner.dbflow.runtime.DatabaseManager;
+import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.BaseTransaction;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Column;
@@ -86,7 +86,7 @@ public class SqlUtils {
         return retModel;
     }
 
-    public static <ModelClass extends Model> boolean hasData(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String...args) {
+    public static <ModelClass extends Model> boolean hasData(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();
@@ -266,13 +266,13 @@ public class SqlUtils {
                 }
             }
         } else {
-            DatabaseManager.getInstance().saveOnSaveQueue(model);
+            TransactionManager.getInstance().saveOnSaveQueue(model);
         }
     }
 
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void loadFromCursor(FlowManager flowManager, ModelClass model, Cursor cursor) {
-        TableStructure<ModelClass> tableStructure = flowManager.getTableStructureForClass((Class<ModelClass>)model.getClass());
+        TableStructure<ModelClass> tableStructure = flowManager.getTableStructureForClass((Class<ModelClass>) model.getClass());
         Set<Field> fields = tableStructure.getColumns();
         for (Field field : fields) {
             final String fieldName = tableStructure.getColumnName(field);
@@ -363,7 +363,7 @@ public class SqlUtils {
             WhereQueryBuilder<ModelClass> whereQueryBuilder = flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
             flowManager.getWritableDatabase().delete(tableStructure.getTableName(), WhereQueryBuilder.getPrimaryModelWhere(whereQueryBuilder, model), null);
         } else {
-            DatabaseManager.getInstance().addTransaction(new BaseTransaction<ModelClass>() {
+            TransactionManager.getInstance().addTransaction(new BaseTransaction<ModelClass>() {
                 @Override
                 public ModelClass onExecute() {
                     model.delete(false);

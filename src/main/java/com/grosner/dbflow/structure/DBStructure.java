@@ -67,7 +67,8 @@ public class DBStructure {
 
     /**
      * Returns a {@link com.grosner.dbflow.structure.TableStructure} for a specific model class
-     * @param modelClass The table class we want to retrieve
+     *
+     * @param modelClass   The table class we want to retrieve
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return the table structure for this model class
      */
@@ -95,6 +96,7 @@ public class DBStructure {
     /**
      * Returns either the specified {@link com.grosner.dbflow.converter.ForeignKeyConverter} or the
      * {@link com.grosner.dbflow.converter.DefaultForeignKeyConverter} if not found.
+     *
      * @param modelClass
      * @return
      */

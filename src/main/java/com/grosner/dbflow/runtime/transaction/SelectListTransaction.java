@@ -19,6 +19,7 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
 
     /**
      * Creates an instance of this classs with defaulted {@link com.grosner.dbflow.sql.Select} all.
+     *
      * @param tableClass
      * @param resultReceiver
      */
@@ -28,8 +29,9 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
 
     /**
      * Creates this class with the specified arguments.
-     * @param tableClass The class we will retrieve the models from
-     * @param select The select statement we will use to retrieve them.
+     *
+     * @param tableClass     The class we will retrieve the models from
+     * @param select         The select statement we will use to retrieve them.
      * @param resultReceiver The result we get.
      */
     public SelectListTransaction(Class<ModelClass> tableClass, Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
@@ -38,7 +40,8 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
 
     /**
      * Creates this class with a {@link com.grosner.dbflow.sql.From}
-     * @param where The completed Sql Statement we will use to fetch the models
+     *
+     * @param where          The completed Sql Statement we will use to fetch the models
      * @param resultReceiver
      */
     public SelectListTransaction(Where<ModelClass> where, ResultReceiver<List<ModelClass>> resultReceiver) {

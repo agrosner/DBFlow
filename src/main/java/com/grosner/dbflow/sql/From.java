@@ -13,7 +13,7 @@ import java.util.List;
  * Contributors: { }
  * Description:
  */
-public class From<ModelClass extends Model> implements Query{
+public class From<ModelClass extends Model> implements Query {
 
     private Query mQueryBuilderBase;
 

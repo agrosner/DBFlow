@@ -10,11 +10,11 @@ import java.util.ArrayList;
 public class DBManagerRuntime {
 
 
-    private static ArrayList<DatabaseManager> managers;
+    private static ArrayList<TransactionManager> managers;
 
-    static ArrayList<DatabaseManager> getManagers(){
-        if(managers==null){
-            managers = new ArrayList<DatabaseManager>();
+    static ArrayList<TransactionManager> getManagers() {
+        if (managers == null) {
+            managers = new ArrayList<TransactionManager>();
         }
         return managers;
     }
@@ -22,9 +22,9 @@ public class DBManagerRuntime {
     /**
      * Quits all active DBManager queues
      */
-    public static void quit(){
-        for(DatabaseManager manager: getManagers()){
-            if(manager.hasOwnQueue()) {
+    public static void quit() {
+        for (TransactionManager manager : getManagers()) {
+            if (manager.hasOwnQueue()) {
                 manager.getQueue().quit();
                 manager.disposeQueue();
             }
@@ -33,8 +33,8 @@ public class DBManagerRuntime {
         DBBatchSaveQueue.disposeSharedQueue();
     }
 
-    public static void restartManagers(){
-        for(DatabaseManager manager: getManagers()){
+    public static void restartManagers() {
+        for (TransactionManager manager : getManagers()) {
             manager.checkQueue();
         }
     }

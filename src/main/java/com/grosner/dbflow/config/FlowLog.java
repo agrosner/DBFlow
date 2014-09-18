@@ -49,7 +49,7 @@ public class FlowLog {
         WTF {
             @Override
             void call(String tag, String message, Throwable throwable) {
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.FROYO) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
                     Log.wtf(tag, message, throwable);
                 } else {
                     // If on older platform, we will just exaggerate the log message in the error level
@@ -66,6 +66,7 @@ public class FlowLog {
     /**
      * Sets the minimum level that we wish to print out log statements with.
      * The default is {@link com.grosner.dbflow.config.FlowLog.Level#E}.
+     *
      * @param level
      */
     public static void setMinimumLoggingLevel(Level level) {
@@ -74,17 +75,19 @@ public class FlowLog {
 
     /**
      * Returns true if the logging level is lower than the specified {@link com.grosner.dbflow.config.FlowLog.Level}
+     *
      * @return
      */
     public static boolean isEnabled(Level level) {
-        return level.ordinal()>=sLevel.ordinal();
+        return level.ordinal() >= sLevel.ordinal();
     }
 
     /**
      * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
-     * @param level The log level to use
-     * @param tag The tag of the log
-     * @param message The message to print out
+     *
+     * @param level     The log level to use
+     * @param tag       The tag of the log
+     * @param message   The message to print out
      * @param throwable The optional stack trace to print
      */
     public static void log(Level level, String tag, String message, Throwable throwable) {
@@ -96,8 +99,9 @@ public class FlowLog {
     /**
      * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
      * It uses the {@link #TAG} for messages
-     * @param level The log level to use
-     * @param message The message to print out
+     *
+     * @param level     The log level to use
+     * @param message   The message to print out
      * @param throwable The optional stack trace to print
      */
     public static void log(Level level, String message, Throwable throwable) {
@@ -107,7 +111,8 @@ public class FlowLog {
     /**
      * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
      * It uses the {@link #TAG} for messages and sends a null throwable.
-     * @param level The log level to use
+     *
+     * @param level   The log level to use
      * @param message The message to print out
      */
     public static void log(Level level, String message) {
@@ -117,7 +122,8 @@ public class FlowLog {
     /**
      * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
      * It uses the {@link #TAG} for messages and sends an empty message
-     * @param level The log level to use
+     *
+     * @param level     The log level to use
      * @param throwable The stack trace to print
      */
     public static void log(Level level, Throwable throwable) {
@@ -126,6 +132,7 @@ public class FlowLog {
 
     /**
      * Logs a {@link java.lang.Throwable} as an error.
+     *
      * @param throwable The stack trace to print
      */
     public static void logError(Throwable throwable) {

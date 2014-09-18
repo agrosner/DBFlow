@@ -21,7 +21,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
         return castThis();
     }
 
-    public QueryClass appendSpace(){
+    public QueryClass appendSpace() {
         return append(" ");
     }
 
@@ -47,7 +47,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     public QueryClass appendQualifier(String name, String value) {
-        if(!TextUtils.isEmpty(value)) {
+        if (!TextUtils.isEmpty(value)) {
             append(name).appendSpaceSeparated(value);
         }
         return castThis();

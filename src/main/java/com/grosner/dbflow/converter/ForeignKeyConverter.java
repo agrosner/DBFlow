@@ -10,16 +10,23 @@ import com.grosner.dbflow.structure.Model;
  */
 public interface ForeignKeyConverter<ModelClass extends Model> {
 
+    /**
+     * Return the class that this converter will define it's conversion for.
+     *
+     * @return
+     */
     public Class<ModelClass> getModelClass();
 
     /**
      * Returns the Database value for this class. This is what will be stored in the referent class' table.
+     *
      * @return
      */
     public String getDBValue(FlowManager flowManager, ModelClass modelClass);
 
     /**
      * Returns the foreign key values from the DB so we can retrieve this object.
+     *
      * @param dbValue
      * @return
      */

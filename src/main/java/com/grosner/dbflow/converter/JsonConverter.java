@@ -8,9 +8,9 @@ import org.json.JSONObject;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Defines how we store and retrieve a {@link org.json.JSONObject}
  */
-public class JsonConverter implements TypeConverter<String,JSONObject> {
+public class JsonConverter implements TypeConverter<String, JSONObject> {
     @Override
     public Class<String> getDatabaseType() {
         return String.class;

@@ -12,9 +12,9 @@ import java.util.List;
  * Author: andrewgrosner
  * Contributors: { }
  * Description: This class manages a single table, wrapping all of the relevant
- * {@link com.grosner.dbflow.runtime.DatabaseManager} operations with the {@link ModelClass}
+ * {@link TransactionManager} operations with the {@link ModelClass}
  */
-public class TableManager<ModelClass extends Model> extends DatabaseManager {
+public class TableTransactionManager<ModelClass extends Model> extends TransactionManager {
 
     private Class<ModelClass> mTableClass;
 
@@ -22,11 +22,12 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
      * Constructs a new instance. If createNewQueue is true, it will create a new looper. So only use this
      * if you need to have a second queue to have certain transactions go faster. If you create a new queue,
      * it will use up much more memory.
-     * @param flowManager The manager of the whole DB structure
+     *
+     * @param flowManager    The manager of the whole DB structure
      * @param createNewQueue Create a separate request queue from the shared one.
-     * @param mTableClass The table class this manager corresponds to
+     * @param mTableClass    The table class this manager corresponds to
      */
-    public TableManager(FlowManager flowManager, boolean createNewQueue, Class<ModelClass> mTableClass) {
+    public TableTransactionManager(FlowManager flowManager, boolean createNewQueue, Class<ModelClass> mTableClass) {
         super(flowManager, mTableClass.getSimpleName(), createNewQueue);
         this.mTableClass = mTableClass;
     }
@@ -34,9 +35,10 @@ public class TableManager<ModelClass extends Model> extends DatabaseManager {
     /**
      * Constructs a new instance of this class with the shared {@link com.grosner.dbflow.config.FlowManager} and
      * uses the shared {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     *
      * @param mTableClass The table class this manager corresponds to
      */
-    public TableManager(Class<ModelClass> mTableClass) {
+    public TableTransactionManager(Class<ModelClass> mTableClass) {
         super(FlowManager.getInstance(), mTableClass.getSimpleName(), false);
         this.mTableClass = mTableClass;
     }

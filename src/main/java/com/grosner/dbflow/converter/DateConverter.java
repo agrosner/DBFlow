@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Defines how we store and retrieve a {@link java.util.Date}
  */
 public class DateConverter implements TypeConverter<Long, Date> {
     @Override

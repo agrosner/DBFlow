@@ -25,12 +25,12 @@ import java.util.List;
  * Description: This class manages batch database interactions. It is useful for retrieving, updating, saving,
  * and deleting lists of items. For the bulk of DB operations should exist in this class.
  */
-public class DatabaseManager {
+public class TransactionManager {
 
     /**
      * The shared database manager instance
      */
-    private static DatabaseManager manager;
+    private static TransactionManager manager;
 
     /**
      * The queue where we asynchronously perform database requests
@@ -57,7 +57,7 @@ public class DatabaseManager {
      *
      * @param name
      */
-    public DatabaseManager(FlowManager flowManager, String name, boolean createNewQueue) {
+    public TransactionManager(FlowManager flowManager, String name, boolean createNewQueue) {
         mManager = flowManager;
         mName = name;
         hasOwnQueue = createNewQueue;
@@ -75,9 +75,9 @@ public class DatabaseManager {
      *
      * @return
      */
-    public static DatabaseManager getInstance() {
+    public static TransactionManager getInstance() {
         if (manager == null) {
-            manager = new DatabaseManager(FlowManager.getInstance(), DatabaseManager.class.getSimpleName(), true);
+            manager = new TransactionManager(FlowManager.getInstance(), TransactionManager.class.getSimpleName(), true);
         }
         return manager;
     }
@@ -107,7 +107,7 @@ public class DatabaseManager {
             if (hasOwnQueue) {
                 mQueue = new DBTransactionQueue(mName);
             } else {
-                mQueue = DatabaseManager.getInstance().mQueue;
+                mQueue = TransactionManager.getInstance().mQueue;
             }
         }
         return mQueue;
@@ -119,6 +119,7 @@ public class DatabaseManager {
 
     /**
      * Gets the {@link com.grosner.dbflow.config.FlowManager} that's responsible for the DB structure.
+     *
      * @return
      */
     public FlowManager getFlowManager() {
@@ -200,7 +201,7 @@ public class DatabaseManager {
      * Selects all items from the table with the specified {@link com.grosner.dbflow.sql.From} in
      * the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
      *
-     * @param where           The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute. The base of this
+     * @param where          The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute. The base of this
      *                       query must be {@link com.grosner.dbflow.sql.Select}
      * @param resultReceiver
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}.
@@ -212,9 +213,10 @@ public class DatabaseManager {
     /**
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
      * The order of the ids must match the ordered they're declared.
-     *  @param tableClass     The table to select the model from.
+     *
+     * @param tableClass        The table to select the model from.
      * @param whereQueryBuilder The where query we will use
-     * @param resultReceiver The result will be passed here.
+     * @param resultReceiver    The result will be passed here.
      */
     public <ModelClass extends Model> void fetchFromTableWithWhere(Class<ModelClass> tableClass,
                                                                    WhereQueryBuilder<ModelClass> whereQueryBuilder,
@@ -225,9 +227,10 @@ public class DatabaseManager {
 
     /**
      * Selects a single model object with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
-     * @param tableClass The table to select from.
+     *
+     * @param tableClass        The table to select from.
      * @param whereQueryBuilder The where query we will use
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @param <ModelClass>      The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the first model from the database cursor.
      */
     public <ModelClass extends Model> ModelClass selectModelWithWhere(Class<ModelClass> tableClass,
@@ -252,7 +255,7 @@ public class DatabaseManager {
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by
      * {@link com.grosner.dbflow.sql.From}.
      *
-     * @param where           The where to use.
+     * @param where          The where to use.
      * @param resultReceiver The result will be passed here.
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
@@ -264,9 +267,10 @@ public class DatabaseManager {
     /**
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
      * The order of the ids must match the ordered they're declared.
-     *  @param tableClass     The table to select the model from.
+     *
+     * @param tableClass        The table to select the model from.
      * @param whereQueryBuilder
-     * @param resultReceiver The result will be passed here.
+     * @param resultReceiver    The result will be passed here.
      */
     public <ModelClass extends Model> void fetchModelWithWhere(Class<ModelClass> tableClass,
                                                                WhereQueryBuilder<ModelClass> whereQueryBuilder,
@@ -321,7 +325,8 @@ public class DatabaseManager {
      * Saves the list of {@link ModelClass} into the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      * with the specified {@link com.grosner.dbflow.runtime.DBTransactionInfo}. The corresponding
      * {@link com.grosner.dbflow.runtime.transaction.ResultReceiver} will be called when the transaction completes.
-     *  @param transactionInfo The information on how we should approach this request.
+     *
+     * @param transactionInfo The information on how we should approach this request.
      * @param models          The list of models to save
      * @param resultReceiver  The models passed in here will be returned in this variable when the transaction completes.
      */
@@ -361,7 +366,7 @@ public class DatabaseManager {
      * Deletes all of the models in the specified table with the {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
      * on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      *
-     * @param transactionInfo    The information on how we should approach this request.
+     * @param transactionInfo   The information on how we should approach this request.
      * @param whereQueryBuilder The where arguments of the deletion
      * @param table             The table to delete models from.
      * @param <ModelClass>      The class that implements {@link com.grosner.dbflow.structure.Model}.
@@ -376,7 +381,8 @@ public class DatabaseManager {
      * Deletes all of the models with the {@link com.grosner.dbflow.runtime.DBTransactionInfo}
      * passed from the list of models. The corresponding {@link com.grosner.dbflow.runtime.transaction.ResultReceiver}
      * will be called when the transaction finishes.
-     *  @param transactionInfo The information on how we should approach this request.
+     *
+     * @param transactionInfo The information on how we should approach this request.
      * @param models          The list of models to delete
      * @param resultReceiver  The models passed in here will be returned in this variable when the transaction completes.
      */

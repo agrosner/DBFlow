@@ -5,17 +5,16 @@ import com.grosner.dbflow.runtime.DBTransactionInfo;
 
 /**
  * Created by andrewgrosner
- * Date: 12/11/13
  * Contributors:
  * Description: The basic request object that's placed on the DBRequestQueue for processing.
  * The {@link com.grosner.dbflow.runtime.DBTransactionQueue} uses a priority queue that will process
  * this class based on the priority assigned to it.
- *
+ * <p/>
  * There are four main kinds of requests:
- *  For requests that require UI or immediate retrieval, use PRIORITY_UI
- *  For requests that are displayed in the UI some point in the near future, use PRIORITY_HIGH
- *  For the bulk of data requests, use PRIORITY_NORMAL
- *  For any request that's non-essential use PRIORITY_LOW
+ * For requests that require UI or immediate retrieval, use PRIORITY_UI
+ * For requests that are displayed in the UI some point in the near future, use PRIORITY_HIGH
+ * For the bulk of data requests, use PRIORITY_NORMAL
+ * For any request that's non-essential use PRIORITY_LOW
  */
 public abstract class BaseTransaction<TransactionResult> implements Comparable<BaseTransaction> {
 
@@ -44,9 +43,10 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
     /**
      * Tells the queue if this request is ready to run. The default is true. This is run on the
      * {@link com.grosner.dbflow.runtime.DBTransactionQueue}'s thread.
+     *
      * @return
      */
-    public boolean onReady(){
+    public boolean onReady() {
         return true;
     }
 
@@ -63,10 +63,14 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
 
     }
 
+    /**
+     * Provides information about this transaction such as priority
+     */
     private DBTransactionInfo mInfo;
 
     /**
      * Constructs this class using the specified DBRequest info
+     *
      * @param dbTransactionInfo
      */
     public BaseTransaction(DBTransactionInfo dbTransactionInfo) {
@@ -76,7 +80,7 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
     /**
      * Creates a new, low priority request
      */
-    public BaseTransaction(){
+    public BaseTransaction() {
         mInfo = DBTransactionInfo.create();
     }
 

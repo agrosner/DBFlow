@@ -14,9 +14,16 @@ import java.util.List;
 public class SaveModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
 
 
-    public SaveModelListTransaction(DBTransactionInfo transactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
+    /**
+     * Constructs this transaction with a list of models.
+     *
+     * @param dbTransactionInfo The information about this transaction
+     * @param resultReceiver    Will be called when the transaction completes.
+     * @param models            The list of models to act on
+     */
+    public SaveModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
                                     List<ModelClass> models) {
-        super(transactionInfo, resultReceiver, models);
+        super(dbTransactionInfo, resultReceiver, models);
     }
 
     @Override

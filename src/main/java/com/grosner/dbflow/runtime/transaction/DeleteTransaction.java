@@ -17,11 +17,26 @@ public class DeleteTransaction<ModelClass extends Model> extends BaseTransaction
 
     private Where<ModelClass> Where;
 
+    /**
+     * Constructs this transaction with a delete with an empty "where" clause
+     *
+     * @param flowManager       The manager that corresponds to a database
+     * @param dbTransactionInfo The information about this transaction
+     * @param table             The model table that we act on
+     */
     public DeleteTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo, Class<ModelClass> table) {
         super(dbTransactionInfo);
         Where = new Delete(flowManager).from(table).where();
     }
 
+    /**
+     * Constructs this transaction with a delete with the specified where args
+     *
+     * @param flowManager       The manager that corresponds to a database
+     * @param dbTransactionInfo The information about this transaction
+     * @param table             The model table that we act on
+     * @param whereArgs         The where statement that we will use
+     */
     public DeleteTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo, Class<ModelClass> table,
                              WhereQueryBuilder<ModelClass> whereArgs) {
         super(dbTransactionInfo);
