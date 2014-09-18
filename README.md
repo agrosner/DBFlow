@@ -24,6 +24,6 @@ Let DBFlow make SQL code _flow_ like a steady stream and allow you to focus on y
 ## Documentation
 
 1. [Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
-2. [Building your database structure](Building your database structure)
+2. [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
 3. [Database Management](https://github.com/agrosner/DBFlow/wiki/dbmanagement)
 4. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/typeconverters)
