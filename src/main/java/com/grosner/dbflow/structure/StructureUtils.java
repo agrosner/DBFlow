@@ -21,10 +21,16 @@ import dalvik.system.DexFile;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Provides some basic database structure utility methods.
  */
 public class StructureUtils {
 
+    /**
+     * Checks to see if field is a {@link com.grosner.dbflow.structure.ColumnType#PRIMARY_KEY}
+     *
+     * @param field
+     * @return
+     */
     public static boolean isPrimaryKey(Field field) {
         Column column = field.getAnnotation(Column.class);
         boolean isPrimary = column != null;
@@ -34,6 +40,12 @@ public class StructureUtils {
         return isPrimary;
     }
 
+    /**
+     * Checks to see if field is a {@link com.grosner.dbflow.structure.ColumnType#FOREIGN_KEY}
+     *
+     * @param field
+     * @return
+     */
     public static boolean isForeignKey(Field field) {
         Column column = field.getAnnotation(Column.class);
         boolean isForeign = column != null;
@@ -43,6 +55,12 @@ public class StructureUtils {
         return isForeign;
     }
 
+    /**
+     * Checks to see if field is not {@link com.grosner.dbflow.structure.ColumnType#PRIMARY_KEY_AUTO_INCREMENT}
+     *
+     * @param field
+     * @return
+     */
     public static boolean isPrimaryKeyNoIncrement(Field field) {
         Column column = field.getAnnotation(Column.class);
         boolean isPrimary = column != null;
@@ -52,6 +70,12 @@ public class StructureUtils {
         return isPrimary;
     }
 
+    /**
+     * Returns true if the field is {@link com.grosner.dbflow.structure.ColumnType#PRIMARY_KEY_AUTO_INCREMENT}
+     *
+     * @param field
+     * @return
+     */
     public static boolean isPrimaryKeyAutoIncrement(Field field) {
         Column column = field.getAnnotation(Column.class);
         boolean isPrimary = column != null;
@@ -61,6 +85,14 @@ public class StructureUtils {
         return isPrimary;
     }
 
+    /**
+     * Scours source code for {@link com.grosner.dbflow.structure.Model}, {@link com.grosner.dbflow.structure.ModelView},
+     * {@link com.grosner.dbflow.converter.TypeConverter}, and {@link com.grosner.dbflow.converter.ForeignKeyConverter}
+     *
+     * @param flowManager The database manager
+     * @return
+     * @throws IOException
+     */
     static List<Class<? extends Model>> generateModelFromSource(FlowManager flowManager) throws IOException {
         String packageName = flowManager.getContext().getPackageName();
 
@@ -107,6 +139,14 @@ public class StructureUtils {
         return modelClasses;
     }
 
+    /**
+     * Adds model classes from source
+     *
+     * @param flowManager  The database manager
+     * @param modelFile    The file we search in
+     * @param packageName  The package name of the directory
+     * @param modelClasses The classes that we are adding to
+     */
     private static void addModelClassesFromSource(FlowManager flowManager, File modelFile, String packageName,
                                                   List<Class<? extends Model>> modelClasses) {
         ClassLoader classLoader = flowManager.getContext().getClassLoader();

@@ -21,6 +21,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends a string to this query
+     *
      * @param string The string to append
      * @return
      */
@@ -31,6 +32,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends a space to this query
+     *
      * @return
      */
     public QueryClass appendSpace() {
@@ -39,6 +41,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends the string with spaces on the front and end of the string
+     *
      * @param string The string to append
      * @return
      */
@@ -50,6 +53,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Appends an {@link com.grosner.dbflow.structure.SQLiteType} to this query based on the class
      * passed in.
+     *
      * @param type The Class to look up from {@link com.grosner.dbflow.structure.SQLiteType}
      * @return
      */
@@ -59,6 +63,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends the {@link com.grosner.dbflow.structure.SQLiteType} to this query
+     *
      * @param sqLiteType The {@link com.grosner.dbflow.structure.SQLiteType} to append
      * @return
      */
@@ -69,6 +74,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Appends an array of these objects by joining them with a comma with
      * {@link android.text.TextUtils#join(CharSequence, Object[])}
+     *
      * @param objects The array of objects to pass in
      * @return
      */
@@ -79,6 +85,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Appends a list of objects by joining them with a comma with
      * {@link android.text.TextUtils#join(CharSequence, Object[])}
+     *
      * @param objects The list of objects to pass in
      * @return
      */
@@ -88,7 +95,8 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends a value only if it's not {@link android.text.TextUtils#isEmpty(CharSequence)}
-     * @param name The name of the qualifier
+     *
+     * @param name  The name of the qualifier
      * @param value The value to append after the name
      * @return
      */
@@ -101,6 +109,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Casts the current object to the {@link QueryClass}
+     *
      * @return
      */
     @SuppressWarnings("unchecked")

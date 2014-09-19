@@ -60,9 +60,10 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Constructs this class with the specified {@link com.grosner.dbflow.config.FlowManager}
-     *  and {@link com.grosner.dbflow.sql.From} chunk
+     * and {@link com.grosner.dbflow.sql.From} chunk
+     *
      * @param manager The database manager
-     * @param from The FROM statement chunk
+     * @param from    The FROM statement chunk
      */
     public Where(FlowManager manager, From<ModelClass> from) {
         mManager = manager;
@@ -72,6 +73,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Defines the full SQL clause for the WHERE statement
+     *
      * @param whereClause The SQL after WHERE . ex: columnName = "name" AND ID = 0
      * @return
      */
@@ -82,6 +84,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Defines the {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder} that will build this SQL statement
+     *
      * @param whereQueryBuilder Helps build the SQL after WHERE
      * @return
      */
@@ -92,8 +95,9 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Adds a param to the WHERE clause with the "=" operator
+     *
      * @param columnName The name of column
-     * @param value the value of column
+     * @param value      the value of column
      * @return
      */
     public Where<ModelClass> param(String columnName, Object value) {
@@ -103,9 +107,10 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Adds a param to the WHERE clause with a custom operator.
+     *
      * @param columnName The name of column
-     * @param operator The operator to use. Ex: "=", "<", etc.
-     * @param value The value of the column
+     * @param operator   The operator to use. Ex: "=", "<", etc.
+     * @param value      The value of the column
      * @return
      */
     public Where<ModelClass> param(String columnName, String operator, Object value) {
@@ -115,7 +120,8 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Adds a param to the WHERE clause with the custom {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereArgs}
-     * @param column The name of the column
+     *
+     * @param column    The name of the column
      * @param whereArgs The {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereArgs} to use
      * @return
      */
@@ -126,6 +132,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Adds a bunch of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereArgs} to this builder.
+     *
      * @param params The map of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereArgs}
      * @return
      */
@@ -136,6 +143,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Adds primary key params to the where. They must be in order that the primary keys are defined.
+     *
      * @param values the values of the primary keys from the table. Must be in order of the primary key declaration.
      * @return
      */
@@ -146,6 +154,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Defines a SQL GROUP BY statement without the GROUP BY.
+     *
      * @param groupBy
      * @return
      */
@@ -156,6 +165,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Defines a SQL HAVING statement without the HAVING.
+     *
      * @param having
      * @return
      */
@@ -166,6 +176,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Defines a SQL ORDER BY statement without the ORDER BY.
+     *
      * @param orderBy
      * @return
      */
@@ -176,6 +187,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Defines a SQL LIMIT statement without the LIMIT.
+     *
      * @param limit
      * @return
      */
@@ -186,6 +198,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Defines a SQL OFFSET statement without the OFFSET.
+     *
      * @param offset
      * @return
      */
@@ -196,6 +209,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Executes a SQL statement that retrieves the count of results in the DB.
+     *
      * @return The number of rows this query returns
      */
     public long count() {
@@ -212,6 +226,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Queries for all of the results this statement returns from a DB cursor in the form of the {@link ModelClass}
+     *
      * @return All of the entries in the DB converted into {@link ModelClass}
      */
     public List<ModelClass> queryList() {
@@ -224,6 +239,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Queries and returns only the first {@link ModelClass} result from the DB.
+     *
      * @return The first result of this query. Note: this query may return more than one from the DB.
      */
     public ModelClass querySingle() {
@@ -236,6 +252,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Returns whether the DB {@link android.database.Cursor} returns with a count of at least 1
+     *
      * @return if {@link android.database.Cursor}.count > 0
      */
     public boolean hasData() {

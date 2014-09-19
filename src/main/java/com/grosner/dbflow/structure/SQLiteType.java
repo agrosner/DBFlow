@@ -5,7 +5,7 @@ import java.util.HashMap;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Holds the mapping between SQL data types and java classes.
  */
 public enum SQLiteType {
 
@@ -38,10 +38,22 @@ public enum SQLiteType {
         }
     };
 
+    /**
+     * Checks to see if the class is in this map
+     *
+     * @param clazz
+     * @return true if the map has a class we can convert to an SQL type
+     */
     public static boolean containsClass(Class clazz) {
         return sTypeMap.containsKey(clazz);
     }
 
+    /**
+     * Returns the {@link com.grosner.dbflow.structure.SQLiteType} for this class
+     *
+     * @param clazz
+     * @return
+     */
     public static SQLiteType get(Class clazz) {
         return sTypeMap.get(clazz);
     }
