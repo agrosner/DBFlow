@@ -31,6 +31,9 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 
 1. [Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
 2. [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
-3. [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
-4. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
-5. [Migrations](https://github.com/agrosner/DBFlow/wiki/Migrations)
+3. [Basic Query Wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
+4. [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
+5. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
+6. [Migrations](https://github.com/agrosner/DBFlow/wiki/Migrations)
+7. [Observable Models](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
+8. [Prepopulated DB](https://github.com/agrosner/DBFlow/wiki/Prepopulated-DB)
