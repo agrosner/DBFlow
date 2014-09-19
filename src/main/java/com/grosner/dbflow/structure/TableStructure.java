@@ -204,6 +204,7 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns all of the field columns for this table
+     *
      * @return
      */
     public Set<Field> getColumns() {
@@ -212,6 +213,7 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns all of the foreign keys for this table
+     *
      * @return
      */
     public Collection<Field> getForeignKeys() {
@@ -220,6 +222,7 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns all of the primary keys for this table
+     *
      * @return
      */
     public Collection<Field> getPrimaryKeys() {
@@ -228,6 +231,7 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns the list of primary column key names
+     *
      * @return
      */
     public Set<String> getPrimaryKeyNames() {
@@ -236,6 +240,7 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns the field for the column name
+     *
      * @param name
      * @return
      */
@@ -245,6 +250,7 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns the model that this table corresponds to
+     *
      * @return
      */
     public Class<ModelType> getModelType() {
@@ -253,6 +259,7 @@ public class TableStructure<ModelType extends Model> {
 
     /**
      * Returns the database manager for this table
+     *
      * @return
      */
     public FlowManager getManager() {

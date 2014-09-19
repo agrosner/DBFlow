@@ -4,7 +4,6 @@ import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.StructureUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.List;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Provides some handy reflection methods.
  */
 public class ReflectionUtils {
 
@@ -36,25 +35,6 @@ public class ReflectionUtils {
     }
 
     /**
-     * Gets all of the primary fields from the specified class.
-     *
-     * @param outFields
-     * @param inClass
-     * @return
-     */
-    public static List<Field> getPrimaryColumnFields(List<Field> outFields, Class<?> inClass) {
-        for (Field field : inClass.getDeclaredFields()) {
-            if (StructureUtils.isPrimaryKey(field)) {
-                outFields.add(field);
-            }
-        }
-        if (inClass.getSuperclass() != null && !inClass.getSuperclass().equals(Model.class)) {
-            outFields = getAllColumns(outFields, inClass.getSuperclass());
-        }
-        return outFields;
-    }
-
-    /**
      * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.Model}
      *
      * @param clazz
@@ -64,6 +44,13 @@ public class ReflectionUtils {
         return Model.class.isAssignableFrom(clazz);
     }
 
+    /**
+     * Returns if the type is a subclass of another. Runs up the class inheritance hiearchy until its a base class or the superclass is the same.
+     *
+     * @param type       The class we want to check
+     * @param superClass The superclass we want to see that this class is a subclass of
+     * @return
+     */
     public static boolean isSubclassOf(Class type, Class superClass) {
         if (type.getSuperclass() != null) {
             return type.getSuperclass().equals(superClass) || isSubclassOf(type.getSuperclass(), superClass);

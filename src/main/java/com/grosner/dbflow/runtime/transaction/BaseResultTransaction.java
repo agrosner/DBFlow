@@ -1,7 +1,6 @@
 package com.grosner.dbflow.runtime.transaction;
 
 import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.structure.Model;
 
 /**
  * Author: andrewgrosner

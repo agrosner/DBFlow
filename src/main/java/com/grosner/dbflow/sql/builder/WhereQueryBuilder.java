@@ -5,7 +5,6 @@ import android.database.DatabaseUtils;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.TypeConverter;
-import com.grosner.dbflow.sql.Where;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.TableStructure;
 

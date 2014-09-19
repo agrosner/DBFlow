@@ -2,10 +2,10 @@ package com.grosner.dbflow.runtime;
 
 import android.os.Looper;
 
+import com.grosner.dbflow.structure.Model;
+
 import java.util.ArrayList;
 import java.util.Collection;
-
-import com.grosner.dbflow.structure.Model;
 
 /**
  * Created by andrewgrosner

@@ -4,11 +4,11 @@ import android.os.Handler;
 
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.transaction.BaseTransaction;
+import com.grosner.dbflow.runtime.transaction.DeleteTransaction;
+import com.grosner.dbflow.runtime.transaction.ResultReceiver;
+import com.grosner.dbflow.runtime.transaction.SelectListTransaction;
 import com.grosner.dbflow.runtime.transaction.SelectSingleModelTransaction;
 import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
-import com.grosner.dbflow.runtime.transaction.DeleteTransaction;
-import com.grosner.dbflow.runtime.transaction.SelectListTransaction;
-import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.grosner.dbflow.runtime.transaction.process.UpdateModelListTransaction;
 import com.grosner.dbflow.sql.Select;
