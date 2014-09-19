@@ -202,30 +202,59 @@ public class TableStructure<ModelType extends Model> {
         return mColumnNames.get(field);
     }
 
+    /**
+     * Returns all of the field columns for this table
+     * @return
+     */
     public Set<Field> getColumns() {
         return mColumnNames.keySet();
     }
 
+    /**
+     * Returns all of the foreign keys for this table
+     * @return
+     */
     public Collection<Field> getForeignKeys() {
         return mForeignKeys.values();
     }
 
+    /**
+     * Returns all of the primary keys for this table
+     * @return
+     */
     public Collection<Field> getPrimaryKeys() {
         return mPrimaryKeys.values();
     }
 
+    /**
+     * Returns the list of primary column key names
+     * @return
+     */
     public Set<String> getPrimaryKeyNames() {
         return mPrimaryKeys.keySet();
     }
 
+    /**
+     * Returns the field for the column name
+     * @param name
+     * @return
+     */
     public Field getField(String name) {
         return mFieldFromNames.get(name);
     }
 
+    /**
+     * Returns the model that this table corresponds to
+     * @return
+     */
     public Class<ModelType> getModelType() {
         return mModelType;
     }
 
+    /**
+     * Returns the database manager for this table
+     * @return
+     */
     public FlowManager getManager() {
         return mManager;
     }
