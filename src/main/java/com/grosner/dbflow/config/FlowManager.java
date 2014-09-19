@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.util.SparseArray;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.converter.CalendarConverter;
@@ -12,6 +13,7 @@ import com.grosner.dbflow.converter.JsonConverter;
 import com.grosner.dbflow.converter.LocationConverter;
 import com.grosner.dbflow.converter.SqlDateConverter;
 import com.grosner.dbflow.converter.TypeConverter;
+import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.DBStructure;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelPathManager;
@@ -19,8 +21,10 @@ import com.grosner.dbflow.structure.TableStructure;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**

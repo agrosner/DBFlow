@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.ModelView;
 import com.grosner.dbflow.structure.TableStructure;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;

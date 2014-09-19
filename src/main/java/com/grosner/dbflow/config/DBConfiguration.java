@@ -1,5 +1,8 @@
 package com.grosner.dbflow.config;
 
+import android.util.SparseArray;
+
+import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -28,6 +31,8 @@ public class DBConfiguration {
      * The optional list of model classes that this DB will use
      */
     List<Class<? extends Model>> mModelClasses;
+
+    SparseArray<List<Migration>> mMigrations;
 
     /**
      * Whether we want to support foreign keys
@@ -112,6 +117,30 @@ public class DBConfiguration {
 
         public Builder setModelClasses(Class<? extends Model>... modelClasses) {
             mConfiguration.mModelClasses = Arrays.asList(modelClasses);
+            return this;
+        }
+
+        /**
+         * Add migrations to this builder.
+         *
+         * @param migrations The migrations to be executed when we create and upgrade the DB
+         * @return
+         */
+        public Builder addMigrations(Migration...migrations) {
+            if(mConfiguration.mMigrations == null) {
+                mConfiguration.mMigrations = new SparseArray<List<Migration>>();
+            }
+
+            for(Migration migration : migrations) {
+
+                List<Migration> migrationList = mConfiguration.mMigrations.get(migration.getNewVersion());
+                if (migrationList == null) {
+                    migrationList = new ArrayList<Migration>();
+                }
+
+                migrationList.add(migration);
+            }
+
             return this;
         }
 
