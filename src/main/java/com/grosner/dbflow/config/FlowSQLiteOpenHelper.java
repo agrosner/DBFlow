@@ -2,6 +2,7 @@ package com.grosner.dbflow.config;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.SparseArray;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
@@ -40,9 +41,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private FlowManager mManager;
 
+    private SparseArray<List<Migration>> mMigrations;
+
     public FlowSQLiteOpenHelper(FlowManager flowManager, DBConfiguration dbConfiguration) {
         super(flowManager.getContext(), dbConfiguration.mDatabaseName, null, dbConfiguration.mDatabaseVersion);
         mManager = flowManager;
+        mMigrations = dbConfiguration.mMigrations;
         movePrepackagedDB(dbConfiguration.mDatabaseName);
         foreignKeysSupported = dbConfiguration.foreignKeysSupported;
     }
@@ -166,6 +170,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     private void executeMigrations(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+
+        // will try migrations file or execute migrations from code
         try {
             final List<String> files = Arrays.asList(mManager.getContext().getAssets().list(MIGRATION_PATH));
             Collections.sort(files, new NaturalOrderComparator());
@@ -189,6 +195,28 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             });
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e);
+        }
+
+        if(mMigrations != null) {
+            int curVersion = oldVersion + 1;
+
+            // execute migrations in order
+            for(int i = curVersion; i <= newVersion; i++) {
+                List<Migration> migrationsList = mMigrations.get(i);
+                if(migrationsList != null) {
+                    for (Migration migration : migrationsList) {
+
+                        // before migration
+                        migration.onPreMigrate();
+
+                        // migrate
+                        migration.migrate(db);
+
+                        // after migration cleanup
+                        migration.onPostMigrate();
+                    }
+                }
+            }
         }
     }
 

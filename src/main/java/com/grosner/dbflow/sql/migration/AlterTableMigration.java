@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * Contributors: { }
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
-public class AlterTableMigration<ModelClass extends Model> implements Migration {
+public class AlterTableMigration<ModelClass extends Model> extends BaseMigration {
 
     private QueryBuilder mQuery;
 
@@ -27,21 +27,14 @@ public class AlterTableMigration<ModelClass extends Model> implements Migration 
 
     private FlowManager mManager;
 
-    private int mMigrationVersion;
-
     public AlterTableMigration(FlowManager flowManager, Class<ModelClass> table, int migrationVersion) {
+        super(migrationVersion);
         mManager = flowManager;
         mTable = table;
-        mMigrationVersion = migrationVersion;
     }
 
     public AlterTableMigration(Class<ModelClass> table, int migrationVersion) {
         this(FlowManager.getInstance(), table, migrationVersion);
-    }
-
-    @Override
-    public int getNewVersion() {
-        return mMigrationVersion;
     }
 
     @Override
@@ -105,6 +98,10 @@ public class AlterTableMigration<ModelClass extends Model> implements Migration 
 
     @Override
     public void onPostMigrate() {
-
+        // cleanup and make fields eligible for garbage collection
+        mQuery = null;
+        mRenameQuery = null;
+        mColumnDefinitions = null;
+        mManager = null;
     }
 }
