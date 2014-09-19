@@ -1,6 +1,7 @@
 package com.grosner.dbflow.runtime.observer;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.structure.BaseNotifiableModel;
 import com.grosner.dbflow.structure.Model;
 
 /**
@@ -8,7 +9,7 @@ import com.grosner.dbflow.structure.Model;
  * Contributors: { }
  * Description: Observes changes in a specific model and will provide automatic callback to them
  */
-public interface ModelObserver<ModelClass extends Model> {
+public interface ModelObserver<ModelClass extends BaseNotifiableModel> {
 
     public Class<ModelClass> getModelClass();
 

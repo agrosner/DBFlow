@@ -6,6 +6,7 @@ import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
+import com.grosner.dbflow.runtime.observer.ModelObserver;
 
 import java.io.File;
 import java.io.IOException;
@@ -199,6 +200,14 @@ public class StructureUtils {
                         @SuppressWarnings("unchecked")
                         Class<? extends ForeignKeyConverter> foreignKeyConverterClass = ((Class<? extends ForeignKeyConverter>) discoveredClass);
                         flowManager.getStructure().putForeignKeyConverterForClass(foreignKeyConverterClass);
+                    } else if(ReflectionUtils.implementsModelObserver(discoveredClass)) {
+                        try {
+                            @SuppressWarnings("unchecked")
+                            ModelObserver<? extends ModelObserver> modelObserver = (ModelObserver<? extends ModelObserver>) discoveredClass.newInstance();
+                            flowManager.getStructure().addModelObserverForClass(modelObserver);
+                        } catch (Throwable e) {
+                            FlowLog.logError(e);
+                        }
                     }
 
                 }

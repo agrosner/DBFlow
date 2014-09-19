@@ -2,6 +2,7 @@ package com.grosner.dbflow.runtime;
 
 import android.os.Looper;
 
+import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -113,14 +114,14 @@ public class DBBatchSaveQueue extends Thread {
             }
             if (tmpModels.size() > 0) {
                 //onExecute this on the DBManager thread
-                TransactionManager.getInstance().save(DBTransactionInfo.create("Batch Saving"), tmpModels);
+                TransactionManager.getInstance().save(DBTransactionInfo.create("Batch Saving Models"), tmpModels);
             }
 
             try {
                 //sleep, and then check for leftovers
                 Thread.sleep(mModelSaveCheckTime);
             } catch (InterruptedException e) {
-                //AALog.d("DBBatchSaveQueue", "Batch interrupted to start saving");
+                FlowLog.log(FlowLog.Level.I, "DBRequestQueue Batch interrupted to start saving");
             }
 
             if (mQuit) {

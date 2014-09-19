@@ -82,6 +82,18 @@ public class DBTransactionInfo {
         return requestInfo;
     }
 
+    /**
+     * Returns a prefilled, save request. Default is {@link com.grosner.dbflow.runtime.transaction.BaseTransaction#PRIORITY_NORMAL}
+     * since we generally don't need to know right away that it has been saved.
+     *
+     * @return
+     */
+    public static DBTransactionInfo createSave() {
+        DBTransactionInfo requestInfo = new DBTransactionInfo();
+        requestInfo.priority = BaseTransaction.PRIORITY_NORMAL;
+        requestInfo.name = "save " + UUID.randomUUID().toString();
+        return requestInfo;
+    }
 
     public String getName() {
         return name;
