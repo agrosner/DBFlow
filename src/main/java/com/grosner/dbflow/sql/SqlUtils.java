@@ -162,7 +162,7 @@ public class SqlUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void save(FlowManager flowManager, ModelClass model, boolean async, int mode) {
+    public static <ModelClass extends Model> void save(FlowManager flowManager, ModelClass model, boolean async, int mode, boolean notify) {
         if (!async) {
             WhereQueryBuilder<ModelClass> primaryWhereQueryBuilder =
                     flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
@@ -268,8 +268,10 @@ public class SqlUtils {
                 }
             }
 
-            // Notify any observers of this model change
-            flowManager.getStructure().fireModelChanged(model);
+            if(notify) {
+                // Notify any observers of this model change
+                flowManager.getStructure().fireModelChanged(model);
+            }
 
         } else {
             TransactionManager.getInstance().save(DBTransactionInfo.create(), model);

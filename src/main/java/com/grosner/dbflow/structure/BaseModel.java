@@ -18,22 +18,30 @@ public class BaseModel implements Model {
 
     @Override
     public void save(boolean async) {
-        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_DEFAULT);
+        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_DEFAULT, false);
     }
 
-    @Override
-    public void delete(boolean async) {
-        SqlUtils.delete(FlowManager.getInstance(), this, async);
+    /**
+     * Directly tries to insert this item into the DB without updating.
+     * @param async If we want this to happen on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     */
+    public void insert(boolean async) {
+        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_INSERT, false);
     }
 
     @Override
     public void update(boolean async) {
-        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_UPDATE);
+        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_UPDATE, false);
     }
 
     @Override
     public void load(Cursor cursor) {
         SqlUtils.loadFromCursor(FlowManager.getInstance(), this, cursor);
+    }
+
+    @Override
+    public void delete(boolean async) {
+        SqlUtils.delete(FlowManager.getInstance(), this, async);
     }
 
     @Override
