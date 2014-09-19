@@ -15,7 +15,7 @@ import java.util.List;
  * Description: Provides a {@link ModelClass}-list backed implementation on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
  * and allows for specific method calling on a model.
  */
-public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass, List<ModelClass>> {
+public abstract class ProcessModelTransaction<ModelClass> extends BaseResultTransaction<List<ModelClass>> {
 
     protected List<ModelClass> mModels;
 

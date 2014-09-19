@@ -25,6 +25,7 @@ public class Delete implements Query {
 
     /**
      * Constructs this with a custom {@link com.grosner.dbflow.config.FlowManager}
+     *
      * @param flowManager
      */
     public Delete(FlowManager flowManager) {
@@ -33,7 +34,8 @@ public class Delete implements Query {
 
     /**
      * Returns the new SQL FROM statement wrapper
-     * @param table The table we want to run this query from
+     *
+     * @param table        The table we want to run this query from
      * @param <ModelClass> The table class
      * @return
      */

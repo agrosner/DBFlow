@@ -39,8 +39,9 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * Creates a new instance
+         *
          * @param operation The operation such as "=", "<", and more
-         * @param value The value of the column we care about
+         * @param value     The value of the column we care about
          */
         public WhereArgs(String operation, String value) {
             mOperation = operation;
@@ -49,6 +50,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * Returns the operation of it
+         *
          * @return
          */
         public String operation() {
@@ -57,6 +59,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * Returns the value of the arg
+         *
          * @return
          */
         public String value() {
@@ -122,6 +125,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
     /**
      * This will append all the primary key names with empty params. Ex: name = ?, columnName = ?
+     *
      * @return
      */
     public WhereQueryBuilder<ModelClass> emptyPrimaryParams() {
@@ -241,7 +245,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * Converts the given value for the column
      *
      * @param columnName The name of the column in the DB
-     * @param value The value of the column we are looking for
+     * @param value      The value of the column we are looking for
      * @return
      */
     protected String convertValueToString(String columnName, Object value) {
@@ -300,6 +304,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Replaces empty parameter values such as "columnName = ?" with the array of values passed in. It must
      * match the count of columns that are in this where query.
+     *
      * @param values The values of the fields we wish to replace. Must match the length of the empty params and must be in empty param mode.
      * @return The query with the paramters filled in.
      */
@@ -329,8 +334,9 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Builds a {@link com.grosner.dbflow.structure.Model} where query with its primary keys. The existing must
      * be based off the primary keys of the model.
+     *
      * @param existing The existing where query we wish to generate new one from the model.
-     * @param model The existing model with all of its primary keys filled in
+     * @param model    The existing model with all of its primary keys filled in
      * @return
      */
     public static <ModelClass extends Model> String getPrimaryModelWhere(WhereQueryBuilder<ModelClass> existing, ModelClass model) {
@@ -339,9 +345,10 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
     /**
      * Returns a where query String from the existing builder and collection of fields.
-     * @param existing The existing where query we wish to generate new one from the model.
-     * @param fields The list of fields that we look up the column names for
-     * @param model The model to get the field values from
+     *
+     * @param existing     The existing where query we wish to generate new one from the model.
+     * @param fields       The list of fields that we look up the column names for
+     * @param model        The model to get the field values from
      * @param <ModelClass>
      * @return
      */
@@ -369,6 +376,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
     /**
      * Returns the table structure that this {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder} uses.
+     *
      * @return
      */
     public TableStructure<ModelClass> getTableStructure() {

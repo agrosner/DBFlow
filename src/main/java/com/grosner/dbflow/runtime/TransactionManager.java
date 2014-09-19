@@ -9,7 +9,7 @@ import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction
 import com.grosner.dbflow.runtime.transaction.DeleteTransaction;
 import com.grosner.dbflow.runtime.transaction.SelectListTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
-import com.grosner.dbflow.runtime.transaction.process.SaveModelListTransaction;
+import com.grosner.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.grosner.dbflow.runtime.transaction.process.UpdateModelListTransaction;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.Where;
@@ -241,8 +241,8 @@ public class TransactionManager {
     /**
      * Selects a single model with the specified ids on the same thread this is called. It
      *
-     * @param tableClass The table to select the model from
-     * @param ids The list of ids given by the {@link ModelClass}
+     * @param tableClass   The table to select the model from
+     * @param ids          The list of ids given by the {@link ModelClass}
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return
      */
@@ -332,7 +332,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void save(DBTransactionInfo transactionInfo,
                                                 List<ModelClass> models, ResultReceiver<List<ModelClass>> resultReceiver) {
-        addTransaction(new SaveModelListTransaction<ModelClass>(transactionInfo, resultReceiver, models));
+        addTransaction(new SaveModelTransaction<ModelClass>(transactionInfo, resultReceiver, models));
     }
 
     /**
@@ -344,7 +344,19 @@ public class TransactionManager {
      * @see #save(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)
      */
     public <ModelClass extends Model> void save(DBTransactionInfo transactionInfo, List<ModelClass> models) {
-        addTransaction(new SaveModelListTransaction<ModelClass>(transactionInfo, null, models));
+        addTransaction(new SaveModelTransaction<ModelClass>(transactionInfo, null, models));
+    }
+
+    /**
+     * Used when we don't care about the result of this save()
+     *
+     * @param transactionInfo The information on how we should approach this request.
+     * @param model           The single model to save
+     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @see #save(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)
+     */
+    public <ModelClass extends Model> void save(DBTransactionInfo transactionInfo, ModelClass model) {
+        addTransaction(new SaveModelTransaction<ModelClass>(transactionInfo, null, model));
     }
 
     // endregion

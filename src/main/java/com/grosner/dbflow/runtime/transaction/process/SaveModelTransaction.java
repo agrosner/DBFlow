@@ -11,7 +11,7 @@ import java.util.List;
  * Contributors: { }
  * Description: Saves all of the {@link ModelClass} into the DB in one transaction.
  */
-public class SaveModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
+public class SaveModelTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
 
 
     /**
@@ -21,9 +21,21 @@ public class SaveModelListTransaction<ModelClass extends Model> extends ProcessM
      * @param resultReceiver    Will be called when the transaction completes.
      * @param models            The list of models to act on
      */
-    public SaveModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
-                                    List<ModelClass> models) {
+    public SaveModelTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
+                                List<ModelClass> models) {
         super(dbTransactionInfo, resultReceiver, models);
+    }
+
+    /**
+     * Constructs this transaction with a list of models.
+     *
+     * @param dbTransactionInfo The information about this transaction
+     * @param resultReceiver    Will be called when the transaction completes.
+     * @param model             The single model we wish to act on
+     */
+    public SaveModelTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
+                                ModelClass model) {
+        super(dbTransactionInfo, resultReceiver, model);
     }
 
     @Override

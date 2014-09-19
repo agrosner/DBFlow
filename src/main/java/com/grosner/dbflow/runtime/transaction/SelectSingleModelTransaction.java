@@ -11,7 +11,7 @@ import com.grosner.dbflow.structure.Model;
  * Contributors: { }
  * Description: Runs a fetch on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}, returning only the first item.
  */
-public class SelectSingleModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass, ModelClass> {
+public class SelectSingleModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
 
     private Where<ModelClass> mFrom;
 

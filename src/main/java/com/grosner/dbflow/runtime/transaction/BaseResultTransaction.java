@@ -9,7 +9,7 @@ import com.grosner.dbflow.structure.Model;
  * Description: Provides a base implementation where the {@link com.grosner.dbflow.runtime.transaction.ResultReceiver}
  * is called, returning a {@link ResultClass}.
  */
-public abstract class BaseResultTransaction<ModelClass extends Model, ResultClass> extends BaseTransaction<ResultClass> {
+public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction<ResultClass> {
 
     /**
      * The callback to be executed when the transaction completes

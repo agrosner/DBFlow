@@ -13,7 +13,7 @@ import java.util.List;
  * Contributors: { }
  * Description: Runs a fetch on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
  */
-public class SelectListTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass, List<ModelClass>> {
+public class SelectListTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> {
 
     private Where<ModelClass> mWhere;
 

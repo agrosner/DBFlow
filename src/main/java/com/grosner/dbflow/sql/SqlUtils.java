@@ -9,6 +9,7 @@ import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
+import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.BaseTransaction;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
@@ -27,7 +28,8 @@ import java.util.Set;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Provides some handy methods for dealing with SQL statements. It's purpose is to move the
+ * methods away from the {@link com.grosner.dbflow.structure.Model} class and let any class use these.
  */
 public class SqlUtils {
 
@@ -86,6 +88,16 @@ public class SqlUtils {
         return retModel;
     }
 
+    /**
+     * Checks whether the SQL query returns a {@link android.database.Cursor} with a count of at least 1. This
+     * means that the query was successful. It is commonly used when checking if a {@link com.grosner.dbflow.structure.Model} exists.
+     *
+     * @param flowManager  The database manager that we run this query on
+     * @param sql          The SQL command to perform, must not be ; terminated.
+     * @param args         The optional string arguments when we use "?" in the sql
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return
+     */
     public static <ModelClass extends Model> boolean hasData(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
@@ -158,6 +170,15 @@ public class SqlUtils {
         return model;
     }
 
+    /**
+     * Saves a model to the database.
+     *
+     * @param flowManager  The database manager that we run this query on
+     * @param model        The model to save
+     * @param async        Whether it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately.
+     * @param mode         The save mode, can be {@link #SAVE_MODE_DEFAULT}, {@link #SAVE_MODE_INSERT}, {@link #SAVE_MODE_UPDATE}
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void save(FlowManager flowManager, ModelClass model, boolean async, int mode) {
         if (!async) {
@@ -266,10 +287,19 @@ public class SqlUtils {
                 }
             }
         } else {
-            TransactionManager.getInstance().saveOnSaveQueue(model);
+            TransactionManager.getInstance().save(DBTransactionInfo.create(), model);
         }
     }
 
+    /**
+     * Loads a {@link com.grosner.dbflow.structure.Model} from the DB cursor through reflection with the
+     * specified {@link com.grosner.dbflow.config.FlowManager}.
+     *
+     * @param flowManager  The database manager that we run this query on
+     * @param model        The model we load from the cursor
+     * @param cursor       The cursor from the DB
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void loadFromCursor(FlowManager flowManager, ModelClass model, Cursor cursor) {
         TableStructure<ModelClass> tableStructure = flowManager.getTableStructureForClass((Class<ModelClass>) model.getClass());
@@ -356,6 +386,14 @@ public class SqlUtils {
         }
     }
 
+    /**
+     * Deletes {@link com.grosner.dbflow.structure.Model} from the database using the specfied {@link com.grosner.dbflow.config.FlowManager}
+     *
+     * @param flowManager  The database manager that we run this query on
+     * @param model        The model to delete
+     * @param async        Whether it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately.
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void delete(FlowManager flowManager, final ModelClass model, boolean async) {
         if (!async) {
@@ -373,6 +411,15 @@ public class SqlUtils {
         }
     }
 
+    /**
+     * This is used to check if the specified {@link com.grosner.dbflow.structure.Model} exists within the specified
+     * {@link com.grosner.dbflow.config.FlowManager} DB.
+     *
+     * @param flowManager  The database manager that we run this query on
+     * @param model        The model to query
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return If the model exists within the DB
+     */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> boolean exists(FlowManager flowManager, ModelClass model) {
         WhereQueryBuilder<ModelClass> whereQueryBuilder = (WhereQueryBuilder<ModelClass>) flowManager.getStructure().getPrimaryWhereQuery(model.getClass());

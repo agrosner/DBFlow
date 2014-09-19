@@ -42,9 +42,10 @@ public class From<ModelClass extends Model> implements Query {
 
     /**
      * The SQL from statement constructed.
+     *
      * @param flowManager The db manager this query corresponds to
-     * @param querybase The base query we append this query to
-     * @param table The table this corresponds to
+     * @param querybase   The base query we append this query to
+     * @param table       The table this corresponds to
      */
     public From(FlowManager flowManager, Query querybase, Class<ModelClass> table) {
         mManager = flowManager;
@@ -54,6 +55,7 @@ public class From<ModelClass extends Model> implements Query {
 
     /**
      * The alias that this table name we use
+     *
      * @param alias
      * @return
      */
@@ -64,7 +66,8 @@ public class From<ModelClass extends Model> implements Query {
 
     /**
      * Adds a join on a specific table for this query
-     * @param table The table this corresponds to
+     *
+     * @param table    The table this corresponds to
      * @param joinType The type of join to use
      * @return
      */
@@ -76,6 +79,7 @@ public class From<ModelClass extends Model> implements Query {
 
     /**
      * Returns an empty {@link com.grosner.dbflow.sql.Where} statement
+     *
      * @return
      */
     public Where<ModelClass> where() {
@@ -84,6 +88,7 @@ public class From<ModelClass extends Model> implements Query {
 
     /**
      * Returns a {@link com.grosner.dbflow.sql.Where} statement with the sql clause
+     *
      * @param whereClause The full SQL string after the WHERE keyword
      * @return
      */
@@ -93,6 +98,7 @@ public class From<ModelClass extends Model> implements Query {
 
     /**
      * REturns a {@link com.grosner.dbflow.sql.Where} statement with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     *
      * @param whereQueryBuilder
      * @return
      */
@@ -117,6 +123,7 @@ public class From<ModelClass extends Model> implements Query {
 
     /**
      * The base query
+     *
      * @return
      */
     Query getQueryBuilderBase() {
@@ -125,6 +132,7 @@ public class From<ModelClass extends Model> implements Query {
 
     /**
      * The table this From corresponds to
+     *
      * @return
      */
     public Class<ModelClass> getTable() {

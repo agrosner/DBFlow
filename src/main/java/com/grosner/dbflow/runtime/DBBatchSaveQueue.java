@@ -32,7 +32,7 @@ public class DBBatchSaveQueue extends Thread {
     private int mModelSaveSize = sMODEL_SAVE_SIZE;
 
     /**
-     *  The default time that it will awake the save queue thread to check if any models are still waiting to be saved
+     * The default time that it will awake the save queue thread to check if any models are still waiting to be saved
      */
     private static final int sMODEL_SAVE_CHECK_TIME = 30000;
 
@@ -48,6 +48,7 @@ public class DBBatchSaveQueue extends Thread {
 
     /**
      * Returns the main queue.
+     *
      * @return
      */
     public static DBBatchSaveQueue getSharedSaveQueue() {
@@ -92,6 +93,7 @@ public class DBBatchSaveQueue extends Thread {
     /**
      * Sets how long, in millis that this queue will check for leftover {@link com.grosner.dbflow.structure.Model} that have not been saved yet.
      * The default is {@link #sMODEL_SAVE_CHECK_TIME}
+     *
      * @param time
      */
     public void setModelSaveCheckTime(long time) {
@@ -129,6 +131,7 @@ public class DBBatchSaveQueue extends Thread {
 
     /**
      * Adds a {@link com.grosner.dbflow.structure.Model} to this queue.
+     *
      * @param inModel
      */
     public void add(final Model inModel) {
@@ -143,6 +146,7 @@ public class DBBatchSaveQueue extends Thread {
 
     /**
      * Adds a {@link java.util.Collection} of {@link com.grosner.dbflow.structure.Model} to this queue
+     *
      * @param list
      * @param <ModelClass>
      */
@@ -158,6 +162,7 @@ public class DBBatchSaveQueue extends Thread {
 
     /**
      * Removes a {@link com.grosner.dbflow.structure.Model} from this queue before it is processed.
+     *
      * @param outModel
      */
     public void remove(final Model outModel) {
@@ -169,6 +174,7 @@ public class DBBatchSaveQueue extends Thread {
     /**
      * Removes a {@link java.util.Collection} of {@link com.grosner.dbflow.structure.Model} from this queue
      * before it is processed.
+     *
      * @param outCollection
      */
     public void removeAll(final Collection<? extends Model> outCollection) {
