@@ -86,9 +86,6 @@ public class TransactionManager {
         if (!getQueue().isAlive()) {
             getQueue().start();
         }
-        if (!getSaveQueue().isAlive()) {
-            getSaveQueue().start();
-        }
     }
 
     public boolean hasOwnQueue() {
@@ -303,6 +300,11 @@ public class TransactionManager {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void saveOnSaveQueue(ModelClass model) {
+
+        // Only start save queue if we are going to use it
+        if (!getSaveQueue().isAlive()) {
+            getSaveQueue().start();
+        }
         getSaveQueue().add(model);
     }
 
