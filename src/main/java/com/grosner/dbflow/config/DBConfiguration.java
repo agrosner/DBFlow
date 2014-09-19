@@ -32,6 +32,9 @@ public class DBConfiguration {
      */
     List<Class<? extends Model>> mModelClasses;
 
+    /**
+     * The list of DB migrations we can add to the DB when necessary
+     */
     SparseArray<List<Migration>> mMigrations;
 
     /**

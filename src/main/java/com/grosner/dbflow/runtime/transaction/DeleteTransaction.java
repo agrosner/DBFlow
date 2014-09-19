@@ -37,10 +37,10 @@ public class DeleteTransaction<ModelClass extends Model> extends BaseTransaction
      * @param table             The model table that we act on
      * @param whereArgs         The where statement that we will use
      */
-    public DeleteTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo, Class<ModelClass> table,
+    public DeleteTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo,
                              WhereQueryBuilder<ModelClass> whereArgs) {
         super(dbTransactionInfo);
-        Where = new Delete(flowManager).from(table).where().whereQuery(whereArgs);
+        Where = new Delete(flowManager).from(whereArgs.getTableClass()).where(whereArgs);
     }
 
     @Override

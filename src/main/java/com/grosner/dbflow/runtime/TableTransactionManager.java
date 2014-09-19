@@ -61,15 +61,6 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
-     * @param whereQueryBuilder The where query we will use
-     * @return the first model from the database cursor.
-     * @see #selectModelWithWhere(com.grosner.dbflow.sql.builder.WhereQueryBuilder)
-     */
-    public ModelClass selectModelWithWhere(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        return super.selectModelWithWhere(mTableClass, whereQueryBuilder);
-    }
-
-    /**
      * @param ids The list of ids given by the {@link ModelClass}
      * @return
      * @see #selectModelById(Class, Object...)
@@ -79,21 +70,12 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
-     * @param whereQueryBuilder The where query we will use
-     * @param resultReceiver    The result will be passed here.
-     * @see #selectModelWithWhere(com.grosner.dbflow.runtime.transaction.ResultReceiver, com.grosner.dbflow.sql.builder.WhereQueryBuilder)
-     */
-    public void selectModelWithWhere(ResultReceiver<ModelClass> resultReceiver, WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        super.fetchModelWithWhere(mTableClass, whereQueryBuilder, resultReceiver);
-    }
-
-    /**
      * @param resultReceiver The result will be passed here.
      * @param ids            The list of ids given by the {@link ModelClass}
-     * @see #selectModelById(Class, com.grosner.dbflow.runtime.transaction.ResultReceiver, Object...)
+     * @see #fetchModelById(Class, com.grosner.dbflow.runtime.transaction.ResultReceiver, Object...)
      */
-    public void selectModelById(ResultReceiver<ModelClass> resultReceiver, Object... ids) {
-        super.selectModelById(mTableClass, resultReceiver, ids);
+    public void fetchModelById(ResultReceiver<ModelClass> resultReceiver, Object... ids) {
+        super.fetchModelById(mTableClass, resultReceiver, ids);
     }
 
     /**
@@ -103,14 +85,4 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     public void deleteTable(DBTransactionInfo transactionInfo) {
         super.deleteTable(transactionInfo, mTableClass);
     }
-
-    /**
-     * @param transactionInfo   The information on how we should approach this request.
-     * @param whereQueryBuilder The where query we will use
-     * @see #deleteModelsWithQuery(DBTransactionInfo, Class, com.grosner.dbflow.sql.builder.WhereQueryBuilder)
-     */
-    public void deleteModelsWithQuery(DBTransactionInfo transactionInfo, WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        super.deleteModelsWithQuery(transactionInfo, mTableClass, whereQueryBuilder);
-    }
-
 }

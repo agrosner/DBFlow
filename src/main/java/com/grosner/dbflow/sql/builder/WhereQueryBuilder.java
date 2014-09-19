@@ -382,5 +382,13 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
         return mTableStructure;
     }
 
+    /**
+     * Returns the {@link ModelClass} that this query belongs to
+     * @return
+     */
+    public Class<ModelClass> getTableClass() {
+        return getTableStructure().getModelType();
+    }
+
 
 }
