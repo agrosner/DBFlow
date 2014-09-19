@@ -48,7 +48,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @param oldName The new name to call the table.
      * @return
      */
-    public AlterTableMigration renameFrom(String oldName) {
+    public AlterTableMigration<ModelClass> renameFrom(String oldName) {
         mOldTableName = oldName;
         mRenameQuery = new QueryBuilder().append(" RENAME").appendSpaceSeparated("TO");
         return this;
@@ -61,7 +61,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @param columnName
      * @return
      */
-    public AlterTableMigration addColumn(Class columnType, String columnName) {
+    public AlterTableMigration<ModelClass> addColumn(Class columnType, String columnName) {
         if(mColumnDefinitions == null) {
             mColumnDefinitions = new ArrayList<QueryBuilder>();
         }

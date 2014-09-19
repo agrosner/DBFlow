@@ -4,6 +4,7 @@ import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.Model;
+import com.grosner.dbflow.structure.ModelView;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -77,5 +78,14 @@ public class ReflectionUtils {
      */
     public static boolean implementsForeignKeyConverter(Class discoveredClass) {
         return ForeignKeyConverter.class.isAssignableFrom(discoveredClass);
+    }
+
+    /**
+     * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.ModelView}
+     * @param discoveredClass
+     * @return true if the class can be assigned to ModelView
+     */
+    public static boolean implementsModelView(Class discoveredClass) {
+        return ModelView.class.isAssignableFrom(discoveredClass);
     }
 }

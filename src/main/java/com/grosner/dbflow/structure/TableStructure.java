@@ -129,46 +129,49 @@ public class TableStructure<ModelType extends Model> {
             mColumnDefinitions.add(tableCreationQuery.appendColumn(column));
         }
 
-        if (mPrimaryKeys.isEmpty()) {
-            throw new PrimaryKeyNotFoundException("Table: " + mTableName + " must define a primary key");
-        }
+        // Views do not have primary keys
+        if(!ReflectionUtils.implementsModelView(modelType)) {
 
-        QueryBuilder primaryKeyQueryBuilder = new QueryBuilder().append("PRIMARY KEY(");
-        Collection<Field> primaryKeys = getPrimaryKeys();
-        int count = 0;
-        int index = 0;
-        for (Field field : primaryKeys) {
-            Column primaryKey = field.getAnnotation(Column.class);
-            if (primaryKey.value().value() != ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
-                count++;
-                primaryKeyQueryBuilder.append(mColumnNames.get(field));
-                if (index < mPrimaryKeys.size() - 1) {
-                    primaryKeyQueryBuilder.append(", ");
-                }
+            if (mPrimaryKeys.isEmpty()) {
+                throw new PrimaryKeyNotFoundException("Table: " + mTableName + " must define a primary key");
             }
-            index++;
+
+            QueryBuilder primaryKeyQueryBuilder = new QueryBuilder().append("PRIMARY KEY(");
+            Collection<Field> primaryKeys = getPrimaryKeys();
+            int count = 0;
+            int index = 0;
+            for (Field field : primaryKeys) {
+                Column primaryKey = field.getAnnotation(Column.class);
+                if (primaryKey.value().value() != ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
+                    count++;
+                    primaryKeyQueryBuilder.append(mColumnNames.get(field));
+                    if (index < mPrimaryKeys.size() - 1) {
+                        primaryKeyQueryBuilder.append(", ");
+                    }
+                }
+                index++;
+            }
+
+            if (count > 0) {
+                primaryKeyQueryBuilder.append(")");
+                mColumnDefinitions.add(primaryKeyQueryBuilder);
+            }
+
+            QueryBuilder foreignKeyQueryBuilder;
+            Collection<Field> foreignKeys = getForeignKeys();
+            for (Field foreignKeyField : foreignKeys) {
+                foreignKeyQueryBuilder = new QueryBuilder().append("FOREIGN KEY(");
+
+                Column foreignKey = foreignKeyField.getAnnotation(Column.class);
+
+                foreignKeyQueryBuilder.append(mColumnNames.get(foreignKeyField))
+                        .append(")").appendSpaceSeparated("REFERENCES")
+                        .append(mTableName)
+                        .append("(").append(foreignKey.foreignColumn()).append(")");
+
+                mColumnDefinitions.add(foreignKeyQueryBuilder);
+            }
         }
-
-        if (count > 0) {
-            primaryKeyQueryBuilder.append(")");
-            mColumnDefinitions.add(primaryKeyQueryBuilder);
-        }
-
-        QueryBuilder foreignKeyQueryBuilder;
-        Collection<Field> foreignKeys = getForeignKeys();
-        for (Field foreignKeyField : foreignKeys) {
-            foreignKeyQueryBuilder = new QueryBuilder().append("FOREIGN KEY(");
-
-            Column foreignKey = foreignKeyField.getAnnotation(Column.class);
-
-            foreignKeyQueryBuilder.append(mColumnNames.get(foreignKeyField))
-                    .append(")").appendSpaceSeparated("REFERENCES")
-                    .append(mTableName)
-                    .append("(").append(foreignKey.foreignColumn()).append(")");
-
-            mColumnDefinitions.add(foreignKeyQueryBuilder);
-        }
-
 
         mCreationQuery.appendColumnDefinitions(mColumnDefinitions).append(");");
 
