@@ -164,9 +164,8 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void save(FlowManager flowManager, ModelClass model, boolean async, int mode) {
         if (!async) {
-            WhereQueryBuilder<ModelClass> primaryWhereQueryBuilder = (WhereQueryBuilder<ModelClass>)
-                    flowManager.getStructure().getPrimaryWhereQuery(model.getClass());
-
+            WhereQueryBuilder<ModelClass> primaryWhereQueryBuilder =
+                    flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>)model.getClass());
 
             final SQLiteDatabase db = flowManager.getWritableDatabase();
             final ContentValues values = new ContentValues();
