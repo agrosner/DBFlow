@@ -1,6 +1,7 @@
 package com.grosner.dbflow.runtime;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.transaction.BaseTransaction;
@@ -61,7 +62,6 @@ public class TransactionManager {
         mManager = flowManager;
         mName = name;
         hasOwnQueue = createNewQueue;
-        checkThread();
         DBManagerRuntime.getManagers().add(this);
         checkQueue();
     }
@@ -127,19 +127,9 @@ public class TransactionManager {
     }
 
     /**
-     * Ensure manager was created in the main thread, otherwise handler will not work
-     */
-    protected void checkThread() {
-        if (!Thread.currentThread().getName().equals("main")) {
-            throw new DBManagerNotOnMainException(getClass().getSimpleName() + " must be instantiated on the main thread . " +
-                    "Was on : " + Thread.currentThread().getName());
-        }
-    }
-
-    /**
      * Runs all of the UI threaded requests
      */
-    protected Handler mRequestHandler = new Handler();
+    protected Handler mRequestHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Runs a request from the DB in the request queue
