@@ -64,7 +64,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> List<ModelClass> queryList(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
-        List<ModelClass> list = convertToList(modelClass, cursor);
+        List<ModelClass> list = convertToList(flowManager, modelClass, cursor);
         cursor.close();
         return list;
     }
@@ -83,7 +83,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> ModelClass querySingle(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
-        ModelClass retModel = convertToModel(modelClass, cursor);
+        ModelClass retModel = convertToModel(flowManager, modelClass, cursor);
         cursor.close();
         return retModel;
     }
@@ -113,28 +113,14 @@ public class SqlUtils {
      * @param <ModelClass>
      * @return
      */
-    public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
+    public static <ModelClass extends Model> List<ModelClass> convertToList(FlowManager flowManager, Class<ModelClass> table, Cursor cursor) {
         final List<ModelClass> entities = new ArrayList<ModelClass>();
 
-        try {
-            Constructor<ModelClass> entityConstructor = table.getConstructor();
-
-            //enable private constructors
-            entityConstructor.setAccessible(true);
-
-            if (cursor.moveToFirst()) {
-                do {
-                    ModelClass model = entityConstructor.newInstance();
-                    model.load(cursor);
-                    entities.add(model);
-                }
-                while (cursor.moveToNext());
+        if (cursor.moveToFirst()) {
+            do {
+                entities.add(convertToModel(flowManager, table, cursor));
             }
-
-        } catch (IllegalArgumentException i) {
-            throw new RuntimeException("Default constructor for: " + table.getName() + " was not found.");
-        } catch (Exception e) {
-            FlowLog.log(FlowLog.Level.E, "Failed to process cursor.", e);
+            while (cursor.moveToNext());
         }
 
         return entities;
@@ -148,14 +134,10 @@ public class SqlUtils {
      * @param <ModelClass>
      * @return
      */
-    public static <ModelClass extends Model> ModelClass convertToModel(Class<ModelClass> table, Cursor cursor) {
+    public static <ModelClass extends Model> ModelClass convertToModel(FlowManager flowManager, Class<ModelClass> table, Cursor cursor) {
         ModelClass model = null;
         try {
-            Constructor<ModelClass> entityConstructor = table.getConstructor();
-
-            //enable private constructors
-            entityConstructor.setAccessible(true);
-
+            Constructor<ModelClass> entityConstructor = flowManager.getStructure().getConstructorForModel(table);
             if (cursor.moveToFirst()) {
                 model = entityConstructor.newInstance();
                 model.load(cursor);

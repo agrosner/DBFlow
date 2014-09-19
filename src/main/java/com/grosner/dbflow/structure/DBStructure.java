@@ -8,6 +8,7 @@ import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,13 @@ public class DBStructure {
     private Map<Class<? extends Model>, WhereQueryBuilder> mPrimaryWhereQueryBuilderMap;
 
     /**
+     * Holds onto the {@link java.lang.reflect.Constructor} for each {@link com.grosner.dbflow.structure.Model}
+     * so we only need to retrieve these once to improve performance. This is used when we convert a {@link android.database.Cursor}
+     * to a {@link com.grosner.dbflow.structure.Model}
+     */
+    private Map<Class<? extends Model>, Constructor<? extends Model>> mModelConstructorMap;
+
+    /**
      * Holds the database information here.
      */
     private FlowManager mManager;
@@ -58,6 +66,7 @@ public class DBStructure {
         mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
         mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, WhereQueryBuilder>();
         mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
+        mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
 
         initializeStructure(dbConfiguration);
     }
@@ -114,6 +123,33 @@ public class DBStructure {
             getWhereQueryBuilderMap().put(modelTable, whereQueryBuilder);
         }
         return whereQueryBuilder;
+    }
+
+
+    /**
+     * Returns the {@link java.lang.reflect.Constructor} for the {@link ModelClass}. It will add the constructor
+     * to the map if it does not exist there already.
+     * @param modelClass
+     * @param <ModelClass>
+     * @return
+     * @throws java.lang.RuntimeException when the default constructor does not exist.
+     */
+    @SuppressWarnings("unchecked")
+    public <ModelClass extends Model> Constructor<ModelClass> getConstructorForModel(Class<ModelClass> modelClass) {
+        Constructor<ModelClass> constructor = (Constructor<ModelClass>) getModelConstructorMap().get(modelClass);
+        if(constructor == null) {
+            try {
+                constructor = modelClass.getConstructor();
+
+                //enable private constructors
+                constructor.setAccessible(true);
+                getModelConstructorMap().put(modelClass, constructor);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return constructor;
     }
 
     /**
@@ -179,5 +215,9 @@ public class DBStructure {
      */
     public Map<Class<? extends ModelView>, ModelView> getModelViews() {
         return mModelViews;
+    }
+
+    public Map<Class<? extends Model>, Constructor<? extends Model>> getModelConstructorMap() {
+        return mModelConstructorMap;
     }
 }
