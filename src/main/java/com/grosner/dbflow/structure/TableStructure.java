@@ -131,7 +131,7 @@ public class TableStructure<ModelType extends Model> {
         }
 
         // Views do not have primary keys
-        if(!ReflectionUtils.implementsModelView(modelType)) {
+        if (!ReflectionUtils.implementsModelView(modelType)) {
 
             if (mPrimaryKeys.isEmpty()) {
                 throw new PrimaryKeyNotFoundException("Table: " + mTableName + " must define a primary key");

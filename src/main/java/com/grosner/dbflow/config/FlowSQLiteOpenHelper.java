@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -197,13 +196,13 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e);
         }
 
-        if(mMigrations != null) {
+        if (mMigrations != null) {
             int curVersion = oldVersion + 1;
 
             // execute migrations in order
-            for(int i = curVersion; i <= newVersion; i++) {
+            for (int i = curVersion; i <= newVersion; i++) {
                 List<Migration> migrationsList = mMigrations.get(i);
-                if(migrationsList != null) {
+                if (migrationsList != null) {
                     for (Migration migration : migrationsList) {
 
                         // before migration

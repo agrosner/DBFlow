@@ -165,7 +165,7 @@ public class SqlUtils {
     public static <ModelClass extends Model> void save(FlowManager flowManager, ModelClass model, boolean async, int mode) {
         if (!async) {
             WhereQueryBuilder<ModelClass> primaryWhereQueryBuilder =
-                    flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>)model.getClass());
+                    flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
 
             final SQLiteDatabase db = flowManager.getWritableDatabase();
             final ContentValues values = new ContentValues();
@@ -266,6 +266,8 @@ public class SqlUtils {
                         }
                     }
                 }
+
+
             }
         } else {
             TransactionManager.getInstance().save(DBTransactionInfo.create(), model);

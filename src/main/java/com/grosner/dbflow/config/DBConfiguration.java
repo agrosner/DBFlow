@@ -126,12 +126,12 @@ public class DBConfiguration {
          * @param migrations The migrations to be executed when we create and upgrade the DB
          * @return
          */
-        public Builder addMigrations(Migration...migrations) {
-            if(mConfiguration.mMigrations == null) {
+        public Builder addMigrations(Migration... migrations) {
+            if (mConfiguration.mMigrations == null) {
                 mConfiguration.mMigrations = new SparseArray<List<Migration>>();
             }
 
-            for(Migration migration : migrations) {
+            for (Migration migration : migrations) {
 
                 List<Migration> migrationList = mConfiguration.mMigrations.get(migration.getNewVersion());
                 if (migrationList == null) {

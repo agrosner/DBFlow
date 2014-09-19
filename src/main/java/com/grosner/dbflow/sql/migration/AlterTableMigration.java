@@ -45,6 +45,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     /**
      * Call this to rename a table to a new name, such as changing either the {@link com.grosner.dbflow.structure.Model} class name
      * or by changing the name through a {@link com.grosner.dbflow.structure.Table}
+     *
      * @param oldName The new name to call the table.
      * @return
      */
@@ -57,12 +58,13 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     /**
      * Add a column to the DB. This does not necessarily need to be reflected in the {@link ModelClass},
      * but it is recommended.
+     *
      * @param columnType
      * @param columnName
      * @return
      */
     public AlterTableMigration<ModelClass> addColumn(Class columnType, String columnName) {
-        if(mColumnDefinitions == null) {
+        if (mColumnDefinitions == null) {
             mColumnDefinitions = new ArrayList<QueryBuilder>();
         }
 
@@ -81,16 +83,16 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
 
         // "{oldName}  RENAME TO {newName}"
         // Since the structure has been updated already, the manager knows only the new name.
-        if(mRenameQuery != null) {
+        if (mRenameQuery != null) {
             database.execSQL(sql + mOldTableName +
                     mRenameQuery.getQuery() + tableName);
         }
 
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
-        if(mColumnDefinitions != null) {
+        if (mColumnDefinitions != null) {
             sql = sql + tableName;
-            for(QueryBuilder columnDefinition: mColumnDefinitions) {
+            for (QueryBuilder columnDefinition : mColumnDefinitions) {
                 database.execSQL(sql + " ADD COLUMN " + columnDefinition.getQuery());
             }
         }

@@ -5,10 +5,12 @@ import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.DefaultForeignKeyConverter;
 import com.grosner.dbflow.converter.ForeignKeyConverter;
+import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,11 @@ public class DBStructure {
     private Map<Class<? extends Model>, Constructor<? extends Model>> mModelConstructorMap;
 
     /**
+     * Holds onto {@link com.grosner.dbflow.runtime.observer.ModelObserver} for each {@link com.grosner.dbflow.structure.Model}
+     */
+    private final Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> mModelObserverMap;
+
+    /**
      * Holds the database information here.
      */
     private FlowManager mManager;
@@ -67,6 +74,7 @@ public class DBStructure {
         mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, WhereQueryBuilder>();
         mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
         mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
+        mModelObserverMap = new HashMap<Class<? extends Model>, List<ModelObserver<? extends Model>>>();
 
         initializeStructure(dbConfiguration);
     }
@@ -129,6 +137,7 @@ public class DBStructure {
     /**
      * Returns the {@link java.lang.reflect.Constructor} for the {@link ModelClass}. It will add the constructor
      * to the map if it does not exist there already.
+     *
      * @param modelClass
      * @param <ModelClass>
      * @return
@@ -137,7 +146,7 @@ public class DBStructure {
     @SuppressWarnings("unchecked")
     public <ModelClass extends Model> Constructor<ModelClass> getConstructorForModel(Class<ModelClass> modelClass) {
         Constructor<ModelClass> constructor = (Constructor<ModelClass>) getModelConstructorMap().get(modelClass);
-        if(constructor == null) {
+        if (constructor == null) {
             try {
                 constructor = modelClass.getConstructor();
 
@@ -182,6 +191,70 @@ public class DBStructure {
     }
 
     /**
+     * Returns the associated {@link com.grosner.dbflow.runtime.observer.ModelObserver}s for the class
+     *
+     * @param modelClass
+     * @return
+     */
+    public List<ModelObserver<? extends Model>> getModelObserverListForClass(Class<? extends Model> modelClass) {
+        return getModelObserverMap().get(modelClass);
+    }
+
+    /**
+     * Adds a {@link com.grosner.dbflow.runtime.observer.ModelObserver} to the structure
+     *
+     * @param modelObserver A model observer to listen for model changes/updates
+     */
+    @SuppressWarnings("unchecked")
+    public void addModelObserverForClass(ModelObserver<? extends Model> modelObserver) {
+        synchronized (mModelObserverMap) {
+            List<ModelObserver<? extends Model>> modelObservers = getModelObserverListForClass(modelObserver.getModelClass());
+            if (modelObservers == null) {
+                modelObservers = new ArrayList<ModelObserver<? extends Model>>();
+                getModelObserverMap().put(modelObserver.getModelClass(), modelObservers);
+            }
+            if (!modelObservers.contains(modelObserver)) {
+                modelObservers.add(modelObserver);
+            }
+        }
+    }
+
+    /**
+     * Removes a {@link com.grosner.dbflow.runtime.observer.ModelObserver} from this structure.
+     *
+     * @param modelObserver A model observer to listen for model changes/updates
+     */
+    @SuppressWarnings("unchecked")
+    public void removeModelObserverForClass(ModelObserver<? extends Model> modelObserver) {
+        synchronized (mModelObserverMap) {
+            List<ModelObserver<? extends Model>> modelObservers = getModelObserverListForClass(modelObserver.getModelClass());
+            if (modelObservers != null) {
+                modelObservers.remove(modelObserver);
+
+                if (modelObservers.isEmpty()) {
+                    getModelObserverMap().remove(modelObserver.getModelClass());
+                }
+            }
+        }
+    }
+
+    /**
+     * Performs the listener event
+     *
+     * @param model
+     */
+    @SuppressWarnings("unchecked")
+    public void fireModelChanged(Model model) {
+        synchronized (mModelObserverMap) {
+            List<ModelObserver<? extends Model>> modelObserverList = getModelObserverListForClass(model.getClass());
+            for (ModelObserver modelObserver : modelObserverList) {
+                modelObserver.onModelChanged(mManager, model);
+            }
+
+        }
+    }
+
+    /**
      * Returns the {@link com.grosner.dbflow.structure.TableStructure} map for this database
      *
      * @return
@@ -219,5 +292,9 @@ public class DBStructure {
 
     public Map<Class<? extends Model>, Constructor<? extends Model>> getModelConstructorMap() {
         return mModelConstructorMap;
+    }
+
+    public Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> getModelObserverMap() {
+        return mModelObserverMap;
     }
 }

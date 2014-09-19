@@ -11,6 +11,7 @@ public interface Migration {
 
     /**
      * Returns the DB migration version
+     *
      * @return
      */
     public int getNewVersion();
@@ -22,6 +23,7 @@ public interface Migration {
 
     /**
      * Perform your migrations here
+     *
      * @param database
      */
     public void migrate(SQLiteDatabase database);

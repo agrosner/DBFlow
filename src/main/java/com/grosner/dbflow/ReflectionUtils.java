@@ -82,6 +82,7 @@ public class ReflectionUtils {
 
     /**
      * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.ModelView}
+     *
      * @param discoveredClass
      * @return true if the class can be assigned to ModelView
      */
