@@ -1,6 +1,7 @@
 package com.grosner.dbflow.structure;
 
 import com.grosner.dbflow.ReflectionUtils;
+import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.TableCreationQueryBuilder;
@@ -171,6 +172,9 @@ public class TableStructure<ModelType extends Model> {
 
                 mColumnDefinitions.add(foreignKeyQueryBuilder);
             }
+        } else if (!mPrimaryKeys.isEmpty() || !mForeignKeys.isEmpty()) {
+            // We do not crash here as to interfere with instantiation. We will display log in error
+            FlowLog.log(FlowLog.Level.E, "MODEL VIEWS CANNOT HAVE PRIMARY KEYS OR FOREIGN KEYS");
         }
 
         mCreationQuery.appendColumnDefinitions(mColumnDefinitions).append(");");
