@@ -15,7 +15,7 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 ## Features:
 
 1. Loading and saving of Model objects. 
-2. No need to define what Model classes to use - just implement the ``Model``` interface, extend ```BaseModel``` or extend ```BaseNotifiableModel``` .
+2. No need to define what Model classes to use - just implement the ```Model``` interface, extend ```BaseModel``` or extend ```BaseNotifiableModel``` .
 3. Multiple primary key columns, handling complex foreign keys
 4. Multi-database support fully baked in using the ```FlowManager```
 5. Database Views (Virtual tables)
