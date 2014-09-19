@@ -266,9 +266,11 @@ public class SqlUtils {
                         }
                     }
                 }
-
-
             }
+
+            // Notify any observers of this model change
+            flowManager.getStructure().fireModelChanged(model);
+
         } else {
             TransactionManager.getInstance().save(DBTransactionInfo.create(), model);
         }

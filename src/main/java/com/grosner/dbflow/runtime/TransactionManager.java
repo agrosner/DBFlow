@@ -145,7 +145,7 @@ public class TransactionManager {
      *
      * @param runnable
      */
-    protected synchronized void processOnRequestHandler(Runnable runnable) {
+    public synchronized void processOnRequestHandler(Runnable runnable) {
         mRequestHandler.post(runnable);
     }
 

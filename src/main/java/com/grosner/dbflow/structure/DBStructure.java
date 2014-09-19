@@ -5,6 +5,7 @@ import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.DefaultForeignKeyConverter;
 import com.grosner.dbflow.converter.ForeignKeyConverter;
+import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 
@@ -244,13 +245,19 @@ public class DBStructure {
      * @param model
      */
     @SuppressWarnings("unchecked")
-    public void fireModelChanged(Model model) {
+    public void fireModelChanged(final Model model) {
         synchronized (mModelObserverMap) {
-            List<ModelObserver<? extends Model>> modelObserverList = getModelObserverListForClass(model.getClass());
-            for (ModelObserver modelObserver : modelObserverList) {
-                modelObserver.onModelChanged(mManager, model);
+            final List<ModelObserver<? extends Model>> modelObserverList = getModelObserverListForClass(model.getClass());
+            if(!modelObserverList.isEmpty()) {
+                TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (ModelObserver modelObserver : modelObserverList) {
+                            modelObserver.onModelChanged(mManager, model);
+                        }
+                    }
+                });
             }
-
         }
     }
 
