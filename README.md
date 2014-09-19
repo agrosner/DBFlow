@@ -6,28 +6,34 @@ DBFlow
 
 A robust, powerful, and very simple ORM android database library.
 
-The library eliminates the need for writing SQL statements, writing ``ContentValues`` for every table, converting cursors into data, and so much more. 
+The library eliminates the need for writing most SQL statements, writing ``ContentValues`` for every table, converting cursors into models, and so much more. 
 
-Let DBFlow make SQL code _flow_ like a steady stream and allow you to focus on your problems, not be hindered by repetitive code writing. 
+Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your complex problem and not be hindered by repetitive code writing. 
+
+This library is based on both [Active Android](https://github.com/pardom/ActiveAndroid) and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of both while offering much more functionality and extensibility. 
 
 ## Features:
 
 1. Loading and saving of Model objects. 
-2. Multiple primary key columns, handling complex foreign keys
-3. Multi-database support fully baked in
-4. Database Views
-5. Handling large amounts of database requests efficiently and effectively
-6. Priority queuing of DB transactions
-7. No need to define what Model classes to use - just implement the ``Model``` interface or extend ```BaseModel```.
-8. Migrations
-9. Complex queries wrapped in "builder" notatation instead of using SQL strings.
+2. No need to define what Model classes to use - just implement the ```Model``` interface, extend ```BaseModel``` or extend ```BaseNotifiableModel``` .
+3. Multiple primary key columns, handling complex foreign keys
+4. Multi-database support fully baked in using the ```FlowManager```
+5. Database Views (Virtual tables)
+6. Handling large amounts of database requests efficiently and effectively
+7. Priority queuing of DB transactions through the ```DBTransactionQueue``` and the ```TransactionManager```
+8. Migrations through both SQL files and inline code.
+9. Complex queries wrapped in "builder" notation instead of using SQL strings.
 10. ```TypeConverter``` that let **you** define how to store a particular class.
-11. And many more powerful features **baked** in.
+11. Powerful caching of reflection and repetitive queries to make this library _flow_ smoothly
+12. And many more powerful features **baked** in.
 
 ## Documentation
 
 1. [Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
 2. [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
-3. [Database Management](https://github.com/agrosner/DBFlow/wiki/dbmanagement)
-4. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/typeconverters)
-5. [Migrations](https://github.com/agrosner/DBFlow/wiki/Migrations)
+3. [Basic Query Wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
+4. [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
+5. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
+6. [Migrations](https://github.com/agrosner/DBFlow/wiki/Migrations)
+7. [Observable Models](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
+8. [Prepopulated DB](https://github.com/agrosner/DBFlow/wiki/Prepopulated-DB)
