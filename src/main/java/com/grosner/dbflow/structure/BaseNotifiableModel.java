@@ -8,7 +8,8 @@ import com.grosner.dbflow.sql.SqlUtils;
  * Contributors: { }
  * Description:
  */
-public class BaseNotifiableModel extends BaseModel {
+@Ignore
+public abstract class BaseNotifiableModel extends BaseModel {
 
     @Override
     public void save(boolean async) {

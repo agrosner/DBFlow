@@ -14,7 +14,7 @@ import com.grosner.dbflow.sql.SqlUtils;
  * instead.
  */
 @Ignore
-public class BaseModel implements Model {
+public abstract class BaseModel implements Model {
 
     @Override
     public void save(boolean async) {
