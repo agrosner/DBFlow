@@ -24,27 +24,85 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Holds information related to each "where" piece
      */
-    public static class WhereArgs {
+    public static class WhereParam {
 
         /**
          * The operation such as "=", "<", and more
          */
-        private final String mOperation;
+        private String mOperation;
 
         /**
          * The value of the column we care about
          */
-        private final String mValue;
+        private String mValue;
+
+        /**
+         * The column name
+         */
+        private String mColumn;
+
+        public static WhereParam column(String columnName) {
+            WhereParam whereParam = new WhereParam(columnName);
+            return whereParam;
+        }
 
         /**
          * Creates a new instance
          *
-         * @param operation The operation such as "=", "<", and more
-         * @param value     The value of the column we care about
+         * @param columnName The name of the column in the DB
          */
-        public WhereArgs(String operation, String value) {
+        WhereParam(String columnName) {
+            mColumn = columnName;
+        }
+
+        /**
+         * Assigns the operation to "="
+         * @param value The value of the column in the DB in String value
+         * @return
+         */
+        public WhereParam is(String value) {
+            mOperation = "=";
+            return value(value);
+        }
+
+        /**
+         * Assigns operation to ">"
+         * @param value The value of the column in the DB in String value
+         * @return
+         */
+        public WhereParam greaterThan(String value) {
+            mOperation = ">";
+            return value(value);
+        }
+
+        /**
+         * Assigns operation to "<"
+         * @param value The value of the column in the DB in String value
+         * @return
+         */
+        public WhereParam lessThan(String value) {
+            mOperation = "<";
+            return value(value);
+        }
+
+        /**
+         * Add a custom operation to this argument
+         * @param operation
+         * @return
+         */
+        public WhereParam operation(String operation) {
             mOperation = operation;
+            return this;
+        }
+
+        /**
+         * The string value of the parameter
+         * @param value
+         * @return
+         */
+        public WhereParam value(String value) {
             mValue = value;
+            return this;
         }
 
         /**
@@ -64,6 +122,14 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
         public String value() {
             return mValue;
         }
+
+        /**
+         * Returns the column name
+         * @return
+         */
+        public String columnName() {
+            return mColumn;
+        }
     }
 
     /**
@@ -79,7 +145,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * The parameters to build this query with
      */
-    private LinkedHashMap<String, WhereArgs> mParams = new LinkedHashMap<String, WhereArgs>();
+    private LinkedHashMap<String, WhereParam> mParams = new LinkedHashMap<String, WhereParam>();
 
     /**
      * Whether there is a new param, we will rebuild the query.
@@ -138,7 +204,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param params The mapping between column names and the string-represented value
      * @return
      */
-    public WhereQueryBuilder<ModelClass> params(Map<String, WhereArgs> params) {
+    public WhereQueryBuilder<ModelClass> params(Map<String, WhereParam> params) {
         mParams.putAll(params);
         isChanged = true;
         return this;
@@ -182,7 +248,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
             throw new IllegalStateException("The " + WhereQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return param(columnName, new WhereArgs(operator, convertValueToString(columnName, value)));
+        return param(WhereParam.column(columnName).operation(operator).value(convertValueToString(columnName, value)));
 
     }
 
@@ -190,12 +256,11 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
-     * @param columnName The name of the column in the DB
-     * @param whereArgs  The where arguments. We can specify other operators than just "="
+     * @param whereParam  The where arguments. We can specify other operators than just "="
      * @return
      */
-    public WhereQueryBuilder<ModelClass> param(String columnName, WhereArgs whereArgs) {
-        mParams.put(columnName, whereArgs);
+    public WhereQueryBuilder<ModelClass> param(WhereParam whereParam) {
+        mParams.put(whereParam.columnName(), whereParam);
         isChanged = true;
         return this;
     }
@@ -233,11 +298,11 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * Internal utility method for appending a where param
      *
      * @param columnName The name of the column in the DB
-     * @param whereArgs  The value of the column we are looking for
+     * @param whereParam  The value of the column we are looking for
      * @return
      */
-    WhereQueryBuilder<ModelClass> appendParam(String columnName, WhereArgs whereArgs) {
-        return append(columnName).appendSpaceSeparated(whereArgs.operation()).append(whereArgs.value());
+    WhereQueryBuilder<ModelClass> appendParam(String columnName, WhereParam whereParam) {
+        return append(columnName).appendSpaceSeparated(whereParam.operation()).append(whereParam.value());
     }
 
     /**

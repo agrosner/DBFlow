@@ -17,7 +17,7 @@ public abstract class BaseNotifiableModel extends BaseModel {
     }
 
     public void insert(boolean async) {
-        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_INSERT, false);
+        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_INSERT, true);
     }
 
     @Override

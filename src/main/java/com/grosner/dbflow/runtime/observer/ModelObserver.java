@@ -9,7 +9,7 @@ import com.grosner.dbflow.structure.Model;
  * Contributors: { }
  * Description: Observes changes in a specific model and will provide automatic callback to them
  */
-public interface ModelObserver<ModelClass extends BaseNotifiableModel> {
+public interface ModelObserver<ModelClass extends Model> {
 
     public Class<ModelClass> getModelClass();
 

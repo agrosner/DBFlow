@@ -119,24 +119,23 @@ public class Where<ModelClass extends Model> implements Query {
     }
 
     /**
-     * Adds a param to the WHERE clause with the custom {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereArgs}
+     * Adds a param to the WHERE clause with the custom {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
      *
-     * @param column    The name of the column
-     * @param whereArgs The {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereArgs} to use
+     * @param whereParam The {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam} to use
      * @return
      */
-    public Where<ModelClass> param(String column, WhereQueryBuilder.WhereArgs whereArgs) {
-        mWhereQueryBuilder.param(column, whereArgs);
+    public Where<ModelClass> param(WhereQueryBuilder.WhereParam whereParam) {
+        mWhereQueryBuilder.param(whereParam);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereArgs} to this builder.
+     * Adds a bunch of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam} to this builder.
      *
-     * @param params The map of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereArgs}
+     * @param params The map of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
      * @return
      */
-    public Where<ModelClass> params(Map<String, WhereQueryBuilder.WhereArgs> params) {
+    public Where<ModelClass> params(Map<String, WhereQueryBuilder.WhereParam> params) {
         mWhereQueryBuilder.params(params);
         return this;
     }

@@ -97,13 +97,23 @@ public class From<ModelClass extends Model> implements Query {
     }
 
     /**
-     * REturns a {@link com.grosner.dbflow.sql.Where} statement with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     * Returns a {@link com.grosner.dbflow.sql.Where} statement with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
      *
      * @param whereQueryBuilder
      * @return
      */
     public Where<ModelClass> where(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
         return where().whereQuery(whereQueryBuilder);
+    }
+
+    /**
+     * REturns a {@link com.grosner.dbflow.sql.Where} statement with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
+     *
+     * @param whereParam The first parameter in the statement. Ex: name = Samsung
+     * @return
+     */
+    public Where<ModelClass> where(WhereQueryBuilder.WhereParam whereParam) {
+        return where().param(whereParam);
     }
 
     @Override
