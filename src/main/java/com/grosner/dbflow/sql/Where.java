@@ -100,7 +100,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @param value      the value of column
      * @return
      */
-    public Where<ModelClass> param(String columnName, Object value) {
+    public Where<ModelClass> and(String columnName, Object value) {
         mWhereQueryBuilder.param(columnName, value);
         return this;
     }
@@ -113,7 +113,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @param value      The value of the column
      * @return
      */
-    public Where<ModelClass> param(String columnName, String operator, Object value) {
+    public Where<ModelClass> and(String columnName, String operator, Object value) {
         mWhereQueryBuilder.param(columnName, operator, value);
         return this;
     }
@@ -124,7 +124,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @param whereParam The {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam} to use
      * @return
      */
-    public Where<ModelClass> param(WhereQueryBuilder.WhereParam whereParam) {
+    public Where<ModelClass> and(WhereQueryBuilder.WhereParam whereParam) {
         mWhereQueryBuilder.param(whereParam);
         return this;
     }
@@ -135,7 +135,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @param params The map of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
      * @return
      */
-    public Where<ModelClass> params(Map<String, WhereQueryBuilder.WhereParam> params) {
+    public Where<ModelClass> andThese(Map<String, WhereQueryBuilder.WhereParam> params) {
         mWhereQueryBuilder.params(params);
         return this;
     }
@@ -146,7 +146,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @param values the values of the primary keys from the table. Must be in order of the primary key declaration.
      * @return
      */
-    public Where<ModelClass> primaryParams(Object... values) {
+    public Where<ModelClass> andPrimaryValues(Object... values) {
         mWhereQueryBuilder.primaryParams(values);
         return this;
     }

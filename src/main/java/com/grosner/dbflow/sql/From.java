@@ -113,7 +113,7 @@ public class From<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> where(WhereQueryBuilder.WhereParam whereParam) {
-        return where().param(whereParam);
+        return where().and(whereParam);
     }
 
     @Override
