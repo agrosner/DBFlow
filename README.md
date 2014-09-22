@@ -12,6 +12,8 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your 
 
 This library is based on both [Active Android](https://github.com/pardom/ActiveAndroid) and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of both while offering much more functionality and extensibility. 
 
+**Please** note that this is not in full release yet, and thus is in **Alpha**.
+
 ## Features:
 
 1. Loading and saving of Model objects. 
