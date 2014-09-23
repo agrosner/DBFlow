@@ -61,6 +61,14 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
+     * @return
+     * @see #selectAllFromTable(Class)
+     */
+    public List<ModelClass> selectAllFromTable() {
+        return selectAllFromTable(mTableClass);
+    }
+
+    /**
      * @param ids The list of ids given by the {@link ModelClass}
      * @return
      * @see #selectModelById(Class, Object...)
@@ -79,10 +87,25 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
+     * @see #dropTable(Class)
+     */
+    public void dropTable() {
+        super.dropTable(mTableClass);
+    }
+
+    /**
      * @param transactionInfo The information on how we should approach this request.
      * @see #deleteTable(DBTransactionInfo, Class)
      */
     public void deleteTable(DBTransactionInfo transactionInfo) {
         super.deleteTable(transactionInfo, mTableClass);
+    }
+
+    /**
+     * Returns the table class for this Table Transaction manager
+     * @return
+     */
+    public Class<ModelClass> getTableClass() {
+        return mTableClass;
     }
 }

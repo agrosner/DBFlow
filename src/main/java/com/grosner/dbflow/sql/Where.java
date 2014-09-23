@@ -4,6 +4,12 @@ import android.database.DatabaseUtils;
 
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.runtime.DBTransactionInfo;
+import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.runtime.transaction.QueryTransaction;
+import com.grosner.dbflow.runtime.transaction.ResultReceiver;
+import com.grosner.dbflow.runtime.transaction.SelectListTransaction;
+import com.grosner.dbflow.runtime.transaction.SelectSingleModelTransaction;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
@@ -59,6 +65,18 @@ public class Where<ModelClass extends Model> implements Query {
     private final FlowManager mManager;
 
     /**
+     * Constructs this class with a SELECT * on the manager and {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     * @param flowManager
+     * @param whereQueryBuilder
+     * @param <ModelClass>
+     * @return
+     */
+    public static <ModelClass extends Model> Where<ModelClass> with(FlowManager flowManager,
+                                                                    WhereQueryBuilder<ModelClass> whereQueryBuilder) {
+        return new Select(flowManager).from(whereQueryBuilder.getTableClass()).where(whereQueryBuilder);
+    }
+
+    /**
      * Constructs this class with the specified {@link com.grosner.dbflow.config.FlowManager}
      * and {@link com.grosner.dbflow.sql.From} chunk
      *
@@ -69,6 +87,12 @@ public class Where<ModelClass extends Model> implements Query {
         mManager = manager;
         mFrom = from;
         mWhereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, mFrom.getTable());
+    }
+
+    protected void checkSelect(String methodName) {
+        if(!(mFrom.getQueryBuilderBase() instanceof Select)) {
+            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
+        }
     }
 
     /**
@@ -229,11 +253,8 @@ public class Where<ModelClass extends Model> implements Query {
      * @return All of the entries in the DB converted into {@link ModelClass}
      */
     public List<ModelClass> queryList() {
-        if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.queryList(mManager, mFrom.getTable(), getQuery());
-        } else {
-            throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
-        }
+        checkSelect("query");
+        return SqlUtils.queryList(mManager, mFrom.getTable(), getQuery());
     }
 
     /**
@@ -242,11 +263,39 @@ public class Where<ModelClass extends Model> implements Query {
      * @return The first result of this query. Note: this query may return more than one from the DB.
      */
     public ModelClass querySingle() {
-        if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.querySingle(mManager, mFrom.getTable(), getQuery());
-        } else {
-            throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
-        }
+        checkSelect("query");
+        return SqlUtils.querySingle(mManager, mFrom.getTable(), getQuery());
+    }
+
+    /**
+     * Will run this query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     * @param transactionInfo The information on how to prioritize the transaction
+     * @param transactionManager The transaction manager to add the query to
+     */
+    public void transact(DBTransactionInfo transactionInfo, TransactionManager transactionManager) {
+        transactionManager.addTransaction(new QueryTransaction<ModelClass>(transactionInfo, this));
+    }
+
+    /**
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
+     * {@link ModelClass} on the UI thread.
+     * @param transactionManager The transaction manager to add the query to
+     * @param listResultReceiver The result of this transaction
+     */
+    public void transactList(TransactionManager transactionManager, ResultReceiver<List<ModelClass>> listResultReceiver) {
+        checkSelect("transact");
+        transactionManager.fetchFromTable(this, listResultReceiver);
+    }
+
+    /**
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
+     * a single item on the UI thread.
+     * @param transactionManager The transaction manager to add the query to
+     * @param resultReceiver The result of this transaction
+     */
+    public void transactSingleModel(TransactionManager transactionManager, ResultReceiver<ModelClass> resultReceiver) {
+        checkSelect("transact");
+        transactionManager.fetchModel(this, resultReceiver);
     }
 
     /**
@@ -255,11 +304,16 @@ public class Where<ModelClass extends Model> implements Query {
      * @return if {@link android.database.Cursor}.count > 0
      */
     public boolean hasData() {
-        if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.hasData(mManager, mFrom.getTable(), getQuery());
-        } else {
-            throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
-        }
+        checkSelect("query");
+        return SqlUtils.hasData(mManager, mFrom.getTable(), getQuery());
+    }
+
+    /**
+     * Returns the table this query points to
+     * @return
+     */
+    public Class<ModelClass> getTable() {
+        return mFrom.getTable();
     }
 
     @Override

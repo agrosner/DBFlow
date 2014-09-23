@@ -34,7 +34,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
         /**
          * The value of the column we care about
          */
-        private String mValue;
+        private Object mValue;
 
         /**
          * The column name
@@ -60,7 +60,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
          * @param value The value of the column in the DB in String value
          * @return
          */
-        public WhereParam is(String value) {
+        public WhereParam is(Object value) {
             mOperation = "=";
             return value(value);
         }
@@ -70,7 +70,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
          * @param value The value of the column in the DB in String value
          * @return
          */
-        public WhereParam greaterThan(String value) {
+        public WhereParam greaterThan(Object value) {
             mOperation = ">";
             return value(value);
         }
@@ -80,7 +80,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
          * @param value The value of the column in the DB in String value
          * @return
          */
-        public WhereParam lessThan(String value) {
+        public WhereParam lessThan(Object value) {
             mOperation = "<";
             return value(value);
         }
@@ -100,7 +100,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
          * @param value
          * @return
          */
-        public WhereParam value(String value) {
+        public WhereParam value(Object value) {
             mValue = value;
             return this;
         }
@@ -119,7 +119,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
          *
          * @return
          */
-        public String value() {
+        public Object value() {
             return mValue;
         }
 
@@ -248,7 +248,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
             throw new IllegalStateException("The " + WhereQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return param(WhereParam.column(columnName).operation(operator).value(convertValueToString(columnName, value)));
+        return param(WhereParam.column(columnName).operation(operator).value(value));
 
     }
 
@@ -297,12 +297,12 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Internal utility method for appending a where param
      *
-     * @param columnName The name of the column in the DB
      * @param whereParam  The value of the column we are looking for
      * @return
      */
-    WhereQueryBuilder<ModelClass> appendParam(String columnName, WhereParam whereParam) {
-        return append(columnName).appendSpaceSeparated(whereParam.operation()).append(whereParam.value());
+    WhereQueryBuilder<ModelClass> appendParam(WhereParam whereParam) {
+        return append(whereParam.columnName()).appendSpaceSeparated(whereParam.operation())
+                .append(convertValueToString(whereParam.columnName(), whereParam.value()));
     }
 
     /**
@@ -355,7 +355,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
             Set<String> keys = mParams.keySet();
             int count = 0;
             for (String key : keys) {
-                appendParam(key, mParams.get(key));
+                appendParam(mParams.get(key));
                 if (count < keys.size() - 1) {
                     appendSpaceSeparated("AND");
                 }

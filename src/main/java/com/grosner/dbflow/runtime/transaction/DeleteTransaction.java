@@ -12,10 +12,7 @@ import com.grosner.dbflow.structure.Model;
  * Contributors: { }
  * Description: Runs a delete command on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
  */
-public class DeleteTransaction<ModelClass extends Model> extends BaseTransaction<Void> {
-
-
-    private Where<ModelClass> Where;
+public class DeleteTransaction<ModelClass extends Model> extends QueryTransaction<ModelClass> {
 
     /**
      * Constructs this transaction with a delete with an empty "where" clause
@@ -25,8 +22,7 @@ public class DeleteTransaction<ModelClass extends Model> extends BaseTransaction
      * @param table             The model table that we act on
      */
     public DeleteTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo, Class<ModelClass> table) {
-        super(dbTransactionInfo);
-        Where = new Delete(flowManager).from(table).where();
+        super(dbTransactionInfo, new Delete(flowManager).from(table).where());
     }
 
     /**
@@ -39,14 +35,6 @@ public class DeleteTransaction<ModelClass extends Model> extends BaseTransaction
      */
     public DeleteTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo,
                              WhereQueryBuilder<ModelClass> whereArgs) {
-        super(dbTransactionInfo);
-        Where = new Delete(flowManager).from(whereArgs.getTableClass()).where(whereArgs);
+        super(dbTransactionInfo, new Delete(flowManager).from(whereArgs.getTableClass()).where(whereArgs));
     }
-
-    @Override
-    public Void onExecute() {
-        Where.query();
-        return null;
-    }
-
 }

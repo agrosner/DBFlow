@@ -2,6 +2,7 @@ package com.grosner.dbflow.runtime.transaction;
 
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
+import com.grosner.dbflow.sql.From;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.Where;
 import com.grosner.dbflow.structure.Model;
@@ -24,18 +25,17 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
      * @param resultReceiver
      */
     public SelectListTransaction(FlowManager flowManager, Class<ModelClass> tableClass, ResultReceiver<List<ModelClass>> resultReceiver) {
-        this(tableClass, new Select(flowManager), resultReceiver);
+        this(new Select(flowManager).from(tableClass), resultReceiver);
     }
 
     /**
      * Creates this class with the specified arguments.
      *
-     * @param tableClass     The class we will retrieve the models from
-     * @param select         The select statement we will use to retrieve them.
+     * @param from           The from to use
      * @param resultReceiver The result we get.
      */
-    public SelectListTransaction(Class<ModelClass> tableClass, Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
-        this(select.from(tableClass).where(), resultReceiver);
+    public SelectListTransaction(From<ModelClass> from, ResultReceiver<List<ModelClass>> resultReceiver) {
+        this(from.where(), resultReceiver);
     }
 
     /**
