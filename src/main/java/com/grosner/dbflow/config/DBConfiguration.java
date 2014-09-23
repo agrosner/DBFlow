@@ -86,7 +86,7 @@ public class DBConfiguration {
          * @return The builder
          */
         public Builder databaseName(String databaseName) {
-            mConfiguration.mDatabaseName = databaseName;
+            mConfiguration.mDatabaseName = databaseName +".db";
             return this;
         }
 

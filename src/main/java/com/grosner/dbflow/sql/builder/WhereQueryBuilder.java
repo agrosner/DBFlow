@@ -365,6 +365,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
                 if (count < keys.size() - 1) {
                     appendSpaceSeparated("AND");
                 }
+                count++;
             }
         }
 
