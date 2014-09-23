@@ -63,12 +63,14 @@ public class DBTransactionQueue extends Thread {
                     final BaseTransaction finalTransaction = transaction;
 
                     // Run the result on the FG
-                    TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
-                        @Override
-                        public void run() {
-                            finalTransaction.onPostExecute(result);
-                        }
-                    });
+                    if(transaction.hasResult()) {
+                        TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
+                            @Override
+                            public void run() {
+                                finalTransaction.onPostExecute(result);
+                            }
+                        });
+                    }
                 }
             } catch (Throwable t) {
                 throw new RuntimeException(t);
