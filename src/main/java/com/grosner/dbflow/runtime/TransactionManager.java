@@ -360,12 +360,12 @@ public class TransactionManager {
     // region Database Delete methods
 
     /**
-     * Drop the specified table from the DB.
+     * Drops all of the rows from the specified table from the DB immediately.
      *
      * @param tableClass   The table to delete the models from.
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public <ModelClass extends Model> void dropTable(Class<ModelClass> tableClass) {
+    public <ModelClass extends Model> void deleteTable(Class<ModelClass> tableClass) {
         new Delete().from(tableClass).where().query();
     }
 
