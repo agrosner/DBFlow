@@ -44,7 +44,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * @param value
      * @return
      */
-    public UpdateTableMigration<ModelClass> setColumn(String columnName, String value) {
+    public UpdateTableMigration<ModelClass> set(String columnName, String value) {
         if (mSetDefinitions == null) {
             mSetDefinitions = new ArrayList<QueryBuilder>();
         }
@@ -69,7 +69,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
                 .append("SET").appendSpace().appendList(mSetDefinitions);
 
         if (mWhereQueryBuilder != null) {
-            mQuery.appendSpace().append(mWhereQueryBuilder.getQuery());
+            mQuery.appendSpaceSeparated("WHERE").append(mWhereQueryBuilder.getQuery());
         }
     }
 
