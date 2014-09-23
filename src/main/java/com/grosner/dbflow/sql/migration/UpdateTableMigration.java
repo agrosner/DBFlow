@@ -52,6 +52,8 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         QueryBuilder queryBuilder = new QueryBuilder()
                 .append(columnName).appendSpaceSeparated("=").append(value);
         mSetDefinitions.add(queryBuilder);
+
+        return this;
     }
 
     public UpdateTableMigration<ModelClass> where(WhereQueryBuilder.WhereParam whereParam) {
@@ -60,6 +62,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         }
 
         mWhereQueryBuilder.param(whereParam);
+        return this;
     }
 
     @SuppressWarnings("unchecked")
