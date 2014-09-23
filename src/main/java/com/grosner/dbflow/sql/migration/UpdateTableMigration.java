@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 public class UpdateTableMigration<ModelClass extends Model> extends BaseMigration {
 
     private QueryBuilder mQuery;
+
+    private WhereQueryBuilder<ModelClass> mWhereQueryBuilder;
 
     private FlowManager mManager;
 
@@ -36,12 +39,13 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     /**
      * This will append a SET columnName = value to this migration. It will execute each of these in succession with the order
      * that this is called.
+     *
      * @param columnName
      * @param value
      * @return
      */
     public UpdateTableMigration<ModelClass> setColumn(String columnName, String value) {
-        if(mSetDefinitions == null) {
+        if (mSetDefinitions == null) {
             mSetDefinitions = new ArrayList<QueryBuilder>();
         }
 
@@ -50,11 +54,23 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         mSetDefinitions.add(queryBuilder);
     }
 
+    public UpdateTableMigration<ModelClass> where(WhereQueryBuilder.WhereParam whereParam) {
+        if (mWhereQueryBuilder == null) {
+            mWhereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, mTable);
+        }
+
+        mWhereQueryBuilder.param(whereParam);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void onPreMigrate() {
         mQuery = new QueryBuilder().append("UPDATE").appendSpaceSeparated(mManager.getTableName(mTable))
-            .append("SET").appendSpace().appendList(mSetDefinitions);
+                .append("SET").appendSpace().appendList(mSetDefinitions);
+
+        if (mWhereQueryBuilder != null) {
+            mQuery.appendSpace().append(mWhereQueryBuilder.getQuery());
+        }
     }
 
     @Override

@@ -268,7 +268,7 @@ public class SqlUtils {
                 }
             }
 
-            if(notify) {
+            if (notify) {
                 // Notify any observers of this model change
                 flowManager.getStructure().fireModelChanged(model);
             }

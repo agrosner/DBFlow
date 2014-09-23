@@ -20,7 +20,7 @@ public class QueryTransaction<ModelClass extends Model> extends BaseTransaction<
 
     @Override
     public boolean onReady() {
-        return mWhere!=null;
+        return mWhere != null;
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.grosner.dbflow.runtime.transaction;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.sql.Delete;
-import com.grosner.dbflow.sql.Where;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 

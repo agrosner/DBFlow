@@ -8,8 +8,6 @@ import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.QueryTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
-import com.grosner.dbflow.runtime.transaction.SelectListTransaction;
-import com.grosner.dbflow.runtime.transaction.SelectSingleModelTransaction;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
@@ -66,6 +64,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Constructs this class with a SELECT * on the manager and {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     *
      * @param flowManager
      * @param whereQueryBuilder
      * @param <ModelClass>
@@ -90,7 +89,7 @@ public class Where<ModelClass extends Model> implements Query {
     }
 
     protected void checkSelect(String methodName) {
-        if(!(mFrom.getQueryBuilderBase() instanceof Select)) {
+        if (!(mFrom.getQueryBuilderBase() instanceof Select)) {
             throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
         }
     }
@@ -269,7 +268,8 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Will run this query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
-     * @param transactionInfo The information on how to prioritize the transaction
+     *
+     * @param transactionInfo    The information on how to prioritize the transaction
      * @param transactionManager The transaction manager to add the query to
      */
     public void transact(DBTransactionInfo transactionInfo, TransactionManager transactionManager) {
@@ -279,6 +279,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * Will run this query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with the shared
      * {@link com.grosner.dbflow.runtime.TransactionManager}
+     *
      * @param transactionInfo The information on how to prioritize the transaction
      */
     public void transact(DBTransactionInfo transactionInfo) {
@@ -288,6 +289,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
      * {@link ModelClass} on the UI thread.
+     *
      * @param transactionManager The transaction manager to add the query to
      * @param listResultReceiver The result of this transaction
      */
@@ -299,6 +301,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
      * {@link ModelClass} on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
+     *
      * @param listResultReceiver The result of this transaction
      */
     public void transactList(ResultReceiver<List<ModelClass>> listResultReceiver) {
@@ -308,8 +311,9 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
      * a single item on the UI thread.
+     *
      * @param transactionManager The transaction manager to add the query to
-     * @param resultReceiver The result of this transaction
+     * @param resultReceiver     The result of this transaction
      */
     public void transactSingleModel(TransactionManager transactionManager, ResultReceiver<ModelClass> resultReceiver) {
         checkSelect("transact");
@@ -319,6 +323,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
      * a single item on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
+     *
      * @param resultReceiver The result of this transaction
      */
     public void transactSingleModel(ResultReceiver<ModelClass> resultReceiver) {
@@ -337,6 +342,7 @@ public class Where<ModelClass extends Model> implements Query {
 
     /**
      * Returns the table this query points to
+     *
      * @return
      */
     public Class<ModelClass> getTable() {

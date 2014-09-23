@@ -200,7 +200,7 @@ public class StructureUtils {
                         @SuppressWarnings("unchecked")
                         Class<? extends ForeignKeyConverter> foreignKeyConverterClass = ((Class<? extends ForeignKeyConverter>) discoveredClass);
                         flowManager.getStructure().putForeignKeyConverterForClass(foreignKeyConverterClass);
-                    } else if(ReflectionUtils.implementsModelObserver(discoveredClass)) {
+                    } else if (ReflectionUtils.implementsModelObserver(discoveredClass)) {
                         try {
                             @SuppressWarnings("unchecked")
                             ModelObserver<? extends ModelObserver> modelObserver = (ModelObserver<? extends ModelObserver>) discoveredClass.newInstance();

@@ -92,6 +92,7 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
 
     /**
      * Returns the table class for this Table Transaction manager
+     *
      * @return
      */
     public Class<ModelClass> getTableClass() {

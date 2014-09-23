@@ -57,6 +57,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * Assigns the operation to "="
+         *
          * @param value The value of the column in the DB in String value
          * @return
          */
@@ -67,6 +68,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * Assigns operation to ">"
+         *
          * @param value The value of the column in the DB in String value
          * @return
          */
@@ -77,6 +79,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * Assigns operation to "<"
+         *
          * @param value The value of the column in the DB in String value
          * @return
          */
@@ -87,6 +90,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * Add a custom operation to this argument
+         *
          * @param operation
          * @return
          */
@@ -97,6 +101,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * The string value of the parameter
+         *
          * @param value
          * @return
          */
@@ -125,6 +130,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
         /**
          * Returns the column name
+         *
          * @return
          */
         public String columnName() {
@@ -256,7 +262,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
-     * @param whereParam  The where arguments. We can specify other operators than just "="
+     * @param whereParam The where arguments. We can specify other operators than just "="
      * @return
      */
     public WhereQueryBuilder<ModelClass> param(WhereParam whereParam) {
@@ -297,7 +303,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Internal utility method for appending a where param
      *
-     * @param whereParam  The value of the column we are looking for
+     * @param whereParam The value of the column we are looking for
      * @return
      */
     WhereQueryBuilder<ModelClass> appendParam(WhereParam whereParam) {
@@ -449,6 +455,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
 
     /**
      * Returns the {@link ModelClass} that this query belongs to
+     *
      * @return
      */
     public Class<ModelClass> getTableClass() {

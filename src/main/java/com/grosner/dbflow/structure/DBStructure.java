@@ -248,7 +248,7 @@ public class DBStructure {
     public void fireModelChanged(final Model model) {
         synchronized (mModelObserverMap) {
             final List<ModelObserver<? extends Model>> modelObserverList = getModelObserverListForClass(model.getClass());
-            if(!modelObserverList.isEmpty()) {
+            if (!modelObserverList.isEmpty()) {
                 TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
                     @Override
                     public void run() {

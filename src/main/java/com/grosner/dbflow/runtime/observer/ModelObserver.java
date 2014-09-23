@@ -1,7 +1,6 @@
 package com.grosner.dbflow.runtime.observer;
 
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.structure.BaseNotifiableModel;
 import com.grosner.dbflow.structure.Model;
 
 /**
