@@ -277,6 +277,15 @@ public class Where<ModelClass extends Model> implements Query {
     }
 
     /**
+     * Will run this query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with the shared
+     * {@link com.grosner.dbflow.runtime.TransactionManager}
+     * @param transactionInfo The information on how to prioritize the transaction
+     */
+    public void transact(DBTransactionInfo transactionInfo) {
+        transact(transactionInfo, TransactionManager.getInstance());
+    }
+
+    /**
      * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
      * {@link ModelClass} on the UI thread.
      * @param transactionManager The transaction manager to add the query to
@@ -288,6 +297,15 @@ public class Where<ModelClass extends Model> implements Query {
     }
 
     /**
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
+     * {@link ModelClass} on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
+     * @param listResultReceiver The result of this transaction
+     */
+    public void transactList(ResultReceiver<List<ModelClass>> listResultReceiver) {
+        transactList(TransactionManager.getInstance(), listResultReceiver);
+    }
+
+    /**
      * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
      * a single item on the UI thread.
      * @param transactionManager The transaction manager to add the query to
@@ -296,6 +314,15 @@ public class Where<ModelClass extends Model> implements Query {
     public void transactSingleModel(TransactionManager transactionManager, ResultReceiver<ModelClass> resultReceiver) {
         checkSelect("transact");
         transactionManager.fetchModel(this, resultReceiver);
+    }
+
+    /**
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
+     * a single item on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
+     * @param resultReceiver The result of this transaction
+     */
+    public void transactSingleModel(ResultReceiver<ModelClass> resultReceiver) {
+        transactSingleModel(TransactionManager.getInstance(), resultReceiver);
     }
 
     /**
