@@ -21,7 +21,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
 
     private ArrayList<QueryBuilder> mColumnDefinitions;
 
-    private Class<ModelClass> mTable;
+    private final Class<ModelClass> mTable;
 
     private String mOldTableName;
 
