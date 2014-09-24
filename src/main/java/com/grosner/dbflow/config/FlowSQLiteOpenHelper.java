@@ -223,7 +223,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         try {
             final InputStream input = mManager.getContext().getAssets().open(MIGRATION_PATH + "/" + file);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            String line = null;
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 db.execSQL(line.replace(";", ""));

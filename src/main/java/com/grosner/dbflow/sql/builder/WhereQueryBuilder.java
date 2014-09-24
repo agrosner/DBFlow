@@ -42,8 +42,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
         private String mColumn;
 
         public static WhereParam column(String columnName) {
-            WhereParam whereParam = new WhereParam(columnName);
-            return whereParam;
+            return new WhereParam(columnName);
         }
 
         /**
@@ -426,7 +425,6 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     public static <ModelClass extends Model> String getModelBackedWhere(WhereQueryBuilder<ModelClass> existing,
                                                                         Collection<Field> fields, ModelClass model) {
         String query = existing.getQuery();
-        int size = fields.size();
         for (Field primaryField : fields) {
             String columnName = existing.mTableStructure.getColumnName(primaryField);
             primaryField.setAccessible(true);

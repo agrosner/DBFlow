@@ -83,7 +83,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> ModelClass querySingle(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
-        ModelClass retModel = convertToModel(flowManager, modelClass, cursor);
+        ModelClass retModel = convertToModel(false, flowManager, modelClass, cursor);
         cursor.close();
         return retModel;
     }
@@ -118,7 +118,7 @@ public class SqlUtils {
 
         if (cursor.moveToFirst()) {
             do {
-                entities.add(convertToModel(flowManager, table, cursor));
+                entities.add(convertToModel(true, flowManager, table, cursor));
             }
             while (cursor.moveToNext());
         }
@@ -129,16 +129,18 @@ public class SqlUtils {
     /**
      * Takes first {@link ModelClass} from the cursor
      *
+     * @param isList       If it's a list, do not reset the cursor
+     * @param flowManager  The database manager that we run this query on
      * @param table        The model class that we convert the cursor data into.
      * @param cursor       The cursor from the DB
      * @param <ModelClass>
      * @return
      */
-    public static <ModelClass extends Model> ModelClass convertToModel(FlowManager flowManager, Class<ModelClass> table, Cursor cursor) {
+    public static <ModelClass extends Model> ModelClass convertToModel(boolean isList, FlowManager flowManager, Class<ModelClass> table, Cursor cursor) {
         ModelClass model = null;
         try {
             Constructor<ModelClass> entityConstructor = flowManager.getStructure().getConstructorForModel(table);
-            if (cursor.moveToFirst()) {
+            if (isList || cursor.moveToFirst()) {
                 model = entityConstructor.newInstance();
                 model.load(cursor);
             }
