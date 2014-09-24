@@ -3,7 +3,9 @@ package com.grosner.dbflow.structure.json;
 import android.database.Cursor;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.SqlUtils;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Ignore;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.TableStructure;
@@ -44,9 +46,9 @@ public class JSONModel<ModelClass extends Model> implements Model {
 
     /**
      * Constructs this object with the {@link org.json.JSONObject} for the specified {@link ModelClass} table.
-     * @param flowManager
-     * @param jsonObject
-     * @param table
+     * @param flowManager The database manager
+     * @param jsonObject The json to reference in {@link com.grosner.dbflow.structure.Model} operations
+     * @param table The table of the referenced model
      */
     public JSONModel(FlowManager flowManager, JSONObject jsonObject, Class<ModelClass> table) {
         mManager = flowManager;
@@ -54,14 +56,30 @@ public class JSONModel<ModelClass extends Model> implements Model {
         mJson = jsonObject;
     }
 
+    /**
+     * Constructs this object with the {@link org.json.JSONObject} for the specified {@link ModelClass} table
+     * with the shared {@link com.grosner.dbflow.config.FlowManager}.
+     * @param jsonObject The json to reference in {@link com.grosner.dbflow.structure.Model} operations
+     * @param table The table of the referenced model
+     */
     public JSONModel(JSONObject jsonObject, Class<ModelClass> table) {
         this(FlowManager.getInstance(), jsonObject, table);
     }
 
+    /**
+     * Constructs this object with an empty {@link org.json.JSONObject} referencing the {@link ModelClass} table.
+     * @param flowManager The database manager
+     * @param table The table of the referenced model
+     */
     public JSONModel(FlowManager flowManager, Class<ModelClass> table) {
         this(flowManager, new JSONObject(), table);
     }
 
+    /**
+     * Constructs this object with an empty {@link org.json.JSONObject} referencing the {@link ModelClass} table
+     * with the shared {@link com.grosner.dbflow.config.FlowManager}
+     * @param table The table of the referenced model
+     */
     public JSONModel(Class<ModelClass> table) {
         this(FlowManager.getInstance(), table);
     }
@@ -82,8 +100,19 @@ public class JSONModel<ModelClass extends Model> implements Model {
     }
 
     /**
+     * Loads a model from the DB into the json stored in this class. It also will recreate the JSON stored in this object
+     * @param primaryKeys The keys to reference
+     */
+    public void load(Object...primaryKeys){
+        mJson = new JSONObject();
+        ConditionQueryBuilder<ModelClass> primaryQuery = mManager.getStructure().getPrimaryWhereQuery(getTable());
+        load(new Select().from(mTableStructure.getModelType())
+                .where(primaryQuery.replaceEmptyParams(primaryKeys)).getCursor());
+    }
+
+    /**
      * Loads the cursor into the the {@link org.json.JSONObject} contained in this class. This will never
-     * be called
+     * be called unless we want to use the data in JSON format
      * @param cursor The cursor to load.
      */
     @Override
