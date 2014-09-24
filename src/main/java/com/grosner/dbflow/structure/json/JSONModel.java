@@ -28,6 +28,11 @@ public class JSONModel<ModelClass extends Model> implements Model {
     JSONObject mJson;
 
     /**
+     * The {@link ModelClass} that the json corresponds to. Use {@link #toModel()} to retrieve this value.
+     */
+    ModelClass mModel;
+
+    /**
      * The {@link com.grosner.dbflow.structure.TableStructure} that is defined for this {@link org.json.JSONObject}
      */
     TableStructure<ModelClass> mTableStructure;
@@ -37,6 +42,12 @@ public class JSONModel<ModelClass extends Model> implements Model {
      */
     FlowManager mManager;
 
+    /**
+     * Constructs this object with the {@link org.json.JSONObject} for the specified {@link ModelClass} table.
+     * @param flowManager
+     * @param jsonObject
+     * @param table
+     */
     public JSONModel(FlowManager flowManager, JSONObject jsonObject, Class<ModelClass> table) {
         mManager = flowManager;
         mTableStructure = flowManager.getTableStructureForClass(table);
@@ -45,6 +56,14 @@ public class JSONModel<ModelClass extends Model> implements Model {
 
     public JSONModel(JSONObject jsonObject, Class<ModelClass> table) {
         this(FlowManager.getInstance(), jsonObject, table);
+    }
+
+    public JSONModel(FlowManager flowManager, Class<ModelClass> table) {
+        this(flowManager, new JSONObject(), table);
+    }
+
+    public JSONModel(Class<ModelClass> table) {
+        this(FlowManager.getInstance(), table);
     }
 
     @Override
@@ -59,17 +78,22 @@ public class JSONModel<ModelClass extends Model> implements Model {
 
     @Override
     public void update(boolean async) {
-
+        JsonStructureUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE, false);
     }
 
+    /**
+     * Loads the cursor into the the {@link org.json.JSONObject} contained in this class. This will never
+     * be called
+     * @param cursor The cursor to load.
+     */
     @Override
     public void load(Cursor cursor) {
-
+        JsonStructureUtils.loadFromCursor(this, cursor);
     }
 
     @Override
     public boolean exists() {
-        return false;
+        return JsonStructureUtils.exists(this);
     }
 
     /**
@@ -77,7 +101,10 @@ public class JSONModel<ModelClass extends Model> implements Model {
      * @return The model from this json.
      */
     public ModelClass toModel() {
-
+        if(mModel == null) {
+            mModel = JsonStructureUtils.toModel(this);
+        }
+        return mModel;
     }
 
     public Class<ModelClass> getTable() {

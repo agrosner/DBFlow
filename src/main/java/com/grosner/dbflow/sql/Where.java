@@ -1,5 +1,6 @@
 package com.grosner.dbflow.sql;
 
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 
 import com.grosner.dbflow.config.FlowLog;
@@ -277,6 +278,14 @@ public class Where<ModelClass extends Model> implements Query {
     public ModelClass querySingle() {
         checkSelect("query");
         return SqlUtils.querySingle(mManager, mFrom.getTable(), getQuery());
+    }
+
+    /**
+     * Returns the cursor associated with this query, enabling custom handling.
+     * @return The cursor for this Query
+     */
+    public Cursor getCursor() {
+        return mManager.getWritableDatabase().rawQuery(getQuery(), null);
     }
 
     /**

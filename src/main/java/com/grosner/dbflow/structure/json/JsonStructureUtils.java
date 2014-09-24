@@ -1,26 +1,24 @@
 package com.grosner.dbflow.structure.json;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.runtime.transaction.BaseTransaction;
-import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.PrimaryKeyCannotBeNullException;
-import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ColumnType;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
 
+import org.json.JSONException;
+
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -41,7 +39,7 @@ public class JsonStructureUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     public static <ModelClass extends Model> void save(JSONModel<ModelClass> jsonModel, boolean async, int mode, boolean notify) {
-        if(!async) {
+        if (!async) {
 
             TableStructure<ModelClass> tableStructure = jsonModel.mTableStructure;
 
@@ -52,14 +50,12 @@ public class JsonStructureUtils {
             final SQLiteDatabase db = jsonModel.mManager.getWritableDatabase();
             final ContentValues values = new ContentValues();
 
-            Iterator<String> jsonKeys = jsonModel.mJson.keys();
-            while (jsonKeys.hasNext()){
-                String jsonKey = jsonKeys.next();
-                Object value = jsonModel.mJson.opt(jsonKey);
-
-                Field field = tableStructure.getField(jsonKey);
+            Set<Field> fields = tableStructure.getColumns();
+            for (Field field : fields) {
+                String columnName = tableStructure.getColumnName(field);
+                Object value = jsonModel.mJson.opt(columnName);
                 field.setAccessible(true);
-                SqlUtils.putField(values, jsonModel.mManager, field, tableStructure.getColumnName(field), value);
+                SqlUtils.putField(values, jsonModel.mManager, field, columnName, value);
             }
 
             boolean exists = false;
@@ -77,8 +73,8 @@ public class JsonStructureUtils {
             if (!exists) {
                 long id = db.insert(tableStructure.getTableName(), null, values);
 
-                Collection<Field> fields = tableStructure.getPrimaryKeys();
-                for (Field field : fields) {
+                Collection<Field> primaryKeys = tableStructure.getPrimaryKeys();
+                for (Field field : primaryKeys) {
                     if (StructureUtils.isPrimaryKeyAutoIncrement(field)) {
                         field.setAccessible(true);
                         try {
@@ -102,18 +98,51 @@ public class JsonStructureUtils {
     }
 
     /**
+     * Loads a {@link com.grosner.dbflow.structure.Model} from the DB cursor into {@link org.json.JSONObject} .
+     *
+     * @param jsonModel    The {@link com.grosner.dbflow.structure.json.JSONModel} to load the cursor into
+     * @param cursor       The cursor from the DB
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
+    public static <ModelClass extends Model> void loadFromCursor(JSONModel<ModelClass> jsonModel, Cursor cursor) {
+        Set<Field> fields = jsonModel.mTableStructure.getColumns();
+        for(Field field: fields) {
+            Object value = SqlUtils.getModelValueFromCursor(cursor, jsonModel.mTableStructure, field);
+
+            if(value != null) {
+                try {
+                    jsonModel.mJson.put(jsonModel.mTableStructure.getColumnName(field), value);
+                } catch (JSONException e) {
+                    FlowLog.logError(e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Converts a {@link com.grosner.dbflow.structure.json.JSONModel} into its corresponding {@link ModelClass}.
+     * @param jsonModel The model that holds preconverted json
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
+    public static <ModelClass extends Model> ModelClass toModel(JSONModel<ModelClass> jsonModel) {
+        Cursor cursor = new Select().from(jsonModel.getTable()).where(getPrimaryModelWhere(jsonModel)).getCursor();
+        ModelClass model = SqlUtils.convertToModel(false, jsonModel.mManager, jsonModel.getTable(), cursor);
+        cursor.close();
+
+        return model;
+    }
+
+    /**
      * Deletes {@link com.grosner.dbflow.structure.Model} from the database using the specfied {@link com.grosner.dbflow.config.FlowManager}
      *
-     * @param flowManager  The database manager that we run this query on
-     * @param model        The model to delete
+     * @param jsonModel    The jsonModel that corresponds to an item in the DB we want to delete
      * @param async        Whether it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately.
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void delete(final JSONModel<ModelClass> jsonModel, boolean async) {
         if (!async) {
-            ConditionQueryBuilder<ModelClass> conditionQueryBuilder = jsonModel.mManager.getStructure().getPrimaryWhereQuery(jsonModel.getTable());
-            jsonModel.mManager.getWritableDatabase().delete(jsonModel.mTableStructure.getTableName(), getPrimaryModelWhere(conditionQueryBuilder, jsonModel), null);
+            jsonModel.mManager.getWritableDatabase().delete(jsonModel.mTableStructure.getTableName(), getPrimaryModelWhere(jsonModel), null);
         } else {
             TransactionManager.getInstance().delete(DBTransactionInfo.create(), jsonModel);
         }
@@ -122,14 +151,14 @@ public class JsonStructureUtils {
     /**
      * Returns whether the given {@link com.grosner.dbflow.structure.json.JSONModel} exists in the DB as the {@link ModelClass}
      * table it points to.
-     * @param jsonModel The json model that points to a {@link com.grosner.dbflow.structure.Model} class
+     *
+     * @param jsonModel    The json model that points to a {@link com.grosner.dbflow.structure.Model} class
      * @param <ModelClass> The class that implements {@link ModelClass}
      * @return If the model that the {@link com.grosner.dbflow.structure.json.JSONModel} points to exists in the DB
      */
-    private static <ModelClass extends Model> boolean exists(JSONModel<ModelClass> jsonModel) {
-        ConditionQueryBuilder<ModelClass> primaryCondition = jsonModel.mManager.getStructure().getPrimaryWhereQuery(jsonModel.getTable());
+    public static <ModelClass extends Model> boolean exists(JSONModel<ModelClass> jsonModel) {
         return new Select(jsonModel.mManager).from(jsonModel.getTable())
-                .where(getPrimaryModelWhere(primaryCondition, jsonModel)).hasData();
+                .where(getPrimaryModelWhere(jsonModel)).hasData();
     }
 
     /**
@@ -140,7 +169,8 @@ public class JsonStructureUtils {
      * @param model    The existing model with all of its primary keys filled in
      * @return
      */
-    public static <ModelClass extends Model> String getPrimaryModelWhere(ConditionQueryBuilder<ModelClass> existing, JSONModel<ModelClass> model) {
+    public static <ModelClass extends Model> String getPrimaryModelWhere(JSONModel<ModelClass> model) {
+        ConditionQueryBuilder<ModelClass> existing = model.mManager.getStructure().getPrimaryWhereQuery(model.getTable());
         return getModelBackedWhere(existing, existing.getTableStructure().getPrimaryKeys(), model);
     }
 
@@ -156,7 +186,7 @@ public class JsonStructureUtils {
      * @return
      */
     public static <ModelClass extends Model> String getModelBackedWhere(ConditionQueryBuilder<ModelClass> existing,
-                                             Collection<Field> fields, JSONModel<ModelClass> model) {
+                                                                        Collection<Field> fields, JSONModel<ModelClass> model) {
         String query = existing.getQuery();
         for (Field primaryField : fields) {
             String columnName = existing.getTableStructure().getColumnName(primaryField);

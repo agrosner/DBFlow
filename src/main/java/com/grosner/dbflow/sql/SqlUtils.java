@@ -11,11 +11,8 @@ import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.runtime.transaction.BaseTransaction;
-import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ColumnType;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
@@ -300,75 +297,12 @@ public class SqlUtils {
         TableStructure<ModelClass> tableStructure = flowManager.getTableStructureForClass((Class<ModelClass>) model.getClass());
         Set<Field> fields = tableStructure.getColumns();
         for (Field field : fields) {
-            final String fieldName = tableStructure.getColumnName(field);
-            Class<?> fieldType = field.getType();
-            final int columnIndex = cursor.getColumnIndex(fieldName);
-
-            if (columnIndex < 0) {
-                continue;
-            }
-
-            field.setAccessible(true);
-
             try {
-                boolean columnIsNull = cursor.isNull(columnIndex);
-                TypeConverter typeSerializer = flowManager.getTypeConverterForClass(fieldType);
-                Object value = null;
+                Object value = getModelValueFromCursor(cursor, tableStructure, field);
 
-                if (typeSerializer != null) {
-                    fieldType = typeSerializer.getDatabaseType();
-                }
-
-                // TODO: Find a smarter way to do this? This if block is necessary because we
-                // can't know the type until runtime.
-                if (columnIsNull) {
-                    field = null;
-                } else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
-                    value = cursor.getInt(columnIndex);
-                } else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
-                    value = cursor.getInt(columnIndex);
-                } else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
-                    value = cursor.getInt(columnIndex);
-                } else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
-                    value = cursor.getLong(columnIndex);
-                } else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
-                    value = cursor.getFloat(columnIndex);
-                } else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
-                    value = cursor.getDouble(columnIndex);
-                } else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
-                    value = cursor.getInt(columnIndex) != 0;
-                } else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
-                    value = cursor.getString(columnIndex).charAt(0);
-                } else if (fieldType.equals(String.class)) {
-                    value = cursor.getString(columnIndex);
-                } else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
-                    value = cursor.getBlob(columnIndex);
-                } else if (StructureUtils.isForeignKey(field) && ReflectionUtils.implementsModel(fieldType)) {
-                    // If field is foreign key, we convert it's id
-                    final String entityId = cursor.getString(columnIndex);
-                    final Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
-
-                    // Get converter to use for foreign keys
-                    ForeignKeyConverter converter = FlowManager.getInstance().getStructure().getForeignKeyConverterForclass(entityType);
-
-                    // Build the primary key query using the converter and querybuilder
-                    ConditionQueryBuilder conditionQueryBuilder = FlowManager.getInstance().getStructure().getPrimaryWhereQuery(entityType);
-                    value = new Select(flowManager).from(entityType).where()
-                            .whereQuery(conditionQueryBuilder.replaceEmptyParams(converter.getForeignKeys(entityId)))
-                            .querySingle();
-                } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
-                    @SuppressWarnings("rawtypes")
-                    final Class<? extends Enum> enumType = (Class<? extends Enum>) fieldType;
-                    value = Enum.valueOf(enumType, cursor.getString(columnIndex));
-                }
-
-                // Use a deserializer if one is available
-                if (typeSerializer != null && !columnIsNull) {
-                    value = typeSerializer.getModelValue(value);
-                }
-
-                // Set the field name
+                // Set the field value
                 if (value != null) {
+                    field.setAccessible(true);
                     field.set(model, value);
                 }
             } catch (IllegalArgumentException e) {
@@ -379,6 +313,77 @@ public class SqlUtils {
                 FlowLog.logError(e);
             }
         }
+    }
+
+    /**
+     * Converts the value from the database {@link android.database.Cursor} into the value that goes into a model from the
+     * specified {@link com.grosner.dbflow.structure.TableStructure} and {@link java.lang.reflect.Field}.
+     *
+     * @param cursor         The cursor from the DB
+     * @param tableStructure The structure of the table we're on
+     * @param field          The field from the {@link com.grosner.dbflow.structure.Model} class
+     * @return The value that should be set on the field from the {@link com.grosner.dbflow.structure.TableStructure}
+     */
+    public static Object getModelValueFromCursor(Cursor cursor, TableStructure tableStructure, Field field) {
+        int columnIndex = cursor.getColumnIndex(tableStructure.getColumnName(field));
+
+        Object value = null;
+
+        if (columnIndex >=0 ) {
+            Class<?> fieldType = field.getType();
+            boolean columnIsNull = cursor.isNull(columnIndex);
+            TypeConverter typeSerializer = tableStructure.getManager().getTypeConverterForClass(fieldType);
+
+            if (typeSerializer != null) {
+                fieldType = typeSerializer.getDatabaseType();
+            }
+
+            if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
+                value = cursor.getInt(columnIndex);
+            } else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
+                value = cursor.getInt(columnIndex);
+            } else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
+                value = cursor.getInt(columnIndex);
+            } else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
+                value = cursor.getLong(columnIndex);
+            } else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
+                value = cursor.getFloat(columnIndex);
+            } else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
+                value = cursor.getDouble(columnIndex);
+            } else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
+                value = cursor.getInt(columnIndex) != 0;
+            } else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
+                value = cursor.getString(columnIndex).charAt(0);
+            } else if (fieldType.equals(String.class)) {
+                value = cursor.getString(columnIndex);
+            } else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
+                value = cursor.getBlob(columnIndex);
+            } else if (StructureUtils.isForeignKey(field) && ReflectionUtils.implementsModel(fieldType)) {
+                // If field is foreign key, we convert it's id
+                final String entityId = cursor.getString(columnIndex);
+                final Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
+
+                // Get converter to use for foreign keys
+                ForeignKeyConverter converter = FlowManager.getInstance().getStructure().getForeignKeyConverterForclass(entityType);
+
+                // Build the primary key query using the converter and querybuilder
+                ConditionQueryBuilder conditionQueryBuilder = FlowManager.getInstance().getStructure().getPrimaryWhereQuery(entityType);
+                value = new Select(tableStructure.getManager()).from(entityType).where()
+                        .whereQuery(conditionQueryBuilder.replaceEmptyParams(converter.getForeignKeys(entityId)))
+                        .querySingle();
+            } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
+                @SuppressWarnings("rawtypes")
+                final Class<? extends Enum> enumType = (Class<? extends Enum>) fieldType;
+                value = Enum.valueOf(enumType, cursor.getString(columnIndex));
+            }
+
+            // Use a deserializer if one is available
+            if (typeSerializer != null && !columnIsNull) {
+                value = typeSerializer.getModelValue(value);
+            }
+        }
+
+        return value;
     }
 
     /**
