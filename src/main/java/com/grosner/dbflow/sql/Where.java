@@ -9,8 +9,8 @@ import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.QueryTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.sql.builder.Condition;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
-import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * Helps to build the where statement easily
      */
-    private WhereQueryBuilder<ModelClass> mWhereQueryBuilder;
+    private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
 
     /**
      * The SQL GROUP BY method
@@ -41,7 +41,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * The SQL HAVING
      */
-    private String mHaving;
+    private ConditionQueryBuilder<ModelClass> mHaving;
 
     /**
      * The SQL ORDER BY
@@ -64,16 +64,16 @@ public class Where<ModelClass extends Model> implements Query {
     private final FlowManager mManager;
 
     /**
-     * Constructs this class with a SELECT * on the manager and {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     * Constructs this class with a SELECT * on the manager and {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      *
      * @param flowManager
-     * @param whereQueryBuilder
+     * @param conditionQueryBuilder
      * @param <ModelClass>
      * @return
      */
     public static <ModelClass extends Model> Where<ModelClass> with(FlowManager flowManager,
-                                                                    WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        return new Select(flowManager).from(whereQueryBuilder.getTableClass()).where(whereQueryBuilder);
+                                                                    ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        return new Select(flowManager).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
     }
 
     /**
@@ -86,7 +86,7 @@ public class Where<ModelClass extends Model> implements Query {
     public Where(FlowManager manager, From<ModelClass> from) {
         mManager = manager;
         mFrom = from;
-        mWhereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, mFrom.getTable());
+        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
     }
 
     protected void checkSelect(String methodName) {
@@ -102,18 +102,18 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> whereClause(String whereClause) {
-        mWhereQueryBuilder.append(whereClause);
+        mConditionQueryBuilder.append(whereClause);
         return this;
     }
 
     /**
-     * Defines the {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder} that will build this SQL statement
+     * Defines the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} that will build this SQL statement
      *
-     * @param whereQueryBuilder Helps build the SQL after WHERE
+     * @param conditionQueryBuilder Helps build the SQL after WHERE
      * @return
      */
-    public Where<ModelClass> whereQuery(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        mWhereQueryBuilder = whereQueryBuilder;
+    public Where<ModelClass> whereQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        mConditionQueryBuilder = conditionQueryBuilder;
         return this;
     }
 
@@ -125,7 +125,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> and(String columnName, Object value) {
-        mWhereQueryBuilder.param(columnName, value);
+        mConditionQueryBuilder.param(columnName, value);
         return this;
     }
 
@@ -138,7 +138,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> and(String columnName, String operator, Object value) {
-        mWhereQueryBuilder.param(columnName, operator, value);
+        mConditionQueryBuilder.param(columnName, operator, value);
         return this;
     }
 
@@ -149,7 +149,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> and(Condition condition) {
-        mWhereQueryBuilder.param(condition);
+        mConditionQueryBuilder.param(condition);
         return this;
     }
 
@@ -160,7 +160,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> andThese(Map<String, Condition> conditionMap) {
-        mWhereQueryBuilder.params(conditionMap);
+        mConditionQueryBuilder.params(conditionMap);
         return this;
     }
 
@@ -171,7 +171,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> andThese(Condition...conditions) {
-        mWhereQueryBuilder.params(conditions);
+        mConditionQueryBuilder.params(conditions);
         return this;
     }
 
@@ -182,7 +182,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> andPrimaryValues(Object... values) {
-        mWhereQueryBuilder.primaryParams(values);
+        mConditionQueryBuilder.primaryParams(values);
         return this;
     }
 
@@ -192,8 +192,8 @@ public class Where<ModelClass extends Model> implements Query {
      * @param groupBy
      * @return
      */
-    public Where<ModelClass> groupBy(String groupBy) {
-        mGroupBy = groupBy;
+    public Where<ModelClass> groupBy(QueryBuilder groupBy) {
+        mGroupBy = groupBy.getQuery();
         return this;
     }
 
@@ -203,8 +203,11 @@ public class Where<ModelClass extends Model> implements Query {
      * @param having
      * @return
      */
-    public Where<ModelClass> having(String having) {
-        mHaving = having;
+    public Where<ModelClass> having(Condition...conditions) {
+        if(mHaving == null) {
+            mHaving = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
+        }
+        mHaving.params(conditions);
         return this;
     }
 
@@ -214,8 +217,8 @@ public class Where<ModelClass extends Model> implements Query {
      * @param orderBy
      * @return
      */
-    public Where<ModelClass> orderBy(String orderBy) {
-        mOrderBy = orderBy;
+    public Where<ModelClass> orderBy(QueryBuilder orderBy) {
+        mOrderBy = orderBy.getQuery();
         return this;
     }
 
@@ -366,9 +369,9 @@ public class Where<ModelClass extends Model> implements Query {
         String fromQuery = mFrom.getQuery();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace();
 
-        queryBuilder.appendQualifier("WHERE", mWhereQueryBuilder.getQuery())
+        queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
                 .appendQualifier("GROUP BY", mGroupBy)
-                .appendQualifier("HAVING", mHaving)
+                .appendQualifier("HAVING", mHaving.getQuery())
                 .appendQualifier("ORDER BY", mOrderBy)
                 .appendQualifier("LIMIT", mLimit)
                 .appendQualifier("OFFSET", mOffset);

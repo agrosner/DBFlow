@@ -2,8 +2,8 @@ package com.grosner.dbflow.sql;
 
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.Condition;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
-import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -98,13 +98,13 @@ public class From<ModelClass extends Model> implements Query {
     }
 
     /**
-     * Returns a {@link com.grosner.dbflow.sql.Where} statement with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     * Returns a {@link com.grosner.dbflow.sql.Where} statement with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      *
-     * @param whereQueryBuilder
+     * @param conditionQueryBuilder
      * @return
      */
-    public Where<ModelClass> where(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        return where().whereQuery(whereQueryBuilder);
+    public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        return where().whereQuery(conditionQueryBuilder);
     }
 
     /**

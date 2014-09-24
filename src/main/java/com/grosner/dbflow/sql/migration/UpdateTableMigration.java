@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
-import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
 
     private QueryBuilder mQuery;
 
-    private WhereQueryBuilder<ModelClass> mWhereQueryBuilder;
+    private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
 
     private FlowManager mManager;
 
@@ -58,11 +58,11 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     }
 
     public UpdateTableMigration<ModelClass> where(Condition condition) {
-        if (mWhereQueryBuilder == null) {
-            mWhereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, mTable);
+        if (mConditionQueryBuilder == null) {
+            mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mTable);
         }
 
-        mWhereQueryBuilder.param(condition);
+        mConditionQueryBuilder.param(condition);
         return this;
     }
 
@@ -72,8 +72,8 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         mQuery = new QueryBuilder().append("UPDATE").appendSpaceSeparated(mManager.getTableName(mTable))
                 .append("SET").appendSpace().appendList(mSetDefinitions);
 
-        if (mWhereQueryBuilder != null) {
-            mQuery.appendSpaceSeparated("WHERE").append(mWhereQueryBuilder.getQuery());
+        if (mConditionQueryBuilder != null) {
+            mQuery.appendSpaceSeparated("WHERE").append(mConditionQueryBuilder.getQuery());
         }
     }
 

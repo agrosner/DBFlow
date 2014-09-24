@@ -7,7 +7,7 @@ import com.grosner.dbflow.converter.DefaultForeignKeyConverter;
 import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
-import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -40,10 +40,10 @@ public class DBStructure {
     private Map<Class<?>, ForeignKeyConverter> mForeignKeyConverters = new HashMap<Class<?>, ForeignKeyConverter>();
 
     /**
-     * Holds onto the {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder} for each {@link com.grosner.dbflow.structure.Model}
+     * Holds onto the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} for each {@link com.grosner.dbflow.structure.Model}
      * class so we only created these once. Useful for many select statements on a specific table.
      */
-    private Map<Class<? extends Model>, WhereQueryBuilder> mPrimaryWhereQueryBuilderMap;
+    private Map<Class<? extends Model>, ConditionQueryBuilder> mPrimaryWhereQueryBuilderMap;
 
     /**
      * Holds onto the {@link java.lang.reflect.Constructor} for each {@link com.grosner.dbflow.structure.Model}
@@ -72,7 +72,7 @@ public class DBStructure {
     public DBStructure(FlowManager flowManager, DBConfiguration dbConfiguration) {
         mManager = flowManager;
         mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
-        mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, WhereQueryBuilder>();
+        mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, ConditionQueryBuilder>();
         mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
         mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
         mModelObserverMap = new HashMap<Class<? extends Model>, List<ModelObserver<? extends Model>>>();
@@ -125,13 +125,13 @@ public class DBStructure {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <ModelClass extends Model> WhereQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> modelTable) {
-        WhereQueryBuilder<ModelClass> whereQueryBuilder = getWhereQueryBuilderMap().get(modelTable);
-        if (whereQueryBuilder == null) {
-            whereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, modelTable).emptyPrimaryParams();
-            getWhereQueryBuilderMap().put(modelTable, whereQueryBuilder);
+    public <ModelClass extends Model> ConditionQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> modelTable) {
+        ConditionQueryBuilder<ModelClass> conditionQueryBuilder = getWhereQueryBuilderMap().get(modelTable);
+        if (conditionQueryBuilder == null) {
+            conditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, modelTable).emptyPrimaryParams();
+            getWhereQueryBuilderMap().put(modelTable, conditionQueryBuilder);
         }
-        return whereQueryBuilder;
+        return conditionQueryBuilder;
     }
 
 
@@ -271,11 +271,11 @@ public class DBStructure {
     }
 
     /**
-     * Returns the {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder} map for this database
+     * Returns the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} map for this database
      *
      * @return
      */
-    public Map<Class<? extends Model>, WhereQueryBuilder> getWhereQueryBuilderMap() {
+    public Map<Class<? extends Model>, ConditionQueryBuilder> getWhereQueryBuilderMap() {
         return mPrimaryWhereQueryBuilderMap;
     }
 
