@@ -20,6 +20,7 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 2. No need to define what Model classes to use - just implement the ```Model``` interface, extend ```BaseModel``` or extend ```BaseNotifiableModel``` .
 3. Multiple primary key columns, handling complex foreign keys
 4. Multi-database support fully baked in using the ```FlowManager```
+5. Directly saving JSON to the database via ```JSONModel``` (with some minor caveats).
 5. Database Views (Virtual tables)
 6. Handling large amounts of database requests efficiently and effectively
 7. Priority queuing of DB transactions through the ```DBTransactionQueue``` and the ```TransactionManager```
@@ -32,10 +33,11 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 ## Documentation
 
 1. [Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
-2. [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
-3. [Basic Query Wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
-4. [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
-5. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
-6. [Migrations](https://github.com/agrosner/DBFlow/wiki/Migrations)
-7. [Observable Models](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
-8. [Prepopulated DB](https://github.com/agrosner/DBFlow/wiki/Prepopulated-DB)
+2. [Prepopulated DB](https://github.com/agrosner/DBFlow/wiki/Prepopulated-DB)
+3. [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
+4. [Basic Query Wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
+5. [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
+6. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
+7. [Migrations](https://github.com/agrosner/DBFlow/wiki/Migrations)
+8. [Observable Models](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
+9. [JSON Models](https://github.com/agrosner/DBFlow/wiki/JSON-Models)
