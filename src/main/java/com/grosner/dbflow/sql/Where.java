@@ -87,6 +87,7 @@ public class Where<ModelClass extends Model> implements Query {
         mManager = manager;
         mFrom = from;
         mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
+        mHaving = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
     }
 
     protected void checkSelect(String methodName) {
@@ -204,9 +205,6 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> having(Condition...conditions) {
-        if(mHaving == null) {
-            mHaving = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
-        }
         mHaving.params(conditions);
         return this;
     }
