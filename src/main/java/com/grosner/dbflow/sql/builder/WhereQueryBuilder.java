@@ -22,122 +22,6 @@ import java.util.Set;
 public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<WhereQueryBuilder<ModelClass>> {
 
     /**
-     * Holds information related to each "where" piece
-     */
-    public static class WhereParam {
-
-        /**
-         * The operation such as "=", "<", and more
-         */
-        private String mOperation;
-
-        /**
-         * The value of the column we care about
-         */
-        private Object mValue;
-
-        /**
-         * The column name
-         */
-        private String mColumn;
-
-        public static WhereParam column(String columnName) {
-            return new WhereParam(columnName);
-        }
-
-        /**
-         * Creates a new instance
-         *
-         * @param columnName The name of the column in the DB
-         */
-        WhereParam(String columnName) {
-            mColumn = columnName;
-        }
-
-        /**
-         * Assigns the operation to "="
-         *
-         * @param value The value of the column in the DB in String value
-         * @return
-         */
-        public WhereParam is(Object value) {
-            mOperation = "=";
-            return value(value);
-        }
-
-        /**
-         * Assigns operation to ">"
-         *
-         * @param value The value of the column in the DB in String value
-         * @return
-         */
-        public WhereParam greaterThan(Object value) {
-            mOperation = ">";
-            return value(value);
-        }
-
-        /**
-         * Assigns operation to "<"
-         *
-         * @param value The value of the column in the DB in String value
-         * @return
-         */
-        public WhereParam lessThan(Object value) {
-            mOperation = "<";
-            return value(value);
-        }
-
-        /**
-         * Add a custom operation to this argument
-         *
-         * @param operation
-         * @return
-         */
-        public WhereParam operation(String operation) {
-            mOperation = operation;
-            return this;
-        }
-
-        /**
-         * The string value of the parameter
-         *
-         * @param value
-         * @return
-         */
-        public WhereParam value(Object value) {
-            mValue = value;
-            return this;
-        }
-
-        /**
-         * Returns the operation of it
-         *
-         * @return
-         */
-        public String operation() {
-            return mOperation;
-        }
-
-        /**
-         * Returns the value of the arg
-         *
-         * @return
-         */
-        public Object value() {
-            return mValue;
-        }
-
-        /**
-         * Returns the column name
-         *
-         * @return
-         */
-        public String columnName() {
-            return mColumn;
-        }
-    }
-
-    /**
      * Default empty param that will be replaced with the actual value when we call {@link #replaceEmptyParams(Object[])}
      */
     private static final String EMPTY_PARAM = "?";
@@ -150,7 +34,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * The parameters to build this query with
      */
-    private LinkedHashMap<String, WhereParam> mParams = new LinkedHashMap<String, WhereParam>();
+    private LinkedHashMap<String, Condition> mParams = new LinkedHashMap<String, Condition>();
 
     /**
      * Whether there is a new param, we will rebuild the query.
@@ -209,8 +93,22 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param params The mapping between column names and the string-represented value
      * @return
      */
-    public WhereQueryBuilder<ModelClass> params(Map<String, WhereParam> params) {
+    public WhereQueryBuilder<ModelClass> params(Map<String, Condition> params) {
         mParams.putAll(params);
+        isChanged = true;
+        return this;
+    }
+
+    /**
+     * Appends all the parameters from the specified array
+     *
+     * @param conditions The array of conditions to add to the mapping.
+     * @return
+     */
+    public WhereQueryBuilder<ModelClass> params(Condition...conditions) {
+        for(Condition condition: conditions) {
+            mParams.put(condition.columnName(), condition);
+        }
         isChanged = true;
         return this;
     }
@@ -253,7 +151,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
             throw new IllegalStateException("The " + WhereQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return param(WhereParam.column(columnName).operation(operator).value(value));
+        return param(Condition.column(columnName).operation(operator).value(value));
 
     }
 
@@ -261,11 +159,11 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
-     * @param whereParam The where arguments. We can specify other operators than just "="
+     * @param condition The where arguments. We can specify other operators than just "="
      * @return
      */
-    public WhereQueryBuilder<ModelClass> param(WhereParam whereParam) {
-        mParams.put(whereParam.columnName(), whereParam);
+    public WhereQueryBuilder<ModelClass> param(Condition condition) {
+        mParams.put(condition.columnName(), condition);
         isChanged = true;
         return this;
     }
@@ -302,12 +200,12 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Internal utility method for appending a where param
      *
-     * @param whereParam The value of the column we are looking for
+     * @param condition The value of the column we are looking for
      * @return
      */
-    WhereQueryBuilder<ModelClass> appendParam(WhereParam whereParam) {
-        return append(whereParam.columnName()).appendSpaceSeparated(whereParam.operation())
-                .append(convertValueToString(whereParam.columnName(), whereParam.value()));
+    WhereQueryBuilder<ModelClass> appendParam(Condition condition) {
+        return append(condition.columnName()).appendSpaceSeparated(condition.operation())
+                .append(convertValueToString(condition.columnName(), condition.value()));
     }
 
     /**

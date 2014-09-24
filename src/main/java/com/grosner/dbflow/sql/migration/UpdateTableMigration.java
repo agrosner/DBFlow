@@ -3,6 +3,7 @@ package com.grosner.dbflow.sql.migration;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
@@ -56,12 +57,12 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         return this;
     }
 
-    public UpdateTableMigration<ModelClass> where(WhereQueryBuilder.WhereParam whereParam) {
+    public UpdateTableMigration<ModelClass> where(Condition condition) {
         if (mWhereQueryBuilder == null) {
             mWhereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, mTable);
         }
 
-        mWhereQueryBuilder.param(whereParam);
+        mWhereQueryBuilder.param(condition);
         return this;
     }
 

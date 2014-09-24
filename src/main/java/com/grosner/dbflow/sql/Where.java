@@ -8,6 +8,7 @@ import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.QueryTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
+import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
@@ -142,24 +143,35 @@ public class Where<ModelClass extends Model> implements Query {
     }
 
     /**
-     * Adds a param to the WHERE clause with the custom {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
+     * Adds a param to the WHERE clause with the custom {@link com.grosner.dbflow.sql.builder.Condition}
      *
-     * @param whereParam The {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam} to use
+     * @param condition The {@link com.grosner.dbflow.sql.builder.Condition} to use
      * @return
      */
-    public Where<ModelClass> and(WhereQueryBuilder.WhereParam whereParam) {
-        mWhereQueryBuilder.param(whereParam);
+    public Where<ModelClass> and(Condition condition) {
+        mWhereQueryBuilder.param(condition);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam} to this builder.
+     * Adds a bunch of {@link com.grosner.dbflow.sql.builder.Condition} to this builder.
      *
-     * @param params The map of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
+     * @param conditionMap The map of {@link com.grosner.dbflow.sql.builder.Condition}
      * @return
      */
-    public Where<ModelClass> andThese(Map<String, WhereQueryBuilder.WhereParam> params) {
-        mWhereQueryBuilder.params(params);
+    public Where<ModelClass> andThese(Map<String, Condition> conditionMap) {
+        mWhereQueryBuilder.params(conditionMap);
+        return this;
+    }
+
+    /**
+     * Adds a bunch of {@link com.grosner.dbflow.sql.builder.Condition} to this builder.
+     *
+     * @param conditions The array of {@link com.grosner.dbflow.sql.builder.Condition}
+     * @return
+     */
+    public Where<ModelClass> andThese(Condition...conditions) {
+        mWhereQueryBuilder.params(conditions);
         return this;
     }
 

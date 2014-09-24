@@ -1,6 +1,7 @@
 package com.grosner.dbflow.sql;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
@@ -107,13 +108,13 @@ public class From<ModelClass extends Model> implements Query {
     }
 
     /**
-     * REturns a {@link com.grosner.dbflow.sql.Where} statement with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
+     * Returns a {@link com.grosner.dbflow.sql.Where} statement with the specified array of {@link com.grosner.dbflow.sql.builder.Condition}
      *
-     * @param whereParam The first parameter in the statement. Ex: name = Samsung
+     * @param conditions The array of conditions that define this WHERE statement
      * @return
      */
-    public Where<ModelClass> where(WhereQueryBuilder.WhereParam whereParam) {
-        return where().and(whereParam);
+    public Where<ModelClass> where(Condition...conditions) {
+        return where().andThese(conditions);
     }
 
     @Override
