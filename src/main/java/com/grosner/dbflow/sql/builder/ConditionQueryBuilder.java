@@ -215,7 +215,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param value      The value of the column we are looking for
      * @return
      */
-    protected String convertValueToString(String columnName, Object value) {
+    public String convertValueToString(String columnName, Object value) {
         String stringVal;
         if (!useEmptyParams) {
             final TypeConverter typeConverter = mTableStructure.getManager()
@@ -307,7 +307,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param model    The existing model with all of its primary keys filled in
      * @return
      */
-    public static <ModelClass extends Model> String getPrimaryModelWhere(ConditionQueryBuilder<ModelClass> existing, ModelClass model) {
+    public static String getPrimaryModelWhere(ConditionQueryBuilder<? extends Model> existing, Model model) {
         return getModelBackedWhere(existing, existing.mTableStructure.getPrimaryKeys(), model);
     }
 
@@ -320,8 +320,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param <ModelClass>
      * @return
      */
-    public static <ModelClass extends Model> String getModelBackedWhere(ConditionQueryBuilder<ModelClass> existing,
-                                                                        Collection<Field> fields, ModelClass model) {
+    public static String getModelBackedWhere(ConditionQueryBuilder<? extends Model> existing,
+                                                                        Collection<Field> fields, Model model) {
         String query = existing.getQuery();
         for (Field primaryField : fields) {
             String columnName = existing.mTableStructure.getColumnName(primaryField);

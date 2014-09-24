@@ -189,7 +189,7 @@ public class TransactionManager {
      * The order of the ids must match the ordered they're declared.
      *
      * @param conditionQueryBuilder The where query we will use
-     * @param resultReceiver    The result will be passed here.
+     * @param resultReceiver        The result will be passed here.
      */
     public <ModelClass extends Model> void fetchFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
                                                           final ResultReceiver<List<ModelClass>> resultReceiver) {
@@ -200,7 +200,7 @@ public class TransactionManager {
      * Selects a single model object with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      *
      * @param conditionQueryBuilder The where query we will use
-     * @param <ModelClass>      The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the first model from the database cursor.
      */
     public <ModelClass extends Model> ModelClass selectModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
@@ -222,7 +222,7 @@ public class TransactionManager {
      * Selects a list of model objects with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      *
      * @param conditionQueryBuilder The where query we will use
-     * @param <ModelClass>      The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the list of models from the database cursor.
      */
     public <ModelClass extends Model> List<ModelClass> selectAllFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
@@ -260,9 +260,9 @@ public class TransactionManager {
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
      * The order of the ids must match the ordered they're declared.
      *
-     * @param tableClass        The table to select the model from.
+     * @param tableClass            The table to select the model from.
      * @param conditionQueryBuilder The where query we will use
-     * @param resultReceiver    The result will be passed here.
+     * @param resultReceiver        The result will be passed here.
      */
     public <ModelClass extends Model> void fetchModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
                                                       final ResultReceiver<ModelClass> resultReceiver) {
@@ -384,10 +384,10 @@ public class TransactionManager {
      * Deletes all of the models in the specified table with the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      * on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      *
-     * @param transactionInfo   The information on how we should approach this request.
+     * @param transactionInfo       The information on how we should approach this request.
      * @param conditionQueryBuilder The where arguments of the deletion
-     * @param table             The table to delete models from.
-     * @param <ModelClass>      The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @param table                 The table to delete models from.
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo,
                                                   ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
@@ -418,6 +418,18 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo, List<ModelClass> models) {
         addTransaction(new DeleteModelListTransaction<ModelClass>(transactionInfo, null, models));
+    }
+
+    /**
+     * Used when we don't care about the result of {@link #delete(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)}
+     *
+     * @param transactionInfo The information on how we should approach this request.
+     * @param model           The model to delete
+     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @see #delete(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)
+     */
+    public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo, ModelClass model) {
+        addTransaction(new DeleteModelListTransaction<ModelClass>(transactionInfo, null, model));
     }
 
     // endregion

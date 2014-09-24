@@ -17,6 +17,11 @@ public class DeleteModelListTransaction<ModelClass extends Model> extends Proces
         super(dbTransactionInfo, mReceiver, models);
     }
 
+    public DeleteModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
+                                      ModelClass model) {
+        super(dbTransactionInfo, resultReceiver, model);
+    }
+
     @Override
     protected void processModel(ModelClass model) {
         model.delete(false);
