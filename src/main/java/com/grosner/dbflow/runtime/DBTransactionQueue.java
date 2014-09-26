@@ -34,6 +34,7 @@ public class DBTransactionQueue extends Thread {
         mQueue = new PriorityBlockingQueue<BaseTransaction>();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         Looper.prepare();
@@ -63,7 +64,7 @@ public class DBTransactionQueue extends Thread {
                     final BaseTransaction finalTransaction = transaction;
 
                     // Run the result on the FG
-                    if(transaction.hasResult()) {
+                    if(transaction.hasResult(result)) {
                         TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
                             @Override
                             public void run() {

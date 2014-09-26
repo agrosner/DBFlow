@@ -53,9 +53,10 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
     /**
      * Tells the queue to not post the result on the UI thread (this is to prevent flooding of the UI from
      * many BG DB requests)
+     * @param transactionResult The result of the transaction
      * @return true if it has a result to show
      */
-    public boolean hasResult(){
+    public boolean hasResult(TransactionResult transactionResult){
         return false;
     }
 

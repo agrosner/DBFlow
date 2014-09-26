@@ -27,7 +27,7 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
     }
 
     @Override
-    public boolean hasResult() {
+    public boolean hasResult(ResultClass result) {
         return mReceiver!=null;
     }
 
