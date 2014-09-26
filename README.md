@@ -33,7 +33,6 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 ## Documentation
 
 1. [Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
-2. [Prepopulated DB](https://github.com/agrosner/DBFlow/wiki/Prepopulated-DB)
 3. [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
 4. [Basic Query Wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
 5. [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
