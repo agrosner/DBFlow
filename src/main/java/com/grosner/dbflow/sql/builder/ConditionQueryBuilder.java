@@ -159,11 +159,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
-<<<<<<< HEAD:src/main/java/com/grosner/dbflow/sql/builder/WhereQueryBuilder.java
-     * @param whereParam The where arguments. We can specify other operators than just "="
-=======
      * @param condition The where arguments. We can specify other operators than just "="
->>>>>>> 2e473f06f8b5bff2b224c4b4ab633c644cd842e5:src/main/java/com/grosner/dbflow/sql/builder/ConditionQueryBuilder.java
      * @return
      */
     public ConditionQueryBuilder<ModelClass> param(Condition condition) {
