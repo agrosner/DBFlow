@@ -6,6 +6,7 @@ import android.os.Looper;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.transaction.BaseTransaction;
 import com.grosner.dbflow.runtime.transaction.DeleteTransaction;
+import com.grosner.dbflow.runtime.transaction.QueryTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.runtime.transaction.SelectListTransaction;
 import com.grosner.dbflow.runtime.transaction.SelectSingleModelTransaction;
@@ -155,6 +156,17 @@ public class TransactionManager {
      */
     public void addTransaction(BaseTransaction transaction) {
         getQueue().add(transaction);
+    }
+
+    /**
+     * Adds an arbitrary statement to be processed on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} in the background.
+     * @param transactionInfo The information on how we should approach this request.
+     * @param where The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute. The query base should not be a select as this
+     *              does not return any results.
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
+    public <ModelClass extends Model void transactQuery(DBTransactionInfo transactionInfo, Where<ModelClass> where) {
+        addTransaction(new QueryTransaction<ModelClass>(transactionInfo, where));
     }
 
     // region Database Select Methods
