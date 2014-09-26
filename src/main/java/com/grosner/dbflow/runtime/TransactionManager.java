@@ -187,7 +187,8 @@ public class TransactionManager {
     // region Database Select Methods
 
     /**
-     * Selects all items from the table in the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
+     * Fetches all items from the table in the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with the
+     * optional array of {@link com.grosner.dbflow.sql.builder.Condition}.
      * This should be done for simulateneous requests on different threads.
      *
      * @param tableClass     The table we select from.
@@ -201,7 +202,7 @@ public class TransactionManager {
     }
 
     /**
-     * Selects all items from the table with the specified {@link com.grosner.dbflow.sql.From} in
+     * Fetches all items from the table with the specified {@link com.grosner.dbflow.sql.Where} in
      * the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
      *
      * @param where          The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute. The base of this
@@ -214,8 +215,7 @@ public class TransactionManager {
     }
 
     /**
-     * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
-     * The order of the ids must match the ordered they're declared.
+     * Fetches a list of {@link ModelClass} on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
      *
      * @param conditionQueryBuilder The where query we will use
      * @param resultReceiver        The result will be passed here.

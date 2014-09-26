@@ -62,7 +62,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
             mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mTable);
         }
 
-        mConditionQueryBuilder.param(condition);
+        mConditionQueryBuilder.putCondition(condition);
         return this;
     }
 

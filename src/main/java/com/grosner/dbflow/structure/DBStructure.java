@@ -128,7 +128,7 @@ public class DBStructure {
     public <ModelClass extends Model> ConditionQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> modelTable) {
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder = getWhereQueryBuilderMap().get(modelTable);
         if (conditionQueryBuilder == null) {
-            conditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, modelTable).emptyPrimaryParams();
+            conditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, modelTable).emptyPrimaryConditions();
             getWhereQueryBuilderMap().put(modelTable, conditionQueryBuilder);
         }
         return conditionQueryBuilder;

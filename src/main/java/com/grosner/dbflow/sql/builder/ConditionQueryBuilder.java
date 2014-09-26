@@ -70,10 +70,10 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * Appends all primary field parameters with the specified value to this query statement.
      *
-     * @param values The values of the primary keys we wish to query for. Must match the length of primary keys
+     * @param values The values of the primary keys we wish to query for. Must match the length and order of primary keys
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> primaryParams(Object... values) {
+    public ConditionQueryBuilder<ModelClass> primaryConditions(Object... values) {
         return appendFieldParams(mTableStructure.getPrimaryKeys(), values);
     }
 
@@ -82,7 +82,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      *
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> emptyPrimaryParams() {
+    public ConditionQueryBuilder<ModelClass> emptyPrimaryConditions() {
         useEmptyParams = true;
         return appendFieldParams(mTableStructure.getPrimaryKeys());
     }
@@ -93,19 +93,19 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param params The mapping between column names and the string-represented value
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> params(Map<String, Condition> params) {
+    public ConditionQueryBuilder<ModelClass> putConditionMap(Map<String, Condition> params) {
         mParams.putAll(params);
         isChanged = true;
         return this;
     }
 
     /**
-     * Appends all the parameters from the specified array
+     * Appends all the conditions from the specified array
      *
      * @param conditions The array of conditions to add to the mapping.
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> params(Condition... conditions) {
+    public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
         for (Condition condition : conditions) {
             mParams.put(condition.columnName(), condition);
         }
@@ -114,18 +114,18 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Appends an empty param to this map that will be represented with a "?". All params must either be empty or not.
+     * Appends an empty condition to this map that will be represented with a "?". All params must either be empty or not.
      *
      * @param columnName The name of the column in the DB
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> emptyParam(String columnName) {
+    public ConditionQueryBuilder<ModelClass> emptyCondition(String columnName) {
         useEmptyParams = true;
-        return param(columnName, EMPTY_PARAM);
+        return putCondition(columnName, EMPTY_PARAM);
     }
 
     /**
-     * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
+     * Appends a condition to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      * EX: columnName = value
      *
@@ -133,12 +133,12 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param value      The value of the column we are looking for
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> param(String columnName, Object value) {
-        return param(columnName, "=", value);
+    public ConditionQueryBuilder<ModelClass> putCondition(String columnName, Object value) {
+        return putCondition(columnName, "=", value);
     }
 
     /**
-     * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
+     * Appends a condition to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
      * @param columnName The name of the column in the DB
@@ -146,30 +146,30 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param value      The value of the column we are looking for
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> param(String columnName, String operator, Object value) {
+    public ConditionQueryBuilder<ModelClass> putCondition(String columnName, String operator, Object value) {
         if (useEmptyParams && !EMPTY_PARAM.equals(value)) {
             throw new IllegalStateException("The " + ConditionQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return param(Condition.column(columnName).operation(operator).value(value));
+        return putCondition(Condition.column(columnName).operation(operator).value(value));
 
     }
 
     /**
-     * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
+     * Appends a condition to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
      * @param condition The where arguments. We can specify other operators than just "="
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> param(Condition condition) {
+    public ConditionQueryBuilder<ModelClass> putCondition(Condition condition) {
         mParams.put(condition.columnName(), condition);
         isChanged = true;
         return this;
     }
 
     /**
-     * Appends a bunch of fields to the params list. It will retrieve the proper column name for the passed fields.
+     * Appends a bunch of fields to the condition list. It will retrieve the proper column name for the passed fields.
      *
      * @param fields The list of fields that we look up the column names for
      * @param values The values of the fields we wish to query for. Must match the length of fields keys
@@ -190,7 +190,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         for (Field field : fields) {
             String fieldName = mTableStructure.getColumnName(field);
             Object value = values[count];
-            param(fieldName, value);
+            putCondition(fieldName, value);
             count++;
         }
 
@@ -198,12 +198,12 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Internal utility method for appending a where param
+     * Internal utility method for appending a condition to the query
      *
      * @param condition The value of the column we are looking for
      * @return
      */
-    ConditionQueryBuilder<ModelClass> appendParam(Condition condition) {
+    ConditionQueryBuilder<ModelClass> appendConditionToQuery(Condition condition) {
         return append(condition.columnName()).appendSpaceSeparated(condition.operation())
                 .append(convertValueToString(condition.columnName(), condition.value()));
     }
@@ -258,7 +258,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             Set<String> keys = mParams.keySet();
             int count = 0;
             for (String key : keys) {
-                appendParam(mParams.get(key));
+                appendConditionToQuery(mParams.get(key));
                 if (count < keys.size() - 1) {
                     appendSpaceSeparated("AND");
                 }
@@ -292,7 +292,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
 
         int count = 0;
         for (String columnName : columnNames) {
-            conditionQueryBuilder.param(columnName, values[count]);
+            conditionQueryBuilder.putCondition(columnName, values[count]);
             count++;
         }
 

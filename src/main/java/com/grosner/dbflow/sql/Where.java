@@ -127,7 +127,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> and(String columnName, Object value) {
-        mConditionQueryBuilder.param(columnName, value);
+        mConditionQueryBuilder.putCondition(columnName, value);
         return this;
     }
 
@@ -140,7 +140,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> and(String columnName, String operator, Object value) {
-        mConditionQueryBuilder.param(columnName, operator, value);
+        mConditionQueryBuilder.putCondition(columnName, operator, value);
         return this;
     }
 
@@ -151,7 +151,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> and(Condition condition) {
-        mConditionQueryBuilder.param(condition);
+        mConditionQueryBuilder.putCondition(condition);
         return this;
     }
 
@@ -162,7 +162,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> andThese(Map<String, Condition> conditionMap) {
-        mConditionQueryBuilder.params(conditionMap);
+        mConditionQueryBuilder.putConditionMap(conditionMap);
         return this;
     }
 
@@ -173,7 +173,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> andThese(Condition...conditions) {
-        mConditionQueryBuilder.params(conditions);
+        mConditionQueryBuilder.putConditions(conditions);
         return this;
     }
 
@@ -184,7 +184,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> andPrimaryValues(Object... values) {
-        mConditionQueryBuilder.primaryParams(values);
+        mConditionQueryBuilder.primaryConditions(values);
         return this;
     }
 
@@ -206,7 +206,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> having(Condition...conditions) {
-        mHaving.params(conditions);
+        mHaving.putConditions(conditions);
         return this;
     }
 
