@@ -105,8 +105,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param conditions The array of conditions to add to the mapping.
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> params(Condition...conditions) {
-        for(Condition condition: conditions) {
+    public ConditionQueryBuilder<ModelClass> params(Condition... conditions) {
+        for (Condition condition : conditions) {
             mParams.put(condition.columnName(), condition);
         }
         isChanged = true;
@@ -200,12 +200,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * Internal utility method for appending a where param
      *
-<<<<<<< HEAD:src/main/java/com/grosner/dbflow/sql/builder/WhereQueryBuilder.java
-     * @param columnName The name of the column in the DB
-     * @param whereParam The value of the column we are looking for
-=======
      * @param condition The value of the column we are looking for
->>>>>>> 2e473f06f8b5bff2b224c4b4ab633c644cd842e5:src/main/java/com/grosner/dbflow/sql/builder/ConditionQueryBuilder.java
      * @return
      */
     ConditionQueryBuilder<ModelClass> appendParam(Condition condition) {
@@ -326,7 +321,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public static String getModelBackedWhere(ConditionQueryBuilder<? extends Model> existing,
-                                                                        Collection<Field> fields, Model model) {
+                                             Collection<Field> fields, Model model) {
         String query = existing.getQuery();
         for (Field primaryField : fields) {
             String columnName = existing.mTableStructure.getColumnName(primaryField);
