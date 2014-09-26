@@ -17,6 +17,7 @@ import com.grosner.dbflow.runtime.transaction.process.UpdateModelListTransaction
 import com.grosner.dbflow.sql.Delete;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.Where;
+import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
@@ -161,10 +162,11 @@ public class TransactionManager {
 
     /**
      * Adds an arbitrary statement to be processed on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} in the background.
+     *
      * @param transactionInfo The information on how we should approach this request.
-     * @param where The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute. The query base should not be a select as this
-     *              does not return any results.
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @param where           The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute. The query base should not be a select as this
+     *                        does not return any results.
+     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Where<ModelClass> where) {
         transactQuery(transactionInfo, where, null);
@@ -172,10 +174,11 @@ public class TransactionManager {
 
     /**
      * Adds an arbitrary statement to be processed on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} in the background.
-     * @param transactionInfo The information on how we should approach this request.
-     * @param where The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute.
-     *              @param cursorResultReceiver The cursor from the DB that we can process
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     *
+     * @param transactionInfo      The information on how we should approach this request.
+     * @param where                The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute.
+     * @param cursorResultReceiver The cursor from the DB that we can process
+     * @param <ModelClass>         The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Where<ModelClass> where, ResultReceiver<Cursor> cursorResultReceiver) {
         addTransaction(new QueryTransaction<ModelClass>(transactionInfo, where, cursorResultReceiver));
@@ -189,10 +192,12 @@ public class TransactionManager {
      *
      * @param tableClass     The table we select from.
      * @param resultReceiver The result of the selection will be placed here on the main thread.
+     * @param conditions     The list of conditions to select the list of models from
      */
     public <ModelClass extends Model> void fetchAllFromTable(Class<ModelClass> tableClass,
-                                                             ResultReceiver<List<ModelClass>> resultReceiver) {
-        addTransaction(new SelectListTransaction<ModelClass>(mManager, tableClass, resultReceiver));
+                                                             ResultReceiver<List<ModelClass>> resultReceiver, Condition... conditions) {
+        addTransaction(new SelectListTransaction<ModelClass>(Where.with(mManager,
+                new ConditionQueryBuilder<ModelClass>(mManager, tableClass)).andThese(conditions), resultReceiver));
     }
 
     /**
@@ -235,11 +240,12 @@ public class TransactionManager {
      * Selects all models from the table. (this method should be avoided as it could block the UI thread).
      *
      * @param tableClass   The table to select the list from
+     * @param conditions   The list of conditions to select the list of models from
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return the list of every row in the table
      */
-    public <ModelClass extends Model> List<ModelClass> selectAllFromTable(Class<ModelClass> tableClass) {
-        return new Select(mManager).from(tableClass).where().queryList();
+    public <ModelClass extends Model> List<ModelClass> selectAllFromTable(Class<ModelClass> tableClass, Condition... conditions) {
+        return new Select(mManager).from(tableClass).where(conditions).queryList();
     }
 
     /**
