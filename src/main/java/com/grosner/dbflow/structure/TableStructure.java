@@ -3,6 +3,7 @@ package com.grosner.dbflow.structure;
 import com.grosner.dbflow.ReflectionUtils;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.TableCreationQueryBuilder;
 
@@ -125,6 +126,13 @@ public class TableStructure<ModelType extends Model> {
                 tableCreationQuery.append(columnName)
                         .appendSpace()
                         .appendSQLiteType(SQLiteType.TEXT);
+            } else {
+                TypeConverter typeConverter = mManager.getTypeConverterForClass(type);
+                if(typeConverter != null) {
+                    tableCreationQuery.append(columnName)
+                            .appendSpace()
+                            .appendType(typeConverter.getDatabaseType());
+                }
             }
 
             mColumnDefinitions.add(tableCreationQuery.appendColumn(column));

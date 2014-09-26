@@ -93,6 +93,7 @@ public class ReflectionUtils {
 
     /**
      * Returns whether the passed in class implements {@link com.grosner.dbflow.runtime.observer.ModelObserver}
+     *
      * @param discoveredClass
      * @return true if the class can be assigned to {@link com.grosner.dbflow.runtime.observer.ModelObserver}
      */

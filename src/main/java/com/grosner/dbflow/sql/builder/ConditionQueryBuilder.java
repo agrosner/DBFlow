@@ -17,126 +17,9 @@ import java.util.Set;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: Builds the "where" primary key statement for a specific model class.
+ * Description: Constructs a condition statement for a specific {@link com.grosner.dbflow.structure.Model} class
  */
-public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<WhereQueryBuilder<ModelClass>> {
-
-    /**
-     * Holds information related to each "where" piece
-     */
-    public static class WhereParam {
-
-        /**
-         * The operation such as "=", "<", and more
-         */
-        private String mOperation;
-
-        /**
-         * The value of the column we care about
-         */
-        private String mValue;
-
-        /**
-         * The column name
-         */
-        private String mColumn;
-
-        public static WhereParam column(String columnName) {
-            WhereParam whereParam = new WhereParam(columnName);
-            return whereParam;
-        }
-
-        /**
-         * Creates a new instance
-         *
-         * @param columnName The name of the column in the DB
-         */
-        WhereParam(String columnName) {
-            mColumn = columnName;
-        }
-
-        /**
-         * Assigns the operation to "="
-         *
-         * @param value The value of the column in the DB in String value
-         * @return
-         */
-        public WhereParam is(String value) {
-            mOperation = "=";
-            return value(value);
-        }
-
-        /**
-         * Assigns operation to ">"
-         *
-         * @param value The value of the column in the DB in String value
-         * @return
-         */
-        public WhereParam greaterThan(String value) {
-            mOperation = ">";
-            return value(value);
-        }
-
-        /**
-         * Assigns operation to "<"
-         *
-         * @param value The value of the column in the DB in String value
-         * @return
-         */
-        public WhereParam lessThan(String value) {
-            mOperation = "<";
-            return value(value);
-        }
-
-        /**
-         * Add a custom operation to this argument
-         *
-         * @param operation
-         * @return
-         */
-        public WhereParam operation(String operation) {
-            mOperation = operation;
-            return this;
-        }
-
-        /**
-         * The string value of the parameter
-         *
-         * @param value
-         * @return
-         */
-        public WhereParam value(String value) {
-            mValue = value;
-            return this;
-        }
-
-        /**
-         * Returns the operation of it
-         *
-         * @return
-         */
-        public String operation() {
-            return mOperation;
-        }
-
-        /**
-         * Returns the value of the arg
-         *
-         * @return
-         */
-        public String value() {
-            return mValue;
-        }
-
-        /**
-         * Returns the column name
-         *
-         * @return
-         */
-        public String columnName() {
-            return mColumn;
-        }
-    }
+public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilder<ConditionQueryBuilder<ModelClass>> {
 
     /**
      * Default empty param that will be replaced with the actual value when we call {@link #replaceEmptyParams(Object[])}
@@ -151,7 +34,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * The parameters to build this query with
      */
-    private LinkedHashMap<String, WhereParam> mParams = new LinkedHashMap<String, WhereParam>();
+    private LinkedHashMap<String, Condition> mParams = new LinkedHashMap<String, Condition>();
 
     /**
      * Whether there is a new param, we will rebuild the query.
@@ -169,7 +52,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      *
      * @param tableClass
      */
-    public WhereQueryBuilder(Class<ModelClass> tableClass) {
+    public ConditionQueryBuilder(Class<ModelClass> tableClass) {
         mTableStructure = FlowManager.getInstance().getTableStructureForClass(tableClass);
     }
 
@@ -180,7 +63,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param flowManager
      * @param tableClass
      */
-    public WhereQueryBuilder(FlowManager flowManager, Class<ModelClass> tableClass) {
+    public ConditionQueryBuilder(FlowManager flowManager, Class<ModelClass> tableClass) {
         mTableStructure = flowManager.getTableStructureForClass(tableClass);
     }
 
@@ -190,7 +73,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param values The values of the primary keys we wish to query for. Must match the length of primary keys
      * @return
      */
-    public WhereQueryBuilder<ModelClass> primaryParams(Object... values) {
+    public ConditionQueryBuilder<ModelClass> primaryParams(Object... values) {
         return appendFieldParams(mTableStructure.getPrimaryKeys(), values);
     }
 
@@ -199,7 +82,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      *
      * @return
      */
-    public WhereQueryBuilder<ModelClass> emptyPrimaryParams() {
+    public ConditionQueryBuilder<ModelClass> emptyPrimaryParams() {
         useEmptyParams = true;
         return appendFieldParams(mTableStructure.getPrimaryKeys());
     }
@@ -210,8 +93,22 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param params The mapping between column names and the string-represented value
      * @return
      */
-    public WhereQueryBuilder<ModelClass> params(Map<String, WhereParam> params) {
+    public ConditionQueryBuilder<ModelClass> params(Map<String, Condition> params) {
         mParams.putAll(params);
+        isChanged = true;
+        return this;
+    }
+
+    /**
+     * Appends all the parameters from the specified array
+     *
+     * @param conditions The array of conditions to add to the mapping.
+     * @return
+     */
+    public ConditionQueryBuilder<ModelClass> params(Condition...conditions) {
+        for(Condition condition: conditions) {
+            mParams.put(condition.columnName(), condition);
+        }
         isChanged = true;
         return this;
     }
@@ -222,7 +119,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param columnName The name of the column in the DB
      * @return
      */
-    public WhereQueryBuilder<ModelClass> emptyParam(String columnName) {
+    public ConditionQueryBuilder<ModelClass> emptyParam(String columnName) {
         useEmptyParams = true;
         return param(columnName, EMPTY_PARAM);
     }
@@ -236,7 +133,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param value      The value of the column we are looking for
      * @return
      */
-    public WhereQueryBuilder<ModelClass> param(String columnName, Object value) {
+    public ConditionQueryBuilder<ModelClass> param(String columnName, Object value) {
         return param(columnName, "=", value);
     }
 
@@ -249,12 +146,12 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param value      The value of the column we are looking for
      * @return
      */
-    public WhereQueryBuilder<ModelClass> param(String columnName, String operator, Object value) {
+    public ConditionQueryBuilder<ModelClass> param(String columnName, String operator, Object value) {
         if (useEmptyParams && !EMPTY_PARAM.equals(value)) {
-            throw new IllegalStateException("The " + WhereQueryBuilder.class.getSimpleName() + " is " +
+            throw new IllegalStateException("The " + ConditionQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return param(WhereParam.column(columnName).operation(operator).value(convertValueToString(columnName, value)));
+        return param(Condition.column(columnName).operation(operator).value(value));
 
     }
 
@@ -262,11 +159,15 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * Appends a param to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
+<<<<<<< HEAD:src/main/java/com/grosner/dbflow/sql/builder/WhereQueryBuilder.java
      * @param whereParam The where arguments. We can specify other operators than just "="
+=======
+     * @param condition The where arguments. We can specify other operators than just "="
+>>>>>>> 2e473f06f8b5bff2b224c4b4ab633c644cd842e5:src/main/java/com/grosner/dbflow/sql/builder/ConditionQueryBuilder.java
      * @return
      */
-    public WhereQueryBuilder<ModelClass> param(WhereParam whereParam) {
-        mParams.put(whereParam.columnName(), whereParam);
+    public ConditionQueryBuilder<ModelClass> param(Condition condition) {
+        mParams.put(condition.columnName(), condition);
         isChanged = true;
         return this;
     }
@@ -278,7 +179,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param values The values of the fields we wish to query for. Must match the length of fields keys
      * @return
      */
-    WhereQueryBuilder<ModelClass> appendFieldParams(Collection<Field> fields, Object... values) {
+    ConditionQueryBuilder<ModelClass> appendFieldParams(Collection<Field> fields, Object... values) {
         if (!useEmptyParams && fields.size() != values.length) {
             throw new IllegalArgumentException("The count of values MUST match the number of fields they correspond to for " +
                     mTableStructure.getTableName());
@@ -303,12 +204,17 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     /**
      * Internal utility method for appending a where param
      *
+<<<<<<< HEAD:src/main/java/com/grosner/dbflow/sql/builder/WhereQueryBuilder.java
      * @param columnName The name of the column in the DB
      * @param whereParam The value of the column we are looking for
+=======
+     * @param condition The value of the column we are looking for
+>>>>>>> 2e473f06f8b5bff2b224c4b4ab633c644cd842e5:src/main/java/com/grosner/dbflow/sql/builder/ConditionQueryBuilder.java
      * @return
      */
-    WhereQueryBuilder<ModelClass> appendParam(String columnName, WhereParam whereParam) {
-        return append(columnName).appendSpaceSeparated(whereParam.operation()).append(whereParam.value());
+    ConditionQueryBuilder<ModelClass> appendParam(Condition condition) {
+        return append(condition.columnName()).appendSpaceSeparated(condition.operation())
+                .append(convertValueToString(condition.columnName(), condition.value()));
     }
 
     /**
@@ -318,7 +224,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param value      The value of the column we are looking for
      * @return
      */
-    protected String convertValueToString(String columnName, Object value) {
+    public String convertValueToString(String columnName, Object value) {
         String stringVal;
         if (!useEmptyParams) {
             final TypeConverter typeConverter = mTableStructure.getManager()
@@ -361,10 +267,11 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
             Set<String> keys = mParams.keySet();
             int count = 0;
             for (String key : keys) {
-                appendParam(key, mParams.get(key));
+                appendParam(mParams.get(key));
                 if (count < keys.size() - 1) {
                     appendSpaceSeparated("AND");
                 }
+                count++;
             }
         }
 
@@ -378,9 +285,9 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param values The values of the fields we wish to replace. Must match the length of the empty params and must be in empty param mode.
      * @return The query with the paramters filled in.
      */
-    public WhereQueryBuilder<ModelClass> replaceEmptyParams(Object... values) {
+    public ConditionQueryBuilder<ModelClass> replaceEmptyParams(Object... values) {
         if (!useEmptyParams) {
-            throw new IllegalStateException("The " + WhereQueryBuilder.class.getSimpleName() + " is " +
+            throw new IllegalStateException("The " + ConditionQueryBuilder.class.getSimpleName() + " is " +
                     "not operating in empty param mode.");
         }
         if (mParams.size() != values.length) {
@@ -388,17 +295,17 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
                     mTableStructure.getTableName());
         }
 
-        WhereQueryBuilder<ModelClass> whereQueryBuilder =
-                new WhereQueryBuilder<ModelClass>(mTableStructure.getManager(), mTableStructure.getModelType());
+        ConditionQueryBuilder<ModelClass> conditionQueryBuilder =
+                new ConditionQueryBuilder<ModelClass>(mTableStructure.getManager(), mTableStructure.getModelType());
         Set<String> columnNames = mParams.keySet();
 
         int count = 0;
         for (String columnName : columnNames) {
-            whereQueryBuilder.param(columnName, values[count]);
+            conditionQueryBuilder.param(columnName, values[count]);
             count++;
         }
 
-        return whereQueryBuilder;
+        return conditionQueryBuilder;
     }
 
     /**
@@ -409,7 +316,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param model    The existing model with all of its primary keys filled in
      * @return
      */
-    public static <ModelClass extends Model> String getPrimaryModelWhere(WhereQueryBuilder<ModelClass> existing, ModelClass model) {
+    public static String getPrimaryModelWhere(ConditionQueryBuilder<? extends Model> existing, Model model) {
         return getModelBackedWhere(existing, existing.mTableStructure.getPrimaryKeys(), model);
     }
 
@@ -422,10 +329,9 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
      * @param <ModelClass>
      * @return
      */
-    public static <ModelClass extends Model> String getModelBackedWhere(WhereQueryBuilder<ModelClass> existing,
-                                                                        Collection<Field> fields, ModelClass model) {
+    public static String getModelBackedWhere(ConditionQueryBuilder<? extends Model> existing,
+                                                                        Collection<Field> fields, Model model) {
         String query = existing.getQuery();
-        int size = fields.size();
         for (Field primaryField : fields) {
             String columnName = existing.mTableStructure.getColumnName(primaryField);
             primaryField.setAccessible(true);
@@ -445,7 +351,7 @@ public class WhereQueryBuilder<ModelClass extends Model> extends QueryBuilder<Wh
     }
 
     /**
-     * Returns the table structure that this {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder} uses.
+     * Returns the table structure that this {@link ConditionQueryBuilder} uses.
      *
      * @return
      */

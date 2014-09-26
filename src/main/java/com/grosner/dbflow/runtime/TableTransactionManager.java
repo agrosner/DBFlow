@@ -2,8 +2,6 @@ package com.grosner.dbflow.runtime;
 
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
-import com.grosner.dbflow.sql.Select;
-import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.List;
@@ -52,12 +50,11 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
-     * @param select         The select statement to run
-     * @param resultReceiver The result of the selection will be placed here on the main thread.
-     * @see #fetchFromTable(com.grosner.dbflow.sql.Select, com.grosner.dbflow.runtime.transaction.ResultReceiver)
+     * @return
+     * @see #selectAllFromTable(Class)
      */
-    public void fetchFromTable(Select select, ResultReceiver<List<ModelClass>> resultReceiver) {
-        super.fetchFromTable(mTableClass, select, resultReceiver);
+    public List<ModelClass> selectAllFromTable() {
+        return selectAllFromTable(mTableClass);
     }
 
     /**
@@ -79,10 +76,26 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
+     * @see #deleteTable(Class)
+     */
+    public void deleteTable() {
+        super.deleteTable(mTableClass);
+    }
+
+    /**
      * @param transactionInfo The information on how we should approach this request.
      * @see #deleteTable(DBTransactionInfo, Class)
      */
     public void deleteTable(DBTransactionInfo transactionInfo) {
         super.deleteTable(transactionInfo, mTableClass);
+    }
+
+    /**
+     * Returns the table class for this Table Transaction manager
+     *
+     * @return
+     */
+    public Class<ModelClass> getTableClass() {
+        return mTableClass;
     }
 }

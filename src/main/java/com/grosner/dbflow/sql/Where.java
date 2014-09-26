@@ -1,11 +1,17 @@
 package com.grosner.dbflow.sql;
 
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.runtime.DBTransactionInfo;
+import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.runtime.transaction.QueryTransaction;
+import com.grosner.dbflow.runtime.transaction.ResultReceiver;
+import com.grosner.dbflow.sql.builder.Condition;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
-import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.List;
@@ -26,7 +32,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * Helps to build the where statement easily
      */
-    private WhereQueryBuilder<ModelClass> mWhereQueryBuilder;
+    private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
 
     /**
      * The SQL GROUP BY method
@@ -36,7 +42,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * The SQL HAVING
      */
-    private String mHaving;
+    private ConditionQueryBuilder<ModelClass> mHaving;
 
     /**
      * The SQL ORDER BY
@@ -59,6 +65,19 @@ public class Where<ModelClass extends Model> implements Query {
     private final FlowManager mManager;
 
     /**
+     * Constructs this class with a SELECT * on the manager and {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
+     *
+     * @param flowManager
+     * @param conditionQueryBuilder
+     * @param <ModelClass>
+     * @return
+     */
+    public static <ModelClass extends Model> Where<ModelClass> with(FlowManager flowManager,
+                                                                    ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        return new Select(flowManager).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
+    }
+
+    /**
      * Constructs this class with the specified {@link com.grosner.dbflow.config.FlowManager}
      * and {@link com.grosner.dbflow.sql.From} chunk
      *
@@ -68,7 +87,14 @@ public class Where<ModelClass extends Model> implements Query {
     public Where(FlowManager manager, From<ModelClass> from) {
         mManager = manager;
         mFrom = from;
-        mWhereQueryBuilder = new WhereQueryBuilder<ModelClass>(mManager, mFrom.getTable());
+        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
+        mHaving = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
+    }
+
+    protected void checkSelect(String methodName) {
+        if (!(mFrom.getQueryBuilderBase() instanceof Select)) {
+            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
+        }
     }
 
     /**
@@ -78,18 +104,18 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> whereClause(String whereClause) {
-        mWhereQueryBuilder.append(whereClause);
+        mConditionQueryBuilder.append(whereClause);
         return this;
     }
 
     /**
-     * Defines the {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder} that will build this SQL statement
+     * Defines the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} that will build this SQL statement
      *
-     * @param whereQueryBuilder Helps build the SQL after WHERE
+     * @param conditionQueryBuilder Helps build the SQL after WHERE
      * @return
      */
-    public Where<ModelClass> whereQuery(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        mWhereQueryBuilder = whereQueryBuilder;
+    public Where<ModelClass> whereQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        mConditionQueryBuilder = conditionQueryBuilder;
         return this;
     }
 
@@ -101,7 +127,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> and(String columnName, Object value) {
-        mWhereQueryBuilder.param(columnName, value);
+        mConditionQueryBuilder.param(columnName, value);
         return this;
     }
 
@@ -114,29 +140,40 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> and(String columnName, String operator, Object value) {
-        mWhereQueryBuilder.param(columnName, operator, value);
+        mConditionQueryBuilder.param(columnName, operator, value);
         return this;
     }
 
     /**
-     * Adds a param to the WHERE clause with the custom {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
+     * Adds a param to the WHERE clause with the custom {@link com.grosner.dbflow.sql.builder.Condition}
      *
-     * @param whereParam The {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam} to use
+     * @param condition The {@link com.grosner.dbflow.sql.builder.Condition} to use
      * @return
      */
-    public Where<ModelClass> and(WhereQueryBuilder.WhereParam whereParam) {
-        mWhereQueryBuilder.param(whereParam);
+    public Where<ModelClass> and(Condition condition) {
+        mConditionQueryBuilder.param(condition);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam} to this builder.
+     * Adds a bunch of {@link com.grosner.dbflow.sql.builder.Condition} to this builder.
      *
-     * @param params The map of {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder.WhereParam}
+     * @param conditionMap The map of {@link com.grosner.dbflow.sql.builder.Condition}
      * @return
      */
-    public Where<ModelClass> andThese(Map<String, WhereQueryBuilder.WhereParam> params) {
-        mWhereQueryBuilder.params(params);
+    public Where<ModelClass> andThese(Map<String, Condition> conditionMap) {
+        mConditionQueryBuilder.params(conditionMap);
+        return this;
+    }
+
+    /**
+     * Adds a bunch of {@link com.grosner.dbflow.sql.builder.Condition} to this builder.
+     *
+     * @param conditions The array of {@link com.grosner.dbflow.sql.builder.Condition}
+     * @return
+     */
+    public Where<ModelClass> andThese(Condition...conditions) {
+        mConditionQueryBuilder.params(conditions);
         return this;
     }
 
@@ -147,7 +184,7 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> andPrimaryValues(Object... values) {
-        mWhereQueryBuilder.primaryParams(values);
+        mConditionQueryBuilder.primaryParams(values);
         return this;
     }
 
@@ -157,8 +194,8 @@ public class Where<ModelClass extends Model> implements Query {
      * @param groupBy
      * @return
      */
-    public Where<ModelClass> groupBy(String groupBy) {
-        mGroupBy = groupBy;
+    public Where<ModelClass> groupBy(QueryBuilder groupBy) {
+        mGroupBy = groupBy.getQuery();
         return this;
     }
 
@@ -168,8 +205,8 @@ public class Where<ModelClass extends Model> implements Query {
      * @param having
      * @return
      */
-    public Where<ModelClass> having(String having) {
-        mHaving = having;
+    public Where<ModelClass> having(Condition...conditions) {
+        mHaving.params(conditions);
         return this;
     }
 
@@ -179,8 +216,8 @@ public class Where<ModelClass extends Model> implements Query {
      * @param orderBy
      * @return
      */
-    public Where<ModelClass> orderBy(String orderBy) {
-        mOrderBy = orderBy;
+    public Where<ModelClass> orderBy(QueryBuilder orderBy) {
+        mOrderBy = orderBy.getQuery();
         return this;
     }
 
@@ -229,11 +266,8 @@ public class Where<ModelClass extends Model> implements Query {
      * @return All of the entries in the DB converted into {@link ModelClass}
      */
     public List<ModelClass> queryList() {
-        if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.queryList(mManager, mFrom.getTable(), getQuery());
-        } else {
-            throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
-        }
+        checkSelect("query");
+        return SqlUtils.queryList(mManager, mFrom.getTable(), getQuery());
     }
 
     /**
@@ -242,11 +276,80 @@ public class Where<ModelClass extends Model> implements Query {
      * @return The first result of this query. Note: this query may return more than one from the DB.
      */
     public ModelClass querySingle() {
-        if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.querySingle(mManager, mFrom.getTable(), getQuery());
-        } else {
-            throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
-        }
+        checkSelect("query");
+        return SqlUtils.querySingle(mManager, mFrom.getTable(), getQuery());
+    }
+
+    /**
+     * Returns the cursor associated with this query, enabling custom handling.
+     * @return The cursor for this Query
+     */
+    public Cursor getCursor() {
+        return mManager.getWritableDatabase().rawQuery(getQuery(), null);
+    }
+
+    /**
+     * Will run this query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     *
+     * @param transactionInfo    The information on how to prioritize the transaction
+     * @param transactionManager The transaction manager to add the query to
+     */
+    public void transact(DBTransactionInfo transactionInfo, TransactionManager transactionManager) {
+        transactionManager.addTransaction(new QueryTransaction<ModelClass>(transactionInfo, this));
+    }
+
+    /**
+     * Will run this query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with the shared
+     * {@link com.grosner.dbflow.runtime.TransactionManager}
+     *
+     * @param transactionInfo The information on how to prioritize the transaction
+     */
+    public void transact(DBTransactionInfo transactionInfo) {
+        transact(transactionInfo, TransactionManager.getInstance());
+    }
+
+    /**
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
+     * {@link ModelClass} on the UI thread.
+     *
+     * @param transactionManager The transaction manager to add the query to
+     * @param listResultReceiver The result of this transaction
+     */
+    public void transactList(TransactionManager transactionManager, ResultReceiver<List<ModelClass>> listResultReceiver) {
+        checkSelect("transact");
+        transactionManager.fetchFromTable(this, listResultReceiver);
+    }
+
+    /**
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
+     * {@link ModelClass} on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
+     *
+     * @param listResultReceiver The result of this transaction
+     */
+    public void transactList(ResultReceiver<List<ModelClass>> listResultReceiver) {
+        transactList(TransactionManager.getInstance(), listResultReceiver);
+    }
+
+    /**
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
+     * a single item on the UI thread.
+     *
+     * @param transactionManager The transaction manager to add the query to
+     * @param resultReceiver     The result of this transaction
+     */
+    public void transactSingleModel(TransactionManager transactionManager, ResultReceiver<ModelClass> resultReceiver) {
+        checkSelect("transact");
+        transactionManager.fetchModel(this, resultReceiver);
+    }
+
+    /**
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
+     * a single item on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
+     *
+     * @param resultReceiver The result of this transaction
+     */
+    public void transactSingleModel(ResultReceiver<ModelClass> resultReceiver) {
+        transactSingleModel(TransactionManager.getInstance(), resultReceiver);
     }
 
     /**
@@ -255,11 +358,17 @@ public class Where<ModelClass extends Model> implements Query {
      * @return if {@link android.database.Cursor}.count > 0
      */
     public boolean hasData() {
-        if (mFrom.getQueryBuilderBase() instanceof Select) {
-            return SqlUtils.hasData(mManager, mFrom.getTable(), getQuery());
-        } else {
-            throw new IllegalArgumentException("Please use query(). The Querybase is not a Select");
-        }
+        checkSelect("query");
+        return SqlUtils.hasData(mManager, mFrom.getTable(), getQuery());
+    }
+
+    /**
+     * Returns the table this query points to
+     *
+     * @return
+     */
+    public Class<ModelClass> getTable() {
+        return mFrom.getTable();
     }
 
     @Override
@@ -267,9 +376,9 @@ public class Where<ModelClass extends Model> implements Query {
         String fromQuery = mFrom.getQuery();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace();
 
-        queryBuilder.appendQualifier("WHERE", mWhereQueryBuilder.getQuery())
+        queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
                 .appendQualifier("GROUP BY", mGroupBy)
-                .appendQualifier("HAVING", mHaving)
+                .appendQualifier("HAVING", mHaving.getQuery())
                 .appendQualifier("ORDER BY", mOrderBy)
                 .appendQualifier("LIMIT", mLimit)
                 .appendQualifier("OFFSET", mOffset);

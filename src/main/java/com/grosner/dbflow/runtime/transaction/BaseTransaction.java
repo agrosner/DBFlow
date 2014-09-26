@@ -51,6 +51,15 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
     }
 
     /**
+     * Tells the queue to not post the result on the UI thread (this is to prevent flooding of the UI from
+     * many BG DB requests)
+     * @return true if it has a result to show
+     */
+    public boolean hasResult(){
+        return false;
+    }
+
+    /**
      * Executes this transaction on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}'s thread
      * only if {@link #onReady()} is true.
      */

@@ -12,9 +12,10 @@ import com.grosner.dbflow.runtime.transaction.SelectSingleModelTransaction;
 import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.grosner.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.grosner.dbflow.runtime.transaction.process.UpdateModelListTransaction;
+import com.grosner.dbflow.sql.Delete;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.Where;
-import com.grosner.dbflow.sql.builder.WhereQueryBuilder;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.Collection;
@@ -171,20 +172,6 @@ public class TransactionManager {
     }
 
     /**
-     * Selects all items from the table with the specified {@link com.grosner.dbflow.sql.Select} in
-     * the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
-     *
-     * @param tableClass     The table we select from.
-     * @param select         Provides the columns that we wish to select
-     * @param resultReceiver The result of the selection will be placed here on the main thread.
-     * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}.
-     */
-    public <ModelClass extends Model> void fetchFromTable(Class<ModelClass> tableClass, Select select,
-                                                          ResultReceiver<List<ModelClass>> resultReceiver) {
-        addTransaction(new SelectListTransaction<ModelClass>(tableClass, select, resultReceiver));
-    }
-
-    /**
      * Selects all items from the table with the specified {@link com.grosner.dbflow.sql.From} in
      * the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
      *
@@ -201,39 +188,50 @@ public class TransactionManager {
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
      * The order of the ids must match the ordered they're declared.
      *
-     * @param whereQueryBuilder The where query we will use
-     * @param resultReceiver    The result will be passed here.
+     * @param conditionQueryBuilder The where query we will use
+     * @param resultReceiver        The result will be passed here.
      */
-    public <ModelClass extends Model> void fetchFromTableWithWhere(WhereQueryBuilder<ModelClass> whereQueryBuilder,
-                                                                   final ResultReceiver<List<ModelClass>> resultReceiver) {
-        Where<ModelClass> modelWhere = new Select(mManager).from(whereQueryBuilder.getTableClass()).where(whereQueryBuilder);
-        addTransaction(new SelectListTransaction<ModelClass>(modelWhere, resultReceiver));
+    public <ModelClass extends Model> void fetchFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
+                                                          final ResultReceiver<List<ModelClass>> resultReceiver) {
+        fetchFromTable(Where.with(mManager, conditionQueryBuilder), resultReceiver);
     }
 
     /**
-     * Selects a single model object with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     * Selects a single model object with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      *
-     * @param whereQueryBuilder The where query we will use
-     * @param <ModelClass>      The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @param conditionQueryBuilder The where query we will use
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the first model from the database cursor.
      */
-    public <ModelClass extends Model> ModelClass selectModelWithWhere(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        return new Select(mManager).from(whereQueryBuilder.getTableClass()).where(whereQueryBuilder).querySingle();
+    public <ModelClass extends Model> ModelClass selectModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        return Where.with(mManager, conditionQueryBuilder).querySingle();
     }
 
     /**
-     * Selects a list of model objects with the specified {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     * Selects all models from the table. (this method should be avoided as it could block the UI thread).
      *
-     * @param whereQueryBuilder The where query we will use
-     * @param <ModelClass>      The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @param tableClass   The table to select the list from
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return the list of every row in the table
+     */
+    public <ModelClass extends Model> List<ModelClass> selectAllFromTable(Class<ModelClass> tableClass) {
+        return new Select(mManager).from(tableClass).where().queryList();
+    }
+
+    /**
+     * Selects a list of model objects with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
+     *
+     * @param conditionQueryBuilder The where query we will use
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the list of models from the database cursor.
      */
-    public <ModelClass extends Model> List<ModelClass> selectAllFromTableWithWhere(WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        return new Select(mManager).from(whereQueryBuilder.getTableClass()).where(whereQueryBuilder).queryList();
+    public <ModelClass extends Model> List<ModelClass> selectAllFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        return Where.with(mManager, conditionQueryBuilder).queryList();
     }
 
     /**
-     * Selects a single model with the specified ids on the same thread this is called. It
+     * Selects a single model with the specified ids on the same thread this is called. Looks up the cached
+     * {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} for this {@link ModelClass} to reuse.
      *
      * @param tableClass   The table to select the model from
      * @param ids          The list of ids given by the {@link ModelClass}
@@ -241,8 +239,8 @@ public class TransactionManager {
      * @return
      */
     public <ModelClass extends Model> ModelClass selectModelById(Class<ModelClass> tableClass, Object... ids) {
-        WhereQueryBuilder<ModelClass> queryBuilder = mManager.getStructure().getPrimaryWhereQuery(tableClass);
-        return selectModelWithWhere(queryBuilder.replaceEmptyParams(ids));
+        ConditionQueryBuilder<ModelClass> queryBuilder = mManager.getStructure().getPrimaryWhereQuery(tableClass);
+        return selectModel(queryBuilder.replaceEmptyParams(ids));
     }
 
     /**
@@ -262,19 +260,19 @@ public class TransactionManager {
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
      * The order of the ids must match the ordered they're declared.
      *
-     * @param tableClass        The table to select the model from.
-     * @param whereQueryBuilder The where query we will use
-     * @param resultReceiver    The result will be passed here.
+     * @param tableClass            The table to select the model from.
+     * @param conditionQueryBuilder The where query we will use
+     * @param resultReceiver        The result will be passed here.
      */
-    public <ModelClass extends Model> void fetchModelWithWhere(WhereQueryBuilder<ModelClass> whereQueryBuilder,
-                                                               final ResultReceiver<ModelClass> resultReceiver) {
-        Where<ModelClass> modelWhere = new Select(mManager).from(whereQueryBuilder.getTableClass()).where(whereQueryBuilder);
-        fetchModel(modelWhere, resultReceiver);
+    public <ModelClass extends Model> void fetchModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
+                                                      final ResultReceiver<ModelClass> resultReceiver) {
+        fetchModel(Where.with(mManager, conditionQueryBuilder), resultReceiver);
     }
 
     /**
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
-     * The order of the ids must match the ordered they're declared.
+     * The order of the ids must match the ordered they're declared. It reuses the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
+     * if it exists for this table.
      *
      * @param tableClass     The table to select the model from.
      * @param resultReceiver The result will be passed here.
@@ -284,8 +282,8 @@ public class TransactionManager {
     public <ModelClass extends Model> void fetchModelById(Class<ModelClass> tableClass,
                                                           final ResultReceiver<ModelClass> resultReceiver,
                                                           Object... ids) {
-        WhereQueryBuilder<ModelClass> queryBuilder = mManager.getStructure().getPrimaryWhereQuery(tableClass);
-        fetchModelWithWhere(queryBuilder.replaceEmptyParams(ids), resultReceiver);
+        ConditionQueryBuilder<ModelClass> queryBuilder = mManager.getStructure().getPrimaryWhereQuery(tableClass);
+        fetchModel(queryBuilder.replaceEmptyParams(ids), resultReceiver);
     }
 
     // endregion
@@ -362,6 +360,16 @@ public class TransactionManager {
     // region Database Delete methods
 
     /**
+     * Drops all of the rows from the specified table from the DB immediately.
+     *
+     * @param tableClass   The table to delete the models from.
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
+    public <ModelClass extends Model> void deleteTable(Class<ModelClass> tableClass) {
+        new Delete().from(tableClass).where().query();
+    }
+
+    /**
      * Deletes all of the models in the specified table on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
      *
      * @param transactionInfo The information on how we should approach this request.
@@ -373,17 +381,17 @@ public class TransactionManager {
     }
 
     /**
-     * Deletes all of the models in the specified table with the {@link com.grosner.dbflow.sql.builder.WhereQueryBuilder}
+     * Deletes all of the models in the specified table with the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      * on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      *
-     * @param transactionInfo   The information on how we should approach this request.
-     * @param whereQueryBuilder The where arguments of the deletion
-     * @param table             The table to delete models from.
-     * @param <ModelClass>      The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @param transactionInfo       The information on how we should approach this request.
+     * @param conditionQueryBuilder The where arguments of the deletion
+     * @param table                 The table to delete models from.
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
-    public <ModelClass extends Model> void deleteModelsWithQuery(DBTransactionInfo transactionInfo,
-                                                                 WhereQueryBuilder<ModelClass> whereQueryBuilder) {
-        addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, whereQueryBuilder));
+    public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo,
+                                                  ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, conditionQueryBuilder));
     }
 
     /**
@@ -410,6 +418,18 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo, List<ModelClass> models) {
         addTransaction(new DeleteModelListTransaction<ModelClass>(transactionInfo, null, models));
+    }
+
+    /**
+     * Used when we don't care about the result of {@link #delete(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)}
+     *
+     * @param transactionInfo The information on how we should approach this request.
+     * @param model           The model to delete
+     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @see #delete(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)
+     */
+    public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo, ModelClass model) {
+        addTransaction(new DeleteModelListTransaction<ModelClass>(transactionInfo, null, model));
     }
 
     // endregion

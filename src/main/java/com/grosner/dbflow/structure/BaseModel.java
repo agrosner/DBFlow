@@ -23,6 +23,7 @@ public abstract class BaseModel implements Model {
 
     /**
      * Directly tries to insert this item into the DB without updating.
+     *
      * @param async If we want this to happen on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      */
     public void insert(boolean async) {

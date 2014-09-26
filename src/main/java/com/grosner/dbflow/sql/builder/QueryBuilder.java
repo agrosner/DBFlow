@@ -20,13 +20,28 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     protected StringBuilder mQuery = new StringBuilder();
 
     /**
-     * Appends a string to this query
-     *
+     * Constructs this item with an empty {@link java.lang.StringBuilder}
+     */
+    public QueryBuilder() {
+        super();
+    }
+
+    /**
+     * Constructs this class with the specified String
      * @param string The string to append
+     */
+    public QueryBuilder(String string) {
+        mQuery.append(string);
+    }
+
+    /**
+     * Appends an object to this query
+     *
+     * @param object The object to append
      * @return
      */
-    public QueryClass append(String string) {
-        mQuery.append(string);
+    public QueryClass append(Object object) {
+        mQuery.append(object);
         return castThis();
     }
 

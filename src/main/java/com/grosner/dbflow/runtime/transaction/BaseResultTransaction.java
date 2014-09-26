@@ -27,6 +27,11 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
     }
 
     @Override
+    public boolean hasResult() {
+        return mReceiver!=null;
+    }
+
+    @Override
     public void onPostExecute(ResultClass modelClasses) {
         if (mReceiver != null) {
             mReceiver.onResultReceived(modelClasses);

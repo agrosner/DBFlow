@@ -2,6 +2,7 @@ package com.grosner.dbflow.runtime;
 
 import android.os.Looper;
 
+import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.runtime.transaction.BaseTransaction;
 
 import java.util.Iterator;
@@ -54,20 +55,22 @@ public class DBTransactionQueue extends Thread {
             try {
                 // If the transaction is ready
                 if (transaction.onReady()) {
-                    //if(AALog.isEnabled()) {
-                    //AALog.d("DBRequestQueue + " + getName(), "Size is: " + mQueue.size() + " executing:" + runnable.getName());
-                    //}
+                    if(FlowLog.isEnabled(FlowLog.Level.I)) {
+                        FlowLog.log(FlowLog.Level.I, "Size is " + mQueue.size() + " executing " + transaction.getName());
+                    }
                     // Retrieve the result of the transaction
                     final Object result = transaction.onExecute();
                     final BaseTransaction finalTransaction = transaction;
 
                     // Run the result on the FG
-                    TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
-                        @Override
-                        public void run() {
-                            finalTransaction.onPostExecute(result);
-                        }
-                    });
+                    if(transaction.hasResult()) {
+                        TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
+                            @Override
+                            public void run() {
+                                finalTransaction.onPostExecute(result);
+                            }
+                        });
+                    }
                 }
             } catch (Throwable t) {
                 throw new RuntimeException(t);
