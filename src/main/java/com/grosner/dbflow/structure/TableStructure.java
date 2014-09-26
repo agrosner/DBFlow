@@ -111,8 +111,7 @@ public class TableStructure<ModelType extends Model> {
             mColumnNames.put(field, columnName);
             mFieldFromNames.put(columnName, field);
 
-            if (column.value().value() == ColumnType.PRIMARY_KEY
-                    || column.value().value() == ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
+            if (StructureUtils.isPrimaryKey(field)) {
                 mPrimaryKeys.put(columnName, field);
             } else if (column.value().value() == ColumnType.FOREIGN_KEY) {
                 mForeignKeys.put(columnName, field);
@@ -150,8 +149,7 @@ public class TableStructure<ModelType extends Model> {
             int count = 0;
             int index = 0;
             for (Field field : primaryKeys) {
-                Column primaryKey = field.getAnnotation(Column.class);
-                if (primaryKey.value().value() != ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
+                if (StructureUtils.isPrimaryKeyNoIncrement(field)) {
                     count++;
                     primaryKeyQueryBuilder.append(mColumnNames.get(field));
                     if (index < mPrimaryKeys.size() - 1) {

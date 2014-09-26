@@ -105,8 +105,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param conditions The array of conditions to add to the mapping.
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> params(Condition...conditions) {
-        for(Condition condition: conditions) {
+    public ConditionQueryBuilder<ModelClass> params(Condition... conditions) {
+        for (Condition condition : conditions) {
             mParams.put(condition.columnName(), condition);
         }
         isChanged = true;
@@ -321,7 +321,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public static String getModelBackedWhere(ConditionQueryBuilder<? extends Model> existing,
-                                                                        Collection<Field> fields, Model model) {
+                                             Collection<Field> fields, Model model) {
         String query = existing.getQuery();
         for (Field primaryField : fields) {
             String columnName = existing.mTableStructure.getColumnName(primaryField);
