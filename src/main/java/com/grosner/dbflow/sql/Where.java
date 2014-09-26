@@ -253,11 +253,12 @@ public class Where<ModelClass extends Model> implements Query {
     }
 
     /**
-     * Run this query without expecting any results
+     * Run this query and returns the {@link android.database.Cursor} for it
+     * @return the Sqlite {@link android.database.Cursor} from this query
      */
-    public void query() {
+    public Cursor query() {
         // Query the sql here
-        mManager.getWritableDatabase().rawQuery(getQuery(), null);
+        return mManager.getWritableDatabase().rawQuery(getQuery(), null);
     }
 
     /**
@@ -278,14 +279,6 @@ public class Where<ModelClass extends Model> implements Query {
     public ModelClass querySingle() {
         checkSelect("query");
         return SqlUtils.querySingle(mManager, mFrom.getTable(), getQuery());
-    }
-
-    /**
-     * Returns the cursor associated with this query, enabling custom handling.
-     * @return The cursor for this Query
-     */
-    public Cursor getCursor() {
-        return mManager.getWritableDatabase().rawQuery(getQuery(), null);
     }
 
     /**

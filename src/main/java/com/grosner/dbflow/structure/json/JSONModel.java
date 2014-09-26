@@ -107,7 +107,7 @@ public class JSONModel<ModelClass extends Model> implements Model {
         mJson = new JSONObject();
         ConditionQueryBuilder<ModelClass> primaryQuery = mManager.getStructure().getPrimaryWhereQuery(getTable());
         load(new Select().from(mTableStructure.getModelType())
-                .where(primaryQuery.replaceEmptyParams(primaryKeys)).getCursor());
+                .where(primaryQuery.replaceEmptyParams(primaryKeys)).query());
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.grosner.dbflow.runtime;
 
+import android.database.Cursor;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -165,8 +166,19 @@ public class TransactionManager {
      *              does not return any results.
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public <ModelClass extends Model void transactQuery(DBTransactionInfo transactionInfo, Where<ModelClass> where) {
-        addTransaction(new QueryTransaction<ModelClass>(transactionInfo, where));
+    public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Where<ModelClass> where) {
+        transactQuery(transactionInfo, where, null);
+    }
+
+    /**
+     * Adds an arbitrary statement to be processed on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} in the background.
+     * @param transactionInfo The information on how we should approach this request.
+     * @param where The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute.
+     *              @param cursorResultReceiver The cursor from the DB that we can process
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
+    public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Where<ModelClass> where, ResultReceiver<Cursor> cursorResultReceiver) {
+        addTransaction(new QueryTransaction<ModelClass>(transactionInfo, where, cursorResultReceiver));
     }
 
     // region Database Select Methods

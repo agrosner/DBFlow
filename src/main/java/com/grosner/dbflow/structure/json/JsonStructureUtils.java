@@ -125,7 +125,7 @@ public class JsonStructureUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     public static <ModelClass extends Model> ModelClass toModel(JSONModel<ModelClass> jsonModel) {
-        Cursor cursor = new Select().from(jsonModel.getTable()).where(getPrimaryModelWhere(jsonModel)).getCursor();
+        Cursor cursor = new Select().from(jsonModel.getTable()).where(getPrimaryModelWhere(jsonModel)).query();
         ModelClass model = SqlUtils.convertToModel(false, jsonModel.mManager, jsonModel.getTable(), cursor);
         cursor.close();
 
@@ -162,10 +162,8 @@ public class JsonStructureUtils {
     }
 
     /**
-     * Builds a {@link com.grosner.dbflow.structure.Model} where query with its primary keys. The existing must
-     * be based off the primary keys of the model.
+     * Builds a {@link com.grosner.dbflow.structure.Model} where query with its primary keys.
      *
-     * @param existing The existing where query we wish to generate new one from the model.
      * @param model    The existing model with all of its primary keys filled in
      * @return
      */
