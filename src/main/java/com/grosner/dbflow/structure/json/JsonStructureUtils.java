@@ -146,7 +146,7 @@ public class JsonStructureUtils {
         if (!async) {
             jsonModel.mManager.getWritableDatabase().delete(jsonModel.mTableStructure.getTableName(), getPrimaryModelWhere(jsonModel), null);
         } else {
-            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<JSONModel<ModelClass>>(ProcessModelInfo.withModels(jsonModel)));
+            TransactionManager.getInstance().delete(ProcessModelInfo.withModels(jsonModel));
         }
     }
 
