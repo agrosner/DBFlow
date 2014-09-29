@@ -183,7 +183,7 @@ public class TableStructure<ModelType extends Model> {
             FlowLog.log(FlowLog.Level.E, "MODEL VIEWS CANNOT HAVE PRIMARY KEYS OR FOREIGN KEYS");
         }
 
-        mCreationQuery.appendColumnDefinitions(mColumnDefinitions).append(");");
+        mCreationQuery.appendList(mColumnDefinitions).append("););");
 
     }
 

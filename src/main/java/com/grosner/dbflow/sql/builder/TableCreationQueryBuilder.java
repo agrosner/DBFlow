@@ -1,7 +1,5 @@
 package com.grosner.dbflow.sql.builder;
 
-import android.text.TextUtils;
-
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ColumnType;
 
@@ -12,7 +10,7 @@ import java.util.List;
  * Contributors: { }
  * Description: Wraps around creating the table creation in a simple way. This is used in {@link com.grosner.dbflow.structure.TableStructure}
  */
-public class TableCreationQueryBuilder extends QueryBuilder {
+public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBuilder> {
 
     /**
      * Appens a column to this class. It will append the correct string value based on the {@link com.grosner.dbflow.structure.Column}
@@ -51,17 +49,6 @@ public class TableCreationQueryBuilder extends QueryBuilder {
      */
     public QueryBuilder appendCreateTableIfNotExists(String tableName) {
         mQuery.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append("(");
-        return this;
-    }
-
-    /**
-     * Appends all of the column definitions here separated by comma
-     *
-     * @param columnDefinitions The list of column {@link com.grosner.dbflow.sql.builder.QueryBuilder}
-     * @return
-     */
-    public QueryBuilder appendColumnDefinitions(List<QueryBuilder> columnDefinitions) {
-        mQuery.append(TextUtils.join(", ", columnDefinitions)).append(");");
         return this;
     }
 }
