@@ -3,6 +3,7 @@ package com.grosner.dbflow.runtime;
 import android.os.Looper;
 
 import com.grosner.dbflow.config.FlowLog;
+import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -114,7 +115,8 @@ public class DBBatchSaveQueue extends Thread {
             }
             if (tmpModels.size() > 0) {
                 //onExecute this on the DBManager thread
-                TransactionManager.getInstance().save(DBTransactionInfo.create("Batch Saving Models"), tmpModels);
+                TransactionManager.getInstance().save(
+                        ProcessModelInfo.withModels(tmpModels).info(DBTransactionInfo.create("Batch Saving Models")));
             }
 
             try {

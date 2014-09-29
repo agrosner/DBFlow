@@ -47,6 +47,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     private boolean useEmptyParams = false;
 
     /**
+     * The separator between the conditions
+     */
+    private String mSeparator = "AND";
+
+    /**
      * Constructs an instance of this class with the shared {@link com.grosner.dbflow.config.FlowManager}
      * and {@link ModelClass}.
      *
@@ -65,6 +70,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      */
     public ConditionQueryBuilder(FlowManager flowManager, Class<ModelClass> tableClass) {
         mTableStructure = flowManager.getTableStructureForClass(tableClass);
+    }
+
+    public ConditionQueryBuilder<ModelClass> setSeparator(String separator) {
+        mSeparator = separator;
+        return this;
     }
 
     /**
@@ -260,7 +270,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             for (String key : keys) {
                 appendConditionToQuery(mParams.get(key));
                 if (count < keys.size() - 1) {
-                    appendSpaceSeparated("AND");
+                    appendSpaceSeparated(mSeparator);
                 }
                 count++;
             }

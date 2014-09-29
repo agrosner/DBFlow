@@ -11,6 +11,8 @@ import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
+import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.Model;
@@ -221,6 +223,7 @@ public class SqlUtils {
      * @param notify       If we should notify all of our {@link com.grosner.dbflow.runtime.observer.ModelObserver}
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void save(FlowManager flowManager, ModelClass model, boolean async, int mode, boolean notify) {
         if (!async) {
             ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder =
@@ -279,7 +282,7 @@ public class SqlUtils {
             }
 
         } else {
-            TransactionManager.getInstance().save(DBTransactionInfo.create(), model);
+            TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.create()));
         }
     }
 
@@ -401,7 +404,7 @@ public class SqlUtils {
             ConditionQueryBuilder<ModelClass> conditionQueryBuilder = flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
             flowManager.getWritableDatabase().delete(tableStructure.getTableName(), ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model), null);
         } else {
-            TransactionManager.getInstance().delete(DBTransactionInfo.create(), model);
+            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<ModelClass>(ProcessModelInfo.withModels(model).fetch()));
         }
     }
 

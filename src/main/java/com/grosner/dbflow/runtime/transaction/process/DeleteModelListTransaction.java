@@ -1,10 +1,6 @@
 package com.grosner.dbflow.runtime.transaction.process;
 
-import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.structure.Model;
-
-import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -12,14 +8,14 @@ import java.util.List;
  * Description: Deletes a list of models passed into this class from the DB.
  */
 public class DeleteModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
-    public DeleteModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> mReceiver,
-                                      List<ModelClass> models) {
-        super(dbTransactionInfo, mReceiver, models);
-    }
 
-    public DeleteModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
-                                      ModelClass model) {
-        super(dbTransactionInfo, resultReceiver, model);
+    /**
+     * Constructs this transaction with the specified {@link com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo}
+     *
+     * @param modelInfo Holds information about this delete request.
+     */
+    public DeleteModelListTransaction(ProcessModelInfo<ModelClass> modelInfo) {
+        super(modelInfo);
     }
 
     @Override

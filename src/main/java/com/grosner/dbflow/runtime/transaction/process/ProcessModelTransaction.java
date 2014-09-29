@@ -4,8 +4,10 @@ import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.transaction.BaseResultTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
+import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,55 +16,38 @@ import java.util.List;
  * Description: Provides a {@link ModelClass}-list backed implementation on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
  * and allows for specific method calling on a model.
  */
-public abstract class ProcessModelTransaction<ModelClass> extends BaseResultTransaction<List<ModelClass>> {
+public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> {
 
-    protected List<ModelClass> mModels;
+    protected ProcessModelInfo<ModelClass> mModelInfo;
 
     /**
      * Constructs this transaction with a single model enabled.
      *
-     * @param dbTransactionInfo The information about this transaction
-     * @param resultReceiver    Will be called when the transaction completes.
-     * @param model             The single model we wish to act on
+     * @param modelInfo Holds information about this process request
      */
-    public ProcessModelTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
-                                   ModelClass model) {
-        super(dbTransactionInfo, resultReceiver);
-        mModels = new ArrayList<ModelClass>();
-        mModels.add(model);
+    public ProcessModelTransaction(ProcessModelInfo<ModelClass> modelInfo) {
+        super(modelInfo.getInfo(), modelInfo.mReceiver);
+        mModelInfo = modelInfo;
     }
-
-    /**
-     * Constructs this transaction with a list of models.
-     *
-     * @param dbTransactionInfo The information about this transaction
-     * @param resultReceiver    Will be called when the transaction completes.
-     * @param models            The list of models to act on
-     */
-    public ProcessModelTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
-                                   List<ModelClass> models) {
-        super(dbTransactionInfo, resultReceiver);
-        mModels = models;
-    }
-
 
     @Override
     public boolean onReady() {
-        return mModels != null && !mModels.isEmpty();
+        return mModelInfo.hasData();
     }
 
     @Override
     public List<ModelClass> onExecute() {
+        final List<ModelClass> processedModels = mModelInfo.mModels;
         FlowManager.transact(new Runnable() {
             @Override
             public void run() {
-                for (ModelClass model : mModels) {
+                for (ModelClass model : processedModels) {
                     processModel(model);
                 }
             }
         });
 
-        return mModels;
+        return processedModels;
     }
 
     /**

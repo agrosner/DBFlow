@@ -1,10 +1,6 @@
 package com.grosner.dbflow.runtime.transaction.process;
 
-import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.structure.Model;
-
-import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -14,15 +10,12 @@ import java.util.List;
 public class UpdateModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
 
     /**
-     * Constructs this transaction with a list of models.
+     * Constructs this transaction with the specified {@link com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo}
      *
-     * @param dbTransactionInfo The information about this transaction
-     * @param resultReceiver    Will be called when the transaction completes.
-     * @param models            The list of models to act on
+     * @param modelInfo Holds information about this save request.
      */
-    public UpdateModelListTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<List<ModelClass>> resultReceiver,
-                                      List<ModelClass> models) {
-        super(dbTransactionInfo, resultReceiver, models);
+    public UpdateModelListTransaction(ProcessModelInfo<ModelClass> modelInfo) {
+        super(modelInfo);
     }
 
     @Override

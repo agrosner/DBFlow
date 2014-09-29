@@ -11,7 +11,9 @@ import com.grosner.dbflow.runtime.transaction.QueryTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.runtime.transaction.SelectListTransaction;
 import com.grosner.dbflow.runtime.transaction.SelectSingleModelTransaction;
+import com.grosner.dbflow.runtime.transaction.UpdateTransaction;
 import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
+import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.grosner.dbflow.runtime.transaction.process.UpdateModelListTransaction;
 import com.grosner.dbflow.sql.Delete;
@@ -72,10 +74,8 @@ public class TransactionManager {
 
     /**
      * Returns the application's only needed DBManager.
-     * Note: this manager must be created on the main thread, otherwise a
-     * {@link com.grosner.dbflow.runtime.DBManagerNotOnMainException} will be thrown. It uses the
-     * shared {@link com.grosner.dbflow.config.FlowManager}. If you wish to use a different DB from the norm,
-     * create a new instance of this class with the manager you want.
+     * It uses the shared {@link com.grosner.dbflow.config.FlowManager}. If you wish to use a different DB from the norm,
+     * create a new instance of this class with a different manager.
      *
      * @return
      */
@@ -232,8 +232,8 @@ public class TransactionManager {
      * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the first model from the database cursor.
      */
-    public <ModelClass extends Model> ModelClass selectModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        return Where.with(mManager, conditionQueryBuilder).querySingle();
+    public <ModelClass extends Model> ModelClass selectModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String...columns) {
+        return Where.with(mManager, conditionQueryBuilder, columns).querySingle();
     }
 
     /**
@@ -255,8 +255,8 @@ public class TransactionManager {
      * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the list of models from the database cursor.
      */
-    public <ModelClass extends Model> List<ModelClass> selectAllFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        return Where.with(mManager, conditionQueryBuilder).queryList();
+    public <ModelClass extends Model> List<ModelClass> selectAllFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String...columns) {
+        return Where.with(mManager, conditionQueryBuilder, columns).queryList();
     }
 
     /**
@@ -301,7 +301,7 @@ public class TransactionManager {
 
     /**
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
-     * The order of the ids must match the ordered they're declared. It reuses the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
+     * The order of the ids must match the ordered they're declared. It reuses the cached {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      * if it exists for this table.
      *
      * @param tableClass     The table to select the model from.
@@ -344,6 +344,11 @@ public class TransactionManager {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void saveOnSaveQueue(Collection<ModelClass> models) {
+
+        // Only start save queue if we are going to use it
+        if (!getSaveQueue().isAlive()) {
+            getSaveQueue().start();
+        }
         getSaveQueue().addAll(models);
     }
 
@@ -352,37 +357,10 @@ public class TransactionManager {
      * with the specified {@link com.grosner.dbflow.runtime.DBTransactionInfo}. The corresponding
      * {@link com.grosner.dbflow.runtime.transaction.ResultReceiver} will be called when the transaction completes.
      *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param models          The list of models to save
-     * @param resultReceiver  The models passed in here will be returned in this variable when the transaction completes.
+     * @param modelInfo Holds information about this save request
      */
-    public <ModelClass extends Model> void save(DBTransactionInfo transactionInfo,
-                                                List<ModelClass> models, ResultReceiver<List<ModelClass>> resultReceiver) {
-        addTransaction(new SaveModelTransaction<ModelClass>(transactionInfo, resultReceiver, models));
-    }
-
-    /**
-     * Used when we don't care about the result of this save()
-     *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param models          The list of models to save
-     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
-     * @see #save(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)
-     */
-    public <ModelClass extends Model> void save(DBTransactionInfo transactionInfo, List<ModelClass> models) {
-        addTransaction(new SaveModelTransaction<ModelClass>(transactionInfo, null, models));
-    }
-
-    /**
-     * Used when we don't care about the result of this save()
-     *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param model           The single model to save
-     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
-     * @see #save(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)
-     */
-    public <ModelClass extends Model> void save(DBTransactionInfo transactionInfo, ModelClass model) {
-        addTransaction(new SaveModelTransaction<ModelClass>(transactionInfo, null, model));
+    public <ModelClass extends Model> void save(ProcessModelInfo<ModelClass> modelInfo) {
+        addTransaction(new SaveModelTransaction<ModelClass>(modelInfo));
     }
 
     // endregion
@@ -396,7 +374,7 @@ public class TransactionManager {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     public <ModelClass extends Model> void deleteTable(Class<ModelClass> tableClass) {
-        new Delete().from(tableClass).where().query();
+        Delete.table(mManager, tableClass);
     }
 
     /**
@@ -408,6 +386,31 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void deleteTable(DBTransactionInfo transactionInfo, Class<ModelClass> table) {
         addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, table));
+    }
+
+    /**
+     * Deletes the list of {@link ModelClass} in the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     * with the specified {@link com.grosner.dbflow.runtime.DBTransactionInfo}. The corresponding
+     * {@link com.grosner.dbflow.runtime.transaction.ResultReceiver} will be called when the transaction completes.
+     *
+     * @param modelInfo Holds information about this delete request
+     */
+    public <ModelClass extends Model> void delete(ProcessModelInfo<ModelClass> modelInfo) {
+        addTransaction(new DeleteModelListTransaction<ModelClass>(modelInfo));
+    }
+
+    /**
+     * Deletes all of the models in the specified table with the list of {@link com.grosner.dbflow.sql.builder.Condition}
+     * on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     *
+     * @param transactionInfo The information on how we should approach this request.
+     * @param table           The table to delete models from.
+     * @param conditions      The list of conditions to delete the list of models from
+     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
+     */
+    public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo,
+                                                  Class<ModelClass> table, Condition... conditions) {
+        addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, table, conditions));
     }
 
     /**
@@ -424,48 +427,21 @@ public class TransactionManager {
         addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, conditionQueryBuilder));
     }
 
-    /**
-     * Deletes all of the models with the {@link com.grosner.dbflow.runtime.DBTransactionInfo}
-     * passed from the list of models. The corresponding {@link com.grosner.dbflow.runtime.transaction.ResultReceiver}
-     * will be called when the transaction finishes.
-     *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param models          The list of models to delete
-     * @param resultReceiver  The models passed in here will be returned in this variable when the transaction completes.
-     */
-    public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo,
-                                                  List<ModelClass> models, ResultReceiver<List<ModelClass>> resultReceiver) {
-        addTransaction(new DeleteModelListTransaction<ModelClass>(transactionInfo, resultReceiver, models));
-    }
-
-    /**
-     * Used when we don't care about the result of {@link #delete(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)}
-     *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param models          The list of models to delete
-     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
-     * @see #delete(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)
-     */
-    public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo, List<ModelClass> models) {
-        addTransaction(new DeleteModelListTransaction<ModelClass>(transactionInfo, null, models));
-    }
-
-    /**
-     * Used when we don't care about the result of {@link #delete(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)}
-     *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param model           The model to delete
-     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
-     * @see #delete(DBTransactionInfo, java.util.List, com.grosner.dbflow.runtime.transaction.ResultReceiver)
-     */
-    public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo, ModelClass model) {
-        addTransaction(new DeleteModelListTransaction<ModelClass>(transactionInfo, null, model));
-    }
-
     // endregion
 
 
     // region Database update methods
+
+    /**
+     * Updates the list of {@link ModelClass} into the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     * with the specified {@link com.grosner.dbflow.runtime.DBTransactionInfo}. The corresponding
+     * {@link com.grosner.dbflow.runtime.transaction.ResultReceiver} will be called when the transaction completes.
+     *
+     * @param modelInfo Holds information about this update request
+     */
+    public <ModelClass extends Model> void update(ProcessModelInfo<ModelClass> modelInfo) {
+        addTransaction(new UpdateModelListTransaction<ModelClass>(modelInfo));
+    }
 
     /**
      * Updates all of the models with the {@link com.grosner.dbflow.runtime.DBTransactionInfo}
@@ -478,8 +454,9 @@ public class TransactionManager {
      * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void update(DBTransactionInfo transactionInfo,
-                                                  ResultReceiver<List<ModelClass>> resultReceiver, List<ModelClass> models) {
-        addTransaction(new UpdateModelListTransaction<ModelClass>(transactionInfo, resultReceiver, models));
+                                                  ConditionQueryBuilder<ModelClass> whereConditionBuilder,
+                                                  Condition...setConditions) {
+        addTransaction(new UpdateTransaction<ModelClass>(mManager, transactionInfo, whereConditionBuilder, setConditions));
     }
 
     /**
@@ -490,8 +467,10 @@ public class TransactionManager {
      * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @see #update(DBTransactionInfo, com.grosner.dbflow.runtime.transaction.ResultReceiver, java.util.List)
      */
-    public <ModelClass extends Model> void update(DBTransactionInfo transactionInfo, List<ModelClass> models) {
-        addTransaction(new UpdateModelListTransaction<ModelClass>(transactionInfo, null, models));
+    public <ModelClass extends Model> void update(DBTransactionInfo transactionInfo,
+                                                  ConditionQueryBuilder<ModelClass> whereConditionBuilder,
+                                                  ConditionQueryBuilder<ModelClass> setConditionBuilder) {
+        addTransaction(new UpdateTransaction<ModelClass>(mManager, transactionInfo, whereConditionBuilder, setConditionBuilder));
     }
 
     // endregion

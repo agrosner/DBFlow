@@ -9,7 +9,8 @@ import com.grosner.dbflow.structure.Model;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Runs a DB query in the BG on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}. It supplies
+ * the cursor returned from this query and will automatically closes the cursor to prevent database leaks.
  */
 public class QueryTransaction<ModelClass extends Model> extends BaseResultTransaction<Cursor> {
 
@@ -32,5 +33,14 @@ public class QueryTransaction<ModelClass extends Model> extends BaseResultTransa
     @Override
     public Cursor onExecute() {
         return mWhere.query();
+    }
+
+    @Override
+    public void onPostExecute(Cursor cursor) {
+        super.onPostExecute(cursor);
+
+        if(cursor != null) {
+            cursor.close();
+        }
     }
 }

@@ -4,7 +4,11 @@ import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.Where;
+import com.grosner.dbflow.sql.builder.Condition;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Model;
+
+import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -13,37 +17,48 @@ import com.grosner.dbflow.structure.Model;
  */
 public class SelectSingleModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
 
-    private Where<ModelClass> mFrom;
+    private Where<ModelClass> mWhere;
 
-    public SelectSingleModelTransaction(FlowManager flowManager, Class<ModelClass> tableClass, ResultReceiver<ModelClass> resultReceiver) {
-        this(tableClass, new Select(flowManager), resultReceiver);
+    /**
+     * Creates an instance of this class
+     *
+     * @param flowManager     The database manager to use
+     * @param resultReceiver  The result that returns from this query
+     * @param tableClass      The table to select from
+     * @param whereConditions The conditions to use in the SELECT query
+     */
+    public SelectSingleModelTransaction(FlowManager flowManager, Class<ModelClass> tableClass,
+                                        ResultReceiver<ModelClass> resultReceiver, Condition...whereConditions) {
+        this(new Select(flowManager).from(tableClass).where(whereConditions), resultReceiver);
     }
 
     /**
-     * Creates this class with the specified arguments.
+     * Creates an instance of this class
      *
-     * @param tableClass     The class we will retrieve the models from
-     * @param select         The select statement we will use to retrieve them.
-     * @param resultReceiver The result we get.
+     * @param flowManager                The database manager to use
+     * @param resultReceiver             The result that returns from this query
+     * @param whereConditionQueryBuilder The query builder used to SELECT
+     * @param columns                    The columns to select
      */
-    public SelectSingleModelTransaction(Class<ModelClass> tableClass, Select select, ResultReceiver<ModelClass> resultReceiver) {
-        this(select.from(tableClass).where(), resultReceiver);
+    public SelectSingleModelTransaction(FlowManager flowManager, ResultReceiver<ModelClass> resultReceiver,
+                                        ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
+        this(new Select(flowManager, columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), resultReceiver);
     }
 
     /**
      * Creates this class with a {@link com.grosner.dbflow.sql.From}
      *
-     * @param from           The completed Sql Statement we will use to fetch the models
+     * @param where           The completed Sql Statement we will use to fetch the models
      * @param resultReceiver
      */
-    public SelectSingleModelTransaction(Where<ModelClass> from, ResultReceiver<ModelClass> resultReceiver) {
+    public SelectSingleModelTransaction(Where<ModelClass> where, ResultReceiver<ModelClass> resultReceiver) {
         super(DBTransactionInfo.createFetch(), resultReceiver);
-        mFrom = from;
+        mWhere = where;
     }
 
 
     @Override
     public ModelClass onExecute() {
-        return mFrom.querySingle();
+        return mWhere.querySingle();
     }
 }

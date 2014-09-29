@@ -123,6 +123,18 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     /**
+     * Only appends the text if it is not null or empty
+     * @param string The string to append
+     * @return
+     */
+    public QueryClass appendNotEmpty(String string) {
+        if(!TextUtils.isEmpty(string)) {
+            append(string);
+        }
+        return castThis();
+    }
+
+    /**
      * Casts the current object to the {@link QueryClass}
      *
      * @return

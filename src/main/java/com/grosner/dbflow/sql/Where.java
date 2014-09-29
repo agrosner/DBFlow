@@ -27,7 +27,7 @@ public class Where<ModelClass extends Model> implements Query {
     /**
      * The first chunk of the SQL statement before this query.
      */
-    private final From<ModelClass> mFrom;
+    private final WhereBase<ModelClass> mWhereBase;
 
     /**
      * Helps to build the where statement easily
@@ -73,8 +73,9 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public static <ModelClass extends Model> Where<ModelClass> with(FlowManager flowManager,
-                                                                    ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        return new Select(flowManager).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
+                                                                    ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
+                                                                    String...columns) {
+        return new Select(flowManager, columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
     }
 
     /**
@@ -84,15 +85,15 @@ public class Where<ModelClass extends Model> implements Query {
      * @param manager The database manager
      * @param from    The FROM statement chunk
      */
-    public Where(FlowManager manager, From<ModelClass> from) {
+    public Where(FlowManager manager, WhereBase<ModelClass> from) {
         mManager = manager;
-        mFrom = from;
-        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
-        mHaving = new ConditionQueryBuilder<ModelClass>(mManager, mFrom.getTable());
+        mWhereBase = from;
+        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mWhereBase.getTable());
+        mHaving = new ConditionQueryBuilder<ModelClass>(mManager, mWhereBase.getTable());
     }
 
     protected void checkSelect(String methodName) {
-        if (!(mFrom.getQueryBuilderBase() instanceof Select)) {
+        if (!(mWhereBase.getQueryBuilderBase() instanceof Select)) {
             throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
         }
     }
@@ -115,7 +116,9 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Where<ModelClass> whereQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        mConditionQueryBuilder = conditionQueryBuilder;
+        if(conditionQueryBuilder != null) {
+            mConditionQueryBuilder = conditionQueryBuilder;
+        }
         return this;
     }
 
@@ -268,7 +271,7 @@ public class Where<ModelClass extends Model> implements Query {
      */
     public List<ModelClass> queryList() {
         checkSelect("query");
-        return SqlUtils.queryList(mManager, mFrom.getTable(), getQuery());
+        return SqlUtils.queryList(mManager, mWhereBase.getTable(), getQuery());
     }
 
     /**
@@ -278,7 +281,7 @@ public class Where<ModelClass extends Model> implements Query {
      */
     public ModelClass querySingle() {
         checkSelect("query");
-        return SqlUtils.querySingle(mManager, mFrom.getTable(), getQuery());
+        return SqlUtils.querySingle(mManager, mWhereBase.getTable(), getQuery());
     }
 
     /**
@@ -352,7 +355,7 @@ public class Where<ModelClass extends Model> implements Query {
      */
     public boolean hasData() {
         checkSelect("query");
-        return SqlUtils.hasData(mManager, mFrom.getTable(), getQuery());
+        return SqlUtils.hasData(mManager, mWhereBase.getTable(), getQuery());
     }
 
     /**
@@ -361,12 +364,12 @@ public class Where<ModelClass extends Model> implements Query {
      * @return
      */
     public Class<ModelClass> getTable() {
-        return mFrom.getTable();
+        return mWhereBase.getTable();
     }
 
     @Override
     public String getQuery() {
-        String fromQuery = mFrom.getQuery();
+        String fromQuery = mWhereBase.getQuery();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace();
 
         queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())

@@ -14,7 +14,7 @@ import java.util.List;
  * Contributors: { }
  * Description: The SQL FROM query wrapper that must have a {@link com.grosner.dbflow.sql.Query} base.
  */
-public class From<ModelClass extends Model> implements Query {
+public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
 
     /**
      * The base such as {@link com.grosner.dbflow.sql.Delete}, {@link com.grosner.dbflow.sql.Select} and more!
@@ -117,6 +117,21 @@ public class From<ModelClass extends Model> implements Query {
         return where().andThese(conditions);
     }
 
+    public Set<ModelClass> set() {
+        if(!(mQueryBuilderBase instanceof Update)) {
+            throw new IllegalStateException("Cannot use set() without an UPDATE as the base");
+        }
+        return new Set<ModelClass>(mManager, mQueryBuilderBase, mTable);
+    }
+
+    public Set<ModelClass> set(Condition...conditions){
+        return set().conditions(conditions);
+    }
+
+    public Set<ModelClass> set(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        return set().conditionQuery(conditionQueryBuilder);
+    }
+
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
@@ -137,7 +152,7 @@ public class From<ModelClass extends Model> implements Query {
      *
      * @return
      */
-    Query getQueryBuilderBase() {
+    public Query getQueryBuilderBase() {
         return mQueryBuilderBase;
     }
 

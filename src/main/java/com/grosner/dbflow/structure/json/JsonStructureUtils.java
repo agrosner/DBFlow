@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
+import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
@@ -93,7 +95,7 @@ public class JsonStructureUtils {
             }
 
         } else {
-            TransactionManager.getInstance().save(DBTransactionInfo.create(), jsonModel);
+            TransactionManager.getInstance().save(ProcessModelInfo.withModels(jsonModel));
         }
     }
 
@@ -144,7 +146,7 @@ public class JsonStructureUtils {
         if (!async) {
             jsonModel.mManager.getWritableDatabase().delete(jsonModel.mTableStructure.getTableName(), getPrimaryModelWhere(jsonModel), null);
         } else {
-            TransactionManager.getInstance().delete(DBTransactionInfo.create(), jsonModel);
+            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<JSONModel<ModelClass>>(ProcessModelInfo.withModels(jsonModel)));
         }
     }
 
