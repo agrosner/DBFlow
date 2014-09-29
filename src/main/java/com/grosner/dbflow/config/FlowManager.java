@@ -239,4 +239,12 @@ public class FlowManager {
     public static void transact(Runnable runnable) {
         transact(getInstance().getWritableDatabase(), runnable);
     }
+
+    /**
+     * This will delete and recreate the whole stored database. WARNING: all data stored will be lost.
+     * @param context The applications context
+     */
+    public void reset(Context context) {
+        mStructure.reset(context);
+    }
 }

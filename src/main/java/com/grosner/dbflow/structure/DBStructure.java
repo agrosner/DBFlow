@@ -1,5 +1,7 @@
 package com.grosner.dbflow.structure;
 
+import android.content.Context;
+
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
@@ -55,12 +57,17 @@ public class DBStructure {
     /**
      * Holds onto {@link com.grosner.dbflow.runtime.observer.ModelObserver} for each {@link com.grosner.dbflow.structure.Model}
      */
-    private final Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> mModelObserverMap;
+    private Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> mModelObserverMap;
 
     /**
      * Holds the database information here.
      */
     private FlowManager mManager;
+
+    /**
+     * Will ignore subsequent calls to reset DB when this is true
+     */
+    private boolean isResetting = false;
 
     /**
      * Constructs a new instance with the specified {@link com.grosner.dbflow.config.FlowManager}
@@ -69,15 +76,9 @@ public class DBStructure {
      * @param flowManager     The db manager
      * @param dbConfiguration The configuration for this db
      */
-    public DBStructure(FlowManager flowManager, DBConfiguration dbConfiguration) {
+    public DBStructure(FlowManager flowManager) {
         mManager = flowManager;
-        mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
-        mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, ConditionQueryBuilder>();
-        mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
-        mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
-        mModelObserverMap = new HashMap<Class<? extends Model>, List<ModelObserver<? extends Model>>>();
-
-        initializeStructure(dbConfiguration);
+        initializeStructure(flowManager.getDbConfiguration());
     }
 
     /**
@@ -86,6 +87,12 @@ public class DBStructure {
      * @param dbConfiguration The configuration for this db
      */
     private void initializeStructure(DBConfiguration dbConfiguration) {
+        mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
+        mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, ConditionQueryBuilder>();
+        mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
+        mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
+        mModelObserverMap = new HashMap<Class<? extends Model>, List<ModelObserver<? extends Model>>>();
+
         List<Class<? extends Model>> modelList = null;
         if (dbConfiguration.hasModelClasses()) {
             modelList = dbConfiguration.getModelClasses();
@@ -103,6 +110,19 @@ public class DBStructure {
                 TableStructure tableStructure = new TableStructure(mManager, modelClass);
                 mTableStructure.put(modelClass, tableStructure);
             }
+        }
+    }
+
+    /**
+     * This will delete and recreate the whole stored database. WARNING: all data stored will be lost.
+     * @param context The applications context
+     */
+    public void reset(Context context) {
+        if(!isResetting) {
+            isResetting = true;
+            context.deleteDatabase(mManager.getDbConfiguration().getDatabaseName());
+            initializeStructure(mManager.getDbConfiguration());
+            isResetting = false;
         }
     }
 
