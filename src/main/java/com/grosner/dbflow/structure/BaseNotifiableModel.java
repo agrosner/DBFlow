@@ -6,7 +6,8 @@ import com.grosner.dbflow.sql.SqlUtils;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Will notifies all {@link com.grosner.dbflow.runtime.observer.ModelObserver} that the model has been
+ * saved, updated, or inserted.
  */
 @Ignore
 public abstract class BaseNotifiableModel extends BaseModel {
@@ -25,4 +26,8 @@ public abstract class BaseNotifiableModel extends BaseModel {
         SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_UPDATE, true);
     }
 
+    @Override
+    public void delete(boolean async) {
+        SqlUtils.delete(FlowManager.getInstance(), this, async, true);
+    }
 }

@@ -43,7 +43,7 @@ public abstract class BaseModel implements Model {
 
     @Override
     public void delete(boolean async) {
-        SqlUtils.delete(FlowManager.getInstance(), this, async);
+        SqlUtils.delete(FlowManager.getInstance(), this, async, false);
     }
 
     @Override

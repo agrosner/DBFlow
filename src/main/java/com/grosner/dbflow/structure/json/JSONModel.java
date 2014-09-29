@@ -96,7 +96,7 @@ public class JSONModel<ModelClass extends Model> implements Model {
 
     @Override
     public void delete(boolean async) {
-        JsonStructureUtils.delete(this, async);
+        JsonStructureUtils.delete(this, async, false);
     }
 
     @Override

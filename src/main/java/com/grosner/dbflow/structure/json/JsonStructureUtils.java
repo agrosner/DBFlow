@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.Select;
@@ -91,7 +92,7 @@ public class JsonStructureUtils {
             if (notify) {
                 // Notify any observers of this model change
                 // will convert the json to a model here
-                jsonModel.mManager.getStructure().fireModelChanged(jsonModel.toModel());
+                jsonModel.mManager.getStructure().fireModelChanged(jsonModel.toModel(), ModelObserver.Mode.fromData(mode, false));
             }
 
         } else {
@@ -142,9 +143,14 @@ public class JsonStructureUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void delete(final JSONModel<ModelClass> jsonModel, boolean async) {
+    public static <ModelClass extends Model> void delete(final JSONModel<ModelClass> jsonModel, boolean async, boolean notify) {
         if (!async) {
             jsonModel.mManager.getWritableDatabase().delete(jsonModel.mTableStructure.getTableName(), getPrimaryModelWhere(jsonModel), null);
+            if (notify) {
+                // Notify any observers of this model change
+                // will convert the json to a model here
+                jsonModel.mManager.getStructure().fireModelChanged(jsonModel.toModel(), ModelObserver.Mode.fromData(0, true));
+            }
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(jsonModel));
         }

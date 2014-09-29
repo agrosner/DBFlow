@@ -245,7 +245,7 @@ public class DBStructure {
      * @param model
      */
     @SuppressWarnings("unchecked")
-    public void fireModelChanged(final Model model) {
+    public void fireModelChanged(final Model model, final ModelObserver.Mode mode) {
         synchronized (mModelObserverMap) {
             final List<ModelObserver<? extends Model>> modelObserverList = getModelObserverListForClass(model.getClass());
             if (!modelObserverList.isEmpty()) {
@@ -253,7 +253,7 @@ public class DBStructure {
                     @Override
                     public void run() {
                         for (ModelObserver modelObserver : modelObserverList) {
-                            modelObserver.onModelChanged(mManager, model);
+                            modelObserver.onModelChanged(mManager, model, mode);
                         }
                     }
                 });
