@@ -26,6 +26,15 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
         this.mReceiver = resultReceiver;
     }
 
+    /**
+     * Constructs this transaction with the default {@link com.grosner.dbflow.runtime.DBTransactionInfo}
+     *
+     * @param resultReceiver    Will be called when the transaction completes.
+     */
+    public BaseResultTransaction(ResultReceiver<ResultClass> resultReceiver) {
+        this(DBTransactionInfo.create(), resultReceiver);
+    }
+
     @Override
     public boolean hasResult(ResultClass result) {
         return mReceiver!=null;

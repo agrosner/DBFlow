@@ -24,7 +24,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
     /**
      * Required to construct this information with Models
      */
-    private ProcessModelInfo(){
+    ProcessModelInfo(){
     }
 
     @SuppressWarnings("unchecked")

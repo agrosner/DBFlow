@@ -31,6 +31,12 @@ public interface Model {
     public void update(boolean async);
 
     /**
+     * Inserts the object into the DB
+     * @param async
+     */
+    public void insert(boolean async);
+
+    /**
      * Loads the {@link com.grosner.dbflow.structure.Model} from the specified cursor.
      *
      * @param cursor

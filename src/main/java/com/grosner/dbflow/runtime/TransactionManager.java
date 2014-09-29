@@ -68,7 +68,7 @@ public class TransactionManager {
         mManager = flowManager;
         mName = name;
         hasOwnQueue = createNewQueue;
-        DBManagerRuntime.getManagers().add(this);
+        TransactionManagerRuntime.getManagers().add(this);
         checkQueue();
     }
 
@@ -187,6 +187,20 @@ public class TransactionManager {
     // region Database Select Methods
 
     /**
+     * Fetchs all items from the table in the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with
+     * the optional array of columns
+     *
+     * @param resultReceiver             The result of the selection will be placed here on the main thread.
+     * @param whereConditionQueryBuilder The where query conditions to use
+     * @param columns                    The columns to select
+     * @param <ModelClass>               The class that implements {@link com.grosner.dbflow.structure.Model}
+     */
+    public <ModelClass extends Model> void fetchFromTable(ResultReceiver<List<ModelClass>> resultReceiver,
+                                                          ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
+        addTransaction(new SelectListTransaction<ModelClass>(mManager, resultReceiver, whereConditionQueryBuilder, columns));
+    }
+
+    /**
      * Fetches all items from the table in the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with the
      * optional array of {@link com.grosner.dbflow.sql.builder.Condition}.
      * This should be done for simulateneous requests on different threads.
@@ -195,10 +209,9 @@ public class TransactionManager {
      * @param resultReceiver The result of the selection will be placed here on the main thread.
      * @param conditions     The list of conditions to select the list of models from
      */
-    public <ModelClass extends Model> void fetchAllFromTable(Class<ModelClass> tableClass,
-                                                             ResultReceiver<List<ModelClass>> resultReceiver, Condition... conditions) {
-        addTransaction(new SelectListTransaction<ModelClass>(Where.with(mManager,
-                new ConditionQueryBuilder<ModelClass>(mManager, tableClass)).andThese(conditions), resultReceiver));
+    public <ModelClass extends Model> void fetchFromTable(Class<ModelClass> tableClass,
+                                                          ResultReceiver<List<ModelClass>> resultReceiver, Condition... conditions) {
+        addTransaction(new SelectListTransaction<ModelClass>(mManager, resultReceiver, tableClass, conditions));
     }
 
     /**
@@ -232,7 +245,7 @@ public class TransactionManager {
      * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the first model from the database cursor.
      */
-    public <ModelClass extends Model> ModelClass selectModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String...columns) {
+    public <ModelClass extends Model> ModelClass selectModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String... columns) {
         return Where.with(mManager, conditionQueryBuilder, columns).querySingle();
     }
 
@@ -255,7 +268,7 @@ public class TransactionManager {
      * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the list of models from the database cursor.
      */
-    public <ModelClass extends Model> List<ModelClass> selectAllFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String...columns) {
+    public <ModelClass extends Model> List<ModelClass> selectAllFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String... columns) {
         return Where.with(mManager, conditionQueryBuilder, columns).queryList();
     }
 
@@ -290,7 +303,6 @@ public class TransactionManager {
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
      * The order of the ids must match the ordered they're declared.
      *
-     * @param tableClass            The table to select the model from.
      * @param conditionQueryBuilder The where query we will use
      * @param resultReceiver        The result will be passed here.
      */
@@ -455,7 +467,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void update(DBTransactionInfo transactionInfo,
                                                   ConditionQueryBuilder<ModelClass> whereConditionBuilder,
-                                                  Condition...setConditions) {
+                                                  Condition... setConditions) {
         addTransaction(new UpdateTransaction<ModelClass>(mManager, transactionInfo, whereConditionBuilder, setConditions));
     }
 

@@ -90,6 +90,11 @@ public class JSONModel<ModelClass extends Model> implements Model {
     }
 
     @Override
+    public void insert(boolean async) {
+        JsonStructureUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT, false);
+    }
+
+    @Override
     public void delete(boolean async) {
         JsonStructureUtils.delete(this, async);
     }

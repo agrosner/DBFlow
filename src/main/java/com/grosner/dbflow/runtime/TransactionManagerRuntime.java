@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Contributors: { }
  * Description:
  */
-public class DBManagerRuntime {
+public class TransactionManagerRuntime {
 
 
     private static ArrayList<TransactionManager> managers;

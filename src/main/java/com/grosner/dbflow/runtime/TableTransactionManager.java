@@ -2,6 +2,7 @@ package com.grosner.dbflow.runtime;
 
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
+import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.List;
@@ -43,10 +44,10 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
 
     /**
      * @param resultReceiver The result of the selection will be placed here on the main thread.
-     * @see #fetchAllFromTable(Class, com.grosner.dbflow.runtime.transaction.ResultReceiver)
+     * @see #fetchFromTable(Class, com.grosner.dbflow.runtime.transaction.ResultReceiver, com.grosner.dbflow.sql.builder.Condition...)
      */
-    public void fetchAllFromTable(ResultReceiver<List<ModelClass>> resultReceiver) {
-        super.fetchAllFromTable(mTableClass, resultReceiver);
+    public void fetchFromTable(ResultReceiver<List<ModelClass>> resultReceiver, Condition... conditions) {
+        super.fetchFromTable(mTableClass, resultReceiver, conditions);
     }
 
     /**

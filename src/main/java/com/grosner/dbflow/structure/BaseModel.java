@@ -26,6 +26,7 @@ public abstract class BaseModel implements Model {
      *
      * @param async If we want this to happen on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      */
+    @Override
     public void insert(boolean async) {
         SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_INSERT, false);
     }
