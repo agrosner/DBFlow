@@ -261,7 +261,15 @@ public class Where<ModelClass extends Model> implements Query {
      */
     public Cursor query() {
         // Query the sql here
-        return mManager.getWritableDatabase().rawQuery(getQuery(), null);
+        Cursor cursor = null;
+        String query = getQuery();
+        if(mWhereBase.getQueryBuilderBase() instanceof Select) {
+            cursor = mManager.getWritableDatabase().rawQuery(query, null);
+        } else {
+            mManager.getWritableDatabase().execSQL(query);
+        }
+
+        return cursor;
     }
 
     /**
