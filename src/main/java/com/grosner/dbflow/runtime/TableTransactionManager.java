@@ -52,10 +52,10 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
 
     /**
      * @return
-     * @see #selectAllFromTable(Class)
+     * @see #selectAllFromTable(Class, com.grosner.dbflow.sql.builder.Condition...)
      */
-    public List<ModelClass> selectAllFromTable() {
-        return selectAllFromTable(mTableClass);
+    public List<ModelClass> selectAllFromTable(Condition... conditions) {
+        return selectAllFromTable(mTableClass, conditions);
     }
 
     /**
@@ -77,18 +77,20 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
-     * @see #deleteTable(Class)
+     * @param conditions The list of conditions to delete with
+     * @see #deleteTable(Class, com.grosner.dbflow.sql.builder.Condition...)
      */
-    public void deleteTable() {
-        super.deleteTable(mTableClass);
+    public void deleteTable(Condition... conditions) {
+        super.deleteTable(mTableClass, conditions);
     }
 
     /**
      * @param transactionInfo The information on how we should approach this request.
-     * @see #deleteTable(DBTransactionInfo, Class)
+     * @param conditions      The list of conditions to delete with
+     * @see #delete(DBTransactionInfo, Class, com.grosner.dbflow.sql.builder.Condition...)
      */
-    public void deleteTable(DBTransactionInfo transactionInfo) {
-        super.deleteTable(transactionInfo, mTableClass);
+    public void deleteTable(DBTransactionInfo transactionInfo, Condition... conditions) {
+        super.deleteTable(transactionInfo, mTableClass, conditions);
     }
 
     /**

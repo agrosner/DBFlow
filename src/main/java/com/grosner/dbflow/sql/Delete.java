@@ -1,6 +1,7 @@
 package com.grosner.dbflow.sql;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
@@ -18,21 +19,25 @@ public class Delete implements Query {
 
     /**
      * Deletes the specified table
-     * @param flowManager The manager to delete from
-     * @param table The table to delete
+     *
+     * @param flowManager  The manager to delete from
+     * @param table        The table to delete
+     * @param conditions   The list of conditions to use to delete from the specified table
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void table(FlowManager flowManager, Class<ModelClass> table) {
-        new Delete(flowManager).from(table).where().query();
+    public static <ModelClass extends Model> void table(FlowManager flowManager, Class<ModelClass> table, Condition... conditions) {
+        new Delete(flowManager).from(table).where(conditions).query();
     }
 
     /**
      * Deletes the specified table from the shared {@link com.grosner.dbflow.config.FlowManager}
-     * @param table The table to delete
+     *
+     * @param table        The table to delete
+     * @param conditions   The list of conditions to use to delete from the specified table
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void table(Class<ModelClass> table) {
-        table(FlowManager.getInstance(), table);
+    public static <ModelClass extends Model> void table(Class<ModelClass> table, Condition... conditions) {
+        table(FlowManager.getInstance(), table, conditions);
     }
 
     /**
