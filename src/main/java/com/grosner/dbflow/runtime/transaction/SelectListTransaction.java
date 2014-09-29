@@ -46,6 +46,19 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
     }
 
     /**
+     * Creates an instance of this class
+     *
+     * @param flowManager                The database manager to use
+     * @param resultReceiver             The result that returns from this query
+     * @param whereConditionQueryBuilder The query builder used to SELECT
+     * @param columns                    The columns to select
+     */
+    public SelectListTransaction(FlowManager flowManager, ResultReceiver<List<ModelClass>> resultReceiver,
+                                 Class<ModelClass> table, String... columns) {
+        this(new Select(flowManager, columns).from(table).where(), resultReceiver);
+    }
+
+    /**
      * Creates this class with a {@link com.grosner.dbflow.sql.From}
      *
      * @param where          The completed Sql Statement we will use to fetch the models

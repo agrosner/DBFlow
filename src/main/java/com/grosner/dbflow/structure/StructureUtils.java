@@ -36,7 +36,7 @@ public class StructureUtils {
         Column column = field.getAnnotation(Column.class);
         boolean isPrimary = column != null;
         if (isPrimary) {
-            isPrimary = column.value().value() != ColumnType.FOREIGN_KEY;
+            isPrimary = (column.value().value() != ColumnType.FOREIGN_KEY && column.value().value() != ColumnType.NORMAL);
         }
         return isPrimary;
     }
