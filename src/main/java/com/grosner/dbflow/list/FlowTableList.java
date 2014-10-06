@@ -39,6 +39,10 @@ public class FlowTableList<ModelClass extends Model> implements List<ModelClass>
 
     private ResultReceiver<List<ModelClass>> mResultReceiver;
 
+    public FlowTableList(Class<ModelClass> table) {
+        this(FlowManager.getInstance(), table);
+    }
+
     public FlowTableList(FlowManager flowManager, Class<ModelClass> table) {
         mCursorList = new FlowCursorList<ModelClass>(true, flowManager, table);
     }
