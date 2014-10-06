@@ -6,6 +6,11 @@ import android.os.Handler;
 import android.util.SparseArray;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.runtime.DBTransactionInfo;
+import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.runtime.transaction.BaseResultTransaction;
+import com.grosner.dbflow.runtime.transaction.QueryTransaction;
+import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.Where;
@@ -104,6 +109,20 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public List<ModelClass> getAll() {
         return SqlUtils.convertToList(mManager, mTable, mCursor);
+    }
+
+    /**
+     * Fetches the query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     * @param resultReceiver Called when we retrieve the results.
+     */
+    public void fetchAll(ResultReceiver<List<ModelClass>> resultReceiver) {
+        TransactionManager.getInstance().addTransaction(
+                new BaseResultTransaction<List<ModelClass>>(DBTransactionInfo.createFetch(), resultReceiver) {
+                @Override
+                public List<ModelClass> onExecute() {
+                    return getAll();
+                }
+        });
     }
 
     /**

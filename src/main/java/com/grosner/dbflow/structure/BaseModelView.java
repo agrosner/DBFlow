@@ -47,6 +47,11 @@ public abstract class BaseModelView<ModelClass extends Model> implements ModelVi
     }
 
     @Override
+    public void insert(boolean async) {
+        throw new InvalidSqlViewOperationException("View " + getName() + " is not insertable");
+    }
+
+    @Override
     public void load(Cursor cursor) {
         SqlUtils.loadFromCursor(FlowManager.getInstance(), this, cursor);
     }
