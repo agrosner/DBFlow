@@ -122,7 +122,7 @@ public class FlowManager {
 
             mDbConfiguration = dbConfiguration;
 
-            mStructure = new DBStructure(this, dbConfiguration);
+            mStructure = new DBStructure(this);
 
             mHelper = new FlowSQLiteOpenHelper(this, dbConfiguration);
             mHelper.setDatabaseListener(databaseHelperListener);

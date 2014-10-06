@@ -133,15 +133,6 @@ public class TransactionManager {
     protected Handler mRequestHandler = new Handler(Looper.getMainLooper());
 
     /**
-     * Runs a request from the DB in the request queue
-     *
-     * @param baseTransaction
-     */
-    protected void processOnBackground(BaseTransaction baseTransaction) {
-        getQueue().add(baseTransaction);
-    }
-
-    /**
      * Runs UI operations in the handler
      *
      * @param runnable
@@ -149,7 +140,6 @@ public class TransactionManager {
     public synchronized void processOnRequestHandler(Runnable runnable) {
         mRequestHandler.post(runnable);
     }
-
 
     /**
      * Adds a transaction to the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
@@ -404,8 +394,8 @@ public class TransactionManager {
     }
 
     /**
-     * Deletes the list of {@link ModelClass} in the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
-     * with the specified {@link com.grosner.dbflow.runtime.DBTransactionInfo}. The corresponding
+     * Deletes with the specified {@link com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo}.
+     * The corresponding
      * {@link com.grosner.dbflow.runtime.transaction.ResultReceiver} will be called when the transaction completes.
      *
      * @param modelInfo Holds information about this delete request
@@ -443,7 +433,6 @@ public class TransactionManager {
     }
 
     // endregion
-
 
     // region Database update methods
 

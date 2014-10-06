@@ -57,8 +57,9 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      *
      * @param tableClass
      */
-    public ConditionQueryBuilder(Class<ModelClass> tableClass) {
-        mTableStructure = FlowManager.getInstance().getTableStructureForClass(tableClass);
+    public ConditionQueryBuilder(Class<ModelClass> tableClass, Condition...conditions) {
+        this(FlowManager.getInstance(), tableClass, conditions);
+
     }
 
     /**
@@ -68,8 +69,9 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param flowManager
      * @param tableClass
      */
-    public ConditionQueryBuilder(FlowManager flowManager, Class<ModelClass> tableClass) {
+    public ConditionQueryBuilder(FlowManager flowManager, Class<ModelClass> tableClass, Condition...conditions) {
         mTableStructure = flowManager.getTableStructureForClass(tableClass);
+        putConditions(conditions);
     }
 
     public ConditionQueryBuilder<ModelClass> setSeparator(String separator) {
@@ -104,8 +106,10 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public ConditionQueryBuilder<ModelClass> putConditionMap(Map<String, Condition> params) {
-        mParams.putAll(params);
-        isChanged = true;
+        if(params != null && !params.isEmpty()) {
+            mParams.putAll(params);
+            isChanged = true;
+        }
         return this;
     }
 
@@ -116,10 +120,12 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
-        for (Condition condition : conditions) {
-            mParams.put(condition.columnName(), condition);
+        if(conditions.length > 0) {
+            for (Condition condition : conditions) {
+                mParams.put(condition.columnName(), condition);
+            }
+            isChanged = true;
         }
-        isChanged = true;
         return this;
     }
 

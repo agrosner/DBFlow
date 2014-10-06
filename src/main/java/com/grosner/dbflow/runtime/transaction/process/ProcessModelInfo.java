@@ -6,6 +6,7 @@ import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,12 +29,13 @@ public class ProcessModelInfo<ModelClass extends Model> {
     }
 
     @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(ModelClass...models) {
         return new ProcessModelInfo<ModelClass>()
                 .models(models);
     }
 
-    public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(List<ModelClass> models) {
+    public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(Collection<ModelClass> models) {
         return new ProcessModelInfo<ModelClass>()
                 .models(models);
     }
@@ -43,7 +45,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
         return this;
     }
 
-    public ProcessModelInfo<ModelClass> models(List<ModelClass> models) {
+    public ProcessModelInfo<ModelClass> models(Collection<ModelClass> models) {
         mModels.addAll(models);
         return this;
     }
