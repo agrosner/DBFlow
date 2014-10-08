@@ -98,7 +98,7 @@ public class DBStructure {
             modelList = dbConfiguration.getModelClasses();
         } else {
             try {
-                modelList = StructureUtils.generateModelFromSource(mManager);
+                modelList = StructureUtils.generateModelFromSource(this);
             } catch (IOException e) {
                 FlowLog.logError(e);
             }
@@ -279,6 +279,10 @@ public class DBStructure {
                 });
             }
         }
+    }
+
+    public FlowManager getManager() {
+        return mManager;
     }
 
     /**

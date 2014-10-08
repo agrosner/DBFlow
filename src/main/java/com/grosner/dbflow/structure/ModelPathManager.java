@@ -18,7 +18,7 @@ public class ModelPathManager {
      *
      * @return
      */
-    static ArrayList<String> getPaths() {
+    public static ArrayList<String> getPaths() {
         if (PATHS == null) {
             PATHS = new ArrayList<String>();
         }
@@ -36,4 +36,6 @@ public class ModelPathManager {
     public static void addPath(String path) {
         getPaths().add(path);
     }
+
+
 }

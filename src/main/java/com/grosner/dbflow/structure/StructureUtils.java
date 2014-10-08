@@ -90,14 +90,14 @@ public class StructureUtils {
      * Scours source code for {@link com.grosner.dbflow.structure.Model}, {@link com.grosner.dbflow.structure.ModelView},
      * {@link com.grosner.dbflow.converter.TypeConverter}, and {@link com.grosner.dbflow.converter.ForeignKeyConverter}
      *
-     * @param flowManager The database manager
+     * @param dbStructure The database structure
      * @return
      * @throws IOException
      */
-    static List<Class<? extends Model>> generateModelFromSource(FlowManager flowManager) throws IOException {
-        String packageName = flowManager.getContext().getPackageName();
+    static List<Class<? extends Model>> generateModelFromSource(DBStructure dbStructure) throws IOException {
+        String packageName = dbStructure.getManager().getContext().getPackageName();
 
-        String sourcePath = flowManager.getContext().getApplicationInfo().sourceDir;
+        String sourcePath = dbStructure.getManager().getContext().getApplicationInfo().sourceDir;
 
         List<String> paths = new ArrayList<String>();
 
@@ -134,7 +134,7 @@ public class StructureUtils {
         List<Class<? extends Model>> modelClasses = new ArrayList<Class<? extends Model>>();
         for (String path : paths) {
             File modelFile = new File(path);
-            addModelClassesFromSource(flowManager, modelFile, packageName, modelClasses);
+            addModelClassesFromSource(dbStructure, modelFile, packageName, modelClasses);
         }
 
         return modelClasses;
@@ -143,19 +143,19 @@ public class StructureUtils {
     /**
      * Adds model classes from source
      *
-     * @param flowManager  The database manager
+     * @param dbStructure  The database structure
      * @param modelFile    The file we search in
      * @param packageName  The package name of the directory
      * @param modelClasses The classes that we are adding to
      */
-    private static void addModelClassesFromSource(FlowManager flowManager, File modelFile, String packageName,
+    private static void addModelClassesFromSource(DBStructure dbStructure, File modelFile, String packageName,
                                                   List<Class<? extends Model>> modelClasses) {
-        ClassLoader classLoader = flowManager.getContext().getClassLoader();
+        ClassLoader classLoader = dbStructure.getManager().getContext().getClassLoader();
 
         if (modelFile.isDirectory()) {
             File[] modelFiles = modelFile.listFiles();
             for (File file : modelFiles) {
-                addModelClassesFromSource(flowManager, file, packageName, modelClasses);
+                addModelClassesFromSource(dbStructure, file, packageName, modelClasses);
             }
         } else {
             String className = modelFile.getName();
@@ -195,16 +195,16 @@ public class StructureUtils {
                     } else if (ReflectionUtils.implementsTypeConverter(discoveredClass)) {
                         @SuppressWarnings("unchecked")
                         Class<? extends TypeConverter> typeConverterClass = (Class<? extends TypeConverter>) discoveredClass;
-                        flowManager.putTypeConverterForClass(typeConverterClass);
+                        dbStructure.getManager().putTypeConverterForClass(typeConverterClass);
                     } else if (ReflectionUtils.implementsForeignKeyConverter(discoveredClass)) {
                         @SuppressWarnings("unchecked")
                         Class<? extends ForeignKeyConverter> foreignKeyConverterClass = ((Class<? extends ForeignKeyConverter>) discoveredClass);
-                        flowManager.getStructure().putForeignKeyConverterForClass(foreignKeyConverterClass);
+                        dbStructure.putForeignKeyConverterForClass(foreignKeyConverterClass);
                     } else if (ReflectionUtils.implementsModelObserver(discoveredClass)) {
                         try {
                             @SuppressWarnings("unchecked")
                             ModelObserver<? extends ModelObserver> modelObserver = (ModelObserver<? extends ModelObserver>) discoveredClass.newInstance();
-                            flowManager.getStructure().addModelObserverForClass(modelObserver);
+                            dbStructure.addModelObserverForClass(modelObserver);
                         } catch (Throwable e) {
                             FlowLog.logError(e);
                         }

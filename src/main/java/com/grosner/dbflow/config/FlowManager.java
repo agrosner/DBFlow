@@ -117,6 +117,8 @@ public class FlowManager {
      */
     public void initialize(Context context, DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
         if (!isInitialized) {
+            isInitialized = true;
+
             this.context = context;
             ModelPathManager.addPath(this.context.getPackageName());
 
@@ -138,8 +140,11 @@ public class FlowManager {
     public void destroy() {
         mDbConfiguration = null;
         mStructure = null;
-        mHelper.getWritableDatabase().close();
-        mHelper = null;
+        if(mHelper != null) {
+            mHelper.getWritableDatabase().close();
+            mHelper = null;
+        }
+        context = null;
         isInitialized = false;
     }
 
@@ -155,6 +160,10 @@ public class FlowManager {
 
     public DBStructure getStructure() {
         return mStructure;
+    }
+
+    public boolean isInitialized() {
+        return isInitialized;
     }
 
     /**
@@ -194,8 +203,7 @@ public class FlowManager {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public <ModelClass> TypeConverter<?, ModelClass> getTypeConverterForClass(Class<ModelClass> modelClass) {
+    public TypeConverter getTypeConverterForClass(Class<?> modelClass) {
         return mTypeConverters.get(modelClass);
     }
 
