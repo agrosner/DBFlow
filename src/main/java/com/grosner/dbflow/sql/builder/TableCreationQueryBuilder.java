@@ -2,7 +2,10 @@ package com.grosner.dbflow.sql.builder;
 
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ColumnType;
+import com.grosner.dbflow.structure.ForeignKeyReference;
+import com.grosner.dbflow.structure.Model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,5 +53,18 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
     public QueryBuilder appendCreateTableIfNotExists(String tableName) {
         mQuery.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append("(");
         return this;
+    }
+
+    public void appendForeignKeys(ForeignKeyReference[] references) {
+        QueryBuilder queryBuilder;
+        List<QueryBuilder> queryBuilders = new ArrayList<QueryBuilder>();
+        for(ForeignKeyReference foreignKeyReference: references) {
+            queryBuilder = new QueryBuilder().append(foreignKeyReference.columnName())
+                    .appendSpace()
+                    .appendType(foreignKeyReference.columnType());
+            queryBuilders.add(queryBuilder);
+        }
+
+        appendList(queryBuilders);
     }
 }

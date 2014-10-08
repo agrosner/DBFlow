@@ -1,6 +1,5 @@
 package com.grosner.dbflow;
 
-import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.structure.Column;
@@ -72,16 +71,6 @@ public class ReflectionUtils {
     }
 
     /**
-     * Returns whether the passed in class implements {@link com.grosner.dbflow.converter.ForeignKeyConverter}
-     *
-     * @param discoveredClass
-     * @return true if class can be assigned to ForeignKeyConverter
-     */
-    public static boolean implementsForeignKeyConverter(Class discoveredClass) {
-        return ForeignKeyConverter.class.isAssignableFrom(discoveredClass);
-    }
-
-    /**
      * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.ModelView}
      *
      * @param discoveredClass
@@ -100,4 +89,5 @@ public class ReflectionUtils {
     public static boolean implementsModelObserver(Class<?> discoveredClass) {
         return ModelObserver.class.isAssignableFrom(discoveredClass);
     }
+
 }

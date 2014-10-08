@@ -3,8 +3,6 @@ package com.grosner.dbflow.structure;
 import com.grosner.dbflow.ReflectionUtils;
 import com.grosner.dbflow.StringUtils;
 import com.grosner.dbflow.config.FlowLog;
-import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
 
@@ -87,8 +85,8 @@ public class StructureUtils {
     }
 
     /**
-     * Scours source code for {@link com.grosner.dbflow.structure.Model}, {@link com.grosner.dbflow.structure.ModelView},
-     * {@link com.grosner.dbflow.converter.TypeConverter}, and {@link com.grosner.dbflow.converter.ForeignKeyConverter}
+     * Scours source code for {@link com.grosner.dbflow.structure.Model}, {@link com.grosner.dbflow.structure.ModelView}, and
+     * {@link com.grosner.dbflow.converter.TypeConverter}.
      *
      * @param dbStructure The database structure
      * @return
@@ -196,10 +194,6 @@ public class StructureUtils {
                         @SuppressWarnings("unchecked")
                         Class<? extends TypeConverter> typeConverterClass = (Class<? extends TypeConverter>) discoveredClass;
                         dbStructure.getManager().putTypeConverterForClass(typeConverterClass);
-                    } else if (ReflectionUtils.implementsForeignKeyConverter(discoveredClass)) {
-                        @SuppressWarnings("unchecked")
-                        Class<? extends ForeignKeyConverter> foreignKeyConverterClass = ((Class<? extends ForeignKeyConverter>) discoveredClass);
-                        dbStructure.putForeignKeyConverterForClass(foreignKeyConverterClass);
                     } else if (ReflectionUtils.implementsModelObserver(discoveredClass)) {
                         try {
                             @SuppressWarnings("unchecked")

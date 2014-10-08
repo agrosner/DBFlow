@@ -73,10 +73,8 @@ public @interface Column {
     ConflictAction onUniqueConflict() default ConflictAction.FAIL;
 
     /**
-     * Defines the foreign column name if its a {@link com.grosner.dbflow.structure.ColumnType#FOREIGN_KEY}.
-     * This is required for a foreign key.
-     *
+     * Defines the references to the foreignkeys
      * @return
      */
-    String foreignColumn() default "";
+    ForeignKeyReference[] references() default {};
 }

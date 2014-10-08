@@ -1,19 +1,17 @@
 package com.grosner.dbflow.test.structure;
 
 import android.location.Location;
-import android.test.AndroidTestCase;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
-import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ColumnType;
-import com.grosner.dbflow.structure.Ignore;
+import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.Model;
+import com.grosner.dbflow.test.FlowTestCase;
 
 import java.util.List;
 
@@ -22,44 +20,23 @@ import java.util.List;
  * Contributors: { }
  * Description:
  */
-public class DBStructureTest extends AndroidTestCase {
-
-    private FlowManager mManager;
+public class DBStructureTest extends FlowTestCase {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        DBConfiguration.Builder configurationBuilder
-                = new DBConfiguration.Builder().databaseName("dbstructure.db").databaseVersion(1);
-        mManager = new FlowManager();
-        mManager.initialize(getContext(), configurationBuilder.create());
+    protected void modifyConfiguration(DBConfiguration.Builder builder) {
+        builder.foreignKeysSupported();
     }
 
-    // region Test Table Existence
-
-    public void testModelsFound() {
-        assertEquals(2, mManager.getStructure().getTableStructure().size());
+    @Override
+    protected String getDBName() {
+        return "dbstructure";
     }
-
-
-    public static class TestModel1 extends BaseModel{
-        @Column(@ColumnType(ColumnType.PRIMARY_KEY))
-        String id;
-    }
-
-    @Ignore
-    private static class IgnoredModel extends TestModel1 {
-
-    }
-
-
-    // endregion Test Model Existence
 
     // region Test Primary Where Query
 
     public void testPrimaryWhereQuery() {
         ConditionQueryBuilder<TestPrimaryWhere> primaryWhere = mManager.getStructure().getPrimaryWhereQuery(TestPrimaryWhere.class);
-        assertEquals(primaryWhere.getQuery(), "location = ? AND id = ?");
+        assertEquals(primaryWhere.getQuery(), "location = ? AND name = ?");
     }
 
     private static class TestPrimaryWhere extends TestModel1{
@@ -86,7 +63,7 @@ public class DBStructureTest extends AndroidTestCase {
         assertNotNull(model1Observer);
 
         TestModel1 testModel1 = new TestModel1();
-        testModel1.id = "Test";
+        testModel1.name = "Test";
         testModel1.setManager(mManager);
         testModel1.save(false);
 
@@ -99,7 +76,6 @@ public class DBStructureTest extends AndroidTestCase {
         });
     }
 
-    // endregion Test Model Observer
 
     /**
     * Author: andrewgrosner
@@ -118,7 +94,7 @@ public class DBStructureTest extends AndroidTestCase {
         @Override
         public void onModelChanged(FlowManager flowManager, TestModel1 model, Mode mode) {
             assertEquals(mode, Mode.DEFAULT);
-            assertEquals(model.id, "Test");
+            assertEquals(model.name, "Test");
 
             called = true;
         }
@@ -127,4 +103,39 @@ public class DBStructureTest extends AndroidTestCase {
             return called;
         }
     }
+
+    // endregion Test Model Observer
+
+    // region Test Foreign Key & Converter
+
+    public void testForeignKey() {
+        TestModel1 testModel1 = new TestModel1();
+        testModel1.name = "Test";
+        testModel1.setManager(mManager);
+        testModel1.save(false);
+
+        ForeignModel foreignModel = new ForeignModel();
+        foreignModel.testModel1 = testModel1;
+        foreignModel.name = "Test";
+        foreignModel.setManager(mManager);
+        foreignModel.save(false);
+
+        TransactionManager transactionManager = new TransactionManager(mManager, "Foreign Test", false);
+
+        ForeignModel retrieved = transactionManager.selectModelById(ForeignModel.class, "Test");
+        assertNotNull(retrieved);
+        assertNotNull(retrieved.testModel1);
+        assertEquals(retrieved.testModel1, foreignModel.testModel1);
+    }
+
+    private static class ForeignModel extends TestModel1 {
+        @Column(value = @ColumnType(ColumnType.FOREIGN_KEY),
+                references =
+                        {@ForeignKeyReference(columnName = "testmodel_id",
+                                foreignColumnName = "name",
+                                columnType = String.class)})
+        private TestModel1 testModel1;
+    }
+
+    // endregion Test Foreign Key & Converter
 }

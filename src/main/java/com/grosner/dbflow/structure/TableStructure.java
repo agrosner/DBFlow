@@ -108,13 +108,15 @@ public class TableStructure<ModelType extends Model> {
                 columnName = field.getName();
             }
 
+
             mColumnNames.put(field, columnName);
             mFieldFromNames.put(columnName, field);
 
             if (StructureUtils.isPrimaryKey(field)) {
                 mPrimaryKeys.put(columnName, field);
-            } else if (column.value().value() == ColumnType.FOREIGN_KEY) {
+            } else if (StructureUtils.isForeignKey(field)) {
                 mForeignKeys.put(columnName, field);
+                tableCreationQuery.appendForeignKeys(column.references());
             }
 
             if (SQLiteType.containsClass(type)) {
@@ -171,10 +173,20 @@ public class TableStructure<ModelType extends Model> {
 
                 Column foreignKey = foreignKeyField.getAnnotation(Column.class);
 
-                foreignKeyQueryBuilder.append(mColumnNames.get(foreignKeyField))
+                String[] foreignColumns = new String[foreignKey.references().length];
+                for(int i = 0; i < foreignColumns.length; i++) {
+                    foreignColumns[i] = foreignKey.references()[i].foreignColumnName();
+                }
+
+                String[] columns = new String[foreignKey.references().length];
+                for(int i = 0; i < columns.length; i++) {
+                    columns[i] = foreignKey.references()[i].columnName();
+                }
+
+                foreignKeyQueryBuilder.appendArray(columns)
                         .append(")").appendSpaceSeparated("REFERENCES")
                         .append(mTableName)
-                        .append("(").append(foreignKey.foreignColumn()).append(")");
+                        .append("(").appendArray(foreignColumns).append(")");
 
                 mColumnDefinitions.add(foreignKeyQueryBuilder);
             }

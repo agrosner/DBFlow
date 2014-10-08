@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.ReflectionUtils;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
@@ -16,6 +15,7 @@ import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Column;
+import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
@@ -203,12 +203,19 @@ public class SqlUtils {
             values.put(fieldName, (byte[]) value);
         } else if (StructureUtils.isForeignKey(field) && ReflectionUtils.implementsModel(fieldType)) {
             Column key = field.getAnnotation(Column.class);
-            if (!key.name().equals("")) {
-                fieldName = field.getAnnotation(Column.class).name();
-            }
             Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
-            ForeignKeyConverter foreignKeyConverter = flowManager.getStructure().getForeignKeyConverterForclass(entityType);
-            values.put(fieldName, foreignKeyConverter.getDBValue(flowManager, (Model) value));
+
+            TableStructure tableStructure = flowManager.getStructure().getTableStructureForClass(entityType);
+            for(ForeignKeyReference foreignKeyReference: key.references()) {
+                Field foreignColumnField = tableStructure.getField(foreignKeyReference.foreignColumnName());
+                foreignColumnField.setAccessible(true);
+                try {
+                    putField(values, flowManager, foreignColumnField, foreignKeyReference.columnName(),
+                            foreignColumnField.get(value));
+                } catch (IllegalAccessException e) {
+                    FlowLog.logError(e);
+                }
+            }
         } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
             values.put(fieldName, ((Enum<?>) value).name());
         }
@@ -366,14 +373,17 @@ public class SqlUtils {
                 // If field is foreign key, we convert it's id
                 final String entityId = cursor.getString(columnIndex);
                 final Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
+                Column foreignKey = field.getAnnotation(Column.class);
 
-                // Get converter to use for foreign keys
-                ForeignKeyConverter converter = FlowManager.getInstance().getStructure().getForeignKeyConverterForclass(entityType);
+                String[] foreignColumns = new String[foreignKey.references().length];
+                for(int i = 0; i < foreignColumns.length; i++) {
+                    foreignColumns[i] = foreignKey.references()[i].foreignColumnName();
+                }
 
                 // Build the primary key query using the converter and querybuilder
                 ConditionQueryBuilder conditionQueryBuilder = FlowManager.getInstance().getStructure().getPrimaryWhereQuery(entityType);
                 value = new Select(tableStructure.getManager()).from(entityType).where()
-                        .whereQuery(conditionQueryBuilder.replaceEmptyParams(converter.getForeignKeys(entityId)))
+                        .whereQuery(conditionQueryBuilder.replaceEmptyParams(foreignColumns))
                         .querySingle();
             } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
                 @SuppressWarnings("rawtypes")

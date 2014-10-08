@@ -109,6 +109,7 @@ public class DBConfiguration {
          * @param modelClasses
          * @return
          */
+        @SafeVarargs
         public Builder addModelClasses(Class<? extends Model>... modelClasses) {
             if (mConfiguration.mModelClasses == null) {
                 mConfiguration.mModelClasses = new ArrayList<Class<? extends Model>>();
@@ -118,6 +119,7 @@ public class DBConfiguration {
             return this;
         }
 
+        @SafeVarargs
         public Builder setModelClasses(Class<? extends Model>... modelClasses) {
             mConfiguration.mModelClasses = Arrays.asList(modelClasses);
             return this;

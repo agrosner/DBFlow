@@ -5,8 +5,6 @@ import android.content.Context;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.converter.DefaultForeignKeyConverter;
-import com.grosner.dbflow.converter.ForeignKeyConverter;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
@@ -35,11 +33,6 @@ public class DBStructure {
      * Holds onto the {@link com.grosner.dbflow.structure.ModelView} for each class
      */
     private Map<Class<? extends ModelView>, ModelView> mModelViews;
-
-    /**
-     * Holds onto the {@link com.grosner.dbflow.converter.ForeignKeyConverter} for each specified class
-     */
-    private Map<Class<?>, ForeignKeyConverter> mForeignKeyConverters = new HashMap<Class<?>, ForeignKeyConverter>();
 
     /**
      * Holds onto the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} for each {@link com.grosner.dbflow.structure.Model}
@@ -183,35 +176,6 @@ public class DBStructure {
     }
 
     /**
-     * Returns either the specified {@link com.grosner.dbflow.converter.ForeignKeyConverter} or the
-     * {@link com.grosner.dbflow.converter.DefaultForeignKeyConverter} if not found.
-     *
-     * @param modelClass
-     * @return
-     */
-    public ForeignKeyConverter getForeignKeyConverterForclass(Class<? extends Model> modelClass) {
-        ForeignKeyConverter foreignKeyConverter = getForeignKeyConverterMap().get(modelClass);
-        if (foreignKeyConverter == null) {
-            foreignKeyConverter = DefaultForeignKeyConverter.getSharedConverter();
-        }
-        return foreignKeyConverter;
-    }
-
-    /**
-     * Adds a {@link com.grosner.dbflow.converter.ForeignKeyConverter} to be referenced later
-     *
-     * @param foreignKeyConverterClass
-     */
-    public void putForeignKeyConverterForClass(Class<? extends ForeignKeyConverter> foreignKeyConverterClass) {
-        try {
-            ForeignKeyConverter foreignKeyConverter = foreignKeyConverterClass.newInstance();
-            mForeignKeyConverters.put(foreignKeyConverter.getModelClass(), foreignKeyConverter);
-        } catch (Throwable e) {
-            FlowLog.logError(e);
-        }
-    }
-
-    /**
      * Returns the associated {@link com.grosner.dbflow.runtime.observer.ModelObserver}s for the class
      *
      * @param modelClass
@@ -301,15 +265,6 @@ public class DBStructure {
      */
     public Map<Class<? extends Model>, ConditionQueryBuilder> getWhereQueryBuilderMap() {
         return mPrimaryWhereQueryBuilderMap;
-    }
-
-    /**
-     * Returns the {@link com.grosner.dbflow.converter.ForeignKeyConverter} map for this database
-     *
-     * @return
-     */
-    public Map<Class<?>, ForeignKeyConverter> getForeignKeyConverterMap() {
-        return mForeignKeyConverters;
     }
 
     /**

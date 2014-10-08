@@ -103,7 +103,7 @@ public class FlowManager {
      * @param dbConfiguration
      * @see #initialize(android.content.Context, DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)
      */
-    public void initialize(Context context, DBConfiguration dbConfiguration) {
+    public synchronized void initialize(Context context, DBConfiguration dbConfiguration) {
         initialize(context, dbConfiguration, null);
     }
 
@@ -115,7 +115,7 @@ public class FlowManager {
      * @param dbConfiguration
      * @param databaseHelperListener
      */
-    public void initialize(Context context, DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
+    public synchronized void initialize(Context context, DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
         if (!isInitialized) {
             isInitialized = true;
 
@@ -137,7 +137,7 @@ public class FlowManager {
     /**
      * Releases references to the structure, configuration, and closes the DB.
      */
-    public void destroy() {
+    public synchronized void destroy() {
         mDbConfiguration = null;
         mStructure = null;
         if(mHelper != null) {
