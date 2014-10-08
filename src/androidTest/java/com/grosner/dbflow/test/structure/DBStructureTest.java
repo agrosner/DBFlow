@@ -5,12 +5,13 @@ import android.test.AndroidTestCase;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
+import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ColumnType;
-import com.grosner.dbflow.structure.DBStructure;
 import com.grosner.dbflow.structure.Ignore;
 import com.grosner.dbflow.structure.Model;
 
@@ -43,7 +44,7 @@ public class DBStructureTest extends AndroidTestCase {
 
     public static class TestModel1 extends BaseModel{
         @Column(@ColumnType(ColumnType.PRIMARY_KEY))
-        private String id;
+        String id;
     }
 
     @Ignore
@@ -74,18 +75,56 @@ public class DBStructureTest extends AndroidTestCase {
         List<ModelObserver<? extends Model>> modelObservers = mManager.getStructure().getModelObserverListForClass(TestModel1.class);
         assertNotNull(modelObservers);
 
-        boolean found = false;
+        TestModelObserver model1Observer = null;
         for(ModelObserver modelObserver : modelObservers) {
             if(modelObserver.getClass().equals(TestModelObserver.class)) {
-                found = true;
+                model1Observer = (TestModelObserver) modelObserver;
                 break;
             }
         }
 
-        assertTrue(found);
+        assertNotNull(model1Observer);
 
+        TestModel1 testModel1 = new TestModel1();
+        testModel1.id = "Test";
+        testModel1.setManager(mManager);
+        testModel1.save(false);
 
+        final TestModelObserver finalModel1Observer = model1Observer;
+        TransactionManager.getInstance().processOnRequestHandler(1000, new Runnable() {
+            @Override
+            public void run() {
+                assertTrue(finalModel1Observer.isCalled());
+            }
+        });
     }
 
     // endregion Test Model Observer
+
+    /**
+    * Author: andrewgrosner
+    * Contributors: { }
+    * Description:
+    */
+    public static class TestModelObserver implements ModelObserver<TestModel1> {
+
+        private boolean called = false;
+
+        @Override
+        public Class<TestModel1> getModelClass() {
+            return TestModel1.class;
+        }
+
+        @Override
+        public void onModelChanged(FlowManager flowManager, TestModel1 model, Mode mode) {
+            assertEquals(mode, Mode.DEFAULT);
+            assertEquals(model.id, "Test");
+
+            called = true;
+        }
+
+        public boolean isCalled() {
+            return called;
+        }
+    }
 }

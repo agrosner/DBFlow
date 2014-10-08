@@ -142,6 +142,15 @@ public class TransactionManager {
     }
 
     /**
+     * Runs UI operations in the handler with delay
+     *
+     * @param runnable
+     */
+    public synchronized void processOnRequestHandler(long delay, Runnable runnable) {
+        mRequestHandler.postDelayed(runnable, delay);
+    }
+
+    /**
      * Adds a transaction to the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      *
      * @param transaction
