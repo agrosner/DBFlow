@@ -18,7 +18,7 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 
 1. Loading and saving of Model objects. 
 2. No need to define what Model classes to use - just implement the ```Model``` interface, extend ```BaseModel``` or extend ```BaseNotifiableModel``` .
-3. Multiple primary key columns, handling complex foreign keys
+3. Multiple primary key columns, handling multiple foreign keys for a table
 4. Multi-database support fully baked in using the ```FlowManager```
 5. Directly saving JSON to the database via ```JSONModel``` (with some minor caveats).
 5. Database Views (Virtual tables)
@@ -36,6 +36,7 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 3. [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
 4. [Basic Query Wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
 5. [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
+6. [Multiple Databases](https://github.com/agrosner/DBFlow/wiki/Multiple-Databases)
 6. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
 7. [Migrations](https://github.com/agrosner/DBFlow/wiki/Migrations)
 8. [Observable Models](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
