@@ -3,15 +3,10 @@ package com.grosner.dbflow.structure;
 import android.content.Context;
 
 import com.grosner.dbflow.config.DBConfiguration;
-import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +83,7 @@ public class DBStructure {
         }
 
         // only add models if its a multitable setup
-        if(modelList != null && FlowManager.isMultiTable()) {
+        if(modelList != null && FlowManager.isMultipleDatabases()) {
             ScannedModelContainer.addModelClassesToManager(mManager, modelList);
         }
 
@@ -100,7 +95,7 @@ public class DBStructure {
                 TableStructure tableStructure = new TableStructure(modelClass);
                 mTableStructure.put(modelClass, tableStructure);
             }
-        } else if(FlowManager.isMultiTable()){
+        } else if(FlowManager.isMultipleDatabases()){
             throw new InvalidDBConfiguration(dbConfiguration.getDatabaseName());
         }
     }

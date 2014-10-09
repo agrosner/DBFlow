@@ -48,7 +48,7 @@ public class FlowManager {
      * The multiple table setup when enabled will not by default scan for model classes. It will require
      * manual model addition.
      */
-    private static boolean multiTable;
+    private static boolean multipleDatabases;
 
     /**
      * Returns the shared manager for this app. It exists for most use cases as the only DB, but to define
@@ -71,7 +71,7 @@ public class FlowManager {
      * @return
      */
     public static FlowManager getManagerForTable(Class<? extends Model> table) {
-        if(isMultiTable()) {
+        if(isMultipleDatabases()) {
             return mManagerMap.get(table);
         } else {
             return FlowManager.getInstance();
@@ -118,12 +118,12 @@ public class FlowManager {
     private final Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> mModelObserverMap
             = new HashMap<Class<? extends Model>, List<ModelObserver<? extends Model>>>();
 
-    public static void setMultiTable(boolean multiTable) {
-        FlowManager.multiTable = multiTable;
+    public static void setMultipleDatabases(boolean multipleDatabases) {
+        FlowManager.multipleDatabases = multipleDatabases;
     }
 
-    public static boolean isMultiTable() {
-        return multiTable;
+    public static boolean isMultipleDatabases() {
+        return multipleDatabases;
     }
 
 

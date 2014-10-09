@@ -42,7 +42,7 @@ public class ScannedModelContainer {
     }
 
     public static void addModelClassesToManager(FlowManager flowManager, List<Class<? extends Model>> modelClasses) {
-        if(FlowManager.isMultiTable()) {
+        if(FlowManager.isMultipleDatabases()) {
             for(Class<? extends Model> modelClass : modelClasses) {
                 FlowManager.putManagerForTable(modelClass, flowManager);
             }
