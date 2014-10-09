@@ -3,6 +3,7 @@ package com.grosner.dbflow.sql;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import com.grosner.dbflow.ReflectionUtils;
 import com.grosner.dbflow.config.FlowLog;
@@ -19,6 +20,9 @@ import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.json.JSONModel;
+
+import org.json.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -208,15 +212,41 @@ public class SqlUtils {
             Column key = field.getAnnotation(Column.class);
             Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
 
-            TableStructure tableStructure = flowManager.getStructure().getTableStructureForClass(entityType);
-            for(ForeignKeyReference foreignKeyReference: key.references()) {
-                Field foreignColumnField = tableStructure.getField(foreignKeyReference.foreignColumnName());
-                foreignColumnField.setAccessible(true);
+            // JSON backed model
+            if(value instanceof JSONObject) {
+
+                // save model first
+                JSONObject jsonObject = ((JSONObject) value);
+                JSONModel<? extends Model> jsonModel = new JSONModel<Model>(jsonObject, (Class<Model>) entityType);
+                jsonModel.save(false);
+
+                TableStructure tableStructure = flowManager.getStructure().getTableStructureForClass(entityType);
+                for (ForeignKeyReference foreignKeyReference : key.references()) {
+                    Field foreignColumnField = tableStructure.getField(foreignKeyReference.foreignColumnName());
+                    Object jsonValue = jsonObject.opt(foreignKeyReference.foreignColumnName());
+                    field.setAccessible(true);
+                    SqlUtils.putField(values, flowManager, foreignColumnField, foreignKeyReference.columnName(), jsonValue);
+                }
+            } else {
+
+                // save model first
                 try {
-                    putField(values, flowManager, foreignColumnField, foreignKeyReference.columnName(),
-                            foreignColumnField.get(value));
+                    Model model = (Model) field.get(value);
+                    model.save(false);
                 } catch (IllegalAccessException e) {
-                    FlowLog.logError(e);
+                    throw new RuntimeException(e);
+                }
+
+                TableStructure tableStructure = flowManager.getStructure().getTableStructureForClass(entityType);
+                for (ForeignKeyReference foreignKeyReference : key.references()) {
+                    Field foreignColumnField = tableStructure.getField(foreignKeyReference.foreignColumnName());
+                    foreignColumnField.setAccessible(true);
+                    try {
+                        putField(values, flowManager, foreignColumnField, foreignKeyReference.columnName(),
+                                foreignColumnField.get(value));
+                    } catch (IllegalAccessException e) {
+                        FlowLog.logError(e);
+                    }
                 }
             }
         } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
@@ -311,7 +341,7 @@ public class SqlUtils {
         Set<Field> fields = tableStructure.getColumns();
         for (Field field : fields) {
             try {
-                Object value = getModelValueFromCursor(cursor, tableStructure, field);
+                Object value = getModelValueFromCursor(cursor, tableStructure, field, tableStructure.getColumnName(field), field.getType());
 
                 // Set the field value
                 if (value != null) {
@@ -337,13 +367,13 @@ public class SqlUtils {
      * @param field          The field from the {@link com.grosner.dbflow.structure.Model} class
      * @return The value that should be set on the field from the {@link com.grosner.dbflow.structure.TableStructure}
      */
-    public static Object getModelValueFromCursor(Cursor cursor, TableStructure tableStructure, Field field) {
-        int columnIndex = cursor.getColumnIndex(tableStructure.getColumnName(field));
+    public static Object getModelValueFromCursor(Cursor cursor, TableStructure tableStructure, Field field, String columnName, Class<?> fieldType) {
+        int columnIndex = TextUtils.isEmpty(columnName) ? -1 : cursor.getColumnIndex(columnName);
 
         Object value = null;
 
-        if (columnIndex >=0 ) {
-            Class<?> fieldType = field.getType();
+        if (columnIndex >=0 || (StructureUtils.isForeignKey(field) && ReflectionUtils.implementsModel(fieldType))) {
+
             boolean columnIsNull = cursor.isNull(columnIndex);
             TypeConverter typeSerializer = tableStructure.getManager().getTypeConverterForClass(fieldType);
 
@@ -372,14 +402,14 @@ public class SqlUtils {
             } else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
                 value = cursor.getBlob(columnIndex);
             } else if (StructureUtils.isForeignKey(field) && ReflectionUtils.implementsModel(fieldType)) {
-                // If field is foreign key, we convert it's id
-                final String entityId = cursor.getString(columnIndex);
+
                 final Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
                 Column foreignKey = field.getAnnotation(Column.class);
 
-                String[] foreignColumns = new String[foreignKey.references().length];
+                Object[] foreignColumns = new Object[foreignKey.references().length];
                 for(int i = 0; i < foreignColumns.length; i++) {
-                    foreignColumns[i] = foreignKey.references()[i].foreignColumnName();
+                    ForeignKeyReference foreignKeyReference = foreignKey.references()[i];
+                    foreignColumns[i] = getModelValueFromCursor(cursor, tableStructure, null, foreignKeyReference.columnName(), foreignKeyReference.columnType());
                 }
 
                 // Build the primary key query using the converter and querybuilder

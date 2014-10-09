@@ -3,6 +3,7 @@ package com.grosner.dbflow.test.json;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ColumnType;
+import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.json.JSONModel;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
@@ -40,7 +41,10 @@ public class JsonModelTest extends FlowTestCase {
             jsonObject = new JSONObject("{" +
                     "name: test," +
                     "party_type: club," +
-                    "count: 10" +
+                    "count: 10," +
+                    "testModel: {" +
+                    "name: testModel" +
+                    "}" +
                     "}");
 
             TestJsonModel<TestJsonModelClass> testJsonModel = new TestJsonModel<TestJsonModelClass>(TestJsonModelClass.class, jsonObject);
@@ -48,6 +52,7 @@ public class JsonModelTest extends FlowTestCase {
 
             assertTrue(testJsonModel.exists());
             assertNotNull(testJsonModel.toModel());
+            assertNotNull(testJsonModel.toModel().testModel);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -63,6 +68,10 @@ public class JsonModelTest extends FlowTestCase {
 
         @Column
         private String party_name;
+
+        @Column(value = @ColumnType(ColumnType.FOREIGN_KEY),
+                references = {@ForeignKeyReference(columnName = "testName", columnType = String.class, foreignColumnName = "name")})
+        private TestModel1 testModel;
     }
 
     private static class TestJsonModel<TestModel extends TestModel1> extends JSONModel<TestModel> {

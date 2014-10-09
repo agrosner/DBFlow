@@ -112,7 +112,7 @@ public class JsonStructureUtils {
     public static <ModelClass extends Model> void loadFromCursor(JSONModel<ModelClass> jsonModel, Cursor cursor) {
         Set<Field> fields = jsonModel.mTableStructure.getColumns();
         for(Field field: fields) {
-            Object value = SqlUtils.getModelValueFromCursor(cursor, jsonModel.mTableStructure, field);
+            Object value = SqlUtils.getModelValueFromCursor(cursor, jsonModel.mTableStructure, field, jsonModel.mTableStructure.getColumnName(field), field.getType());
 
             if(value != null) {
                 try {
