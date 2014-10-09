@@ -32,7 +32,7 @@ public class DBStructure {
     /**
      * Holds onto the {@link com.grosner.dbflow.structure.ModelView} for each class
      */
-    private Map<Class<? extends ModelView>, ModelView> mModelViews;
+    private Map<Class<? extends BaseModelView>, ModelViewDefinition> mModelViews;
 
     /**
      * Holds onto the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} for each {@link com.grosner.dbflow.structure.Model}
@@ -82,7 +82,7 @@ public class DBStructure {
     private void initializeStructure(DBConfiguration dbConfiguration) {
         mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
         mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, ConditionQueryBuilder>();
-        mModelViews = new HashMap<Class<? extends ModelView>, ModelView>();
+        mModelViews = new HashMap<Class<? extends BaseModelView>, ModelViewDefinition>();
         mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
         mModelObserverMap = new HashMap<Class<? extends Model>, List<ModelObserver<? extends Model>>>();
 
@@ -186,6 +186,15 @@ public class DBStructure {
     }
 
     /**
+     * Adds a {@link com.grosner.dbflow.structure.ModelViewDefinition} to the structure for reference later.
+     * @param modelViewDefinition
+     */
+    @SuppressWarnings("unchecked")
+    public void putModelViewDefinition(ModelViewDefinition modelViewDefinition) {
+        getModelViews().put(modelViewDefinition.getModelViewClass(), modelViewDefinition);
+    }
+
+    /**
      * Adds a {@link com.grosner.dbflow.runtime.observer.ModelObserver} to the structure
      *
      * @param modelObserver A model observer to listen for model changes/updates
@@ -268,11 +277,11 @@ public class DBStructure {
     }
 
     /**
-     * Returns the {@link com.grosner.dbflow.structure.ModelView} map for this database
+     * Returns the {@link com.grosner.dbflow.structure.ModelViewDefinition} map for this database
      *
      * @return
      */
-    public Map<Class<? extends ModelView>, ModelView> getModelViews() {
+    public Map<Class<? extends BaseModelView>, ModelViewDefinition> getModelViews() {
         return mModelViews;
     }
 

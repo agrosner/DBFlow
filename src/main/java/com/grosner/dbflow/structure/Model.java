@@ -7,6 +7,7 @@ import android.database.Cursor;
  * Contributors: { }
  * Description: The main interface for which all DB-based objects should implement.
  */
+@Ignore
 public interface Model {
 
     /**

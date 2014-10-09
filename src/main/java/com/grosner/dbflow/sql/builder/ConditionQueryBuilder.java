@@ -234,21 +234,26 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     public String convertValueToString(String columnName, Object value) {
         String stringVal;
         if (!useEmptyParams) {
-            final TypeConverter typeConverter = mTableStructure.getManager()
-                    .getTypeConverterForClass(mTableStructure.getField(columnName).getType());
-            if (typeConverter != null) {
-                // serialize data
-                value = typeConverter.getDBValue(value);
-                // set new object type
-                if (value != null) {
-                    Class fieldType = value.getClass();
-                    // check that the serializer returned what it promised
-                    if (!fieldType.equals(typeConverter.getDatabaseType())) {
-                        FlowLog.log(FlowLog.Level.W, String.format(TypeConverter.class.getSimpleName() +
-                                        " returned wrong type: expected a %s but got a %s",
-                                typeConverter.getDatabaseType(), fieldType));
+            Field field = mTableStructure.getField(columnName);
+            if(field != null) {
+                final TypeConverter typeConverter = mTableStructure.getManager()
+                        .getTypeConverterForClass(mTableStructure.getField(columnName).getType());
+                if (typeConverter != null) {
+                    // serialize data
+                    value = typeConverter.getDBValue(value);
+                    // set new object type
+                    if (value != null) {
+                        Class fieldType = value.getClass();
+                        // check that the serializer returned what it promised
+                        if (!fieldType.equals(typeConverter.getDatabaseType())) {
+                            FlowLog.log(FlowLog.Level.W, String.format(TypeConverter.class.getSimpleName() +
+                                            " returned wrong type: expected a %s but got a %s",
+                                    typeConverter.getDatabaseType(), fieldType));
+                        }
                     }
                 }
+            } else {
+                throw new ColumnNameNotFoundException(columnName, mTableStructure);
             }
         }
 

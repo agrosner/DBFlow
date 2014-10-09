@@ -3,6 +3,7 @@ package com.grosner.dbflow.structure;
 import com.grosner.dbflow.ReflectionUtils;
 import com.grosner.dbflow.StringUtils;
 import com.grosner.dbflow.config.FlowLog;
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
 
@@ -186,7 +187,7 @@ public class StructureUtils {
                     // then if its not the Model class itself, and then if its not ignored
                     if (ReflectionUtils.implementsModel(discoveredClass) &&
                             !Modifier.isAbstract(discoveredClass.getModifiers())
-                            && !discoveredClass.equals(Model.class)) {
+                            && !ReflectionUtils.implementsModelViewDefinition(discoveredClass)) {
                         @SuppressWarnings("unchecked")
                         Class<? extends Model> modelClass = (Class<? extends Model>) discoveredClass;
                         modelClasses.add(modelClass);
@@ -200,6 +201,14 @@ public class StructureUtils {
                             ModelObserver<? extends ModelObserver> modelObserver = (ModelObserver<? extends ModelObserver>) discoveredClass.newInstance();
                             dbStructure.addModelObserverForClass(modelObserver);
                         } catch (Throwable e) {
+                            FlowLog.logError(e);
+                        }
+                    } else if (ReflectionUtils.implementsModelViewDefinition(discoveredClass)) {
+                        try {
+                            ModelViewDefinition modelViewDefinition = (ModelViewDefinition)
+                                    discoveredClass.getConstructor(FlowManager.class).newInstance(dbStructure.getManager());
+                            dbStructure.putModelViewDefinition(modelViewDefinition);
+                        } catch (Exception e) {
                             FlowLog.logError(e);
                         }
                     }

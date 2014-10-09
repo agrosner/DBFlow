@@ -7,7 +7,7 @@ import android.util.SparseArray;
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.migration.Migration;
-import com.grosner.dbflow.structure.ModelView;
+import com.grosner.dbflow.structure.ModelViewDefinition;
 import com.grosner.dbflow.structure.TableStructure;
 
 import java.io.BufferedReader;
@@ -152,15 +152,18 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             public void run() {
                 Collection<TableStructure> tableStructures = mManager.getStructure().getTableStructure().values();
                 for (TableStructure tableStructure : tableStructures) {
-                    database.execSQL(tableStructure.getCreationQuery().getQuery());
+                    if(!tableStructure.isModelView()) {
+                        database.execSQL(tableStructure.getCreationQuery().getQuery());
+                    }
                 }
 
-                Collection<ModelView> modelViews = mManager.getStructure().getModelViews().values();
+                Collection<ModelViewDefinition> modelViews = mManager.getStructure().getModelViews().values();
 
-                for (ModelView modelView : modelViews) {
+                for (ModelViewDefinition modelView : modelViews) {
                     QueryBuilder queryBuilder = new QueryBuilder()
-                            .append("CREATE VIEW AS")
+                            .append("CREATE VIEW")
                             .appendSpaceSeparated(modelView.getName())
+                            .append("AS ")
                             .append(modelView.getWhere().getQuery());
                     database.execSQL(queryBuilder.getQuery());
                 }

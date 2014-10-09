@@ -64,6 +64,11 @@ public class TableStructure<ModelType extends Model> {
     private FlowManager mManager;
 
     /**
+     * If this is a model view, we ignore the creation query
+     */
+    private boolean isModelView = false;
+
+    /**
      * Builds the structure of this table based on the {@link com.grosner.dbflow.structure.Model}
      * class passed in.
      *
@@ -75,7 +80,7 @@ public class TableStructure<ModelType extends Model> {
         mFieldFromNames = new HashMap<String, Field>();
         mPrimaryKeys = new LinkedHashMap<String, Field>();
         mForeignKeys = new LinkedHashMap<String, Field>();
-
+        isModelView = ReflectionUtils.implementsModelView(modelType);
         mModelType = modelType;
 
         Table table = mModelType.getAnnotation(Table.class);
@@ -140,7 +145,7 @@ public class TableStructure<ModelType extends Model> {
         }
 
         // Views do not have primary keys
-        if (!ReflectionUtils.implementsModelView(modelType)) {
+        if (!isModelView) {
 
             if (mPrimaryKeys.isEmpty()) {
                 throw new PrimaryKeyNotFoundException("Table: " + mTableName + " must define a primary key");
@@ -197,6 +202,14 @@ public class TableStructure<ModelType extends Model> {
 
         mCreationQuery.appendList(mColumnDefinitions).append("););");
 
+    }
+
+    /**
+     * @return true if this is a {@link com.grosner.dbflow.structure.BaseModelView}. We will not use the creation
+     * query here.
+     */
+    public boolean isModelView() {
+        return isModelView;
     }
 
     /**
