@@ -15,6 +15,7 @@ import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.structure.DBStructure;
+import com.grosner.dbflow.structure.InvalidDBConfiguration;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelPathManager;
 import com.grosner.dbflow.structure.TableStructure;
@@ -71,11 +72,18 @@ public class FlowManager {
      * @return
      */
     public static FlowManager getManagerForTable(Class<? extends Model> table) {
+        FlowManager flowManager;
         if(isMultipleDatabases()) {
-            return mManagerMap.get(table);
+            flowManager = mManagerMap.get(table);
         } else {
-            return FlowManager.getInstance();
+            flowManager = FlowManager.getInstance();
         }
+
+        if(flowManager == null) {
+            throw new InvalidDBConfiguration(table.getSimpleName());
+        }
+
+        return flowManager;
     }
 
     /**

@@ -55,7 +55,7 @@ public class ModelViewTest extends FlowTestCase {
         private int order;
     }
 
-    private class TestModelView extends BaseModelView<TestModel2> {
+    private static class TestModelView extends BaseModelView<TestModel2> {
 
     }
 

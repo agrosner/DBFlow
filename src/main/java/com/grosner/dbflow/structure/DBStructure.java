@@ -152,18 +152,14 @@ public class DBStructure {
      * @throws java.lang.RuntimeException when the default constructor does not exist.
      */
     @SuppressWarnings("unchecked")
-    public <ModelClass extends Model> Constructor<ModelClass> getConstructorForModel(Class<ModelClass> modelClass) {
+    public <ModelClass extends Model> Constructor<ModelClass> getConstructorForModel(Class<ModelClass> modelClass) throws NoSuchMethodException {
         Constructor<ModelClass> constructor = (Constructor<ModelClass>) getModelConstructorMap().get(modelClass);
         if (constructor == null) {
-            try {
-                constructor = modelClass.getConstructor();
+            constructor = modelClass.getDeclaredConstructor();
 
-                //enable private constructors
-                constructor.setAccessible(true);
-                getModelConstructorMap().put(modelClass, constructor);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
+            //enable private constructors
+            constructor.setAccessible(true);
+            getModelConstructorMap().put(modelClass, constructor);
         }
 
         return constructor;

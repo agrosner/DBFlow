@@ -150,6 +150,8 @@ public class SqlUtils {
 
         } catch (IllegalArgumentException i) {
             throw new RuntimeException("Default constructor for: " + table.getName() + " was not found.");
+        } catch (NoSuchMethodException n) {
+            throw new RuntimeException("Default constructor for: " + table.getName() + " was not found.");
         } catch (Exception e) {
             FlowLog.log(FlowLog.Level.E, "Failed to process cursor.", e);
         }
