@@ -37,19 +37,12 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     private List<Join> mJoins = new ArrayList<Join>();
 
     /**
-     * The database manager this query corresponds to
-     */
-    private final FlowManager mManager;
-
-    /**
      * The SQL from statement constructed.
      *
-     * @param flowManager The db manager this query corresponds to
      * @param querybase   The base query we append this query to
      * @param table       The table this corresponds to
      */
-    public From(FlowManager flowManager, Query querybase, Class<ModelClass> table) {
-        mManager = flowManager;
+    public From(Query querybase, Class<ModelClass> table) {
         mQueryBuilderBase = querybase;
         mTable = table;
     }
@@ -73,7 +66,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
      * @return
      */
     public Join join(Class<ModelClass> table, Join.JoinType joinType) {
-        Join join = new Join(mManager, this, table, joinType);
+        Join join = new Join(this, table, joinType);
         mJoins.add(join);
         return join;
     }
@@ -84,7 +77,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
      * @return
      */
     public Where<ModelClass> where() {
-        return new Where<ModelClass>(mManager, this);
+        return new Where<ModelClass>(this);
     }
 
     /**
@@ -121,7 +114,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
         if(!(mQueryBuilderBase instanceof Update)) {
             throw new IllegalStateException("Cannot use set() without an UPDATE as the base");
         }
-        return new Set<ModelClass>(mManager, mQueryBuilderBase, mTable);
+        return new Set<ModelClass>(mQueryBuilderBase, mTable);
     }
 
     public Set<ModelClass> set(Condition...conditions){
@@ -137,7 +130,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
         QueryBuilder queryBuilder = new QueryBuilder()
                 .append(mQueryBuilderBase.getQuery())
                 .append("FROM")
-                .appendSpaceSeparated(mManager.getTableName(mTable))
+                .appendSpaceSeparated(FlowManager.getTableName(mTable))
                 .appendQualifier("AS", mAlias);
 
         for (Join join : mJoins) {

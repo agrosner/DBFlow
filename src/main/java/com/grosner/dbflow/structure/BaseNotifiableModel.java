@@ -14,20 +14,20 @@ public abstract class BaseNotifiableModel extends BaseModel {
 
     @Override
     public void save(boolean async) {
-        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_DEFAULT, true);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT, true);
     }
 
     public void insert(boolean async) {
-        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_INSERT, true);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT, true);
     }
 
     @Override
     public void update(boolean async) {
-        SqlUtils.save(FlowManager.getInstance(), this, async, SqlUtils.SAVE_MODE_UPDATE, true);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE, true);
     }
 
     @Override
     public void delete(boolean async) {
-        SqlUtils.delete(FlowManager.getInstance(), this, async, true);
+        SqlUtils.delete(this, async, true);
     }
 }

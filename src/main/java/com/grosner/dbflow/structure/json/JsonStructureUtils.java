@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.grosner.dbflow.config.FlowLog;
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
@@ -44,13 +45,14 @@ public class JsonStructureUtils {
     public static <ModelClass extends Model> void save(JSONModel<ModelClass> jsonModel, boolean async, int mode, boolean notify) {
         if (!async) {
 
+            FlowManager flowManager = FlowManager.getManagerForTable(jsonModel.getTable());
             TableStructure<ModelClass> tableStructure = jsonModel.mTableStructure;
 
             Class<ModelClass> table = tableStructure.getModelType();
             ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder = tableStructure.getManager()
                     .getStructure().getPrimaryWhereQuery(jsonModel.getTable());
 
-            final SQLiteDatabase db = jsonModel.mManager.getWritableDatabase();
+            final SQLiteDatabase db = flowManager.getWritableDatabase();
             final ContentValues values = new ContentValues();
 
             Set<Field> fields = tableStructure.getColumns();
@@ -58,7 +60,7 @@ public class JsonStructureUtils {
                 String columnName = tableStructure.getColumnName(field);
                 Object value = jsonModel.mJson.opt(columnName);
                 field.setAccessible(true);
-                SqlUtils.putField(values, jsonModel.mManager, field, columnName, value);
+                SqlUtils.putField(values, flowManager, field, columnName, value);
             }
 
             boolean exists = false;
@@ -92,7 +94,7 @@ public class JsonStructureUtils {
             if (notify) {
                 // Notify any observers of this model change
                 // will convert the json to a model here
-                jsonModel.mManager.getStructure().fireModelChanged(jsonModel.toModel(), ModelObserver.Mode.fromData(mode, false));
+                FlowManager.getManagerForTable(jsonModel.getTable()).fireModelChanged(jsonModel.toModel(), ModelObserver.Mode.fromData(mode, false));
             }
 
         } else {
@@ -129,7 +131,7 @@ public class JsonStructureUtils {
      */
     public static <ModelClass extends Model> ModelClass toModel(JSONModel<ModelClass> jsonModel) {
         Cursor cursor = new Select().from(jsonModel.getTable()).where(getPrimaryModelWhere(jsonModel)).query();
-        ModelClass model = SqlUtils.convertToModel(false, jsonModel.mManager, jsonModel.getTable(), cursor);
+        ModelClass model = SqlUtils.convertToModel(false, jsonModel.getTable(), cursor);
         cursor.close();
 
         return model;
@@ -145,11 +147,12 @@ public class JsonStructureUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void delete(final JSONModel<ModelClass> jsonModel, boolean async, boolean notify) {
         if (!async) {
-            jsonModel.mManager.getWritableDatabase().delete(jsonModel.mTableStructure.getTableName(), getPrimaryModelWhere(jsonModel), null);
+            FlowManager flowManager = FlowManager.getManagerForTable(jsonModel.getTable());
+            flowManager.getWritableDatabase().delete(jsonModel.mTableStructure.getTableName(), getPrimaryModelWhere(jsonModel), null);
             if (notify) {
                 // Notify any observers of this model change
                 // will convert the json to a model here
-                jsonModel.mManager.getStructure().fireModelChanged(jsonModel.toModel(), ModelObserver.Mode.fromData(0, true));
+                FlowManager.getManagerForTable(jsonModel.getTable()).fireModelChanged(jsonModel.toModel(), ModelObserver.Mode.fromData(0, true));
             }
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(jsonModel));
@@ -165,7 +168,7 @@ public class JsonStructureUtils {
      * @return If the model that the {@link com.grosner.dbflow.structure.json.JSONModel} points to exists in the DB
      */
     public static <ModelClass extends Model> boolean exists(JSONModel<ModelClass> jsonModel) {
-        return new Select(jsonModel.mManager).from(jsonModel.getTable())
+        return new Select().from(jsonModel.getTable())
                 .where(getPrimaryModelWhere(jsonModel)).hasData();
     }
 
@@ -176,7 +179,7 @@ public class JsonStructureUtils {
      * @return
      */
     public static <ModelClass extends Model> String getPrimaryModelWhere(JSONModel<ModelClass> model) {
-        ConditionQueryBuilder<ModelClass> existing = model.mManager.getStructure().getPrimaryWhereQuery(model.getTable());
+        ConditionQueryBuilder<ModelClass> existing = FlowManager.getManagerForTable(model.getTable()).getStructure().getPrimaryWhereQuery(model.getTable());
         return getModelBackedWhere(existing, existing.getTableStructure().getPrimaryKeys(), model);
     }
 

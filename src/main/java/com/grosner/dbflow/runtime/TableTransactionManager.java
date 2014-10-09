@@ -1,6 +1,5 @@
 package com.grosner.dbflow.runtime;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.structure.Model;
@@ -22,12 +21,11 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
      * if you need to have a second queue to have certain transactions go faster. If you create a new queue,
      * it will use up much more memory.
      *
-     * @param flowManager    The manager of the whole DB structure
      * @param createNewQueue Create a separate request queue from the shared one.
      * @param mTableClass    The table class this manager corresponds to
      */
-    public TableTransactionManager(FlowManager flowManager, boolean createNewQueue, Class<ModelClass> mTableClass) {
-        super(flowManager, mTableClass.getSimpleName(), createNewQueue);
+    public TableTransactionManager(boolean createNewQueue, Class<ModelClass> mTableClass) {
+        super(mTableClass.getSimpleName(), createNewQueue);
         this.mTableClass = mTableClass;
     }
 
@@ -38,7 +36,7 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
      * @param mTableClass The table class this manager corresponds to
      */
     public TableTransactionManager(Class<ModelClass> mTableClass) {
-        super(FlowManager.getInstance(), mTableClass.getSimpleName(), false);
+        super(mTableClass.getSimpleName(), false);
         this.mTableClass = mTableClass;
     }
 

@@ -16,15 +16,9 @@ import com.grosner.dbflow.sql.SqlUtils;
 @Ignore
 public abstract class BaseModel implements Model {
 
-    private FlowManager mManager = FlowManager.getInstance();
-
-    public void setManager(FlowManager flowManager) {
-        mManager = flowManager;
-    }
-
     @Override
     public void save(boolean async) {
-        SqlUtils.save(mManager, this, async, SqlUtils.SAVE_MODE_DEFAULT, false);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT, false);
     }
 
     /**
@@ -34,26 +28,26 @@ public abstract class BaseModel implements Model {
      */
     @Override
     public void insert(boolean async) {
-        SqlUtils.save(mManager, this, async, SqlUtils.SAVE_MODE_INSERT, false);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT, false);
     }
 
     @Override
     public void update(boolean async) {
-        SqlUtils.save(mManager, this, async, SqlUtils.SAVE_MODE_UPDATE, false);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE, false);
     }
 
     @Override
     public void load(Cursor cursor) {
-        SqlUtils.loadFromCursor(mManager, this, cursor);
+        SqlUtils.loadFromCursor(this, cursor);
     }
 
     @Override
     public void delete(boolean async) {
-        SqlUtils.delete(mManager, this, async, false);
+        SqlUtils.delete(this, async, false);
     }
 
     @Override
     public boolean exists() {
-        return SqlUtils.exists(mManager, this);
+        return SqlUtils.exists(this);
     }
 }

@@ -18,6 +18,7 @@ public class DBStructureTest extends FlowTestCase {
     @Override
     protected void modifyConfiguration(DBConfiguration.Builder builder) {
         builder.foreignKeysSupported();
+        builder.addModelClasses(TestPrimaryWhere.class);
     }
 
     @Override

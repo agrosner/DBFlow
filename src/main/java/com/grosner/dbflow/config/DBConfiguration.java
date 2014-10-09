@@ -110,18 +110,18 @@ public class DBConfiguration {
          * @return
          */
         @SafeVarargs
-        public Builder addModelClasses(Class<? extends Model>... modelClasses) {
+        public final Builder addModelClasses(Class<? extends Model>... modelClasses) {
             if (mConfiguration.mModelClasses == null) {
                 mConfiguration.mModelClasses = new ArrayList<Class<? extends Model>>();
             }
 
-            mConfiguration.mModelClasses.addAll(Arrays.asList(modelClasses));
+            mConfiguration.mModelClasses.addAll(new ArrayList<Class<? extends Model>>(Arrays.asList(modelClasses)));
             return this;
         }
 
         @SafeVarargs
-        public Builder setModelClasses(Class<? extends Model>... modelClasses) {
-            mConfiguration.mModelClasses = Arrays.asList(modelClasses);
+        public final Builder setModelClasses(Class<? extends Model>... modelClasses) {
+            mConfiguration.mModelClasses = new ArrayList<Class<? extends Model>>(Arrays.asList(modelClasses));
             return this;
         }
 

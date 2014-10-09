@@ -4,6 +4,7 @@ import android.test.AndroidTestCase;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.test.structure.TestModel1;
 import com.grosner.dbflow.test.utils.AssertUtils;
 
 /**
@@ -21,22 +22,17 @@ public class FlowManagerTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         DBConfiguration.Builder configurationBuilder
-                = new DBConfiguration.Builder().databaseName("flowmanager.db").databaseVersion(1);
+                = new DBConfiguration.Builder().databaseName("flowmanager").databaseVersion(1)
+                .addModelClasses(TestModel1.class);
         mManager = new FlowManager();
-        mManager.initialize(getContext(), mConfiguration = configurationBuilder.create());
+        mManager.initialize(mConfiguration = configurationBuilder.create());
     }
 
     public void testManager() {
         assertEquals(mConfiguration, mManager.getDbConfiguration());
-        assertNotNull(mManager.getTypeConverterForClass(String.class));
+        assertNotNull(FlowManager.getTypeConverterForClass(String.class));
         mManager.destroy();
 
-        AssertUtils.assertThrowsException(IllegalStateException.class, new Runnable() {
-            @Override
-            public void run() {
-                mManager.getContext();
-            }
-        });
         assertNull(mManager.getDbConfiguration());
         assertNull(mManager.getStructure());
         assertNull(mManager.getHelper());

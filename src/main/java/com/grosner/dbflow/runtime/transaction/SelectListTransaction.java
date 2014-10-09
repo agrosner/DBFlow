@@ -1,6 +1,5 @@
 package com.grosner.dbflow.runtime.transaction;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.Where;
@@ -27,35 +26,33 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
      * @param tableClass      The table to select from
      * @param whereConditions The conditions to use in the SELECT query
      */
-    public SelectListTransaction(FlowManager flowManager, ResultReceiver<List<ModelClass>> resultReceiver,
+    public SelectListTransaction(ResultReceiver<List<ModelClass>> resultReceiver,
                                  Class<ModelClass> tableClass, Condition... whereConditions) {
-        this(new Select(flowManager).from(tableClass).where(whereConditions), resultReceiver);
+        this(new Select().from(tableClass).where(whereConditions), resultReceiver);
     }
 
     /**
      * Creates an instance of this class
      *
-     * @param flowManager                The database manager to use
      * @param resultReceiver             The result that returns from this query
      * @param whereConditionQueryBuilder The query builder used to SELECT
      * @param columns                    The columns to select
      */
-    public SelectListTransaction(FlowManager flowManager, ResultReceiver<List<ModelClass>> resultReceiver,
+    public SelectListTransaction(ResultReceiver<List<ModelClass>> resultReceiver,
                                  ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
-        this(new Select(flowManager, columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), resultReceiver);
+        this(new Select(columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), resultReceiver);
     }
 
     /**
      * Creates an instance of this class
      *
-     * @param flowManager                The database manager to use
-     * @param resultReceiver             The result that returns from this query
-     * @param whereConditionQueryBuilder The query builder used to SELECT
-     * @param columns                    The columns to select
+     * @param resultReceiver The result that returns from this query
+     * @param table          The table to select from
+     * @param columns        The columns to select
      */
-    public SelectListTransaction(FlowManager flowManager, ResultReceiver<List<ModelClass>> resultReceiver,
+    public SelectListTransaction(ResultReceiver<List<ModelClass>> resultReceiver,
                                  Class<ModelClass> table, String... columns) {
-        this(new Select(flowManager, columns).from(table).where(), resultReceiver);
+        this(new Select(columns).from(table).where(), resultReceiver);
     }
 
     /**

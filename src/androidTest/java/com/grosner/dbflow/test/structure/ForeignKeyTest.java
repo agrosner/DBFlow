@@ -27,13 +27,11 @@ public class ForeignKeyTest extends FlowTestCase {
     public void testForeignKey() {
         TestModel1 testModel1 = new TestModel1();
         testModel1.name = "Test";
-        testModel1.setManager(mManager);
         testModel1.save(false);
 
         ForeignModel foreignModel = new ForeignModel();
         foreignModel.testModel1 = testModel1;
         foreignModel.name = "Test";
-        foreignModel.setManager(mManager);
         foreignModel.save(false);
 
         // For now will comment it out.

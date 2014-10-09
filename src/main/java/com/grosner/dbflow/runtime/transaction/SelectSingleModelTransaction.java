@@ -22,27 +22,25 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
     /**
      * Creates an instance of this class
      *
-     * @param flowManager     The database manager to use
      * @param resultReceiver  The result that returns from this query
      * @param tableClass      The table to select from
      * @param whereConditions The conditions to use in the SELECT query
      */
-    public SelectSingleModelTransaction(FlowManager flowManager, Class<ModelClass> tableClass,
+    public SelectSingleModelTransaction(Class<ModelClass> tableClass,
                                         ResultReceiver<ModelClass> resultReceiver, Condition...whereConditions) {
-        this(new Select(flowManager).from(tableClass).where(whereConditions), resultReceiver);
+        this(new Select().from(tableClass).where(whereConditions), resultReceiver);
     }
 
     /**
      * Creates an instance of this class
      *
-     * @param flowManager                The database manager to use
      * @param resultReceiver             The result that returns from this query
      * @param whereConditionQueryBuilder The query builder used to SELECT
      * @param columns                    The columns to select
      */
-    public SelectSingleModelTransaction(FlowManager flowManager, ResultReceiver<ModelClass> resultReceiver,
+    public SelectSingleModelTransaction(ResultReceiver<ModelClass> resultReceiver,
                                         ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
-        this(new Select(flowManager, columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), resultReceiver);
+        this(new Select(columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), resultReceiver);
     }
 
     /**

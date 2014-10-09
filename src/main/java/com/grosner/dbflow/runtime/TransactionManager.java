@@ -55,17 +55,11 @@ public class TransactionManager {
     private final boolean hasOwnQueue;
 
     /**
-     * Provides full control over the DB
-     */
-    private FlowManager mManager;
-
-    /**
      * Creates the DatabaseManager while starting its own request queue
      *
      * @param name
      */
-    public TransactionManager(FlowManager flowManager, String name, boolean createNewQueue) {
-        mManager = flowManager;
+    public TransactionManager(String name, boolean createNewQueue) {
         mName = name;
         hasOwnQueue = createNewQueue;
         TransactionManagerRuntime.getManagers().add(this);
@@ -81,7 +75,7 @@ public class TransactionManager {
      */
     public static TransactionManager getInstance() {
         if (manager == null) {
-            manager = new TransactionManager(FlowManager.getInstance(), TransactionManager.class.getSimpleName(), true);
+            manager = new TransactionManager(TransactionManager.class.getSimpleName(), true);
         }
         return manager;
     }
@@ -116,15 +110,6 @@ public class TransactionManager {
 
     public DBBatchSaveQueue getSaveQueue() {
         return DBBatchSaveQueue.getSharedSaveQueue();
-    }
-
-    /**
-     * Gets the {@link com.grosner.dbflow.config.FlowManager} that's responsible for the DB structure.
-     *
-     * @return
-     */
-    public FlowManager getFlowManager() {
-        return mManager;
     }
 
     /**
@@ -196,7 +181,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void fetchFromTable(ResultReceiver<List<ModelClass>> resultReceiver,
                                                           ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
-        addTransaction(new SelectListTransaction<ModelClass>(mManager, resultReceiver, whereConditionQueryBuilder, columns));
+        addTransaction(new SelectListTransaction<ModelClass>(resultReceiver, whereConditionQueryBuilder, columns));
     }
 
     /**
@@ -210,7 +195,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void fetchFromTable(Class<ModelClass> tableClass,
                                                           ResultReceiver<List<ModelClass>> resultReceiver, Condition... conditions) {
-        addTransaction(new SelectListTransaction<ModelClass>(mManager, resultReceiver, tableClass, conditions));
+        addTransaction(new SelectListTransaction<ModelClass>(resultReceiver, tableClass, conditions));
     }
 
     /**
@@ -234,7 +219,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void fetchFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
                                                           final ResultReceiver<List<ModelClass>> resultReceiver) {
-        fetchFromTable(Where.with(mManager, conditionQueryBuilder), resultReceiver);
+        fetchFromTable(Where.with(conditionQueryBuilder), resultReceiver);
     }
 
     /**
@@ -245,7 +230,7 @@ public class TransactionManager {
      * @return the first model from the database cursor.
      */
     public <ModelClass extends Model> ModelClass selectModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String... columns) {
-        return Where.with(mManager, conditionQueryBuilder, columns).querySingle();
+        return Where.with(conditionQueryBuilder, columns).querySingle();
     }
 
     /**
@@ -257,7 +242,7 @@ public class TransactionManager {
      * @return the list of every row in the table
      */
     public <ModelClass extends Model> List<ModelClass> selectAllFromTable(Class<ModelClass> tableClass, Condition... conditions) {
-        return new Select(mManager).from(tableClass).where(conditions).queryList();
+        return new Select().from(tableClass).where(conditions).queryList();
     }
 
     /**
@@ -268,7 +253,7 @@ public class TransactionManager {
      * @return the list of models from the database cursor.
      */
     public <ModelClass extends Model> List<ModelClass> selectAllFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String... columns) {
-        return Where.with(mManager, conditionQueryBuilder, columns).queryList();
+        return Where.with(conditionQueryBuilder, columns).queryList();
     }
 
     /**
@@ -281,7 +266,7 @@ public class TransactionManager {
      * @return
      */
     public <ModelClass extends Model> ModelClass selectModelById(Class<ModelClass> tableClass, Object... ids) {
-        ConditionQueryBuilder<ModelClass> queryBuilder = mManager.getStructure().getPrimaryWhereQuery(tableClass);
+        ConditionQueryBuilder<ModelClass> queryBuilder = FlowManager.getManagerForTable(tableClass).getStructure().getPrimaryWhereQuery(tableClass);
         return selectModel(queryBuilder.replaceEmptyParams(ids));
     }
 
@@ -307,7 +292,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void fetchModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
                                                       final ResultReceiver<ModelClass> resultReceiver) {
-        fetchModel(Where.with(mManager, conditionQueryBuilder), resultReceiver);
+        fetchModel(Where.with(conditionQueryBuilder), resultReceiver);
     }
 
     /**
@@ -323,7 +308,7 @@ public class TransactionManager {
     public <ModelClass extends Model> void fetchModelById(Class<ModelClass> tableClass,
                                                           final ResultReceiver<ModelClass> resultReceiver,
                                                           Object... ids) {
-        ConditionQueryBuilder<ModelClass> queryBuilder = mManager.getStructure().getPrimaryWhereQuery(tableClass);
+        ConditionQueryBuilder<ModelClass> queryBuilder = FlowManager.getManagerForTable(tableClass).getStructure().getPrimaryWhereQuery(tableClass);
         fetchModel(queryBuilder.replaceEmptyParams(ids), resultReceiver);
     }
 
@@ -386,7 +371,7 @@ public class TransactionManager {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     public <ModelClass extends Model> void deleteTable(Class<ModelClass> tableClass, Condition... conditions) {
-        Delete.table(mManager, tableClass, conditions);
+        Delete.table(tableClass, conditions);
     }
 
     /**
@@ -399,7 +384,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void deleteTable(DBTransactionInfo transactionInfo,
                                                        Class<ModelClass> table, Condition... conditions) {
-        addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, table, conditions));
+        addTransaction(new DeleteTransaction<ModelClass>(transactionInfo, table, conditions));
     }
 
     /**
@@ -424,7 +409,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo,
                                                   Class<ModelClass> table, Condition... conditions) {
-        addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, table, conditions));
+        addTransaction(new DeleteTransaction<ModelClass>(transactionInfo, table, conditions));
     }
 
     /**
@@ -433,12 +418,11 @@ public class TransactionManager {
      *
      * @param transactionInfo       The information on how we should approach this request.
      * @param conditionQueryBuilder The where arguments of the deletion
-     * @param table                 The table to delete models from.
      * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo,
                                                   ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        addTransaction(new DeleteTransaction<ModelClass>(mManager, transactionInfo, conditionQueryBuilder));
+        addTransaction(new DeleteTransaction<ModelClass>(transactionInfo, conditionQueryBuilder));
     }
 
     // endregion
@@ -461,15 +445,15 @@ public class TransactionManager {
      * passed from the list of models. The corresponding {@link com.grosner.dbflow.runtime.transaction.ResultReceiver}
      * will be called when the transaction finishes.
      *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param resultReceiver  The models passed in here will be returned in this variable when the transaction completes.
-     * @param models          The list of models to update
-     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @param transactionInfo       The information on how we should approach this request.
+     * @param whereConditionBuilder The whery query piece
+     * @param setConditions         The conditions for the set part of the query
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void update(DBTransactionInfo transactionInfo,
                                                   ConditionQueryBuilder<ModelClass> whereConditionBuilder,
                                                   Condition... setConditions) {
-        addTransaction(new UpdateTransaction<ModelClass>(mManager, transactionInfo, whereConditionBuilder, setConditions));
+        addTransaction(new UpdateTransaction<ModelClass>(transactionInfo, whereConditionBuilder, setConditions));
     }
 
     /**
@@ -483,7 +467,7 @@ public class TransactionManager {
     public <ModelClass extends Model> void update(DBTransactionInfo transactionInfo,
                                                   ConditionQueryBuilder<ModelClass> whereConditionBuilder,
                                                   ConditionQueryBuilder<ModelClass> setConditionBuilder) {
-        addTransaction(new UpdateTransaction<ModelClass>(mManager, transactionInfo, whereConditionBuilder, setConditionBuilder));
+        addTransaction(new UpdateTransaction<ModelClass>(transactionInfo, whereConditionBuilder, setConditionBuilder));
     }
 
     // endregion

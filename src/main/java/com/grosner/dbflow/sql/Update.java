@@ -13,13 +13,7 @@ import com.grosner.dbflow.structure.Model;
  */
 public class Update implements Query {
 
-    private final FlowManager mManager;
-
     private String mOrQualifier;
-
-    public Update(FlowManager manager) {
-        mManager = manager;
-    }
 
     public Update orRollback() {
         mOrQualifier = "ROLLBACK";
@@ -47,7 +41,7 @@ public class Update implements Query {
     }
 
     public <ModelClass extends Model> From<ModelClass> table(Class<ModelClass> table) {
-        return new From<ModelClass>(mManager, this, table);
+        return new From<ModelClass>(this, table);
     }
 
     @Override

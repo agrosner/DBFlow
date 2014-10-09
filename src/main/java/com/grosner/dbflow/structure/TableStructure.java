@@ -74,8 +74,8 @@ public class TableStructure<ModelType extends Model> {
      *
      * @param modelType
      */
-    public TableStructure(FlowManager flowManager, Class<ModelType> modelType) {
-        mManager = flowManager;
+    public TableStructure(Class<ModelType> modelType) {
+        mManager = FlowManager.getManagerForTable(modelType);
         mColumnNames = new HashMap<Field, String>();
         mFieldFromNames = new HashMap<String, Field>();
         mPrimaryKeys = new LinkedHashMap<String, Field>();

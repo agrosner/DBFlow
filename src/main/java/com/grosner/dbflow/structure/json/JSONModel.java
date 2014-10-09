@@ -40,48 +40,21 @@ public class JSONModel<ModelClass extends Model> implements Model {
     TableStructure<ModelClass> mTableStructure;
 
     /**
-     * The manager to use for this model
-     */
-    FlowManager mManager;
-
-    /**
      * Constructs this object with the {@link org.json.JSONObject} for the specified {@link ModelClass} table.
-     * @param flowManager The database manager
-     * @param jsonObject The json to reference in {@link com.grosner.dbflow.structure.Model} operations
-     * @param table The table of the referenced model
-     */
-    public JSONModel(FlowManager flowManager, JSONObject jsonObject, Class<ModelClass> table) {
-        mManager = flowManager;
-        mTableStructure = flowManager.getTableStructureForClass(table);
-        mJson = jsonObject;
-    }
-
-    /**
-     * Constructs this object with the {@link org.json.JSONObject} for the specified {@link ModelClass} table
-     * with the shared {@link com.grosner.dbflow.config.FlowManager}.
      * @param jsonObject The json to reference in {@link com.grosner.dbflow.structure.Model} operations
      * @param table The table of the referenced model
      */
     public JSONModel(JSONObject jsonObject, Class<ModelClass> table) {
-        this(FlowManager.getInstance(), jsonObject, table);
+        mTableStructure = FlowManager.getManagerForTable(table).getTableStructureForClass(table);
+        mJson = jsonObject;
     }
 
     /**
      * Constructs this object with an empty {@link org.json.JSONObject} referencing the {@link ModelClass} table.
-     * @param flowManager The database manager
-     * @param table The table of the referenced model
-     */
-    public JSONModel(FlowManager flowManager, Class<ModelClass> table) {
-        this(flowManager, new JSONObject(), table);
-    }
-
-    /**
-     * Constructs this object with an empty {@link org.json.JSONObject} referencing the {@link ModelClass} table
-     * with the shared {@link com.grosner.dbflow.config.FlowManager}
      * @param table The table of the referenced model
      */
     public JSONModel(Class<ModelClass> table) {
-        this(FlowManager.getInstance(), table);
+        this(new JSONObject(), table);
     }
 
     @Override
@@ -110,7 +83,7 @@ public class JSONModel<ModelClass extends Model> implements Model {
      */
     public void load(Object...primaryKeys){
         mJson = new JSONObject();
-        ConditionQueryBuilder<ModelClass> primaryQuery = mManager.getStructure().getPrimaryWhereQuery(getTable());
+        ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getManagerForTable(mTableStructure.getModelType()).getStructure().getPrimaryWhereQuery(getTable());
         load(new Select().from(mTableStructure.getModelType())
                 .where(primaryQuery.replaceEmptyParams(primaryKeys)).query());
     }

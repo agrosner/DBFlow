@@ -72,10 +72,9 @@ public class Where<ModelClass extends Model> implements Query {
      * @param <ModelClass>
      * @return
      */
-    public static <ModelClass extends Model> Where<ModelClass> with(FlowManager flowManager,
-                                                                    ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
+    public static <ModelClass extends Model> Where<ModelClass> with(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
                                                                     String...columns) {
-        return new Select(flowManager, columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
+        return new Select(columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
     }
 
     /**
@@ -85,11 +84,11 @@ public class Where<ModelClass extends Model> implements Query {
      * @param manager The database manager
      * @param from    The FROM statement chunk
      */
-    public Where(FlowManager manager, WhereBase<ModelClass> from) {
-        mManager = manager;
+    public Where(WhereBase<ModelClass> from) {
         mWhereBase = from;
-        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mWhereBase.getTable());
-        mHaving = new ConditionQueryBuilder<ModelClass>(mManager, mWhereBase.getTable());
+        mManager = FlowManager.getManagerForTable(mWhereBase.getTable());
+        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
+        mHaving = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
     }
 
     protected void checkSelect(String methodName) {
@@ -279,7 +278,7 @@ public class Where<ModelClass extends Model> implements Query {
      */
     public List<ModelClass> queryList() {
         checkSelect("query");
-        return SqlUtils.queryList(mManager, mWhereBase.getTable(), getQuery());
+        return SqlUtils.queryList(mWhereBase.getTable(), getQuery());
     }
 
     /**
@@ -289,7 +288,7 @@ public class Where<ModelClass extends Model> implements Query {
      */
     public ModelClass querySingle() {
         checkSelect("query");
-        return SqlUtils.querySingle(mManager, mWhereBase.getTable(), getQuery());
+        return SqlUtils.querySingle(mWhereBase.getTable(), getQuery());
     }
 
     /**
@@ -363,7 +362,7 @@ public class Where<ModelClass extends Model> implements Query {
      */
     public boolean hasData() {
         checkSelect("query");
-        return SqlUtils.hasData(mManager, mWhereBase.getTable(), getQuery());
+        return SqlUtils.hasData(mWhereBase.getTable(), getQuery());
     }
 
     /**

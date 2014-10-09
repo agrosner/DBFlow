@@ -14,14 +14,14 @@ import com.grosner.dbflow.structure.Model;
  */
 public class UpdateTransaction<ModelClass extends Model> extends QueryTransaction<ModelClass> {
 
-    public UpdateTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo,
+    public UpdateTransaction(DBTransactionInfo dbTransactionInfo,
                              ConditionQueryBuilder<ModelClass> whereConditionBuilder, Condition... conditions) {
-        super(dbTransactionInfo, new Update(flowManager).table(whereConditionBuilder.getTableClass()).set(conditions).where(whereConditionBuilder), null);
+        super(dbTransactionInfo, new Update().table(whereConditionBuilder.getTableClass()).set(conditions).where(whereConditionBuilder), null);
     }
 
-    public UpdateTransaction(FlowManager flowManager, DBTransactionInfo dbTransactionInfo,
+    public UpdateTransaction(DBTransactionInfo dbTransactionInfo,
                              ConditionQueryBuilder<ModelClass> whereConditionBuilder, ConditionQueryBuilder<ModelClass> setConditionBuilder) {
-        super(dbTransactionInfo, new Update(flowManager).table(whereConditionBuilder.getTableClass())
+        super(dbTransactionInfo, new Update().table(whereConditionBuilder.getTableClass())
                 .set(setConditionBuilder).where(whereConditionBuilder));
     }
 }

@@ -49,7 +49,7 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public FlowCursorList(boolean cacheModels, FlowManager flowManager, Class<ModelClass> table, Condition... conditions) {
         this.cacheModels = cacheModels;
-        mWhere = new Select(flowManager).from(table).where(conditions);
+        mWhere = new Select().from(table).where(conditions);
         mCursor = mWhere.query();
         mManager = flowManager;
         mTable = table;
@@ -92,12 +92,12 @@ public class FlowCursorList<ModelClass extends Model> {
         if (cacheModels) {
             model = mModelCache.get(position);
             if (model == null && mCursor.moveToPosition(position)) {
-                model = SqlUtils.convertToModel(false, mManager, mTable, mCursor);
+                model = SqlUtils.convertToModel(false, mTable, mCursor);
                 mModelCache.put(position, model);
             }
         } else {
             mCursor.moveToPosition(position);
-            model = SqlUtils.convertToModel(false, mManager, mTable, mCursor);
+            model = SqlUtils.convertToModel(false, mTable, mCursor);
         }
         return model;
     }
@@ -108,7 +108,7 @@ public class FlowCursorList<ModelClass extends Model> {
      * @return
      */
     public List<ModelClass> getAll() {
-        return SqlUtils.convertToList(mManager, mTable, mCursor);
+        return SqlUtils.convertToList(mTable, mCursor);
     }
 
     /**

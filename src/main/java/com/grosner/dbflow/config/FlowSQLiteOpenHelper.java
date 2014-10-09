@@ -43,7 +43,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private SparseArray<List<Migration>> mMigrations;
 
     public FlowSQLiteOpenHelper(FlowManager flowManager, DBConfiguration dbConfiguration) {
-        super(flowManager.getContext(), dbConfiguration.mDatabaseName, null, dbConfiguration.mDatabaseVersion);
+        super(FlowManager.getContext(), dbConfiguration.mDatabaseName, null, dbConfiguration.mDatabaseVersion);
         mManager = flowManager;
         mMigrations = dbConfiguration.mMigrations;
         movePrepackagedDB(dbConfiguration.mDatabaseName);

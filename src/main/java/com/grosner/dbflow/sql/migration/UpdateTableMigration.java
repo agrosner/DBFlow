@@ -21,20 +21,13 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
 
     private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
 
-    private FlowManager mManager;
-
     private final Class<ModelClass> mTable;
 
     private ArrayList<QueryBuilder> mSetDefinitions;
 
-    public UpdateTableMigration(FlowManager flowManager, Class<ModelClass> table, int migrationVersion) {
-        super(migrationVersion);
-        mManager = flowManager;
-        mTable = table;
-    }
-
     public UpdateTableMigration(Class<ModelClass> table, int migrationVersion) {
-        this(FlowManager.getInstance(), table, migrationVersion);
+        super(migrationVersion);
+        mTable = table;
     }
 
     /**
@@ -59,7 +52,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
 
     public UpdateTableMigration<ModelClass> where(Condition condition) {
         if (mConditionQueryBuilder == null) {
-            mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mManager, mTable);
+            mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
         }
 
         mConditionQueryBuilder.putCondition(condition);
@@ -69,7 +62,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     @SuppressWarnings("unchecked")
     @Override
     public void onPreMigrate() {
-        mQuery = new QueryBuilder().append("UPDATE").appendSpaceSeparated(mManager.getTableName(mTable))
+        mQuery = new QueryBuilder().append("UPDATE").appendSpaceSeparated(FlowManager.getTableName(mTable))
                 .append("SET").appendSpace().appendList(mSetDefinitions);
 
         if (mConditionQueryBuilder != null) {
@@ -87,6 +80,5 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         // make fields eligible for GC
         mQuery = null;
         mSetDefinitions = null;
-        mManager = null;
     }
 }

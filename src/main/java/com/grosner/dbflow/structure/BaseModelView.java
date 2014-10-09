@@ -47,11 +47,11 @@ public abstract class BaseModelView<ModelClass extends Model> implements Model {
 
     @Override
     public void load(Cursor cursor) {
-        SqlUtils.loadFromCursor(FlowManager.getInstance(), this, cursor);
+        SqlUtils.loadFromCursor(this, cursor);
     }
 
     @Override
     public boolean exists() {
-        return SqlUtils.exists(FlowManager.getInstance(), this);
+        return SqlUtils.exists(this);
     }
 }

@@ -12,6 +12,8 @@ import com.grosner.dbflow.converter.JsonConverter;
 import com.grosner.dbflow.converter.LocationConverter;
 import com.grosner.dbflow.converter.SqlDateConverter;
 import com.grosner.dbflow.converter.TypeConverter;
+import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.structure.DBStructure;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelPathManager;
@@ -19,8 +21,10 @@ import com.grosner.dbflow.structure.TableStructure;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +45,12 @@ public class FlowManager {
     private static FlowManager manager;
 
     /**
+     * The multiple table setup when enabled will not by default scan for model classes. It will require
+     * manual model addition.
+     */
+    private static boolean multiTable;
+
+    /**
      * Returns the shared manager for this app. It exists for most use cases as the only DB, but to define
      * more DB, create another one.
      *
@@ -51,6 +61,87 @@ public class FlowManager {
             manager = new FlowManager();
         }
         return manager;
+    }
+
+    private static HashMap<Class<? extends Model>, FlowManager> mManagerMap = new HashMap<Class<? extends Model>, FlowManager>();
+
+    /**
+     * Returns the corresponding {@link com.grosner.dbflow.config.FlowManager} for the specified model
+     * @param table
+     * @return
+     */
+    public static FlowManager getManagerForTable(Class<? extends Model> table) {
+        if(isMultiTable()) {
+            return mManagerMap.get(table);
+        } else {
+            return FlowManager.getInstance();
+        }
+    }
+
+    /**
+     * Returns the table name for the specific model class
+     *
+     * @param table The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return The table name, which can be different than the {@link com.grosner.dbflow.structure.Model} class name
+     */
+    public static String getTableName(Class<? extends Model> table) {
+        return FlowManager.getManagerForTable(table).getStructure().getTableStructure().get(table).getTableName();
+    }
+
+    /**
+     * Puts which manager corresponds to the model class.
+     * @param modelClass
+     * @param manager
+     */
+    public static void putManagerForTable(Class<? extends Model> modelClass, FlowManager manager) {
+        mManagerMap.put(modelClass, manager);
+    }
+
+    private static Context context;
+
+    /**
+     * The default {@link com.grosner.dbflow.converter.TypeConverter} for this manager.
+     */
+    private static Map<Class<?>, TypeConverter> mTypeConverters = new HashMap<Class<?>, TypeConverter>() {
+        {
+            put(Calendar.class, new CalendarConverter());
+            put(java.sql.Date.class, new SqlDateConverter());
+            put(java.util.Date.class, new DateConverter());
+            put(Location.class, new LocationConverter());
+            put(JSONObject.class, new JsonConverter());
+        }
+    };
+
+    /**
+     * Holds onto {@link com.grosner.dbflow.runtime.observer.ModelObserver} for each {@link com.grosner.dbflow.structure.Model}
+     */
+    private final Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> mModelObserverMap
+            = new HashMap<Class<? extends Model>, List<ModelObserver<? extends Model>>>();
+
+    public static void setMultiTable(boolean multiTable) {
+        FlowManager.multiTable = multiTable;
+    }
+
+    public static boolean isMultiTable() {
+        return multiTable;
+    }
+
+
+    /**
+     * Will throw an exception if this class is not initialized yet in {@link #initialize(android.content.Context, DBConfiguration)}
+     *
+     * @return
+     */
+    public static Context getContext() {
+        if (context == null) {
+            throw new IllegalStateException("Context cannot be null for FlowManager");
+        }
+        return context;
+    }
+
+    public static void setContext(Context context) {
+        FlowManager.context = context;
+        ModelPathManager.addPath(context.getPackageName());
     }
 
     /**
@@ -68,33 +159,7 @@ public class FlowManager {
      */
     private FlowSQLiteOpenHelper mHelper;
 
-    private Context context;
 
-    /**
-     * The default {@link com.grosner.dbflow.converter.TypeConverter} for this manager.
-     */
-    private Map<Class<?>, TypeConverter> mTypeConverters = new HashMap<Class<?>, TypeConverter>() {
-        {
-            put(Calendar.class, new CalendarConverter());
-            put(java.sql.Date.class, new SqlDateConverter());
-            put(java.util.Date.class, new DateConverter());
-            put(Location.class, new LocationConverter());
-            put(JSONObject.class, new JsonConverter());
-        }
-    };
-
-
-    /**
-     * Will throw an exception if this class is not initialized yet in {@link #initialize(android.content.Context, DBConfiguration)}
-     *
-     * @return
-     */
-    public Context getContext() {
-        if (context == null) {
-            throw new IllegalStateException("Context cannot be null for FlowManager");
-        }
-        return context;
-    }
 
     /**
      * Call this in your application's {@link android.app.Application#onCreate()} method.
@@ -103,8 +168,8 @@ public class FlowManager {
      * @param dbConfiguration
      * @see #initialize(android.content.Context, DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)
      */
-    public synchronized void initialize(Context context, DBConfiguration dbConfiguration) {
-        initialize(context, dbConfiguration, null);
+    public synchronized void initialize(DBConfiguration dbConfiguration) {
+        initialize(dbConfiguration, null);
     }
 
     /**
@@ -115,13 +180,9 @@ public class FlowManager {
      * @param dbConfiguration
      * @param databaseHelperListener
      */
-    public synchronized void initialize(Context context, DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
+    public synchronized void initialize(DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
         if (!isInitialized) {
             isInitialized = true;
-
-            this.context = context;
-            ModelPathManager.addPath(this.context.getPackageName());
-
             mDbConfiguration = dbConfiguration;
 
             mStructure = new DBStructure(this);
@@ -174,17 +235,12 @@ public class FlowManager {
      * @return the table structure for this model class
      */
     public <ModelClass extends Model> TableStructure<ModelClass> getTableStructureForClass(Class<ModelClass> modelClass) {
-        return getStructure().getTableStructureForClass(modelClass);
-    }
-
-    /**
-     * Returns the table name for the specific model class
-     *
-     * @param modelClass The class that implements {@link com.grosner.dbflow.structure.Model}
-     * @return The table name, which can be different than the {@link com.grosner.dbflow.structure.Model} class name
-     */
-    public String getTableName(Class<? extends Model> modelClass) {
-        return mStructure.getTableStructure().get(modelClass).getTableName();
+        TableStructure<ModelClass> tableStructure = getStructure().getTableStructureForClass(modelClass);
+        if(tableStructure == null) {
+            throw new RuntimeException("The table structure for : " + modelClass.getSimpleName() + " was not found. Have you " +
+                    "added it to the DBConfiguration?");
+        }
+        return tableStructure;
     }
 
     public DBConfiguration getDbConfiguration() {
@@ -203,7 +259,7 @@ public class FlowManager {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return
      */
-    public TypeConverter getTypeConverterForClass(Class<?> modelClass) {
+    public static TypeConverter getTypeConverterForClass(Class<?> modelClass) {
         return mTypeConverters.get(modelClass);
     }
 
@@ -215,12 +271,87 @@ public class FlowManager {
      *
      * @param typeConverterClass
      */
-    public void putTypeConverterForClass(Class typeConverterClass) {
+    public static void putTypeConverterForClass(Class typeConverterClass) {
         try {
             TypeConverter typeConverter = (TypeConverter) typeConverterClass.newInstance();
             mTypeConverters.put(typeConverter.getModelType(), typeConverter);
         } catch (Throwable e) {
             FlowLog.logError(e);
+        }
+    }
+
+    /**
+     * Adds a {@link com.grosner.dbflow.runtime.observer.ModelObserver} to the structure
+     *
+     * @param modelObserver A model observer to listen for model changes/updates
+     */
+    @SuppressWarnings("unchecked")
+    public void addModelObserverForClass(ModelObserver<? extends Model> modelObserver) {
+        synchronized (mModelObserverMap) {
+            List<ModelObserver<? extends Model>> modelObservers = getModelObserverListForClass(modelObserver.getModelClass());
+            if (modelObservers == null) {
+                modelObservers = new ArrayList<ModelObserver<? extends Model>>();
+                getModelObserverMap().put(modelObserver.getModelClass(), modelObservers);
+            }
+            if (!modelObservers.contains(modelObserver)) {
+                modelObservers.add(modelObserver);
+            }
+        }
+    }
+
+    /**
+     * Removes a {@link com.grosner.dbflow.runtime.observer.ModelObserver} from this structure.
+     *
+     * @param modelObserver A model observer to listen for model changes/updates
+     */
+    @SuppressWarnings("unchecked")
+    public void removeModelObserverForClass(ModelObserver<? extends Model> modelObserver) {
+        synchronized (mModelObserverMap) {
+            List<ModelObserver<? extends Model>> modelObservers = getModelObserverListForClass(modelObserver.getModelClass());
+            if (modelObservers != null) {
+                modelObservers.remove(modelObserver);
+
+                if (modelObservers.isEmpty()) {
+                    getModelObserverMap().remove(modelObserver.getModelClass());
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the associated {@link com.grosner.dbflow.runtime.observer.ModelObserver}s for the class
+     *
+     * @param modelClass
+     * @return
+     */
+    public List<ModelObserver<? extends Model>> getModelObserverListForClass(Class<? extends Model> modelClass) {
+        return getModelObserverMap().get(modelClass);
+    }
+
+    public Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> getModelObserverMap() {
+        return mModelObserverMap;
+    }
+
+
+    /**
+     * Performs the listener event
+     *
+     * @param model
+     */
+    @SuppressWarnings("unchecked")
+    public void fireModelChanged(final Model model, final ModelObserver.Mode mode) {
+        synchronized (mModelObserverMap) {
+            final List<ModelObserver<? extends Model>> modelObserverList = getModelObserverListForClass(model.getClass());
+            if (!modelObserverList.isEmpty()) {
+                TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (ModelObserver modelObserver : modelObserverList) {
+                            modelObserver.onModelChanged(FlowManager.getManagerForTable(model.getClass()), model, mode);
+                        }
+                    }
+                });
+            }
         }
     }
 

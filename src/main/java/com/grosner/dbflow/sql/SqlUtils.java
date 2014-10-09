@@ -64,9 +64,10 @@ public class SqlUtils {
      * @param <ModelClass> The class implements {@link com.grosner.dbflow.structure.Model}
      * @return a list of {@link ModelClass}
      */
-    public static <ModelClass extends Model> List<ModelClass> queryList(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
+    public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql, String... args) {
+        FlowManager flowManager = FlowManager.getManagerForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
-        List<ModelClass> list = convertToList(flowManager, modelClass, cursor);
+        List<ModelClass> list = convertToList(modelClass, cursor);
         cursor.close();
         return list;
     }
@@ -83,9 +84,9 @@ public class SqlUtils {
      * @param <ModelClass> The class implements {@link com.grosner.dbflow.structure.Model}
      * @return a single {@link ModelClass}
      */
-    public static <ModelClass extends Model> ModelClass querySingle(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
-        Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
-        ModelClass retModel = convertToModel(false, flowManager, modelClass, cursor);
+    public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql, String... args) {
+        Cursor cursor = FlowManager.getManagerForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
+        ModelClass retModel = convertToModel(false, modelClass, cursor);
         cursor.close();
         return retModel;
     }
@@ -100,7 +101,8 @@ public class SqlUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return
      */
-    public static <ModelClass extends Model> boolean hasData(FlowManager flowManager, Class<ModelClass> modelClass, String sql, String... args) {
+    public static <ModelClass extends Model> boolean hasData(Class<ModelClass> modelClass, String sql, String... args) {
+        FlowManager flowManager = FlowManager.getManagerForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();
@@ -115,12 +117,12 @@ public class SqlUtils {
      * @param <ModelClass>
      * @return
      */
-    public static <ModelClass extends Model> List<ModelClass> convertToList(FlowManager flowManager, Class<ModelClass> table, Cursor cursor) {
+    public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
         final List<ModelClass> entities = new ArrayList<ModelClass>();
 
         if (cursor.moveToFirst()) {
             do {
-                entities.add(convertToModel(true, flowManager, table, cursor));
+                entities.add(convertToModel(true, table, cursor));
             }
             while (cursor.moveToNext());
         }
@@ -132,16 +134,15 @@ public class SqlUtils {
      * Takes first {@link ModelClass} from the cursor
      *
      * @param isList       If it's a list, do not reset the cursor
-     * @param flowManager  The database manager that we run this query on
      * @param table        The model class that we convert the cursor data into.
      * @param cursor       The cursor from the DB
      * @param <ModelClass>
      * @return
      */
-    public static <ModelClass extends Model> ModelClass convertToModel(boolean isList, FlowManager flowManager, Class<ModelClass> table, Cursor cursor) {
+    public static <ModelClass extends Model> ModelClass convertToModel(boolean isList, Class<ModelClass> table, Cursor cursor) {
         ModelClass model = null;
         try {
-            Constructor<ModelClass> entityConstructor = flowManager.getStructure().getConstructorForModel(table);
+            Constructor<ModelClass> entityConstructor = FlowManager.getManagerForTable(table).getStructure().getConstructorForModel(table);
             if (isList || cursor.moveToFirst()) {
                 model = entityConstructor.newInstance();
                 model.load(cursor);
@@ -224,7 +225,6 @@ public class SqlUtils {
     /**
      * Saves a model to the database.
      *
-     * @param flowManager  The database manager that we run this query on
      * @param model        The model to save
      * @param async        Whether it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately.
      * @param mode         The save mode, can be {@link #SAVE_MODE_DEFAULT}, {@link #SAVE_MODE_INSERT}, {@link #SAVE_MODE_UPDATE}
@@ -232,8 +232,9 @@ public class SqlUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void save(FlowManager flowManager, ModelClass model, boolean async, int mode, boolean notify) {
+    public static <ModelClass extends Model> void save(ModelClass model, boolean async, int mode, boolean notify) {
         if (!async) {
+            FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
             ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder =
                     flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
 
@@ -258,7 +259,7 @@ public class SqlUtils {
 
             boolean exists = false;
             if (mode == SAVE_MODE_DEFAULT) {
-                exists = exists(flowManager, model);
+                exists = exists(model);
             } else if (mode == SAVE_MODE_UPDATE) {
                 exists = true;
             }
@@ -286,7 +287,7 @@ public class SqlUtils {
 
             if (notify) {
                 // Notify any observers of this model change
-                flowManager.getStructure().fireModelChanged(model, ModelObserver.Mode.fromData(mode, false));
+                FlowManager.getManagerForTable(model.getClass()).fireModelChanged(model, ModelObserver.Mode.fromData(mode, false));
             }
 
         } else {
@@ -298,14 +299,13 @@ public class SqlUtils {
      * Loads a {@link com.grosner.dbflow.structure.Model} from the DB cursor through reflection with the
      * specified {@link com.grosner.dbflow.config.FlowManager}.
      *
-     * @param flowManager  The database manager that we run this query on
      * @param model        The model we load from the cursor
      * @param cursor       The cursor from the DB
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void loadFromCursor(FlowManager flowManager, ModelClass model, Cursor cursor) {
-        TableStructure<ModelClass> tableStructure = flowManager.getTableStructureForClass((Class<ModelClass>) model.getClass());
+    public static <ModelClass extends Model> void loadFromCursor(ModelClass model, Cursor cursor) {
+        TableStructure<ModelClass> tableStructure = FlowManager.getManagerForTable(model.getClass()).getTableStructureForClass((Class<ModelClass>) model.getClass());
         Set<Field> fields = tableStructure.getColumns();
         for (Field field : fields) {
             try {
@@ -381,8 +381,8 @@ public class SqlUtils {
                 }
 
                 // Build the primary key query using the converter and querybuilder
-                ConditionQueryBuilder conditionQueryBuilder = FlowManager.getInstance().getStructure().getPrimaryWhereQuery(entityType);
-                value = new Select(tableStructure.getManager()).from(entityType).where()
+                ConditionQueryBuilder conditionQueryBuilder = FlowManager.getManagerForTable(tableStructure.getModelType()).getStructure().getPrimaryWhereQuery(entityType);
+                value = new Select().from(entityType).where()
                         .whereQuery(conditionQueryBuilder.replaceEmptyParams(foreignColumns))
                         .querySingle();
             } else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
@@ -403,21 +403,21 @@ public class SqlUtils {
     /**
      * Deletes {@link com.grosner.dbflow.structure.Model} from the database using the specfied {@link com.grosner.dbflow.config.FlowManager}
      *
-     * @param flowManager  The database manager that we run this query on
      * @param model        The model to delete
      * @param async        Whether it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately.
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void delete(FlowManager flowManager, final ModelClass model, boolean async, boolean notify) {
+    public static <ModelClass extends Model> void delete(final ModelClass model, boolean async, boolean notify) {
         if (!async) {
+            FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
             TableStructure tableStructure = flowManager.getTableStructureForClass(model.getClass());
             ConditionQueryBuilder<ModelClass> conditionQueryBuilder = flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
             flowManager.getWritableDatabase().delete(tableStructure.getTableName(), ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model), null);
 
             if (notify) {
                 // Notify any observers of this model change
-                flowManager.getStructure().fireModelChanged(model, ModelObserver.Mode.fromData(0, true));
+                FlowManager.getManagerForTable(model.getClass()).fireModelChanged(model, ModelObserver.Mode.fromData(0, true));
             }
         } else {
             TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<ModelClass>(ProcessModelInfo.withModels(model).fetch()));
@@ -428,15 +428,14 @@ public class SqlUtils {
      * This is used to check if the specified {@link com.grosner.dbflow.structure.Model} exists within the specified
      * {@link com.grosner.dbflow.config.FlowManager} DB.
      *
-     * @param flowManager  The database manager that we run this query on
      * @param model        The model to query
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return If the model exists within the DB
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> boolean exists(FlowManager flowManager, ModelClass model) {
+    public static <ModelClass extends Model> boolean exists(ModelClass model) {
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder = (ConditionQueryBuilder<ModelClass>)
-                flowManager.getStructure().getPrimaryWhereQuery(model.getClass());
-        return new Select(flowManager).from(model.getClass()).where(ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model)).hasData();
+                FlowManager.getManagerForTable(model.getClass()).getStructure().getPrimaryWhereQuery(model.getClass());
+        return new Select().from(model.getClass()).where(ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model)).hasData();
     }
 }

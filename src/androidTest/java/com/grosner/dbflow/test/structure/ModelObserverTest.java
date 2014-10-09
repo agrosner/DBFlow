@@ -1,5 +1,6 @@
 package com.grosner.dbflow.test.structure;
 
+import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
@@ -19,10 +20,15 @@ public class ModelObserverTest extends FlowTestCase {
         return "modelobserver";
     }
 
+    @Override
+    protected void modifyConfiguration(DBConfiguration.Builder builder) {
+        builder.addModelClasses(TestModel1.class);
+    }
+
     // region Test Model Observer
 
     public void testModelObserver() {
-        List<ModelObserver<? extends Model>> modelObservers = mManager.getStructure().getModelObserverListForClass(TestModel1.class);
+        List<ModelObserver<? extends Model>> modelObservers = FlowManager.getManagerForTable(TestModel1.class).getModelObserverListForClass(TestModel1.class);
         assertNotNull(modelObservers);
 
         TestModelObserver model1Observer = null;
@@ -37,7 +43,6 @@ public class ModelObserverTest extends FlowTestCase {
 
         TestModel1 testModel1 = new TestModel1();
         testModel1.name = "TestObserver";
-        testModel1.setManager(mManager);
         testModel1.save(false);
 
         final TestModelObserver finalModel1Observer = model1Observer;

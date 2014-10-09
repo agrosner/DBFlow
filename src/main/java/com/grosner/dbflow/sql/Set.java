@@ -13,16 +13,13 @@ import com.grosner.dbflow.structure.Model;
  */
 public class Set<ModelClass extends Model> implements WhereBase<ModelClass> {
 
-    private FlowManager mManager;
-
     private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
 
     private Query mUpdate;
 
-    public Set(FlowManager flowManager, Query update, Class<ModelClass> table) {
-        mManager = flowManager;
+    public Set(Query update, Class<ModelClass> table) {
         mUpdate = update;
-        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(flowManager, table).setSeparator(",");
+        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(table).setSeparator(",");
     }
 
     public Set<ModelClass> conditionQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
@@ -38,7 +35,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass> {
     }
 
     public Where<ModelClass> where() {
-        return new Where<ModelClass>(mManager, this);
+        return new Where<ModelClass>(this);
     }
 
     public Where<ModelClass> where(Condition...conditions) {

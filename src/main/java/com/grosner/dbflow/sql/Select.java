@@ -44,28 +44,12 @@ public class Select implements Query {
     private int mSelectQualifier = NONE;
 
     /**
-     * The database manager that this statement corresponds to
-     */
-    private final FlowManager mManager;
-
-    /**
-     * Creates this instance with the specified columns from the shared {@link com.grosner.dbflow.config.FlowManager}
-     *
-     * @param columns The array of columnNames that we wish to return
-     */
-    public Select(String... columns) {
-        this(FlowManager.getInstance(), columns);
-    }
-
-    /**
      * Creates this instance with the specified columns from the specified {@link com.grosner.dbflow.config.FlowManager}
      *
-     * @param flowManager
      * @param columns
      */
-    public Select(FlowManager flowManager, String... columns) {
+    public Select(String... columns) {
         mColumns = columns;
-        mManager = flowManager;
     }
 
     /**
@@ -114,7 +98,7 @@ public class Select implements Query {
      * @return the From part of this query
      */
     public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
-        return new From<ModelClass>(mManager, this, table);
+        return new From<ModelClass>(this, table);
     }
 
     @Override

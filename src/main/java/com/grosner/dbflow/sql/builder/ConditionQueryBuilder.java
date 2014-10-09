@@ -52,25 +52,13 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     private String mSeparator = "AND";
 
     /**
-     * Constructs an instance of this class with the shared {@link com.grosner.dbflow.config.FlowManager}
+     * Constructs an instance of this class
      * and {@link ModelClass}.
      *
      * @param tableClass
      */
     public ConditionQueryBuilder(Class<ModelClass> tableClass, Condition...conditions) {
-        this(FlowManager.getInstance(), tableClass, conditions);
-
-    }
-
-    /**
-     * Constructs an instance of this class with the specified {@link com.grosner.dbflow.config.FlowManager}
-     * and {@link ModelClass}.
-     *
-     * @param flowManager
-     * @param tableClass
-     */
-    public ConditionQueryBuilder(FlowManager flowManager, Class<ModelClass> tableClass, Condition...conditions) {
-        mTableStructure = flowManager.getTableStructureForClass(tableClass);
+        mTableStructure = FlowManager.getManagerForTable(tableClass).getTableStructureForClass(tableClass);
         putConditions(conditions);
     }
 
@@ -308,7 +296,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         }
 
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder =
-                new ConditionQueryBuilder<ModelClass>(mTableStructure.getManager(), mTableStructure.getModelType());
+                new ConditionQueryBuilder<ModelClass>(mTableStructure.getModelType());
         Set<String> columnNames = mParams.keySet();
 
         int count = 0;

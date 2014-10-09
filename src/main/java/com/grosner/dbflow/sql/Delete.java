@@ -13,47 +13,14 @@ import com.grosner.dbflow.structure.Model;
 public class Delete implements Query {
 
     /**
-     * The database manager this query corresponds to
-     */
-    private final FlowManager mManager;
-
-    /**
      * Deletes the specified table
-     *
-     * @param flowManager  The manager to delete from
-     * @param table        The table to delete
-     * @param conditions   The list of conditions to use to delete from the specified table
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
-     */
-    public static <ModelClass extends Model> void table(FlowManager flowManager, Class<ModelClass> table, Condition... conditions) {
-        new Delete(flowManager).from(table).where(conditions).query();
-    }
-
-    /**
-     * Deletes the specified table from the shared {@link com.grosner.dbflow.config.FlowManager}
      *
      * @param table        The table to delete
      * @param conditions   The list of conditions to use to delete from the specified table
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     public static <ModelClass extends Model> void table(Class<ModelClass> table, Condition... conditions) {
-        table(FlowManager.getInstance(), table, conditions);
-    }
-
-    /**
-     * Constructs this with the default {@link com.grosner.dbflow.config.FlowManager}
-     */
-    public Delete() {
-        this(FlowManager.getInstance());
-    }
-
-    /**
-     * Constructs this with a custom {@link com.grosner.dbflow.config.FlowManager}
-     *
-     * @param flowManager
-     */
-    public Delete(FlowManager flowManager) {
-        mManager = flowManager;
+        new Delete().from(table).where(conditions).query();
     }
 
     /**
@@ -64,7 +31,7 @@ public class Delete implements Query {
      * @return
      */
     public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
-        return new From<ModelClass>(mManager, this, table);
+        return new From<ModelClass>(this, table);
     }
 
     @Override
