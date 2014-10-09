@@ -76,7 +76,7 @@ public class DBStructure {
         mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
 
         List<Class<? extends Model>> modelList;
-        if (dbConfiguration.hasModelClasses()) {
+        if (dbConfiguration.hasModelClasses() || FlowManager.isMultipleDatabases()) {
             modelList = dbConfiguration.getModelClasses();
         } else {
             modelList = ScannedModelContainer.getInstance().getModelClasses();
