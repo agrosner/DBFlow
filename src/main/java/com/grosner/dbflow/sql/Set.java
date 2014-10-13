@@ -1,6 +1,5 @@
 package com.grosner.dbflow.sql;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
@@ -51,7 +50,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass> {
         QueryBuilder queryBuilder =
                 new QueryBuilder(mUpdate.getQuery())
                         .append("SET ")
-                        .append(mConditionQueryBuilder.getQuery());
+                        .append(mConditionQueryBuilder.getQuery()).appendSpace();
         return queryBuilder.getQuery();
     }
 

@@ -167,7 +167,8 @@ public class SqlUtils {
     public static void putField(ContentValues values, FlowManager flowManager, Field field, String fieldName, Object value) {
         Class<?> fieldType = field.getType();
 
-        if (value != null) {
+        // ignore foreign key conversions
+        if (value != null && !StructureUtils.isForeignKey(field)) {
             final TypeConverter typeSerializer = flowManager.getTypeConverterForClass(fieldType);
             if (typeSerializer != null) {
                 // serialize data

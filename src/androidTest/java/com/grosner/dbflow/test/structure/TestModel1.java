@@ -11,5 +11,6 @@ import com.grosner.dbflow.structure.ColumnType;
 */
 public class TestModel1 extends BaseModel {
     @Column(@ColumnType(ColumnType.PRIMARY_KEY))
+    public
     String name;
 }

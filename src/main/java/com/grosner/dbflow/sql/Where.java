@@ -377,7 +377,7 @@ public class Where<ModelClass extends Model> implements Query {
     @Override
     public String getQuery() {
         String fromQuery = mWhereBase.getQuery();
-        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace();
+        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery);
 
         queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
                 .appendQualifier("GROUP BY", mGroupBy)

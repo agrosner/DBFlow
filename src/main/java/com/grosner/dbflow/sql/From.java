@@ -39,8 +39,8 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     /**
      * The SQL from statement constructed.
      *
-     * @param querybase   The base query we append this query to
-     * @param table       The table this corresponds to
+     * @param querybase The base query we append this query to
+     * @param table     The table this corresponds to
      */
     public From(Query querybase, Class<ModelClass> table) {
         mQueryBuilderBase = querybase;
@@ -106,18 +106,18 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
      * @param conditions The array of conditions that define this WHERE statement
      * @return
      */
-    public Where<ModelClass> where(Condition...conditions) {
+    public Where<ModelClass> where(Condition... conditions) {
         return where().andThese(conditions);
     }
 
     public Set<ModelClass> set() {
-        if(!(mQueryBuilderBase instanceof Update)) {
+        if (!(mQueryBuilderBase instanceof Update)) {
             throw new IllegalStateException("Cannot use set() without an UPDATE as the base");
         }
-        return new Set<ModelClass>(mQueryBuilderBase, mTable);
+        return new Set<ModelClass>(this, mTable);
     }
 
-    public Set<ModelClass> set(Condition...conditions){
+    public Set<ModelClass> set(Condition... conditions) {
         return set().conditions(conditions);
     }
 
@@ -128,16 +128,18 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(mQueryBuilderBase.getQuery())
-                .append("FROM")
-                .appendSpaceSeparated(FlowManager.getTableName(mTable))
-                .appendQualifier("AS", mAlias);
-
-        for (Join join : mJoins) {
-            queryBuilder.append(join.getQuery());
+                .append(mQueryBuilderBase.getQuery());
+        if (mQueryBuilderBase instanceof Select) {
+            queryBuilder.append("FROM").appendSpaceSeparated(FlowManager.getTableName(mTable));
+            queryBuilder.appendQualifier("AS", mAlias);
+            for (Join join : mJoins) {
+                queryBuilder.append(join.getQuery());
+            }
+        } else {
+            queryBuilder.append(FlowManager.getTableName(mTable)).appendSpace();
         }
 
-        return queryBuilder.getQuery().trim();
+        return queryBuilder.getQuery();
     }
 
     /**

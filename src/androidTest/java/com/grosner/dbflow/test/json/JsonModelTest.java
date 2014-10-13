@@ -32,7 +32,7 @@ public class JsonModelTest extends FlowTestCase {
             JSONObject jsonObject = new JSONObject("{" +
                     "name: test" +
                     "}");
-            TestJsonModel<TestModel1> testJsonModel1 = new TestJsonModel<TestModel1>(TestModel1.class, jsonObject);
+            JSONModel<TestModel1> testJsonModel1 = new JSONModel<TestModel1>(jsonObject, TestModel1.class);
             testJsonModel1.save(false);
 
             assertTrue(testJsonModel1.exists());
@@ -47,7 +47,7 @@ public class JsonModelTest extends FlowTestCase {
                     "}" +
                     "}");
 
-            TestJsonModel<TestJsonModelClass> testJsonModel = new TestJsonModel<TestJsonModelClass>(TestJsonModelClass.class, jsonObject);
+            JSONModel<TestJsonModelClass> testJsonModel = new JSONModel<TestJsonModelClass>(jsonObject, TestJsonModelClass.class);
             testJsonModel.save(false);
 
             assertTrue(testJsonModel.exists());
@@ -72,17 +72,5 @@ public class JsonModelTest extends FlowTestCase {
         @Column(value = @ColumnType(ColumnType.FOREIGN_KEY),
                 references = {@ForeignKeyReference(columnName = "testName", columnType = String.class, foreignColumnName = "name")})
         private TestModel1 testModel;
-    }
-
-    private static class TestJsonModel<TestModel extends TestModel1> extends JSONModel<TestModel> {
-
-        public TestJsonModel(Class<TestModel> testModelClass, JSONObject jsonObject) {
-            super(jsonObject, testModelClass);
-        }
-
-        public TestJsonModel(Class<TestModel> testModelClass) {
-            super(testModelClass);
-        }
-
     }
 }
