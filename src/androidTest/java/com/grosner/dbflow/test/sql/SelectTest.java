@@ -9,6 +9,7 @@ import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
+import com.grosner.dbflow.test.utils.AssertUtils;
 
 import java.util.List;
 
@@ -66,6 +67,9 @@ public class SelectTest extends FlowTestCase {
 
         List<TestModel1> list = baseFrom.where().queryList();
         assertTrue(!list.isEmpty());
+
+        Where<TestModel1> where = new Select().from(TestModel1.class).join(TestModel2.class, Join.JoinType.INNER).natural().where();
+        assertEquals("SELECT * FROM TestModel1 NATURAL INNER JOIN TestModel2", where.getQuery().trim());
     }
 
     private static class TestModel2 extends TestModel1 {

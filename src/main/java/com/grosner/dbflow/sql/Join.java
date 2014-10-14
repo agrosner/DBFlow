@@ -11,7 +11,7 @@ import com.grosner.dbflow.structure.Model;
  * Contributors: { }
  * Description:
  */
-public class Join<ModelClass extends Model> implements Query {
+public class Join<ModelClass extends Model, FromClass extends Model> implements Query {
     public static enum JoinType {
         LEFT,
         OUTER,
@@ -23,7 +23,7 @@ public class Join<ModelClass extends Model> implements Query {
 
     private JoinType mJoinType;
 
-    private From mFrom;
+    private From<FromClass> mFrom;
 
     private String mAlias;
 
@@ -33,15 +33,10 @@ public class Join<ModelClass extends Model> implements Query {
 
     private boolean isNatural = false;
 
-    Join(From from, Class<ModelClass> table, JoinType joinType) {
+    Join(From<FromClass> from, Class<ModelClass> table, JoinType joinType) {
         mFrom = from;
         mTable = table;
         mJoinType = joinType;
-    }
-
-    public Join natural() {
-        isNatural = true;
-        return this;
     }
 
     public Join as(String alias) {
@@ -49,22 +44,19 @@ public class Join<ModelClass extends Model> implements Query {
         return this;
     }
 
-    public From on(Condition...onConditions) {
-        checkType();
+    public From<FromClass> natural() {
+        isNatural = true;
+        return mFrom;
+    }
+
+    public From<FromClass> on(Condition...onConditions) {
         mOn = new ConditionQueryBuilder<ModelClass>(mTable, onConditions);
         return mFrom;
     }
 
-    public From using(String... columns) {
-        checkType();
+    public From<FromClass> using(String... columns) {
         mUsing = columns;
         return mFrom;
-    }
-
-    private void checkType() {
-        if(isNatural) {
-            throw new IllegalArgumentException("Joins with type Natural cannot have an ON or USING clause");
-        }
     }
 
     @Override
