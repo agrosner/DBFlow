@@ -1,6 +1,6 @@
 package com.grosner.dbflow.structure;
 
-import com.grosner.dbflow.sql.Where;
+import com.grosner.dbflow.sql.language.Where;
 
 /**
  * Author: andrewgrosner
@@ -10,7 +10,7 @@ import com.grosner.dbflow.sql.Where;
 public interface ModelViewDefinition<ModelViewClass extends BaseModelView<ModelClass>, ModelClass extends Model> {
 
     /**
-     * Returns the {@link com.grosner.dbflow.sql.Where} query that creates this class
+     * Returns the {@link com.grosner.dbflow.sql.language.Where} query that creates this class
      *
      * @return The creation query for creating this view.
      */

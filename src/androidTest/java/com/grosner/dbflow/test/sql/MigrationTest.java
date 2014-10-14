@@ -6,12 +6,10 @@ import android.test.AndroidTestCase;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.sql.Select;
+import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.migration.AlterTableMigration;
 import com.grosner.dbflow.sql.migration.UpdateTableMigration;
-import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
 
 import java.util.Arrays;

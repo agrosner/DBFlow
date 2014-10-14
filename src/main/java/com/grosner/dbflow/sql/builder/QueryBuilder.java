@@ -66,6 +66,16 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     /**
+     * Appends the string as (string)
+     * @param string
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public QueryClass appendParenthesisEnclosed(String string) {
+        return (QueryClass) append("(").append(string).append(")");
+    }
+
+    /**
      * Appends an {@link com.grosner.dbflow.structure.SQLiteType} to this query based on the class
      * passed in.
      *

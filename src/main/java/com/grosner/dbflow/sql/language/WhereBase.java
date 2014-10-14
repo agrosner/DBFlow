@@ -1,11 +1,11 @@
-package com.grosner.dbflow.sql;
+package com.grosner.dbflow.sql.language;
 
+import com.grosner.dbflow.sql.Query;
 import com.grosner.dbflow.structure.Model;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: The base
  */
 public interface WhereBase<ModelClass extends Model> extends Query {
 

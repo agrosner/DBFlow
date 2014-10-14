@@ -3,7 +3,7 @@ package com.grosner.dbflow.sql.migration;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.grosner.dbflow.sql.Query;
-import com.grosner.dbflow.sql.Update;
+import com.grosner.dbflow.sql.language.Update;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
@@ -12,7 +12,7 @@ import com.grosner.dbflow.structure.Model;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: Provides a simple way to update a table's field or fields quickly in a migration. It ties an SQLite {@link com.grosner.dbflow.sql.Update}
+ * Description: Provides a simple way to update a table's field or fields quickly in a migration. It ties an SQLite {@link com.grosner.dbflow.sql.language.Update}
  * to migrations whenever we want to batch update tables in a structured manner.
  */
 public class UpdateTableMigration<ModelClass extends Model> extends BaseMigration implements Query {

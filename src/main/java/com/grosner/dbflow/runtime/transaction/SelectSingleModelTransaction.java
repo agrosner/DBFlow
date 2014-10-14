@@ -1,8 +1,8 @@
 package com.grosner.dbflow.runtime.transaction;
 
 import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.sql.Select;
-import com.grosner.dbflow.sql.Where;
+import com.grosner.dbflow.sql.language.Select;
+import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Model;
@@ -41,7 +41,7 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
     }
 
     /**
-     * Creates this class with a {@link com.grosner.dbflow.sql.From}
+     * Creates this class with a {@link com.grosner.dbflow.sql.language.From}
      *
      * @param where           The completed Sql Statement we will use to fetch the models
      * @param resultReceiver

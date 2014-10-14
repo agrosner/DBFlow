@@ -1,10 +1,9 @@
 package com.grosner.dbflow.test.structure;
 
 import com.grosner.dbflow.config.DBConfiguration;
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.sql.Select;
-import com.grosner.dbflow.sql.Where;
+import com.grosner.dbflow.sql.language.Select;
+import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.structure.BaseModelView;
 import com.grosner.dbflow.structure.Column;

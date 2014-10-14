@@ -15,6 +15,7 @@ import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.Model;

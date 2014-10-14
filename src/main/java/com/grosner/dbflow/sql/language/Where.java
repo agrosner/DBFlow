@@ -1,4 +1,4 @@
-package com.grosner.dbflow.sql;
+package com.grosner.dbflow.sql.language;
 
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -9,6 +9,9 @@ import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.QueryTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
+import com.grosner.dbflow.sql.Queriable;
+import com.grosner.dbflow.sql.Query;
+import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
@@ -67,25 +70,23 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     /**
      * Constructs this class with a SELECT * on the manager and {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      *
-     * @param flowManager
      * @param conditionQueryBuilder
      * @param <ModelClass>
      * @return
      */
     public static <ModelClass extends Model> Where<ModelClass> with(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
-                                                                    String...columns) {
+                                                                    String... columns) {
         return new Select(columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
     }
 
     /**
      * Constructs this class with the specified {@link com.grosner.dbflow.config.FlowManager}
-     * and {@link com.grosner.dbflow.sql.From} chunk
+     * and {@link From} chunk
      *
-     * @param manager The database manager
-     * @param from    The FROM statement chunk
+     * @param whereBase The FROM or SET statement chunk
      */
-    public Where(WhereBase<ModelClass> from) {
-        mWhereBase = from;
+    public Where(WhereBase<ModelClass> whereBase) {
+        mWhereBase = whereBase;
         mManager = FlowManager.getManagerForTable(mWhereBase.getTable());
         mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
         mHaving = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
@@ -115,7 +116,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * @return
      */
     public Where<ModelClass> whereQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        if(conditionQueryBuilder != null) {
+        if (conditionQueryBuilder != null) {
             mConditionQueryBuilder = conditionQueryBuilder;
         }
         return this;
@@ -174,7 +175,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * @param conditions The array of {@link com.grosner.dbflow.sql.builder.Condition}
      * @return
      */
-    public Where<ModelClass> andThese(Condition...conditions) {
+    public Where<ModelClass> andThese(Condition... conditions) {
         mConditionQueryBuilder.putConditions(conditions);
         return this;
     }
@@ -207,7 +208,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * @param having
      * @return
      */
-    public Where<ModelClass> having(Condition...conditions) {
+    public Where<ModelClass> having(Condition... conditions) {
         mHaving.putConditions(conditions);
         return this;
     }
@@ -256,6 +257,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
 
     /**
      * Run this query and returns the {@link android.database.Cursor} for it
+     *
      * @return the Sqlite {@link android.database.Cursor} from this query
      */
     @Override
@@ -263,7 +265,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
         // Query the sql here
         Cursor cursor = null;
         String query = getQuery();
-        if(mWhereBase.getQueryBuilderBase() instanceof Select) {
+        if (mWhereBase.getQueryBuilderBase() instanceof Select) {
             cursor = mManager.getWritableDatabase().rawQuery(query, null);
         } else {
             mManager.getWritableDatabase().execSQL(query);

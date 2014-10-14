@@ -3,7 +3,7 @@ package com.grosner.dbflow.structure.json;
 import android.database.Cursor;
 
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.sql.Select;
+import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Ignore;

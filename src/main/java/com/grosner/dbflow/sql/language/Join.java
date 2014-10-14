@@ -1,6 +1,7 @@
-package com.grosner.dbflow.sql;
+package com.grosner.dbflow.sql.language;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.Query;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;

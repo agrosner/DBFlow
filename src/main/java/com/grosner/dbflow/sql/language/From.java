@@ -1,6 +1,7 @@
-package com.grosner.dbflow.sql;
+package com.grosner.dbflow.sql.language;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.Query;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
@@ -17,7 +18,7 @@ import java.util.List;
 public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
 
     /**
-     * The base such as {@link com.grosner.dbflow.sql.Delete}, {@link com.grosner.dbflow.sql.Select} and more!
+     * The base such as {@link Delete}, {@link Select} and more!
      */
     private Query mQueryBuilderBase;
 
@@ -72,7 +73,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     }
 
     /**
-     * Returns an empty {@link com.grosner.dbflow.sql.Where} statement
+     * Returns an empty {@link Where} statement
      *
      * @return
      */
@@ -81,7 +82,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     }
 
     /**
-     * Returns a {@link com.grosner.dbflow.sql.Where} statement with the sql clause
+     * Returns a {@link Where} statement with the sql clause
      *
      * @param whereClause The full SQL string after the WHERE keyword
      * @return
@@ -91,7 +92,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     }
 
     /**
-     * Returns a {@link com.grosner.dbflow.sql.Where} statement with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
+     * Returns a {@link Where} statement with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
      *
      * @param conditionQueryBuilder
      * @return
@@ -101,7 +102,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     }
 
     /**
-     * Returns a {@link com.grosner.dbflow.sql.Where} statement with the specified array of {@link com.grosner.dbflow.sql.builder.Condition}
+     * Returns a {@link Where} statement with the specified array of {@link com.grosner.dbflow.sql.builder.Condition}
      *
      * @param conditions The array of conditions that define this WHERE statement
      * @return

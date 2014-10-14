@@ -9,7 +9,7 @@ import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.grosner.dbflow.sql.Select;
+import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.PrimaryKeyCannotBeNullException;

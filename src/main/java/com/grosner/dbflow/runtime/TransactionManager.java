@@ -16,9 +16,10 @@ import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.grosner.dbflow.runtime.transaction.process.UpdateModelListTransaction;
-import com.grosner.dbflow.sql.Delete;
-import com.grosner.dbflow.sql.Select;
-import com.grosner.dbflow.sql.Where;
+import com.grosner.dbflow.sql.language.Delete;
+import com.grosner.dbflow.sql.Queriable;
+import com.grosner.dbflow.sql.language.Select;
+import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Model;
@@ -148,24 +149,24 @@ public class TransactionManager {
      * Adds an arbitrary statement to be processed on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} in the background.
      *
      * @param transactionInfo The information on how we should approach this request.
-     * @param where           The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute. The query base should not be a select as this
+     * @param queriable       The {@link com.grosner.dbflow.sql.Queriable} statement that we wish to execute. The query base should not be a select as this
      *                        does not return any results.
      * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Where<ModelClass> where) {
-        transactQuery(transactionInfo, where, null);
+    public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Queriable<ModelClass> queriable) {
+        transactQuery(transactionInfo, queriable, null);
     }
 
     /**
      * Adds an arbitrary statement to be processed on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} in the background.
      *
      * @param transactionInfo      The information on how we should approach this request.
-     * @param where                The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute.
+     * @param queriable            The {@link com.grosner.dbflow.sql.Queriable} statement that we wish to execute.
      * @param cursorResultReceiver The cursor from the DB that we can process
      * @param <ModelClass>         The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Where<ModelClass> where, ResultReceiver<Cursor> cursorResultReceiver) {
-        addTransaction(new QueryTransaction<ModelClass>(transactionInfo, where, cursorResultReceiver));
+    public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Queriable<ModelClass> queriable, ResultReceiver<Cursor> cursorResultReceiver) {
+        addTransaction(new QueryTransaction<ModelClass>(transactionInfo, queriable, cursorResultReceiver));
     }
 
     // region Database Select Methods
@@ -199,11 +200,11 @@ public class TransactionManager {
     }
 
     /**
-     * Fetches all items from the table with the specified {@link com.grosner.dbflow.sql.Where} in
+     * Fetches all items from the table with the specified {@link com.grosner.dbflow.sql.language.Where} in
      * the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
      *
-     * @param where          The {@link com.grosner.dbflow.sql.Where} statement that we wish to execute. The base of this
-     *                       query must be {@link com.grosner.dbflow.sql.Select}
+     * @param where          The {@link com.grosner.dbflow.sql.language.Where} statement that we wish to execute. The base of this
+     *                       query must be {@link com.grosner.dbflow.sql.language.Select}
      * @param resultReceiver
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
@@ -272,7 +273,7 @@ public class TransactionManager {
 
     /**
      * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by
-     * {@link com.grosner.dbflow.sql.From}.
+     * {@link com.grosner.dbflow.sql.language.From}.
      *
      * @param where          The where to use.
      * @param resultReceiver The result will be passed here.

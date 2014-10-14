@@ -10,9 +10,9 @@ import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.BaseResultTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
-import com.grosner.dbflow.sql.Select;
+import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.SqlUtils;
-import com.grosner.dbflow.sql.Where;
+import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.structure.Model;
 

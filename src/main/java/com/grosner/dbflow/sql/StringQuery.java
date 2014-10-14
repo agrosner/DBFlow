@@ -14,13 +14,22 @@ import java.util.List;
  */
 public class StringQuery<ModelClass extends Model> implements Query, Queriable<ModelClass> {
 
+    /**
+     * The full SQLite query to use
+     */
     private final String mQuery;
 
     private final Class<ModelClass> mTable;
 
-    public StringQuery(Class<ModelClass> tabel, String sql) {
+    /**
+     * Creates an instance of this class
+     * @param table The table to use
+     * @param sql The sql statement to query the DB with. Does not work with {@link com.grosner.dbflow.sql.language.Delete},
+     *            this must be done with {@link android.database.sqlite.SQLiteDatabase#execSQL(String)}
+     */
+    public StringQuery(Class<ModelClass> table, String sql) {
         mQuery = sql;
-        mTable = tabel;
+        mTable = table;
     }
 
     @Override
