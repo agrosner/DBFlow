@@ -7,6 +7,7 @@ import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -62,7 +63,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .appendSpaceSeparated(columnName).appendType(columnType);
+                .append(columnName).appendSpace().appendType(columnType);
         mColumnDefinitions.add(queryBuilder);
 
         return this;
@@ -89,6 +90,26 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
                 database.execSQL(sql + " ADD COLUMN " + columnDefinition.getQuery());
             }
         }
+    }
+
+    public String getRenameQuery() {
+        QueryBuilder queryBuilder = new QueryBuilder(mQuery.getQuery()).append(mOldTableName)
+                .append(mRenameQuery).append(FlowManager.getTableName(mTable));
+        return queryBuilder.getQuery();
+    }
+
+    public List<String> getColumnDefinitions() {
+        String sql = mQuery.getQuery() + FlowManager.getTableName(mTable);
+        List<String> columnDefinitions = new ArrayList<String>();
+
+        if(mColumnDefinitions != null) {
+            for (QueryBuilder columnDefinition : mColumnDefinitions) {
+                QueryBuilder queryBuilder = new QueryBuilder(sql).appendSpaceSeparated("ADD COLUMN").append(columnDefinition.getQuery());
+                columnDefinitions.add(queryBuilder.getQuery());
+            }
+        }
+
+        return columnDefinitions;
     }
 
     @Override
