@@ -1,6 +1,8 @@
 package com.grosner.dbflow.test.sql;
 
 import com.grosner.dbflow.config.DBConfiguration;
+import com.grosner.dbflow.sql.From;
+import com.grosner.dbflow.sql.Join;
 import com.grosner.dbflow.sql.Select;
 import com.grosner.dbflow.sql.Where;
 import com.grosner.dbflow.sql.builder.Condition;
@@ -43,6 +45,13 @@ public class SelectTest extends FlowTestCase {
         Where<TestModel2> where3 = new Select().count().from(TestModel2.class).where();
 
         assertEquals("SELECT COUNT(*)  FROM TestModel2", where3.getQuery().trim());
+    }
+
+    public void testJoins() {
+        From<TestModel1> baseFrom = new Select().from(TestModel1.class);
+        baseFrom.join(TestModel2.class, Join.JoinType.CROSS).on(Condition.column("TestModel1.name").is("TestModel2.name"));
+
+        assertEquals("SELECT * FROM TestModel1 CROSS JOIN TestModel2 ON TestModel1.name = TestModel2.name", baseFrom.getQuery().trim());
     }
 
     private static class TestModel2 extends TestModel1 {

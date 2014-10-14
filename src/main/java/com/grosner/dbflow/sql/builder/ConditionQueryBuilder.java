@@ -57,7 +57,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      *
      * @param tableClass
      */
-    public ConditionQueryBuilder(Class<ModelClass> tableClass, Condition...conditions) {
+    public ConditionQueryBuilder(Class<ModelClass> tableClass, Condition... conditions) {
         mTableStructure = FlowManager.getManagerForTable(tableClass).getTableStructureForClass(tableClass);
         putConditions(conditions);
     }
@@ -94,7 +94,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public ConditionQueryBuilder<ModelClass> putConditionMap(Map<String, Condition> params) {
-        if(params != null && !params.isEmpty()) {
+        if (params != null && !params.isEmpty()) {
             mParams.putAll(params);
             isChanged = true;
         }
@@ -108,7 +108,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
-        if(conditions.length > 0) {
+        if (conditions.length > 0) {
             for (Condition condition : conditions) {
                 mParams.put(condition.columnName(), condition);
             }
@@ -223,7 +223,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         String stringVal;
         if (!useEmptyParams) {
             Field field = mTableStructure.getField(columnName);
-            if(field != null) {
+            if (field != null) {
                 final TypeConverter typeConverter = mTableStructure.getManager()
                         .getTypeConverterForClass(mTableStructure.getField(columnName).getType());
                 if (typeConverter != null) {
@@ -276,6 +276,29 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         }
 
         return mQuery.toString();
+    }
+
+    /**
+     * Returns the raw query without converting the values of {@link com.grosner.dbflow.sql.builder.Condition}.
+     *
+     * @return
+     */
+    public String getRawQuery() {
+        QueryBuilder rawQuery = new QueryBuilder();
+
+        Set<String> keys = mParams.keySet();
+        int count = 0;
+        for (String key : keys) {
+            Condition condition = mParams.get(key);
+            rawQuery.append(condition.columnName()).appendSpaceSeparated(condition.operation())
+                    .append(condition.value());
+            if (count < keys.size() - 1) {
+                rawQuery.appendSpaceSeparated(mSeparator);
+            }
+            count++;
+        }
+
+        return rawQuery.toString();
     }
 
     /**

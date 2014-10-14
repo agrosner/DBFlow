@@ -65,8 +65,8 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
      * @param joinType The type of join to use
      * @return
      */
-    public Join join(Class<ModelClass> table, Join.JoinType joinType) {
-        Join join = new Join(this, table, joinType);
+    public <JoinType extends Model> Join<JoinType> join(Class<JoinType> table, Join.JoinType joinType) {
+        Join<JoinType> join = new Join<JoinType>(this, table, joinType);
         mJoins.add(join);
         return join;
     }

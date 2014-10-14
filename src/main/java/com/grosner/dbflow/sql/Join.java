@@ -1,6 +1,8 @@
 package com.grosner.dbflow.sql;
 
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.builder.Condition;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
@@ -9,15 +11,15 @@ import com.grosner.dbflow.structure.Model;
  * Contributors: { }
  * Description:
  */
-public class Join implements Query {
-    static enum JoinType {
+public class Join<ModelClass extends Model> implements Query {
+    public static enum JoinType {
         LEFT,
         OUTER,
         INNER,
         CROSS
     }
 
-    private Class<? extends Model> mTable;
+    private Class<ModelClass> mTable;
 
     private JoinType mJoinType;
 
@@ -25,11 +27,11 @@ public class Join implements Query {
 
     private String mAlias;
 
-    private String mOn;
+    private ConditionQueryBuilder<ModelClass> mOn;
 
     private String[] mUsing;
 
-    Join(From from, Class<? extends Model> table, JoinType joinType) {
+    Join(From from, Class<ModelClass> table, JoinType joinType) {
         mFrom = from;
         mTable = table;
         mJoinType = joinType;
@@ -40,8 +42,8 @@ public class Join implements Query {
         return this;
     }
 
-    public From on(String on) {
-        mOn = on;
+    public From on(Condition...onConditions) {
+        mOn = new ConditionQueryBuilder<ModelClass>(mTable, onConditions);
         return mFrom;
     }
 
@@ -61,7 +63,7 @@ public class Join implements Query {
 
         queryBuilder.append("JOIN")
                 .appendSpace()
-                .append(FlowManager.getManagerForTable(mTable).getTableName(mTable))
+                .append(FlowManager.getTableName(mTable))
                 .appendSpace();
 
         if (mAlias != null) {
@@ -73,7 +75,7 @@ public class Join implements Query {
         if (mOn != null) {
             queryBuilder.append("ON")
                     .appendSpace()
-                    .append(mOn)
+                    .append(mOn.getRawQuery())
                     .appendSpace();
         } else if (mUsing != null) {
             queryBuilder.append("USING (")
