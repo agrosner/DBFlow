@@ -142,6 +142,11 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
         return queryBuilder.getQuery();
     }
 
+    @Override
+    public String toString() {
+        return getQuery();
+    }
+
     /**
      * The base query
      *

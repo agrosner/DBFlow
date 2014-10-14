@@ -10,6 +10,8 @@ import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
 
+import java.util.List;
+
 /**
  * Author: andrewgrosner
  * Contributors: { }
@@ -48,10 +50,22 @@ public class SelectTest extends FlowTestCase {
     }
 
     public void testJoins() {
+
+        TestModel1 testModel1 = new TestModel1();
+        testModel1.name = "Test";
+        testModel1.save(false);
+
+        TestModel2 testModel2 = new TestModel2();
+        testModel2.name = "Test";
+        testModel2.save(false);
+
         From<TestModel1> baseFrom = new Select().from(TestModel1.class);
         baseFrom.join(TestModel2.class, Join.JoinType.CROSS).on(Condition.column("TestModel1.name").is("TestModel2.name"));
 
         assertEquals("SELECT * FROM TestModel1 CROSS JOIN TestModel2 ON TestModel1.name = TestModel2.name", baseFrom.getQuery().trim());
+
+        List<TestModel1> list = baseFrom.where().queryList();
+        assertTrue(!list.isEmpty());
     }
 
     private static class TestModel2 extends TestModel1 {

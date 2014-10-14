@@ -16,7 +16,7 @@ public class Join<ModelClass extends Model> implements Query {
         LEFT,
         OUTER,
         INNER,
-        CROSS
+        CROSS,
     }
 
     private Class<ModelClass> mTable;
@@ -31,10 +31,17 @@ public class Join<ModelClass extends Model> implements Query {
 
     private String[] mUsing;
 
+    private boolean isNatural = false;
+
     Join(From from, Class<ModelClass> table, JoinType joinType) {
         mFrom = from;
         mTable = table;
         mJoinType = joinType;
+    }
+
+    public Join natural() {
+        isNatural = true;
+        return this;
     }
 
     public Join as(String alias) {
@@ -43,23 +50,32 @@ public class Join<ModelClass extends Model> implements Query {
     }
 
     public From on(Condition...onConditions) {
+        checkType();
         mOn = new ConditionQueryBuilder<ModelClass>(mTable, onConditions);
         return mFrom;
     }
 
     public From using(String... columns) {
+        checkType();
         mUsing = columns;
         return mFrom;
     }
 
+    private void checkType() {
+        if(isNatural) {
+            throw new IllegalArgumentException("Joins with type Natural cannot have an ON or USING clause");
+        }
+    }
 
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        if (mJoinType != null) {
-            queryBuilder.append(mJoinType.toString()).appendSpace();
+        if(isNatural) {
+            queryBuilder.append("NATURAL ");
         }
+
+        queryBuilder.append(mJoinType.toString()).appendSpace();
 
         queryBuilder.append("JOIN")
                 .appendSpace()

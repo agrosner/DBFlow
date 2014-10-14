@@ -394,4 +394,9 @@ public class Where<ModelClass extends Model> implements Query {
 
         return queryBuilder.getQuery();
     }
+
+    @Override
+    public String toString() {
+        return getQuery();
+    }
 }
