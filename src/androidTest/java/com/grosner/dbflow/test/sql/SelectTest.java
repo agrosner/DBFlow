@@ -34,6 +34,7 @@ public class SelectTest extends FlowTestCase {
                 .where(Condition.column("name").is("test"));
 
         assertEquals("SELECT name FROM TestModel1 WHERE name = 'test'", where.getQuery().trim());
+        where.query();
 
         Where<TestModel2> where1 = new Select("name", "type").from(TestModel2.class)
                 .where(Condition.column("name").is("test"),
@@ -44,10 +45,12 @@ public class SelectTest extends FlowTestCase {
         Where<TestModel2> where2 = new Select().distinct().from(TestModel2.class).where();
 
         assertEquals("SELECT DISTINCT * FROM TestModel2", where2.getQuery().trim());
+        where2.query();
 
         Where<TestModel2> where3 = new Select().count().from(TestModel2.class).where();
 
         assertEquals("SELECT COUNT(*)  FROM TestModel2", where3.getQuery().trim());
+        where3.query();
     }
 
     public void testJoins() {
@@ -70,6 +73,8 @@ public class SelectTest extends FlowTestCase {
 
         Where<TestModel1> where = new Select().from(TestModel1.class).join(TestModel2.class, Join.JoinType.INNER).natural().where();
         assertEquals("SELECT * FROM TestModel1 NATURAL INNER JOIN TestModel2", where.getQuery().trim());
+
+        where.query();
     }
 
     private static class TestModel2 extends TestModel1 {

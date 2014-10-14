@@ -2,7 +2,6 @@ package com.grosner.dbflow.structure;
 
 import android.database.Cursor;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.SqlUtils;
 
 /**

@@ -1,6 +1,5 @@
 package com.grosner.dbflow.runtime.transaction;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.sql.Update;
 import com.grosner.dbflow.sql.builder.Condition;

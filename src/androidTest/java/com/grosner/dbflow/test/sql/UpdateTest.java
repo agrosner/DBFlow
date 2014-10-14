@@ -45,6 +45,7 @@ public class UpdateTest extends FlowTestCase {
                 .where(Condition.column("name").is("oldvalue"));
 
         assertEquals("UPDATE TestModel1 SET name = 'newvalue' WHERE name = 'oldvalue'", where.getQuery().trim());
+        where.query();
     }
 
     public void testUpdateEffect() {

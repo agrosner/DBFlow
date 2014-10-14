@@ -1,6 +1,5 @@
 package com.grosner.dbflow.structure;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.SqlUtils;
 
 /**

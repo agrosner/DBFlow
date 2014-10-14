@@ -1,22 +1,6 @@
 package com.grosner.dbflow.structure;
 
-import com.grosner.dbflow.ReflectionUtils;
-import com.grosner.dbflow.StringUtils;
-import com.grosner.dbflow.config.FlowLog;
-import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.converter.TypeConverter;
-import com.grosner.dbflow.runtime.observer.ModelObserver;
-
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-
-import dalvik.system.DexFile;
 
 /**
  * Author: andrewgrosner

@@ -2,7 +2,6 @@ package com.grosner.dbflow.sql;
 
 import android.text.TextUtils;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 

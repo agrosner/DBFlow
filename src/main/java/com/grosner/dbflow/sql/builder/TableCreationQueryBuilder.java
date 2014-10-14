@@ -3,7 +3,6 @@ package com.grosner.dbflow.sql.builder;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ColumnType;
 import com.grosner.dbflow.structure.ForeignKeyReference;
-import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.List;
