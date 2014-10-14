@@ -25,16 +25,9 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
 
     private String mOldTableName;
 
-    private FlowManager mManager;
-
-    public AlterTableMigration(FlowManager flowManager, Class<ModelClass> table, int migrationVersion) {
-        super(migrationVersion);
-        mManager = flowManager;
-        mTable = table;
-    }
-
     public AlterTableMigration(Class<ModelClass> table, int migrationVersion) {
-        this(FlowManager.getInstance(), table, migrationVersion);
+        super(migrationVersion);
+        mTable = table;
     }
 
     @Override
@@ -79,7 +72,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     public void migrate(SQLiteDatabase database) {
         // "ALTER TABLE "
         String sql = mQuery.getQuery();
-        String tableName = mManager.getTableName(mTable);
+        String tableName = FlowManager.getTableName(mTable);
 
         // "{oldName}  RENAME TO {newName}"
         // Since the structure has been updated already, the manager knows only the new name.
@@ -104,6 +97,5 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         mQuery = null;
         mRenameQuery = null;
         mColumnDefinitions = null;
-        mManager = null;
     }
 }
