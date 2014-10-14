@@ -3,7 +3,7 @@ package com.grosner.dbflow.runtime.transaction;
 import android.database.Cursor;
 
 import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.sql.Where;
+import com.grosner.dbflow.sql.Queriable;
 import com.grosner.dbflow.structure.Model;
 
 /**
@@ -14,25 +14,25 @@ import com.grosner.dbflow.structure.Model;
  */
 public class QueryTransaction<ModelClass extends Model> extends BaseResultTransaction<Cursor> {
 
-    private Where<ModelClass> mWhere;
+    private Queriable<ModelClass> mQueriable;
 
-    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Where<ModelClass> where, ResultReceiver<Cursor> cursorResultReceiver) {
+    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable<ModelClass> queriable, ResultReceiver<Cursor> cursorResultReceiver) {
         super(dbTransactionInfo, cursorResultReceiver);
-        mWhere = where;
+        mQueriable = queriable;
     }
 
-    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Where<ModelClass> where) {
-        this(dbTransactionInfo, where, null);
+    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable<ModelClass> queriable) {
+        this(dbTransactionInfo, queriable, null);
     }
 
     @Override
     public boolean onReady() {
-        return mWhere != null;
+        return mQueriable != null;
     }
 
     @Override
     public Cursor onExecute() {
-        return mWhere.query();
+        return mQueriable.query();
     }
 
     @Override

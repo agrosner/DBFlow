@@ -22,7 +22,7 @@ import java.util.Map;
  * Contributors: { }
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<ModelClass extends Model> implements Query {
+public class Where<ModelClass extends Model> implements Query, Queriable<ModelClass> {
 
     /**
      * The first chunk of the SQL statement before this query.
@@ -258,6 +258,7 @@ public class Where<ModelClass extends Model> implements Query {
      * Run this query and returns the {@link android.database.Cursor} for it
      * @return the Sqlite {@link android.database.Cursor} from this query
      */
+    @Override
     public Cursor query() {
         // Query the sql here
         Cursor cursor = null;
@@ -276,6 +277,7 @@ public class Where<ModelClass extends Model> implements Query {
      *
      * @return All of the entries in the DB converted into {@link ModelClass}
      */
+    @Override
     public List<ModelClass> queryList() {
         checkSelect("query");
         return SqlUtils.queryList(mWhereBase.getTable(), getQuery());
@@ -286,6 +288,7 @@ public class Where<ModelClass extends Model> implements Query {
      *
      * @return The first result of this query. Note: this query may return more than one from the DB.
      */
+    @Override
     public ModelClass querySingle() {
         checkSelect("query");
         return SqlUtils.querySingle(mWhereBase.getTable(), getQuery());

@@ -2,29 +2,46 @@ package com.grosner.dbflow.sql.migration;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.Query;
+import com.grosner.dbflow.sql.Update;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
-import java.util.ArrayList;
-
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: Provides a simple way to update a table's field or fields quickly.
+ * Description: Provides a simple way to update a table's field or fields quickly in a migration. It ties an SQLite {@link com.grosner.dbflow.sql.Update}
+ * to migrations whenever we want to batch update tables in a structured manner.
  */
-public class UpdateTableMigration<ModelClass extends Model> extends BaseMigration {
+public class UpdateTableMigration<ModelClass extends Model> extends BaseMigration implements Query {
 
+    /**
+     * The query to use
+     */
     private QueryBuilder mQuery;
 
-    private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
+    /**
+     * Builds the conditions for the WHERE part of our query
+     */
+    private ConditionQueryBuilder<ModelClass> mWhereConditionQueryBuilder;
 
+    /**
+     * The table to update
+     */
     private final Class<ModelClass> mTable;
 
-    private ArrayList<QueryBuilder> mSetDefinitions;
+    /**
+     * The conditions to use to set fields in the update query
+     */
+    private ConditionQueryBuilder<ModelClass> mSetConditionQueryBuilder;
 
+    /**
+     * Creates an update migration.
+     * @param table The table to update
+     * @param migrationVersion The version of the db to update at.
+     */
     public UpdateTableMigration(Class<ModelClass> table, int migrationVersion) {
         super(migrationVersion);
         mTable = table;
@@ -34,40 +51,31 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * This will append a SET columnName = value to this migration. It will execute each of these in succession with the order
      * that this is called.
      *
-     * @param columnName
-     * @param value
+     * @param conditions The condition to append
      * @return
      */
-    public UpdateTableMigration<ModelClass> set(String columnName, String value) {
-        if (mSetDefinitions == null) {
-            mSetDefinitions = new ArrayList<QueryBuilder>();
+    public UpdateTableMigration<ModelClass> set(Condition... conditions) {
+        if (mSetConditionQueryBuilder == null) {
+            mSetConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
         }
 
-        QueryBuilder queryBuilder = new QueryBuilder()
-                .append(columnName).appendSpaceSeparated("=").append(value);
-        mSetDefinitions.add(queryBuilder);
-
+        mSetConditionQueryBuilder.putConditions(conditions);
         return this;
     }
 
-    public UpdateTableMigration<ModelClass> where(Condition condition) {
-        if (mConditionQueryBuilder == null) {
-            mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
+    public UpdateTableMigration<ModelClass> where(Condition...conditions) {
+        if (mWhereConditionQueryBuilder == null) {
+            mWhereConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
         }
 
-        mConditionQueryBuilder.putCondition(condition);
+        mWhereConditionQueryBuilder.putConditions(conditions);
         return this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void onPreMigrate() {
-        mQuery = new QueryBuilder().append("UPDATE").appendSpaceSeparated(FlowManager.getTableName(mTable))
-                .append("SET").appendSpace().appendList(mSetDefinitions);
-
-        if (mConditionQueryBuilder != null) {
-            mQuery.appendSpaceSeparated("WHERE").append(mConditionQueryBuilder.getQuery());
-        }
+        mQuery = new QueryBuilder(new Update().table(mTable).set(mSetConditionQueryBuilder).where(mWhereConditionQueryBuilder).getQuery());
     }
 
     @Override
@@ -79,6 +87,11 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     public void onPostMigrate() {
         // make fields eligible for GC
         mQuery = null;
-        mSetDefinitions = null;
+        mSetConditionQueryBuilder = null;
+    }
+
+    @Override
+    public String getQuery() {
+        return mQuery.getQuery();
     }
 }

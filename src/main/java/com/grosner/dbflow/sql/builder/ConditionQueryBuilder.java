@@ -219,13 +219,13 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param value      The value of the column we are looking for
      * @return
      */
+    @SuppressWarnings("unchecked")
     public String convertValueToString(String columnName, Object value) {
         String stringVal;
         if (!useEmptyParams) {
             Field field = mTableStructure.getField(columnName);
             if (field != null) {
-                final TypeConverter typeConverter = mTableStructure.getManager()
-                        .getTypeConverterForClass(mTableStructure.getField(columnName).getType());
+                final TypeConverter typeConverter = FlowManager.getTypeConverterForClass(mTableStructure.getField(columnName).getType());
                 if (typeConverter != null) {
                     // serialize data
                     value = typeConverter.getDBValue(value);

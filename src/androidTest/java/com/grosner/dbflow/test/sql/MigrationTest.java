@@ -1,11 +1,16 @@
 package com.grosner.dbflow.test.sql;
 
+import android.database.Cursor;
 import android.test.AndroidTestCase;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.sql.Select;
+import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.migration.AlterTableMigration;
+import com.grosner.dbflow.sql.migration.UpdateTableMigration;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
 
@@ -58,7 +63,29 @@ public class MigrationTest extends AndroidTestCase {
 
         alterTableMigration.migrate(FlowManager.getManagerForTable(TestModel1.class).getWritableDatabase());
 
+        // test the column sizes
+        Cursor cursor = new Select().from(TestModel1.class).where().query();
+        String[] columns = cursor.getColumnNames();
+        assertTrue(columns.length == columnNames.size()+1);
+
+        // make sure column exists now
+        for(int i = 0; i < columnNames.size(); i++) {
+            assertTrue(cursor.getColumnIndex(columnNames.get(i).split(" ")[0]) != -1);
+        }
+
         alterTableMigration.onPostMigrate();
+    }
+
+    public void testUpdateMigration() {
+        UpdateTableMigration<TestModel1> updateTableMigration
+                = new UpdateTableMigration<TestModel1>(TestModel1.class, 2)
+                .set(Condition.column("name").is("test")).where(Condition.column("name").is("notTest"));
+        updateTableMigration.onPreMigrate();
+
+        assertEquals("UPDATE TestModel1 SET name = 'test' WHERE name = 'notTest'", updateTableMigration.getQuery().trim());
+
+        updateTableMigration.migrate(FlowManager.getManagerForTable(TestModel1.class).getWritableDatabase());
+        updateTableMigration.onPostMigrate();
     }
 
 
