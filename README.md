@@ -55,7 +55,7 @@ customizable interfaces for many aspects of the library
 ```UpdateTableMigration```: Define the ```Update``` to run for a specific DB version
 
 ### Familiarity
-Handling DB tables like a java ```List``` with the ```FlowTableList```
+Handling DB tables like a java ```List``` with the ```FlowTableList``` ([here](https://github.com/agrosner/DBFlow/wiki/Tables-as-Lists))
 
 ### Flexibility
 Can use the [SQL wrapping language](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping), ```FlowCursorList```, or ```TransactionManager``` to perform DB operations. Each one serves a specific purpose. 
