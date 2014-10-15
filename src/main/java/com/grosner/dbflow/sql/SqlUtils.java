@@ -369,6 +369,7 @@ public class SqlUtils {
      * @param field          The field from the {@link com.grosner.dbflow.structure.Model} class
      * @return The value that should be set on the field from the {@link com.grosner.dbflow.structure.TableStructure}
      */
+    @SuppressWarnings("unchecked")
     public static Object getModelValueFromCursor(Cursor cursor, TableStructure tableStructure, Field field, String columnName, Class<?> fieldType) {
         int columnIndex = TextUtils.isEmpty(columnName) ? -1 : cursor.getColumnIndex(columnName);
 
