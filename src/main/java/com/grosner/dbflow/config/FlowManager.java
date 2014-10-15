@@ -14,6 +14,7 @@ import com.grosner.dbflow.converter.SqlDateConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.observer.ModelObserver;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.DBStructure;
 import com.grosner.dbflow.structure.InvalidDBConfiguration;
 import com.grosner.dbflow.structure.Model;
@@ -94,6 +95,15 @@ public class FlowManager {
      */
     public static String getTableName(Class<? extends Model> table) {
         return FlowManager.getManagerForTable(table).getStructure().getTableStructure().get(table).getTableName();
+    }
+
+    /**
+     * Returns the primary where query for a specific table. Its the WHERE statement containing columnName = ?.
+     * @param table The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return The primary where query
+     */
+    public static <ModelClass extends Model> ConditionQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> table) {
+        return getManagerForTable(table).getStructure().getPrimaryWhereQuery(table);
     }
 
     /**

@@ -415,7 +415,7 @@ public class SqlUtils {
                 }
 
                 // Build the primary key query using the converter and querybuilder
-                ConditionQueryBuilder conditionQueryBuilder = FlowManager.getManagerForTable(tableStructure.getModelType()).getStructure().getPrimaryWhereQuery(entityType);
+                ConditionQueryBuilder conditionQueryBuilder = FlowManager.getPrimaryWhereQuery(tableStructure.getModelType());
                 value = new Select().from(entityType).where()
                         .whereQuery(conditionQueryBuilder.replaceEmptyParams(foreignColumns))
                         .querySingle();
@@ -469,7 +469,7 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> boolean exists(ModelClass model) {
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder = (ConditionQueryBuilder<ModelClass>)
-                FlowManager.getManagerForTable(model.getClass()).getStructure().getPrimaryWhereQuery(model.getClass());
+                FlowManager.getPrimaryWhereQuery(model.getClass());
         return new Select().from(model.getClass()).where(ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model)).hasData();
     }
 }

@@ -43,12 +43,10 @@ public class JsonStructureUtils {
     public static <ModelClass extends Model> void save(JSONModel<ModelClass> jsonModel, boolean async, int mode, boolean notify) {
         if (!async) {
 
-            FlowManager flowManager = FlowManager.getManagerForTable(jsonModel.getTable());
             TableStructure<ModelClass> tableStructure = jsonModel.mTableStructure;
+            FlowManager flowManager = tableStructure.getManager();
 
-            Class<ModelClass> table = tableStructure.getModelType();
-            ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder = tableStructure.getManager()
-                    .getStructure().getPrimaryWhereQuery(jsonModel.getTable());
+            ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder = FlowManager.getPrimaryWhereQuery(jsonModel.getTable());
 
             final SQLiteDatabase db = flowManager.getWritableDatabase();
             final ContentValues values = new ContentValues();
@@ -177,7 +175,7 @@ public class JsonStructureUtils {
      * @return
      */
     public static <ModelClass extends Model> String getPrimaryModelWhere(JSONModel<ModelClass> model) {
-        ConditionQueryBuilder<ModelClass> existing = FlowManager.getManagerForTable(model.getTable()).getStructure().getPrimaryWhereQuery(model.getTable());
+        ConditionQueryBuilder<ModelClass> existing = FlowManager.getPrimaryWhereQuery(model.getTable());
         return getModelBackedWhere(existing, existing.getTableStructure().getPrimaryKeys(), model);
     }
 

@@ -83,7 +83,7 @@ public class JSONModel<ModelClass extends Model> implements Model {
      */
     public void load(Object...primaryKeys){
         mJson = new JSONObject();
-        ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getManagerForTable(mTableStructure.getModelType()).getStructure().getPrimaryWhereQuery(getTable());
+        ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(getTable());
         load(new Select().from(mTableStructure.getModelType())
                 .where(primaryQuery.replaceEmptyParams(primaryKeys)).query());
     }

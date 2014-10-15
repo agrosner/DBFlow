@@ -292,7 +292,7 @@ public class TransactionManager {
      * @return
      */
     public <ModelClass extends Model> ModelClass selectModelById(Class<ModelClass> tableClass, Object... ids) {
-        ConditionQueryBuilder<ModelClass> queryBuilder = FlowManager.getManagerForTable(tableClass).getStructure().getPrimaryWhereQuery(tableClass);
+        ConditionQueryBuilder<ModelClass> queryBuilder = FlowManager.getPrimaryWhereQuery(tableClass);
         return selectModel(queryBuilder.replaceEmptyParams(ids));
     }
 
@@ -334,7 +334,7 @@ public class TransactionManager {
     public <ModelClass extends Model> void fetchModelById(Class<ModelClass> tableClass,
                                                           final ResultReceiver<ModelClass> resultReceiver,
                                                           Object... ids) {
-        ConditionQueryBuilder<ModelClass> queryBuilder = FlowManager.getManagerForTable(tableClass).getStructure().getPrimaryWhereQuery(tableClass);
+        ConditionQueryBuilder<ModelClass> queryBuilder = FlowManager.getPrimaryWhereQuery(tableClass);
         fetchModel(queryBuilder.replaceEmptyParams(ids), resultReceiver);
     }
 
