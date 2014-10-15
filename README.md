@@ -58,5 +58,5 @@ customizable interfaces for many aspects of the library
 Handling DB tables like a java ```List``` with the ```FlowTableList```
 
 ### Flexibility
-Can use the SQL wrapping language, ```FlowCursorList```, or ```TransactionManager``` to perform DB operations. Each one serves a specific purpose. 
+Can use the [SQL wrapping language](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping), ```FlowCursorList```, or ```TransactionManager``` to perform DB operations. Each one serves a specific purpose. 
 
