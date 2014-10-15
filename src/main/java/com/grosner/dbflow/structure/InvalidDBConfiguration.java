@@ -2,8 +2,7 @@ package com.grosner.dbflow.structure;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Thrown when a DB is incorrectly configured.
  */
 public class InvalidDBConfiguration extends RuntimeException {
 

@@ -22,8 +22,7 @@ import dalvik.system.DexFile;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Contains what was scanned from source code.
  */
 public class ScannedModelContainer {
 
@@ -63,9 +62,9 @@ public class ScannedModelContainer {
      * @throws java.io.IOException
      */
     public void generateModelFromSource() throws IOException {
-        String packageName = FlowManager.getInstance().getContext().getPackageName();
+        String packageName = FlowManager.getContext().getPackageName();
 
-        String sourcePath = FlowManager.getInstance().getContext().getApplicationInfo().sourceDir;
+        String sourcePath = FlowManager.getContext().getApplicationInfo().sourceDir;
 
         List<String> paths = new ArrayList<String>();
 

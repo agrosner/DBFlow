@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Provides some basic database structure utility methods.
  */
 public class StructureUtils {

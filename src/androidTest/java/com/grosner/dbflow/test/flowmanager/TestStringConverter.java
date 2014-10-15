@@ -7,7 +7,7 @@ import com.grosner.dbflow.converter.TypeConverter;
 * Contributors: { }
 * Description:
 */
-public class StringConverter implements TypeConverter<String, String> {
+public class TestStringConverter implements TypeConverter<String, String> {
 
     @Override
     public Class<String> getDatabaseType() {

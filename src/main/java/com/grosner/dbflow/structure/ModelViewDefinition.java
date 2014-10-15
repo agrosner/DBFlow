@@ -4,7 +4,6 @@ import com.grosner.dbflow.sql.language.Where;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Describes the SQL query for a view. It is a virtual table that we can query from.
  */
 public interface ModelViewDefinition<ModelViewClass extends BaseModelView<ModelClass>, ModelClass extends Model> {

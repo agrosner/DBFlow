@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Holds the mapping between SQL data types and java classes.
  */
 public enum SQLiteType {

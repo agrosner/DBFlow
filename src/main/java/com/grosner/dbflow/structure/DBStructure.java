@@ -96,7 +96,7 @@ public class DBStructure {
                 mTableStructure.put(modelClass, tableStructure);
             }
         } else if(FlowManager.isMultipleDatabases()){
-            throw new InvalidDBConfiguration(dbConfiguration.getDatabaseName());
+            throw new InvalidDBConfiguration("", dbConfiguration.getDatabaseName());
         }
     }
 

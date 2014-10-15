@@ -5,7 +5,6 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: An optional annotation for {@link com.grosner.dbflow.structure.Model} classes
  * that allow a different name than the Model's class name.
  */

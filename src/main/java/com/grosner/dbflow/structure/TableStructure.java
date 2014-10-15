@@ -18,9 +18,8 @@ import java.util.Set;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: This class defines the structure of this table for reference later. It holds information
- * such as the type of {@link com.grosner.dbflow.structure.Model}, the tablename, the column names,
+ * such as the type of {@link com.grosner.dbflow.structure.Model}, the creation query, the tablename, the column names,
  * primary keys, and foreign keys.
  */
 public class TableStructure<ModelType extends Model> {
