@@ -20,6 +20,7 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 
 ### Efficiency
 [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
+
 [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
 
 eliminates repetitive code, built to handle large DB operations, caching where needed
