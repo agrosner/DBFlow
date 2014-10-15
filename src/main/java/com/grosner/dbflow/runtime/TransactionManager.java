@@ -1,6 +1,7 @@
 package com.grosner.dbflow.runtime;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -79,6 +80,30 @@ public class TransactionManager {
             manager = new TransactionManager(TransactionManager.class.getSimpleName(), true);
         }
         return manager;
+    }
+
+    /**
+     * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
+     *
+     * @param runnable
+     */
+    public static void transact(SQLiteDatabase database, Runnable runnable) {
+        database.beginTransaction();
+        try {
+            runnable.run();
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
+
+    /**
+     * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
+     *
+     * @param runnable
+     */
+    public static void transact(Runnable runnable) {
+        transact(FlowManager.getInstance().getWritableDatabase(), runnable);
     }
 
     void checkQueue() {

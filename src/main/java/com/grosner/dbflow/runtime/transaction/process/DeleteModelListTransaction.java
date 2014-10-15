@@ -19,7 +19,7 @@ public class DeleteModelListTransaction<ModelClass extends Model> extends Proces
     }
 
     @Override
-    protected void processModel(ModelClass model) {
+    public void processModel(ModelClass model) {
         model.delete(false);
     }
 }

@@ -20,14 +20,11 @@ import java.util.List;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description: A cursor backed list that you can use in {@link android.widget.ListView} or other data sources.
+ * Description: A non-modifiable, cursor-backed list that you can use in {@link android.widget.ListView} or other data sources.
  */
 public class FlowCursorList<ModelClass extends Model> {
 
     private Cursor mCursor;
-
-    private FlowManager mManager;
 
     private Class<ModelClass> mTable;
 
@@ -46,11 +43,10 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param table       The table to query from
      * @param conditions  The set of {@link com.grosner.dbflow.sql.builder.Condition} to query with
      */
-    public FlowCursorList(boolean cacheModels, FlowManager flowManager, Class<ModelClass> table, Condition... conditions) {
+    public FlowCursorList(boolean cacheModels, Class<ModelClass> table, Condition... conditions) {
         this.cacheModels = cacheModels;
         mWhere = new Select().from(table).where(conditions);
         mCursor = mWhere.query();
-        mManager = flowManager;
         mTable = table;
 
         if(cacheModels) {
@@ -61,15 +57,15 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     /**
-     * Constructs an instance of this list with the shared {@link com.grosner.dbflow.config.FlowManager}
-     *
-     * @param cacheModels For every call to {@link #getItem(int)}, do we want to keep a reference to it so
-     *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
-     * @param table       The table to query from
-     * @param conditions  The set of {@link com.grosner.dbflow.sql.builder.Condition} to query with
+     * Refreshes the data backing this list, and destroys the Model cache.
      */
-    public FlowCursorList(boolean cacheModels, Class<ModelClass> table, Condition... conditions) {
-        this(cacheModels, FlowManager.getInstance(), table, conditions);
+    public void refresh() {
+        mCursor.close();
+        mCursor = mWhere.query();
+
+        if(cacheModels) {
+            mModelCache.clear();
+        }
     }
 
     /**
@@ -138,10 +134,6 @@ public class FlowCursorList<ModelClass extends Model> {
         mCursor.close();
     }
 
-    public FlowManager getManager() {
-        return mManager;
-    }
-
     public Class<ModelClass> getTable() {
         return mTable;
     }
@@ -160,13 +152,7 @@ public class FlowCursorList<ModelClass extends Model> {
         @Override
         public void onChange(boolean selfChange) {
             if (mCursor != null && !mCursor.isClosed()) {
-                mCursor.close();
-                mCursor = mWhere.query();
-
-                // clearing cache as data has changed
-                if(cacheModels) {
-                    mModelCache.clear();
-                }
+                refresh();
             }
         }
     }

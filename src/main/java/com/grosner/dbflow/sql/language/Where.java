@@ -216,11 +216,11 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     /**
      * Defines a SQL ORDER BY statement without the ORDER BY.
      *
-     * @param orderBy
+     * @param ascending If we should be in ascending order
      * @return
      */
-    public Where<ModelClass> orderBy(QueryBuilder orderBy) {
-        mOrderBy = orderBy.getQuery();
+    public Where<ModelClass> orderBy(boolean ascending, String... columns) {
+        mOrderBy = new QueryBuilder().appendArray(columns).appendSpace().append(ascending ? "ASC" : "DSC").getQuery();
         return this;
     }
 

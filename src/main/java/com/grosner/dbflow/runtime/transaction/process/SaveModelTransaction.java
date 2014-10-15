@@ -4,7 +4,6 @@ import com.grosner.dbflow.structure.Model;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Saves all of the {@link ModelClass} into the DB in one transaction.
  */
 public class SaveModelTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
@@ -20,7 +19,7 @@ public class SaveModelTransaction<ModelClass extends Model> extends ProcessModel
     }
 
     @Override
-    protected void processModel(ModelClass model) {
+    public void processModel(ModelClass model) {
         model.save(false);
     }
 

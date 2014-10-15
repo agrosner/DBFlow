@@ -130,14 +130,19 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
                 .append(mQueryBuilderBase.getQuery());
+        if(!(mQueryBuilderBase instanceof Update)) {
+            queryBuilder.append("FROM ");
+        }
+
+        queryBuilder.append(FlowManager.getTableName(mTable));
+
         if (mQueryBuilderBase instanceof Select) {
-            queryBuilder.append("FROM").appendSpaceSeparated(FlowManager.getTableName(mTable));
-            queryBuilder.appendQualifier("AS", mAlias);
+            queryBuilder.appendSpace().appendQualifier("AS", mAlias);
             for (Join join : mJoins) {
                 queryBuilder.append(join.getQuery());
             }
         } else {
-            queryBuilder.append(FlowManager.getTableName(mTable)).appendSpace();
+            queryBuilder.appendSpace();
         }
 
         return queryBuilder.getQuery();

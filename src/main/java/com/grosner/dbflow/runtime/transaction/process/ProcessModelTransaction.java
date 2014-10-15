@@ -1,6 +1,5 @@
 package com.grosner.dbflow.runtime.transaction.process;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.transaction.BaseResultTransaction;
 import com.grosner.dbflow.structure.Model;
 
@@ -12,7 +11,7 @@ import java.util.List;
  * Description: Provides a {@link ModelClass}-list backed implementation on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
  * and allows for specific method calling on a model.
  */
-public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> {
+public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> implements ProcessModel<ModelClass> {
 
     protected ProcessModelInfo<ModelClass> mModelInfo;
 
@@ -34,15 +33,7 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
     @Override
     public List<ModelClass> onExecute() {
         final List<ModelClass> processedModels = mModelInfo.mModels;
-        FlowManager.transact(new Runnable() {
-            @Override
-            public void run() {
-                for (ModelClass model : processedModels) {
-                    processModel(model);
-                }
-            }
-        });
-
+        ProcessModelHelper.process(processedModels, this);
         return processedModels;
     }
 
@@ -52,7 +43,7 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
      *
      * @param model
      */
-    protected abstract void processModel(ModelClass model);
-
+    @Override
+    public abstract void processModel(ModelClass model);
 
 }

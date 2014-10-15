@@ -4,7 +4,6 @@ import com.grosner.dbflow.structure.Model;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Updates all of the {@link ModelClass} in one transaction.
  */
 public class UpdateModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
@@ -19,7 +18,7 @@ public class UpdateModelListTransaction<ModelClass extends Model> extends Proces
     }
 
     @Override
-    protected void processModel(ModelClass model) {
+    public void processModel(ModelClass model) {
         model.update(false);
     }
 }

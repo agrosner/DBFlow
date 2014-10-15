@@ -364,30 +364,6 @@ public class FlowManager {
     }
 
     /**
-     * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
-     *
-     * @param runnable
-     */
-    public static void transact(SQLiteDatabase database, Runnable runnable) {
-        database.beginTransaction();
-        try {
-            runnable.run();
-            database.setTransactionSuccessful();
-        } finally {
-            database.endTransaction();
-        }
-    }
-
-    /**
-     * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
-     *
-     * @param runnable
-     */
-    public static void transact(Runnable runnable) {
-        transact(getInstance().getWritableDatabase(), runnable);
-    }
-
-    /**
      * This will delete and recreate the whole stored database. WARNING: all data stored will be lost.
      * @param context The applications context
      */

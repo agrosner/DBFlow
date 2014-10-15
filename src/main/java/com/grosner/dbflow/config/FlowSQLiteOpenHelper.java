@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.SparseArray;
 
 import com.grosner.dbflow.DatabaseHelperListener;
+import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.ModelViewDefinition;
@@ -147,12 +148,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     private void executeCreations(final SQLiteDatabase database) {
 
-        FlowManager.transact(database, new Runnable() {
+        TransactionManager.transact(database, new Runnable() {
             @Override
             public void run() {
                 Collection<TableStructure> tableStructures = mManager.getStructure().getTableStructure().values();
                 for (TableStructure tableStructure : tableStructures) {
-                    if(!tableStructure.isModelView()) {
+                    if (!tableStructure.isModelView()) {
                         database.execSQL(tableStructure.getCreationQuery().getQuery());
                     }
                 }
@@ -178,7 +179,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             final List<String> files = Arrays.asList(mManager.getContext().getAssets().list(MIGRATION_PATH));
             Collections.sort(files, new NaturalOrderComparator());
 
-            FlowManager.transact(db, new Runnable() {
+            TransactionManager.transact(db, new Runnable() {
                 @Override
                 public void run() {
                     for (String file : files) {
