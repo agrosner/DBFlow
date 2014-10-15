@@ -16,19 +16,23 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 
 ## Features:
 
-1. Loading and saving of Model objects. 
-2. No need to define what Model classes to use - just implement the ```Model``` interface, extend ```BaseModel``` or extend ```BaseNotifiableModel``` .
-3. Multiple primary key columns, handling multiple foreign keys for a table
-4. Multi-database support fully baked in using the ```FlowManager```
-5. Directly saving JSON to the database via ```JSONModel``` (with some minor caveats).
-5. Database Views (Virtual tables)
-6. Handling large amounts of database requests efficiently and effectively
-7. Priority queuing of DB transactions through the ```DBTransactionQueue``` and the ```TransactionManager```
-8. Migrations through both SQL files and inline code.
-9. Complex queries wrapped in "builder" notation instead of using SQL strings.
-10. ```TypeConverter``` that let **you** define how to store a particular class.
-11. Powerful caching of reflection and repetitive queries to make this library _flow_ smoothly
-12. And many more powerful features **baked** in.
+### Efficiency
+eliminates repetitive code, built to handle large DB operations, caching where needed
+
+### Extensibility
+customizable interfaces for many aspects of the library
+
+### Power
+SQL-lite query wrapping, **multiple database support**
+
+### Ease
+Migration handling
+
+### Familiarity
+Handling DB tables like a java ```List``` with the ```FlowTableList```
+
+### Flexibility
+Can use the SQL wrapping language, ```FlowCursorList```, or ```TransactionManager``` to perform DB operations. Each one serves a specific purpose. 
 
 ## Documentation
 
