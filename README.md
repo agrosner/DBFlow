@@ -16,28 +16,55 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 
 ## Features:
 
-1. Loading and saving of Model objects. 
-2. No need to define what Model classes to use - just implement the ```Model``` interface, extend ```BaseModel``` or extend ```BaseNotifiableModel``` .
-3. Multiple primary key columns, handling multiple foreign keys for a table
-4. Multi-database support fully baked in using the ```FlowManager```
-5. Directly saving JSON to the database via ```JSONModel``` (with some minor caveats).
-5. Database Views (Virtual tables)
-6. Handling large amounts of database requests efficiently and effectively
-7. Priority queuing of DB transactions through the ```DBTransactionQueue``` and the ```TransactionManager```
-8. Migrations through both SQL files and inline code.
-9. Complex queries wrapped in "builder" notation instead of using SQL strings.
-10. ```TypeConverter``` that let **you** define how to store a particular class.
-11. Powerful caching of reflection and repetitive queries to make this library _flow_ smoothly
-12. And many more powerful features **baked** in.
+[Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
 
-## Documentation
+### Efficiency
+[Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
 
-1. [Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
-3. [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
-4. [Basic Query Wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
-5. [Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
-6. [Multiple Databases](https://github.com/agrosner/DBFlow/wiki/Multiple-Databases)
-6. [Type Conversion](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
-7. [Migrations](https://github.com/agrosner/DBFlow/wiki/Migrations)
-8. [Observable Models](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
-9. [JSON Models](https://github.com/agrosner/DBFlow/wiki/JSON-Models)
+[Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
+
+eliminates repetitive code, built to handle large DB operations, caching where needed
+
+### Extensibility
+customizable interfaces for many aspects of the library
+
+```Model```: The main table class
+
+```Transaction```: Runs a transaction on the ```DBTransactionQueue```
+
+```Migration```: Define how you wish to modify the database
+
+```Queriable```: Custom definition for how to retrieve data from the database
+
+```ModelObserver```: Listens for operations on a ```BaseNotifiableModel``` and provides a callback for when they change. [Example](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
+
+```TypeConverter```: Allows non-model classes to define how they save to a singular column in the database ([here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)).
+
+### Power
+[SQL-lite query wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
+
+```Select```, ```Update```, ```Delete``` are all supported.
+
+[**Multiple database support**](https://github.com/agrosner/DBFlow/wiki/Multiple-Databases)
+
+```FlowManager```: Manages a database. To enable multiple databases, call ```FlowManager.setMultipleDatabases(true)``` and specify in each's ```DBConfiguration``` which ```Model``` class to use (two dbs cannot share the same model class).
+
+[JSON Models](https://github.com/agrosner/DBFlow/wiki/JSON-Models)
+
+```JSONModel```: Maps a Json object to a ```Model``` in the database. It will directly save the JSON into the DB using a ```Model``` class as its blueprint.
+
+### Ease
+[Migration handling](https://github.com/agrosner/DBFlow/wiki/Migrations)
+
+```BaseMigration```: Provides a base implementation to execute some operation on the database
+
+```AlterTableMigration```: When you want to change table's name or add columns
+
+```UpdateTableMigration```: Define the ```Update``` to run for a specific DB version
+
+### Familiarity
+Handling DB tables like a java ```List``` with the ```FlowTableList``` ([here](https://github.com/agrosner/DBFlow/wiki/Tables-as-Lists))
+
+### Flexibility
+Can use the [SQL wrapping language](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping), ```FlowCursorList```, or ```TransactionManager``` to perform DB operations. Each one serves a specific purpose. 
+
