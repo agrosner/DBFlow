@@ -415,7 +415,7 @@ public class SqlUtils {
                 }
 
                 // Build the primary key query using the converter and querybuilder
-                ConditionQueryBuilder conditionQueryBuilder = FlowManager.getPrimaryWhereQuery(tableStructure.getModelType());
+                ConditionQueryBuilder conditionQueryBuilder = FlowManager.getPrimaryWhereQuery(entityType);
                 value = new Select().from(entityType).where()
                         .whereQuery(conditionQueryBuilder.replaceEmptyParams(foreignColumns))
                         .querySingle();
