@@ -237,6 +237,15 @@ public class FlowTableList<ModelClass extends Model> implements List<ModelClass>
         return new Select().from(mCursorList.getTable()).where(conditions).queryList();
     }
 
+    /**
+     * Fetches a list of all items in this table
+     *
+     * @param resultReceiver The callback that will receive the list.
+     */
+    public void fetchAll(ResultReceiver<List<ModelClass>> resultReceiver) {
+        mCursorList.fetchAll(resultReceiver);
+    }
+
     @Override
     public int indexOf(Object object) {
         throw new UnsupportedOperationException("We cannot determine which index in the table this item exists at efficiently");
