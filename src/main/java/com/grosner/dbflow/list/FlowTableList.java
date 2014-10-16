@@ -162,7 +162,7 @@ public class FlowTableList<ModelClass extends Model> implements List<ModelClass>
         if (transact) {
             TransactionManager.getInstance().delete(MODIFICATION_INFO, mCursorList.getTable());
         } else {
-            TransactionManager.getInstance().delete(mCursorList.getTable());
+            Delete.table(mCursorList.getTable());
         }
         mInternalResultReceiver.onResultReceived(null);
     }

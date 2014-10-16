@@ -49,37 +49,12 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
-     * @return
-     * @see #selectAllFromTable(Class, com.grosner.dbflow.sql.builder.Condition...)
-     */
-    public List<ModelClass> selectAllFromTable(Condition... conditions) {
-        return selectAllFromTable(mTableClass, conditions);
-    }
-
-    /**
-     * @param ids The list of ids given by the {@link ModelClass}
-     * @return
-     * @see #selectModelById(Class, Object...)
-     */
-    public ModelClass selectModelById(Object... ids) {
-        return super.selectModelById(mTableClass, ids);
-    }
-
-    /**
      * @param resultReceiver The result will be passed here.
      * @param ids            The list of ids given by the {@link ModelClass}
      * @see #fetchModelById(Class, com.grosner.dbflow.runtime.transaction.ResultReceiver, Object...)
      */
     public void fetchModelById(ResultReceiver<ModelClass> resultReceiver, Object... ids) {
         super.fetchModelById(mTableClass, resultReceiver, ids);
-    }
-
-    /**
-     * @param conditions The list of conditions to delete with
-     * @see #delete(Class, com.grosner.dbflow.sql.builder.Condition...)
-     */
-    public void delete(Condition... conditions) {
-        super.delete(mTableClass, conditions);
     }
 
     /**
