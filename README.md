@@ -1,7 +1,7 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/master/clear-river.jpg?raw=true)
 
 
-DBFlow
+DBFlow (BETA)
 ======
 
 A robust, powerful, and very simple ORM android database library.
@@ -12,7 +12,7 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your 
 
 This library is based on both [Active Android](https://github.com/pardom/ActiveAndroid) and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of both while offering much more functionality and extensibility. 
 
-**Please** note that this is not in full release yet, and thus is in **Alpha**. Also the code is **not** fully guaranteed yet, meaning classes, methods, or even whole packages may not exist in further updates until the library becomes stable.
+**Please** note that this is not in full release yet, and thus is in **Beta**. Also the code is **not** fully guaranteed yet, but I promise to be nicer in changes from now on.
 
 ## Features:
 
