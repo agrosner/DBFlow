@@ -5,7 +5,6 @@ import android.location.Location;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ColumnType;
 import com.grosner.dbflow.test.FlowTestCase;
 
 /**
@@ -34,7 +33,7 @@ public class DBStructureTest extends FlowTestCase {
     }
 
     private static class TestPrimaryWhere extends TestModel1{
-        @Column(@ColumnType(ColumnType.PRIMARY_KEY))
+        @Column(columnType = Column.PRIMARY_KEY)
         private Location location;
     }
 

@@ -2,7 +2,6 @@ package com.grosner.dbflow.test.json;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ColumnType;
 import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.json.JSONModel;
 import com.grosner.dbflow.test.FlowTestCase;
@@ -60,7 +59,7 @@ public class JsonModelTest extends FlowTestCase {
 
     private static class TestJsonModelClass extends TestModel1 {
 
-        @Column(@ColumnType(ColumnType.PRIMARY_KEY))
+        @Column(columnType = Column.PRIMARY_KEY)
         private String party_type;
 
         @Column
@@ -69,7 +68,7 @@ public class JsonModelTest extends FlowTestCase {
         @Column
         private String party_name;
 
-        @Column(value = @ColumnType(ColumnType.FOREIGN_KEY),
+        @Column(columnType = Column.FOREIGN_KEY,
                 references = {@ForeignKeyReference(columnName = "testName", columnType = String.class, foreignColumnName = "name")})
         private TestModel1 testModel;
     }

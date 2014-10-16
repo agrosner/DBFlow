@@ -1,7 +1,6 @@
 package com.grosner.dbflow.sql.builder;
 
 import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ColumnType;
 import com.grosner.dbflow.structure.ForeignKeyReference;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
             mQuery.append(")");
         }
 
-        if (column.value().value() == ColumnType.PRIMARY_KEY_AUTO_INCREMENT) {
+        if (column.columnType() == Column.PRIMARY_KEY_AUTO_INCREMENT) {
             mQuery.append(" PRIMARY KEY AUTOINCREMENT");
         }
 

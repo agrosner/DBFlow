@@ -2,7 +2,6 @@ package com.grosner.dbflow.test.structure;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ColumnType;
 import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.test.FlowTestCase;
 
@@ -44,7 +43,7 @@ public class ForeignKeyTest extends FlowTestCase {
     }
 
     private static class ForeignModel extends TestModel1 {
-        @Column(value = @ColumnType(ColumnType.FOREIGN_KEY),
+        @Column(columnType = Column.FOREIGN_KEY,
                 references =
                         {@ForeignKeyReference(columnName = "testmodel_id",
                                 foreignColumnName = "name",

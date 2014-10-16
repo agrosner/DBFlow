@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 public class StructureUtils {
 
     /**
-     * Checks to see if field is a {@link com.grosner.dbflow.structure.ColumnType#PRIMARY_KEY}
+     * Checks to see if field is a {@link com.grosner.dbflow.structure.Column#PRIMARY_KEY}
      *
      * @param field
      * @return
@@ -18,13 +18,13 @@ public class StructureUtils {
         Column column = field.getAnnotation(Column.class);
         boolean isPrimary = column != null;
         if (isPrimary) {
-            isPrimary = (column.value().value() != ColumnType.FOREIGN_KEY && column.value().value() != ColumnType.NORMAL);
+            isPrimary = (column.columnType() != Column.FOREIGN_KEY && column.columnType() != Column.NORMAL);
         }
         return isPrimary;
     }
 
     /**
-     * Checks to see if field is a {@link com.grosner.dbflow.structure.ColumnType#FOREIGN_KEY}
+     * Checks to see if field is a {@link com.grosner.dbflow.structure.Column#FOREIGN_KEY}
      *
      * @param field
      * @return
@@ -33,13 +33,13 @@ public class StructureUtils {
         Column column = field.getAnnotation(Column.class);
         boolean isForeign = column != null;
         if (isForeign) {
-            isForeign = column.value().value() == ColumnType.FOREIGN_KEY;
+            isForeign = column.columnType() == Column.FOREIGN_KEY;
         }
         return isForeign;
     }
 
     /**
-     * Checks to see if field is not {@link com.grosner.dbflow.structure.ColumnType#PRIMARY_KEY_AUTO_INCREMENT}
+     * Checks to see if field is not {@link com.grosner.dbflow.structure.Column#PRIMARY_KEY_AUTO_INCREMENT}
      *
      * @param field
      * @return
@@ -48,13 +48,13 @@ public class StructureUtils {
         Column column = field.getAnnotation(Column.class);
         boolean isPrimary = column != null;
         if (isPrimary) {
-            isPrimary = column.value().value() == ColumnType.PRIMARY_KEY;
+            isPrimary = column.columnType() == Column.PRIMARY_KEY;
         }
         return isPrimary;
     }
 
     /**
-     * Returns true if the field is {@link com.grosner.dbflow.structure.ColumnType#PRIMARY_KEY_AUTO_INCREMENT}
+     * Returns true if the field is {@link com.grosner.dbflow.structure.Column#PRIMARY_KEY_AUTO_INCREMENT}
      *
      * @param field
      * @return
@@ -63,7 +63,7 @@ public class StructureUtils {
         Column column = field.getAnnotation(Column.class);
         boolean isPrimary = column != null;
         if (isPrimary) {
-            isPrimary = column.value().value() == ColumnType.PRIMARY_KEY_AUTO_INCREMENT;
+            isPrimary = column.columnType() == Column.PRIMARY_KEY_AUTO_INCREMENT;
         }
         return isPrimary;
     }

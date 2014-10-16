@@ -15,11 +15,31 @@ import java.lang.annotation.Target;
 public @interface Column {
 
     /**
-     * Lets you specify the {@link com.grosner.dbflow.structure.ColumnType}
+     * Default value, it is just an ordinary column
+     */
+    public static final int NORMAL = -1;
+
+    /**
+     * The field is marked as a primary key and cannot be repeated.
+     */
+    public static final int PRIMARY_KEY = 0;
+
+    /**
+     * The field is marked as an auto-incrementing primary key and will increment with every new row.
+     */
+    public static final int PRIMARY_KEY_AUTO_INCREMENT = 1;
+
+    /**
+     * The field references another column from another table and will retrieve the object upon load of the {@link com.grosner.dbflow.structure.Model}
+     */
+    public static final int FOREIGN_KEY = 2;
+
+    /**
+     * Lets you specify if its a primary, foreign key, or autoincrementing field
      *
      * @return
      */
-    ColumnType value() default @ColumnType;
+    int columnType() default NORMAL;
 
     /**
      * This is how to resolve null or unique conflicts with a field marked as {@link #notNull()}
