@@ -2,9 +2,14 @@ package com.grosner.dbflow.sql.language;
 
 import android.text.TextUtils;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.Query;
+import com.grosner.dbflow.sql.builder.Condition;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
+
+import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -52,6 +57,52 @@ public class Select implements Query {
      * The column name passed into the method name
      */
     private String mColumnName;
+
+    /**
+     * Selects a model by id
+     * @param tableClass The table to select from
+     * @param ids The ids to use
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return
+     */
+    public static <ModelClass extends Model> ModelClass byId(Class<ModelClass> tableClass, Object...ids) {
+        ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(tableClass);
+        return withCondition(primaryQuery.replaceEmptyParams(ids));
+    }
+
+    /**
+     * Selects a single model object with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
+     *
+     * @param conditionQueryBuilder The where query we will use
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @return the first model from the database cursor.
+     */
+    public static <ModelClass extends Model> ModelClass withCondition(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String...columns) {
+        return Where.with(conditionQueryBuilder, columns).querySingle();
+    }
+
+    /**
+     * Selects all models from the table based on a set of {@link com.grosner.dbflow.sql.builder.Condition}.
+     *
+     * @param tableClass   The table to select the list from
+     * @param conditions   The list of conditions to select the list of models from
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return the list of every row in the table
+     */
+    public static <ModelClass extends Model> List<ModelClass> all(Class<ModelClass> tableClass, Condition...conditions) {
+        return new Select().from(tableClass).where(conditions).queryList();
+    }
+
+    /**
+     * Selects a list of model objects with the specified {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
+     *
+     * @param conditionQueryBuilder The where query we will use
+     * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
+     * @return the list of models from the database cursor.
+     */
+    public static <ModelClass extends Model> List<ModelClass> all(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String...columns) {
+        return Where.with(conditionQueryBuilder, columns).queryList();
+    }
 
     /**
      * Creates this instance with the specified columns from the specified {@link com.grosner.dbflow.config.FlowManager}
