@@ -21,7 +21,7 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 ### Efficiency
 [Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
 
-[Database Management](https://github.com/agrosner/DBFlow/wiki/Database-Management)
+[Transactions](https://github.com/agrosner/DBFlow/wiki/Database-Transactions) wrap batch operations in one database transaction and run all on a priority queue.
 
 eliminates repetitive code, built to handle large DB operations, caching where needed
 
@@ -30,7 +30,7 @@ customizable interfaces for many aspects of the library
 
 ```Model```: The main table class
 
-```Transaction```: Runs a transaction on the ```DBTransactionQueue```
+```Transaction```: Runs a [transaction](https://github.com/agrosner/DBFlow/wiki/Database-Transactions) on the ```DBTransactionQueue```
 
 ```Migration```: Define how you wish to modify the database
 
