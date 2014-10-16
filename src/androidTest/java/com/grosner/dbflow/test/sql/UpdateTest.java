@@ -3,6 +3,7 @@ package com.grosner.dbflow.test.sql;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.sql.language.From;
+import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.language.Update;
 import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
@@ -54,11 +55,11 @@ public class UpdateTest extends FlowTestCase {
         testUpdateModel.value = "oldvalue";
         testUpdateModel.save(false);
 
-        assertNotNull(TransactionManager.getInstance().selectModelById(TestUpdateModel.class, "Test"));
+        assertNotNull(Select.byId(TestUpdateModel.class, "Test"));
 
         new Update().table(TestUpdateModel.class).set(Condition.column("value").is("newvalue")).where().query();
 
-        TestUpdateModel newUpdateModel = TransactionManager.getInstance().selectModelById(TestUpdateModel.class, "Test");
+        TestUpdateModel newUpdateModel = Select.byId(TestUpdateModel.class, "Test");
         assertEquals("newvalue", newUpdateModel.value);
 
     }

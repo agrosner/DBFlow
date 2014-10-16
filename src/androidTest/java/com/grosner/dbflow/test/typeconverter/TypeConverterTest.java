@@ -4,6 +4,7 @@ import android.location.Location;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
@@ -63,7 +64,7 @@ public class TypeConverterTest extends FlowTestCase {
 
         testType.save(false);
 
-        TestType retrieved = TransactionManager.getInstance().selectModelById(TestType.class, "Name");
+        TestType retrieved = Select.byId(TestType.class, "Name");
         assertNotNull(retrieved);
 
         assertNotNull(retrieved.calendar);

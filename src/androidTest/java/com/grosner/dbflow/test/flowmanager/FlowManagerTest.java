@@ -5,7 +5,6 @@ import android.test.AndroidTestCase;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.test.structure.TestModel1;
-import com.grosner.dbflow.test.utils.AssertUtils;
 
 /**
  * Author: andrewgrosner

@@ -44,7 +44,7 @@ public class ModelViewTest extends FlowTestCase {
 
         TransactionManager transactionManager = new TransactionManager("ModelViewTest", false);
 
-        List<TestModelView> testModelViews = transactionManager.selectAllFromTable(TestModelView.class);
+        List<TestModelView> testModelViews = Select.all(TestModelView.class);
         assertTrue(!testModelViews.isEmpty());
         assertTrue(testModelViews.size() == 1);
     }
