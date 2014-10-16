@@ -1,5 +1,7 @@
 package com.grosner.dbflow.structure;
 
+import android.support.annotation.IntDef;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -39,7 +41,10 @@ public @interface Column {
      *
      * @return
      */
-    int columnType() default NORMAL;
+    @IntDef({NORMAL, PRIMARY_KEY, PRIMARY_KEY_AUTO_INCREMENT, FOREIGN_KEY})
+    @interface ColumnType{}
+
+    @ColumnType int columnType() default NORMAL;
 
     /**
      * This is how to resolve null or unique conflicts with a field marked as {@link #notNull()}
