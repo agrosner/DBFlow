@@ -67,7 +67,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * @param databaseName
      */
     public void movePrepackagedDB(String databaseName) {
-        final File dbPath = mManager.getContext().getDatabasePath(databaseName);
+        final File dbPath = FlowManager.getContext().getDatabasePath(databaseName);
 
         // If the database already exists, return
         if (dbPath.exists()) {
@@ -79,7 +79,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         // Try to copy database file
         try {
-            final InputStream inputStream = mManager.getContext().getAssets().open(databaseName);
+            final InputStream inputStream = FlowManager.getContext().getAssets().open(databaseName);
             final OutputStream output = new FileOutputStream(dbPath);
 
             byte[] buffer = new byte[1024];
@@ -176,7 +176,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         // will try migrations file or execute migrations from code
         try {
-            final List<String> files = Arrays.asList(mManager.getContext().getAssets().list(MIGRATION_PATH));
+            final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(MIGRATION_PATH));
             Collections.sort(files, new NaturalOrderComparator());
 
             TransactionManager.transact(db, new Runnable() {
@@ -225,7 +225,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private void executeSqlScript(SQLiteDatabase db, String file) {
         try {
-            final InputStream input = mManager.getContext().getAssets().open(MIGRATION_PATH + "/" + file);
+            final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + file);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String line;
 

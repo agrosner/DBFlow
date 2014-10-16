@@ -160,9 +160,9 @@ public class FlowTableList<ModelClass extends Model> implements List<ModelClass>
     @Override
     public void clear() {
         if (transact) {
-            TransactionManager.getInstance().deleteTable(MODIFICATION_INFO, mCursorList.getTable());
+            TransactionManager.getInstance().delete(MODIFICATION_INFO, mCursorList.getTable());
         } else {
-            TransactionManager.getInstance().deleteTable(mCursorList.getTable());
+            TransactionManager.getInstance().delete(mCursorList.getTable());
         }
         mInternalResultReceiver.onResultReceived(null);
     }

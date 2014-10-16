@@ -10,17 +10,17 @@ public class Condition {
     /**
      * The operation such as "=", "<", and more
      */
-    String mOperation;
+    private String mOperation;
 
     /**
      * The value of the column we care about
      */
-    Object mValue;
+    private Object mValue;
 
     /**
      * The column name
      */
-    String mColumn;
+    private String mColumn;
 
     public static Condition column(String columnName) {
         return new Condition(columnName);
@@ -31,7 +31,7 @@ public class Condition {
      *
      * @param columnName The name of the column in the DB
      */
-    Condition(String columnName) {
+    private Condition(String columnName) {
         mColumn = columnName;
     }
 

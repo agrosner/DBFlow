@@ -30,7 +30,7 @@ public class DBConfiguration {
     /**
      * The optional list of model classes that this DB will use
      */
-    List<Class<? extends Model>> mModelClasses;
+    private List<Class<? extends Model>> mModelClasses;
 
     /**
      * The list of DB migrations we can add to the DB when necessary

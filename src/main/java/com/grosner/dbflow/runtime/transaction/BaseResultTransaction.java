@@ -13,7 +13,7 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
     /**
      * The callback to be executed when the transaction completes
      */
-    protected ResultReceiver<ResultClass> mReceiver;
+    private ResultReceiver<ResultClass> mReceiver;
 
     /**
      * Constructs this transaction

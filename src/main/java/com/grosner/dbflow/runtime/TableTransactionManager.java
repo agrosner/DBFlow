@@ -76,10 +76,10 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
 
     /**
      * @param conditions The list of conditions to delete with
-     * @see #deleteTable(Class, com.grosner.dbflow.sql.builder.Condition...)
+     * @see #delete(Class, com.grosner.dbflow.sql.builder.Condition...)
      */
-    public void deleteTable(Condition... conditions) {
-        super.deleteTable(mTableClass, conditions);
+    public void delete(Condition... conditions) {
+        super.delete(mTableClass, conditions);
     }
 
     /**
@@ -87,8 +87,8 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
      * @param conditions      The list of conditions to delete with
      * @see #delete(DBTransactionInfo, Class, com.grosner.dbflow.sql.builder.Condition...)
      */
-    public void deleteTable(DBTransactionInfo transactionInfo, Condition... conditions) {
-        super.deleteTable(transactionInfo, mTableClass, conditions);
+    public void delete(DBTransactionInfo transactionInfo, Condition... conditions) {
+        super.delete(transactionInfo, mTableClass, conditions);
     }
 
     /**

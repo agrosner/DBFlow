@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.13.+'
+        classpath 'com.android.tools.build:gradle:0.13.3'
     }
 }
 apply plugin: 'com.android.library'
@@ -28,6 +28,5 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-v4:20.+"
-    compile "com.android.support:support-annotations:20.+"
+    compile "com.android.support:support-annotations:20.0.0"
 }

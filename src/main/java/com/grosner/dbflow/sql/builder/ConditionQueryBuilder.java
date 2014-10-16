@@ -352,7 +352,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param <ModelClass>
      * @return
      */
-    public static String getModelBackedWhere(ConditionQueryBuilder<? extends Model> existing,
+    static String getModelBackedWhere(ConditionQueryBuilder<? extends Model> existing,
                                              Collection<Field> fields, Model model) {
         String query = existing.getQuery();
         for (Field primaryField : fields) {

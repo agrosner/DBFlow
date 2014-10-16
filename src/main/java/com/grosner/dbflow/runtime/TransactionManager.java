@@ -396,21 +396,8 @@ public class TransactionManager {
      * @param conditions   The list of conditions to delete the list of models from
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public <ModelClass extends Model> void deleteTable(Class<ModelClass> tableClass, Condition... conditions) {
+    public <ModelClass extends Model> void delete(Class<ModelClass> tableClass, Condition... conditions) {
         Delete.table(tableClass, conditions);
-    }
-
-    /**
-     * Deletes all of the models in the specified table on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
-     *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param table           The table to delete models from.
-     * @param conditions      The list of conditions to delete the list of models from
-     * @param <ModelClass>    The class that implements {@link com.grosner.dbflow.structure.Model}.
-     */
-    public <ModelClass extends Model> void deleteTable(DBTransactionInfo transactionInfo,
-                                                       Class<ModelClass> table, Condition... conditions) {
-        addTransaction(new DeleteTransaction<ModelClass>(transactionInfo, table, conditions));
     }
 
     /**

@@ -21,9 +21,8 @@ public class TestModel1 extends BaseModel {
 
         TestModel1 that = (TestModel1) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return !(name != null ? !name.equals(that.name) : that.name != null);
 
-        return true;
     }
 
     @Override

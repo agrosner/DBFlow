@@ -75,7 +75,7 @@ public class DBBatchSaveQueue extends Thread {
     /**
      * Creates a new instance of this class to batch save {@link com.grosner.dbflow.structure.Model} classes.
      */
-    public DBBatchSaveQueue() {
+    private DBBatchSaveQueue() {
         super("DBBatchSaveQueue");
 
         mModels = new ArrayList<Model>();
