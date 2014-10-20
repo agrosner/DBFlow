@@ -36,7 +36,7 @@ public class ModelContainerUtils {
      *                       {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void save(BaseModelContainer<ModelClass> modelContainer, boolean async, @SqlUtils.SaveMode int mode) {
+    public static <ModelClass extends Model> void save(BaseModelContainer<ModelClass, ?> modelContainer, boolean async, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
             TableStructure<ModelClass> tableStructure = modelContainer.mTableStructure;
@@ -101,7 +101,7 @@ public class ModelContainerUtils {
      * @param cursor         The cursor from the DB
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void loadFromCursor(BaseModelContainer<ModelClass> modelContainer, Cursor cursor) {
+    public static <ModelClass extends Model> void loadFromCursor(BaseModelContainer<ModelClass, ?> modelContainer, Cursor cursor) {
         Set<Field> fields = modelContainer.mTableStructure.getColumns();
         for (Field field : fields) {
             Object value = SqlUtils.getModelValueFromCursor(cursor, modelContainer.mTableStructure, field, modelContainer.mTableStructure.getColumnName(field), field.getType());
@@ -118,7 +118,7 @@ public class ModelContainerUtils {
      * @param modelContainer The model that holds preconverted data
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> ModelClass toModel(BaseModelContainer<ModelClass> modelContainer) {
+    public static <ModelClass extends Model> ModelClass toModel(BaseModelContainer<ModelClass, ?> modelContainer) {
         Cursor cursor = new Select().from(modelContainer.getTable()).where(getPrimaryModelWhere(modelContainer)).query();
         ModelClass model = SqlUtils.convertToModel(false, modelContainer.getTable(), cursor);
         cursor.close();
@@ -134,7 +134,7 @@ public class ModelContainerUtils {
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void delete(final BaseModelContainer<ModelClass> modelContainer, boolean async) {
+    public static <ModelClass extends Model> void delete(final BaseModelContainer<ModelClass, ?> modelContainer, boolean async) {
         if (!async) {
             FlowManager flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
             flowManager.getWritableDatabase().delete(modelContainer.mTableStructure.getTableName(), getPrimaryModelWhere(modelContainer), null);
@@ -152,7 +152,7 @@ public class ModelContainerUtils {
      * @param <ModelClass> The class that implements {@link ModelClass}
      * @return If the model that the {@link JSONModel} points to exists in the DB
      */
-    public static <ModelClass extends Model> boolean exists(BaseModelContainer<ModelClass> jsonModel) {
+    public static <ModelClass extends Model> boolean exists(BaseModelContainer<ModelClass, ?> jsonModel) {
         return new Select().from(jsonModel.getTable())
                 .where(getPrimaryModelWhere(jsonModel)).hasData();
     }
@@ -163,7 +163,7 @@ public class ModelContainerUtils {
      * @param modelContainer The existing model with all of its primary keys filled in
      * @return
      */
-    public static <ModelClass extends Model> String getPrimaryModelWhere(BaseModelContainer<ModelClass> modelContainer) {
+    public static <ModelClass extends Model> String getPrimaryModelWhere(BaseModelContainer<ModelClass, ?> modelContainer) {
         ConditionQueryBuilder<ModelClass> existing = FlowManager.getPrimaryWhereQuery(modelContainer.getTable());
         return getModelBackedWhere(existing, existing.getTableStructure().getPrimaryKeys(), modelContainer);
     }
@@ -180,7 +180,7 @@ public class ModelContainerUtils {
      * @return
      */
     public static <ModelClass extends Model> String getModelBackedWhere(ConditionQueryBuilder<ModelClass> existing,
-                                                                        Collection<Field> fields, BaseModelContainer<ModelClass> modelContainer) {
+                                                                        Collection<Field> fields, BaseModelContainer<ModelClass, ?> modelContainer) {
         String query = existing.getQuery();
         for (Field primaryField : fields) {
             String columnName = existing.getTableStructure().getColumnName(primaryField);

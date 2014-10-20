@@ -24,6 +24,9 @@ import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
 import com.grosner.dbflow.structure.container.JSONModel;
+import com.grosner.dbflow.structure.container.MapModel;
+import com.grosner.dbflow.structure.container.ModelContainer;
+import com.grosner.dbflow.structure.container.ModelContainerMap;
 
 import org.json.JSONObject;
 
@@ -32,6 +35,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -218,21 +222,18 @@ public class SqlUtils {
             Column key = field.getAnnotation(Column.class);
             Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
 
-            // JSON backed model
-            if(value instanceof JSONObject) {
-
-                // save model first
-                JSONObject jsonObject = ((JSONObject) value);
-                JSONModel<? extends Model> jsonModel = new JSONModel<Model>(jsonObject, (Class<Model>) entityType);
-                jsonModel.save(false);
+            if(value instanceof ModelContainer || ModelContainerMap.containsValue(value)) {
+                ModelContainer<? extends Model, ?> modelContainer = ModelContainerMap.getModelContainerInstance(entityType, value);
+                modelContainer.save(false);
 
                 TableStructure tableStructure = flowManager.getStructure().getTableStructureForClass(entityType);
                 for (ForeignKeyReference foreignKeyReference : key.references()) {
                     Field foreignColumnField = tableStructure.getField(foreignKeyReference.foreignColumnName());
-                    Object jsonValue = jsonObject.opt(foreignKeyReference.foreignColumnName());
+                    Object jsonValue = modelContainer.getValue(foreignKeyReference.foreignColumnName());
                     field.setAccessible(true);
                     SqlUtils.putField(values, flowManager, foreignColumnField, foreignKeyReference.columnName(), jsonValue);
                 }
+
             } else {
 
                 // save model first

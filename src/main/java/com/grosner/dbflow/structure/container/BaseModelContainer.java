@@ -12,7 +12,7 @@ import com.grosner.dbflow.structure.TableStructure;
  * Contributors: { }
  * Description:
  */
-public abstract class BaseModelContainer<ModelClass extends Model> implements ModelContainer<ModelClass>, Model {
+public abstract class BaseModelContainer<ModelClass extends Model, DataClass> implements ModelContainer<ModelClass, DataClass>, Model {
 
     /**
      * The {@link ModelClass} that the json corresponds to. Use {@link #toModel()} to retrieve this value.
@@ -24,8 +24,22 @@ public abstract class BaseModelContainer<ModelClass extends Model> implements Mo
      */
     TableStructure<ModelClass> mTableStructure;
 
+    /**
+     * The data thats stored in the container
+     */
+    DataClass mData;
+
     public BaseModelContainer(Class<ModelClass> table) {
         mTableStructure = FlowManager.getManagerForTable(table).getTableStructureForClass(table);
+    }
+
+    public BaseModelContainer(Class<ModelClass> table, DataClass data) {
+        mTableStructure = FlowManager.getManagerForTable(table).getTableStructureForClass(table);
+        mData = data;
+    }
+
+    public void setData(DataClass data) {
+        mData = data;
     }
 
     @Override
@@ -35,6 +49,10 @@ public abstract class BaseModelContainer<ModelClass extends Model> implements Mo
         }
 
         return mModel;
+    }
+
+    public DataClass getData() {
+        return mData;
     }
 
     public Class<ModelClass> getTable() {
@@ -77,7 +95,9 @@ public abstract class BaseModelContainer<ModelClass extends Model> implements Mo
         return ModelContainerUtils.exists(this);
     }
 
-    protected abstract Object getValue(String columnName);
+    @Override
+    public abstract Object getValue(String columnName);
 
-    protected abstract void put(String columnName, Object value);
+    @Override
+    public abstract void put(String columnName, Object value);
 }

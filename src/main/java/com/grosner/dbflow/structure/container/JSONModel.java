@@ -20,12 +20,7 @@ import org.json.JSONObject;
  * <li>The names of the keys must match the column names</li>
  */
 @Ignore
-public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass> implements Model{
-
-    /**
-     * The {@link org.json.JSONObject} that we query from
-     */
-    JSONObject mJson;
+public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model{
 
     /**
      * Constructs this object with the {@link org.json.JSONObject} for the specified {@link ModelClass} table.
@@ -33,8 +28,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
      * @param table The table of the referenced model
      */
     public JSONModel(JSONObject jsonObject, Class<ModelClass> table) {
-        super(table);
-        mJson = jsonObject;
+        super(table, jsonObject);
     }
 
     /**
@@ -42,21 +36,26 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
      * @param table The table of the referenced model
      */
     public JSONModel(Class<ModelClass> table) {
-        this(new JSONObject(), table);
+        super(table, new JSONObject());
     }
 
     @Override
-    protected Object getValue(String columnName) {
-        return mJson.opt(columnName);
+    public Object getValue(String columnName) {
+        return getData().opt(columnName);
     }
 
     @Override
-    protected void put(String columnName, Object value) {
+    public void put(String columnName, Object value) {
         try{
-            mJson.put(columnName, value);
+            getData().put(columnName, value);
         } catch (JSONException e) {
             FlowLog.logError(e);
         }
+    }
+
+    @Override
+    public Class<JSONObject> getDataClass() {
+        return JSONObject.class;
     }
 
     /**
@@ -64,7 +63,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
      * @param primaryKeys The keys to reference
      */
     public void load(Object...primaryKeys){
-        mJson = new JSONObject();
+        setData(new JSONObject());
         ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(getTable());
         load(new Select().from(mTableStructure.getModelType())
                 .where(primaryQuery.replaceEmptyParams(primaryKeys)).query());

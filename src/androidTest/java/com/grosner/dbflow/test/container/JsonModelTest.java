@@ -1,8 +1,6 @@
-package com.grosner.dbflow.test.json;
+package com.grosner.dbflow.test.container;
 
 import com.grosner.dbflow.config.DBConfiguration;
-import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.container.JSONModel;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
@@ -23,7 +21,7 @@ public class JsonModelTest extends FlowTestCase {
 
     @Override
     protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.addModelClasses(TestJsonModelClass.class);
+        builder.addModelClasses(TestModelContainerClass.class);
     }
 
     public void testJsonModel() {
@@ -46,7 +44,7 @@ public class JsonModelTest extends FlowTestCase {
                     "}" +
                     "}");
 
-            JSONModel<TestJsonModelClass> testJsonModel = new JSONModel<TestJsonModelClass>(jsonObject, TestJsonModelClass.class);
+            JSONModel<TestModelContainerClass> testJsonModel = new JSONModel<TestModelContainerClass>(jsonObject, TestModelContainerClass.class);
             testJsonModel.save(false);
 
             assertTrue(testJsonModel.exists());
@@ -57,19 +55,4 @@ public class JsonModelTest extends FlowTestCase {
         }
     }
 
-    private static class TestJsonModelClass extends TestModel1 {
-
-        @Column(columnType = Column.PRIMARY_KEY)
-        private String party_type;
-
-        @Column
-        private int count;
-
-        @Column
-        private String party_name;
-
-        @Column(columnType = Column.FOREIGN_KEY,
-                references = {@ForeignKeyReference(columnName = "testName", columnType = String.class, foreignColumnName = "name")})
-        private TestModel1 testModel;
-    }
 }
