@@ -23,11 +23,10 @@ import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
-import com.grosner.dbflow.structure.json.JSONModel;
+import com.grosner.dbflow.structure.container.JSONModel;
 
 import org.json.JSONObject;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;

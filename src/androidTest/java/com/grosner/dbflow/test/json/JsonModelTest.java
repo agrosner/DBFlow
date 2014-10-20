@@ -3,7 +3,7 @@ package com.grosner.dbflow.test.json;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ForeignKeyReference;
-import com.grosner.dbflow.structure.json.JSONModel;
+import com.grosner.dbflow.structure.container.JSONModel;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
 
