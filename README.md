@@ -36,7 +36,7 @@ customizable interfaces for many aspects of the library
 
 ```Queriable```: Custom definition for how to retrieve data from the database
 
-```ModelObserver```: Listens for operations on a ```BaseNotifiableModel``` and provides a callback for when they change. [Example](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
+```ModelChangeListener```: Listens for operations on a ```Model``` and provides a callback for when they change. [Example](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
 
 ```TypeConverter```: Allows non-model classes to define how they save to a singular column in the database ([here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)).
 
