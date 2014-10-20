@@ -40,7 +40,7 @@ customizable interfaces for many aspects of the library
 
 ```TypeConverter```: Allows non-model classes to define how they save to a singular column in the database ([here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)).
 
-```ModelContainer```: Allows data that does not look like a ```Model``` class to operate like a model. Such examples are ```JSONModel``` and ```MapModel```[here](https://github.com/agrosner/DBFlow/wiki/JSON-Models). 
+```ModelContainer```: Allows data that does not look like a ```Model``` class to operate like a model. Such examples are ```JSONModel``` and ```MapModel```[here](https://github.com/agrosner/DBFlow/wiki/Model-Containers). 
 
 ### Power
 [SQL-lite query wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
@@ -51,7 +51,7 @@ customizable interfaces for many aspects of the library
 
 ```FlowManager```: Manages a database. To enable multiple databases, call ```FlowManager.setMultipleDatabases(true)``` and specify in each's ```DBConfiguration``` which ```Model``` class to use (two dbs cannot share the same model class).
 
-[Model Containers](https://github.com/agrosner/DBFlow/wiki/JSON-Models)
+[Model Containers](https://github.com/agrosner/DBFlow/wiki/Model-Containers)
 
 ```JSONModel```: Maps a Json object to a ```Model``` in the database. It will directly save the JSON into the DB using a ```Model``` class as its blueprint.
 
