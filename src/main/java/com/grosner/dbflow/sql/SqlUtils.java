@@ -3,6 +3,8 @@ package com.grosner.dbflow.sql;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.support.annotation.IntDef;
 import android.text.TextUtils;
 
 import com.grosner.dbflow.ReflectionUtils;
@@ -11,11 +13,11 @@ import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.language.Select;
+import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.Model;
@@ -25,6 +27,7 @@ import com.grosner.dbflow.structure.json.JSONModel;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -40,20 +43,22 @@ import java.util.Set;
  */
 public class SqlUtils {
 
+    public @IntDef @interface SaveMode{};
+
     /**
-     * This marks the {@link #save(com.grosner.dbflow.config.FlowManager, com.grosner.dbflow.structure.Model, boolean, int)}
+     * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as checking to see if the model exists before saving.
      */
     public static final int SAVE_MODE_DEFAULT = 0;
 
     /**
-     * This marks the {@link #save(com.grosner.dbflow.config.FlowManager, com.grosner.dbflow.structure.Model, boolean, int)}
+     * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as updating only without checking for it to exist. This is when we know the data exists.
      */
     public static final int SAVE_MODE_UPDATE = 1;
 
     /**
-     * This marks the {@link #save(com.grosner.dbflow.config.FlowManager, com.grosner.dbflow.structure.Model, boolean, int)}
+     * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as inserting only without checking for it to exist. This is for when we know the data is new.
      */
     public static final int SAVE_MODE_INSERT = 2;
@@ -262,11 +267,10 @@ public class SqlUtils {
      * @param model        The model to save
      * @param async        Whether it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately.
      * @param mode         The save mode, can be {@link #SAVE_MODE_DEFAULT}, {@link #SAVE_MODE_INSERT}, {@link #SAVE_MODE_UPDATE}
-     * @param notify       If we should notify all of our {@link com.grosner.dbflow.runtime.observer.ModelObserver}
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void save(ModelClass model, boolean async, int mode, boolean notify) {
+    public static <ModelClass extends Model> void save(ModelClass model, boolean async, @SaveMode int mode) {
         if (!async) {
             FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
             ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder =
@@ -292,10 +296,14 @@ public class SqlUtils {
             }
 
             boolean exists = false;
+            BaseModel.Action action = BaseModel.Action.SAVE;
             if (mode == SAVE_MODE_DEFAULT) {
                 exists = exists(model);
             } else if (mode == SAVE_MODE_UPDATE) {
                 exists = true;
+                action = BaseModel.Action.UPDATE;
+            } else {
+                action = BaseModel.Action.INSERT;
             }
 
             if (exists) {
@@ -319,11 +327,7 @@ public class SqlUtils {
                 }
             }
 
-            if (notify) {
-                // Notify any observers of this model change
-                FlowManager.getManagerForTable(model.getClass()).fireModelChanged(model, ModelObserver.Mode.fromData(mode, false));
-            }
-
+            notifyModelChanged(model.getClass(), action);
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.create()));
         }
@@ -443,17 +447,14 @@ public class SqlUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void delete(final ModelClass model, boolean async, boolean notify) {
+    public static <ModelClass extends Model> void delete(final ModelClass model, boolean async) {
         if (!async) {
             FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
             TableStructure tableStructure = flowManager.getTableStructureForClass(model.getClass());
             ConditionQueryBuilder<ModelClass> conditionQueryBuilder = flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
             flowManager.getWritableDatabase().delete(tableStructure.getTableName(), ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model), null);
 
-            if (notify) {
-                // Notify any observers of this model change
-                FlowManager.getManagerForTable(model.getClass()).fireModelChanged(model, ModelObserver.Mode.fromData(0, true));
-            }
+            notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<ModelClass>(ProcessModelInfo.withModels(model).fetch()));
         }
@@ -472,5 +473,26 @@ public class SqlUtils {
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder = (ConditionQueryBuilder<ModelClass>)
                 FlowManager.getPrimaryWhereQuery(model.getClass());
         return new Select().from(model.getClass()).where(ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model)).hasData();
+    }
+
+    /**
+     * Notifies the {@link android.database.ContentObserver} that the model has changed.
+     * @param model
+     */
+    public static void notifyModelChanged(Class<? extends Model> modelClass, BaseModel.Action action) {
+        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(modelClass, action), null, true);
+    }
+
+    /**
+     * Returns the uri for notifications  from model changes
+     * @param modelClass
+     * @return
+     */
+    public static Uri getNotificationUri(Class<? extends Model> modelClass, BaseModel.Action action) {
+        String mode = "";
+        if(action != null) {
+            mode = "#" + action.name();
+        }
+        return Uri.parse("dbflow://" + FlowManager.getTableName(modelClass) + mode);
     }
 }

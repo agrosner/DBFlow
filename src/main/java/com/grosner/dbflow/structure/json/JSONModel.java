@@ -59,22 +59,22 @@ public class JSONModel<ModelClass extends Model> implements Model {
 
     @Override
     public void save(boolean async) {
-        JsonStructureUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT, false);
+        JsonStructureUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT);
     }
 
     @Override
     public void insert(boolean async) {
-        JsonStructureUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT, false);
+        JsonStructureUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT);
     }
 
     @Override
     public void delete(boolean async) {
-        JsonStructureUtils.delete(this, async, false);
+        JsonStructureUtils.delete(this, async);
     }
 
     @Override
     public void update(boolean async) {
-        JsonStructureUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE, false);
+        JsonStructureUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE);
     }
 
     /**

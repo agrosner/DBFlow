@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.PrimaryKeyCannotBeNullException;
+import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
@@ -37,10 +37,9 @@ public class JsonStructureUtils {
      * @param async        Where it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately/
      * @param mode         The save mode, can be {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_DEFAULT},
      *                     {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
-     * @param notify       If we should notify all of our {@link com.grosner.dbflow.runtime.observer.ModelObserver}
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void save(JSONModel<ModelClass> jsonModel, boolean async, int mode, boolean notify) {
+    public static <ModelClass extends Model> void save(JSONModel<ModelClass> jsonModel, boolean async, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
             TableStructure<ModelClass> tableStructure = jsonModel.mTableStructure;
@@ -60,10 +59,14 @@ public class JsonStructureUtils {
             }
 
             boolean exists = false;
+            BaseModel.Action action = BaseModel.Action.SAVE;
             if (mode == SqlUtils.SAVE_MODE_DEFAULT) {
                 exists = exists(jsonModel);
             } else if (mode == SqlUtils.SAVE_MODE_UPDATE) {
                 exists = true;
+                action = BaseModel.Action.UPDATE;
+            } else {
+                action = BaseModel.Action.INSERT;
             }
 
             if (exists) {
@@ -87,11 +90,7 @@ public class JsonStructureUtils {
                 }
             }
 
-            if (notify) {
-                // Notify any observers of this model change
-                // will convert the json to a model here
-                FlowManager.getManagerForTable(jsonModel.getTable()).fireModelChanged(jsonModel.toModel(), ModelObserver.Mode.fromData(mode, false));
-            }
+            SqlUtils.notifyModelChanged(jsonModel.getTable(), action);
 
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(jsonModel));
@@ -141,15 +140,11 @@ public class JsonStructureUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void delete(final JSONModel<ModelClass> jsonModel, boolean async, boolean notify) {
+    public static <ModelClass extends Model> void delete(final JSONModel<ModelClass> jsonModel, boolean async) {
         if (!async) {
             FlowManager flowManager = FlowManager.getManagerForTable(jsonModel.getTable());
             flowManager.getWritableDatabase().delete(jsonModel.mTableStructure.getTableName(), getPrimaryModelWhere(jsonModel), null);
-            if (notify) {
-                // Notify any observers of this model change
-                // will convert the json to a model here
-                FlowManager.getManagerForTable(jsonModel.getTable()).fireModelChanged(jsonModel.toModel(), ModelObserver.Mode.fromData(0, true));
-            }
+            SqlUtils.notifyModelChanged(jsonModel.getTable(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(jsonModel));
         }

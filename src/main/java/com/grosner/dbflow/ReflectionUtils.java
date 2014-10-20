@@ -1,7 +1,6 @@
 package com.grosner.dbflow;
 
 import com.grosner.dbflow.converter.TypeConverter;
-import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.structure.BaseModelView;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.Model;
@@ -69,7 +68,7 @@ public class ReflectionUtils {
     }
 
     /**
-     * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.ModelView}
+     * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.BaseModelView}
      *
      * @param discoveredClass
      * @return true if the class can be assigned to ModelView
@@ -79,7 +78,7 @@ public class ReflectionUtils {
     }
 
     /**
-     * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.ModelView}
+     * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.ModelViewDefinition}
      *
      * @param discoveredClass
      * @return true if the class can be assigned to ModelView
@@ -87,14 +86,4 @@ public class ReflectionUtils {
     public static boolean implementsModelViewDefinition(Class discoveredClass) {
         return ModelViewDefinition.class.isAssignableFrom(discoveredClass);
     }
-    /**
-     * Returns whether the passed in class implements {@link com.grosner.dbflow.runtime.observer.ModelObserver}
-     *
-     * @param discoveredClass
-     * @return true if the class can be assigned to {@link com.grosner.dbflow.runtime.observer.ModelObserver}
-     */
-    public static boolean implementsModelObserver(Class<?> discoveredClass) {
-        return ModelObserver.class.isAssignableFrom(discoveredClass);
-    }
-
 }

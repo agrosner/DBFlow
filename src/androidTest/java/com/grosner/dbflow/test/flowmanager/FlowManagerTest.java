@@ -20,6 +20,7 @@ public class FlowManagerTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        FlowManager.setContext(getContext());
         DBConfiguration.Builder configurationBuilder
                 = new DBConfiguration.Builder().databaseName("flowmanager").databaseVersion(1)
                 .addModelClasses(TestModel1.class);

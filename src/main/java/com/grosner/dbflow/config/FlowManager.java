@@ -13,7 +13,6 @@ import com.grosner.dbflow.converter.LocationConverter;
 import com.grosner.dbflow.converter.SqlDateConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.runtime.observer.ModelObserver;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.DBStructure;
 import com.grosner.dbflow.structure.InvalidDBConfiguration;
@@ -130,12 +129,6 @@ public class FlowManager {
         }
     };
 
-    /**
-     * Holds onto {@link com.grosner.dbflow.runtime.observer.ModelObserver} for each {@link com.grosner.dbflow.structure.Model}
-     */
-    private final Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> mModelObserverMap
-            = new HashMap<Class<? extends Model>, List<ModelObserver<? extends Model>>>();
-
     public static void setMultipleDatabases(boolean multipleDatabases) {
         FlowManager.multipleDatabases = multipleDatabases;
     }
@@ -184,7 +177,7 @@ public class FlowManager {
      *
      * @param context
      * @param dbConfiguration
-     * @see #initialize(android.content.Context, DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)
+     * @see #initialize(DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)
      */
     public synchronized void initialize(DBConfiguration dbConfiguration) {
         initialize(dbConfiguration, null);
@@ -194,7 +187,6 @@ public class FlowManager {
      * Call this in your application's {@link android.app.Application#onCreate()} method. Initializes the database,
      * the structure cache, and opens the database.
      *
-     * @param context
      * @param dbConfiguration
      * @param databaseHelperListener
      */
@@ -295,81 +287,6 @@ public class FlowManager {
             mTypeConverters.put(typeConverter.getModelType(), typeConverter);
         } catch (Throwable e) {
             FlowLog.logError(e);
-        }
-    }
-
-    /**
-     * Adds a {@link com.grosner.dbflow.runtime.observer.ModelObserver} to the structure
-     *
-     * @param modelObserver A model observer to listen for model changes/updates
-     */
-    @SuppressWarnings("unchecked")
-    public void addModelObserverForClass(ModelObserver<? extends Model> modelObserver) {
-        synchronized (mModelObserverMap) {
-            List<ModelObserver<? extends Model>> modelObservers = getModelObserverListForClass(modelObserver.getModelClass());
-            if (modelObservers == null) {
-                modelObservers = new ArrayList<ModelObserver<? extends Model>>();
-                getModelObserverMap().put(modelObserver.getModelClass(), modelObservers);
-            }
-            if (!modelObservers.contains(modelObserver)) {
-                modelObservers.add(modelObserver);
-            }
-        }
-    }
-
-    /**
-     * Removes a {@link com.grosner.dbflow.runtime.observer.ModelObserver} from this structure.
-     *
-     * @param modelObserver A model observer to listen for model changes/updates
-     */
-    @SuppressWarnings("unchecked")
-    public void removeModelObserverForClass(ModelObserver<? extends Model> modelObserver) {
-        synchronized (mModelObserverMap) {
-            List<ModelObserver<? extends Model>> modelObservers = getModelObserverListForClass(modelObserver.getModelClass());
-            if (modelObservers != null) {
-                modelObservers.remove(modelObserver);
-
-                if (modelObservers.isEmpty()) {
-                    getModelObserverMap().remove(modelObserver.getModelClass());
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns the associated {@link com.grosner.dbflow.runtime.observer.ModelObserver}s for the class
-     *
-     * @param modelClass
-     * @return
-     */
-    public List<ModelObserver<? extends Model>> getModelObserverListForClass(Class<? extends Model> modelClass) {
-        return getModelObserverMap().get(modelClass);
-    }
-
-    public Map<Class<? extends Model>, List<ModelObserver<? extends Model>>> getModelObserverMap() {
-        return mModelObserverMap;
-    }
-
-
-    /**
-     * Performs the listener event
-     *
-     * @param model
-     */
-    @SuppressWarnings("unchecked")
-    public void fireModelChanged(final Model model, final ModelObserver.Mode mode) {
-        synchronized (mModelObserverMap) {
-            final List<ModelObserver<? extends Model>> modelObserverList = getModelObserverListForClass(model.getClass());
-            if (!modelObserverList.isEmpty()) {
-                TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (ModelObserver modelObserver : modelObserverList) {
-                            modelObserver.onModelChanged(FlowManager.getManagerForTable(model.getClass()), model, mode);
-                        }
-                    }
-                });
-            }
         }
     }
 

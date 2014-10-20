@@ -15,9 +15,16 @@ import com.grosner.dbflow.sql.SqlUtils;
 @Ignore
 public abstract class BaseModel implements Model {
 
+    public enum Action {
+        SAVE,
+        INSERT,
+        UPDATE,
+        DELETE;
+    }
+
     @Override
     public void save(boolean async) {
-        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT, false);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT);
     }
 
     /**
@@ -27,12 +34,12 @@ public abstract class BaseModel implements Model {
      */
     @Override
     public void insert(boolean async) {
-        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT, false);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT);
     }
 
     @Override
     public void update(boolean async) {
-        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE, false);
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE);
     }
 
     @Override
@@ -42,7 +49,7 @@ public abstract class BaseModel implements Model {
 
     @Override
     public void delete(boolean async) {
-        SqlUtils.delete(this, async, false);
+        SqlUtils.delete(this, async);
     }
 
     @Override

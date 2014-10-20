@@ -5,7 +5,6 @@ import com.grosner.dbflow.StringUtils;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.TypeConverter;
-import com.grosner.dbflow.runtime.observer.ModelObserver;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,8 +48,6 @@ public class ScannedModelContainer {
     }
 
     private List<Class<? extends Model>> mModelClasses = new ArrayList<Class<? extends Model>>();
-
-    private HashMap<Class<? extends Model>, ModelObserver<? extends Model>> mModelObserversFound = new HashMap<Class<? extends Model>, ModelObserver<? extends Model>>();
 
     private HashMap<Class<? extends BaseModelView>, ModelViewDefinition> mModelViewDefinitions = new HashMap<Class<? extends BaseModelView>, ModelViewDefinition>();
 
@@ -159,14 +156,6 @@ public class ScannedModelContainer {
                         @SuppressWarnings("unchecked")
                         Class<? extends TypeConverter> typeConverterClass = (Class<? extends TypeConverter>) discoveredClass;
                         FlowManager.putTypeConverterForClass(typeConverterClass);
-                    } else if (ReflectionUtils.implementsModelObserver(discoveredClass)) {
-                        try {
-                            @SuppressWarnings("unchecked")
-                            ModelObserver<? extends ModelObserver> modelObserver = (ModelObserver<? extends ModelObserver>) discoveredClass.newInstance();
-                            mModelObserversFound.put(modelObserver.getModelClass(), modelObserver);
-                        } catch (Throwable e) {
-                            FlowLog.logError(e);
-                        }
                     } else if (ReflectionUtils.implementsModelViewDefinition(discoveredClass)) {
                         try {
                             @SuppressWarnings("unchecked")
@@ -194,11 +183,6 @@ public class ScannedModelContainer {
      */
     public void applyModelListToFoundData(List<Class<? extends Model>> modelList, DBStructure dbStructure) {
         for(Class<? extends Model> model : modelList) {
-            ModelObserver<? extends Model> modelObserver = mModelObserversFound.get(model);
-            if(modelObserver != null) {
-                dbStructure.getManager().addModelObserverForClass(modelObserver);
-            }
-
             ModelViewDefinition modelViewDefinition = mModelViewDefinitions.get(model);
             if(modelViewDefinition != null) {
                 dbStructure.putModelViewDefinition(modelViewDefinition);
@@ -208,10 +192,6 @@ public class ScannedModelContainer {
 
     public List<Class<? extends Model>> getModelClasses() {
         return mModelClasses;
-    }
-
-    public Set<Map.Entry<Class<? extends Model>, ModelObserver<? extends Model>>> getModelObserversFound() {
-        return mModelObserversFound.entrySet();
     }
 
     public Set<Map.Entry<Class<? extends BaseModelView>, ModelViewDefinition>> getModelViewDefinitions() {

@@ -1,7 +1,12 @@
 package com.grosner.dbflow.list;
 
+import android.annotation.TargetApi;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.BaseTransaction;
@@ -9,6 +14,7 @@ import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModel;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelHelper;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
+import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.language.Delete;
 import com.grosner.dbflow.sql.language.Select;
@@ -29,7 +35,7 @@ import java.util.ListIterator;
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
-public class FlowTableList<ModelClass extends Model> implements List<ModelClass> {
+public class FlowTableList<ModelClass extends Model> extends ContentObserver implements List<ModelClass> {
 
     /**
      * We use high priority to assume that this list is used in some visual aspect.
@@ -50,7 +56,33 @@ public class FlowTableList<ModelClass extends Model> implements List<ModelClass>
     private boolean transact = false;
 
     public FlowTableList(Class<ModelClass> table) {
+        super(null);
         mCursorList = new FlowCursorList<ModelClass>(true, table);
+    }
+
+    /**
+     * Registers the list for model change events
+     */
+    public void registerForContentChanges() {
+        FlowManager.getContext().getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(mCursorList.getTable(), null), true, this);
+    }
+
+    /**
+     * Unregisters this list for model change events
+     */
+    public void unregisterForContentChanges() {
+        FlowManager.getContext().getContentResolver().unregisterContentObserver(this);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    public void onChange(boolean selfChange, Uri uri) {
+        mCursorList.refresh();
+    }
+
+    @Override
+    public void onChange(boolean selfChange) {
+        mCursorList.refresh();
     }
 
     /**
