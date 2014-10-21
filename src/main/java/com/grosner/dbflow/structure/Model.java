@@ -33,6 +33,7 @@ public interface Model {
 
     /**
      * Inserts the object into the DB
+     *
      * @param async
      */
     public void insert(boolean async);

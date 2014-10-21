@@ -27,38 +27,6 @@ package com.grosner.dbflow.config;
 import java.util.Comparator;
 
 public class NaturalOrderComparator implements Comparator<Object> {
-    int compareRight(String a, String b) {
-        int bias = 0;
-        int ia = 0;
-        int ib = 0;
-
-        // The longest run of digits wins. That aside, the greatest
-        // name wins, but we can't know that it will until we've scanned
-        // both numbers to know that they have the same magnitude, so we
-        // remember it in BIAS.
-        for (; ; ia++, ib++) {
-            char ca = charAt(a, ia);
-            char cb = charAt(b, ib);
-
-            if (!Character.isDigit(ca) && !Character.isDigit(cb)) {
-                return bias;
-            } else if (!Character.isDigit(ca)) {
-                return -1;
-            } else if (!Character.isDigit(cb)) {
-                return +1;
-            } else if (ca < cb) {
-                if (bias == 0) {
-                    bias = -1;
-                }
-            } else if (ca > cb) {
-                if (bias == 0)
-                    bias = +1;
-            } else if (ca == 0 && cb == 0) {
-                return bias;
-            }
-        }
-    }
-
     public int compare(Object o1, Object o2) {
         String a = o1.toString();
         String b = o2.toString();
@@ -127,6 +95,38 @@ public class NaturalOrderComparator implements Comparator<Object> {
             return 0;
         } else {
             return s.charAt(i);
+        }
+    }
+
+    int compareRight(String a, String b) {
+        int bias = 0;
+        int ia = 0;
+        int ib = 0;
+
+        // The longest run of digits wins. That aside, the greatest
+        // name wins, but we can't know that it will until we've scanned
+        // both numbers to know that they have the same magnitude, so we
+        // remember it in BIAS.
+        for (; ; ia++, ib++) {
+            char ca = charAt(a, ia);
+            char cb = charAt(b, ib);
+
+            if (!Character.isDigit(ca) && !Character.isDigit(cb)) {
+                return bias;
+            } else if (!Character.isDigit(ca)) {
+                return -1;
+            } else if (!Character.isDigit(cb)) {
+                return +1;
+            } else if (ca < cb) {
+                if (bias == 0) {
+                    bias = -1;
+                }
+            } else if (ca > cb) {
+                if (bias == 0)
+                    bias = +1;
+            } else if (ca == 0 && cb == 0) {
+                return bias;
+            }
         }
     }
 }

@@ -12,14 +12,14 @@ import java.util.Map;
  * a {@link ModelClass} to get its blueprint.
  */
 @Ignore
-public class MapModel<ModelClass extends Model> extends BaseModelContainer<ModelClass,Map> implements Model {
-
-    public MapModel(Map<String, Object> map, Class<ModelClass> table) {
-        super(table, map);
-    }
+public class MapModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, Map> implements Model {
 
     public MapModel(Class<ModelClass> table) {
         this(new HashMap<String, Object>(), table);
+    }
+
+    public MapModel(Map<String, Object> map, Class<ModelClass> table) {
+        super(table, map);
     }
 
     @Override
@@ -30,11 +30,6 @@ public class MapModel<ModelClass extends Model> extends BaseModelContainer<Model
     @Override
     public void put(String columnName, Object value) {
         getData().put(columnName, value);
-    }
-
-    @Override
-    public Class<Map> getDataClass() {
-        return Map.class;
     }
 
 }

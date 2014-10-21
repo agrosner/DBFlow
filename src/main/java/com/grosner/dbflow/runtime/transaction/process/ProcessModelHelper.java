@@ -15,7 +15,8 @@ public class ProcessModelHelper {
 
     /**
      * Runs through a {@link java.util.Collection} of {@link ModelClass} and enables singular processing of each one.
-     * @param collection The nonnull collection of {@link ModelClass}
+     *
+     * @param collection   The nonnull collection of {@link ModelClass}
      * @param processModel The callback to run custom handling of the model object
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
@@ -32,12 +33,13 @@ public class ProcessModelHelper {
 
     /**
      * Runs through a varg of {@link ModelClass} and enables singular processing of each one.
+     *
      * @param processModel The callback to run custom handling of the model object
-     * @param models The varg list of {@link ModelClass}
+     * @param models       The varg list of {@link ModelClass}
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SafeVarargs
-    public static <ModelClass extends Model> void process(final ProcessModel<ModelClass> processModel, final ModelClass...models) {
+    public static <ModelClass extends Model> void process(final ProcessModel<ModelClass> processModel, final ModelClass... models) {
         TransactionManager.transact(new Runnable() {
             @Override
             public void run() {

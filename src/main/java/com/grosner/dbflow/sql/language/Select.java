@@ -22,32 +22,26 @@ public class Select implements Query {
      * Default does not include the qualifier
      */
     public static final int NONE = -1;
-
-    /**
-     * SELECT DISTINCT call
-     */
-    public static final int DISTINCT = 0;
-
-    /**
-     * SELECT ALL call
-     */
-    public static final int ALL = 1;
-
-    /**
-     * SELECT method call
-     */
-    public static final int METHOD = 2;
-
-    /**
-     * Specifies the column names to select from
-     */
-    private final String[] mColumns;
-
     /**
      * The select qualifier to append to the SELECT statement
      */
     private int mSelectQualifier = NONE;
-
+    /**
+     * SELECT DISTINCT call
+     */
+    public static final int DISTINCT = 0;
+    /**
+     * SELECT ALL call
+     */
+    public static final int ALL = 1;
+    /**
+     * SELECT method call
+     */
+    public static final int METHOD = 2;
+    /**
+     * Specifies the column names to select from
+     */
+    private final String[] mColumns;
     /**
      * The method name we wish to execute
      */
@@ -59,13 +53,23 @@ public class Select implements Query {
     private String mColumnName;
 
     /**
+     * Creates this instance with the specified columns from the specified {@link com.grosner.dbflow.config.FlowManager}
+     *
+     * @param columns
+     */
+    public Select(String... columns) {
+        mColumns = columns;
+    }
+
+    /**
      * Selects a model by id
-     * @param tableClass The table to select from
-     * @param ids The ids to use
+     *
+     * @param tableClass   The table to select from
+     * @param ids          The ids to use
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return
      */
-    public static <ModelClass extends Model> ModelClass byId(Class<ModelClass> tableClass, Object...ids) {
+    public static <ModelClass extends Model> ModelClass byId(Class<ModelClass> tableClass, Object... ids) {
         ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(tableClass);
         return withCondition(primaryQuery.replaceEmptyParams(ids));
     }
@@ -77,7 +81,7 @@ public class Select implements Query {
      * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the first model from the database cursor.
      */
-    public static <ModelClass extends Model> ModelClass withCondition(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String...columns) {
+    public static <ModelClass extends Model> ModelClass withCondition(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String... columns) {
         return Where.with(conditionQueryBuilder, columns).querySingle();
     }
 
@@ -89,8 +93,19 @@ public class Select implements Query {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return the list of every row in the table
      */
-    public static <ModelClass extends Model> List<ModelClass> all(Class<ModelClass> tableClass, Condition...conditions) {
+    public static <ModelClass extends Model> List<ModelClass> all(Class<ModelClass> tableClass, Condition... conditions) {
         return new Select().from(tableClass).where(conditions).queryList();
+    }
+
+    /**
+     * Passes this statement to the {@link From}
+     *
+     * @param table        The model table to run this query on
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return the From part of this query
+     */
+    public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
+        return new From<ModelClass>(this, table);
     }
 
     /**
@@ -100,17 +115,17 @@ public class Select implements Query {
      * @param <ModelClass>          The class that implements {@link com.grosner.dbflow.structure.Model}.
      * @return the list of models from the database cursor.
      */
-    public static <ModelClass extends Model> List<ModelClass> all(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String...columns) {
+    public static <ModelClass extends Model> List<ModelClass> all(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String... columns) {
         return Where.with(conditionQueryBuilder, columns).queryList();
     }
 
     /**
-     * Creates this instance with the specified columns from the specified {@link com.grosner.dbflow.config.FlowManager}
+     * appends {@link #DISTINCT} to the query
      *
-     * @param columns
+     * @return
      */
-    public Select(String... columns) {
-        mColumns = columns;
+    public Select distinct() {
+        return selectQualifier(DISTINCT);
     }
 
     /**
@@ -122,15 +137,6 @@ public class Select implements Query {
     public Select selectQualifier(int qualifierInt) {
         mSelectQualifier = qualifierInt;
         return this;
-    }
-
-    /**
-     * appends {@link #DISTINCT} to the query
-     *
-     * @return
-     */
-    public Select distinct() {
-        return selectQualifier(DISTINCT);
     }
 
     /**
@@ -152,25 +158,8 @@ public class Select implements Query {
     }
 
     /**
-     * The Average of the column values
-     * @param columnName
-     * @return
-     */
-    public Select avg(String columnName) {
-        return method("AVG", columnName);
-    }
-
-    /**
-     * Sums the specific column value
-     * @param columnName
-     * @return
-     */
-    public Select sum(String columnName) {
-        return method("SUM", columnName);
-    }
-
-    /**
      * Appends a method to this query. Such methods as avg, count, sum.
+     *
      * @param methodName
      * @param columnName
      * @return
@@ -182,14 +171,23 @@ public class Select implements Query {
     }
 
     /**
-     * Passes this statement to the {@link From}
+     * The Average of the column values
      *
-     * @param table        The model table to run this query on
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
-     * @return the From part of this query
+     * @param columnName
+     * @return
      */
-    public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
-        return new From<ModelClass>(this, table);
+    public Select avg(String columnName) {
+        return method("AVG", columnName);
+    }
+
+    /**
+     * Sums the specific column value
+     *
+     * @param columnName
+     * @return
+     */
+    public Select sum(String columnName) {
+        return method("SUM", columnName);
     }
 
     @Override

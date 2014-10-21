@@ -12,13 +12,6 @@ public class TransactionManagerRuntime {
 
     private static ArrayList<TransactionManager> managers;
 
-    static ArrayList<TransactionManager> getManagers() {
-        if (managers == null) {
-            managers = new ArrayList<TransactionManager>();
-        }
-        return managers;
-    }
-
     /**
      * Quits all active DBManager queues
      */
@@ -31,6 +24,13 @@ public class TransactionManagerRuntime {
         }
         DBBatchSaveQueue.getSharedSaveQueue().quit();
         DBBatchSaveQueue.disposeSharedQueue();
+    }
+
+    static ArrayList<TransactionManager> getManagers() {
+        if (managers == null) {
+            managers = new ArrayList<TransactionManager>();
+        }
+        return managers;
     }
 
     public static void restartManagers() {

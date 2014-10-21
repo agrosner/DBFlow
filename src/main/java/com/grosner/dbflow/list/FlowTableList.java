@@ -48,7 +48,16 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     private FlowCursorList<ModelClass> mCursorList;
 
     private ResultReceiver<List<ModelClass>> mResultReceiver;
+    private ResultReceiver<List<ModelClass>> mInternalResultReceiver = new ResultReceiver<List<ModelClass>>() {
+        @Override
+        public void onResultReceived(List<ModelClass> modelClasses) {
+            mCursorList.refresh();
 
+            if (mResultReceiver != null) {
+                mResultReceiver.onResultReceived(modelClasses);
+            }
+        }
+    };
     /**
      * If true, we will make all modifications on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}, else
      * we will run it on the main thread.
@@ -74,14 +83,14 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         FlowManager.getContext().getContentResolver().unregisterContentObserver(this);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public void onChange(boolean selfChange, Uri uri) {
+    public void onChange(boolean selfChange) {
         mCursorList.refresh();
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public void onChange(boolean selfChange) {
+    public void onChange(boolean selfChange, Uri uri) {
         mCursorList.refresh();
     }
 
@@ -110,15 +119,6 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         return mCursorList.getAll();
     }
 
-    protected final ProcessModelInfo<ModelClass> getProcessModelInfo(Collection<ModelClass> modelClasses) {
-        return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
-    }
-
-    @SafeVarargs
-    protected final ProcessModelInfo<ModelClass> getProcessModelInfo(ModelClass... modelClasses) {
-        return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
-    }
-
     /**
      * Adds an item to this table, but does not allow positonal insertion. Same as calling
      * {@link #add(com.grosner.dbflow.structure.Model)}
@@ -129,6 +129,11 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     @Override
     public void add(int location, ModelClass model) {
         add(model);
+    }
+
+    @SafeVarargs
+    protected final ProcessModelInfo<ModelClass> getProcessModelInfo(ModelClass... modelClasses) {
+        return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
     }
 
     /**
@@ -159,6 +164,10 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     @Override
     public boolean addAll(int location, Collection<? extends ModelClass> collection) {
         return addAll(collection);
+    }
+
+    protected final ProcessModelInfo<ModelClass> getProcessModelInfo(Collection<ModelClass> modelClasses) {
+        return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
     }
 
     /**
@@ -249,35 +258,6 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         return mCursorList.getItem(location);
     }
 
-    /**
-     * Gets a {@link ModelClass} based on a list of {@link com.grosner.dbflow.sql.builder.Condition}
-     *
-     * @param conditions The list of conditions to retrieve a model from
-     * @return
-     */
-    public ModelClass get(Condition... conditions) {
-        return new Select().from(mCursorList.getTable()).where(conditions).querySingle();
-    }
-
-    /**
-     * Returns a list of {@link ModelClass} based on the list of {@link com.grosner.dbflow.sql.builder.Condition}
-     *
-     * @param conditions The list of conditions to retrieve a model from
-     * @return
-     */
-    public List<ModelClass> getAll(Condition... conditions) {
-        return new Select().from(mCursorList.getTable()).where(conditions).queryList();
-    }
-
-    /**
-     * Fetches a list of all items in this table
-     *
-     * @param resultReceiver The callback that will receive the list.
-     */
-    public void fetchAll(ResultReceiver<List<ModelClass>> resultReceiver) {
-        mCursorList.fetchAll(resultReceiver);
-    }
-
     @Override
     public int indexOf(Object object) {
         throw new UnsupportedOperationException("We cannot determine which index in the table this item exists at efficiently");
@@ -356,20 +336,6 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         }
 
         return removed;
-    }
-
-    /**
-     * Removes all {@link ModelClass} from the table based on the {@link com.grosner.dbflow.sql.builder.Condition}
-     *
-     * @param conditions The list of conditions to delete models with
-     */
-    public void removeAll(Condition... conditions) {
-        if (transact) {
-            TransactionManager.getInstance().delete(getProcessModelInfo(getAll(conditions)));
-        } else {
-            Delete.table(mCursorList.getTable(), conditions);
-            mInternalResultReceiver.onResultReceived(null);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -478,15 +444,47 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         return tableList.toArray(array);
     }
 
-    private ResultReceiver<List<ModelClass>> mInternalResultReceiver = new ResultReceiver<List<ModelClass>>() {
-        @Override
-        public void onResultReceived(List<ModelClass> modelClasses) {
-            mCursorList.refresh();
+    /**
+     * Gets a {@link ModelClass} based on a list of {@link com.grosner.dbflow.sql.builder.Condition}
+     *
+     * @param conditions The list of conditions to retrieve a model from
+     * @return
+     */
+    public ModelClass get(Condition... conditions) {
+        return new Select().from(mCursorList.getTable()).where(conditions).querySingle();
+    }
 
-            if (mResultReceiver != null) {
-                mResultReceiver.onResultReceived(modelClasses);
-            }
+    /**
+     * Fetches a list of all items in this table
+     *
+     * @param resultReceiver The callback that will receive the list.
+     */
+    public void fetchAll(ResultReceiver<List<ModelClass>> resultReceiver) {
+        mCursorList.fetchAll(resultReceiver);
+    }
+
+    /**
+     * Removes all {@link ModelClass} from the table based on the {@link com.grosner.dbflow.sql.builder.Condition}
+     *
+     * @param conditions The list of conditions to delete models with
+     */
+    public void removeAll(Condition... conditions) {
+        if (transact) {
+            TransactionManager.getInstance().delete(getProcessModelInfo(getAll(conditions)));
+        } else {
+            Delete.table(mCursorList.getTable(), conditions);
+            mInternalResultReceiver.onResultReceived(null);
         }
-    };
+    }
+
+    /**
+     * Returns a list of {@link ModelClass} based on the list of {@link com.grosner.dbflow.sql.builder.Condition}
+     *
+     * @param conditions The list of conditions to retrieve a model from
+     * @return
+     */
+    public List<ModelClass> getAll(Condition... conditions) {
+        return new Select().from(mCursorList.getTable()).where(conditions).queryList();
+    }
 
 }

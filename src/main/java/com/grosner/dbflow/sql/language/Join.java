@@ -13,25 +13,12 @@ import com.grosner.dbflow.structure.Model;
  * Description:
  */
 public class Join<ModelClass extends Model, FromClass extends Model> implements Query {
-    public static enum JoinType {
-        LEFT,
-        OUTER,
-        INNER,
-        CROSS,
-    }
-
     private Class<ModelClass> mTable;
-
     private JoinType mJoinType;
-
     private From<FromClass> mFrom;
-
     private String mAlias;
-
     private ConditionQueryBuilder<ModelClass> mOn;
-
     private String[] mUsing;
-
     private boolean isNatural = false;
 
     Join(From<FromClass> from, Class<ModelClass> table, JoinType joinType) {
@@ -50,7 +37,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
         return mFrom;
     }
 
-    public From<FromClass> on(Condition...onConditions) {
+    public From<FromClass> on(Condition... onConditions) {
         mOn = new ConditionQueryBuilder<ModelClass>(mTable, onConditions);
         return mFrom;
     }
@@ -64,7 +51,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        if(isNatural) {
+        if (isNatural) {
             queryBuilder.append("NATURAL ");
         }
 
@@ -92,6 +79,13 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
                     .append(")").appendSpace();
         }
         return queryBuilder.getQuery();
+    }
+
+    public static enum JoinType {
+        LEFT,
+        OUTER,
+        INNER,
+        CROSS,
     }
 
 }

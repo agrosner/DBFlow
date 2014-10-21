@@ -16,14 +16,10 @@ import java.util.List;
  */
 public class AlterTableMigration<ModelClass extends Model> extends BaseMigration {
 
-    private QueryBuilder mQuery;
-
-    private QueryBuilder mRenameQuery;
-
-    private ArrayList<QueryBuilder> mColumnDefinitions;
-
     private final Class<ModelClass> mTable;
-
+    private QueryBuilder mQuery;
+    private QueryBuilder mRenameQuery;
+    private ArrayList<QueryBuilder> mColumnDefinitions;
     private String mOldTableName;
 
     public AlterTableMigration(Class<ModelClass> table, int migrationVersion) {
@@ -34,6 +30,37 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     @Override
     public void onPreMigrate() {
         mQuery = new QueryBuilder().append("ALTER").appendSpaceSeparated("TABLE");
+    }
+
+    @Override
+    public void migrate(SQLiteDatabase database) {
+        // "ALTER TABLE "
+        String sql = mQuery.getQuery();
+        String tableName = FlowManager.getTableName(mTable);
+
+        // "{oldName}  RENAME TO {newName}"
+        // Since the structure has been updated already, the manager knows only the new name.
+        if (mRenameQuery != null) {
+            database.execSQL(sql + mOldTableName +
+                    mRenameQuery.getQuery() + tableName);
+        }
+
+        // We have column definitions to add here
+        // ADD COLUMN columnName {type}
+        if (mColumnDefinitions != null) {
+            sql = sql + tableName;
+            for (QueryBuilder columnDefinition : mColumnDefinitions) {
+                database.execSQL(sql + " ADD COLUMN " + columnDefinition.getQuery());
+            }
+        }
+    }
+
+    @Override
+    public void onPostMigrate() {
+        // cleanup and make fields eligible for garbage collection
+        mQuery = null;
+        mRenameQuery = null;
+        mColumnDefinitions = null;
     }
 
     /**
@@ -69,29 +96,6 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         return this;
     }
 
-    @Override
-    public void migrate(SQLiteDatabase database) {
-        // "ALTER TABLE "
-        String sql = mQuery.getQuery();
-        String tableName = FlowManager.getTableName(mTable);
-
-        // "{oldName}  RENAME TO {newName}"
-        // Since the structure has been updated already, the manager knows only the new name.
-        if (mRenameQuery != null) {
-            database.execSQL(sql + mOldTableName +
-                    mRenameQuery.getQuery() + tableName);
-        }
-
-        // We have column definitions to add here
-        // ADD COLUMN columnName {type}
-        if (mColumnDefinitions != null) {
-            sql = sql + tableName;
-            for (QueryBuilder columnDefinition : mColumnDefinitions) {
-                database.execSQL(sql + " ADD COLUMN " + columnDefinition.getQuery());
-            }
-        }
-    }
-
     public String getRenameQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(mQuery.getQuery()).append(mOldTableName)
                 .append(mRenameQuery).append(FlowManager.getTableName(mTable));
@@ -102,7 +106,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         String sql = mQuery.getQuery() + FlowManager.getTableName(mTable);
         List<String> columnDefinitions = new ArrayList<String>();
 
-        if(mColumnDefinitions != null) {
+        if (mColumnDefinitions != null) {
             for (QueryBuilder columnDefinition : mColumnDefinitions) {
                 QueryBuilder queryBuilder = new QueryBuilder(sql).appendSpaceSeparated("ADD COLUMN").append(columnDefinition.getQuery());
                 columnDefinitions.add(queryBuilder.getQuery());
@@ -110,13 +114,5 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
 
         return columnDefinitions;
-    }
-
-    @Override
-    public void onPostMigrate() {
-        // cleanup and make fields eligible for garbage collection
-        mQuery = null;
-        mRenameQuery = null;
-        mColumnDefinitions = null;
     }
 }

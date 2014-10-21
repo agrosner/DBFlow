@@ -23,9 +23,10 @@ public class StringQuery<ModelClass extends Model> implements Query, Queriable<M
 
     /**
      * Creates an instance of this class
+     *
      * @param table The table to use
-     * @param sql The sql statement to query the DB with. Does not work with {@link com.grosner.dbflow.sql.language.Delete},
-     *            this must be done with {@link android.database.sqlite.SQLiteDatabase#execSQL(String)}
+     * @param sql   The sql statement to query the DB with. Does not work with {@link com.grosner.dbflow.sql.language.Delete},
+     *              this must be done with {@link android.database.sqlite.SQLiteDatabase#execSQL(String)}
      */
     public StringQuery(Class<ModelClass> table, String sql) {
         mQuery = sql;

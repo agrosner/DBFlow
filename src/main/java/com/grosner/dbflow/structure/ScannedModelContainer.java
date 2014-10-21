@@ -26,9 +26,11 @@ import dalvik.system.DexFile;
 public class ScannedModelContainer {
 
     private static ScannedModelContainer container;
+    private List<Class<? extends Model>> mModelClasses = new ArrayList<Class<? extends Model>>();
+    private HashMap<Class<? extends BaseModelView>, ModelViewDefinition> mModelViewDefinitions = new HashMap<Class<? extends BaseModelView>, ModelViewDefinition>();
 
     public static ScannedModelContainer getInstance() {
-        if(container == null) {
+        if (container == null) {
             container = new ScannedModelContainer();
             try {
                 container.generateModelFromSource();
@@ -40,16 +42,12 @@ public class ScannedModelContainer {
     }
 
     public static void addModelClassesToManager(FlowManager flowManager, List<Class<? extends Model>> modelClasses) {
-        if(FlowManager.isMultipleDatabases()) {
-            for(Class<? extends Model> modelClass : modelClasses) {
+        if (FlowManager.isMultipleDatabases()) {
+            for (Class<? extends Model> modelClass : modelClasses) {
                 FlowManager.putManagerForTable(modelClass, flowManager);
             }
         }
     }
-
-    private List<Class<? extends Model>> mModelClasses = new ArrayList<Class<? extends Model>>();
-
-    private HashMap<Class<? extends BaseModelView>, ModelViewDefinition> mModelViewDefinitions = new HashMap<Class<? extends BaseModelView>, ModelViewDefinition>();
 
     /**
      * Scours source code for {@link com.grosner.dbflow.structure.Model}, {@link com.grosner.dbflow.structure.BaseModelView}, and
@@ -105,8 +103,8 @@ public class ScannedModelContainer {
     /**
      * Adds model classes from source
      *
-     * @param modelFile    The file we search in
-     * @param packageName  The package name of the directory
+     * @param modelFile   The file we search in
+     * @param packageName The package name of the directory
      */
     private void addModelClassesFromSource(File modelFile, String packageName) {
         ClassLoader classLoader = FlowManager.getContext().getClassLoader();
@@ -178,13 +176,14 @@ public class ScannedModelContainer {
     /**
      * Applies the Model list specified in the {@link com.grosner.dbflow.config.DBConfiguration} or the scanned list
      * by using only certain
+     *
      * @param modelList
      * @param dbStructure
      */
     public void applyModelListToFoundData(List<Class<? extends Model>> modelList, DBStructure dbStructure) {
-        for(Class<? extends Model> model : modelList) {
+        for (Class<? extends Model> model : modelList) {
             ModelViewDefinition modelViewDefinition = mModelViewDefinitions.get(model);
-            if(modelViewDefinition != null) {
+            if (modelViewDefinition != null) {
                 dbStructure.putModelViewDefinition(modelViewDefinition);
             }
         }

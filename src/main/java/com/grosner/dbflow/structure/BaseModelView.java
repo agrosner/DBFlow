@@ -13,16 +13,6 @@ import com.grosner.dbflow.sql.SqlUtils;
 @Ignore
 public abstract class BaseModelView<ModelClass extends Model> implements Model {
 
-    /**
-     * Gets thrown when an operation is not valid for the SQL View
-     */
-    private static class InvalidSqlViewOperationException extends RuntimeException {
-
-        private InvalidSqlViewOperationException(String detailMessage) {
-            super(detailMessage);
-        }
-    }
-
     @Override
     public void save(boolean async) {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not saveable");
@@ -51,5 +41,15 @@ public abstract class BaseModelView<ModelClass extends Model> implements Model {
     @Override
     public boolean exists() {
         return SqlUtils.exists(this);
+    }
+
+    /**
+     * Gets thrown when an operation is not valid for the SQL View
+     */
+    private static class InvalidSqlViewOperationException extends RuntimeException {
+
+        private InvalidSqlViewOperationException(String detailMessage) {
+            super(detailMessage);
+        }
     }
 }

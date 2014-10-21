@@ -1,10 +1,10 @@
 package com.grosner.dbflow.runtime.transaction;
 
 import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.sql.language.Select;
-import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.sql.language.Select;
+import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.List;
@@ -32,6 +32,17 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
     }
 
     /**
+     * Creates this class with a {@link com.grosner.dbflow.sql.language.From}
+     *
+     * @param where          The completed Sql Statement we will use to fetch the models
+     * @param resultReceiver
+     */
+    public SelectListTransaction(Where<ModelClass> where, ResultReceiver<List<ModelClass>> resultReceiver) {
+        super(DBTransactionInfo.createFetch(), resultReceiver);
+        mWhere = where;
+    }
+
+    /**
      * Creates an instance of this class
      *
      * @param resultReceiver             The result that returns from this query
@@ -53,17 +64,6 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
     public SelectListTransaction(ResultReceiver<List<ModelClass>> resultReceiver,
                                  Class<ModelClass> table, String... columns) {
         this(new Select(columns).from(table).where(), resultReceiver);
-    }
-
-    /**
-     * Creates this class with a {@link com.grosner.dbflow.sql.language.From}
-     *
-     * @param where          The completed Sql Statement we will use to fetch the models
-     * @param resultReceiver
-     */
-    public SelectListTransaction(Where<ModelClass> where, ResultReceiver<List<ModelClass>> resultReceiver) {
-        super(DBTransactionInfo.createFetch(), resultReceiver);
-        mWhere = where;
     }
 
     @Override

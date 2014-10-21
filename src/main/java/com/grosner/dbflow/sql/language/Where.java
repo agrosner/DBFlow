@@ -31,53 +31,34 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * The first chunk of the SQL statement before this query.
      */
     private final WhereBase<ModelClass> mWhereBase;
-
-    /**
-     * Helps to build the where statement easily
-     */
-    private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
-
-    /**
-     * The SQL GROUP BY method
-     */
-    private String mGroupBy;
-
-    /**
-     * The SQL HAVING
-     */
-    private ConditionQueryBuilder<ModelClass> mHaving;
-
-    /**
-     * The SQL ORDER BY
-     */
-    private String mOrderBy;
-
-    /**
-     * The SQL LIMIT
-     */
-    private String mLimit;
-
-    /**
-     * The SQL OFFSET
-     */
-    private String mOffset;
-
     /**
      * The database manager we run this query on
      */
     private final FlowManager mManager;
-
     /**
-     * Constructs this class with a SELECT * on the manager and {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
-     *
-     * @param conditionQueryBuilder
-     * @param <ModelClass>
-     * @return
+     * Helps to build the where statement easily
      */
-    public static <ModelClass extends Model> Where<ModelClass> with(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
-                                                                    String... columns) {
-        return new Select(columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
-    }
+    private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
+    /**
+     * The SQL GROUP BY method
+     */
+    private String mGroupBy;
+    /**
+     * The SQL HAVING
+     */
+    private ConditionQueryBuilder<ModelClass> mHaving;
+    /**
+     * The SQL ORDER BY
+     */
+    private String mOrderBy;
+    /**
+     * The SQL LIMIT
+     */
+    private String mLimit;
+    /**
+     * The SQL OFFSET
+     */
+    private String mOffset;
 
     /**
      * Constructs this class with the specified {@link com.grosner.dbflow.config.FlowManager}
@@ -92,10 +73,16 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
         mHaving = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
     }
 
-    protected void checkSelect(String methodName) {
-        if (!(mWhereBase.getQueryBuilderBase() instanceof Select)) {
-            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
-        }
+    /**
+     * Constructs this class with a SELECT * on the manager and {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder}
+     *
+     * @param conditionQueryBuilder
+     * @param <ModelClass>
+     * @return
+     */
+    public static <ModelClass extends Model> Where<ModelClass> with(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
+                                                                    String... columns) {
+        return new Select(columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
     }
 
     /**
@@ -255,6 +242,27 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
         return DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
     }
 
+    @Override
+    public String getQuery() {
+        String fromQuery = mWhereBase.getQuery();
+        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery);
+
+        queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
+                .appendQualifier("GROUP BY", mGroupBy)
+                .appendQualifier("HAVING", mHaving.getQuery())
+                .appendQualifier("ORDER BY", mOrderBy)
+                .appendQualifier("LIMIT", mLimit)
+                .appendQualifier("OFFSET", mOffset);
+
+        // Don't wast time building the string
+        // unless we're going to log it.
+        if (FlowLog.isEnabled(FlowLog.Level.V)) {
+            FlowLog.log(FlowLog.Level.V, queryBuilder.getQuery());
+        }
+
+        return queryBuilder.getQuery();
+    }
+
     /**
      * Run this query and returns the {@link android.database.Cursor} for it
      *
@@ -285,6 +293,12 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
         return SqlUtils.queryList(mWhereBase.getTable(), getQuery());
     }
 
+    protected void checkSelect(String methodName) {
+        if (!(mWhereBase.getQueryBuilderBase() instanceof Select)) {
+            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
+        }
+    }
+
     /**
      * Queries and returns only the first {@link ModelClass} result from the DB.
      *
@@ -294,6 +308,16 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     public ModelClass querySingle() {
         checkSelect("query");
         return SqlUtils.querySingle(mWhereBase.getTable(), getQuery());
+    }
+
+    /**
+     * Will run this query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with the shared
+     * {@link com.grosner.dbflow.runtime.TransactionManager}
+     *
+     * @param transactionInfo The information on how to prioritize the transaction
+     */
+    public void transact(DBTransactionInfo transactionInfo) {
+        transact(transactionInfo, TransactionManager.getInstance());
     }
 
     /**
@@ -307,13 +331,13 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     }
 
     /**
-     * Will run this query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with the shared
-     * {@link com.grosner.dbflow.runtime.TransactionManager}
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
+     * {@link ModelClass} on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
      *
-     * @param transactionInfo The information on how to prioritize the transaction
+     * @param listResultReceiver The result of this transaction
      */
-    public void transact(DBTransactionInfo transactionInfo) {
-        transact(transactionInfo, TransactionManager.getInstance());
+    public void transactList(ResultReceiver<List<ModelClass>> listResultReceiver) {
+        transactList(TransactionManager.getInstance(), listResultReceiver);
     }
 
     /**
@@ -329,13 +353,13 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     }
 
     /**
-     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return a list of
-     * {@link ModelClass} on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
+     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
+     * a single item on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
      *
-     * @param listResultReceiver The result of this transaction
+     * @param resultReceiver The result of this transaction
      */
-    public void transactList(ResultReceiver<List<ModelClass>> listResultReceiver) {
-        transactList(TransactionManager.getInstance(), listResultReceiver);
+    public void transactSingleModel(ResultReceiver<ModelClass> resultReceiver) {
+        transactSingleModel(TransactionManager.getInstance(), resultReceiver);
     }
 
     /**
@@ -348,16 +372,6 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     public void transactSingleModel(TransactionManager transactionManager, ResultReceiver<ModelClass> resultReceiver) {
         checkSelect("transact");
         transactionManager.fetchModel(this, resultReceiver);
-    }
-
-    /**
-     * Puts this query onto the {@link com.grosner.dbflow.runtime.DBTransactionQueue} and will return
-     * a single item on the UI thread with the shared {@link com.grosner.dbflow.runtime.TransactionManager}.
-     *
-     * @param resultReceiver The result of this transaction
-     */
-    public void transactSingleModel(ResultReceiver<ModelClass> resultReceiver) {
-        transactSingleModel(TransactionManager.getInstance(), resultReceiver);
     }
 
     /**
@@ -377,27 +391,6 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      */
     public Class<ModelClass> getTable() {
         return mWhereBase.getTable();
-    }
-
-    @Override
-    public String getQuery() {
-        String fromQuery = mWhereBase.getQuery();
-        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery);
-
-        queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
-                .appendQualifier("GROUP BY", mGroupBy)
-                .appendQualifier("HAVING", mHaving.getQuery())
-                .appendQualifier("ORDER BY", mOrderBy)
-                .appendQualifier("LIMIT", mLimit)
-                .appendQualifier("OFFSET", mOffset);
-
-        // Don't wast time building the string
-        // unless we're going to log it.
-        if (FlowLog.isEnabled(FlowLog.Level.V)) {
-            FlowLog.log(FlowLog.Level.V, queryBuilder.getQuery());
-        }
-
-        return queryBuilder.getQuery();
     }
 
     @Override

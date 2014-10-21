@@ -56,7 +56,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
     public void appendForeignKeys(ForeignKeyReference[] references) {
         QueryBuilder queryBuilder;
         List<QueryBuilder> queryBuilders = new ArrayList<QueryBuilder>();
-        for(ForeignKeyReference foreignKeyReference: references) {
+        for (ForeignKeyReference foreignKeyReference : references) {
             queryBuilder = new QueryBuilder().append(foreignKeyReference.columnName())
                     .appendSpace()
                     .appendType(foreignKeyReference.columnType());

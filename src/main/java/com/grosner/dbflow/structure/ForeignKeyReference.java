@@ -11,6 +11,7 @@ public @interface ForeignKeyReference {
 
     /**
      * Needs to match both tables!
+     *
      * @return
      */
     Class<?> columnType();

@@ -22,10 +22,6 @@ public class Condition {
      */
     private String mColumn;
 
-    public static Condition column(String columnName) {
-        return new Condition(columnName);
-    }
-
     /**
      * Creates a new instance
      *
@@ -33,6 +29,10 @@ public class Condition {
      */
     private Condition(String columnName) {
         mColumn = columnName;
+    }
+
+    public static Condition column(String columnName) {
+        return new Condition(columnName);
     }
 
     /**
@@ -44,6 +44,17 @@ public class Condition {
     public Condition is(Object value) {
         mOperation = "=";
         return value(value);
+    }
+
+    /**
+     * The string value of the parameter
+     *
+     * @param value
+     * @return
+     */
+    public Condition value(Object value) {
+        mValue = value;
+        return this;
     }
 
     /**
@@ -76,17 +87,6 @@ public class Condition {
      */
     public Condition operation(String operation) {
         mOperation = operation;
-        return this;
-    }
-
-    /**
-     * The string value of the parameter
-     *
-     * @param value
-     * @return
-     */
-    public Condition value(Object value) {
-        mValue = value;
         return this;
     }
 

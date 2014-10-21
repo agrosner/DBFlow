@@ -58,11 +58,6 @@ public class TableStructure<ModelType extends Model> {
     private TableCreationQueryBuilder mCreationQuery;
 
     /**
-     * Manages the DB that this structure is in
-     */
-    private FlowManager mManager;
-
-    /**
      * If this is a model view, we ignore the creation query
      */
     private boolean isModelView = false;
@@ -74,7 +69,6 @@ public class TableStructure<ModelType extends Model> {
      * @param modelType
      */
     public TableStructure(Class<ModelType> modelType) {
-        mManager = FlowManager.getManagerForTable(modelType);
         mColumnNames = new HashMap<Field, String>();
         mFieldFromNames = new HashMap<String, Field>();
         mPrimaryKeys = new LinkedHashMap<String, Field>();
@@ -132,8 +126,8 @@ public class TableStructure<ModelType extends Model> {
                         .appendSpace()
                         .appendSQLiteType(SQLiteType.TEXT);
             } else {
-                TypeConverter typeConverter = mManager.getTypeConverterForClass(type);
-                if(typeConverter != null) {
+                TypeConverter typeConverter = FlowManager.getTypeConverterForClass(type);
+                if (typeConverter != null) {
                     tableCreationQuery.append(columnName)
                             .appendSpace()
                             .appendType(typeConverter.getDatabaseType());
@@ -178,12 +172,12 @@ public class TableStructure<ModelType extends Model> {
                 Column foreignKey = foreignKeyField.getAnnotation(Column.class);
 
                 String[] foreignColumns = new String[foreignKey.references().length];
-                for(int i = 0; i < foreignColumns.length; i++) {
+                for (int i = 0; i < foreignColumns.length; i++) {
                     foreignColumns[i] = foreignKey.references()[i].foreignColumnName();
                 }
 
                 String[] columns = new String[foreignKey.references().length];
-                for(int i = 0; i < columns.length; i++) {
+                for (int i = 0; i < columns.length; i++) {
                     columns[i] = foreignKey.references()[i].columnName();
                 }
 
@@ -201,6 +195,24 @@ public class TableStructure<ModelType extends Model> {
 
         mCreationQuery.appendList(mColumnDefinitions).append("););");
 
+    }
+
+    /**
+     * Returns all of the primary keys for this table
+     *
+     * @return
+     */
+    public Collection<Field> getPrimaryKeys() {
+        return mPrimaryKeys.values();
+    }
+
+    /**
+     * Returns all of the foreign keys for this table
+     *
+     * @return
+     */
+    public Collection<Field> getForeignKeys() {
+        return mForeignKeys.values();
     }
 
     /**
@@ -249,24 +261,6 @@ public class TableStructure<ModelType extends Model> {
     }
 
     /**
-     * Returns all of the foreign keys for this table
-     *
-     * @return
-     */
-    public Collection<Field> getForeignKeys() {
-        return mForeignKeys.values();
-    }
-
-    /**
-     * Returns all of the primary keys for this table
-     *
-     * @return
-     */
-    public Collection<Field> getPrimaryKeys() {
-        return mPrimaryKeys.values();
-    }
-
-    /**
      * Returns the list of primary column key names
      *
      * @return
@@ -294,12 +288,4 @@ public class TableStructure<ModelType extends Model> {
         return mModelType;
     }
 
-    /**
-     * Returns the database manager for this table
-     *
-     * @return
-     */
-    public FlowManager getManager() {
-        return mManager;
-    }
 }

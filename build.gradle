@@ -9,24 +9,18 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 20
+    compileSdkVersion 21
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         applicationId "com.grosner.dbflow"
         minSdkVersion 4
-        targetSdkVersion 20
+        targetSdkVersion 21
         versionName = version.replace("-SNAPSHOT", "")
         versionCode = Integer.parseInt(versionName.replace(".", ""))
-    }
-    buildTypes {
-        release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
     }
 }
 
 dependencies {
-    compile "com.android.support:support-annotations:20.0.0"
+    compile "com.android.support:support-annotations:21.+"
 }

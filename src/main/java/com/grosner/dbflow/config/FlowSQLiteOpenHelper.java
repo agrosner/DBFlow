@@ -34,11 +34,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * Location where the migration files should exist.
      */
     public final static String MIGRATION_PATH = "migrations";
-
-    private DatabaseHelperListener mListener;
-
     private final boolean foreignKeysSupported;
-
+    private DatabaseHelperListener mListener;
     private FlowManager mManager;
 
     private SparseArray<List<Migration>> mMigrations;
@@ -49,16 +46,6 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         mMigrations = dbConfiguration.mMigrations;
         movePrepackagedDB(dbConfiguration.mDatabaseName);
         foreignKeysSupported = dbConfiguration.foreignKeysSupported;
-    }
-
-    /**
-     * Set a listener to listen for specific DB events and perform an action before we execute this classes
-     * specific methods.
-     *
-     * @param mListener
-     */
-    public void setDatabaseListener(DatabaseHelperListener mListener) {
-        this.mListener = mListener;
     }
 
     /**
@@ -98,13 +85,14 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        if (mListener != null) {
-            mListener.onOpen(db);
-        }
-
-        checkForeignKeySupport(db);
+    /**
+     * Set a listener to listen for specific DB events and perform an action before we execute this classes
+     * specific methods.
+     *
+     * @param mListener
+     */
+    public void setDatabaseListener(DatabaseHelperListener mListener) {
+        this.mListener = mListener;
     }
 
     @Override
@@ -127,6 +115,15 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         checkForeignKeySupport(db);
         executeCreations(db);
         executeMigrations(db, oldVersion, newVersion);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        if (mListener != null) {
+            mListener.onOpen(db);
+        }
+
+        checkForeignKeySupport(db);
     }
 
     /**

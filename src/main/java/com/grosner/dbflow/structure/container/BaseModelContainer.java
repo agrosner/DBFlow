@@ -38,10 +38,6 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         mData = data;
     }
 
-    public void setData(DataClass data) {
-        mData = data;
-    }
-
     @Override
     public ModelClass toModel() {
         if (mModel == null) {
@@ -51,10 +47,27 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         return mModel;
     }
 
+    @Override
     public DataClass getData() {
         return mData;
     }
 
+    public void setData(DataClass data) {
+        mData = data;
+    }
+
+    @Override
+    public abstract Object getValue(String columnName);
+
+    @Override
+    public abstract void put(String columnName, Object value);
+
+    @Override
+    public TableStructure<ModelClass> getTableStructure() {
+        return mTableStructure;
+    }
+
+    @Override
     public Class<ModelClass> getTable() {
         return mTableStructure.getModelType();
     }
@@ -62,11 +75,6 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     @Override
     public void save(boolean async) {
         ModelContainerUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT);
-    }
-
-    @Override
-    public void insert(boolean async) {
-        ModelContainerUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT);
     }
 
     @Override
@@ -79,10 +87,15 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         ModelContainerUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE);
     }
 
+    @Override
+    public void insert(boolean async) {
+        ModelContainerUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT);
+    }
 
     /**
      * Loads the cursor into the the data contained in this class. This will never
      * be called unless we want to use the data in native format
+     *
      * @param cursor The cursor to load.
      */
     @Override
@@ -94,10 +107,4 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     public boolean exists() {
         return ModelContainerUtils.exists(this);
     }
-
-    @Override
-    public abstract Object getValue(String columnName);
-
-    @Override
-    public abstract void put(String columnName, Object value);
 }

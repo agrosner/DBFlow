@@ -16,13 +16,13 @@ public class QueryTransaction<ModelClass extends Model> extends BaseResultTransa
 
     private Queriable<ModelClass> mQueriable;
 
+    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable<ModelClass> queriable) {
+        this(dbTransactionInfo, queriable, null);
+    }
+
     public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable<ModelClass> queriable, ResultReceiver<Cursor> cursorResultReceiver) {
         super(dbTransactionInfo, cursorResultReceiver);
         mQueriable = queriable;
-    }
-
-    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable<ModelClass> queriable) {
-        this(dbTransactionInfo, queriable, null);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class QueryTransaction<ModelClass extends Model> extends BaseResultTransa
     public void onPostExecute(Cursor cursor) {
         super.onPostExecute(cursor);
 
-        if(cursor != null) {
+        if (cursor != null) {
             cursor.close();
         }
     }

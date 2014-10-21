@@ -1,9 +1,9 @@
 package com.grosner.dbflow.runtime.transaction;
 
 import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.sql.language.Update;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.sql.language.Update;
 import com.grosner.dbflow.structure.Model;
 
 /**

@@ -15,17 +15,18 @@ import org.json.JSONObject;
  * Contributors: { }
  * Description: This eliminates the need for converting json into a {@link com.grosner.dbflow.structure.Model}
  * and then saving to the DB. Let this class handle the saving for you. There are some restrictions to this class:
- *
+ * <p/>
  * <br />
  * <li>The names of the keys must match the column names</li>
  */
 @Ignore
-public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model{
+public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model {
 
     /**
      * Constructs this object with the {@link org.json.JSONObject} for the specified {@link ModelClass} table.
+     *
      * @param jsonObject The json to reference in {@link com.grosner.dbflow.structure.Model} operations
-     * @param table The table of the referenced model
+     * @param table      The table of the referenced model
      */
     public JSONModel(JSONObject jsonObject, Class<ModelClass> table) {
         super(table, jsonObject);
@@ -33,6 +34,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
 
     /**
      * Constructs this object with an empty {@link org.json.JSONObject} referencing the {@link ModelClass} table.
+     *
      * @param table The table of the referenced model
      */
     public JSONModel(Class<ModelClass> table) {
@@ -46,23 +48,19 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
 
     @Override
     public void put(String columnName, Object value) {
-        try{
+        try {
             getData().put(columnName, value);
         } catch (JSONException e) {
             FlowLog.logError(e);
         }
     }
 
-    @Override
-    public Class<JSONObject> getDataClass() {
-        return JSONObject.class;
-    }
-
     /**
      * Loads a model from the DB into the json stored in this class. It also will recreate the JSON stored in this object
+     *
      * @param primaryKeys The keys to reference
      */
-    public void load(Object...primaryKeys){
+    public void load(Object... primaryKeys) {
         setData(new JSONObject());
         ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(getTable());
         load(new Select().from(mTableStructure.getModelType())

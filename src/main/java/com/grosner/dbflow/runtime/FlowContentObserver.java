@@ -23,6 +23,76 @@ import java.util.List;
 public class FlowContentObserver extends ContentObserver {
 
     /**
+     * Listeners for model changes.
+     */
+    private List<ModelChangeListener> mModelChangeListeners;
+
+
+    public FlowContentObserver() {
+        super(null);
+        mModelChangeListeners = new ArrayList<ModelChangeListener>();
+    }
+
+    /**
+     * Add a listener for model changes
+     *
+     * @param modelChangeListener
+     */
+    public void addModelChangeListener(ModelChangeListener modelChangeListener) {
+        mModelChangeListeners.add(modelChangeListener);
+    }
+
+    /**
+     * Removes a listener for model changes
+     *
+     * @param modelChangeListener
+     */
+    public void removeModelChangeListener(ModelChangeListener modelChangeListener) {
+        mModelChangeListeners.remove(modelChangeListener);
+    }
+
+    /**
+     * Registers the observer for model change events for specific class.
+     */
+    public void registerForContentChanges(Class<? extends Model> table) {
+        FlowManager.getContext().getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
+    }
+
+    /**
+     * Unregisters this list for model change events
+     */
+    public void unregisterForContentChanges() {
+        FlowManager.getContext().getContentResolver().unregisterContentObserver(this);
+    }
+
+    @Override
+    public void onChange(boolean selfChange) {
+        for (ModelChangeListener modelChangeListener : mModelChangeListeners) {
+            modelChangeListener.onModelChanged();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    public void onChange(boolean selfChange, Uri uri) {
+        String fragment = uri.getFragment();
+        BaseModel.Action action = BaseModel.Action.valueOf(fragment);
+        if (action != null) {
+            for (ModelChangeListener modelChangeListener : mModelChangeListeners) {
+                if (action.equals(BaseModel.Action.DELETE)) {
+                    modelChangeListener.onModelDeleted();
+                } else if (action.equals(BaseModel.Action.INSERT)) {
+                    modelChangeListener.onModelInserted();
+                } else if (action.equals(BaseModel.Action.UPDATE)) {
+                    modelChangeListener.onModelUpdated();
+                } else if (action.equals(BaseModel.Action.SAVE)) {
+                    modelChangeListener.onModelSaved();
+                }
+            }
+        }
+    }
+
+    /**
      * Callback for when models are saved, deleted, inserted, or updated. Note: the methods will only work
      * for devices {@link android.os.Build.VERSION_CODES#JELLY_BEAN} or up. Otherwise the singular method,
      * {@link #onModelChanged()} will be called.
@@ -57,73 +127,5 @@ public class FlowContentObserver extends ContentObserver {
          */
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         public void onModelUpdated();
-    }
-
-
-    /**
-     * Listeners for model changes.
-     */
-    private List<ModelChangeListener> mModelChangeListeners;
-
-    public FlowContentObserver() {
-        super(null);
-        mModelChangeListeners = new ArrayList<ModelChangeListener>();
-    }
-
-    /**
-     * Add a listener for model changes
-     * @param modelChangeListener
-     */
-    public void addModelChangeListener(ModelChangeListener modelChangeListener) {
-        mModelChangeListeners.add(modelChangeListener);
-    }
-
-    /**
-     * Removes a listener for model changes
-     * @param modelChangeListener
-     */
-    public void removeModelChangeListener(ModelChangeListener modelChangeListener) {
-        mModelChangeListeners.remove(modelChangeListener);
-    }
-
-    /**
-     * Registers the observer for model change events for specific class.
-     */
-    public void registerForContentChanges(Class<? extends Model> table) {
-        FlowManager.getContext().getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
-    }
-
-    /**
-     * Unregisters this list for model change events
-     */
-    public void unregisterForContentChanges() {
-        FlowManager.getContext().getContentResolver().unregisterContentObserver(this);
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    @Override
-    public void onChange(boolean selfChange, Uri uri) {
-        String fragment = uri.getFragment();
-        BaseModel.Action action = BaseModel.Action.valueOf(fragment);
-        if(action != null) {
-            for (ModelChangeListener modelChangeListener : mModelChangeListeners) {
-                if(action.equals(BaseModel.Action.DELETE)) {
-                    modelChangeListener.onModelDeleted();
-                } else if(action.equals(BaseModel.Action.INSERT)) {
-                    modelChangeListener.onModelInserted();
-                } else if(action.equals(BaseModel.Action.UPDATE)) {
-                    modelChangeListener.onModelUpdated();
-                } else if(action.equals(BaseModel.Action.SAVE)) {
-                    modelChangeListener.onModelSaved();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onChange(boolean selfChange) {
-        for (ModelChangeListener modelChangeListener: mModelChangeListeners) {
-            modelChangeListener.onModelChanged();
-        }
     }
 }

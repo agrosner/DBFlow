@@ -25,24 +25,24 @@ public class ProcessModelInfo<ModelClass extends Model> {
     /**
      * Required to construct this information with Models
      */
-    ProcessModelInfo(){
+    ProcessModelInfo() {
     }
 
     @SuppressWarnings("unchecked")
     @SafeVarargs
-    public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(ModelClass...models) {
+    public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(ModelClass... models) {
         return new ProcessModelInfo<ModelClass>()
                 .models(models);
+    }
+
+    public ProcessModelInfo<ModelClass> models(ModelClass... models) {
+        mModels.addAll(Arrays.asList(models));
+        return this;
     }
 
     public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(Collection<ModelClass> models) {
         return new ProcessModelInfo<ModelClass>()
                 .models(models);
-    }
-
-    public ProcessModelInfo<ModelClass> models(ModelClass...models) {
-        mModels.addAll(Arrays.asList(models));
-        return this;
     }
 
     public ProcessModelInfo<ModelClass> models(Collection<ModelClass> models) {
@@ -55,7 +55,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
         return this;
     }
 
-    public ProcessModelInfo<ModelClass> fetch(){
+    public ProcessModelInfo<ModelClass> fetch() {
         return info(DBTransactionInfo.create());
     }
 
@@ -65,7 +65,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
     }
 
     public DBTransactionInfo getInfo() {
-        if(mInfo == null) {
+        if (mInfo == null) {
             mInfo = DBTransactionInfo.create();
         }
         return mInfo;

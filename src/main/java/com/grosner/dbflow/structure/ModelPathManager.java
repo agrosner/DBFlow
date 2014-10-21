@@ -14,6 +14,18 @@ public class ModelPathManager {
     private static ArrayList<String> PATHS;
 
     /**
+     * Adds a path to the list of Paths we check to ignore on launch.
+     * This method will check to see if the class name starts with the path, so be careful of your exclusions.
+     * Also call this method before the
+     * {@link com.grosner.dbflow.config.FlowManager#initialize(com.grosner.dbflow.config.DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)}
+     *
+     * @param path - the starting part of the class. E.g: com.example.somepackage
+     */
+    public static void addPath(String path) {
+        getPaths().add(path);
+    }
+
+    /**
      * Returns the list of paths
      *
      * @return
@@ -23,18 +35,6 @@ public class ModelPathManager {
             PATHS = new ArrayList<String>();
         }
         return PATHS;
-    }
-
-    /**
-     * Adds a path to the list of Paths we check to ignore on launch.
-     * This method will check to see if the class name starts with the path, so be careful of your exclusions.
-     * Also call this method before the
-     * {@link com.grosner.dbflow.config.FlowManager#initialize(android.content.Context, com.grosner.dbflow.config.DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)}
-     *
-     * @param path - the starting part of the class. E.g: com.example.somepackage
-     */
-    public static void addPath(String path) {
-        getPaths().add(path);
     }
 
 

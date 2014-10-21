@@ -36,23 +36,7 @@ public @interface Column {
      */
     public static final int FOREIGN_KEY = 2;
 
-    /**
-     * Lets you specify if its a primary, foreign key, or autoincrementing field
-     *
-     * @return
-     */
-    @IntDef({NORMAL, PRIMARY_KEY, PRIMARY_KEY_AUTO_INCREMENT, FOREIGN_KEY})
-    @interface ColumnType{}
-
     @ColumnType int columnType() default NORMAL;
-
-    /**
-     * This is how to resolve null or unique conflicts with a field marked as {@link #notNull()}
-     * or {@link #unique()}
-     */
-    public enum ConflictAction {
-        ROLLBACK, ABORT, FAIL, IGNORE, REPLACE
-    }
 
     /**
      * The name of the column. The default is the field name.
@@ -99,7 +83,25 @@ public @interface Column {
 
     /**
      * Defines the references to the foreignkeys
+     *
      * @return
      */
     ForeignKeyReference[] references() default {};
+
+    /**
+     * This is how to resolve null or unique conflicts with a field marked as {@link #notNull()}
+     * or {@link #unique()}
+     */
+    public enum ConflictAction {
+        ROLLBACK, ABORT, FAIL, IGNORE, REPLACE
+    }
+
+    /**
+     * Lets you specify if its a primary, foreign key, or autoincrementing field
+     *
+     * @return
+     */
+    @IntDef({NORMAL, PRIMARY_KEY, PRIMARY_KEY_AUTO_INCREMENT, FOREIGN_KEY})
+    @interface ColumnType {
+    }
 }

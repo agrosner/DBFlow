@@ -17,12 +17,10 @@ import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.grosner.dbflow.runtime.transaction.process.UpdateModelListTransaction;
-import com.grosner.dbflow.sql.language.Delete;
 import com.grosner.dbflow.sql.Queriable;
-import com.grosner.dbflow.sql.language.Select;
-import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.Collection;
@@ -40,21 +38,22 @@ public class TransactionManager {
      * The shared database manager instance
      */
     private static TransactionManager manager;
-
-    /**
-     * The queue where we asynchronously perform database requests
-     */
-    private DBTransactionQueue mQueue;
-
-    /**
-     * The name of the associated {@link com.grosner.dbflow.runtime.DBTransactionQueue}
-     */
-    private String mName;
-
     /**
      * Whether this manager has its own {@link com.grosner.dbflow.runtime.DBTransactionQueue}
      */
     private final boolean hasOwnQueue;
+    /**
+     * Runs all of the UI threaded requests
+     */
+    protected Handler mRequestHandler = new Handler(Looper.getMainLooper());
+    /**
+     * The queue where we asynchronously perform database requests
+     */
+    private DBTransactionQueue mQueue;
+    /**
+     * The name of the associated {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     */
+    private String mName;
 
     /**
      * Creates the DatabaseManager while starting its own request queue
@@ -66,6 +65,23 @@ public class TransactionManager {
         hasOwnQueue = createNewQueue;
         TransactionManagerRuntime.getManagers().add(this);
         checkQueue();
+    }
+
+    void checkQueue() {
+        if (!getQueue().isAlive()) {
+            getQueue().start();
+        }
+    }
+
+    DBTransactionQueue getQueue() {
+        if (mQueue == null) {
+            if (hasOwnQueue) {
+                mQueue = new DBTransactionQueue(mName);
+            } else {
+                mQueue = TransactionManager.getInstance().mQueue;
+            }
+        }
+        return mQueue;
     }
 
     /**
@@ -87,14 +103,8 @@ public class TransactionManager {
      *
      * @param runnable
      */
-    public static void transact(SQLiteDatabase database, Runnable runnable) {
-        database.beginTransaction();
-        try {
-            runnable.run();
-            database.setTransactionSuccessful();
-        } finally {
-            database.endTransaction();
-        }
+    public static void transact(Runnable runnable) {
+        transact(FlowManager.getInstance().getWritableDatabase(), runnable);
     }
 
     /**
@@ -102,13 +112,13 @@ public class TransactionManager {
      *
      * @param runnable
      */
-    public static void transact(Runnable runnable) {
-        transact(FlowManager.getInstance().getWritableDatabase(), runnable);
-    }
-
-    void checkQueue() {
-        if (!getQueue().isAlive()) {
-            getQueue().start();
+    public static void transact(SQLiteDatabase database, Runnable runnable) {
+        database.beginTransaction();
+        try {
+            runnable.run();
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
         }
     }
 
@@ -122,26 +132,6 @@ public class TransactionManager {
     void disposeQueue() {
         mQueue = null;
     }
-
-    DBTransactionQueue getQueue() {
-        if (mQueue == null) {
-            if (hasOwnQueue) {
-                mQueue = new DBTransactionQueue(mName);
-            } else {
-                mQueue = TransactionManager.getInstance().mQueue;
-            }
-        }
-        return mQueue;
-    }
-
-    public DBBatchSaveQueue getSaveQueue() {
-        return DBBatchSaveQueue.getSharedSaveQueue();
-    }
-
-    /**
-     * Runs all of the UI threaded requests
-     */
-    protected Handler mRequestHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Runs UI operations in the handler
@@ -159,15 +149,6 @@ public class TransactionManager {
      */
     public synchronized void processOnRequestHandler(long delay, Runnable runnable) {
         mRequestHandler.postDelayed(runnable, delay);
-    }
-
-    /**
-     * Adds a transaction to the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
-     *
-     * @param transaction
-     */
-    public void addTransaction(BaseTransaction transaction) {
-        getQueue().add(transaction);
     }
 
     /**
@@ -194,7 +175,14 @@ public class TransactionManager {
         addTransaction(new QueryTransaction<ModelClass>(transactionInfo, queriable, cursorResultReceiver));
     }
 
-    // region Database Select Methods
+    /**
+     * Adds a transaction to the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     *
+     * @param transaction
+     */
+    public void addTransaction(BaseTransaction transaction) {
+        getQueue().add(transaction);
+    }
 
     /**
      * Fetchs all items from the table in the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with
@@ -209,6 +197,8 @@ public class TransactionManager {
                                                           ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
         addTransaction(new SelectListTransaction<ModelClass>(resultReceiver, whereConditionQueryBuilder, columns));
     }
+
+    // region Database Select Methods
 
     /**
      * Fetches all items from the table in the {@link com.grosner.dbflow.runtime.DBTransactionQueue} with the
@@ -225,19 +215,6 @@ public class TransactionManager {
     }
 
     /**
-     * Fetches all items from the table with the specified {@link com.grosner.dbflow.sql.language.Where} in
-     * the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
-     *
-     * @param where          The {@link com.grosner.dbflow.sql.language.Where} statement that we wish to execute. The base of this
-     *                       query must be {@link com.grosner.dbflow.sql.language.Select}
-     * @param resultReceiver
-     * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}.
-     */
-    public <ModelClass extends Model> void fetchFromTable(Where<ModelClass> where, ResultReceiver<List<ModelClass>> resultReceiver) {
-        addTransaction(new SelectListTransaction<ModelClass>(where, resultReceiver));
-    }
-
-    /**
      * Fetches a list of {@link ModelClass} on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
      *
      * @param conditionQueryBuilder The where query we will use
@@ -249,28 +226,16 @@ public class TransactionManager {
     }
 
     /**
-     * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by
-     * {@link com.grosner.dbflow.sql.language.From}.
+     * Fetches all items from the table with the specified {@link com.grosner.dbflow.sql.language.Where} in
+     * the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
      *
-     * @param where          The where to use.
-     * @param resultReceiver The result will be passed here.
+     * @param where          The {@link com.grosner.dbflow.sql.language.Where} statement that we wish to execute. The base of this
+     *                       query must be {@link com.grosner.dbflow.sql.language.Select}
+     * @param resultReceiver
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}.
      */
-    public <ModelClass extends Model> void fetchModel(Where<ModelClass> where,
-                                                      final ResultReceiver<ModelClass> resultReceiver) {
-        addTransaction(new SelectSingleModelTransaction<ModelClass>(where, resultReceiver));
-    }
-
-    /**
-     * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
-     * The order of the ids must match the ordered they're declared.
-     *
-     * @param conditionQueryBuilder The where query we will use
-     * @param resultReceiver        The result will be passed here.
-     */
-    public <ModelClass extends Model> void fetchModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
-                                                      final ResultReceiver<ModelClass> resultReceiver) {
-        fetchModel(Where.with(conditionQueryBuilder), resultReceiver);
+    public <ModelClass extends Model> void fetchFromTable(Where<ModelClass> where, ResultReceiver<List<ModelClass>> resultReceiver) {
+        addTransaction(new SelectListTransaction<ModelClass>(where, resultReceiver));
     }
 
     /**
@@ -290,9 +255,30 @@ public class TransactionManager {
         fetchModel(queryBuilder.replaceEmptyParams(ids), resultReceiver);
     }
 
-    // endregion
+    /**
+     * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by the IDs passed in.
+     * The order of the ids must match the ordered they're declared.
+     *
+     * @param conditionQueryBuilder The where query we will use
+     * @param resultReceiver        The result will be passed here.
+     */
+    public <ModelClass extends Model> void fetchModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
+                                                      final ResultReceiver<ModelClass> resultReceiver) {
+        fetchModel(Where.with(conditionQueryBuilder), resultReceiver);
+    }
 
-    // region Database Save methods
+    /**
+     * Selects a single model on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} by
+     * {@link com.grosner.dbflow.sql.language.From}.
+     *
+     * @param where          The where to use.
+     * @param resultReceiver The result will be passed here.
+     * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}.
+     */
+    public <ModelClass extends Model> void fetchModel(Where<ModelClass> where,
+                                                      final ResultReceiver<ModelClass> resultReceiver) {
+        addTransaction(new SelectSingleModelTransaction<ModelClass>(where, resultReceiver));
+    }
 
     /**
      * Saves the passed in model to the {@link com.grosner.dbflow.runtime.DBBatchSaveQueue}.
@@ -308,6 +294,14 @@ public class TransactionManager {
             getSaveQueue().start();
         }
         getSaveQueue().add(model);
+    }
+
+    // endregion
+
+    // region Database Save methods
+
+    public DBBatchSaveQueue getSaveQueue() {
+        return DBBatchSaveQueue.getSharedSaveQueue();
     }
 
     /**

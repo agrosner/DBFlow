@@ -28,21 +28,11 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Constructs this class with the specified String
+     *
      * @param string The string to append
      */
     public QueryBuilder(String string) {
         mQuery.append(string);
-    }
-
-    /**
-     * Appends an object to this query
-     *
-     * @param object The object to append
-     * @return
-     */
-    public QueryClass append(Object object) {
-        mQuery.append(object);
-        return castThis();
     }
 
     /**
@@ -67,12 +57,34 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends the string as (string)
+     *
      * @param string
      * @return
      */
     @SuppressWarnings("unchecked")
     public QueryClass appendParenthesisEnclosed(String string) {
         return (QueryClass) append("(").append(string).append(")");
+    }
+
+    /**
+     * Appends an object to this query
+     *
+     * @param object The object to append
+     * @return
+     */
+    public QueryClass append(Object object) {
+        mQuery.append(object);
+        return castThis();
+    }
+
+    /**
+     * Casts the current object to the {@link QueryClass}
+     *
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected QueryClass castThis() {
+        return (QueryClass) this;
     }
 
     /**
@@ -134,33 +146,24 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Only appends the text if it is not null or empty
+     *
      * @param string The string to append
      * @return
      */
     public QueryClass appendNotEmpty(String string) {
-        if(!TextUtils.isEmpty(string)) {
+        if (!TextUtils.isEmpty(string)) {
             append(string);
         }
         return castThis();
     }
 
-    /**
-     * Casts the current object to the {@link QueryClass}
-     *
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    protected QueryClass castThis() {
-        return (QueryClass) this;
+    @Override
+    public String toString() {
+        return getQuery();
     }
 
     @Override
     public String getQuery() {
         return mQuery.toString();
-    }
-
-    @Override
-    public String toString() {
-        return getQuery();
     }
 }

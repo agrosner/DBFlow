@@ -39,40 +39,6 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
      * Reserved for only immediate tasks and all forms of fetching that will display on the UI
      */
     public static int PRIORITY_UI = 5;
-
-    /**
-     * Tells the queue if this request is ready to run. The default is true. This is run on the
-     * {@link com.grosner.dbflow.runtime.DBTransactionQueue}'s thread.
-     *
-     * @return
-     */
-    public boolean onReady() {
-        return true;
-    }
-
-    /**
-     * Tells the queue to not post the result on the UI thread (this is to prevent flooding of the UI from
-     * many BG DB requests)
-     * @param transactionResult The result of the transaction
-     * @return true if it has a result to show
-     */
-    public boolean hasResult(TransactionResult transactionResult){
-        return false;
-    }
-
-    /**
-     * Executes this transaction on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}'s thread
-     * only if {@link #onReady()} is true.
-     */
-    public abstract TransactionResult onExecute();
-
-    /**
-     * Called When the transaction is completed. This is run on the UI thread.
-     */
-    public void onPostExecute(TransactionResult result) {
-
-    }
-
     /**
      * Provides information about this transaction such as priority
      */
@@ -92,6 +58,40 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
      */
     public BaseTransaction() {
         mInfo = DBTransactionInfo.create();
+    }
+
+    /**
+     * Tells the queue if this request is ready to run. The default is true. This is run on the
+     * {@link com.grosner.dbflow.runtime.DBTransactionQueue}'s thread.
+     *
+     * @return
+     */
+    public boolean onReady() {
+        return true;
+    }
+
+    /**
+     * Tells the queue to not post the result on the UI thread (this is to prevent flooding of the UI from
+     * many BG DB requests)
+     *
+     * @param transactionResult The result of the transaction
+     * @return true if it has a result to show
+     */
+    public boolean hasResult(TransactionResult transactionResult) {
+        return false;
+    }
+
+    /**
+     * Executes this transaction on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}'s thread
+     * only if {@link #onReady()} is true.
+     */
+    public abstract TransactionResult onExecute();
+
+    /**
+     * Called When the transaction is completed. This is run on the UI thread.
+     */
+    public void onPostExecute(TransactionResult result) {
+
     }
 
     @Override

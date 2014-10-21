@@ -56,7 +56,7 @@ public class DBTransactionQueue extends Thread {
             try {
                 // If the transaction is ready
                 if (transaction.onReady()) {
-                    if(FlowLog.isEnabled(FlowLog.Level.I)) {
+                    if (FlowLog.isEnabled(FlowLog.Level.I)) {
                         FlowLog.log(FlowLog.Level.I, "Size is " + mQueue.size() + " executing " + transaction.getName());
                     }
                     // Retrieve the result of the transaction
@@ -64,7 +64,7 @@ public class DBTransactionQueue extends Thread {
                     final BaseTransaction finalTransaction = transaction;
 
                     // Run the result on the FG
-                    if(transaction.hasResult(result)) {
+                    if (transaction.hasResult(result)) {
                         TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
                             @Override
                             public void run() {

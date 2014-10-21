@@ -1,10 +1,10 @@
 package com.grosner.dbflow.runtime.transaction;
 
 import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.sql.language.Select;
-import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.sql.language.Select;
+import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.structure.Model;
 
 /**
@@ -24,8 +24,19 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
      * @param whereConditions The conditions to use in the SELECT query
      */
     public SelectSingleModelTransaction(Class<ModelClass> tableClass,
-                                        ResultReceiver<ModelClass> resultReceiver, Condition...whereConditions) {
+                                        ResultReceiver<ModelClass> resultReceiver, Condition... whereConditions) {
         this(new Select().from(tableClass).where(whereConditions), resultReceiver);
+    }
+
+    /**
+     * Creates this class with a {@link com.grosner.dbflow.sql.language.From}
+     *
+     * @param where          The completed Sql Statement we will use to fetch the models
+     * @param resultReceiver
+     */
+    public SelectSingleModelTransaction(Where<ModelClass> where, ResultReceiver<ModelClass> resultReceiver) {
+        super(DBTransactionInfo.createFetch(), resultReceiver);
+        mWhere = where;
     }
 
     /**
@@ -39,18 +50,6 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
                                         ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
         this(new Select(columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), resultReceiver);
     }
-
-    /**
-     * Creates this class with a {@link com.grosner.dbflow.sql.language.From}
-     *
-     * @param where           The completed Sql Statement we will use to fetch the models
-     * @param resultReceiver
-     */
-    public SelectSingleModelTransaction(Where<ModelClass> where, ResultReceiver<ModelClass> resultReceiver) {
-        super(DBTransactionInfo.createFetch(), resultReceiver);
-        mWhere = where;
-    }
-
 
     @Override
     public ModelClass onExecute() {

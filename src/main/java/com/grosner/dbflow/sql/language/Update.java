@@ -47,7 +47,7 @@ public class Update implements Query {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder("UPDATE ");
-        if(!TextUtils.isEmpty(mOrQualifier)) {
+        if (!TextUtils.isEmpty(mOrQualifier)) {
             queryBuilder.append("OR").appendSpaceSeparated(mOrQualifier);
         }
         return queryBuilder.getQuery();

@@ -1,6 +1,7 @@
 package com.grosner.dbflow.structure.container;
 
 import com.grosner.dbflow.structure.Model;
+import com.grosner.dbflow.structure.TableStructure;
 
 /**
  * Author: andrewgrosner
@@ -12,12 +13,19 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
 
     /**
      * Will convert the object into {@link ModelClass}
+     *
      * @return The model from this json.
      */
     public ModelClass toModel();
 
     /**
+     * @return The underlying data object that this container uses to imitate a model.
+     */
+    public DataClass getData();
+
+    /**
      * Returns the value with the specified key
+     *
      * @param columnName
      * @return
      */
@@ -25,10 +33,23 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
 
     /**
      * Puts the value with the specified key and value to the object
+     *
      * @param columnName
      * @param value
      */
     public void put(String columnName, Object value);
 
-    public Class<DataClass> getDataClass();
+    /**
+     * Returns the associated table structure for this container
+     *
+     * @return
+     */
+    public TableStructure<ModelClass> getTableStructure();
+
+    /**
+     * Returns the table that's associated with this container
+     *
+     * @return
+     */
+    public Class<ModelClass> getTable();
 }

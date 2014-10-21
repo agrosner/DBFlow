@@ -23,19 +23,14 @@ import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
-import com.grosner.dbflow.structure.container.JSONModel;
-import com.grosner.dbflow.structure.container.MapModel;
 import com.grosner.dbflow.structure.container.ModelContainer;
 import com.grosner.dbflow.structure.container.ModelContainerMap;
-
-import org.json.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -46,20 +41,18 @@ import java.util.Set;
  */
 public class SqlUtils {
 
-    public @IntDef @interface SaveMode{};
-
     /**
      * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as checking to see if the model exists before saving.
      */
     public static final int SAVE_MODE_DEFAULT = 0;
 
+    ;
     /**
      * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as updating only without checking for it to exist. This is when we know the data exists.
      */
     public static final int SAVE_MODE_UPDATE = 1;
-
     /**
      * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as inserting only without checking for it to exist. This is for when we know the data is new.
@@ -83,43 +76,6 @@ public class SqlUtils {
         List<ModelClass> list = convertToList(modelClass, cursor);
         cursor.close();
         return list;
-    }
-
-    /**
-     * Queries the DB and returns the first {@link com.grosner.dbflow.structure.Model} it finds. Note:
-     * this may return more than one object, but only will return the first item in the list.
-     *
-     * @param modelClass   The class to construct the data from the DB into
-     * @param sql          The SQL command to perform, must not be ; terminated.
-     * @param args         You may include ?s in where clause in the query,
-     *                     which will be replaced by the values from selectionArgs. The
-     *                     values will be bound as Strings.
-     * @param <ModelClass> The class implements {@link com.grosner.dbflow.structure.Model}
-     * @return a single {@link ModelClass}
-     */
-    public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql, String... args) {
-        Cursor cursor = FlowManager.getManagerForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
-        ModelClass retModel = convertToModel(false, modelClass, cursor);
-        cursor.close();
-        return retModel;
-    }
-
-    /**
-     * Checks whether the SQL query returns a {@link android.database.Cursor} with a count of at least 1. This
-     * means that the query was successful. It is commonly used when checking if a {@link com.grosner.dbflow.structure.Model} exists.
-     *
-     * @param flowManager  The database manager that we run this query on
-     * @param sql          The SQL command to perform, must not be ; terminated.
-     * @param args         The optional string arguments when we use "?" in the sql
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
-     * @return
-     */
-    public static <ModelClass extends Model> boolean hasData(Class<ModelClass> modelClass, String sql, String... args) {
-        FlowManager flowManager = FlowManager.getManagerForTable(modelClass);
-        Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
-        boolean hasData = (cursor.getCount() > 0);
-        cursor.close();
-        return hasData;
     }
 
     /**
@@ -172,6 +128,43 @@ public class SqlUtils {
         return model;
     }
 
+    /**
+     * Queries the DB and returns the first {@link com.grosner.dbflow.structure.Model} it finds. Note:
+     * this may return more than one object, but only will return the first item in the list.
+     *
+     * @param modelClass   The class to construct the data from the DB into
+     * @param sql          The SQL command to perform, must not be ; terminated.
+     * @param args         You may include ?s in where clause in the query,
+     *                     which will be replaced by the values from selectionArgs. The
+     *                     values will be bound as Strings.
+     * @param <ModelClass> The class implements {@link com.grosner.dbflow.structure.Model}
+     * @return a single {@link ModelClass}
+     */
+    public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql, String... args) {
+        Cursor cursor = FlowManager.getManagerForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
+        ModelClass retModel = convertToModel(false, modelClass, cursor);
+        cursor.close();
+        return retModel;
+    }
+
+    /**
+     * Checks whether the SQL query returns a {@link android.database.Cursor} with a count of at least 1. This
+     * means that the query was successful. It is commonly used when checking if a {@link com.grosner.dbflow.structure.Model} exists.
+     *
+     * @param flowManager  The database manager that we run this query on
+     * @param sql          The SQL command to perform, must not be ; terminated.
+     * @param args         The optional string arguments when we use "?" in the sql
+     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
+     * @return
+     */
+    public static <ModelClass extends Model> boolean hasData(Class<ModelClass> modelClass, String sql, String... args) {
+        FlowManager flowManager = FlowManager.getManagerForTable(modelClass);
+        Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
+        boolean hasData = (cursor.getCount() > 0);
+        cursor.close();
+        return hasData;
+    }
+
     @SuppressWarnings("unchecked")
     public static void putField(ContentValues values, FlowManager flowManager, Field field, String fieldName, Object value) {
         Class<?> fieldType = field.getType();
@@ -222,7 +215,7 @@ public class SqlUtils {
             Column key = field.getAnnotation(Column.class);
             Class<? extends Model> entityType = (Class<? extends Model>) fieldType;
 
-            if(value instanceof ModelContainer || ModelContainerMap.containsValue(value)) {
+            if (value instanceof ModelContainer || ModelContainerMap.containsValue(value)) {
                 ModelContainer<? extends Model, ?> modelContainer = ModelContainerMap.getModelContainerInstance(entityType, value);
                 modelContainer.save(false);
 
@@ -379,10 +372,10 @@ public class SqlUtils {
 
         Object value = null;
 
-        if (columnIndex >=0 || (StructureUtils.isForeignKey(field) && ReflectionUtils.implementsModel(fieldType))) {
+        if (columnIndex >= 0 || (StructureUtils.isForeignKey(field) && ReflectionUtils.implementsModel(fieldType))) {
 
             boolean columnIsNull = cursor.isNull(columnIndex);
-            TypeConverter typeSerializer = tableStructure.getManager().getTypeConverterForClass(fieldType);
+            TypeConverter typeSerializer = FlowManager.getTypeConverterForClass(fieldType);
 
             if (typeSerializer != null) {
                 fieldType = typeSerializer.getDatabaseType();
@@ -414,7 +407,7 @@ public class SqlUtils {
                 Column foreignKey = field.getAnnotation(Column.class);
 
                 Object[] foreignColumns = new Object[foreignKey.references().length];
-                for(int i = 0; i < foreignColumns.length; i++) {
+                for (int i = 0; i < foreignColumns.length; i++) {
                     ForeignKeyReference foreignKeyReference = foreignKey.references()[i];
                     foreignColumns[i] = getModelValueFromCursor(cursor, tableStructure, null, foreignKeyReference.columnName(), foreignKeyReference.columnType());
                 }
@@ -461,6 +454,29 @@ public class SqlUtils {
     }
 
     /**
+     * Notifies the {@link android.database.ContentObserver} that the model has changed.
+     *
+     * @param model
+     */
+    public static void notifyModelChanged(Class<? extends Model> modelClass, BaseModel.Action action) {
+        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(modelClass, action), null, true);
+    }
+
+    /**
+     * Returns the uri for notifications  from model changes
+     *
+     * @param modelClass
+     * @return
+     */
+    public static Uri getNotificationUri(Class<? extends Model> modelClass, BaseModel.Action action) {
+        String mode = "";
+        if (action != null) {
+            mode = "#" + action.name();
+        }
+        return Uri.parse("dbflow://" + FlowManager.getTableName(modelClass) + mode);
+    }
+
+    /**
      * This is used to check if the specified {@link com.grosner.dbflow.structure.Model} exists within the specified
      * {@link com.grosner.dbflow.config.FlowManager} DB.
      *
@@ -475,24 +491,8 @@ public class SqlUtils {
         return new Select().from(model.getClass()).where(ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model)).hasData();
     }
 
-    /**
-     * Notifies the {@link android.database.ContentObserver} that the model has changed.
-     * @param model
-     */
-    public static void notifyModelChanged(Class<? extends Model> modelClass, BaseModel.Action action) {
-        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(modelClass, action), null, true);
-    }
-
-    /**
-     * Returns the uri for notifications  from model changes
-     * @param modelClass
-     * @return
-     */
-    public static Uri getNotificationUri(Class<? extends Model> modelClass, BaseModel.Action action) {
-        String mode = "";
-        if(action != null) {
-            mode = "#" + action.name();
-        }
-        return Uri.parse("dbflow://" + FlowManager.getTableName(modelClass) + mode);
+    public
+    @IntDef
+    @interface SaveMode {
     }
 }

@@ -5,15 +5,14 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.util.SparseArray;
 
-import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.BaseResultTransaction;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
-import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.SqlUtils;
-import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
+import com.grosner.dbflow.sql.language.Select;
+import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.List;
@@ -49,7 +48,7 @@ public class FlowCursorList<ModelClass extends Model> {
         mCursor = mWhere.query();
         mTable = table;
 
-        if(cacheModels) {
+        if (cacheModels) {
             mModelCache = new SparseArray<ModelClass>(mCursor.getCount());
         }
 
@@ -63,16 +62,9 @@ public class FlowCursorList<ModelClass extends Model> {
         mCursor.close();
         mCursor = mWhere.query();
 
-        if(cacheModels) {
+        if (cacheModels) {
             mModelCache.clear();
         }
-    }
-
-    /**
-     * @return the count of the rows in the {@link android.database.Cursor} backed by this list.
-     */
-    public int getCount() {
-        return mCursor != null ? mCursor.getCount() : 0;
     }
 
     /**
@@ -98,6 +90,21 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     /**
+     * Fetches the query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
+     *
+     * @param resultReceiver Called when we retrieve the results.
+     */
+    public void fetchAll(ResultReceiver<List<ModelClass>> resultReceiver) {
+        TransactionManager.getInstance().addTransaction(
+                new BaseResultTransaction<List<ModelClass>>(DBTransactionInfo.createFetch(), resultReceiver) {
+                    @Override
+                    public List<ModelClass> onExecute() {
+                        return getAll();
+                    }
+                });
+    }
+
+    /**
      * Returns the full, converted {@link ModelClass} list from the database on this list.
      *
      * @return
@@ -107,24 +114,17 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     /**
-     * Fetches the query on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}
-     * @param resultReceiver Called when we retrieve the results.
-     */
-    public void fetchAll(ResultReceiver<List<ModelClass>> resultReceiver) {
-        TransactionManager.getInstance().addTransaction(
-                new BaseResultTransaction<List<ModelClass>>(DBTransactionInfo.createFetch(), resultReceiver) {
-                @Override
-                public List<ModelClass> onExecute() {
-                    return getAll();
-                }
-        });
-    }
-
-    /**
      * @return the count of rows on this database query list.
      */
     public boolean isEmpty() {
         return getCount() == 0;
+    }
+
+    /**
+     * @return the count of the rows in the {@link android.database.Cursor} backed by this list.
+     */
+    public int getCount() {
+        return mCursor != null ? mCursor.getCount() : 0;
     }
 
     /**

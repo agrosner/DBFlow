@@ -20,6 +20,16 @@ public class DBTransactionInfo {
     }
 
     /**
+     * Creates with a name and default {@link com.grosner.dbflow.runtime.transaction.BaseTransaction#PRIORITY_NORMAL}
+     *
+     * @param name
+     * @return
+     */
+    public static DBTransactionInfo create(String name) {
+        return create(name, BaseTransaction.PRIORITY_NORMAL);
+    }
+
+    /**
      * Creates the Request Information for when running a {@link com.grosner.dbflow.runtime.transaction.BaseTransaction}
      *
      * @param name     Name of the request (for debugging)
@@ -31,16 +41,6 @@ public class DBTransactionInfo {
         requestInfo.name = name;
         requestInfo.priority = priority;
         return requestInfo;
-    }
-
-    /**
-     * Creates with a name and default {@link com.grosner.dbflow.runtime.transaction.BaseTransaction#PRIORITY_NORMAL}
-     *
-     * @param name
-     * @return
-     */
-    public static DBTransactionInfo create(String name) {
-        return create(name, BaseTransaction.PRIORITY_NORMAL);
     }
 
     /**

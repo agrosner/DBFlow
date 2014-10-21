@@ -15,16 +15,19 @@ import com.grosner.dbflow.sql.SqlUtils;
 @Ignore
 public abstract class BaseModel implements Model {
 
-    public enum Action {
-        SAVE,
-        INSERT,
-        UPDATE,
-        DELETE;
-    }
-
     @Override
     public void save(boolean async) {
         SqlUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT);
+    }
+
+    @Override
+    public void delete(boolean async) {
+        SqlUtils.delete(this, async);
+    }
+
+    @Override
+    public void update(boolean async) {
+        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE);
     }
 
     /**
@@ -38,22 +41,19 @@ public abstract class BaseModel implements Model {
     }
 
     @Override
-    public void update(boolean async) {
-        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE);
-    }
-
-    @Override
     public void load(Cursor cursor) {
         SqlUtils.loadFromCursor(this, cursor);
     }
 
     @Override
-    public void delete(boolean async) {
-        SqlUtils.delete(this, async);
-    }
-
-    @Override
     public boolean exists() {
         return SqlUtils.exists(this);
+    }
+
+    public enum Action {
+        SAVE,
+        INSERT,
+        UPDATE,
+        DELETE;
     }
 }

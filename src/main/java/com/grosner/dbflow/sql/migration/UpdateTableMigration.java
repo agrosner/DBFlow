@@ -3,10 +3,10 @@ package com.grosner.dbflow.sql.migration;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.grosner.dbflow.sql.Query;
-import com.grosner.dbflow.sql.language.Update;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.language.Update;
 import com.grosner.dbflow.structure.Model;
 
 /**
@@ -18,20 +18,17 @@ import com.grosner.dbflow.structure.Model;
 public class UpdateTableMigration<ModelClass extends Model> extends BaseMigration implements Query {
 
     /**
+     * The table to update
+     */
+    private final Class<ModelClass> mTable;
+    /**
      * The query to use
      */
     private QueryBuilder mQuery;
-
     /**
      * Builds the conditions for the WHERE part of our query
      */
     private ConditionQueryBuilder<ModelClass> mWhereConditionQueryBuilder;
-
-    /**
-     * The table to update
-     */
-    private final Class<ModelClass> mTable;
-
     /**
      * The conditions to use to set fields in the update query
      */
@@ -39,7 +36,8 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
 
     /**
      * Creates an update migration.
-     * @param table The table to update
+     *
+     * @param table            The table to update
      * @param migrationVersion The version of the db to update at.
      */
     public UpdateTableMigration(Class<ModelClass> table, int migrationVersion) {
@@ -63,7 +61,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         return this;
     }
 
-    public UpdateTableMigration<ModelClass> where(Condition...conditions) {
+    public UpdateTableMigration<ModelClass> where(Condition... conditions) {
         if (mWhereConditionQueryBuilder == null) {
             mWhereConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
         }

@@ -73,15 +73,6 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
     }
 
     /**
-     * Returns an empty {@link Where} statement
-     *
-     * @return
-     */
-    public Where<ModelClass> where() {
-        return new Where<ModelClass>(this);
-    }
-
-    /**
      * Returns a {@link Where} statement with the sql clause
      *
      * @param whereClause The full SQL string after the WHERE keyword
@@ -89,6 +80,15 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
      */
     public Where<ModelClass> where(String whereClause) {
         return where().whereClause(whereClause);
+    }
+
+    /**
+     * Returns an empty {@link Where} statement
+     *
+     * @return
+     */
+    public Where<ModelClass> where() {
+        return new Where<ModelClass>(this);
     }
 
     /**
@@ -111,6 +111,10 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
         return where().andThese(conditions);
     }
 
+    public Set<ModelClass> set(Condition... conditions) {
+        return set().conditions(conditions);
+    }
+
     public Set<ModelClass> set() {
         if (!(mQueryBuilderBase instanceof Update)) {
             throw new IllegalStateException("Cannot use set() without an UPDATE as the base");
@@ -118,19 +122,20 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
         return new Set<ModelClass>(this, mTable);
     }
 
-    public Set<ModelClass> set(Condition... conditions) {
-        return set().conditions(conditions);
-    }
-
     public Set<ModelClass> set(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         return set().conditionQuery(conditionQueryBuilder);
+    }
+
+    @Override
+    public String toString() {
+        return getQuery();
     }
 
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
                 .append(mQueryBuilderBase.getQuery());
-        if(!(mQueryBuilderBase instanceof Update)) {
+        if (!(mQueryBuilderBase instanceof Update)) {
             queryBuilder.append("FROM ");
         }
 
@@ -148,9 +153,13 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
         return queryBuilder.getQuery();
     }
 
-    @Override
-    public String toString() {
-        return getQuery();
+    /**
+     * The table this From corresponds to
+     *
+     * @return
+     */
+    public Class<ModelClass> getTable() {
+        return mTable;
     }
 
     /**
@@ -160,14 +169,5 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
      */
     public Query getQueryBuilderBase() {
         return mQueryBuilderBase;
-    }
-
-    /**
-     * The table this From corresponds to
-     *
-     * @return
-     */
-    public Class<ModelClass> getTable() {
-        return mTable;
     }
 }

@@ -26,21 +26,18 @@ public class DBConfiguration {
      * The version of the database
      */
     int mDatabaseVersion;
-
-    /**
-     * The optional list of model classes that this DB will use
-     */
-    private List<Class<? extends Model>> mModelClasses;
-
     /**
      * The list of DB migrations we can add to the DB when necessary
      */
     SparseArray<List<Migration>> mMigrations;
-
     /**
      * Whether we want to support foreign keys
      */
     boolean foreignKeysSupported = false;
+    /**
+     * The optional list of model classes that this DB will use
+     */
+    private List<Class<? extends Model>> mModelClasses;
 
     public String getDatabaseName() {
         return mDatabaseName;
@@ -86,7 +83,7 @@ public class DBConfiguration {
          * @return The builder
          */
         public Builder databaseName(String databaseName) {
-            mConfiguration.mDatabaseName = databaseName +".db";
+            mConfiguration.mDatabaseName = databaseName + ".db";
             return this;
         }
 

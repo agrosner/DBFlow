@@ -1,9 +1,9 @@
 package com.grosner.dbflow.runtime.transaction;
 
 import com.grosner.dbflow.runtime.DBTransactionInfo;
-import com.grosner.dbflow.sql.language.Delete;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.sql.language.Delete;
 import com.grosner.dbflow.structure.Model;
 
 /**
@@ -20,7 +20,7 @@ public class DeleteTransaction<ModelClass extends Model> extends QueryTransactio
      * @param table             The model table that we act on
      */
     public DeleteTransaction(DBTransactionInfo dbTransactionInfo,
-                             Class<ModelClass> table, Condition...conditions) {
+                             Class<ModelClass> table, Condition... conditions) {
         super(dbTransactionInfo, new Delete().from(table).where(conditions));
     }
 

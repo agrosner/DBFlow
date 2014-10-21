@@ -83,7 +83,7 @@ public class DBStructure {
         }
 
         // only add models if its a multitable setup
-        if(modelList != null && FlowManager.isMultipleDatabases()) {
+        if (modelList != null && FlowManager.isMultipleDatabases()) {
             ScannedModelContainer.addModelClassesToManager(mManager, modelList);
         }
 
@@ -95,17 +95,18 @@ public class DBStructure {
                 TableStructure tableStructure = new TableStructure(modelClass);
                 mTableStructure.put(modelClass, tableStructure);
             }
-        } else if(FlowManager.isMultipleDatabases()){
+        } else if (FlowManager.isMultipleDatabases()) {
             throw new InvalidDBConfiguration("", dbConfiguration.getDatabaseName());
         }
     }
 
     /**
      * This will delete and recreate the whole stored database. WARNING: all data stored will be lost.
+     *
      * @param context The applications context
      */
     public void reset(Context context) {
-        if(!isResetting) {
+        if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(mManager.getDbConfiguration().getDatabaseName());
             initializeStructure(mManager.getDbConfiguration());
@@ -126,6 +127,15 @@ public class DBStructure {
     }
 
     /**
+     * Returns the {@link com.grosner.dbflow.structure.TableStructure} map for this database
+     *
+     * @return
+     */
+    public Map<Class<? extends Model>, TableStructure> getTableStructure() {
+        return mTableStructure;
+    }
+
+    /**
      * Returns the Where Primary key query string from the cache for a specific model.
      *
      * @param modelTable
@@ -141,6 +151,14 @@ public class DBStructure {
         return conditionQueryBuilder;
     }
 
+    /**
+     * Returns the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} map for this database
+     *
+     * @return
+     */
+    public Map<Class<? extends Model>, ConditionQueryBuilder> getWhereQueryBuilderMap() {
+        return mPrimaryWhereQueryBuilderMap;
+    }
 
     /**
      * Returns the {@link java.lang.reflect.Constructor} for the {@link ModelClass}. It will add the constructor
@@ -165,37 +183,18 @@ public class DBStructure {
         return constructor;
     }
 
+    public Map<Class<? extends Model>, Constructor<? extends Model>> getModelConstructorMap() {
+        return mModelConstructorMap;
+    }
 
     /**
      * Adds a {@link com.grosner.dbflow.structure.ModelViewDefinition} to the structure for reference later.
+     *
      * @param modelViewDefinition
      */
     @SuppressWarnings("unchecked")
     public void putModelViewDefinition(ModelViewDefinition modelViewDefinition) {
         getModelViews().put(modelViewDefinition.getModelViewClass(), modelViewDefinition);
-    }
-
-
-    public FlowManager getManager() {
-        return mManager;
-    }
-
-    /**
-     * Returns the {@link com.grosner.dbflow.structure.TableStructure} map for this database
-     *
-     * @return
-     */
-    public Map<Class<? extends Model>, TableStructure> getTableStructure() {
-        return mTableStructure;
-    }
-
-    /**
-     * Returns the {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder} map for this database
-     *
-     * @return
-     */
-    public Map<Class<? extends Model>, ConditionQueryBuilder> getWhereQueryBuilderMap() {
-        return mPrimaryWhereQueryBuilderMap;
     }
 
     /**
@@ -207,7 +206,7 @@ public class DBStructure {
         return mModelViews;
     }
 
-    public Map<Class<? extends Model>, Constructor<? extends Model>> getModelConstructorMap() {
-        return mModelConstructorMap;
+    public FlowManager getManager() {
+        return mManager;
     }
 }

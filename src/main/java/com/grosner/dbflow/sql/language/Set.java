@@ -23,23 +23,23 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass> {
     }
 
     public Set<ModelClass> conditionQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        if(conditionQueryBuilder != null) {
+        if (conditionQueryBuilder != null) {
             mConditionQueryBuilder = conditionQueryBuilder;
         }
         return this;
     }
 
-    public Set<ModelClass> conditions(Condition...conditions) {
+    public Set<ModelClass> conditions(Condition... conditions) {
         mConditionQueryBuilder.putConditions(conditions);
         return this;
     }
 
-    public Where<ModelClass> where() {
-        return new Where<ModelClass>(this);
+    public Where<ModelClass> where(Condition... conditions) {
+        return where().andThese(conditions);
     }
 
-    public Where<ModelClass> where(Condition...conditions) {
-        return where().andThese(conditions);
+    public Where<ModelClass> where() {
+        return new Where<ModelClass>(this);
     }
 
     public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> whereConditionBuilder) {
