@@ -131,13 +131,27 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         add(model);
     }
 
+    /**
+     * Internal helper method for constructing {@link com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo}
+     * @param modelClasses
+     * @return
+     */
     @SafeVarargs
     protected final ProcessModelInfo<ModelClass> getProcessModelInfo(ModelClass... modelClasses) {
         return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
     }
 
     /**
-     * Adds an item to this table on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
+     * Internal helper method for constructing {@link com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo}
+     * @param modelClasses
+     * @return
+     */
+    protected final ProcessModelInfo<ModelClass> getProcessModelInfo(Collection<ModelClass> modelClasses) {
+        return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
+    }
+
+    /**
+     * Adds an item to this table
      *
      * @param object
      * @return always true
@@ -154,7 +168,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
-     * Adds all items to this table on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}, but
+     * Adds all items to this table, but
      * does not allow positional insertion. Same as calling {@link #addAll(java.util.Collection)}
      *
      * @param location   Not used.
@@ -166,12 +180,8 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         return addAll(collection);
     }
 
-    protected final ProcessModelInfo<ModelClass> getProcessModelInfo(Collection<ModelClass> modelClasses) {
-        return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
-    }
-
     /**
-     * Adds all items to this table on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}.
+     * Adds all items to this table.
      *
      * @param collection The list of items to add to the table
      * @return always true

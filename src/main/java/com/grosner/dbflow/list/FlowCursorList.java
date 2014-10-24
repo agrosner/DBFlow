@@ -38,7 +38,6 @@ public class FlowCursorList<ModelClass extends Model> {
      *
      * @param cacheModels For every call to {@link #getItem(int)}, do we want to keep a reference to it so
      *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
-     * @param flowManager The database manager to use
      * @param table       The table to query from
      * @param conditions  The set of {@link com.grosner.dbflow.sql.builder.Condition} to query with
      */
