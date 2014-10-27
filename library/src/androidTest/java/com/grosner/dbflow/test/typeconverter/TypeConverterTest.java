@@ -3,7 +3,6 @@ package com.grosner.dbflow.test.typeconverter;
 import android.location.Location;
 
 import com.grosner.dbflow.config.DBConfiguration;
-import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;

@@ -1,0 +1,20 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "20.0.0"
+
+    defaultConfig {
+        applicationId "com.grosner.dbflow"
+        minSdkVersion 4
+        targetSdkVersion 21
+        versionName = version.replace("-SNAPSHOT", "")
+        versionCode = Integer.parseInt(versionName.replace(".", ""))
+    }
+}
+
+dependencies {
+    compile "com.android.support:support-annotations:21.+"
+}
+
+apply from: '../maven_push.gradle'

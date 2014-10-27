@@ -6,21 +6,18 @@ buildscript {
         classpath 'com.android.tools.build:gradle:0.13.3'
     }
 }
-apply plugin: 'com.android.library'
 
-android {
-    compileSdkVersion 21
-    buildToolsVersion "20.0.0"
+def isReleaseBuild() {
+    return version.contains("SNAPSHOT") == false
+}
 
-    defaultConfig {
-        applicationId "com.grosner.dbflow"
-        minSdkVersion 4
-        targetSdkVersion 21
-        versionName = version.replace("-SNAPSHOT", "")
-        versionCode = Integer.parseInt(versionName.replace(".", ""))
+allprojects {
+    version = VERSION_NAME
+    group = GROUP
+
+    repositories {
+        mavenCentral()
     }
 }
 
-dependencies {
-    compile "com.android.support:support-annotations:21.+"
-}
+apply plugin: 'android-reporting'

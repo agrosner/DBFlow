@@ -1,7 +1,5 @@
 package com.grosner.dbflow.test.sql;
 
-import android.test.AndroidTestCase;
-
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;

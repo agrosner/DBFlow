@@ -1,7 +1,6 @@
 package com.grosner.dbflow.test.sql;
 
 import com.grosner.dbflow.config.DBConfiguration;
-import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.sql.language.From;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.language.Update;
