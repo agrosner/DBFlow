@@ -1,1 +1,1 @@
-include ':library'
+include ':app', ':library', ':compiler', ':flowcore'

@@ -1,6 +1,6 @@
 package com.grosner.dbflow.structure.container;
 
-import com.grosner.dbflow.structure.Ignore;
+import com.grosner.dbflow.annotation.Ignore;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.HashMap;

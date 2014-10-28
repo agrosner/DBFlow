@@ -8,6 +8,8 @@ import android.support.annotation.IntDef;
 import android.text.TextUtils;
 
 import com.grosner.dbflow.ReflectionUtils;
+import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.TypeConverter;
@@ -18,10 +20,8 @@ import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.structure.BaseModel;
-import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.StructureUtils;
+import com.grosner.dbflow.annotation.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
 import com.grosner.dbflow.structure.container.ModelContainer;
 import com.grosner.dbflow.structure.container.ModelContainerMap;
@@ -324,6 +324,48 @@ public class SqlUtils {
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.create()));
         }
+    }
+
+    public static <ModelClass extends Model> void save(String tableName, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
+        FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
+        ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder =
+                flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
+
+        final SQLiteDatabase db = flowManager.getWritableDatabase();
+
+        boolean exists = false;
+        BaseModel.Action action = BaseModel.Action.SAVE;
+        if (mode == SAVE_MODE_DEFAULT) {
+            exists = exists(model);
+        } else if (mode == SAVE_MODE_UPDATE) {
+            exists = true;
+            action = BaseModel.Action.UPDATE;
+        } else {
+            action = BaseModel.Action.INSERT;
+        }
+
+        if (exists) {
+            exists = (db.update(tableName, contentValues,
+                    ConditionQueryBuilder.getPrimaryModelWhere(primaryConditionQueryBuilder, model), null) != 0);
+        }
+
+        if (!exists) {
+            long id = db.insert(tableName, null, contentValues);
+
+            Collection<Field> primaryFields = flowManager.getTableStructureForClass(model.getClass()).getPrimaryKeys();
+            for (Field field : primaryFields) {
+                if (StructureUtils.isPrimaryKeyAutoIncrement(field)) {
+                    field.setAccessible(true);
+                    try {
+                        field.set(mode, id);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+
+        notifyModelChanged(model.getClass(), action);
     }
 
     /**

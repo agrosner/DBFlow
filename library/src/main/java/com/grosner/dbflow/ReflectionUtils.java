@@ -1,8 +1,8 @@
 package com.grosner.dbflow;
 
+import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.structure.BaseModelView;
-import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelViewDefinition;
 
@@ -17,7 +17,7 @@ import java.util.List;
 public class ReflectionUtils {
 
     /**
-     * Gets all of the {@link com.grosner.dbflow.structure.Column} fields
+     * Gets all of the {@link com.grosner.dbflow.annotation.Column} fields
      *
      * @param outFields
      * @param inClass

@@ -2,6 +2,8 @@ package com.grosner.dbflow.structure;
 
 import android.database.Cursor;
 
+import com.grosner.dbflow.annotation.Ignore;
+
 /**
  * Author: andrewgrosner
  * Contributors: { }

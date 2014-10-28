@@ -1,6 +1,4 @@
-package com.grosner.dbflow.structure;
-
-import android.support.annotation.IntDef;
+package com.grosner.dbflow.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,7 +34,7 @@ public @interface Column {
      */
     public static final int FOREIGN_KEY = 2;
 
-    @ColumnType int columnType() default NORMAL;
+    int columnType() default NORMAL;
 
     /**
      * The name of the column. The default is the field name.
@@ -88,20 +86,4 @@ public @interface Column {
      */
     ForeignKeyReference[] references() default {};
 
-    /**
-     * This is how to resolve null or unique conflicts with a field marked as {@link #notNull()}
-     * or {@link #unique()}
-     */
-    public enum ConflictAction {
-        ROLLBACK, ABORT, FAIL, IGNORE, REPLACE
-    }
-
-    /**
-     * Lets you specify if its a primary, foreign key, or autoincrementing field
-     *
-     * @return
-     */
-    @IntDef({NORMAL, PRIMARY_KEY, PRIMARY_KEY_AUTO_INCREMENT, FOREIGN_KEY})
-    @interface ColumnType {
-    }
 }

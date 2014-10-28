@@ -1,4 +1,4 @@
-package com.grosner.dbflow.structure;
+package com.grosner.dbflow.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

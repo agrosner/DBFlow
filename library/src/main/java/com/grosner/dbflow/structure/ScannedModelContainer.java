@@ -2,6 +2,7 @@ package com.grosner.dbflow.structure;
 
 import com.grosner.dbflow.ReflectionUtils;
 import com.grosner.dbflow.StringUtils;
+import com.grosner.dbflow.annotation.Ignore;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.TypeConverter;

@@ -2,6 +2,7 @@ package com.grosner.dbflow.structure;
 
 import android.database.Cursor;
 
+import com.grosner.dbflow.annotation.Ignore;
 import com.grosner.dbflow.sql.SqlUtils;
 
 /**

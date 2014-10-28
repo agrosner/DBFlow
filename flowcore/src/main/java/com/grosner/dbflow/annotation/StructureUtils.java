@@ -1,4 +1,6 @@
-package com.grosner.dbflow.structure;
+package com.grosner.dbflow.annotation;
+
+import com.grosner.dbflow.annotation.Column;
 
 import java.lang.reflect.Field;
 
@@ -9,7 +11,7 @@ import java.lang.reflect.Field;
 public class StructureUtils {
 
     /**
-     * Checks to see if field is a {@link com.grosner.dbflow.structure.Column#PRIMARY_KEY}
+     * Checks to see if field is a {@link com.grosner.dbflow.annotation.Column#PRIMARY_KEY}
      *
      * @param field
      * @return
@@ -24,7 +26,7 @@ public class StructureUtils {
     }
 
     /**
-     * Checks to see if field is a {@link com.grosner.dbflow.structure.Column#FOREIGN_KEY}
+     * Checks to see if field is a {@link com.grosner.dbflow.annotation.Column#FOREIGN_KEY}
      *
      * @param field
      * @return
@@ -39,7 +41,7 @@ public class StructureUtils {
     }
 
     /**
-     * Checks to see if field is not {@link com.grosner.dbflow.structure.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * Checks to see if field is not {@link com.grosner.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
      *
      * @param field
      * @return
@@ -54,7 +56,7 @@ public class StructureUtils {
     }
 
     /**
-     * Returns true if the field is {@link com.grosner.dbflow.structure.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * Returns true if the field is {@link com.grosner.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
      *
      * @param field
      * @return

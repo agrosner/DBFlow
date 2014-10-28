@@ -13,7 +13,7 @@ import com.grosner.dbflow.sql.builder.PrimaryKeyCannotBeNullException;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.StructureUtils;
+import com.grosner.dbflow.annotation.StructureUtils;
 import com.grosner.dbflow.structure.TableStructure;
 
 import java.lang.reflect.Field;
