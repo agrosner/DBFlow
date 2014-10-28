@@ -326,46 +326,50 @@ public class SqlUtils {
         }
     }
 
-    public static <ModelClass extends Model> void save(String tableName, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
-        FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
-        ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder =
-                flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
+    public static <ModelClass extends Model> void save(boolean async, String tableName, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
+        if (!async) {
+            FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
+            ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder =
+                    flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
 
-        final SQLiteDatabase db = flowManager.getWritableDatabase();
+            final SQLiteDatabase db = flowManager.getWritableDatabase();
 
-        boolean exists = false;
-        BaseModel.Action action = BaseModel.Action.SAVE;
-        if (mode == SAVE_MODE_DEFAULT) {
-            exists = exists(model);
-        } else if (mode == SAVE_MODE_UPDATE) {
-            exists = true;
-            action = BaseModel.Action.UPDATE;
-        } else {
-            action = BaseModel.Action.INSERT;
-        }
+            boolean exists = false;
+            BaseModel.Action action = BaseModel.Action.SAVE;
+            if (mode == SAVE_MODE_DEFAULT) {
+                exists = exists(model);
+            } else if (mode == SAVE_MODE_UPDATE) {
+                exists = true;
+                action = BaseModel.Action.UPDATE;
+            } else {
+                action = BaseModel.Action.INSERT;
+            }
 
-        if (exists) {
-            exists = (db.update(tableName, contentValues,
-                    ConditionQueryBuilder.getPrimaryModelWhere(primaryConditionQueryBuilder, model), null) != 0);
-        }
+            if (exists) {
+                exists = (db.update(tableName, contentValues,
+                        ConditionQueryBuilder.getPrimaryModelWhere(primaryConditionQueryBuilder, model), null) != 0);
+            }
 
-        if (!exists) {
-            long id = db.insert(tableName, null, contentValues);
+            if (!exists) {
+                long id = db.insert(tableName, null, contentValues);
 
-            Collection<Field> primaryFields = flowManager.getTableStructureForClass(model.getClass()).getPrimaryKeys();
-            for (Field field : primaryFields) {
-                if (StructureUtils.isPrimaryKeyAutoIncrement(field)) {
-                    field.setAccessible(true);
-                    try {
-                        field.set(mode, id);
-                    } catch (Throwable e) {
-                        throw new RuntimeException(e);
+                Collection<Field> primaryFields = flowManager.getTableStructureForClass(model.getClass()).getPrimaryKeys();
+                for (Field field : primaryFields) {
+                    if (StructureUtils.isPrimaryKeyAutoIncrement(field)) {
+                        field.setAccessible(true);
+                        try {
+                            field.set(mode, id);
+                        } catch (Throwable e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
-        }
 
-        notifyModelChanged(model.getClass(), action);
+            notifyModelChanged(model.getClass(), action);
+        } else {
+            TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.create()));
+        }
     }
 
     /**

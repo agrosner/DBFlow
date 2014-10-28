@@ -7,6 +7,7 @@ import com.grosner.dbflow.annotation.Table;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.converter.TypeConverter;
+import com.grosner.dbflow.sql.SQLiteType;
 import com.grosner.dbflow.sql.builder.QueryBuilder;
 import com.grosner.dbflow.sql.builder.TableCreationQueryBuilder;
 

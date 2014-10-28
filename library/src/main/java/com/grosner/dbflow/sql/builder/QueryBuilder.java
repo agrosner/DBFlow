@@ -3,7 +3,7 @@ package com.grosner.dbflow.sql.builder;
 import android.text.TextUtils;
 
 import com.grosner.dbflow.sql.Query;
-import com.grosner.dbflow.structure.SQLiteType;
+import com.grosner.dbflow.sql.SQLiteType;
 
 import java.util.List;
 
@@ -88,10 +88,10 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     /**
-     * Appends an {@link com.grosner.dbflow.structure.SQLiteType} to this query based on the class
+     * Appends an {@link com.grosner.dbflow.sql.SQLiteType} to this query based on the class
      * passed in.
      *
-     * @param type The Class to look up from {@link com.grosner.dbflow.structure.SQLiteType}
+     * @param type The Class to look up from {@link com.grosner.dbflow.sql.SQLiteType}
      * @return
      */
     public QueryClass appendType(Class type) {
@@ -99,9 +99,9 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     /**
-     * Appends the {@link com.grosner.dbflow.structure.SQLiteType} to this query
+     * Appends the {@link com.grosner.dbflow.sql.SQLiteType} to this query
      *
-     * @param sqLiteType The {@link com.grosner.dbflow.structure.SQLiteType} to append
+     * @param sqLiteType The {@link com.grosner.dbflow.sql.SQLiteType} to append
      * @return
      */
     public QueryClass appendSQLiteType(SQLiteType sqLiteType) {

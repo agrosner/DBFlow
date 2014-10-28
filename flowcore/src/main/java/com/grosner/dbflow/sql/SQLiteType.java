@@ -1,4 +1,4 @@
-package com.grosner.dbflow.structure;
+package com.grosner.dbflow.sql;
 
 import java.util.HashMap;
 
@@ -48,7 +48,7 @@ public enum SQLiteType {
     }
 
     /**
-     * Returns the {@link com.grosner.dbflow.structure.SQLiteType} for this class
+     * Returns the {@link SQLiteType} for this class
      *
      * @param clazz
      * @return

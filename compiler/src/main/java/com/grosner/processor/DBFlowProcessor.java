@@ -78,7 +78,7 @@ public class DBFlowProcessor extends AbstractProcessor {
                 try {
                     final String packageName = processingEnv.getElementUtils()
                             .getPackageOf(element).toString();
-                    TableDefinition tableDefinition = new TableDefinition(packageName, element);
+                    TableDefinition tableDefinition = new TableDefinition(processingEnv, packageName, element);
                     JavaWriter javaWriter = new JavaWriter(processingEnv.getFiler().createSourceFile(tableDefinition.getFQCN()).openWriter());
                     tableDefinition.write(javaWriter);
                     javaWriter.close();

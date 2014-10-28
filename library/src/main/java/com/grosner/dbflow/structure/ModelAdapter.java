@@ -1,6 +1,5 @@
 package com.grosner.dbflow.structure;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 
 /**
@@ -12,5 +11,7 @@ public interface ModelAdapter<ModelClass extends Model> {
 
     public void loadFromCursor(Cursor cursor);
 
-    public void save(ModelClass model, int saveMode);
+    public void save(boolean async, ModelClass model, int saveMode);
+
+    public String getPrimaryModelWhere(ModelClass model);
 }

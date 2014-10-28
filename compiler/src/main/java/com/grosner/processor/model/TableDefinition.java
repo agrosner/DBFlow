@@ -21,55 +21,76 @@ import java.util.List;
  */
 public class TableDefinition implements FlowWriter {
 
-    private static final String DBFLOW_TABLE_TAG = "$Columns";
+    private static final String DBFLOW_TABLE_TAG = "$Table";
 
     private static final String DBFLOW_TABLE_ADAPTER = "$Adapter";
+
+    ProcessingEnvironment processingEnvironment;
 
     String packageName;
 
     String tableName;
 
-    String className;
+    String tableSourceClassName;
+
+    String modelClassName;
 
     String adapterName;
 
     Element element;
 
-    private ArrayList<ColumnDefinition> columnDefinitions;
+    ArrayList<ColumnDefinition> columnDefinitions;
+
+    ArrayList<ColumnDefinition> primaryColumnDefinitions;
 
     ContentValuesWriter mContentValuesWriter;
 
-    public TableDefinition(String packageName, Element element) {
+    LoadCursorWriter mLoadCursorWriter;
+
+    WhereQueryWriter mWhereQueryWriter;
+
+    public TableDefinition(ProcessingEnvironment processingEnvironment, String packageName, Element element) {
         this.element = element;
         this.packageName = packageName;
-        this.className = element.getSimpleName() + DBFLOW_TABLE_TAG;
-        this.adapterName = element.getSimpleName() + DBFLOW_TABLE_ADAPTER;
+        this.modelClassName = element.getSimpleName().toString();
+        this.tableSourceClassName = modelClassName + DBFLOW_TABLE_TAG;
+        this.adapterName = modelClassName + DBFLOW_TABLE_ADAPTER;
         this.tableName = element.getAnnotation(Table.class).name();
-        columnDefinitions = getColumnDefinitions(element);
+        this.processingEnvironment = processingEnvironment;
+        columnDefinitions = new ArrayList<>();
+        primaryColumnDefinitions = new ArrayList<>();
+        getColumnDefinitions(element);
 
-        mContentValuesWriter = new ContentValuesWriter(tableName, element.getSimpleName().toString(), columnDefinitions);
+        mContentValuesWriter = new ContentValuesWriter(this);
+        mWhereQueryWriter = new WhereQueryWriter(this);
+        mLoadCursorWriter = new LoadCursorWriter(this);
     }
 
-    private static ArrayList<ColumnDefinition> getColumnDefinitions(Element element) {
+    private void getColumnDefinitions(Element element) {
         List<VariableElement> variableElements = ElementFilter.fieldsIn(element.getEnclosedElements());
-        ArrayList<ColumnDefinition> columns = new ArrayList<>();
         for(VariableElement variableElement: variableElements) {
             if(variableElement.getAnnotation(Column.class) != null) {
-                columns.add(new ColumnDefinition(variableElement));
+                ColumnDefinition columnDefinition = new ColumnDefinition(processingEnvironment, variableElement);
+                columnDefinitions.add(columnDefinition);
+
+                if(columnDefinition.columnType == Column.PRIMARY_KEY) {
+                    primaryColumnDefinitions.add(columnDefinition);
+                }
             }
         }
-        return columns;
     }
 
     @Override
     public String getFQCN() {
-        return packageName+"."+className;
+        return packageName+"."+ tableSourceClassName;
     }
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitPackage(packageName);
-        javaWriter.beginType(className, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        javaWriter.beginType(tableSourceClassName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        javaWriter.emitEmptyLine();
+        javaWriter.emitField("String", "TABLE_NAME", Sets.newHashSet(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL), "\"" + tableName + "\"");
         javaWriter.emitEmptyLine();
         for(ColumnDefinition columnDefinition: columnDefinitions) {
             columnDefinition.write(javaWriter);
@@ -88,6 +109,8 @@ public class TableDefinition implements FlowWriter {
         javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), null, "ModelAdapter<" + element.getSimpleName()  + ">");
 
         mContentValuesWriter.write(javaWriter);
+        mLoadCursorWriter.write(javaWriter);
+        mWhereQueryWriter.write(javaWriter);
 
         javaWriter.endType();
         javaWriter.close();

@@ -1,8 +1,11 @@
 package com.grosner.dbflow.app;
 
 import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.dbflow.structure.BaseModel;
+import com.grosner.dbflow.structure.container.JSONModel;
+import com.grosner.dbflow.structure.container.ModelContainer;
 
 /**
  * Author: andrewgrosner
@@ -17,4 +20,12 @@ public class AModel extends BaseModel {
 
     @Column(name = "time")
     long time;
+
+    @Column(columnType = Column.FOREIGN_KEY,
+            references = {@ForeignKeyReference(columnType = String.class, columnName = "otherModel", foreignColumnName = "name")})
+    OtherModel model;
+
+    @Column(columnType = Column.FOREIGN_KEY,
+            references = {@ForeignKeyReference(columnType = String.class, columnName = "otherModelContainer", foreignColumnName = "name")})
+    JSONModel<OtherModel> jsonModel;
 }
