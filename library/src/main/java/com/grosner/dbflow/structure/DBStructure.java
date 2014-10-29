@@ -42,6 +42,8 @@ public class DBStructure {
      */
     private Map<Class<? extends Model>, Constructor<? extends Model>> mModelConstructorMap;
 
+    private Map<Class<? extends Model>, ModelAdapter> mModelAdapterMap;
+
     /**
      * Holds the database information here.
      */
@@ -73,6 +75,7 @@ public class DBStructure {
         mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
         mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, ConditionQueryBuilder>();
         mModelViews = new HashMap<Class<? extends BaseModelView>, ModelViewDefinition>();
+        mModelAdapterMap = new HashMap<>();
         mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
 
         List<Class<? extends Model>> modelList;
@@ -195,6 +198,18 @@ public class DBStructure {
     @SuppressWarnings("unchecked")
     public void putModelViewDefinition(ModelViewDefinition modelViewDefinition) {
         getModelViews().put(modelViewDefinition.getModelViewClass(), modelViewDefinition);
+    }
+
+    public void putModelAdapter(ModelAdapter modelAdapter) {
+        mModelAdapterMap.put(modelAdapter.getModelClass(), modelAdapter);
+    }
+
+    public <ModelClass extends Model> ModelAdapter getModelAdapter(Class<ModelClass> modelClass) {
+        ModelAdapter modelAdapter = mModelAdapterMap.get(modelClass);
+        if(modelAdapter == null) {
+            throw new RuntimeException("Model Adapter for: " + modelClass + " not found. Check your configuration and ensure it was annotated with @Table");
+        }
+        return modelAdapter;
     }
 
     /**

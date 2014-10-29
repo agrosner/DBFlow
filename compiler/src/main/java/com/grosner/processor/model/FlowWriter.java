@@ -11,11 +11,5 @@ import java.io.IOException;
  */
 public interface FlowWriter {
 
-    /**
-     * Returns the fully qualified class name.
-     * @return
-     */
-    public String getFQCN();
-
     public void write(JavaWriter javaWriter) throws IOException;
 }

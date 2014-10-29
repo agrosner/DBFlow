@@ -56,11 +56,6 @@ public class ColumnDefinition implements FlowWriter{
 
 
     @Override
-    public String getFQCN() {
-        return null;
-    }
-
-    @Override
     public void write(JavaWriter javaWriter) throws IOException {
         if(isModel || isModelContainer) {
             for(ForeignKeyReference reference: foreignKeyReferences) {
@@ -106,6 +101,30 @@ public class ColumnDefinition implements FlowWriter{
         }
     }
 
+    public void writeCursorDefinition(JavaWriter javaWriter) throws IOException {
+        if(columnType == Column.FOREIGN_KEY) {
+            //TODO: This is wrong, should be using condition query builder
+            StringBuilder foreignKeys = new StringBuilder();
+            for(int i = 0; i < foreignKeyReferences.length; i++) {
+                ForeignKeyReference foreignKeyReference = foreignKeyReferences[i];
+
+                foreignKeys.append(getModelStatement(columnFieldName + "." + foreignKeyReference.foreignColumnName()));
+
+                if(i < foreignKeyReferences.length -1) {
+                    foreignKeys.append(",");
+                }
+            }
+            javaWriter.emitEmptyLine();
+            javaWriter.emitSingleLineComment("Loading Model Foreign Key");
+            javaWriter.emitStatement("ConditionQueryBuilder<%1s> conditionQueryBuilder = FlowManager.getPrimaryWhereQuery(%1s)", columnFieldType, columnFieldType + ".class");
+            javaWriter.emitStatement(getModelStatement(columnFieldName) + " = new Select().from(%1s).where()\n" +
+                    "                        .whereQuery(conditionQueryBuilder.replaceEmptyParams(%1s))\n" +
+                    "                        .querySingle()", columnFieldType + ".class", foreignKeys.toString());
+        } else {
+            javaWriter.emitStatement(getModelStatement(columnFieldName) + " = %1s", getCursorStatement(columnFieldType, columnName));
+        }
+    }
+
     private static String getContentStatement(String columnName, String columnFieldName){
         return String.format("contentValues.put(\"%1s\", %1s)", columnName, getModelStatement(columnFieldName));
     }
@@ -113,4 +132,11 @@ public class ColumnDefinition implements FlowWriter{
     private static String getModelStatement(String columnFieldName) {
         return "model." + columnFieldName;
     }
+
+    private static String getCursorStatement(String columnFieldType, String columnName) {
+        String cursorMethod = LoadCursorWriter.CURSOR_METHOD_MAP.get(columnFieldType);
+        return "cursor." + cursorMethod + "(cursor.getColumnIndex(\""  + columnName + "\"))";
+    }
+
+
 }

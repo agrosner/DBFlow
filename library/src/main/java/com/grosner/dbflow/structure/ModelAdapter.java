@@ -9,9 +9,13 @@ import android.database.Cursor;
  */
 public interface ModelAdapter<ModelClass extends Model> {
 
-    public void loadFromCursor(Cursor cursor);
+    public ModelClass loadFromCursor(Cursor cursor);
 
     public void save(boolean async, ModelClass model, int saveMode);
 
+    public boolean exists(ModelClass model);
+
     public String getPrimaryModelWhere(ModelClass model);
+
+    public Class<ModelClass> getModelClass();
 }

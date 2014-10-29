@@ -1,6 +1,7 @@
 package com.grosner.processor.model;
 
 import com.google.common.collect.Sets;
+import com.grosner.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Modifier;
@@ -19,26 +20,25 @@ public class WhereQueryWriter implements FlowWriter {
         this.tableDefinition = tableDefinition;
     }
     @Override
-    public String getFQCN() {
-        return null;
-    }
-
-    @Override
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);
-        javaWriter.beginMethod("String", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC), tableDefinition.modelClassName, "model");
-        StringBuilder retStatement = new StringBuilder("return ");
-        for(int i = 0 ; i < tableDefinition.primaryColumnDefinitions.size(); i++) {
-            ColumnDefinition columnDefinition = tableDefinition.primaryColumnDefinitions.get(i);
-            retStatement.append("model.").append(columnDefinition.columnFieldName).append(" + \" = ?\"");
-            if(i < tableDefinition.primaryColumnDefinitions.size() - 1) {
-                retStatement.append("+ \"AND\" ");
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                StringBuilder retStatement = new StringBuilder("return ");
+                for (int i = 0; i < tableDefinition.primaryColumnDefinitions.size(); i++) {
+                    ColumnDefinition columnDefinition = tableDefinition.primaryColumnDefinitions.get(i);
+                    retStatement.append(tableDefinition.tableSourceClassName + "." + columnDefinition.columnName.toUpperCase())
+                            .append(" + \" = \" + ").append("model.").append(columnDefinition.columnFieldName);
+                    if (i < tableDefinition.primaryColumnDefinitions.size() - 1) {
+                        retStatement.append("+ \"AND\" ");
+                    }
+                }
+
+                javaWriter.emitStatement(retStatement.toString());
+
             }
-        }
-
-        javaWriter.emitStatement(retStatement.toString());
-
-        javaWriter.endMethod();
+        }, "String", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC), tableDefinition.modelClassName, "model");
     }
 }

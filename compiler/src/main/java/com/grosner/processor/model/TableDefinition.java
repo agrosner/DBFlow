@@ -3,6 +3,8 @@ package com.grosner.processor.model;
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.Table;
+import com.grosner.processor.Classes;
+import com.grosner.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -45,6 +47,8 @@ public class TableDefinition implements FlowWriter {
 
     ContentValuesWriter mContentValuesWriter;
 
+    ExistenceWriter mExistenceWriter;
+
     LoadCursorWriter mLoadCursorWriter;
 
     WhereQueryWriter mWhereQueryWriter;
@@ -64,6 +68,7 @@ public class TableDefinition implements FlowWriter {
         mContentValuesWriter = new ContentValuesWriter(this);
         mWhereQueryWriter = new WhereQueryWriter(this);
         mLoadCursorWriter = new LoadCursorWriter(this);
+        mExistenceWriter = new ExistenceWriter(this);
     }
 
     private void getColumnDefinitions(Element element) {
@@ -80,7 +85,6 @@ public class TableDefinition implements FlowWriter {
         }
     }
 
-    @Override
     public String getFQCN() {
         return packageName+"."+ tableSourceClassName;
     }
@@ -102,13 +106,25 @@ public class TableDefinition implements FlowWriter {
         JavaWriter javaWriter = new JavaWriter(processingEnvironment.getFiler().createSourceFile(adapterName).openWriter());
 
         javaWriter.emitPackage(packageName);
-        javaWriter.emitImports("com.grosner.dbflow.structure.ModelAdapter",
-                "android.database.Cursor",
-                "android.content.ContentValues",
-                "com.grosner.dbflow.sql.SqlUtils");
-        javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), null, "ModelAdapter<" + element.getSimpleName()  + ">");
+        javaWriter.emitImports(Classes.MODEL_ADAPTER,
+                Classes.CURSOR,
+                Classes.CONTENT_VALUES,
+                Classes.SQL_UTILS,
+                Classes.CONDITION_QUERY_BUILDER,
+                Classes.SELECT,
+                Classes.FLOW_MANAGER
+        );
+        javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), null, "ModelAdapter<" + element.getSimpleName() + ">");
+        javaWriter.emitAnnotation(Override.class);
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return " + modelClassName + ".class");
+            }
+        }, "Class<" + modelClassName + ">", "getModelClass", Sets.newHashSet(Modifier.PUBLIC));
 
         mContentValuesWriter.write(javaWriter);
+        mExistenceWriter.write(javaWriter);
         mLoadCursorWriter.write(javaWriter);
         mWhereQueryWriter.write(javaWriter);
 

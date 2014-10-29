@@ -15,17 +15,14 @@ import com.grosner.dbflow.structure.container.ModelContainer;
 @Table(name = "AModel")
 public class AModel extends BaseModel {
 
-    @Column(columnType = Column.PRIMARY_KEY, name = "name")
+    @Column(columnType = Column.PRIMARY_KEY)
     String name;
 
-    @Column(name = "time")
+    @Column
     long time;
 
     @Column(columnType = Column.FOREIGN_KEY,
             references = {@ForeignKeyReference(columnType = String.class, columnName = "otherModel", foreignColumnName = "name")})
     OtherModel model;
 
-    @Column(columnType = Column.FOREIGN_KEY,
-            references = {@ForeignKeyReference(columnType = String.class, columnName = "otherModelContainer", foreignColumnName = "name")})
-    JSONModel<OtherModel> jsonModel;
 }

@@ -4,6 +4,7 @@ import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.structure.BaseModelView;
 import com.grosner.dbflow.structure.Model;
+import com.grosner.dbflow.structure.ModelAdapter;
 import com.grosner.dbflow.structure.ModelViewDefinition;
 
 import java.lang.reflect.Field;
@@ -85,5 +86,9 @@ public class ReflectionUtils {
      */
     public static boolean implementsModelViewDefinition(Class discoveredClass) {
         return ModelViewDefinition.class.isAssignableFrom(discoveredClass);
+    }
+
+    public static boolean implementsModelAdapter(Class discoveredClass) {
+        return ModelAdapter.class.isAssignableFrom(discoveredClass);
     }
 }

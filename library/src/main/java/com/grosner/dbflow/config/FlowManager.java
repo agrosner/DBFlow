@@ -13,11 +13,7 @@ import com.grosner.dbflow.converter.LocationConverter;
 import com.grosner.dbflow.converter.SqlDateConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.structure.DBStructure;
-import com.grosner.dbflow.structure.InvalidDBConfiguration;
-import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.ModelPathManager;
-import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.*;
 
 import org.json.JSONObject;
 
@@ -265,6 +261,11 @@ public class FlowManager {
                     "added it to the DBConfiguration?");
         }
         return tableStructure;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <ModelClass extends Model> ModelAdapter<ModelClass> getModelAdapter(Class<ModelClass> modelClass) {
+        return FlowManager.getManagerForTable(modelClass).getStructure().getModelAdapter(modelClass);
     }
 
     public DBConfiguration getDbConfiguration() {
