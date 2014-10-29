@@ -2,7 +2,7 @@ package com.grosner.processor.writer;
 
 import com.google.common.collect.Sets;
 import com.grosner.processor.definition.TableDefinition;
-import com.grosner.processor.model.ProcessorManager;
+import com.grosner.processor.utils.ModelUtils;
 import com.grosner.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
@@ -16,12 +16,11 @@ import java.io.IOException;
  */
 public class DeleteWriter implements FlowWriter {
 
-    private ProcessorManager manager;
+    private final boolean isModelContainer;
     private TableDefinition tableDefinition;
 
-    public DeleteWriter(ProcessorManager manager, TableDefinition tableDefinition) {
-
-        this.manager = manager;
+    public DeleteWriter(TableDefinition tableDefinition, boolean isModelContainer) {
+        this.isModelContainer = isModelContainer;
         this.tableDefinition = tableDefinition;
     }
 
@@ -33,8 +32,16 @@ public class DeleteWriter implements FlowWriter {
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("new Delete().from(%1s).where(getPrimaryWhereQuery(model)).query()", tableDefinition.tableName);
+                javaWriter.beginControlFlow("if(%1s)", "async");
+                WriterUtils.emitTransactionManagerCall(javaWriter, "delete", ModelUtils.getVariable(isModelContainer));
+                javaWriter.nextControlFlow("else");
+                javaWriter.emitStatement(" new Delete().from(%1s).where(getPrimaryModelWhere(%1s)).query()",
+                        ModelUtils.getFieldClass(tableDefinition.tableName), ModelUtils.getVariable(isModelContainer));
+                javaWriter.endControlFlow();
             }
-        }, "void", "delete", Sets.newHashSet(Modifier.PUBLIC), tableDefinition.modelClassName, "model");
+        }, "void", "delete", Sets.newHashSet(Modifier.PUBLIC),
+                "boolean", "async",
+                ModelUtils.getParameter(isModelContainer, tableDefinition.modelClassName),
+                ModelUtils.getVariable(isModelContainer));
     }
 }

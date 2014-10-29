@@ -32,4 +32,9 @@ public class WriterUtils {
             e.printStackTrace();
         }
     }
+
+    public static void emitTransactionManagerCall(JavaWriter javaWriter, String method, String variable) throws IOException {
+        javaWriter.emitStatement("TransactionManager.getInstance().%1s(ProcessModelInfo.withModels(%1s).info(DBTransactionInfo.create()));",
+                method, variable);
+    }
 }

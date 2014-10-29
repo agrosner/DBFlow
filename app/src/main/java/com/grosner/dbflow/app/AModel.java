@@ -1,11 +1,10 @@
 package com.grosner.dbflow.app;
 
 import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ContainerAdapter;
 import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.dbflow.structure.BaseModel;
-import com.grosner.dbflow.structure.container.JSONModel;
-import com.grosner.dbflow.structure.container.ModelContainer;
 
 /**
  * Author: andrewgrosner
@@ -13,6 +12,7 @@ import com.grosner.dbflow.structure.container.ModelContainer;
  * Description:
  */
 @Table(name = "AModel")
+@ContainerAdapter
 public class AModel extends BaseModel {
 
     @Column(columnType = Column.PRIMARY_KEY)

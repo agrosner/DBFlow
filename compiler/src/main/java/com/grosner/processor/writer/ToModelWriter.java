@@ -15,21 +15,12 @@ import java.io.IOException;
  * Contributors: { }
  * Description:
  */
-public class ContentValuesWriter implements FlowWriter {
+public class ToModelWriter implements FlowWriter {
 
     private TableDefinition tableDefinition;
 
-    private String mSaveMethod;
-
-    private String mSaveVariable;
-
-    private boolean isModelContainer;
-
-    public ContentValuesWriter(TableDefinition tableDefinition, boolean isModelContainer) {
+    public ToModelWriter(TableDefinition tableDefinition) {
         this.tableDefinition = tableDefinition;
-        this.isModelContainer = isModelContainer;
-        mSaveMethod = isModelContainer ? "ModelContainerUtils" : "SqlUtils";
-        mSaveVariable = isModelContainer ? "modelContainer" : "model";
     }
 
     @Override
@@ -39,15 +30,15 @@ public class ContentValuesWriter implements FlowWriter {
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("ContentValues contentValues = new ContentValues()");
+                javaWriter.emitStatement(tableDefinition.modelClassName + " " + ModelUtils.getVariable(false) +
+                        " = new " + tableDefinition.modelClassName + "()");
                 for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
-                    columnDefinition.writeContentValue(javaWriter, isModelContainer);
+                    columnDefinition.writeModelContainerLoaderDefinition(javaWriter);
                 }
-                javaWriter.emitEmptyLine();
-
-                javaWriter.emitStatement(mSaveMethod + ".save(%1s, %1s, %1s, %1s)", "async", mSaveVariable, "contentValues", "saveMode");
+                javaWriter.emitStatement("return " + ModelUtils.getVariable(false));
             }
-        }, "void", "save", Sets.newHashSet(Modifier.PUBLIC), "boolean", "async",
-                ModelUtils.getParameter(isModelContainer,tableDefinition.modelClassName), mSaveVariable, "int", "saveMode");
+        }, tableDefinition.modelClassName, "toModel", Sets.newHashSet(Modifier.PUBLIC),
+                ModelUtils.getParameter(true, tableDefinition.modelClassName),
+                ModelUtils.getVariable(true));
     }
 }

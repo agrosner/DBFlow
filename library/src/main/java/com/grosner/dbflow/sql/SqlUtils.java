@@ -97,16 +97,9 @@ public class SqlUtils {
     public static <ModelClass extends Model> ModelClass convertToModel(boolean isList, Class<ModelClass> table, Cursor cursor) {
         ModelClass model = null;
         try {
-            Constructor<ModelClass> entityConstructor = FlowManager.getManagerForTable(table).getStructure().getConstructorForModel(table);
             if (isList || cursor.moveToFirst()) {
-                model = entityConstructor.newInstance();
-                model.load(cursor);
+                model = FlowManager.getModelAdapter(table).loadFromCursor(cursor);
             }
-
-        } catch (IllegalArgumentException i) {
-            throw new RuntimeException("Default constructor for: " + table.getName() + " was not found.");
-        } catch (NoSuchMethodException n) {
-            throw new RuntimeException("Default constructor for: " + table.getName() + " was not found.");
         } catch (Exception e) {
             FlowLog.log(FlowLog.Level.E, "Failed to process cursor.", e);
         }
@@ -314,20 +307,16 @@ public class SqlUtils {
         }
     }*/
 
-    public static <ModelClass extends Model> void save(boolean async, String tableName, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
+    public static <ModelClass extends Model> void save(boolean async, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
         if (!async) {
             FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
-            ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder =
-                    flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
-
             ModelAdapter<ModelClass> modelAdapter = (ModelAdapter<ModelClass>) FlowManager.getModelAdapter(model.getClass());
-
             final SQLiteDatabase db = flowManager.getWritableDatabase();
 
             boolean exists = false;
             BaseModel.Action action = BaseModel.Action.SAVE;
             if (mode == SAVE_MODE_DEFAULT) {
-                exists = exists(model);
+                exists = modelAdapter.exists(model);
             } else if (mode == SAVE_MODE_UPDATE) {
                 exists = true;
                 action = BaseModel.Action.UPDATE;
@@ -336,11 +325,11 @@ public class SqlUtils {
             }
 
             if (exists) {
-                exists = (db.update(tableName, contentValues,modelAdapter.getPrimaryModelWhere(model), null) != 0);
+                exists = (db.update(modelAdapter.getTableName(), contentValues,modelAdapter.getPrimaryModelWhere(model), null) != 0);
             }
 
             if (!exists) {
-                long id = db.insert(tableName, null, contentValues);
+                long id = db.insert(modelAdapter.getTableName(), null, contentValues);
 
                 // TODO: add a method for primary increment fields
                 /*Collection<Field> primaryFields = flowManager.getTableStructureForClass(model.getClass()).getPrimaryKeys();

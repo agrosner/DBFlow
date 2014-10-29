@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
  * Description: An optional annotation for {@link com.grosner.dbflow.structure.Model} classes
  * that allow a different name than the Model's class name.
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Table {
 
     /**

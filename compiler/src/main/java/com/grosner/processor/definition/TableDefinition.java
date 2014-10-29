@@ -13,6 +13,7 @@ import com.squareup.javawriter.JavaWriter;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
 import java.io.IOException;
@@ -73,21 +74,21 @@ public class TableDefinition implements FlowWriter {
         columnDefinitions = new ArrayList<>();
         primaryColumnDefinitions = new ArrayList<>();
         foreignKeyDefinitions = new ArrayList<>();
-        getColumnDefinitions(element);
+        getColumnDefinitions((TypeElement) element);
 
-        mContentValuesWriter = new ContentValuesWriter(this);
-        mWhereQueryWriter = new WhereQueryWriter(this);
-        mLoadCursorWriter = new LoadCursorWriter(this);
-        mExistenceWriter = new ExistenceWriter(this);
+        mContentValuesWriter = new ContentValuesWriter(this, false);
+        mWhereQueryWriter = new WhereQueryWriter(this, false);
+        mLoadCursorWriter = new LoadCursorWriter(this, false);
+        mExistenceWriter = new ExistenceWriter(this, false);
         mCreationQueryWriter = new CreationQueryWriter(manager, this);
-        mDeleteWriter = new DeleteWriter(manager, this);
+        mDeleteWriter = new DeleteWriter(this, false);
     }
 
-    private void getColumnDefinitions(Element element) {
-        List<VariableElement> variableElements = ElementFilter.fieldsIn(element.getEnclosedElements());
-        for(VariableElement variableElement: variableElements) {
+    private void getColumnDefinitions(TypeElement element) {
+        List<? extends Element> variableElements = manager.getElements().getAllMembers(element);
+        for(Element variableElement: variableElements) {
             if(variableElement.getAnnotation(Column.class) != null) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement);
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
                 columnDefinitions.add(columnDefinition);
 
                 if(columnDefinition.columnType == Column.PRIMARY_KEY) {
@@ -121,37 +122,27 @@ public class TableDefinition implements FlowWriter {
 
         javaWriter.emitPackage(packageName);
         javaWriter.emitImports(Classes.MODEL_ADAPTER,
+                Classes.CONDITION_QUERY_BUILDER,
                 Classes.CURSOR,
                 Classes.CONTENT_VALUES,
                 Classes.SQL_UTILS,
                 Classes.SELECT,
-                Classes.CONDITION
+                Classes.CONDITION,
+                Classes.DELETE,
+                Classes.TRANSACTION_MANAGER,
+                Classes.PROCESS_MODEL_INFO,
+                Classes.DBTRANSACTION_INFO
         );
         javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ModelAdapter<" + element.getSimpleName() + ">");
-        javaWriter.emitEmptyLine()
-                .emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return " + ModelUtils.getFieldClass(modelClassName));
-            }
-        }, "Class<" + modelClassName + ">", "getModelClass", Sets.newHashSet(Modifier.PUBLIC));
-
-        javaWriter
-                .emitEmptyLine()
-                .emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return " + ModelUtils.getStaticMember(tableSourceClassName, "TABLE_NAME"));
-            }
-        }, "String", "getTableName", Sets.newHashSet(Modifier.PUBLIC));
+        InternalAdapterHelper.writeGetModelClass(javaWriter, modelClassName);
+        InternalAdapterHelper.writeGetTableName(javaWriter, tableSourceClassName);
 
         mContentValuesWriter.write(javaWriter);
         mExistenceWriter.write(javaWriter);
         mLoadCursorWriter.write(javaWriter);
         mWhereQueryWriter.write(javaWriter);
         mCreationQueryWriter.write(javaWriter);
+        mDeleteWriter.write(javaWriter);
 
         javaWriter.endType();
         javaWriter.close();

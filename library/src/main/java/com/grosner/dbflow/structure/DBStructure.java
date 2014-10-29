@@ -5,6 +5,8 @@ import android.content.Context;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.structure.container.ContainerAdapter;
+import com.grosner.dbflow.structure.container.ModelContainer;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -39,6 +41,8 @@ public class DBStructure {
 
     private Map<Class<? extends Model>, ModelAdapter> mModelAdapterMap;
 
+    private Map<Class<? extends Model>, ContainerAdapter> mModelContainerMap;
+
     /**
      * Holds the database information here.
      */
@@ -70,6 +74,7 @@ public class DBStructure {
         mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, ConditionQueryBuilder>();
         mModelViews = new HashMap<Class<? extends BaseModelView>, ModelViewDefinition>();
         mModelAdapterMap = new HashMap<>();
+        mModelContainerMap = new HashMap<>();
         mModelConstructorMap = new HashMap<Class<? extends Model>, Constructor<? extends Model>>();
 
         List<Class<? extends Model>> modelList;
@@ -168,13 +173,27 @@ public class DBStructure {
         mModelAdapterMap.put(modelAdapter.getModelClass(), modelAdapter);
     }
 
-    public <ModelClass extends Model> ModelAdapter getModelAdapter(Class<ModelClass> modelClass) {
-        ModelAdapter modelAdapter = mModelAdapterMap.get(modelClass);
+    public <ModelClass extends Model> ModelAdapter<ModelClass> getModelAdapter(Class<ModelClass> modelClass) {
+        ModelAdapter<ModelClass> modelAdapter = mModelAdapterMap.get(modelClass);
         if(modelAdapter == null) {
             throw new RuntimeException("Model Adapter for: " + modelClass + " not found. Check your configuration and ensure it was annotated with @Table");
         }
         return modelAdapter;
     }
+
+    public void putModelContainer(ContainerAdapter modelAdapter) {
+        mModelContainerMap.put(modelAdapter.getModelClass(), modelAdapter);
+    }
+
+    public <ModelClass extends Model> ContainerAdapter<ModelClass> getModelContainer(Class<ModelClass> modelClass) {
+        ContainerAdapter<ModelClass> modelAdapter = mModelContainerMap.get(modelClass);
+        if(modelAdapter == null) {
+            throw new RuntimeException("Model Adapter for: " + modelClass + " not found. Check your configuration and ensure it was annotated with @Table");
+        }
+        return modelAdapter;
+    }
+
+
 
     /**
      * Returns the {@link com.grosner.dbflow.structure.ModelViewDefinition} map for this database

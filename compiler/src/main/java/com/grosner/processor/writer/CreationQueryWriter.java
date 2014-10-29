@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.sql.SQLiteType;
+import com.grosner.processor.Classes;
 import com.grosner.processor.ProcessorUtils;
 import com.grosner.processor.definition.ColumnDefinition;
 import com.grosner.processor.definition.PrimaryKeyNotFoundException;
@@ -47,17 +48,19 @@ public class CreationQueryWriter implements FlowWriter{
 
                 ArrayList<QueryBuilder> mColumnDefinitions = new ArrayList<QueryBuilder>();
                 for(ColumnDefinition columnDefinition: tableDefinition.columnDefinitions) {
+
+                    TableCreationQueryBuilder queryBuilder = new TableCreationQueryBuilder();
                     if(columnDefinition.columnType == Column.FOREIGN_KEY) {
-                        tableCreationQuery.appendForeignKeys(columnDefinition.foreignKeyReferences);
+                        queryBuilder.appendForeignKeys(columnDefinition.foreignKeyReferences);
                     }
 
 
                     if (SQLiteType.containsClass(columnDefinition.columnFieldType)) {
-                        tableCreationQuery.append(columnDefinition.columnName)
+                        queryBuilder.append(columnDefinition.columnName)
                                 .appendSpace()
                                 .appendType(columnDefinition.columnFieldType);
                     } else if (ReflectionUtils.isSubclassOf(columnDefinition.columnFieldType, Enum.class)) {
-                        tableCreationQuery.append(columnDefinition.columnName)
+                        queryBuilder.append(columnDefinition.columnName)
                                 .appendSpace()
                                 .appendSQLiteType(SQLiteType.TEXT);
                     } else {
@@ -70,11 +73,12 @@ public class CreationQueryWriter implements FlowWriter{
                         }*/
                     }
 
-                    mColumnDefinitions.add(tableCreationQuery.appendColumn(columnDefinition.column));
+                    mColumnDefinitions.add(queryBuilder.appendColumn(columnDefinition.column));
                 }
 
-                boolean isModelView = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), tableDefinition.modelClassName,
-                        manager.getElements().getTypeElement(tableDefinition.element.asType().toString()));
+                boolean isModelView = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                        tableDefinition.packageName +"." + tableDefinition.modelClassName,
+                        manager.getElements().getTypeElement(Classes.MODEL_VIEW));
 
                 // Views do not have primary keys
                 if(!isModelView) {
@@ -129,7 +133,7 @@ public class CreationQueryWriter implements FlowWriter{
                 }
 
                 tableCreationQuery.appendList(mColumnDefinitions).append("););");
-                javaWriter.emitStatement("return %1s", tableCreationQuery.getQuery());
+                javaWriter.emitStatement("return \"%1s\"", tableCreationQuery.getQuery());
             }
         }, "String", "getCreationQuery", Sets.newHashSet(Modifier.PUBLIC));
     }

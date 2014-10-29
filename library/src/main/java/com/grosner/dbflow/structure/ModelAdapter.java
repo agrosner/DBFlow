@@ -7,11 +7,7 @@ import android.database.Cursor;
  * Contributors: { }
  * Description:
  */
-public abstract class ModelAdapter<ModelClass extends Model> {
-
-    protected String mCreationQuery;
-
-    protected String mPrimaryWhere;
+public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass> {
 
     public abstract ModelClass loadFromCursor(Cursor cursor);
 
@@ -19,7 +15,7 @@ public abstract class ModelAdapter<ModelClass extends Model> {
 
     public abstract boolean exists(ModelClass model);
 
-    public abstract boolean delete(ModelClass model);
+    public abstract void delete(boolean async, ModelClass model);
 
     public abstract String getPrimaryModelWhere(ModelClass model);
 
@@ -27,7 +23,9 @@ public abstract class ModelAdapter<ModelClass extends Model> {
 
     public abstract String getCreationQuery();
 
+    @Override
     public abstract Class<ModelClass> getModelClass();
 
+    @Override
     public abstract String getTableName();
 }

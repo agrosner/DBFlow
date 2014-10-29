@@ -1,16 +1,14 @@
 package com.grosner.processor.definition;
 
+import com.google.common.collect.Sets;
 import com.grosner.processor.Classes;
 import com.grosner.processor.model.ProcessorManager;
-import com.grosner.processor.writer.FlowWriter;
+import com.grosner.processor.writer.*;
 import com.squareup.javawriter.JavaWriter;
 
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -25,49 +23,74 @@ public class ModelContainerDefinition implements FlowWriter {
 
     private final ProcessorManager manager;
 
-    private TypeElement modelElement;
-
-    private TypeElement dataElement;
-
     private String sourceFileName;
 
     private String packageName;
 
-    public ModelContainerDefinition(String packageName, TypeElement classElement, ProcessorManager manager) {
+    private ContentValuesWriter mContentValuesWriter;
 
+    private ExistenceWriter mExistenceWriter;
+
+    private WhereQueryWriter mWhereQueryWriter;
+
+    private ToModelWriter mToModelWriter;
+
+    private LoadCursorWriter mLoadCursorWriter;
+
+    private DeleteWriter mDeleteWriter;
+
+    public ModelContainerDefinition(String packageName, TypeElement classElement, ProcessorManager manager) {
         this.classElement = classElement;
         this.manager = manager;
         this.sourceFileName = classElement.getSimpleName().toString() + DBFLOW_MODEL_CONTAINER_TAG;
         this.packageName = packageName;
 
-        Types types = manager.getTypeUtils();
-
-        DeclaredType ModelContainerSuper = null;
-        DeclaredType modelContainer = manager.getTypeUtils().getDeclaredType(manager.getElements().getTypeElement(Classes.MODEL_CONTAINER),
-                types.getWildcardType(manager.getElements().getTypeElement(Classes.MODEL).asType(), null),
-                types.getWildcardType(null, null));
-
-        for(TypeMirror superType: types.directSupertypes(classElement.asType())) {
-            if(types.isAssignable(superType, modelContainer)) {
-                ModelContainerSuper = (DeclaredType) superType;
-            }
-        }
-
-        if(ModelContainerSuper != null) {
-            List<? extends TypeMirror> typeArgs = ModelContainerSuper.getTypeArguments();
-            dataElement = manager.getElements().getTypeElement(typeArgs.get(1).toString());
-            modelElement = manager.getElements().getTypeElement(typeArgs.get(0).toString());
-        }
+        TableDefinition tableDefinition = manager.getTableDefinition(classElement);
+        mContentValuesWriter = new ContentValuesWriter(tableDefinition, true);
+        mExistenceWriter = new ExistenceWriter(tableDefinition, true);
+        mWhereQueryWriter = new WhereQueryWriter(tableDefinition, true);
+        mToModelWriter = new ToModelWriter(tableDefinition);
+        mLoadCursorWriter = new LoadCursorWriter(tableDefinition, true);
+        mDeleteWriter = new DeleteWriter(tableDefinition, true);
     }
 
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
-        
+        javaWriter.emitPackage(packageName);
+        javaWriter.emitImports(
+                Classes.CONDITION_QUERY_BUILDER,
+                Classes.MODEL_CONTAINER,
+                Classes.MODEL_CONTAINER_UTILS,
+                Classes.CONTAINER_ADAPTER,
+                Classes.MODEL,
+                Classes.CONTENT_VALUES,
+                Classes.CURSOR,
+                Classes.SQL_UTILS,
+                Classes.SELECT,
+                Classes.DELETE,
+                Classes.CONDITION,
+                Classes.TRANSACTION_MANAGER,
+                Classes.PROCESS_MODEL_INFO,
+                Classes.DBTRANSACTION_INFO
+        );
+        javaWriter.beginType(sourceFileName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ContainerAdapter<" + classElement.getSimpleName() + ">");
+        InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassQualifiedName());
+        InternalAdapterHelper.writeGetTableName(javaWriter, classElement.getSimpleName().toString() + TableDefinition.DBFLOW_TABLE_TAG);
+
+        mContentValuesWriter.write(javaWriter);
+        mExistenceWriter.write(javaWriter);
+        mWhereQueryWriter.write(javaWriter);
+        mToModelWriter.write(javaWriter);
+        mLoadCursorWriter.write(javaWriter);
+        mDeleteWriter.write(javaWriter);
+
+        javaWriter.endType();
+        javaWriter.close();
     }
 
     public String getModelClassQualifiedName() {
-        return modelElement.getQualifiedName().toString();
+        return classElement.getQualifiedName().toString();
     }
 
     public String getFQCN() {

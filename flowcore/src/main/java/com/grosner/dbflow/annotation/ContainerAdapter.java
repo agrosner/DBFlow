@@ -6,19 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description:
+ * Description: Marks a ModelContainer class implementation
  */
 @Retention(RetentionPolicy.SOURCE)
-public @interface ForeignKeyReference {
-
-    String columnName();
-
-    /**
-     * Needs to match both tables!
-     *
-     * @return
-     */
-    Class<?> columnType();
-
-    String foreignColumnName();
+public @interface ContainerAdapter {
 }

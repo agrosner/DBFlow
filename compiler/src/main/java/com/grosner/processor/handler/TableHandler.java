@@ -37,12 +37,14 @@ public class TableHandler {
                 try {
                     final String packageName = processingEnv.getElementUtils()
                             .getPackageOf(element).toString();
-                    TableDefinition tableDefinition = new TableDefinition(processingEnv, packageName, element);
+                    TableDefinition tableDefinition = new TableDefinition(manager, packageName, element);
                     JavaWriter javaWriter = new JavaWriter(processingEnv.getFiler().createSourceFile(tableDefinition.getFQCN()).openWriter());
                     tableDefinition.write(javaWriter);
                     javaWriter.close();
 
                     tableDefinition.writeAdapter(processingEnv);
+
+                    manager.addTableDefinition(tableDefinition);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

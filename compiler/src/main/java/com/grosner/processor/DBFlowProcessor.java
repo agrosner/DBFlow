@@ -81,9 +81,9 @@ public class DBFlowProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
         new TypeConverterHandler(roundEnv, manager);
-        new ModelContainerHandler(roundEnv, manager);
 
         new TableHandler(roundEnv, manager);
+        new ModelContainerHandler(roundEnv, manager);
 
         // return true if we successfully processed the Annotation.
         return true;

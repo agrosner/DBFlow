@@ -6,6 +6,7 @@ import com.grosner.dbflow.structure.BaseModelView;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelAdapter;
 import com.grosner.dbflow.structure.ModelViewDefinition;
+import com.grosner.dbflow.structure.container.ContainerAdapter;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -90,5 +91,9 @@ public class ReflectionUtils {
 
     public static boolean implementsModelAdapter(Class discoveredClass) {
         return ModelAdapter.class.isAssignableFrom(discoveredClass);
+    }
+
+    public static boolean implementsContainerAdapter(Class discoveredClass) {
+        return ContainerAdapter.class.isAssignableFrom(discoveredClass);
     }
 }

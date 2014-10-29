@@ -17,7 +17,7 @@ import com.grosner.dbflow.sql.SqlUtils;
 @Ignore
 public abstract class BaseModel implements Model {
 
-    private ModelAdapter<? extends BaseModel> mModelAdapter;
+    private ModelAdapter mModelAdapter;
 
     public BaseModel() {
         mModelAdapter = FlowManager.getModelAdapter(getClass());
@@ -30,7 +30,7 @@ public abstract class BaseModel implements Model {
 
     @Override
     public void delete(boolean async) {
-       mModelAdapter.delete(this);
+       mModelAdapter.delete(async, this);
     }
 
     @Override
@@ -50,7 +50,7 @@ public abstract class BaseModel implements Model {
 
     @Override
     public boolean exists() {
-        return FlowManager.getModelAdapter(getClass()).exists(this);
+        return mModelAdapter.exists(this);
     }
 
     public enum Action {

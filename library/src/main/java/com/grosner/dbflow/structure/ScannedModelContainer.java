@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.grosner.dbflow.structure.container.ContainerAdapter;
 import dalvik.system.DexFile;
 
 /**
@@ -30,6 +31,7 @@ public class ScannedModelContainer {
     private List<Class<? extends Model>> mModelClasses = new ArrayList<Class<? extends Model>>();
     private HashMap<Class<? extends BaseModelView>, ModelViewDefinition> mModelViewDefinitions = new HashMap<Class<? extends BaseModelView>, ModelViewDefinition>();
     private HashMap<Class<? extends Model>, ModelAdapter> mModelAdapters = new HashMap<>();
+    private HashMap<Class<? extends Model>, ContainerAdapter> mContainerAdapters = new HashMap<>();
 
     public static ScannedModelContainer getInstance() {
         if (container == null) {
@@ -148,7 +150,8 @@ public class ScannedModelContainer {
                     if (ReflectionUtils.implementsModel(discoveredClass) &&
                             !Modifier.isAbstract(discoveredClass.getModifiers())
                             && !ReflectionUtils.implementsModelViewDefinition(discoveredClass)
-                            && !ReflectionUtils.implementsModelAdapter(discoveredClass)){
+                            && !ReflectionUtils.implementsModelAdapter(discoveredClass)
+                            && !ReflectionUtils.implementsContainerAdapter(discoveredClass)){
 
                         @SuppressWarnings("unchecked")
                         Class<? extends Model> modelClass = (Class<? extends Model>) discoveredClass;
@@ -170,6 +173,14 @@ public class ScannedModelContainer {
                             @SuppressWarnings("unchecked")
                             ModelAdapter<? extends Model> modelViewDefinition = (ModelAdapter) discoveredClass.newInstance();
                             mModelAdapters.put(modelViewDefinition.getModelClass(), modelViewDefinition);
+                        } catch (Exception e) {
+                            FlowLog.logError(e);
+                        }
+                    } else if(ReflectionUtils.implementsContainerAdapter(discoveredClass)) {
+                        try {
+                            @SuppressWarnings("unchecked")
+                            ContainerAdapter<? extends Model> modelViewDefinition = (ContainerAdapter) discoveredClass.newInstance();
+                            mContainerAdapters.put(modelViewDefinition.getModelClass(), modelViewDefinition);
                         } catch (Exception e) {
                             FlowLog.logError(e);
                         }
@@ -201,6 +212,11 @@ public class ScannedModelContainer {
             ModelAdapter modelAdapter = mModelAdapters.get(model);
             if(modelAdapter != null) {
                 dbStructure.putModelAdapter(modelAdapter);
+            }
+
+            ContainerAdapter containerAdapter = mContainerAdapters.get(model);
+            if(containerAdapter != null) {
+                dbStructure.putModelContainer(containerAdapter);
             }
         }
     }

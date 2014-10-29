@@ -4,6 +4,7 @@ package com.grosner.processor.model.builder;
 import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.ForeignKeyReference;
+import com.grosner.processor.utils.ModelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
         for (ForeignKeyReference foreignKeyReference : references) {
             queryBuilder = new QueryBuilder().append(foreignKeyReference.columnName())
                     .appendSpace()
-                    .appendType(foreignKeyReference.columnType().getTypeName());
+                    .appendType(ModelUtils.getClassFromAnnotation(foreignKeyReference));
             queryBuilders.add(queryBuilder);
         }
 

@@ -3,6 +3,7 @@ package com.grosner.processor.writer;
 import com.google.common.collect.Sets;
 import com.grosner.processor.definition.ColumnDefinition;
 import com.grosner.processor.definition.TableDefinition;
+import com.grosner.processor.utils.ModelUtils;
 import com.grosner.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
@@ -37,24 +38,39 @@ public class LoadCursorWriter implements FlowWriter {
     };
 
     private TableDefinition tableDefinition;
+    private final boolean isModelContainer;
 
-    public LoadCursorWriter(TableDefinition tableDefinition) {
+    public LoadCursorWriter(TableDefinition tableDefinition, boolean isModelContainer) {
         this.tableDefinition = tableDefinition;
+        this.isModelContainer = isModelContainer;
     }
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);
+        String[] params = new String[isModelContainer ? 4: 2];
+        params[0] = "Cursor";
+        params[1] = "cursor";
+        if(isModelContainer) {
+            params[2] = ModelUtils.getParameter(true, tableDefinition.modelClassName);
+            params[3] = ModelUtils.getVariable(true);
+        }
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement(tableDefinition.modelClassName + " model = new " + tableDefinition.modelClassName + "()");
-                for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
-                    columnDefinition.writeCursorDefinition(javaWriter);
+                if(!isModelContainer) {
+                    javaWriter.emitStatement(ModelUtils.getNewModelStatement(tableDefinition.modelClassName));
                 }
-                javaWriter.emitStatement("return model");
+
+                for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
+                    columnDefinition.writeCursorDefinition(javaWriter, isModelContainer);
+                }
+
+                if(!isModelContainer) {
+                    javaWriter.emitStatement("return model");
+                }
             }
-        }, tableDefinition.modelClassName, "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), "Cursor", "cursor");
+        }, isModelContainer ? "void" : tableDefinition.modelClassName, "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
     }
 }

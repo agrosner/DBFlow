@@ -2,6 +2,7 @@ package com.grosner.processor.model;
 
 import com.google.common.collect.Maps;
 import com.grosner.processor.definition.ModelContainerDefinition;
+import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.definition.TypeConverterDefinition;
 
 import javax.annotation.processing.Messager;
@@ -9,6 +10,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 import java.util.Map;
 
 /**
@@ -23,6 +25,8 @@ public class ProcessorManager {
     private Map<String, TypeConverterDefinition> mTypeConverters = Maps.newHashMap();
 
     private Map<String, ModelContainerDefinition> mModelContainers = Maps.newHashMap();
+
+    private Map<String, TableDefinition> mTableDefinitions = Maps.newHashMap();
 
     public ProcessorManager(ProcessingEnvironment processingEnv) {
         mProcessingEnv = processingEnv;
@@ -59,4 +63,14 @@ public class ProcessorManager {
     public ModelContainerDefinition getModelContainerDefinition(TypeElement typeElement) {
         return mModelContainers.get(typeElement.getQualifiedName().toString());
     }
+
+    public void addTableDefinition(TableDefinition modelContainerDefinition) {
+        mTableDefinitions.put(modelContainerDefinition.element.asType().toString(), modelContainerDefinition);
+    }
+
+    public TableDefinition getTableDefinition(TypeElement typeElement) {
+        return mTableDefinitions.get(typeElement.getQualifiedName().toString());
+    }
+
+
 }

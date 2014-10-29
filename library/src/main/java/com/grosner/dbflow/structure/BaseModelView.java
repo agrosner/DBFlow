@@ -34,7 +34,8 @@ public abstract class BaseModelView<ModelClass extends Model> implements Model {
 
     @Override
     public boolean exists() {
-        return FlowManager.getModelAdapter(getClass()).exists(this);
+        ModelAdapter modelAdapter = FlowManager.getModelAdapter(getClass());
+        return modelAdapter.exists(this);
     }
 
     /**

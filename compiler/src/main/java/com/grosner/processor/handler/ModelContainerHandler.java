@@ -1,6 +1,6 @@
 package com.grosner.processor.handler;
 
-import com.grosner.dbflow.annotation.ModelContainer;
+import com.grosner.dbflow.annotation.ContainerAdapter;
 import com.grosner.processor.definition.ModelContainerDefinition;
 import com.grosner.processor.model.ProcessorManager;
 import com.squareup.javawriter.JavaWriter;
@@ -21,7 +21,7 @@ public class ModelContainerHandler {
 
     public ModelContainerHandler(RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
 
-        final Set<? extends Element> annotatedElements = roundEnvironment.getElementsAnnotatedWith(ModelContainer.class);
+        final Set<? extends Element> annotatedElements = roundEnvironment.getElementsAnnotatedWith(ContainerAdapter.class);
 
         if(annotatedElements.size() > 0) {
 

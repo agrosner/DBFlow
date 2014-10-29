@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * Contributors: { }
  * Description: The main annotation that marks a field as
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
 public @interface Column {
 

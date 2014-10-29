@@ -1,5 +1,6 @@
 package com.grosner.dbflow.config;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -15,6 +16,7 @@ import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.*;
 
+import com.grosner.dbflow.structure.container.ContainerAdapter;
 import org.json.JSONObject;
 
 import java.util.Calendar;
@@ -74,7 +76,7 @@ public class FlowManager {
      * @return The table name, which can be different than the {@link com.grosner.dbflow.structure.Model} class name
      */
     public static String getTableName(Class<? extends Model> table) {
-        return FlowManager.getManagerForTable(table).getStructure().getTableStructure().get(table).getTableName();
+        return FlowManager.getModelAdapter(table).getTableName();
     }
 
     public DBStructure getStructure() {
@@ -180,7 +182,7 @@ public class FlowManager {
     public static void putTypeConverterForClass(Class typeConverterClass) {
         try {
             TypeConverter typeConverter = (TypeConverter) typeConverterClass.newInstance();
-            mTypeConverters.put(typeConverter.getModelType(), typeConverter);
+            //mTypeConverters.put(typeConverter.getModelType(), typeConverter);
         } catch (Throwable e) {
             FlowLog.logError(e);
         }
@@ -250,6 +252,11 @@ public class FlowManager {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ModelAdapter<ModelClass > getModelAdapter(Class<ModelClass> modelClass) {
         return FlowManager.getManagerForTable(modelClass).getStructure().getModelAdapter(modelClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <ModelClass extends Model> ContainerAdapter<ModelClass> getContainerAdapter(Class<ModelClass> modelClass) {
+        return FlowManager.getManagerForTable(modelClass).getStructure().getModelContainer(modelClass);
     }
 
     public DBConfiguration getDbConfiguration() {
