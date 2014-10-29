@@ -247,24 +247,8 @@ public class FlowManager {
         return isInitialized;
     }
 
-    /**
-     * Returns a {@link com.grosner.dbflow.structure.TableStructure} for a specific model class
-     *
-     * @param modelClass   The table class we want to retrieve
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
-     * @return the table structure for this model class
-     */
-    public <ModelClass extends Model> TableStructure<ModelClass> getTableStructureForClass(Class<ModelClass> modelClass) {
-        TableStructure<ModelClass> tableStructure = getStructure().getTableStructureForClass(modelClass);
-        if (tableStructure == null) {
-            throw new RuntimeException("The table structure for : " + modelClass.getSimpleName() + " was not found. Have you " +
-                    "added it to the DBConfiguration?");
-        }
-        return tableStructure;
-    }
-
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ModelAdapter<ModelClass> getModelAdapter(Class<ModelClass> modelClass) {
+    public static <ModelClass extends Model> ModelAdapter<ModelClass > getModelAdapter(Class<ModelClass> modelClass) {
         return FlowManager.getManagerForTable(modelClass).getStructure().getModelAdapter(modelClass);
     }
 

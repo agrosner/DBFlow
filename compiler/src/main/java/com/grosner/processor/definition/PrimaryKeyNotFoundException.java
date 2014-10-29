@@ -1,4 +1,4 @@
-package com.grosner.dbflow.structure;
+package com.grosner.processor.definition;
 
 /**
  * Author: andrewgrosner

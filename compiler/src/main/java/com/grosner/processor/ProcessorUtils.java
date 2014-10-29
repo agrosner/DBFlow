@@ -13,7 +13,7 @@ import javax.tools.Diagnostic;
  */
 public class ProcessorUtils {
 
-    public static boolean implementsClass(ProcessingEnvironment processingEnvironment, String fqTn, Element element) {
+    public static boolean implementsClass(ProcessingEnvironment processingEnvironment, String fqTn, TypeElement element) {
         TypeElement typeElement = processingEnvironment.getElementUtils().getTypeElement(fqTn);
         if (typeElement == null) {
             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type Element was null");

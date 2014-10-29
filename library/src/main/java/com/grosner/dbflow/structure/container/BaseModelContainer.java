@@ -5,7 +5,7 @@ import android.database.Cursor;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.ModelAdapter;
 
 /**
  * Author: andrewgrosner
@@ -22,7 +22,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     /**
      * The {@link com.grosner.dbflow.structure.TableStructure} that is defined for this {@link org.json.JSONObject}
      */
-    TableStructure<ModelClass> mTableStructure;
+    ModelAdapter<ModelClass> mTableStructure;
 
     /**
      * The data thats stored in the container
@@ -30,11 +30,11 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     DataClass mData;
 
     public BaseModelContainer(Class<ModelClass> table) {
-        mTableStructure = FlowManager.getManagerForTable(table).getTableStructureForClass(table);
+        mTableStructure = FlowManager.getModelAdapter(table);
     }
 
     public BaseModelContainer(Class<ModelClass> table, DataClass data) {
-        mTableStructure = FlowManager.getManagerForTable(table).getTableStructureForClass(table);
+        mTableStructure = FlowManager.getModelAdapter(table);
         mData = data;
     }
 
@@ -63,13 +63,13 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     public abstract void put(String columnName, Object value);
 
     @Override
-    public TableStructure<ModelClass> getTableStructure() {
+    public ModelAdapter<ModelClass> getModelAdapter() {
         return mTableStructure;
     }
 
     @Override
     public Class<ModelClass> getTable() {
-        return mTableStructure.getModelType();
+        return mTableStructure.getModelClass();
     }
 
     @Override
@@ -90,17 +90,6 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     @Override
     public void insert(boolean async) {
         ModelContainerUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT);
-    }
-
-    /**
-     * Loads the cursor into the the data contained in this class. This will never
-     * be called unless we want to use the data in native format
-     *
-     * @param cursor The cursor to load.
-     */
-    @Override
-    public void load(Cursor cursor) {
-        ModelContainerUtils.loadFromCursor(this, cursor);
     }
 
     @Override

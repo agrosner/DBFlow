@@ -20,11 +20,6 @@ import java.util.Map;
 public class DBStructure {
 
     /**
-     * Holds onto the {@link com.grosner.dbflow.structure.TableStructure} for each Model class
-     */
-    private Map<Class<? extends Model>, TableStructure> mTableStructure;
-
-    /**
      * Holds onto the {@link com.grosner.dbflow.structure.ModelView} for each class
      */
     private Map<Class<? extends BaseModelView>, ModelViewDefinition> mModelViews;
@@ -72,7 +67,6 @@ public class DBStructure {
      * @param dbConfiguration The configuration for this db
      */
     private void initializeStructure(DBConfiguration dbConfiguration) {
-        mTableStructure = new HashMap<Class<? extends Model>, TableStructure>();
         mPrimaryWhereQueryBuilderMap = new HashMap<Class<? extends Model>, ConditionQueryBuilder>();
         mModelViews = new HashMap<Class<? extends BaseModelView>, ModelViewDefinition>();
         mModelAdapterMap = new HashMap<>();
@@ -92,15 +86,6 @@ public class DBStructure {
 
         ScannedModelContainer.getInstance().applyModelListToFoundData(modelList, this);
 
-        if (modelList != null) {
-            for (Class<? extends Model> modelClass : modelList) {
-                @SuppressWarnings("unchecked")
-                TableStructure tableStructure = new TableStructure(modelClass);
-                mTableStructure.put(modelClass, tableStructure);
-            }
-        } else if (FlowManager.isMultipleDatabases()) {
-            throw new InvalidDBConfiguration("", dbConfiguration.getDatabaseName());
-        }
     }
 
     /**
@@ -115,27 +100,6 @@ public class DBStructure {
             initializeStructure(mManager.getDbConfiguration());
             isResetting = false;
         }
-    }
-
-    /**
-     * Returns a {@link com.grosner.dbflow.structure.TableStructure} for a specific model class
-     *
-     * @param modelClass   The table class we want to retrieve
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
-     * @return the table structure for this model class
-     */
-    @SuppressWarnings("unchecked")
-    public <ModelClass extends Model> TableStructure<ModelClass> getTableStructureForClass(Class<ModelClass> modelClass) {
-        return getTableStructure().get(modelClass);
-    }
-
-    /**
-     * Returns the {@link com.grosner.dbflow.structure.TableStructure} map for this database
-     *
-     * @return
-     */
-    public Map<Class<? extends Model>, TableStructure> getTableStructure() {
-        return mTableStructure;
     }
 
     /**

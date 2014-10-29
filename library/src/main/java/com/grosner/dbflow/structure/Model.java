@@ -41,13 +41,6 @@ public interface Model {
     public void insert(boolean async);
 
     /**
-     * Loads the {@link com.grosner.dbflow.structure.Model} from the specified cursor.
-     *
-     * @param cursor
-     */
-    public void load(Cursor cursor);
-
-    /**
      * Returns whether this Model exists or not
      *
      * @return

@@ -6,17 +6,8 @@ package com.grosner.dbflow.converter;
  * Description: This class is responsible for converting the store DB value into the field value in
  * a {@link com.grosner.dbflow.structure.Model}
  */
+@com.grosner.dbflow.annotation.TypeConverter
 public interface TypeConverter<DataClass, ModelClass> {
-
-    /**
-     * @return The database {@link java.lang.Class} that will be converted into a SQL type
-     */
-    public Class<DataClass> getDatabaseType();
-
-    /**
-     * @return The model {@link ModelClass} type that will be converted when represented in a {@link com.grosner.dbflow.structure.Model} class
-     */
-    public Class<ModelClass> getModelType();
 
     /**
      * Converts the {@link ModelClass} into a {@link DataClass}

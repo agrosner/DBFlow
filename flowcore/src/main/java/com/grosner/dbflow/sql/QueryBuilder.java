@@ -1,9 +1,4 @@
-package com.grosner.dbflow.sql.builder;
-
-import android.text.TextUtils;
-
-import com.grosner.dbflow.sql.Query;
-import com.grosner.dbflow.sql.SQLiteType;
+package com.grosner.dbflow.sql;
 
 import java.util.List;
 
@@ -94,7 +89,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param type The Class to look up from {@link com.grosner.dbflow.sql.SQLiteType}
      * @return
      */
-    public QueryClass appendType(Class type) {
+    public QueryClass appendType(String type) {
         return appendSQLiteType(SQLiteType.get(type));
     }
 
@@ -116,7 +111,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return
      */
     public QueryClass appendArray(Object... objects) {
-        return append(TextUtils.join(", ", objects));
+        return append(join(", ", objects));
     }
 
     /**
@@ -127,7 +122,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return
      */
     public QueryClass appendList(List<?> objects) {
-        return append(TextUtils.join(", ", objects));
+        return append(join(", ",objects));
     }
 
     /**
@@ -138,7 +133,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return
      */
     public QueryClass appendQualifier(String name, String value) {
-        if (!TextUtils.isEmpty(value)) {
+        if (value != null && !value.isEmpty()) {
             append(name).appendSpaceSeparated(value);
         }
         return castThis();
@@ -151,7 +146,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return
      */
     public QueryClass appendNotEmpty(String string) {
-        if (!TextUtils.isEmpty(string)) {
+        if (string != null && !string.isEmpty()) {
             append(string);
         }
         return castThis();
@@ -165,5 +160,43 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     @Override
     public String getQuery() {
         return mQuery.toString();
+    }
+
+    /**
+     * Returns a string containing the tokens joined by delimiters.
+     * @param tokens an array objects to be joined. Strings will be formed from
+     *     the objects by calling object.toString().
+     */
+    public static String join(CharSequence delimiter, Object[] tokens) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token: tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(token);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Returns a string containing the tokens joined by delimiters.
+     * @param tokens an array objects to be joined. Strings will be formed from
+     *     the objects by calling object.toString().
+     */
+    public static String join(CharSequence delimiter, Iterable tokens) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token: tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(token);
+        }
+        return sb.toString();
     }
 }

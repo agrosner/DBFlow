@@ -8,15 +8,6 @@ import android.location.Location;
  * Description: Defines how we store and retrieve a {@link android.location.Location}
  */
 public class LocationConverter implements TypeConverter<String, Location> {
-    @Override
-    public Class<String> getDatabaseType() {
-        return String.class;
-    }
-
-    @Override
-    public Class<Location> getModelType() {
-        return Location.class;
-    }
 
     @Override
     public String getDBValue(Location model) {

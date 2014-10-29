@@ -1,6 +1,6 @@
 package com.grosner.processor.utils;
 
-import com.grosner.processor.model.FlowWriter;
+import com.grosner.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Modifier;

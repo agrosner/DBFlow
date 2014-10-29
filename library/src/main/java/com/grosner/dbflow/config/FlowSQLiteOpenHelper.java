@@ -6,10 +6,9 @@ import android.util.SparseArray;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.ModelViewDefinition;
-import com.grosner.dbflow.structure.TableStructure;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -148,12 +147,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         TransactionManager.transact(database, new Runnable() {
             @Override
             public void run() {
-                Collection<TableStructure> tableStructures = mManager.getStructure().getTableStructure().values();
+                /*Collection<TableStructure> tableStructures = mManager.getStructure().getModelAdapter().values();
                 for (TableStructure tableStructure : tableStructures) {
                     if (!tableStructure.isModelView()) {
                         database.execSQL(tableStructure.getCreationQuery().getQuery());
                     }
-                }
+                }*/
 
                 Collection<ModelViewDefinition> modelViews = mManager.getStructure().getModelViews().values();
 

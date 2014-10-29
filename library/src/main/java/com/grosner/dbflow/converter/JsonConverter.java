@@ -11,15 +11,6 @@ import org.json.JSONObject;
  * Description: Defines how we store and retrieve a {@link org.json.JSONObject}
  */
 public class JsonConverter implements TypeConverter<String, JSONObject> {
-    @Override
-    public Class<String> getDatabaseType() {
-        return String.class;
-    }
-
-    @Override
-    public Class<JSONObject> getModelType() {
-        return JSONObject.class;
-    }
 
     @Override
     public String getDBValue(JSONObject model) {

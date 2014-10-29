@@ -3,7 +3,11 @@ package com.grosner.processor;
 import com.google.auto.service.AutoService;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.Table;
-import com.grosner.processor.model.TableDefinition;
+import com.grosner.processor.definition.TableDefinition;
+import com.grosner.processor.handler.ModelContainerHandler;
+import com.grosner.processor.handler.TableHandler;
+import com.grosner.processor.handler.TypeConverterHandler;
+import com.grosner.processor.model.ProcessorManager;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -12,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
@@ -25,6 +30,8 @@ import javax.lang.model.element.TypeElement;
  */
 @AutoService(Processor.class)
 public class DBFlowProcessor extends AbstractProcessor {
+
+    private ProcessorManager manager;
 
     /**
      * If the processor class is annotated with {@link
@@ -56,6 +63,14 @@ public class DBFlowProcessor extends AbstractProcessor {
         return SourceVersion.latestSupported();
     }
 
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+
+        manager = new ProcessorManager(processingEnv);
+
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -64,32 +79,12 @@ public class DBFlowProcessor extends AbstractProcessor {
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        final Set<? extends Element> annotatedElements = roundEnv
-                .getElementsAnnotatedWith(Table.class);
 
-        //process() gets called more than once, annotatedElements might be empty an empty Set in one of those calls( i.e. when there are no annotations to process this round).
-        if (annotatedElements.size() > 0) {
+        new TypeConverterHandler(roundEnv, manager);
+        new ModelContainerHandler(roundEnv, manager);
 
-            Iterator<? extends Element> iterator = annotatedElements.iterator();
-            while(iterator.hasNext()) {
-                Element element = iterator.next();
-                System.out.println(element.asType());
+        new TableHandler(roundEnv, manager);
 
-                try {
-                    final String packageName = processingEnv.getElementUtils()
-                            .getPackageOf(element).toString();
-                    TableDefinition tableDefinition = new TableDefinition(processingEnv, packageName, element);
-                    JavaWriter javaWriter = new JavaWriter(processingEnv.getFiler().createSourceFile(tableDefinition.getFQCN()).openWriter());
-                    tableDefinition.write(javaWriter);
-                    javaWriter.close();
-
-                    tableDefinition.writeAdapter(processingEnv);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
         // return true if we successfully processed the Annotation.
         return true;
     }

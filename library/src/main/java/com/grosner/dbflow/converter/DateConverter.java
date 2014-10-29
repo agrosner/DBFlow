@@ -8,15 +8,6 @@ import java.util.Date;
  * Description: Defines how we store and retrieve a {@link java.util.Date}
  */
 public class DateConverter implements TypeConverter<Long, Date> {
-    @Override
-    public Class<Long> getDatabaseType() {
-        return Long.class;
-    }
-
-    @Override
-    public Class<Date> getModelType() {
-        return Date.class;
-    }
 
     @Override
     public Long getDBValue(Date model) {

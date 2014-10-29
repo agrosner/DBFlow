@@ -1,9 +1,7 @@
 package com.grosner.dbflow.structure;
 
-import android.database.Cursor;
-
 import com.grosner.dbflow.annotation.Ignore;
-import com.grosner.dbflow.sql.SqlUtils;
+import com.grosner.dbflow.config.FlowManager;
 
 /**
  * Author: andrewgrosner
@@ -35,13 +33,8 @@ public abstract class BaseModelView<ModelClass extends Model> implements Model {
     }
 
     @Override
-    public void load(Cursor cursor) {
-        SqlUtils.loadFromCursor(this, cursor);
-    }
-
-    @Override
     public boolean exists() {
-        return SqlUtils.exists(this);
+        return FlowManager.getModelAdapter(getClass()).exists(this);
     }
 
     /**

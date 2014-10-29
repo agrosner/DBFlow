@@ -5,33 +5,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.IntDef;
-import android.text.TextUtils;
-
-import com.grosner.dbflow.ReflectionUtils;
-import com.grosner.dbflow.annotation.Column;
-import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.annotation.StructureUtils;
-import com.grosner.dbflow.structure.TableStructure;
-import com.grosner.dbflow.structure.container.ModelContainer;
-import com.grosner.dbflow.structure.container.ModelContainerMap;
+import com.grosner.dbflow.structure.ModelAdapter;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Author: andrewgrosner
@@ -165,6 +151,7 @@ public class SqlUtils {
         return hasData;
     }
 
+    /*
     @SuppressWarnings("unchecked")
     public static void putField(ContentValues values, FlowManager flowManager, Field field, String fieldName, Object value) {
         Class<?> fieldType = field.getType();
@@ -253,7 +240,7 @@ public class SqlUtils {
             values.put(fieldName, ((Enum<?>) value).name());
         }
     }
-
+*/
     /**
      * Saves a model to the database.
      *
@@ -262,7 +249,8 @@ public class SqlUtils {
      * @param mode         The save mode, can be {@link #SAVE_MODE_DEFAULT}, {@link #SAVE_MODE_INSERT}, {@link #SAVE_MODE_UPDATE}
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    @SuppressWarnings("unchecked")
+    /*
+        @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void save(ModelClass model, boolean async, @SaveMode int mode) {
         if (!async) {
             FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
@@ -324,13 +312,15 @@ public class SqlUtils {
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.create()));
         }
-    }
+    }*/
 
     public static <ModelClass extends Model> void save(boolean async, String tableName, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
         if (!async) {
             FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
             ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder =
                     flowManager.getStructure().getPrimaryWhereQuery((Class<ModelClass>) model.getClass());
+
+            ModelAdapter<ModelClass> modelAdapter = (ModelAdapter<ModelClass>) FlowManager.getModelAdapter(model.getClass());
 
             final SQLiteDatabase db = flowManager.getWritableDatabase();
 
@@ -346,14 +336,14 @@ public class SqlUtils {
             }
 
             if (exists) {
-                exists = (db.update(tableName, contentValues,
-                        ConditionQueryBuilder.getPrimaryModelWhere(primaryConditionQueryBuilder, model), null) != 0);
+                exists = (db.update(tableName, contentValues,modelAdapter.getPrimaryModelWhere(model), null) != 0);
             }
 
             if (!exists) {
                 long id = db.insert(tableName, null, contentValues);
 
-                Collection<Field> primaryFields = flowManager.getTableStructureForClass(model.getClass()).getPrimaryKeys();
+                // TODO: add a method for primary increment fields
+                /*Collection<Field> primaryFields = flowManager.getTableStructureForClass(model.getClass()).getPrimaryKeys();
                 for (Field field : primaryFields) {
                     if (StructureUtils.isPrimaryKeyAutoIncrement(field)) {
                         field.setAccessible(true);
@@ -363,43 +353,12 @@ public class SqlUtils {
                             throw new RuntimeException(e);
                         }
                     }
-                }
+                }*/
             }
 
             notifyModelChanged(model.getClass(), action);
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.create()));
-        }
-    }
-
-    /**
-     * Loads a {@link com.grosner.dbflow.structure.Model} from the DB cursor through reflection with the
-     * specified {@link com.grosner.dbflow.config.FlowManager}.
-     *
-     * @param model        The model we load from the cursor
-     * @param cursor       The cursor from the DB
-     * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
-     */
-    @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void loadFromCursor(ModelClass model, Cursor cursor) {
-        TableStructure<ModelClass> tableStructure = FlowManager.getManagerForTable(model.getClass()).getTableStructureForClass((Class<ModelClass>) model.getClass());
-        Set<Field> fields = tableStructure.getColumns();
-        for (Field field : fields) {
-            try {
-                Object value = getModelValueFromCursor(cursor, tableStructure, field, tableStructure.getColumnName(field), field.getType());
-
-                // Set the field value
-                if (value != null) {
-                    field.setAccessible(true);
-                    field.set(model, value);
-                }
-            } catch (IllegalArgumentException e) {
-                FlowLog.logError(e);
-            } catch (IllegalAccessException e) {
-                FlowLog.logError(e);
-            } catch (SecurityException e) {
-                FlowLog.logError(e);
-            }
         }
     }
 
@@ -412,7 +371,7 @@ public class SqlUtils {
      * @param field          The field from the {@link com.grosner.dbflow.structure.Model} class
      * @return The value that should be set on the field from the {@link com.grosner.dbflow.structure.TableStructure}
      */
-    @SuppressWarnings("unchecked")
+    /*@SuppressWarnings("unchecked")
     public static Object getModelValueFromCursor(Cursor cursor, TableStructure tableStructure, Field field, String columnName, Class<?> fieldType) {
         int columnIndex = TextUtils.isEmpty(columnName) ? -1 : cursor.getColumnIndex(columnName);
 
@@ -476,15 +435,15 @@ public class SqlUtils {
         }
 
         return value;
-    }
+    }*/
 
-    /**
+   /* *//**
      * Deletes {@link com.grosner.dbflow.structure.Model} from the database using the specfied {@link com.grosner.dbflow.config.FlowManager}
      *
      * @param model        The model to delete
      * @param async        Whether it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately.
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
-     */
+     *//*
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void delete(final ModelClass model, boolean async) {
         if (!async) {
@@ -497,7 +456,7 @@ public class SqlUtils {
         } else {
             TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<ModelClass>(ProcessModelInfo.withModels(model).fetch()));
         }
-    }
+    }*/
 
     /**
      * Notifies the {@link android.database.ContentObserver} that the model has changed.
@@ -522,20 +481,20 @@ public class SqlUtils {
         return Uri.parse("dbflow://" + FlowManager.getTableName(modelClass) + mode);
     }
 
-    /**
+   /* *//**
      * This is used to check if the specified {@link com.grosner.dbflow.structure.Model} exists within the specified
      * {@link com.grosner.dbflow.config.FlowManager} DB.
      *
      * @param model        The model to query
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return If the model exists within the DB
-     */
+     *//*
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> boolean exists(ModelClass model) {
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder = (ConditionQueryBuilder<ModelClass>)
                 FlowManager.getPrimaryWhereQuery(model.getClass());
         return new Select().from(model.getClass()).where(ConditionQueryBuilder.getPrimaryModelWhere(conditionQueryBuilder, model)).hasData();
-    }
+    }*/
 
     public
     @IntDef

@@ -1,14 +1,20 @@
-package com.grosner.processor.model;
+package com.grosner.processor.definition;
 
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.ForeignKeyReference;
+import com.grosner.processor.Classes;
 import com.grosner.processor.ProcessorUtils;
+import com.grosner.processor.model.ProcessorManager;
+import com.grosner.processor.model.builder.ForeignKeyReferenceBuilder;
+import com.grosner.processor.utils.ModelUtils;
+import com.grosner.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import java.io.IOException;
 
@@ -17,41 +23,54 @@ import java.io.IOException;
  * Contributors: { }
  * Description:
  */
-public class ColumnDefinition implements FlowWriter{
+public class ColumnDefinition implements FlowWriter {
 
-    String columnName;
+    public String columnName;
 
-    String columnFieldName;
+    public String columnFieldName;
 
-    String columnFieldType;
+    public String columnFieldType;
 
-    int columnType;
+    public TypeElement modelType;
 
-    Element element;
+    public TypeElement databaseType;
 
-    ForeignKeyReference[] foreignKeyReferences;
+    public int columnType;
 
-    boolean isModel;
+    public Element element;
 
-    boolean isModelContainer;
+    public Column column;
 
-    public ColumnDefinition(ProcessingEnvironment processingEnvironment, VariableElement element) {
+    public ForeignKeyReference[] foreignKeyReferences;
+
+    public boolean isModel;
+
+    public boolean isModelContainer;
+
+    public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         this.element = element;
 
-        Column column = element.getAnnotation(Column.class);
+        column = element.getAnnotation(Column.class);
         this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
         this.columnFieldName = element.getSimpleName().toString();
         this.columnFieldType = element.asType().toString();
+        this.modelType = processorManager.getElements().getTypeElement(element.asType().toString());
         columnType = column.columnType();
 
         if(columnType == Column.FOREIGN_KEY) {
             foreignKeyReferences = column.references();
         }
 
-        isModel = ProcessorUtils.implementsClass(processingEnvironment, "com.grosner.dbflow.structure.Model", element);
+        isModel = ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), Classes.MODEL, modelType);
 
-        isModelContainer = ProcessorUtils.implementsClass(processingEnvironment, "com.grosner.dbflow.structure.container.ModelContainer",
-                element);
+        final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(modelType);
+        if(typeConverterDefinition != null) {
+            databaseType = typeConverterDefinition.getDbElement();
+        } else {
+            databaseType = modelType;
+        }
+
+        isModelContainer = ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), Classes.MODEL_CONTAINER, modelType);
     }
 
 
@@ -86,7 +105,7 @@ public class ColumnDefinition implements FlowWriter{
             } else {
                 javaWriter.emitSingleLineComment("Saving Foreign Key References From Model");
             }
-            javaWriter.emitStatement(getModelStatement(columnFieldName) + ".save(false)");
+            javaWriter.emitStatement(ModelUtils.getModelStatement(columnFieldName) + ".save(false)");
             for(ForeignKeyReference foreignKeyReference: foreignKeyReferences) {
                 String contentValueString = columnFieldName + ".";
                 if(isModelContainer) {
@@ -94,48 +113,27 @@ public class ColumnDefinition implements FlowWriter{
                 } else {
                     contentValueString += foreignKeyReference.foreignColumnName();
                 }
-                javaWriter.emitStatement(getContentStatement(foreignKeyReference.columnName(), contentValueString));
+                javaWriter.emitStatement(ModelUtils.getContentStatement(foreignKeyReference.columnName(), contentValueString));
             }
         } else {
-            javaWriter.emitStatement(getContentStatement(columnName, columnFieldName));
+            javaWriter.emitStatement(ModelUtils.getContentStatement(columnName, columnFieldName));
         }
     }
 
     public void writeCursorDefinition(JavaWriter javaWriter) throws IOException {
         if(columnType == Column.FOREIGN_KEY) {
             //TODO: This is wrong, should be using condition query builder
-            StringBuilder foreignKeys = new StringBuilder();
-            for(int i = 0; i < foreignKeyReferences.length; i++) {
-                ForeignKeyReference foreignKeyReference = foreignKeyReferences[i];
 
-                foreignKeys.append(getModelStatement(columnFieldName + "." + foreignKeyReference.foreignColumnName()));
-
-                if(i < foreignKeyReferences.length -1) {
-                    foreignKeys.append(",");
-                }
-            }
             javaWriter.emitEmptyLine();
             javaWriter.emitSingleLineComment("Loading Model Foreign Key");
-            javaWriter.emitStatement("ConditionQueryBuilder<%1s> conditionQueryBuilder = FlowManager.getPrimaryWhereQuery(%1s)", columnFieldType, columnFieldType + ".class");
-            javaWriter.emitStatement(getModelStatement(columnFieldName) + " = new Select().from(%1s).where()\n" +
-                    "                        .whereQuery(conditionQueryBuilder.replaceEmptyParams(%1s))\n" +
-                    "                        .querySingle()", columnFieldType + ".class", foreignKeys.toString());
+            javaWriter.emitStatement(ModelUtils.getModelStatement(columnFieldName) + " = new Select().from(%1s).where()\n" +
+                    "                        .%1s.querySingle()",
+                    ModelUtils.getFieldClass(columnFieldType),
+                    new ForeignKeyReferenceBuilder()
+                    .appendForeignKeyReferences(columnFieldType + TableDefinition.DBFLOW_TABLE_TAG, columnName, foreignKeyReferences));
         } else {
-            javaWriter.emitStatement(getModelStatement(columnFieldName) + " = %1s", getCursorStatement(columnFieldType, columnName));
+            javaWriter.emitStatement(ModelUtils.getModelStatement(columnFieldName) + " = %1s", ModelUtils.getCursorStatement(columnFieldType, columnName));
         }
-    }
-
-    private static String getContentStatement(String columnName, String columnFieldName){
-        return String.format("contentValues.put(\"%1s\", %1s)", columnName, getModelStatement(columnFieldName));
-    }
-
-    private static String getModelStatement(String columnFieldName) {
-        return "model." + columnFieldName;
-    }
-
-    private static String getCursorStatement(String columnFieldType, String columnName) {
-        String cursorMethod = LoadCursorWriter.CURSOR_METHOD_MAP.get(columnFieldType);
-        return "cursor." + cursorMethod + "(cursor.getColumnIndex(\""  + columnName + "\"))";
     }
 
 

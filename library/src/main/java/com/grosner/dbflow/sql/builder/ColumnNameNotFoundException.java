@@ -1,6 +1,6 @@
 package com.grosner.dbflow.sql.builder;
 
-import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.ModelAdapter;
 
 /**
  * Author: andrewgrosner
@@ -8,7 +8,7 @@ import com.grosner.dbflow.structure.TableStructure;
  * Description:
  */
 public class ColumnNameNotFoundException extends RuntimeException {
-    ColumnNameNotFoundException(String columnName, TableStructure tableStructure) {
+    ColumnNameNotFoundException(String columnName, ModelAdapter tableStructure) {
         super("The column : " + columnName + " was not found for " + tableStructure.getTableName());
     }
 }

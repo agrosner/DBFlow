@@ -14,7 +14,6 @@ import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.annotation.StructureUtils;
-import com.grosner.dbflow.structure.TableStructure;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -39,7 +38,7 @@ public class ModelContainerUtils {
     public static <ModelClass extends Model> void save(ModelContainer<ModelClass, ?> modelContainer, boolean async, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
-            TableStructure<ModelClass> tableStructure = modelContainer.getTableStructure();
+            TableStructure<ModelClass> tableStructure = modelContainer.getModelAdapter();
             FlowManager flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
 
             ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder = FlowManager.getPrimaryWhereQuery(modelContainer.getTable());
@@ -157,12 +156,12 @@ public class ModelContainerUtils {
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     public static <ModelClass extends Model> void loadFromCursor(ModelContainer<ModelClass, ?> modelContainer, Cursor cursor) {
-        Set<Field> fields = modelContainer.getTableStructure().getColumns();
+        Set<Field> fields = modelContainer.getModelAdapter().getColumns();
         for (Field field : fields) {
-            Object value = SqlUtils.getModelValueFromCursor(cursor, modelContainer.getTableStructure(), field, modelContainer.getTableStructure().getColumnName(field), field.getType());
+            Object value = SqlUtils.getModelValueFromCursor(cursor, modelContainer.getModelAdapter(), field, modelContainer.getModelAdapter().getColumnName(field), field.getType());
 
             if (value != null) {
-                modelContainer.put(modelContainer.getTableStructure().getColumnName(field), value);
+                modelContainer.put(modelContainer.getModelAdapter().getColumnName(field), value);
             }
         }
     }
@@ -192,7 +191,7 @@ public class ModelContainerUtils {
     public static <ModelClass extends Model> void delete(final ModelContainer<ModelClass, ?> modelContainer, boolean async) {
         if (!async) {
             FlowManager flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
-            flowManager.getWritableDatabase().delete(modelContainer.getTableStructure().getTableName(), getPrimaryModelWhere(modelContainer), null);
+            flowManager.getWritableDatabase().delete(modelContainer.getModelAdapter().getTableName(), getPrimaryModelWhere(modelContainer), null);
             SqlUtils.notifyModelChanged(modelContainer.getTable(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(modelContainer));

@@ -1,7 +1,7 @@
 package com.grosner.dbflow.structure.container;
 
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.ModelAdapter;
 
 /**
  * Author: andrewgrosner
@@ -9,6 +9,7 @@ import com.grosner.dbflow.structure.TableStructure;
  * that it corresponds to. It is also used in {@link com.grosner.dbflow.structure.Column#FOREIGN_KEY} to save
  * and retrieve values of objects.
  */
+@com.grosner.dbflow.annotation.ModelContainer
 public interface ModelContainer<ModelClass extends Model, DataClass> extends Model {
 
     /**
@@ -44,7 +45,7 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      *
      * @return
      */
-    public TableStructure<ModelClass> getTableStructure();
+    public ModelAdapter<ModelClass> getModelAdapter();
 
     /**
      * Returns the table that's associated with this container

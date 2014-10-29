@@ -1,4 +1,4 @@
-package com.grosner.processor.model;
+package com.grosner.processor.writer;
 
 import com.squareup.javawriter.JavaWriter;
 

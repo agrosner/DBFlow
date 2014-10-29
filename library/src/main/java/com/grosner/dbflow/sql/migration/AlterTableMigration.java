@@ -3,7 +3,7 @@ package com.grosner.dbflow.sql.migration;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(columnName).appendSpace().appendType(columnType);
+                .append(columnName).appendSpace().appendType(columnType.getName());
         mColumnDefinitions.add(queryBuilder);
 
         return this;

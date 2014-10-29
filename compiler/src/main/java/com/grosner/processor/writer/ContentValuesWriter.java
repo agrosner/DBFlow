@@ -1,6 +1,8 @@
-package com.grosner.processor.model;
+package com.grosner.processor.writer;
 
 import com.google.common.collect.Sets;
+import com.grosner.processor.definition.ColumnDefinition;
+import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 

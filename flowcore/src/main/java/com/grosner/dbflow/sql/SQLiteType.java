@@ -13,39 +13,29 @@ public enum SQLiteType {
     TEXT,
     BLOB;
 
-    private static final HashMap<Class, SQLiteType> sTypeMap = new HashMap<Class, SQLiteType>() {
+    private static final HashMap<String, SQLiteType> sTypeMap = new HashMap<String, SQLiteType>() {
         {
-            put(byte.class, SQLiteType.INTEGER);
-            put(short.class, SQLiteType.INTEGER);
-            put(int.class, SQLiteType.INTEGER);
-            put(long.class, SQLiteType.INTEGER);
-            put(float.class, SQLiteType.REAL);
-            put(double.class, SQLiteType.REAL);
-            put(boolean.class, SQLiteType.INTEGER);
-            put(char.class, SQLiteType.TEXT);
-            put(byte[].class, SQLiteType.BLOB);
-            put(Byte.class, SQLiteType.INTEGER);
-            put(Short.class, SQLiteType.INTEGER);
-            put(Integer.class, SQLiteType.INTEGER);
-            put(Long.class, SQLiteType.INTEGER);
-            put(Float.class, SQLiteType.REAL);
-            put(Double.class, SQLiteType.REAL);
-            put(Boolean.class, SQLiteType.INTEGER);
-            put(Character.class, SQLiteType.TEXT);
-            put(String.class, SQLiteType.TEXT);
-            put(Byte[].class, SQLiteType.BLOB);
+            put(byte.class.getName(), SQLiteType.INTEGER);
+            put(short.class.getName(), SQLiteType.INTEGER);
+            put(int.class.getName(), SQLiteType.INTEGER);
+            put(long.class.getName(), SQLiteType.INTEGER);
+            put(float.class.getName(), SQLiteType.REAL);
+            put(double.class.getName(), SQLiteType.REAL);
+            put(boolean.class.getName(), SQLiteType.INTEGER);
+            put(char.class.getName(), SQLiteType.TEXT);
+            put(byte[].class.getName(), SQLiteType.BLOB);
+            put(Byte.class.getName(), SQLiteType.INTEGER);
+            put(Short.class.getName(), SQLiteType.INTEGER);
+            put(Integer.class.getName(), SQLiteType.INTEGER);
+            put(Long.class.getName(), SQLiteType.INTEGER);
+            put(Float.class.getName(), SQLiteType.REAL);
+            put(Double.class.getName(), SQLiteType.REAL);
+            put(Boolean.class.getName(), SQLiteType.INTEGER);
+            put(Character.class.getName(), SQLiteType.TEXT);
+            put(String.class.getName(), SQLiteType.TEXT);
+            put(Byte[].class.getName(), SQLiteType.BLOB);
         }
     };
-
-    /**
-     * Checks to see if the class is in this map
-     *
-     * @param clazz
-     * @return true if the map has a class we can convert to an SQL type
-     */
-    public static boolean containsClass(Class clazz) {
-        return sTypeMap.containsKey(clazz);
-    }
 
     /**
      * Returns the {@link SQLiteType} for this class
@@ -53,7 +43,11 @@ public enum SQLiteType {
      * @param clazz
      * @return
      */
-    public static SQLiteType get(Class clazz) {
-        return sTypeMap.get(clazz);
+    public static SQLiteType get(String className) {
+        return sTypeMap.get(className);
+    }
+
+    public static boolean containsClass(String className) {
+        return sTypeMap.containsKey(className);
     }
 }

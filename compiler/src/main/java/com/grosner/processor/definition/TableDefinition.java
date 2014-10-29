@@ -1,10 +1,13 @@
-package com.grosner.processor.model;
+package com.grosner.processor.definition;
 
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.processor.Classes;
+import com.grosner.processor.model.ProcessorManager;
+import com.grosner.processor.utils.ModelUtils;
 import com.grosner.processor.utils.WriterUtils;
+import com.grosner.processor.writer.*;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -23,27 +26,29 @@ import java.util.List;
  */
 public class TableDefinition implements FlowWriter {
 
-    private static final String DBFLOW_TABLE_TAG = "$Table";
+    public static final String DBFLOW_TABLE_TAG = "$Table";
 
-    private static final String DBFLOW_TABLE_ADAPTER = "$Adapter";
+    public static final String DBFLOW_TABLE_ADAPTER = "$Adapter";
 
-    ProcessingEnvironment processingEnvironment;
+    public ProcessorManager manager;
 
-    String packageName;
+    public String packageName;
 
-    String tableName;
+    public String tableName;
 
-    String tableSourceClassName;
+    public String tableSourceClassName;
 
-    String modelClassName;
+    public String modelClassName;
 
-    String adapterName;
+    public String adapterName;
 
-    Element element;
+    public Element element;
 
-    ArrayList<ColumnDefinition> columnDefinitions;
+    public ArrayList<ColumnDefinition> columnDefinitions;
 
-    ArrayList<ColumnDefinition> primaryColumnDefinitions;
+    public ArrayList<ColumnDefinition> primaryColumnDefinitions;
+
+    public ArrayList<ColumnDefinition> foreignKeyDefinitions;
 
     ContentValuesWriter mContentValuesWriter;
 
@@ -53,33 +58,42 @@ public class TableDefinition implements FlowWriter {
 
     WhereQueryWriter mWhereQueryWriter;
 
-    public TableDefinition(ProcessingEnvironment processingEnvironment, String packageName, Element element) {
+    CreationQueryWriter mCreationQueryWriter;
+
+    DeleteWriter mDeleteWriter;
+
+    public TableDefinition(ProcessorManager manager, String packageName, Element element) {
         this.element = element;
         this.packageName = packageName;
         this.modelClassName = element.getSimpleName().toString();
         this.tableSourceClassName = modelClassName + DBFLOW_TABLE_TAG;
         this.adapterName = modelClassName + DBFLOW_TABLE_ADAPTER;
         this.tableName = element.getAnnotation(Table.class).name();
-        this.processingEnvironment = processingEnvironment;
+        this.manager = manager;
         columnDefinitions = new ArrayList<>();
         primaryColumnDefinitions = new ArrayList<>();
+        foreignKeyDefinitions = new ArrayList<>();
         getColumnDefinitions(element);
 
         mContentValuesWriter = new ContentValuesWriter(this);
         mWhereQueryWriter = new WhereQueryWriter(this);
         mLoadCursorWriter = new LoadCursorWriter(this);
         mExistenceWriter = new ExistenceWriter(this);
+        mCreationQueryWriter = new CreationQueryWriter(manager, this);
+        mDeleteWriter = new DeleteWriter(manager, this);
     }
 
     private void getColumnDefinitions(Element element) {
         List<VariableElement> variableElements = ElementFilter.fieldsIn(element.getEnclosedElements());
         for(VariableElement variableElement: variableElements) {
             if(variableElement.getAnnotation(Column.class) != null) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(processingEnvironment, variableElement);
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement);
                 columnDefinitions.add(columnDefinition);
 
                 if(columnDefinition.columnType == Column.PRIMARY_KEY) {
                     primaryColumnDefinitions.add(columnDefinition);
+                } else if(columnDefinition.columnType == Column.FOREIGN_KEY) {
+                    foreignKeyDefinitions.add(columnDefinition);
                 }
             }
         }
@@ -110,23 +124,34 @@ public class TableDefinition implements FlowWriter {
                 Classes.CURSOR,
                 Classes.CONTENT_VALUES,
                 Classes.SQL_UTILS,
-                Classes.CONDITION_QUERY_BUILDER,
                 Classes.SELECT,
-                Classes.FLOW_MANAGER
+                Classes.CONDITION
         );
-        javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), null, "ModelAdapter<" + element.getSimpleName() + ">");
-        javaWriter.emitAnnotation(Override.class);
+        javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ModelAdapter<" + element.getSimpleName() + ">");
+        javaWriter.emitEmptyLine()
+                .emitAnnotation(Override.class);
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return " + modelClassName + ".class");
+                javaWriter.emitStatement("return " + ModelUtils.getFieldClass(modelClassName));
             }
         }, "Class<" + modelClassName + ">", "getModelClass", Sets.newHashSet(Modifier.PUBLIC));
+
+        javaWriter
+                .emitEmptyLine()
+                .emitAnnotation(Override.class);
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return " + ModelUtils.getStaticMember(tableSourceClassName, "TABLE_NAME"));
+            }
+        }, "String", "getTableName", Sets.newHashSet(Modifier.PUBLIC));
 
         mContentValuesWriter.write(javaWriter);
         mExistenceWriter.write(javaWriter);
         mLoadCursorWriter.write(javaWriter);
         mWhereQueryWriter.write(javaWriter);
+        mCreationQueryWriter.write(javaWriter);
 
         javaWriter.endType();
         javaWriter.close();

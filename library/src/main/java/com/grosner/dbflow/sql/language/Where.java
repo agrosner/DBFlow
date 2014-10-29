@@ -14,7 +14,7 @@ import com.grosner.dbflow.sql.Query;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.List;
@@ -164,17 +164,6 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      */
     public Where<ModelClass> andThese(Condition... conditions) {
         mConditionQueryBuilder.putConditions(conditions);
-        return this;
-    }
-
-    /**
-     * Adds primary key params to the where. They must be in order that the primary keys are defined.
-     *
-     * @param values the values of the primary keys from the table. Must be in order of the primary key declaration.
-     * @return
-     */
-    public Where<ModelClass> andPrimaryValues(Object... values) {
-        mConditionQueryBuilder.primaryConditions(values);
         return this;
     }
 

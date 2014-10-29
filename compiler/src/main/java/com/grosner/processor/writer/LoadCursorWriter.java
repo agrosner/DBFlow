@@ -1,6 +1,8 @@
-package com.grosner.processor.model;
+package com.grosner.processor.writer;
 
 import com.google.common.collect.Sets;
+import com.grosner.processor.definition.ColumnDefinition;
+import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
@@ -16,7 +18,7 @@ import java.util.Map;
  */
 public class LoadCursorWriter implements FlowWriter {
 
-    static final Map<String, String> CURSOR_METHOD_MAP = new HashMap<String, String>() {
+    public static final Map<String, String> CURSOR_METHOD_MAP = new HashMap<String, String>() {
         {
             put(byte[].class.getName(), "getBlob");
             put(Byte[].class.getName(), "getBlob");
