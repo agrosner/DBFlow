@@ -6,6 +6,8 @@ import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.dbflow.structure.BaseModel;
 
+import java.util.Date;
+
 /**
  * Author: andrewgrosner
  * Contributors: { }
@@ -24,5 +26,8 @@ public class AModel extends BaseModel {
     @Column(columnType = Column.FOREIGN_KEY,
             references = {@ForeignKeyReference(columnType = String.class, columnName = "otherModel", foreignColumnName = "name")})
     OtherModel model;
+
+    @Column
+    Date date;
 
 }

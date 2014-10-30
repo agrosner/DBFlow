@@ -19,25 +19,6 @@ import java.util.List;
 public class ReflectionUtils {
 
     /**
-     * Gets all of the {@link com.grosner.dbflow.annotation.Column} fields
-     *
-     * @param outFields
-     * @param inClass
-     * @return
-     */
-    public static List<Field> getAllColumns(List<Field> outFields, Class<?> inClass) {
-        for (Field field : inClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(Column.class)) {
-                outFields.add(field);
-            }
-        }
-        if (inClass.getSuperclass() != null && !inClass.getSuperclass().equals(Model.class)) {
-            outFields = getAllColumns(outFields, inClass.getSuperclass());
-        }
-        return outFields;
-    }
-
-    /**
      * Returns whether the passed in class implements {@link com.grosner.dbflow.structure.Model}
      *
      * @param clazz

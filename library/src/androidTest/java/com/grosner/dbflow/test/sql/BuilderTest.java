@@ -1,9 +1,9 @@
 package com.grosner.dbflow.test.sql;
 
+import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
 

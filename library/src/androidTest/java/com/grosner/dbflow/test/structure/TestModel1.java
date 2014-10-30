@@ -1,13 +1,15 @@
 package com.grosner.dbflow.test.structure;
 
+import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.Table;
 import com.grosner.dbflow.structure.BaseModel;
-import com.grosner.dbflow.structure.Column;
 
 /**
 * Author: andrewgrosner
 * Contributors: { }
 * Description:
 */
+@Table
 public class TestModel1 extends BaseModel {
     @Column(columnType = Column.PRIMARY_KEY)
     public

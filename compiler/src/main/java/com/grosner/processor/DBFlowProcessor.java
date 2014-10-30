@@ -2,7 +2,9 @@ package com.grosner.processor;
 
 import com.google.auto.service.AutoService;
 import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ContainerAdapter;
 import com.grosner.dbflow.annotation.Table;
+import com.grosner.dbflow.annotation.TypeConverter;
 import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.handler.ModelContainerHandler;
 import com.grosner.processor.handler.TableHandler;
@@ -47,6 +49,8 @@ public class DBFlowProcessor extends AbstractProcessor {
         Set<String> supportedTypes = new LinkedHashSet<String>();
         supportedTypes.add(Table.class.getName());
         supportedTypes.add(Column.class.getName());
+        supportedTypes.add(TypeConverter.class.getName());
+        supportedTypes.add(ContainerAdapter.class.getName());
         return supportedTypes;
     }
 

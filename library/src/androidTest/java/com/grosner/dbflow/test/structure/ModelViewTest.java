@@ -6,7 +6,6 @@ import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.structure.BaseModelView;
-import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.structure.ModelViewDefinition;
 import com.grosner.dbflow.test.FlowTestCase;
 
@@ -47,11 +46,6 @@ public class ModelViewTest extends FlowTestCase {
         List<TestModelView> testModelViews = Select.all(TestModelView.class);
         assertTrue(!testModelViews.isEmpty());
         assertTrue(testModelViews.size() == 1);
-    }
-
-    private static class TestModel2 extends TestModel1 {
-        @Column(name = "model_order")
-        private int order;
     }
 
     private static class TestModelView extends BaseModelView<TestModel2> {

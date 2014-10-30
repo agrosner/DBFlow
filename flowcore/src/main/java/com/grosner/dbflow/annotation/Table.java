@@ -1,7 +1,9 @@
 package com.grosner.dbflow.annotation;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Author: andrewgrosner
@@ -9,6 +11,7 @@ import java.lang.annotation.RetentionPolicy;
  * that allow a different name than the Model's class name.
  */
 @Retention(RetentionPolicy.SOURCE)
+@Target(ElementType.TYPE)
 public @interface Table {
 
     /**
@@ -16,5 +19,5 @@ public @interface Table {
      *
      * @return
      */
-    String name();
+    String name() default "";
 }

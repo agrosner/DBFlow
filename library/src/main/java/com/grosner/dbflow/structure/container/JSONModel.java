@@ -1,5 +1,6 @@
 package com.grosner.dbflow.structure.container;
 
+import com.grosner.dbflow.ReflectionUtils;
 import com.grosner.dbflow.annotation.Ignore;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
@@ -43,7 +44,24 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
 
     @Override
     public Object getValue(String columnName) {
-        return getData().opt(columnName);
+        Object value = getData().opt(columnName);
+        if(value != null && value instanceof JSONObject) {
+            value = getModelValue(value);
+        }
+        return value;
+    }
+
+    /**
+     * Taps into the {@link com.grosner.dbflow.structure.container.ContainerAdapter} for converting the json into a model
+     * @param inValue
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private Object getModelValue(Object inValue) {
+        Class<? extends Model> modelClass = (Class<? extends Model>) inValue.getClass();
+        ContainerAdapter<? extends Model> containerAdapter = FlowManager.getContainerAdapter(modelClass);
+        inValue = containerAdapter.toModel(new JSONModel((JSONObject) inValue, modelClass));
+        return inValue;
     }
 
     @Override

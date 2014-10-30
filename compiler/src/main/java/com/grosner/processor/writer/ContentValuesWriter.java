@@ -41,7 +41,7 @@ public class ContentValuesWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("ContentValues contentValues = new ContentValues()");
                 for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
-                    columnDefinition.writeContentValue(javaWriter, isModelContainer);
+                    columnDefinition.writeSaveDefinition(javaWriter, isModelContainer);
                 }
                 javaWriter.emitEmptyLine();
 

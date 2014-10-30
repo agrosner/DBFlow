@@ -5,8 +5,6 @@ import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.processor.Classes;
 import com.grosner.processor.model.ProcessorManager;
-import com.grosner.processor.utils.ModelUtils;
-import com.grosner.processor.utils.WriterUtils;
 import com.grosner.processor.writer.*;
 import com.squareup.javawriter.JavaWriter;
 
@@ -15,7 +13,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.util.ElementFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +67,9 @@ public class TableDefinition implements FlowWriter {
         this.tableSourceClassName = modelClassName + DBFLOW_TABLE_TAG;
         this.adapterName = modelClassName + DBFLOW_TABLE_ADAPTER;
         this.tableName = element.getAnnotation(Table.class).name();
+        if(tableName == null || tableName.isEmpty()) {
+            tableName = element.getSimpleName().toString();
+        }
         this.manager = manager;
         columnDefinitions = new ArrayList<>();
         primaryColumnDefinitions = new ArrayList<>();
@@ -118,10 +118,11 @@ public class TableDefinition implements FlowWriter {
     }
 
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
-        JavaWriter javaWriter = new JavaWriter(processingEnvironment.getFiler().createSourceFile(adapterName).openWriter());
+        JavaWriter javaWriter = new JavaWriter(processingEnvironment.getFiler().createSourceFile(packageName + "." + adapterName).openWriter());
 
         javaWriter.emitPackage(packageName);
         javaWriter.emitImports(Classes.MODEL_ADAPTER,
+                Classes.FLOW_MANAGER,
                 Classes.CONDITION_QUERY_BUILDER,
                 Classes.CURSOR,
                 Classes.CONTENT_VALUES,

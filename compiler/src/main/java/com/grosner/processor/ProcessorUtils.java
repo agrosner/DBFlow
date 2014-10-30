@@ -16,7 +16,8 @@ public class ProcessorUtils {
     public static boolean implementsClass(ProcessingEnvironment processingEnvironment, String fqTn, TypeElement element) {
         TypeElement typeElement = processingEnvironment.getElementUtils().getTypeElement(fqTn);
         if (typeElement == null) {
-            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type Element was null for: " + fqTn);
+            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Type Element was null for: " + fqTn + "" +
+                    "ensure that the visibility of the class is not private.");
             return false;
         } else {
             TypeMirror classMirror = typeElement.asType();

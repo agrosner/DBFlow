@@ -7,7 +7,7 @@ package com.grosner.dbflow.converter;
  * a {@link com.grosner.dbflow.structure.Model}
  */
 @com.grosner.dbflow.annotation.TypeConverter
-public interface TypeConverter<DataClass, ModelClass> {
+public abstract class TypeConverter<DataClass, ModelClass> {
 
     /**
      * Converts the {@link ModelClass} into a {@link DataClass}
@@ -15,7 +15,7 @@ public interface TypeConverter<DataClass, ModelClass> {
      * @param model this will be called upon {@link com.grosner.dbflow.structure.Model#save(boolean)}
      * @return The {@link DataClass} value that converts into a SQLite type
      */
-    public DataClass getDBValue(ModelClass model);
+    public abstract DataClass getDBValue(ModelClass model);
 
     /**
      * Converts a {@link DataClass} from the DB into a {@link ModelClass}/
@@ -24,5 +24,5 @@ public interface TypeConverter<DataClass, ModelClass> {
      *             from the DB
      * @return The {@link ModelClass} value that gets set in a {@link com.grosner.dbflow.structure.Model} that holds this class.
      */
-    public ModelClass getModelValue(DataClass data);
+    public abstract ModelClass getModelValue(DataClass data);
 }

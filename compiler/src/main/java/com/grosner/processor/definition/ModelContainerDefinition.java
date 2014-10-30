@@ -59,6 +59,7 @@ public class ModelContainerDefinition implements FlowWriter {
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitPackage(packageName);
         javaWriter.emitImports(
+                Classes.FLOW_MANAGER,
                 Classes.CONDITION_QUERY_BUILDER,
                 Classes.MODEL_CONTAINER,
                 Classes.MODEL_CONTAINER_UTILS,

@@ -2,9 +2,9 @@ package com.grosner.dbflow.test.structure;
 
 import android.location.Location;
 
+import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;
 
 /**

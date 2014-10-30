@@ -7,7 +7,7 @@ import java.sql.Date;
  * Contributors: { }
  * Description: Defines how we store and retrieve a {@link java.sql.Date}
  */
-public class SqlDateConverter implements TypeConverter<Long, Date> {
+public class SqlDateConverter extends TypeConverter<Long, Date> {
 
     @Override
     public Long getDBValue(Date model) {

@@ -7,7 +7,7 @@ import java.util.Calendar;
  * Contributors: { }
  * Description: Defines how we store and retrieve a {@link java.util.Calendar}
  */
-public class CalendarConverter implements TypeConverter<Long, Calendar> {
+public class CalendarConverter extends TypeConverter<Long, Calendar> {
 
     @Override
     public Long getDBValue(Calendar model) {

@@ -9,8 +9,6 @@ import android.location.Location;
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.converter.CalendarConverter;
 import com.grosner.dbflow.converter.DateConverter;
-import com.grosner.dbflow.converter.JsonConverter;
-import com.grosner.dbflow.converter.LocationConverter;
 import com.grosner.dbflow.converter.SqlDateConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
@@ -48,8 +46,6 @@ public class FlowManager {
             put(Calendar.class, new CalendarConverter());
             put(java.sql.Date.class, new SqlDateConverter());
             put(java.util.Date.class, new DateConverter());
-            put(Location.class, new LocationConverter());
-            put(JSONObject.class, new JsonConverter());
         }
     };
     /**

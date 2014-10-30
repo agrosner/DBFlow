@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'android-apt'
 
 android {
     compileSdkVersion 21
@@ -29,6 +30,7 @@ android {
 dependencies {
     compile project(':flowcore')
     compile "com.android.support:support-annotations:21.+"
+    androidTestApt project(':compiler')
 }
 
 apply from: '../maven_push.gradle'

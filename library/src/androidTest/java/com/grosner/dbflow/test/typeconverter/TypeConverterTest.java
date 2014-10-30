@@ -4,9 +4,7 @@ import android.location.Location;
 
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.language.Select;
-import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;
-import com.grosner.dbflow.test.structure.TestModel1;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,20 +82,4 @@ public class TypeConverterTest extends FlowTestCase {
 
     }
 
-    private static class TestType extends TestModel1 {
-        @Column
-        private Calendar calendar;
-
-        @Column
-        private Date date;
-
-        @Column
-        private java.sql.Date sqlDate;
-
-        @Column
-        private JSONObject json;
-
-        @Column
-        private Location location;
-    }
 }

@@ -8,6 +8,7 @@ import com.squareup.javawriter.JavaWriter;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
@@ -24,7 +25,6 @@ public class ModelContainerHandler {
         final Set<? extends Element> annotatedElements = roundEnvironment.getElementsAnnotatedWith(ContainerAdapter.class);
 
         if(annotatedElements.size() > 0) {
-
             Iterator<? extends Element> iterator = annotatedElements.iterator();
             while (iterator.hasNext()) {
                 Element element = iterator.next();

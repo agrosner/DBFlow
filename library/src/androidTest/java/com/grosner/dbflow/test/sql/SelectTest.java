@@ -1,12 +1,12 @@
 package com.grosner.dbflow.test.sql;
 
+import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.language.From;
 import com.grosner.dbflow.sql.language.Join;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
-import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
 
@@ -76,7 +76,7 @@ public class SelectTest extends FlowTestCase {
         where.query();
     }
 
-    private static class TestModel2 extends TestModel1 {
+    public static class TestModel2 extends TestModel1 {
         @Column
         private String type;
     }

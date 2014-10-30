@@ -1,8 +1,6 @@
 package com.grosner.dbflow.test.structure;
 
 import com.grosner.dbflow.config.DBConfiguration;
-import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ForeignKeyReference;
 import com.grosner.dbflow.test.FlowTestCase;
 
 /**
@@ -40,15 +38,6 @@ public class ForeignKeyTest extends FlowTestCase {
         assertNotNull(retrieved);
         assertNotNull(retrieved.testModel1);
         assertEquals(retrieved.testModel1, foreignModel.testModel1);*/
-    }
-
-    private static class ForeignModel extends TestModel1 {
-        @Column(columnType = Column.FOREIGN_KEY,
-                references =
-                        {@ForeignKeyReference(columnName = "testmodel_id",
-                                foreignColumnName = "name",
-                                columnType = String.class)})
-        private TestModel1 testModel1;
     }
 
     // endregion Test Foreign Key

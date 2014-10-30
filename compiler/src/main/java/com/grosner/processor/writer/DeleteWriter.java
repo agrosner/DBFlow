@@ -36,7 +36,7 @@ public class DeleteWriter implements FlowWriter {
                 WriterUtils.emitTransactionManagerCall(javaWriter, "delete", ModelUtils.getVariable(isModelContainer));
                 javaWriter.nextControlFlow("else");
                 javaWriter.emitStatement(" new Delete().from(%1s).where(getPrimaryModelWhere(%1s)).query()",
-                        ModelUtils.getFieldClass(tableDefinition.tableName), ModelUtils.getVariable(isModelContainer));
+                        ModelUtils.getFieldClass(tableDefinition.modelClassName), ModelUtils.getVariable(isModelContainer));
                 javaWriter.endControlFlow();
             }
         }, "void", "delete", Sets.newHashSet(Modifier.PUBLIC),

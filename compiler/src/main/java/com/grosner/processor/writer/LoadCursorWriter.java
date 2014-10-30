@@ -38,39 +38,39 @@ public class LoadCursorWriter implements FlowWriter {
     };
 
     private TableDefinition tableDefinition;
-    private final boolean isModelContainer;
+    private final boolean isModelContainerDefinition;
 
-    public LoadCursorWriter(TableDefinition tableDefinition, boolean isModelContainer) {
+    public LoadCursorWriter(TableDefinition tableDefinition, boolean isModelContainerDefinition) {
         this.tableDefinition = tableDefinition;
-        this.isModelContainer = isModelContainer;
+        this.isModelContainerDefinition = isModelContainerDefinition;
     }
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);
-        String[] params = new String[isModelContainer ? 4: 2];
+        String[] params = new String[isModelContainerDefinition ? 4: 2];
         params[0] = "Cursor";
         params[1] = "cursor";
-        if(isModelContainer) {
+        if(isModelContainerDefinition) {
             params[2] = ModelUtils.getParameter(true, tableDefinition.modelClassName);
             params[3] = ModelUtils.getVariable(true);
         }
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                if(!isModelContainer) {
+                if(!isModelContainerDefinition) {
                     javaWriter.emitStatement(ModelUtils.getNewModelStatement(tableDefinition.modelClassName));
                 }
 
                 for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
-                    columnDefinition.writeCursorDefinition(javaWriter, isModelContainer);
+                    columnDefinition.writeLoadFromCursorDefinition(javaWriter, isModelContainerDefinition);
                 }
 
-                if(!isModelContainer) {
+                if(!isModelContainerDefinition) {
                     javaWriter.emitStatement("return model");
                 }
             }
-        }, isModelContainer ? "void" : tableDefinition.modelClassName, "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
+        }, isModelContainerDefinition ? "void" : tableDefinition.modelClassName, "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
     }
 }

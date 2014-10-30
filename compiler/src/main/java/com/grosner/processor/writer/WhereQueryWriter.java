@@ -37,7 +37,11 @@ public class WhereQueryWriter implements FlowWriter {
                 for (int i = 0; i < tableDefinition.primaryColumnDefinitions.size(); i++) {
                     ColumnDefinition columnDefinition = tableDefinition.primaryColumnDefinitions.get(i);
                     conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.tableSourceClassName, columnDefinition.columnName),
-                            ModelUtils.getVariableAccessStatement(columnDefinition.columnFieldName, isModelContainer));
+                            ModelUtils.getAccessStatement(columnDefinition.columnName, columnDefinition.columnFieldType,
+                                    columnDefinition.columnFieldName, isModelContainer, false, false, columnDefinition.hasTypeConverter));
+                    if(i < tableDefinition.primaryColumnDefinitions.size()-1) {
+                        conditionQueryBuilder.append(",");
+                    }
                 }
                 conditionQueryBuilder.appendEndCreation();
                 javaWriter.emitStatement(conditionQueryBuilder.getQuery());
@@ -54,17 +58,19 @@ public class WhereQueryWriter implements FlowWriter {
             WriterUtils.emitMethod(javaWriter, new FlowWriter() {
                 @Override
                 public void write(JavaWriter javaWriter) throws IOException {
-                    StringBuilder retStatement = new StringBuilder("return ");
+                    MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder("return ");
+                    conditionQueryBuilder.appendCreation(tableDefinition.modelClassName);
                     for (int i = 0; i < tableDefinition.primaryColumnDefinitions.size(); i++) {
                         ColumnDefinition columnDefinition = tableDefinition.primaryColumnDefinitions.get(i);
-                        retStatement.append(tableDefinition.tableSourceClassName + "." + columnDefinition.columnName.toUpperCase())
-                                .append(" + \" = ?\"");
-                        if (i < tableDefinition.primaryColumnDefinitions.size() - 1) {
-                            retStatement.append("+ \"AND\" ");
+                        conditionQueryBuilder.appendMockCondition(tableDefinition.tableSourceClassName + "." + columnDefinition.columnName.toUpperCase(), "\"?\"");
+
+                        if(i < tableDefinition.primaryColumnDefinitions.size()-1) {
+                            conditionQueryBuilder.append(",");
                         }
                     }
 
-                    javaWriter.emitStatement(retStatement.toString());
+                    conditionQueryBuilder.appendEndCreation();
+                    javaWriter.emitStatement(conditionQueryBuilder.getQuery());
                 }
             }, "String", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC));
         }
