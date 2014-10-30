@@ -14,6 +14,8 @@ This library is based on both [Active Android](https://github.com/pardom/ActiveA
 
 **Please** note that this is not in full release yet, and thus is in **Beta**. Also the code is **not** fully guaranteed yet, but I promise to be nicer in changes from now on.
 
+**Also** Try out branch "compiler". I am making this library use annotation processing to generate database class files!
+
 ## Features:
 
 [Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
