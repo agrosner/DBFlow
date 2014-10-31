@@ -61,4 +61,8 @@ public class TypeConverterDefinition {
     public String getModelClassQualifiedName() {
         return modelElement.getQualifiedName().toString();
     }
+
+    public String getQualifiedName() {
+        return classElement.getQualifiedName().toString();
+    }
 }

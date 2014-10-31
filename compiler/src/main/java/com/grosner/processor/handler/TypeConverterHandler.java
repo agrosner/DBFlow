@@ -1,6 +1,5 @@
 package com.grosner.processor.handler;
 
-import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.TypeConverter;
 import com.grosner.dbflow.converter.CalendarConverter;
 import com.grosner.dbflow.converter.DateConverter;
@@ -11,8 +10,6 @@ import com.grosner.processor.model.ProcessorManager;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -20,28 +17,27 @@ import java.util.Set;
  * Contributors: { }
  * Description:
  */
-public class TypeConverterHandler {
+public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
 
-    private static final Class[] DEFAULT_TYPE_CONVERTERS = new Class[] {
+    private static final Class[] DEFAULT_TYPE_CONVERTERS = new Class[]{
             CalendarConverter.class,
             DateConverter.class,
             SqlDateConverter.class,
     };
 
     public TypeConverterHandler(RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
+        super(TypeConverter.class, roundEnvironment, processorManager);
+    }
 
-        final Set<Element> annotatedElements = Sets.newHashSet(roundEnvironment.getElementsAnnotatedWith(TypeConverter.class));
-
-        for(Class clazz: DEFAULT_TYPE_CONVERTERS) {
+    @Override
+    public void processElements(ProcessorManager processorManager, Set<Element> annotatedElements) {
+        for (Class clazz : DEFAULT_TYPE_CONVERTERS) {
             annotatedElements.add(processorManager.getElements().getTypeElement(clazz.getName()));
         }
+    }
 
-        if(annotatedElements.size() > 0) {
-            Iterator<? extends Element> iterator = annotatedElements.iterator();
-            while (iterator.hasNext()) {
-                Element element = iterator.next();
-                processorManager.addTypeConverterDefinition(new TypeConverterDefinition((TypeElement) element, processorManager));
-            }
-        }
+    @Override
+    protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
+        processorManager.addTypeConverterDefinition(new TypeConverterDefinition((TypeElement) element, processorManager));
     }
 }

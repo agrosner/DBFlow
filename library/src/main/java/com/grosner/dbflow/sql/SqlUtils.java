@@ -7,15 +7,14 @@ import android.net.Uri;
 import android.support.annotation.IntDef;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.config.BaseFlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelAdapter;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +56,7 @@ public class SqlUtils {
      * @return a list of {@link ModelClass}
      */
     public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql, String... args) {
-        FlowManager flowManager = FlowManager.getManagerForTable(modelClass);
+        BaseFlowManager flowManager = FlowManager.getManagerForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = convertToList(modelClass, cursor);
         cursor.close();
@@ -137,7 +136,7 @@ public class SqlUtils {
      * @return
      */
     public static <ModelClass extends Model> boolean hasData(Class<ModelClass> modelClass, String sql, String... args) {
-        FlowManager flowManager = FlowManager.getManagerForTable(modelClass);
+        BaseFlowManager flowManager = FlowManager.getManagerForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();
@@ -309,7 +308,7 @@ public class SqlUtils {
 
     public static <ModelClass extends Model> void save(boolean async, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
         if (!async) {
-            FlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
+            BaseFlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
             ModelAdapter<ModelClass> modelAdapter = (ModelAdapter<ModelClass>) FlowManager.getModelAdapter(model.getClass());
             final SQLiteDatabase db = flowManager.getWritableDatabase();
 
@@ -325,7 +324,7 @@ public class SqlUtils {
             }
 
             if (exists) {
-                exists = (db.update(modelAdapter.getTableName(), contentValues,modelAdapter.getPrimaryModelWhere(model), null) != 0);
+                exists = (db.update(modelAdapter.getTableName(), contentValues,modelAdapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
             }
 
             if (!exists) {

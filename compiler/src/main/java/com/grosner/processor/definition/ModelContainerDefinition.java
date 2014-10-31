@@ -19,7 +19,7 @@ public class ModelContainerDefinition implements FlowWriter {
 
     public static final String DBFLOW_MODEL_CONTAINER_TAG = "$Container";
 
-    private final TypeElement classElement;
+    public final TypeElement classElement;
 
     private final ProcessorManager manager;
 
@@ -45,7 +45,7 @@ public class ModelContainerDefinition implements FlowWriter {
         this.sourceFileName = classElement.getSimpleName().toString() + DBFLOW_MODEL_CONTAINER_TAG;
         this.packageName = packageName;
 
-        TableDefinition tableDefinition = manager.getTableDefinition(classElement);
+        TableDefinition tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()), classElement);
         mContentValuesWriter = new ContentValuesWriter(tableDefinition, true);
         mExistenceWriter = new ExistenceWriter(tableDefinition, true);
         mWhereQueryWriter = new WhereQueryWriter(tableDefinition, true);

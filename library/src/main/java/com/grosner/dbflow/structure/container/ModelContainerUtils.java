@@ -3,6 +3,7 @@ package com.grosner.dbflow.structure.container;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.config.BaseFlowManager;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.SqlUtils;
@@ -26,11 +27,12 @@ public class ModelContainerUtils {
      *                       {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> void save(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContentValues contentValues, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
-            FlowManager flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
-            ContainerAdapter<ModelClass> containerAdapter = flowManager.getStructure().getModelContainer(modelContainer.getTable());
+            BaseFlowManager flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
+            ContainerAdapter<ModelClass> containerAdapter = flowManager.getModelContainerAdapterForTable(modelContainer.getTable());
             ModelAdapter<ModelClass> modelAdapter = modelContainer.getModelAdapter();
 
             final SQLiteDatabase db = flowManager.getWritableDatabase();

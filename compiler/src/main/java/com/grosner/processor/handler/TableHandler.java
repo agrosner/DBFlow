@@ -5,50 +5,33 @@ import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.model.ProcessorManager;
 import com.squareup.javawriter.JavaWriter;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * Author: andrewgrosner
  * Contributors: { }
  * Description:
  */
-public class TableHandler {
+public class TableHandler extends BaseContainerHandler<Table> {
 
     public TableHandler(RoundEnvironment roundEnv, ProcessorManager manager) {
+        super(Table.class, roundEnv, manager);
+    }
 
-        ProcessingEnvironment processingEnv = manager.getProcessingEnvironment();
+    @Override
+    protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
+        try {
+            TableDefinition tableDefinition = new TableDefinition(processorManager, packageName, element);
+            JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler().createSourceFile(tableDefinition.getFQCN()).openWriter());
+            tableDefinition.write(javaWriter);
+            javaWriter.close();
 
-        final Set<? extends Element> annotatedElements = roundEnv
-                .getElementsAnnotatedWith(Table.class);
-
-        //process() gets called more than once, annotatedElements might be empty an empty Set in one of those calls( i.e. when there are no annotations to process this round).
-        if (annotatedElements.size() > 0) {
-
-            Iterator<? extends Element> iterator = annotatedElements.iterator();
-            while (iterator.hasNext()) {
-                Element element = iterator.next();
-                System.out.println(element.asType());
-
-                try {
-                    final String packageName = processingEnv.getElementUtils()
-                            .getPackageOf(element).toString();
-                    TableDefinition tableDefinition = new TableDefinition(manager, packageName, element);
-                    JavaWriter javaWriter = new JavaWriter(processingEnv.getFiler().createSourceFile(tableDefinition.getFQCN()).openWriter());
-                    tableDefinition.write(javaWriter);
-                    javaWriter.close();
-
-                    tableDefinition.writeAdapter(processingEnv);
-
-                    manager.addTableDefinition(tableDefinition);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
+            processorManager.addTableDefinition(tableDefinition);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

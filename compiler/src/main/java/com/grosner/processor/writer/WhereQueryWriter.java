@@ -47,7 +47,7 @@ public class WhereQueryWriter implements FlowWriter {
                 javaWriter.emitStatement(conditionQueryBuilder.getQuery());
 
             }
-        }, "String", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC),
+        }, "ConditionQueryBuilder<" + tableDefinition.modelClassName + ">", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC),
                 ModelUtils.getParameter(isModelContainer ,tableDefinition.modelClassName),
                 ModelUtils.getVariable(isModelContainer));
 
@@ -72,7 +72,7 @@ public class WhereQueryWriter implements FlowWriter {
                     conditionQueryBuilder.appendEndCreation();
                     javaWriter.emitStatement(conditionQueryBuilder.getQuery());
                 }
-            }, "String", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC));
+            }, "ConditionQueryBuilder<" + tableDefinition.modelClassName + ">", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC));
         }
     }
 }

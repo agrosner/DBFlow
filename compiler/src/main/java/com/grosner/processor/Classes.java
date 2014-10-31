@@ -54,4 +54,22 @@ public class Classes {
     public static final String PROCESS_MODEL_INFO = BASE_PACKAGE + "runtime.transaction.process.ProcessModelInfo";
 
     public static final String DBTRANSACTION_INFO = BASE_PACKAGE + "runtime.DBTransactionInfo";
+
+    public static final String FLOW_MANAGER_PACKAGE = "com.grosner.dbflow.config";
+
+    public static final String FLOW_MANAGER_STATIC_CLASS_NAME = "FlowManager$Static";
+
+    public static final String FLOW_MANAGER_CLASS_NAME = "FlowManager$Generated";
+
+    public static final String FLOW_MANAGER_INTERFACE = "BaseFlowManager";
+
+    public static final String MAP = "java.util.Map";
+
+    public static final String HASH_MAP = "java.util.HashMap";
+
+    public static final String LIST = "java.util.List";
+
+    public static final String ARRAY_LIST = "java.util.ArrayList";
+
+    public static final String FLOW_MANAGER_STATIC_INTERFACE = FLOW_MANAGER_PACKAGE + ".FlowManagerInterface";
 }

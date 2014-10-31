@@ -5,14 +5,13 @@ import com.grosner.dbflow.annotation.ContainerAdapter;
 import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.dbflow.structure.BaseModel;
-import com.grosner.dbflow.structure.container.JSONModel;
 
 /**
  * Author: andrewgrosner
  * Contributors: { }
  * Description:
  */
-@Table(name = "OtherModel")
+@Table(value = "OtherModel")
 @ContainerAdapter
 public class OtherModel extends BaseModel {
 

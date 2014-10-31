@@ -8,40 +8,31 @@ import com.squareup.javawriter.JavaWriter;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * Author: andrewgrosner
  * Contributors: { }
  * Description:
  */
-public class ModelContainerHandler {
+public class ModelContainerHandler extends BaseContainerHandler<ContainerAdapter> {
 
     public ModelContainerHandler(RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
+        super(ContainerAdapter.class, roundEnvironment, processorManager);
+    }
 
-        final Set<? extends Element> annotatedElements = roundEnvironment.getElementsAnnotatedWith(ContainerAdapter.class);
+    @Override
+    protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
+        ModelContainerDefinition modelContainerDefinition = new ModelContainerDefinition(packageName, (TypeElement) element, processorManager);
+        processorManager.addModelContainerDefinition(modelContainerDefinition);
+        try {
+            JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
+                    .createSourceFile(modelContainerDefinition.getFQCN()).openWriter());
+            modelContainerDefinition.write(javaWriter);
 
-        if(annotatedElements.size() > 0) {
-            Iterator<? extends Element> iterator = annotatedElements.iterator();
-            while (iterator.hasNext()) {
-                Element element = iterator.next();
-                final String packageName = processorManager.getElements()
-                        .getPackageOf(element).toString();
-                ModelContainerDefinition modelContainerDefinition = new ModelContainerDefinition(packageName, (TypeElement) element, processorManager);
-                processorManager.addModelContainerDefinition(modelContainerDefinition);
-                try {
-                    JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                            .createSourceFile(modelContainerDefinition.getFQCN()).openWriter());
-                    modelContainerDefinition.write(javaWriter);
-
-                    javaWriter.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            javaWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

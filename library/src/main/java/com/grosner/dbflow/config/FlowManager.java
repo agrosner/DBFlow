@@ -1,25 +1,15 @@
 package com.grosner.dbflow.config;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.location.Location;
-
-import com.grosner.dbflow.DatabaseHelperListener;
-import com.grosner.dbflow.converter.CalendarConverter;
-import com.grosner.dbflow.converter.DateConverter;
-import com.grosner.dbflow.converter.SqlDateConverter;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.structure.*;
-
+import com.grosner.dbflow.structure.InvalidDBConfiguration;
+import com.grosner.dbflow.structure.Model;
+import com.grosner.dbflow.structure.ModelAdapter;
+import com.grosner.dbflow.structure.ModelPathManager;
 import com.grosner.dbflow.structure.container.ContainerAdapter;
-import org.json.JSONObject;
 
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Author: andrewgrosner
@@ -27,43 +17,11 @@ import java.util.Map;
  */
 public class FlowManager {
 
-    /**
-     * The shared manager for the application. Most use cases will only require one DB
-     */
-    private static FlowManager manager;
-    /**
-     * The multiple table setup when enabled will not by default scan for model classes. It will require
-     * manual model addition.
-     */
-    private static boolean multipleDatabases;
-    private static HashMap<Class<? extends Model>, FlowManager> mManagerMap = new HashMap<Class<? extends Model>, FlowManager>();
+    private static HashMap<Class<? extends Model>, BaseFlowManager> mManagerMap = new HashMap<>();
+
     private static Context context;
-    /**
-     * The default {@link com.grosner.dbflow.converter.TypeConverter} for this manager.
-     */
-    private static Map<Class<?>, TypeConverter> mTypeConverters = new HashMap<Class<?>, TypeConverter>() {
-        {
-            put(Calendar.class, new CalendarConverter());
-            put(java.sql.Date.class, new SqlDateConverter());
-            put(java.util.Date.class, new DateConverter());
-        }
-    };
-    /**
-     * Whether this database has already been initialized. This is to prevent multiple instantiations.
-     */
-    private boolean isInitialized = false;
-    /**
-     * The configuration of this {@link com.grosner.dbflow.config.FlowManager} database
-     */
-    private DBConfiguration mDbConfiguration;
-    /**
-     * This holds the inherit structure of the database
-     */
-    private DBStructure mStructure;
-    /**
-     * This adds extra functionality to the {@link android.database.sqlite.SQLiteOpenHelper}
-     */
-    private FlowSQLiteOpenHelper mHelper;
+
+    private static FlowStaticManagerInterface mStaticManager;
 
     /**
      * Returns the table name for the specific model class
@@ -74,9 +32,8 @@ public class FlowManager {
     public static String getTableName(Class<? extends Model> table) {
         return FlowManager.getModelAdapter(table).getTableName();
     }
-
-    public DBStructure getStructure() {
-        return mStructure;
+    static void setStaticManagerInterface(FlowStaticManagerInterface staticManagerInterface) {
+        mStaticManager = staticManagerInterface;
     }
 
     /**
@@ -85,40 +42,12 @@ public class FlowManager {
      * @param table
      * @return
      */
-    public static FlowManager getManagerForTable(Class<? extends Model> table) {
-        FlowManager flowManager;
-        if (isMultipleDatabases()) {
-            flowManager = mManagerMap.get(table);
-        } else {
-            flowManager = FlowManager.getInstance();
-        }
-
+    public static BaseFlowManager getManagerForTable(Class<? extends Model> table) {
+        BaseFlowManager flowManager = mManagerMap.get(table);
         if (flowManager == null) {
-            throw new InvalidDBConfiguration(table.getSimpleName());
+            throw new InvalidDBConfiguration();
         }
-
         return flowManager;
-    }
-
-    public static boolean isMultipleDatabases() {
-        return multipleDatabases;
-    }
-
-    /**
-     * Returns the shared manager for this app. It exists for most use cases as the only DB, but to define
-     * more DB, create another one.
-     *
-     * @return
-     */
-    public static FlowManager getInstance() {
-        if (manager == null) {
-            manager = new FlowManager();
-        }
-        return manager;
-    }
-
-    public static void setMultipleDatabases(boolean multipleDatabases) {
-        FlowManager.multipleDatabases = multipleDatabases;
     }
 
     /**
@@ -127,8 +56,9 @@ public class FlowManager {
      * @param table The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return The primary where query
      */
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ConditionQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> table) {
-        return getManagerForTable(table).getStructure().getPrimaryWhereQuery(table);
+        return getManagerForTable(table).getModelAdapterForTable(table).getPrimaryModelWhere();
     }
 
     /**
@@ -137,7 +67,7 @@ public class FlowManager {
      * @param modelClass
      * @param manager
      */
-    public static void putManagerForTable(Class<? extends Model> modelClass, FlowManager manager) {
+     static void putManagerForTable(Class<? extends Model> modelClass, BaseFlowManager manager) {
         mManagerMap.put(modelClass, manager);
     }
 
@@ -167,110 +97,28 @@ public class FlowManager {
      * @return
      */
     public static TypeConverter getTypeConverterForClass(Class<?> modelClass) {
-        return mTypeConverters.get(modelClass);
-    }
-
-    /**
-     * Adds a new {@link com.grosner.dbflow.converter.TypeConverter} to this map
-     *
-     * @param typeConverterClass
-     */
-    public static void putTypeConverterForClass(Class typeConverterClass) {
-        try {
-            TypeConverter typeConverter = (TypeConverter) typeConverterClass.newInstance();
-            //mTypeConverters.put(typeConverter.getModelType(), typeConverter);
-        } catch (Throwable e) {
-            FlowLog.logError(e);
-        }
+        return mStaticManager.getTypeConverterForClass(modelClass);
     }
 
     // region Getters
 
     /**
-     * Call this in your application's {@link android.app.Application#onCreate()} method.
-     *
-     * @param context
-     * @param dbConfiguration
-     * @see #initialize(DBConfiguration, com.grosner.dbflow.DatabaseHelperListener)
-     */
-    public synchronized void initialize(DBConfiguration dbConfiguration) {
-        initialize(dbConfiguration, null);
-    }
-
-    /**
-     * Call this in your application's {@link android.app.Application#onCreate()} method. Initializes the database,
-     * the structure cache, and opens the database.
-     *
-     * @param dbConfiguration
-     * @param databaseHelperListener
-     */
-    public synchronized void initialize(DBConfiguration dbConfiguration, DatabaseHelperListener databaseHelperListener) {
-        if (!isInitialized) {
-            isInitialized = true;
-            mDbConfiguration = dbConfiguration;
-
-            mStructure = new DBStructure(this);
-
-            mHelper = new FlowSQLiteOpenHelper(this, dbConfiguration);
-            mHelper.setDatabaseListener(databaseHelperListener);
-            mHelper.getWritableDatabase();
-        } else {
-            FlowLog.log(FlowLog.Level.V, "DBFlow is already initialized.");
-        }
-    }
-
-    /**
      * Releases references to the structure, configuration, and closes the DB.
      */
-    public synchronized void destroy() {
-        mDbConfiguration = null;
-        mStructure = null;
-        if (mHelper != null) {
-            mHelper.getWritableDatabase().close();
-            mHelper = null;
-        }
+    public static synchronized void destroy() {
         context = null;
-        isInitialized = false;
-    }
-
-    public SQLiteDatabase getWritableDatabase() {
-        return getSqlHelper().getWritableDatabase();
-    }
-
-    public SQLiteOpenHelper getSqlHelper() {
-        return mHelper;
-    }
-
-    public boolean isInitialized() {
-        return isInitialized;
     }
 
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ModelAdapter<ModelClass > getModelAdapter(Class<ModelClass> modelClass) {
-        return FlowManager.getManagerForTable(modelClass).getStructure().getModelAdapter(modelClass);
+        return FlowManager.getManagerForTable(modelClass).getModelAdapterForTable(modelClass);
     }
 
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ContainerAdapter<ModelClass> getContainerAdapter(Class<ModelClass> modelClass) {
-        return FlowManager.getManagerForTable(modelClass).getStructure().getModelContainer(modelClass);
-    }
-
-    public DBConfiguration getDbConfiguration() {
-        return mDbConfiguration;
+        return FlowManager.getManagerForTable(modelClass).getModelContainerAdapterForTable(modelClass);
     }
 
     // endregion
 
-    public FlowSQLiteOpenHelper getHelper() {
-        return mHelper;
-    }
-
-    /**
-     * This will delete and recreate the whole stored database. WARNING: all data stored will be lost.
-     *
-     * @param context The applications context
-     */
-    public void reset(Context context) {
-        mStructure.reset(context);
-    }
 }

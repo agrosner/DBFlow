@@ -19,5 +19,11 @@ public @interface Table {
      *
      * @return
      */
-    String name() default "";
+    String value() default "";
+
+    /**
+     * Specify the database name that this table belongs to. By default it will reference the main Db.
+     * @return
+     */
+    String databaseName() default "";
 }

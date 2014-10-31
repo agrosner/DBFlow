@@ -50,6 +50,6 @@ public class MockConditionQueryBuilder extends QueryBuilder<MockConditionQueryBu
     }
 
     public MockConditionQueryBuilder appendEndCreation() {
-        return append(")").append(".getQuery()");
+        return append(")");
     }
 }

@@ -42,6 +42,8 @@ public class TableDefinition implements FlowWriter {
 
     public Element element;
 
+    public String databaseName;
+
     public ArrayList<ColumnDefinition> columnDefinitions;
 
     public ArrayList<ColumnDefinition> primaryColumnDefinitions;
@@ -66,7 +68,13 @@ public class TableDefinition implements FlowWriter {
         this.modelClassName = element.getSimpleName().toString();
         this.tableSourceClassName = modelClassName + DBFLOW_TABLE_TAG;
         this.adapterName = modelClassName + DBFLOW_TABLE_ADAPTER;
-        this.tableName = element.getAnnotation(Table.class).name();
+
+        Table table = element.getAnnotation(Table.class);
+        this.tableName = table.value();
+        databaseName = table.databaseName();
+
+        manager.addModelToDatabase(modelClassName, databaseName);
+
         if(tableName == null || tableName.isEmpty()) {
             tableName = element.getSimpleName().toString();
         }
@@ -100,8 +108,16 @@ public class TableDefinition implements FlowWriter {
         }
     }
 
+    public String getQualifiedAdapterClassName() {
+        return packageName +"."+adapterName;
+    }
+
     public String getFQCN() {
         return packageName+"."+ tableSourceClassName;
+    }
+
+    public String getQualifiedModelClassName() {
+        return packageName+"."+modelClassName;
     }
 
     @Override

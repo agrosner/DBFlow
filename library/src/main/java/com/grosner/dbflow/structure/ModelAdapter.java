@@ -1,6 +1,7 @@
 package com.grosner.dbflow.structure;
 
 import android.database.Cursor;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 
 /**
  * Author: andrewgrosner
@@ -17,9 +18,9 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     public abstract void delete(boolean async, ModelClass model);
 
-    public abstract String getPrimaryModelWhere(ModelClass model);
+    public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model);
 
-    public abstract String getPrimaryModelWhere();
+    public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere();
 
     public abstract String getCreationQuery();
 

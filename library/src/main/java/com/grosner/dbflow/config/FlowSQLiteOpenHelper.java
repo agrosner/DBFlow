@@ -6,9 +6,8 @@ import android.util.SparseArray;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.sql.migration.Migration;
-import com.grosner.dbflow.structure.ModelViewDefinition;
+import com.grosner.dbflow.structure.ModelAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,10 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Author: andrewgrosner
@@ -33,18 +29,16 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * Location where the migration files should exist.
      */
     public final static String MIGRATION_PATH = "migrations";
-    private final boolean foreignKeysSupported;
     private DatabaseHelperListener mListener;
-    private FlowManager mManager;
+    private BaseFlowManager mManager;
 
     private SparseArray<List<Migration>> mMigrations;
 
-    public FlowSQLiteOpenHelper(FlowManager flowManager, DBConfiguration dbConfiguration) {
-        super(FlowManager.getContext(), dbConfiguration.mDatabaseName, null, dbConfiguration.mDatabaseVersion);
+    public FlowSQLiteOpenHelper(BaseFlowManager flowManager) {
+        super(FlowManager.getContext(), flowManager.getDatabaseName(), null, flowManager.getDatabaseVersion());
         mManager = flowManager;
-        mMigrations = dbConfiguration.mMigrations;
-        movePrepackagedDB(dbConfiguration.mDatabaseName);
-        foreignKeysSupported = dbConfiguration.foreignKeysSupported;
+        //mMigrations = dbConfiguration.mMigrations;
+        movePrepackagedDB(flowManager.getDatabaseName());
     }
 
     /**
@@ -131,7 +125,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * @param database
      */
     private void checkForeignKeySupport(SQLiteDatabase database) {
-        if (foreignKeysSupported) {
+        if (mManager.isForeignKeysSupported()) {
             database.execSQL("PRAGMA foreign_keys=ON;");
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.");
         }
@@ -147,6 +141,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         TransactionManager.transact(database, new Runnable() {
             @Override
             public void run() {
+
+                Set<ModelAdapter> modelAdapters = mManager.getModelAdapters();
+                for(ModelAdapter modelAdapter: modelAdapters) {
+                    database.execSQL(modelAdapter.getCreationQuery());
+                }
+
                 /*Collection<TableStructure> tableStructures = mManager.getStructure().getModelAdapter().values();
                 for (TableStructure tableStructure : tableStructures) {
                     if (!tableStructure.isModelView()) {
@@ -154,7 +154,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                     }
                 }*/
 
-                Collection<ModelViewDefinition> modelViews = mManager.getStructure().getModelViews().values();
+                /*Collection<ModelViewDefinition> modelViews = mManager.getStructure().getModelViews().values();
 
                 for (ModelViewDefinition modelView : modelViews) {
                     QueryBuilder queryBuilder = new QueryBuilder()
@@ -163,7 +163,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                             .append("AS ")
                             .append(modelView.getWhere().getQuery());
                     database.execSQL(queryBuilder.getQuery());
-                }
+                }*/
             }
         });
     }

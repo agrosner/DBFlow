@@ -6,10 +6,12 @@ import com.grosner.dbflow.annotation.ContainerAdapter;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.dbflow.annotation.TypeConverter;
 import com.grosner.processor.definition.TableDefinition;
+import com.grosner.processor.handler.FlowManagerHandler;
 import com.grosner.processor.handler.ModelContainerHandler;
 import com.grosner.processor.handler.TableHandler;
 import com.grosner.processor.handler.TypeConverterHandler;
 import com.grosner.processor.model.ProcessorManager;
+import com.grosner.processor.writer.FlowManagerWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -88,6 +90,8 @@ public class DBFlowProcessor extends AbstractProcessor {
 
         new TableHandler(roundEnv, manager);
         new ModelContainerHandler(roundEnv, manager);
+
+        new FlowManagerHandler(roundEnv, manager);
 
         // return true if we successfully processed the Annotation.
         return true;

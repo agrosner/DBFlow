@@ -10,7 +10,7 @@ import com.grosner.dbflow.test.structure.TestModel1;
 * Contributors: { }
 * Description:
 */
-@Table(name = "TestModelContainer")
+@Table(value = "TestModelContainer")
 class TestModelContainerClass extends TestModel1 {
 
     @Column(columnType = Column.PRIMARY_KEY)
