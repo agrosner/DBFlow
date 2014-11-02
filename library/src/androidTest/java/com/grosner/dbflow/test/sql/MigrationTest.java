@@ -3,7 +3,6 @@ package com.grosner.dbflow.test.sql;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
 
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.language.Select;
@@ -25,7 +24,7 @@ public class MigrationTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        FlowManager.setContext(getContext());
+        FlowManager.init(getContext());
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.I);
     }
 

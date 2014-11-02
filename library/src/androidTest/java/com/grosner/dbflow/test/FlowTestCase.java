@@ -16,7 +16,7 @@ public abstract class FlowTestCase extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        FlowManager.setContext(getContext());
+        FlowManager.init(getContext());
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.I);
     }
 

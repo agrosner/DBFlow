@@ -14,7 +14,7 @@ public class DBFlowTestApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FlowManager.setContext(this);
+        FlowManager.init(this);
     }
 
     @Override

@@ -83,9 +83,8 @@ public class FlowManager {
         return context;
     }
 
-    public static void setContext(Context context) {
+    public static void init(Context context) {
         FlowManager.context = context;
-        ModelPathManager.addPath(context.getPackageName());
     }
 
     /**
