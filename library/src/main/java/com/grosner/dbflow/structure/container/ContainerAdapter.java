@@ -1,6 +1,7 @@
 package com.grosner.dbflow.structure.container;
 
 import android.database.Cursor;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.InternalAdapter;
 import com.grosner.dbflow.structure.Model;
 
@@ -27,7 +28,7 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
 
     public abstract ModelClass toModel(ModelContainer<ModelClass, ?> modelContainer);
 
-    public abstract String getPrimaryModelWhere(ModelContainer<ModelClass, ?> modelContainer);
+    public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelContainer<ModelClass, ?> modelContainer);
 
 
 }

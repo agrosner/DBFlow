@@ -10,6 +10,8 @@ import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
  */
 public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass> {
 
+    private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
+
     public abstract ModelClass loadFromCursor(Cursor cursor);
 
     public abstract void save(boolean async, ModelClass model, int saveMode);
@@ -20,7 +22,15 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model);
 
-    public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere();
+    protected abstract ConditionQueryBuilder<ModelClass> createPrimaryModelWhere();
+
+    public ConditionQueryBuilder<ModelClass> getPrimaryModelWhere() {
+        if(mPrimaryWhere == null) {
+            mPrimaryWhere = createPrimaryModelWhere();
+        }
+
+        return mPrimaryWhere;
+    }
 
     public abstract String getCreationQuery();
 

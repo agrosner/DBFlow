@@ -1,6 +1,5 @@
 package com.grosner.dbflow.structure.container;
 
-import com.grosner.dbflow.annotation.Ignore;
 import com.grosner.dbflow.structure.Model;
 
 import java.util.HashMap;
@@ -11,7 +10,6 @@ import java.util.Map;
  * Description: An anonymous model object that operates just like a {@link java.util.Map}. It must correspond to
  * a {@link ModelClass} to get its blueprint.
  */
-@Ignore
 public class MapModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, Map> implements Model {
 
     public MapModel(Class<ModelClass> table) {

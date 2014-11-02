@@ -17,19 +17,24 @@ import java.io.IOException;
  * Contributors: { }
  * Description:
  */
-public class StaticFlowManagerWriter implements FlowWriter {
+public class FlowManagerHolder implements FlowWriter {
 
     private final ProcessorManager processorManager;
 
-    public StaticFlowManagerWriter(ProcessorManager processorManager){
+    public FlowManagerHolder(ProcessorManager processorManager){
         this.processorManager = processorManager;
     }
 
     @Override
     public void write(JavaWriter staticFlowManager) throws IOException {
         staticFlowManager.emitPackage(Classes.FLOW_MANAGER_PACKAGE);
-        staticFlowManager.emitImports(Classes.MAP, Classes.HASH_MAP, Classes.TYPE_CONVERTER, Classes.FLOW_MANAGER, Classes.FLOW_MANAGER_STATIC_INTERFACE);
+        staticFlowManager.emitImports(Classes.MAP, Classes.HASH_MAP, Classes.TYPE_CONVERTER, Classes.MODEL);
         staticFlowManager.beginType(Classes.FLOW_MANAGER_STATIC_CLASS_NAME, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), null, Classes.FLOW_MANAGER_STATIC_INTERFACE);
+
+        // Flow managers
+        staticFlowManager.emitField("Map<Class<? extends Model>, BaseFlowManager>",FlowManagerHandler.MANAGER_MAP_NAME,
+                Sets.newHashSet(Modifier.STATIC, Modifier.FINAL), "new HashMap<>()");
+        staticFlowManager.emitEmptyLine();
 
         // type converters
         staticFlowManager.emitField("Map<Class<?>, TypeConverter>", FlowManagerHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
@@ -38,8 +43,10 @@ public class StaticFlowManagerWriter implements FlowWriter {
 
         staticFlowManager.beginConstructor(Sets.newHashSet(Modifier.PUBLIC));
 
-        staticFlowManager.emitSingleLineComment("Registering with FlowManager");
-        staticFlowManager.emitStatement("FlowManager.setStaticManagerInterface(%1s)", "this");
+        staticFlowManager.emitSingleLineComment("Registering with FlowManagerHolder");
+        for(FlowManagerWriter flowManagerWriter: processorManager.getManagerWriters()) {
+            staticFlowManager.emitStatement("new %1s(this)", flowManagerWriter.getFQCN());
+        }
         staticFlowManager.emitEmptyLine();
 
         staticFlowManager.endConstructor();
@@ -60,7 +67,28 @@ public class StaticFlowManagerWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.TYPE_CONVERTER_MAP_FIELD_NAME, "clazz");
             }
-        }, "TypeConverter", "getTypeConverterForClass", FlowManagerHandler.METHOD_MODIFIERS_STATIC, "Class<?>", "clazz");
+        }, "TypeConverter", "getTypeConverterForClass", FlowManagerHandler.METHOD_MODIFIERS, "Class<?>", "clazz");
+
+        // Get Managers
+        staticFlowManager.emitEmptyLine().emitAnnotation(Override.class);
+        WriterUtils.emitMethod(staticFlowManager, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MANAGER_MAP_NAME, "table");
+            }
+        }, "BaseFlowManager", "getFlowManagerForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<?>", "table");
+
+
+        // Get Managers
+        staticFlowManager.emitEmptyLine().emitAnnotation(Override.class);
+        WriterUtils.emitMethod(staticFlowManager, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("%1s.put(%1s, %1s)", FlowManagerHandler.MANAGER_MAP_NAME, "table", "manager");
+            }
+        }, "void", "putFlowManagerForTable", FlowManagerHandler.METHOD_MODIFIERS,
+                "Class<? extends Model>", "table", "BaseFlowManager", "manager");
+
 
         staticFlowManager.endType();
     }

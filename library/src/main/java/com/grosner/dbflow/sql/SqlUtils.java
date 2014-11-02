@@ -12,9 +12,11 @@ import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.structure.BaseModel;
+import com.grosner.dbflow.structure.BaseModelView;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelAdapter;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,6 +99,13 @@ public class SqlUtils {
         ModelClass model = null;
         try {
             if (isList || cursor.moveToFirst()) {
+                ModelAdapter modelAdapter = FlowManager.getModelAdapter(table);
+                if(modelAdapter == null) {
+                    Class persistentClass = (Class) ((ParameterizedType) table.getGenericSuperclass()).getActualTypeArguments()[0];
+                    if(persistentClass.isAssignableFrom(BaseModelView.class)) {
+                        FlowManager.
+                    }
+                }
                 model = FlowManager.getModelAdapter(table).loadFromCursor(cursor);
             }
         } catch (Exception e) {

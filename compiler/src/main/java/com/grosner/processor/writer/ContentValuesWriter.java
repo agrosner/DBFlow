@@ -40,7 +40,7 @@ public class ContentValuesWriter implements FlowWriter {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("ContentValues contentValues = new ContentValues()");
-                for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
+                for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
                     columnDefinition.writeSaveDefinition(javaWriter, isModelContainer);
                 }
                 javaWriter.emitEmptyLine();
@@ -48,6 +48,6 @@ public class ContentValuesWriter implements FlowWriter {
                 javaWriter.emitStatement(mSaveMethod + ".save(%1s, %1s, %1s, %1s)", "async", mSaveVariable, "contentValues", "saveMode");
             }
         }, "void", "save", Sets.newHashSet(Modifier.PUBLIC), "boolean", "async",
-                ModelUtils.getParameter(isModelContainer,tableDefinition.modelClassName), mSaveVariable, "int", "saveMode");
+                ModelUtils.getParameter(isModelContainer,tableDefinition.getModelClassName()), mSaveVariable, "int", "saveMode");
     }
 }

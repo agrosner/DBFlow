@@ -1,15 +1,10 @@
 package com.grosner.dbflow.structure;
 
-import android.database.Cursor;
-
-import com.grosner.dbflow.annotation.Ignore;
-
 /**
  * Author: andrewgrosner
  * Contributors: { }
  * Description: The main interface for which all DB-based objects should implement.
  */
-@Ignore
 public interface Model {
 
     /**

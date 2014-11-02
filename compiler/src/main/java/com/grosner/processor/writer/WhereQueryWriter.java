@@ -33,7 +33,7 @@ public class WhereQueryWriter implements FlowWriter {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder("return ");
-                conditionQueryBuilder.appendCreation(tableDefinition.modelClassName);
+                conditionQueryBuilder.appendCreation(tableDefinition.getModelClassName());
                 for (int i = 0; i < tableDefinition.primaryColumnDefinitions.size(); i++) {
                     ColumnDefinition columnDefinition = tableDefinition.primaryColumnDefinitions.get(i);
                     conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.tableSourceClassName, columnDefinition.columnName),
@@ -47,8 +47,8 @@ public class WhereQueryWriter implements FlowWriter {
                 javaWriter.emitStatement(conditionQueryBuilder.getQuery());
 
             }
-        }, "ConditionQueryBuilder<" + tableDefinition.modelClassName + ">", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC),
-                ModelUtils.getParameter(isModelContainer ,tableDefinition.modelClassName),
+        }, "ConditionQueryBuilder<" + tableDefinition.getModelClassName() + ">", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC),
+                ModelUtils.getParameter(isModelContainer ,tableDefinition.getModelClassName()),
                 ModelUtils.getVariable(isModelContainer));
 
         // Don't write empty statement for Model Container
@@ -59,7 +59,7 @@ public class WhereQueryWriter implements FlowWriter {
                 @Override
                 public void write(JavaWriter javaWriter) throws IOException {
                     MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder("return ");
-                    conditionQueryBuilder.appendCreation(tableDefinition.modelClassName);
+                    conditionQueryBuilder.appendCreation(tableDefinition.getModelClassName());
                     for (int i = 0; i < tableDefinition.primaryColumnDefinitions.size(); i++) {
                         ColumnDefinition columnDefinition = tableDefinition.primaryColumnDefinitions.get(i);
                         conditionQueryBuilder.appendMockCondition(tableDefinition.tableSourceClassName + "." + columnDefinition.columnName.toUpperCase(), "\"?\"");
@@ -72,7 +72,7 @@ public class WhereQueryWriter implements FlowWriter {
                     conditionQueryBuilder.appendEndCreation();
                     javaWriter.emitStatement(conditionQueryBuilder.getQuery());
                 }
-            }, "ConditionQueryBuilder<" + tableDefinition.modelClassName + ">", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC));
+            }, "ConditionQueryBuilder<" + tableDefinition.getModelClassName() + ">", "createPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC));
         }
     }
 }

@@ -30,15 +30,15 @@ public class ToModelWriter implements FlowWriter {
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement(tableDefinition.modelClassName + " " + ModelUtils.getVariable(false) +
-                        " = new " + tableDefinition.modelClassName + "()");
-                for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
+                javaWriter.emitStatement(tableDefinition.getModelClassName() + " " + ModelUtils.getVariable(false) +
+                        " = new " + tableDefinition.getModelClassName() + "()");
+                for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
                     columnDefinition.writeToModelDefinition(javaWriter);
                 }
                 javaWriter.emitStatement("return " + ModelUtils.getVariable(false));
             }
-        }, tableDefinition.modelClassName, "toModel", Sets.newHashSet(Modifier.PUBLIC),
-                ModelUtils.getParameter(true, tableDefinition.modelClassName),
+        }, tableDefinition.getModelClassName(), "toModel", Sets.newHashSet(Modifier.PUBLIC),
+                ModelUtils.getParameter(true, tableDefinition.getModelClassName()),
                 ModelUtils.getVariable(true));
     }
 }

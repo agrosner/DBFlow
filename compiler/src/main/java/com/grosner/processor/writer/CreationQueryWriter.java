@@ -47,7 +47,7 @@ public class CreationQueryWriter implements FlowWriter{
                 tableCreationQuery.appendCreateTableIfNotExists(tableDefinition.tableName);
 
                 ArrayList<QueryBuilder> mColumnDefinitions = new ArrayList<QueryBuilder>();
-                for(ColumnDefinition columnDefinition: tableDefinition.columnDefinitions) {
+                for(ColumnDefinition columnDefinition: tableDefinition.getColumnDefinitions()) {
 
                     TableCreationQueryBuilder queryBuilder = new TableCreationQueryBuilder();
                     if(columnDefinition.columnType == Column.FOREIGN_KEY) {
@@ -77,7 +77,7 @@ public class CreationQueryWriter implements FlowWriter{
                 }
 
                 boolean isModelView = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                        tableDefinition.packageName +"." + tableDefinition.modelClassName,
+                        tableDefinition.packageName +"." + tableDefinition.getModelClassName(),
                         manager.getElements().getTypeElement(Classes.MODEL_VIEW));
 
                 // Views do not have primary keys

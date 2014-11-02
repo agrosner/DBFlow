@@ -1,17 +1,20 @@
 package com.grosner.processor.model;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.grosner.processor.definition.ModelContainerDefinition;
 import com.grosner.processor.definition.ModelViewDefinition;
 import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.definition.TypeConverterDefinition;
+import com.grosner.processor.writer.FlowManagerWriter;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +37,8 @@ public class ProcessorManager {
 
     private Map<String, Map<String, ModelViewDefinition>> mModelViewDefinition = Maps.newHashMap();
 
+    private List<FlowManagerWriter> mManagerWriters = Lists.newArrayList();
+
     public ProcessorManager(ProcessingEnvironment processingEnv) {
         mProcessingEnv = processingEnv;
     }
@@ -52,6 +57,14 @@ public class ProcessorManager {
 
     public ProcessingEnvironment getProcessingEnvironment() {
         return mProcessingEnv;
+    }
+
+    public void addFlowManagerWriter(FlowManagerWriter flowManagerWriter) {
+        mManagerWriters.add(flowManagerWriter);
+    }
+
+    public List<FlowManagerWriter> getManagerWriters() {
+        return mManagerWriters;
     }
 
     public void addTypeConverterDefinition(TypeConverterDefinition definition) {
@@ -115,14 +128,27 @@ public class ProcessorManager {
     }
 
     public Set<ModelContainerDefinition> getModelContainers(String databaseName) {
-        return Sets.newHashSet(mModelContainers.get(databaseName).values());
+        Map<String, ModelContainerDefinition> modelContainerDefinitionMap = mModelContainers.get(databaseName);
+        if(modelContainerDefinitionMap!= null) {
+            return  Sets.newHashSet(mModelContainers.get(databaseName).values());
+        }
+        return Sets.newHashSet();
     }
 
     public Set<TableDefinition> getTableDefinitions(String databaseName) {
-        return Sets.newHashSet(mTableDefinitions.get(databaseName).values());
+        Map<String, TableDefinition> tableDefinitionMap = mTableDefinitions.get(databaseName);
+        if(tableDefinitionMap != null) {
+            return Sets.newHashSet(mTableDefinitions.get(databaseName).values());
+        }
+        return Sets.newHashSet();
     }
 
     public Set<ModelViewDefinition> getModelViewDefinitions(String databaseName) {
-        return Sets.newHashSet(mModelViewDefinition.get(databaseName).values());
+        Map<String, ModelViewDefinition> modelViewDefinitionMap = mModelViewDefinition.get(databaseName);
+        if(modelViewDefinitionMap != null) {
+            return Sets.newHashSet(mModelViewDefinition.get(databaseName).values());
+        } else {
+            return Sets.newHashSet();
+        }
     }
 }

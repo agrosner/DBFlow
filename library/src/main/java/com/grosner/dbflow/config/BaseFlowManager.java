@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.structure.BaseModelView;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelAdapter;
+import com.grosner.dbflow.structure.ModelViewAdapter;
 import com.grosner.dbflow.structure.container.ContainerAdapter;
 
 import java.util.List;
@@ -23,13 +24,17 @@ public abstract class BaseFlowManager {
 
     public abstract List<Class<? extends Model>> getModelClasses();
 
-    public abstract Set<ModelAdapter> getModelAdapters();
+    public abstract List<ModelAdapter> getModelAdapters();
 
     public abstract ModelAdapter getModelAdapterForTable(Class<? extends Model> table);
 
     public abstract ContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table);
 
     public abstract List<Class<? extends BaseModelView>> getModelViews();
+
+    public abstract ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table);
+
+    public abstract List<ModelViewAdapter> getModelViewAdapters();
 
     public abstract boolean isForeignKeysSupported();
 

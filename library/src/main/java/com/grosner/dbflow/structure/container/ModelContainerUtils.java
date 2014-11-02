@@ -49,7 +49,7 @@ public class ModelContainerUtils {
             }
 
             if (exists) {
-                exists = (db.update(modelAdapter.getTableName(), contentValues, containerAdapter.getPrimaryModelWhere(modelContainer), null) != 0);
+                exists = (db.update(modelAdapter.getTableName(), contentValues, containerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null) != 0);
             }
 
             if (!exists) {

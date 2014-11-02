@@ -1,20 +1,16 @@
 package com.grosner.processor;
 
 import com.google.auto.service.AutoService;
-import com.grosner.dbflow.annotation.Column;
-import com.grosner.dbflow.annotation.ContainerAdapter;
-import com.grosner.dbflow.annotation.Table;
-import com.grosner.dbflow.annotation.TypeConverter;
+import com.google.common.collect.Sets;
+import com.grosner.dbflow.annotation.*;
 import com.grosner.processor.definition.TableDefinition;
-import com.grosner.processor.handler.FlowManagerHandler;
-import com.grosner.processor.handler.ModelContainerHandler;
-import com.grosner.processor.handler.TableHandler;
-import com.grosner.processor.handler.TypeConverterHandler;
+import com.grosner.processor.handler.*;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.writer.FlowManagerWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -26,6 +22,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 
 /**
  * Author: andrewgrosner
@@ -34,6 +31,8 @@ import javax.lang.model.element.TypeElement;
  */
 @AutoService(Processor.class)
 public class DBFlowProcessor extends AbstractProcessor {
+
+    public static String DEFAULT_DB_NAME;
 
     private ProcessorManager manager;
 
@@ -53,6 +52,7 @@ public class DBFlowProcessor extends AbstractProcessor {
         supportedTypes.add(Column.class.getName());
         supportedTypes.add(TypeConverter.class.getName());
         supportedTypes.add(ContainerAdapter.class.getName());
+        supportedTypes.add(ModelView.class.getName());
         return supportedTypes;
     }
 
@@ -72,9 +72,7 @@ public class DBFlowProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-
         manager = new ProcessorManager(processingEnv);
-
     }
 
     /**
@@ -86,10 +84,17 @@ public class DBFlowProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
+        ArrayList<Element> elements = new ArrayList<Element>(roundEnv.getElementsAnnotatedWith(Database.class));
+        if(elements.size() > 0) {
+            Database database = elements.get(0).getAnnotation(Database.class);
+            DEFAULT_DB_NAME = database.name();
+        }
         new TypeConverterHandler(roundEnv, manager);
 
         new TableHandler(roundEnv, manager);
         new ModelContainerHandler(roundEnv, manager);
+
+        new ModelViewHandler(roundEnv, manager);
 
         new FlowManagerHandler(roundEnv, manager);
 
@@ -97,7 +102,4 @@ public class DBFlowProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void createHeader(JavaWriter javaWriter, String packageName) throws IOException {
-        javaWriter.emitPackage(packageName);
-    }
 }

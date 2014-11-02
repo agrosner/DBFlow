@@ -1,7 +1,5 @@
 package com.grosner.dbflow.structure.container;
 
-import com.grosner.dbflow.ReflectionUtils;
-import com.grosner.dbflow.annotation.Ignore;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
@@ -20,7 +18,6 @@ import org.json.JSONObject;
  * <br />
  * <li>The names of the keys must match the column names</li>
  */
-@Ignore
 public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model {
 
     /**

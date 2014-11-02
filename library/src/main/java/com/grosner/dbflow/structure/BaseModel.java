@@ -2,7 +2,6 @@ package com.grosner.dbflow.structure;
 
 import android.database.Cursor;
 
-import com.grosner.dbflow.annotation.Ignore;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.SqlUtils;
 
@@ -14,7 +13,6 @@ import com.grosner.dbflow.sql.SqlUtils;
  * If you wish not to extend from this class you will need to implement {@link com.grosner.dbflow.structure.Model}
  * instead.
  */
-@Ignore
 public abstract class BaseModel implements Model {
 
     private ModelAdapter mModelAdapter;

@@ -1,6 +1,7 @@
 package com.grosner.processor.writer;
 
 import com.google.common.collect.Sets;
+import com.grosner.processor.definition.BaseTableDefinition;
 import com.grosner.processor.definition.ColumnDefinition;
 import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.utils.ModelUtils;
@@ -37,10 +38,10 @@ public class LoadCursorWriter implements FlowWriter {
         }
     };
 
-    private TableDefinition tableDefinition;
+    private BaseTableDefinition tableDefinition;
     private final boolean isModelContainerDefinition;
 
-    public LoadCursorWriter(TableDefinition tableDefinition, boolean isModelContainerDefinition) {
+    public LoadCursorWriter(BaseTableDefinition tableDefinition, boolean isModelContainerDefinition) {
         this.tableDefinition = tableDefinition;
         this.isModelContainerDefinition = isModelContainerDefinition;
     }
@@ -53,17 +54,17 @@ public class LoadCursorWriter implements FlowWriter {
         params[0] = "Cursor";
         params[1] = "cursor";
         if(isModelContainerDefinition) {
-            params[2] = ModelUtils.getParameter(true, tableDefinition.modelClassName);
+            params[2] = ModelUtils.getParameter(true, tableDefinition.getModelClassName());
             params[3] = ModelUtils.getVariable(true);
         }
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 if(!isModelContainerDefinition) {
-                    javaWriter.emitStatement(ModelUtils.getNewModelStatement(tableDefinition.modelClassName));
+                    javaWriter.emitStatement(ModelUtils.getNewModelStatement(tableDefinition.getModelClassName()));
                 }
 
-                for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
+                for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
                     columnDefinition.writeLoadFromCursorDefinition(javaWriter, isModelContainerDefinition);
                 }
 
@@ -71,6 +72,6 @@ public class LoadCursorWriter implements FlowWriter {
                     javaWriter.emitStatement("return model");
                 }
             }
-        }, isModelContainerDefinition ? "void" : tableDefinition.modelClassName, "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
+        }, isModelContainerDefinition ? "void" : tableDefinition.getModelClassName(), "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
     }
 }

@@ -3,13 +3,9 @@ package com.grosner.processor.handler;
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Database;
 import com.grosner.processor.Classes;
-import com.grosner.processor.definition.TypeConverterDefinition;
 import com.grosner.processor.model.ProcessorManager;
-import com.grosner.processor.utils.ModelUtils;
-import com.grosner.processor.utils.WriterUtils;
 import com.grosner.processor.writer.FlowManagerWriter;
-import com.grosner.processor.writer.FlowWriter;
-import com.grosner.processor.writer.StaticFlowManagerWriter;
+import com.grosner.processor.writer.FlowManagerHolder;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -36,9 +32,12 @@ public class FlowManagerHandler extends BaseContainerHandler<Database> {
     public static final String MODEL_ADAPTER_MAP_FIELD_NAME = "mModelAdapters";
     public static final String MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME = "mModelContainerAdapters";
     public static final String TYPE_CONVERTER_MAP_FIELD_NAME = "mTypeConverters";
-    public static final String MODEL_VIEW_MAP_FIELD_NAME = "mModelViews";
+    public static final String MODEL_VIEW_FIELD_NAME = "mModelViews";
     public static final String FLOW_SQL_LITE_OPEN_HELPER_FIELD_NAME = "mHelper";
     public static final String IS_RESETTING = "isResetting";
+    public static final String MANAGER_MAP_NAME = "mManagerMap";
+
+    public static final String MODEL_VIEW_ADAPTER_MAP_FIELD_NAME = "mModelViewAdapterMap";
 
     public FlowManagerHandler(RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
         super(Database.class, roundEnvironment, processorManager);
@@ -46,7 +45,7 @@ public class FlowManagerHandler extends BaseContainerHandler<Database> {
             try {
                 JavaWriter staticFlowManager = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
                         .createSourceFile(Classes.FLOW_MANAGER_PACKAGE + "." + Classes.FLOW_MANAGER_STATIC_CLASS_NAME).openWriter());
-                new StaticFlowManagerWriter(processorManager).write(staticFlowManager);
+                new FlowManagerHolder(processorManager).write(staticFlowManager);
 
                 staticFlowManager.close();
             } catch (IOException e) {
@@ -59,7 +58,6 @@ public class FlowManagerHandler extends BaseContainerHandler<Database> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
-
         try {
 
             FlowManagerWriter managerWriter = new FlowManagerWriter(processorManager, packageName, element);

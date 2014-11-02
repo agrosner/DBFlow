@@ -1,6 +1,5 @@
 package com.grosner.dbflow.structure;
 
-import com.grosner.dbflow.annotation.Ignore;
 import com.grosner.dbflow.config.FlowManager;
 
 /**
@@ -9,7 +8,6 @@ import com.grosner.dbflow.config.FlowManager;
  * Description: Provides a base implementation for a ModelView. Define a {@link com.grosner.dbflow.structure.ModelViewDefinition} to describe
  * how to create the model view.
  */
-@Ignore
 public abstract class BaseModelView<ModelClass extends Model> implements Model {
 
     @Override

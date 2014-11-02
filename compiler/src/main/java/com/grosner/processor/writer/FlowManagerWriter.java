@@ -6,7 +6,6 @@ import com.grosner.processor.Classes;
 import com.grosner.processor.definition.ModelContainerDefinition;
 import com.grosner.processor.definition.ModelViewDefinition;
 import com.grosner.processor.definition.TableDefinition;
-import com.grosner.processor.definition.TypeConverterDefinition;
 import com.grosner.processor.handler.FlowManagerHandler;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.utils.ModelUtils;
@@ -40,24 +39,26 @@ public class FlowManagerWriter implements FlowWriter {
     public FlowManagerWriter(ProcessorManager manager, String packageName, Element element) {
         this.manager = manager;
         this.element = element;
-        this.packageName = packageName;
+        this.packageName = Classes.FLOW_MANAGER_PACKAGE;
 
         Database database = element.getAnnotation(Database.class);
         databaseName = database.name();
         databaseVersion = database.version();
         foreignKeysSupported = database.foreignKeysSupported();
+
+        manager.addFlowManagerWriter(this);
     }
 
     public String getFQCN() {
-        return packageName + "." + databaseName;
+        return packageName + "." + databaseName +"$Database";
     }
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitPackage(Classes.FLOW_MANAGER_PACKAGE);
+        javaWriter.emitPackage(packageName);
 
         writeImports(javaWriter);
-        javaWriter.beginType(Classes.FLOW_MANAGER_CLASS_NAME, "class", FlowManagerHandler.METHOD_MODIFIERS, Classes.FLOW_MANAGER_INTERFACE);
+        javaWriter.beginType(databaseName + "$Database", "class", FlowManagerHandler.METHOD_MODIFIERS, Classes.FLOW_MANAGER_INTERFACE);
         javaWriter.emitEmptyLine();
 
         writeFields(javaWriter);
@@ -70,7 +71,10 @@ public class FlowManagerWriter implements FlowWriter {
 
     private void writeImports(JavaWriter javaWriter) throws IOException {
         Set<String> imports = Sets.newHashSet(Classes.MODEL_ADAPTER,
+                Classes.BASE_FLOW_MANAGER,
+                Classes.FLOW_MANAGER,
                 Classes.MODEL_VIEW,
+                Classes.MODEL_VIEW_ADAPTER,
                 Classes.MODEL, Classes.CONTAINER_ADAPTER,
                 Classes.TYPE_CONVERTER, Classes.MAP,
                 Classes.HASH_MAP, Classes.LIST,
@@ -94,7 +98,9 @@ public class FlowManagerWriter implements FlowWriter {
         }
 
         for (ModelViewDefinition modelViewDefinition: manager.getModelViewDefinitions(databaseName)) {
-            //javaWriter.emitStatement(MODEL_VIEW_MAP_FIELD_NAME +".add(%1s", ModelUtils.getFieldClass(modelViewDefinition.))
+            javaWriter.emitStatement(FlowManagerHandler.MODEL_VIEW_FIELD_NAME +".add(%1s)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+            javaWriter.emitStatement(FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
+                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()), modelViewDefinition.getFQCN());
         }
 
         javaWriter.endInitializer();
@@ -103,10 +109,15 @@ public class FlowManagerWriter implements FlowWriter {
     private void writeConstructor(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
 
+        javaWriter.beginConstructor(Sets.newHashSet(Modifier.PUBLIC), "FlowManagerHolder", "holder");
         // Register this manager with classes if multitable is enabled.
         // Need to figure out how to
         for (TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {
-            javaWriter.emitStatement("FlowManager.putManagerForTable(");
+            javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+        }
+
+        for(ModelViewDefinition modelViewDefinition: manager.getModelViewDefinitions(databaseName)) {
+            javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
         }
 
         javaWriter.endConstructor();
@@ -114,24 +125,31 @@ public class FlowManagerWriter implements FlowWriter {
 
     private void writeFields(JavaWriter javaWriter) throws IOException {
         // Model classes
-        javaWriter.emitField("List<Class<? extends Model>>", FlowManagerHandler.MODEL_FIELD_NAME, FlowManagerHandler.FIELD_MODIFIERS, "new ArrayList<>()");
+        javaWriter.emitField("List<Class<? extends Model>>", FlowManagerHandler.MODEL_FIELD_NAME,
+                FlowManagerHandler.FIELD_MODIFIERS, "new ArrayList<>()");
         javaWriter.emitEmptyLine();
 
         // Model Adapters
-        javaWriter.emitField("Map<Class<? extends Model>, ModelAdapter>", FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME, FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
+        javaWriter.emitField("Map<Class<? extends Model>, ModelAdapter>", FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
+                FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
         javaWriter.emitEmptyLine();
 
         // Model Container Adapters
-        javaWriter.emitField("Map<Class<? extends Model>, ContainerAdapter>", FlowManagerHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME, FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
+        javaWriter.emitField("Map<Class<? extends Model>, ContainerAdapter>", FlowManagerHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
+                FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
         javaWriter.emitEmptyLine();
 
 
         // model views
-        javaWriter.emitField("List<Class<? extends BaseModelView>>", FlowManagerHandler.MODEL_VIEW_MAP_FIELD_NAME, FlowManagerHandler.FIELD_MODIFIERS, "new ArrayList<>()");
+        javaWriter.emitField("List<Class<? extends BaseModelView>>", FlowManagerHandler.MODEL_VIEW_FIELD_NAME,
+                FlowManagerHandler.FIELD_MODIFIERS, "new ArrayList<>()");
         javaWriter.emitEmptyLine();
 
-        javaWriter.emitField("FlowSQLiteOpenHelper", FlowManagerHandler.FLOW_SQL_LITE_OPEN_HELPER_FIELD_NAME, Sets.newHashSet(Modifier.PRIVATE));
 
+        // Model View Adapters
+        javaWriter.emitField("Map<Class<? extends BaseModelView>, ModelViewAdapter>", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
+                FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
+        javaWriter.emitEmptyLine();
 
     }
 
@@ -150,7 +168,7 @@ public class FlowManagerWriter implements FlowWriter {
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s", FlowManagerHandler.MODEL_VIEW_MAP_FIELD_NAME);
+                javaWriter.emitStatement("return %1s", FlowManagerHandler.MODEL_VIEW_FIELD_NAME);
             }
         }, "List<Class<? extends BaseModelView>>", "getModelViews", FlowManagerHandler.METHOD_MODIFIERS);
 
@@ -161,7 +179,7 @@ public class FlowManagerWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return new ArrayList(%1s.values())", FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME);
             }
-        }, "Set<ModelAdapter>", "getModelAdapters", FlowManagerHandler.METHOD_MODIFIERS);
+        }, "List<ModelAdapter>", "getModelAdapters", FlowManagerHandler.METHOD_MODIFIERS);
 
 
         // Get Model Adapter
@@ -187,9 +205,47 @@ public class FlowManagerWriter implements FlowWriter {
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME, "table");
+            }
+        }, "ModelViewAdapter", "getModelViewAdapterForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<? extends BaseModelView>", "table");
+
+
+        // Get Model View Adapters
+        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return new ArrayList(%1s.values())", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME);
+            }
+        }, "List<ModelViewAdapter>", "getModelViewAdapters", FlowManagerHandler.METHOD_MODIFIERS);
+
+
+        // Get Model Container
+        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s", foreignKeysSupported);
             }
         }, "boolean", "isForeignKeysSupported", FlowManagerHandler.METHOD_MODIFIERS);
+
+        // Get Model Container
+        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return %1s", databaseVersion);
+            }
+        }, "int", "getDatabaseVersion", FlowManagerHandler.METHOD_MODIFIERS);
+
+        // Get Model Container
+        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return \"%1s\"", databaseName);
+            }
+        }, "String", "getDatabaseName", FlowManagerHandler.METHOD_MODIFIERS);
 
 
     }

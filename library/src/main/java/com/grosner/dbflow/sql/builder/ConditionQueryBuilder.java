@@ -156,6 +156,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         return this;
     }
 
+    public ConditionQueryBuilder<ModelClass> setUseEmptyParams(boolean useEmptyParams) {
+        this.useEmptyParams = useEmptyParams;
+        return this;
+    }
+
 
     /**
      * Appends a condition to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}

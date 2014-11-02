@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.processor.Classes;
+import com.grosner.processor.DBFlowProcessor;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.writer.*;
 import com.squareup.javawriter.JavaWriter;
@@ -22,13 +23,11 @@ import java.util.List;
  * Contributors: { }
  * Description:
  */
-public class TableDefinition implements FlowWriter {
+public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public static final String DBFLOW_TABLE_TAG = "$Table";
 
     public static final String DBFLOW_TABLE_ADAPTER = "$Adapter";
-
-    public ProcessorManager manager;
 
     public String packageName;
 
@@ -36,15 +35,11 @@ public class TableDefinition implements FlowWriter {
 
     public String tableSourceClassName;
 
-    public String modelClassName;
-
     public String adapterName;
 
     public Element element;
 
     public String databaseName;
-
-    public ArrayList<ColumnDefinition> columnDefinitions;
 
     public ArrayList<ColumnDefinition> primaryColumnDefinitions;
 
@@ -63,26 +58,30 @@ public class TableDefinition implements FlowWriter {
     DeleteWriter mDeleteWriter;
 
     public TableDefinition(ProcessorManager manager, String packageName, Element element) {
+        super(element);
         this.element = element;
         this.packageName = packageName;
-        this.modelClassName = element.getSimpleName().toString();
-        this.tableSourceClassName = modelClassName + DBFLOW_TABLE_TAG;
-        this.adapterName = modelClassName + DBFLOW_TABLE_ADAPTER;
+        this.tableSourceClassName = getModelClassName() + DBFLOW_TABLE_TAG;
+        this.adapterName = getModelClassName() + DBFLOW_TABLE_ADAPTER;
 
         Table table = element.getAnnotation(Table.class);
         this.tableName = table.value();
         databaseName = table.databaseName();
+        if(databaseName == null || databaseName.isEmpty()) {
+            databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
+        }
 
-        manager.addModelToDatabase(modelClassName, databaseName);
+        manager.addModelToDatabase(getModelClassName(), databaseName);
 
         if(tableName == null || tableName.isEmpty()) {
             tableName = element.getSimpleName().toString();
         }
         this.manager = manager;
-        columnDefinitions = new ArrayList<>();
+
         primaryColumnDefinitions = new ArrayList<>();
         foreignKeyDefinitions = new ArrayList<>();
-        getColumnDefinitions((TypeElement) element);
+
+        createColumnDefinitions((TypeElement) element);
 
         mContentValuesWriter = new ContentValuesWriter(this, false);
         mWhereQueryWriter = new WhereQueryWriter(this, false);
@@ -92,7 +91,8 @@ public class TableDefinition implements FlowWriter {
         mDeleteWriter = new DeleteWriter(this, false);
     }
 
-    private void getColumnDefinitions(TypeElement element) {
+    @Override
+    protected void createColumnDefinitions(TypeElement element) {
         List<? extends Element> variableElements = manager.getElements().getAllMembers(element);
         for(Element variableElement: variableElements) {
             if(variableElement.getAnnotation(Column.class) != null) {
@@ -117,7 +117,7 @@ public class TableDefinition implements FlowWriter {
     }
 
     public String getQualifiedModelClassName() {
-        return packageName+"."+modelClassName;
+        return packageName+"."+getModelClassName();
     }
 
     @Override
@@ -151,7 +151,7 @@ public class TableDefinition implements FlowWriter {
                 Classes.DBTRANSACTION_INFO
         );
         javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ModelAdapter<" + element.getSimpleName() + ">");
-        InternalAdapterHelper.writeGetModelClass(javaWriter, modelClassName);
+        InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassName());
         InternalAdapterHelper.writeGetTableName(javaWriter, tableSourceClassName);
 
         mContentValuesWriter.write(javaWriter);

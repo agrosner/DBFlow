@@ -24,7 +24,7 @@ public @interface ModelView {
      * The name of this view
      * @return
      */
-    String name();
+    String name() default "";
 
-    String databaseName();
+    String databaseName() default "";
 }

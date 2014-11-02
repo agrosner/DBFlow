@@ -13,7 +13,7 @@ import java.util.Date;
  * Contributors: { }
  * Description:
  */
-@Table(value = "AModel")
+@Table
 @ContainerAdapter
 public class AModel extends BaseModel {
 

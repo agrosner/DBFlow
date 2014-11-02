@@ -6,8 +6,10 @@ import android.util.SparseArray;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.ModelAdapter;
+import com.grosner.dbflow.structure.ModelViewAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -142,7 +144,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             @Override
             public void run() {
 
-                Set<ModelAdapter> modelAdapters = mManager.getModelAdapters();
+                List<ModelAdapter> modelAdapters = mManager.getModelAdapters();
                 for(ModelAdapter modelAdapter: modelAdapters) {
                     database.execSQL(modelAdapter.getCreationQuery());
                 }
@@ -154,16 +156,16 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                     }
                 }*/
 
-                /*Collection<ModelViewDefinition> modelViews = mManager.getStructure().getModelViews().values();
-
-                for (ModelViewDefinition modelView : modelViews) {
+                // create our model views
+                List<ModelViewAdapter> modelViews = mManager.getModelViewAdapters();
+                for (ModelViewAdapter modelView : modelViews) {
                     QueryBuilder queryBuilder = new QueryBuilder()
                             .append("CREATE VIEW")
-                            .appendSpaceSeparated(modelView.getName())
+                            .appendSpaceSeparated(modelView.getViewName())
                             .append("AS ")
-                            .append(modelView.getWhere().getQuery());
+                            .append(modelView.getCreationQuery());
                     database.execSQL(queryBuilder.getQuery());
-                }*/
+                }
             }
         });
     }
