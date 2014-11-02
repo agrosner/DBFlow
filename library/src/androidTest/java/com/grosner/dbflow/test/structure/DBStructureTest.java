@@ -1,9 +1,6 @@
 package com.grosner.dbflow.test.structure;
 
-import android.location.Location;
-
-import com.grosner.dbflow.annotation.Column;
-import com.grosner.dbflow.config.DBConfiguration;
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.test.FlowTestCase;
 
@@ -15,12 +12,6 @@ import com.grosner.dbflow.test.FlowTestCase;
 public class DBStructureTest extends FlowTestCase {
 
     @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.foreignKeysSupported();
-        builder.addModelClasses(TestPrimaryWhere.class);
-    }
-
-    @Override
     protected String getDBName() {
         return "dbstructure";
     }
@@ -28,13 +19,8 @@ public class DBStructureTest extends FlowTestCase {
     // region Test Primary Where Query
 
     public void testPrimaryWhereQuery() {
-        ConditionQueryBuilder<TestPrimaryWhere> primaryWhere = mManager.getStructure().getPrimaryWhereQuery(TestPrimaryWhere.class);
-        assertEquals(primaryWhere.getQuery(), "location = ? AND name = ?");
-    }
-
-    private static class TestPrimaryWhere extends TestModel1{
-        @Column(columnType = Column.PRIMARY_KEY)
-        private Location location;
+        ConditionQueryBuilder<TestPrimaryWhere> primaryWhere = FlowManager.getPrimaryWhereQuery(TestPrimaryWhere.class);
+        assertEquals(primaryWhere.getQuery(), "name = ? AND location = ?");
     }
 
     // endregion Test Primary Where Query

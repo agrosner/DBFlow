@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 public @interface Database {
     int version();
 
-    String name();
+    String name() default "";
 
     boolean foreignKeysSupported() default false;
 }

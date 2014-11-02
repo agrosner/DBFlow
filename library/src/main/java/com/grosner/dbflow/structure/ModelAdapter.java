@@ -28,7 +28,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
         if(mPrimaryWhere == null) {
             mPrimaryWhere = createPrimaryModelWhere();
         }
-
+        mPrimaryWhere.setUseEmptyParams(true);
         return mPrimaryWhere;
     }
 

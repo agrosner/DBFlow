@@ -27,6 +27,8 @@ public class ProcessorManager {
 
     private ProcessingEnvironment mProcessingEnv;
 
+    private List<String> mUniqueDatabases = Lists.newArrayList();
+
     private Map<String, String> mModelToDatabaseMap = Maps.newHashMap();
 
     private Map<String, TypeConverterDefinition> mTypeConverters = Maps.newHashMap();
@@ -59,6 +61,16 @@ public class ProcessorManager {
         return mProcessingEnv;
     }
 
+    public void addDatabase(String database) {
+        if(!mUniqueDatabases.contains(database)) {
+            mUniqueDatabases.add(database);
+        }
+    }
+
+    public boolean hasOneDatabase() {
+        return mUniqueDatabases.size() == 1;
+    }
+
     public void addFlowManagerWriter(FlowManagerWriter flowManagerWriter) {
         mManagerWriters.add(flowManagerWriter);
     }
@@ -76,6 +88,7 @@ public class ProcessorManager {
     }
 
     public void addModelToDatabase(String modelName, String databaseName) {
+        addDatabase(databaseName);
         mModelToDatabaseMap.put(modelName, databaseName);
     }
 
@@ -128,6 +141,10 @@ public class ProcessorManager {
     }
 
     public Set<ModelContainerDefinition> getModelContainers(String databaseName) {
+        if(hasOneDatabase()) {
+            databaseName = "";
+        }
+
         Map<String, ModelContainerDefinition> modelContainerDefinitionMap = mModelContainers.get(databaseName);
         if(modelContainerDefinitionMap!= null) {
             return  Sets.newHashSet(mModelContainers.get(databaseName).values());
@@ -136,6 +153,10 @@ public class ProcessorManager {
     }
 
     public Set<TableDefinition> getTableDefinitions(String databaseName) {
+        if(hasOneDatabase()) {
+            databaseName = "";
+        }
+
         Map<String, TableDefinition> tableDefinitionMap = mTableDefinitions.get(databaseName);
         if(tableDefinitionMap != null) {
             return Sets.newHashSet(mTableDefinitions.get(databaseName).values());
@@ -144,6 +165,10 @@ public class ProcessorManager {
     }
 
     public Set<ModelViewDefinition> getModelViewDefinitions(String databaseName) {
+        if(hasOneDatabase()) {
+            databaseName = "";
+        }
+
         Map<String, ModelViewDefinition> modelViewDefinitionMap = mModelViewDefinition.get(databaseName);
         if(modelViewDefinitionMap != null) {
             return Sets.newHashSet(mModelViewDefinition.get(databaseName).values());

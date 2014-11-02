@@ -27,17 +27,7 @@ public class ModelContainerDefinition implements FlowWriter {
 
     private String packageName;
 
-    private ContentValuesWriter mContentValuesWriter;
-
-    private ExistenceWriter mExistenceWriter;
-
-    private WhereQueryWriter mWhereQueryWriter;
-
-    private ToModelWriter mToModelWriter;
-
-    private LoadCursorWriter mLoadCursorWriter;
-
-    private DeleteWriter mDeleteWriter;
+    private FlowWriter[] mMethodWriters;
 
     public ModelContainerDefinition(String packageName, TypeElement classElement, ProcessorManager manager) {
         this.classElement = classElement;
@@ -46,12 +36,15 @@ public class ModelContainerDefinition implements FlowWriter {
         this.packageName = packageName;
 
         TableDefinition tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()), classElement);
-        mContentValuesWriter = new ContentValuesWriter(tableDefinition, true);
-        mExistenceWriter = new ExistenceWriter(tableDefinition, true);
-        mWhereQueryWriter = new WhereQueryWriter(tableDefinition, true);
-        mToModelWriter = new ToModelWriter(tableDefinition);
-        mLoadCursorWriter = new LoadCursorWriter(tableDefinition, true);
-        mDeleteWriter = new DeleteWriter(tableDefinition, true);
+
+        mMethodWriters = new FlowWriter[]{
+                new ContentValuesWriter(tableDefinition, true),
+                new ExistenceWriter(tableDefinition, true),
+                new WhereQueryWriter(tableDefinition, true),
+                new ToModelWriter(tableDefinition),
+                new LoadCursorWriter(tableDefinition, true),
+                new DeleteWriter(tableDefinition, true)
+        };
     }
 
 
@@ -79,12 +72,9 @@ public class ModelContainerDefinition implements FlowWriter {
         InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassQualifiedName());
         InternalAdapterHelper.writeGetTableName(javaWriter, classElement.getSimpleName().toString() + TableDefinition.DBFLOW_TABLE_TAG);
 
-        mContentValuesWriter.write(javaWriter);
-        mExistenceWriter.write(javaWriter);
-        mWhereQueryWriter.write(javaWriter);
-        mToModelWriter.write(javaWriter);
-        mLoadCursorWriter.write(javaWriter);
-        mDeleteWriter.write(javaWriter);
+        for (FlowWriter writer : mMethodWriters) {
+            writer.write(javaWriter);
+        }
 
         javaWriter.endType();
         javaWriter.close();
@@ -95,7 +85,7 @@ public class ModelContainerDefinition implements FlowWriter {
     }
 
     public String getFQCN() {
-        return packageName+ "." + sourceFileName;
+        return packageName + "." + sourceFileName;
     }
 
 }

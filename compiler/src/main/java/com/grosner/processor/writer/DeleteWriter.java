@@ -32,12 +32,9 @@ public class DeleteWriter implements FlowWriter {
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.beginControlFlow("if(%1s)", "async");
-                WriterUtils.emitTransactionManagerCall(javaWriter, "delete", ModelUtils.getVariable(isModelContainer));
-                javaWriter.nextControlFlow("else");
-                javaWriter.emitStatement(" new Delete().from(%1s).where(getPrimaryModelWhere(%1s)).query()",
-                        ModelUtils.getFieldClass(tableDefinition.getModelClassName()), ModelUtils.getVariable(isModelContainer));
-                javaWriter.endControlFlow();
+                javaWriter.emitStatement("%1s.delete(%1s, this, %1s)",
+                        ModelUtils.getUtils(isModelContainer),
+                        ModelUtils.getVariable(isModelContainer), "async");
             }
         }, "void", "delete", Sets.newHashSet(Modifier.PUBLIC),
                 "boolean", "async",

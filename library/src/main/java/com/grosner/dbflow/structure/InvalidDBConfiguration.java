@@ -10,7 +10,7 @@ public class InvalidDBConfiguration extends RuntimeException {
         super("No Databases were found. Did you create a Database Annotation placeholder class?");
     }
 
-    public InvalidDBConfiguration(String modelName) {
-        super("The manager in a multidatabase setup did not include " + modelName + " in the DBConfiguration");
+    public InvalidDBConfiguration(String message) {
+        super(message);
     }
 }

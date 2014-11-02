@@ -1,6 +1,7 @@
 package com.grosner.processor.utils;
 
 import com.grosner.dbflow.annotation.ForeignKeyReference;
+import com.grosner.processor.Classes;
 import com.grosner.processor.definition.TypeConverterDefinition;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.model.builder.AdapterQueryBuilder;
@@ -171,5 +172,9 @@ public class ModelUtils {
     public static String getParameter(boolean isModelContainer, String modelClassName) {
         return isModelContainer ? "ModelContainer<" + modelClassName + ", ?>" : modelClassName;
 
+    }
+
+    public static String getUtils(boolean isModelContainer) {
+        return isModelContainer ? Classes.MODEL_CONTAINER_UTILS : Classes.SQL_UTILS;
     }
 }

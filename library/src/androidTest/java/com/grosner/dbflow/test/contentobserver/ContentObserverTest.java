@@ -17,11 +17,6 @@ public class ContentObserverTest extends FlowTestCase {
         return "contentobserver";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-
-    }
-
     public void testContentObserver() {
         FlowContentObserver flowContentObserver = new FlowContentObserver();
         flowContentObserver.registerForContentChanges(TestModel1.class);

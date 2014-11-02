@@ -45,17 +45,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public ArrayList<ColumnDefinition> foreignKeyDefinitions;
 
-    ContentValuesWriter mContentValuesWriter;
-
-    ExistenceWriter mExistenceWriter;
-
-    LoadCursorWriter mLoadCursorWriter;
-
-    WhereQueryWriter mWhereQueryWriter;
-
-    CreationQueryWriter mCreationQueryWriter;
-
-    DeleteWriter mDeleteWriter;
+    FlowWriter[] mMethodWriters;
 
     public TableDefinition(ProcessorManager manager, String packageName, Element element) {
         super(element);
@@ -67,13 +57,13 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         Table table = element.getAnnotation(Table.class);
         this.tableName = table.value();
         databaseName = table.databaseName();
-        if(databaseName == null || databaseName.isEmpty()) {
+        if (databaseName == null || databaseName.isEmpty()) {
             databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
         }
 
         manager.addModelToDatabase(getModelClassName(), databaseName);
 
-        if(tableName == null || tableName.isEmpty()) {
+        if (tableName == null || tableName.isEmpty()) {
             tableName = element.getSimpleName().toString();
         }
         this.manager = manager;
@@ -83,41 +73,54 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
         createColumnDefinitions((TypeElement) element);
 
-        mContentValuesWriter = new ContentValuesWriter(this, false);
-        mWhereQueryWriter = new WhereQueryWriter(this, false);
-        mLoadCursorWriter = new LoadCursorWriter(this, false);
-        mExistenceWriter = new ExistenceWriter(this, false);
-        mCreationQueryWriter = new CreationQueryWriter(manager, this);
-        mDeleteWriter = new DeleteWriter(this, false);
+        mMethodWriters = new FlowWriter[]{
+                new ContentValuesWriter(this, false),
+                new ExistenceWriter(this, false),
+                new LoadCursorWriter(this, false),
+                new WhereQueryWriter(this, false),
+                new CreationQueryWriter(manager, this),
+                new DeleteWriter(this, false)
+        };
+
     }
 
     @Override
     protected void createColumnDefinitions(TypeElement element) {
         List<? extends Element> variableElements = manager.getElements().getAllMembers(element);
-        for(Element variableElement: variableElements) {
-            if(variableElement.getAnnotation(Column.class) != null) {
+        for (Element variableElement : variableElements) {
+            if (variableElement.getAnnotation(Column.class) != null) {
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
                 columnDefinitions.add(columnDefinition);
 
-                if(columnDefinition.columnType == Column.PRIMARY_KEY) {
+                if (columnDefinition.columnType == Column.PRIMARY_KEY) {
                     primaryColumnDefinitions.add(columnDefinition);
-                } else if(columnDefinition.columnType == Column.FOREIGN_KEY) {
+                } else if (columnDefinition.columnType == Column.FOREIGN_KEY) {
                     foreignKeyDefinitions.add(columnDefinition);
                 }
             }
         }
     }
 
+    @Override
+    public List<ColumnDefinition> getPrimaryColumnDefinitions() {
+        return primaryColumnDefinitions;
+    }
+
+    @Override
+    public String getTableSourceClassName() {
+        return tableSourceClassName;
+    }
+
     public String getQualifiedAdapterClassName() {
-        return packageName +"."+adapterName;
+        return packageName + "." + adapterName;
     }
 
     public String getFQCN() {
-        return packageName+"."+ tableSourceClassName;
+        return packageName + "." + tableSourceClassName;
     }
 
     public String getQualifiedModelClassName() {
-        return packageName+"."+getModelClassName();
+        return packageName + "." + getModelClassName();
     }
 
     @Override
@@ -127,7 +130,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         javaWriter.emitEmptyLine();
         javaWriter.emitField("String", "TABLE_NAME", Sets.newHashSet(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL), "\"" + tableName + "\"");
         javaWriter.emitEmptyLine();
-        for(ColumnDefinition columnDefinition: columnDefinitions) {
+        for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.write(javaWriter);
         }
         javaWriter.endType();
@@ -150,16 +153,14 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 Classes.PROCESS_MODEL_INFO,
                 Classes.DBTRANSACTION_INFO
         );
+        javaWriter.emitSingleLineComment("This table belongs to the %1s database", databaseName);
         javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ModelAdapter<" + element.getSimpleName() + ">");
         InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassName());
         InternalAdapterHelper.writeGetTableName(javaWriter, tableSourceClassName);
 
-        mContentValuesWriter.write(javaWriter);
-        mExistenceWriter.write(javaWriter);
-        mLoadCursorWriter.write(javaWriter);
-        mWhereQueryWriter.write(javaWriter);
-        mCreationQueryWriter.write(javaWriter);
-        mDeleteWriter.write(javaWriter);
+        for (FlowWriter writer : mMethodWriters) {
+            writer.write(javaWriter);
+        }
 
         javaWriter.endType();
         javaWriter.close();

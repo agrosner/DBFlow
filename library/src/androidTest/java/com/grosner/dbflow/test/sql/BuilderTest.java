@@ -1,11 +1,8 @@
 package com.grosner.dbflow.test.sql;
 
-import com.grosner.dbflow.annotation.Column;
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.test.FlowTestCase;
-import com.grosner.dbflow.test.structure.TestModel1;
 
 /**
  * Author: andrewgrosner
@@ -19,11 +16,6 @@ public class BuilderTest extends FlowTestCase {
         return "builder";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.addModelClasses(ConditionModel.class);
-    }
-
     /**
      * This test will ensure that all column values are converted appropriately
      */
@@ -33,20 +25,10 @@ public class BuilderTest extends FlowTestCase {
         byte[] bytes = new byte[] {5,5,5};
         conditionQueryBuilder.putConditions(
                 Condition.column("number").is(5L),
-                Condition.column("bytes").is(bytes),
+                Condition.column("bytes").is(5),
                 Condition.column("fraction").is(6.5d));
 
-        assertEquals("number = 5 AND bytes = '" + bytes.toString() + "' AND fraction = 6.5", conditionQueryBuilder.getQuery());
+        assertEquals("number = 5 AND bytes = 5 AND fraction = 6.5", conditionQueryBuilder.getQuery());
     }
 
-    private static class ConditionModel extends TestModel1 {
-        @Column
-        long number;
-
-        @Column
-        byte[] bytes;
-
-        @Column
-        double fraction;
-    }
 }

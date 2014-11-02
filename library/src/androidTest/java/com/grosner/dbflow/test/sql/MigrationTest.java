@@ -22,18 +22,11 @@ import java.util.List;
  */
 public class MigrationTest extends AndroidTestCase {
 
-    FlowManager mManager;
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         FlowManager.setContext(getContext());
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.I);
-        DBConfiguration.Builder configurationBuilder
-                = new DBConfiguration.Builder().databaseName("migration").databaseVersion(1)
-                .addModelClasses(TestModel1.class);
-        mManager = new FlowManager();
-        mManager.initialize(configurationBuilder.create());
     }
 
 
@@ -90,7 +83,6 @@ public class MigrationTest extends AndroidTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        getContext().deleteDatabase(mManager.getDbConfiguration().getDatabaseName());
-        mManager.destroy();
+        FlowManager.destroy();
     }
 }

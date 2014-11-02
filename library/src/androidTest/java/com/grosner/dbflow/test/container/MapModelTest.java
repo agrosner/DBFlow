@@ -19,11 +19,6 @@ public class MapModelTest extends FlowTestCase {
         return "mapmodel";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.addModelClasses(TestModelContainerClass.class);
-    }
-
     public void testMapModel() {
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("name", "test");

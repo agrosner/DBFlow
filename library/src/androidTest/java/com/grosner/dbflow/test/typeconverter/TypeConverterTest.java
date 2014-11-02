@@ -23,11 +23,6 @@ public class TypeConverterTest extends FlowTestCase {
         return "typeconverter";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.addModelClasses(TestType.class);
-    }
-
     public void testConverters() {
         TestType testType = new TestType();
         testType.name = "Name";

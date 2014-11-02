@@ -8,15 +8,15 @@ import com.grosner.processor.DBFlowProcessor;
 import com.grosner.processor.handler.FlowManagerHandler;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.utils.WriterUtils;
-import com.grosner.processor.writer.ExistenceWriter;
-import com.grosner.processor.writer.FlowWriter;
-import com.grosner.processor.writer.LoadCursorWriter;
+import com.grosner.processor.writer.*;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.util.List;
@@ -42,11 +42,11 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     private String name;
 
+    private TypeElement modelReferenceClass;
+
     private ProcessorManager manager;
 
-    private LoadCursorWriter mCursorWriter;
-
-    private ExistenceWriter mExistenceWriter;
+    private FlowWriter[] mMethodWriters;
 
     public ModelViewDefinition(ProcessorManager manager, String packageName, Element element) {
         super(element);
@@ -66,12 +66,34 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
             name = getModelClassName();
         }
 
+        DeclaredType typeAdapterInterface = null;
+        final DeclaredType modelViewType = manager.getTypeUtils().getDeclaredType(
+                manager.getElements().getTypeElement(Classes.MODEL_VIEW),
+                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(Classes.MODEL).asType(), null)
+        );
+
+
+        for (TypeMirror superType : manager.getTypeUtils().directSupertypes(element.asType())) {
+            if (manager.getTypeUtils().isAssignable(superType, modelViewType)) {
+                typeAdapterInterface = (DeclaredType) superType;
+                break;
+            }
+        }
+
+        if (typeAdapterInterface != null) {
+            final List<? extends TypeMirror> typeArguments = typeAdapterInterface.getTypeArguments();
+            modelReferenceClass = manager.getElements().getTypeElement(typeArguments.get(0).toString());
+        }
+
         this.modelViewSourceClassName = getModelClassName() + DBFLOW_MODEL_VIEW_TAG;
 
         createColumnDefinitions((TypeElement) element);
 
-        mCursorWriter = new LoadCursorWriter(this, false);
-        mExistenceWriter = new ExistenceWriter(this, false);
+        mMethodWriters = new FlowWriter[] {
+                new LoadCursorWriter(this, false),
+                new ExistenceWriter(this, false),
+                new WhereQueryWriter(this, false)
+        };
     }
 
     @Override
@@ -89,6 +111,11 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
         }
     }
 
+    @Override
+    public List<ColumnDefinition> getPrimaryColumnDefinitions() {
+        return getColumnDefinitions();
+    }
+
     public String getFullyQualifiedModelClassName() {
         return packageName + "." + getModelClassName();
     }
@@ -98,12 +125,19 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
     }
 
     @Override
+    public String getTableSourceClassName() {
+        return modelReferenceClass + TableDefinition.DBFLOW_TABLE_TAG;
+    }
+
+    @Override
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitPackage(packageName);
 
-        javaWriter.emitImports(Classes.CURSOR, Classes.SELECT);
+        javaWriter.emitImports(Classes.CURSOR, Classes.SELECT, Classes.CONDITION_QUERY_BUILDER,
+                Classes.CONDITION);
 
-        javaWriter.beginType(modelViewSourceClassName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), Classes.MODEL_VIEW_ADAPTER);
+        javaWriter.beginType(modelViewSourceClassName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
+                String.format("%1s<%1s,%1s>", Classes.MODEL_VIEW_ADAPTER, modelReferenceClass, getModelClassName()));
 
         writeMethods(javaWriter);
 
@@ -111,8 +145,9 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
     }
 
     private void writeMethods(JavaWriter javaWriter) throws IOException {
-        mCursorWriter.write(javaWriter);
-        mExistenceWriter.write(javaWriter);
+        for (FlowWriter writer: mMethodWriters) {
+            writer.write(javaWriter);
+        }
 
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);

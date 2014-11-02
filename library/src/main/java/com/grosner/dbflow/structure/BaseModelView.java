@@ -30,10 +30,10 @@ public abstract class BaseModelView<ModelClass extends Model> implements Model {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not insertable");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean exists() {
-        ModelAdapter modelAdapter = FlowManager.getModelAdapter(getClass());
-        return modelAdapter.exists(this);
+        return ((ModelViewAdapter<? extends Model, BaseModelView<ModelClass>>) FlowManager.getModelViewAdapter(getClass())).exists(this);
     }
 
     /**

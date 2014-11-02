@@ -1,6 +1,7 @@
 package com.grosner.dbflow.structure;
 
 import android.database.Cursor;
+import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 
 /**
  * Author: andrewgrosner
@@ -13,7 +14,7 @@ public abstract class ModelViewAdapter<ModelClass extends Model, ModelViewClass 
 
     public abstract String getCreationQuery();
 
-    public abstract String getPrimaryModelWhere(ModelViewClass modelView);
+    public abstract ConditionQueryBuilder<ModelViewClass> getPrimaryModelWhere(ModelViewClass modelView);
 
     public abstract boolean exists(ModelViewClass model);
 

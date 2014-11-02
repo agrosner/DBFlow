@@ -17,6 +17,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
 import javax.tools.Diagnostic;
@@ -70,8 +71,15 @@ public class ColumnDefinition implements FlowWriter {
         if (element.asType().getKind().isPrimitive()) {
             this.modelType = processorManager.getTypeUtils().boxedClass((PrimitiveType) element.asType());
         } else {
-            DeclaredType declaredType = (DeclaredType) element.asType();
-            if (!declaredType.getTypeArguments().isEmpty()) {
+            boolean isAModelContainer = false;
+            DeclaredType declaredType = null;
+            if(element.asType() instanceof DeclaredType) {
+                declaredType = (DeclaredType) element.asType();
+                isAModelContainer = !declaredType.getTypeArguments().isEmpty();
+            } else if(element.asType() instanceof ArrayType) {
+                processorManager.getMessager().printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
+            }
+            if (isAModelContainer) {
                 isModelContainer = true;
                 // TODO: hack for now
                 modelContainerType = columnFieldType;
@@ -156,6 +164,9 @@ public class ColumnDefinition implements FlowWriter {
             String newFieldType;
             if(hasTypeConverter) {
                 TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(modelType);
+                if(typeConverterDefinition == null) {
+                    processorManager.getMessager().printMessage(Diagnostic.Kind.ERROR, String.format("No Type Converter found for %1s", modelType));
+                }
                 newFieldType = typeConverterDefinition.getDbElement().asType().toString();
             } else {
                 newFieldType = columnFieldType;

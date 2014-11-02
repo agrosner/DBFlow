@@ -19,11 +19,6 @@ public class JsonModelTest extends FlowTestCase {
         return "jsonmodel";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.addModelClasses(TestModelContainerClass.class);
-    }
-
     public void testJsonModel() {
         try {
             JSONObject jsonObject = new JSONObject("{" +

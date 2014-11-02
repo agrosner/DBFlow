@@ -43,6 +43,10 @@ public class FlowManagerWriter implements FlowWriter {
 
         Database database = element.getAnnotation(Database.class);
         databaseName = database.name();
+        if(databaseName == null || databaseName.isEmpty()) {
+            databaseName = element.getSimpleName().toString();
+        }
+
         databaseVersion = database.version();
         foreignKeysSupported = database.foreignKeysSupported();
 

@@ -1,7 +1,5 @@
 package com.grosner.dbflow.test.sql;
 
-import com.grosner.dbflow.annotation.Column;
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.language.From;
 import com.grosner.dbflow.sql.language.Join;
 import com.grosner.dbflow.sql.language.Select;
@@ -23,11 +21,6 @@ public class SelectTest extends FlowTestCase {
         return "select";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.addModelClasses(TestModel2.class);
-    }
-
     public void testSelectStatement() {
         Where<TestModel1> where = new Select("name").from(TestModel1.class)
                 .where(Condition.column("name").is("test"));
@@ -35,20 +28,20 @@ public class SelectTest extends FlowTestCase {
         assertEquals("SELECT name FROM TestModel1 WHERE name = 'test'", where.getQuery().trim());
         where.query();
 
-        Where<TestModel2> where1 = new Select("name", "type").from(TestModel2.class)
+        Where<TestModel3> where1 = new Select("name", "type").from(TestModel3.class)
                 .where(Condition.column("name").is("test"),
                         Condition.column("type").is("test"));
 
-        assertEquals("SELECT name, type FROM TestModel2 WHERE name = 'test' AND type = 'test'", where1.getQuery().trim());
+        assertEquals("SELECT name, type FROM TestModel3 WHERE name = 'test' AND type = 'test'", where1.getQuery().trim());
 
-        Where<TestModel2> where2 = new Select().distinct().from(TestModel2.class).where();
+        Where<TestModel3> where2 = new Select().distinct().from(TestModel3.class).where();
 
-        assertEquals("SELECT DISTINCT * FROM TestModel2", where2.getQuery().trim());
+        assertEquals("SELECT DISTINCT * FROM TestModel3", where2.getQuery().trim());
         where2.query();
 
-        Where<TestModel2> where3 = new Select().count().from(TestModel2.class).where();
+        Where<TestModel3> where3 = new Select().count().from(TestModel3.class).where();
 
-        assertEquals("SELECT COUNT(*)  FROM TestModel2", where3.getQuery().trim());
+        assertEquals("SELECT COUNT(*)  FROM TestModel3", where3.getQuery().trim());
         where3.query();
     }
 
@@ -58,26 +51,22 @@ public class SelectTest extends FlowTestCase {
         testModel1.name = "Test";
         testModel1.save(false);
 
-        TestModel2 testModel2 = new TestModel2();
+        TestModel3 testModel2 = new TestModel3();
         testModel2.name = "Test";
         testModel2.save(false);
 
         From<TestModel1> baseFrom = new Select().from(TestModel1.class);
-        baseFrom.join(TestModel2.class, Join.JoinType.CROSS).on(Condition.column("TestModel1.name").is("TestModel2.name"));
+        baseFrom.join(TestModel3.class, Join.JoinType.CROSS).on(Condition.column("TestModel1.name").is("TestModel3.name"));
 
-        assertEquals("SELECT * FROM TestModel1 CROSS JOIN TestModel2 ON TestModel1.name = TestModel2.name", baseFrom.getQuery().trim());
+        assertEquals("SELECT * FROM TestModel1 CROSS JOIN TestModel3 ON TestModel1.name = TestModel3.name", baseFrom.getQuery().trim());
 
         List<TestModel1> list = baseFrom.where().queryList();
         assertTrue(!list.isEmpty());
 
-        Where<TestModel1> where = new Select().from(TestModel1.class).join(TestModel2.class, Join.JoinType.INNER).natural().where();
-        assertEquals("SELECT * FROM TestModel1 NATURAL INNER JOIN TestModel2", where.getQuery().trim());
+        Where<TestModel1> where = new Select().from(TestModel1.class).join(TestModel3.class, Join.JoinType.INNER).natural().where();
+        assertEquals("SELECT * FROM TestModel1 NATURAL INNER JOIN TestModel3", where.getQuery().trim());
 
         where.query();
     }
 
-    public static class TestModel2 extends TestModel1 {
-        @Column
-        private String type;
-    }
 }

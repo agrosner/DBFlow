@@ -31,6 +31,10 @@ public abstract class BaseTableDefinition {
         return columnDefinitions;
     }
 
+    public abstract List<ColumnDefinition> getPrimaryColumnDefinitions();
+
+    public abstract String getTableSourceClassName();
+
     public String getModelClassName() {
         return modelClassName;
     }

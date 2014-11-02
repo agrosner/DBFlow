@@ -45,7 +45,7 @@ public class ContentValuesWriter implements FlowWriter {
                 }
                 javaWriter.emitEmptyLine();
 
-                javaWriter.emitStatement(mSaveMethod + ".save(%1s, %1s, %1s, %1s)", "async", mSaveVariable, "contentValues", "saveMode");
+                javaWriter.emitStatement(mSaveMethod + ".sync(%1s, %1s, %1s, %1s)", "async", mSaveVariable, "contentValues", "saveMode");
             }
         }, "void", "save", Sets.newHashSet(Modifier.PUBLIC), "boolean", "async",
                 ModelUtils.getParameter(isModelContainer,tableDefinition.getModelClassName()), mSaveVariable, "int", "saveMode");

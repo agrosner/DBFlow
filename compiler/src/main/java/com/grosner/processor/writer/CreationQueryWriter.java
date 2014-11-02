@@ -9,6 +9,7 @@ import com.grosner.processor.ProcessorUtils;
 import com.grosner.processor.definition.ColumnDefinition;
 import com.grosner.processor.definition.PrimaryKeyNotFoundException;
 import com.grosner.processor.definition.TableDefinition;
+import com.grosner.processor.definition.TypeConverterDefinition;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.model.ReflectionUtils;
 import com.grosner.processor.model.builder.TableCreationQueryBuilder;
@@ -54,23 +55,16 @@ public class CreationQueryWriter implements FlowWriter{
                         queryBuilder.appendForeignKeys(columnDefinition.foreignKeyReferences);
                     }
 
+                    queryBuilder.append(columnDefinition.columnName)
+                            .appendSpace();
 
-                    if (SQLiteType.containsClass(columnDefinition.columnFieldType)) {
-                        queryBuilder.append(columnDefinition.columnName)
-                                .appendSpace()
-                                .appendType(columnDefinition.columnFieldType);
+                    if(columnDefinition.hasTypeConverter) {
+                        TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.modelType);
+                        queryBuilder.appendType(typeConverterDefinition.getDbElement().asType().toString());
+                    } else if (SQLiteType.containsClass(columnDefinition.columnFieldType)) {
+                        queryBuilder.appendType(columnDefinition.columnFieldType);
                     } else if (ReflectionUtils.isSubclassOf(columnDefinition.columnFieldType, Enum.class)) {
-                        queryBuilder.append(columnDefinition.columnName)
-                                .appendSpace()
-                                .appendSQLiteType(SQLiteType.TEXT);
-                    } else {
-                        // TODO: move type converters into Annotations
-                        /*TypeConverter typeConverter = FlowManager.getTypeConverterForClass(type);
-                        if (typeConverter != null) {
-                            tableCreationQuery.append(columnName)
-                                    .appendSpace()
-                                    .appendType(typeConverter.getDatabaseType());
-                        }*/
+                        queryBuilder.appendSQLiteType(SQLiteType.TEXT);
                     }
 
                     mColumnDefinitions.add(queryBuilder.appendColumn(columnDefinition.column));

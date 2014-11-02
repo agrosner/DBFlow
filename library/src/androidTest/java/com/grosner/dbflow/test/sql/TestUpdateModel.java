@@ -1,0 +1,18 @@
+package com.grosner.dbflow.test.sql;
+
+import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ContainerAdapter;
+import com.grosner.dbflow.annotation.Table;
+import com.grosner.dbflow.test.structure.TestModel1;
+
+/**
+* Author: andrewgrosner
+* Contributors: { }
+* Description:
+*/
+@Table
+@ContainerAdapter
+public class TestUpdateModel extends TestModel1 {
+    @Column
+    String value;
+}

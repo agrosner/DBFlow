@@ -10,7 +10,7 @@ import com.grosner.dbflow.annotation.Table;
 * Description:
 */
 @Table
-class ForeignModel extends TestModel1 {
+public class ForeignModel extends TestModel1 {
     @Column(columnType = Column.FOREIGN_KEY,
             references =
                     {@ForeignKeyReference(columnName = "testmodel_id",

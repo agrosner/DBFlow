@@ -14,11 +14,6 @@ public class ForeignKeyTest extends FlowTestCase {
         return "foreignkey";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.setModelClasses(TestModel1.class, ForeignModel.class);
-    }
-
     // region Test Foreign Key
 
     public void testForeignKey() {

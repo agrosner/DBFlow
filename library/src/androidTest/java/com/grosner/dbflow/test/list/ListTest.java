@@ -25,11 +25,6 @@ public class ListTest extends FlowTestCase {
         return "list";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-
-    }
-
     public void testTableList() {
         List<TestModel1> testModel1s = GenerationUtils.generateRandomModels(100);
 

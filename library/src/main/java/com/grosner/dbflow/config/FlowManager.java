@@ -29,8 +29,7 @@ public class FlowManager {
         ModelAdapter modelAdapter = getModelAdapter(table);
         String tableName = null;
         if(modelAdapter == null) {
-            Class persistentClass = (Class) ((ParameterizedType) table.getGenericSuperclass()).getActualTypeArguments()[0];
-            if(persistentClass.isAssignableFrom(BaseModelView.class)) {
+            if(table.isAssignableFrom(BaseModelView.class)) {
                 tableName = getManagerForTable(table).getModelViewAdapterForTable((Class<? extends BaseModelView>) table).getViewName();
             }
         } else {

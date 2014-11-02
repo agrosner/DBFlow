@@ -2,6 +2,7 @@ package com.grosner.dbflow.structure.container;
 
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.SqlUtils;
+import com.grosner.dbflow.structure.InvalidDBConfiguration;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelAdapter;
 
@@ -37,6 +38,11 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         mModelAdapter = FlowManager.getModelAdapter(table);
         mContainerAdapter = FlowManager.getContainerAdapter(table);
         mData = data;
+
+        if(mContainerAdapter == null) {
+            throw new InvalidDBConfiguration("The table" + FlowManager.getTableName(table) + " did not specify the ContainerAdapter" +
+                    "annotation. Please add and rebuild");
+        }
     }
 
     @Override
