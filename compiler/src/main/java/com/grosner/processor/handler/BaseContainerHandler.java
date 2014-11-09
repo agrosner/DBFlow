@@ -14,10 +14,11 @@ import java.util.Set;
  * Contributors: { }
  * Description:
  */
-public abstract class BaseContainerHandler<AnnotationClass extends Annotation> {
+public abstract class BaseContainerHandler<AnnotationClass extends Annotation> implements Handler {
 
-    public BaseContainerHandler(Class<AnnotationClass> annotationClass, RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
-        final Set<Element> annotatedElements = Sets.newHashSet(roundEnvironment.getElementsAnnotatedWith(annotationClass));
+    @Override
+    public void handle(ProcessorManager processorManager, RoundEnvironment roundEnvironment) {
+        final Set<Element> annotatedElements = Sets.newHashSet(roundEnvironment.getElementsAnnotatedWith(getAnnotationClass()));
         processElements(processorManager, (Set<Element>) annotatedElements);
         if (annotatedElements.size() > 0) {
             Iterator<? extends Element> iterator = annotatedElements.iterator();
@@ -29,6 +30,8 @@ public abstract class BaseContainerHandler<AnnotationClass extends Annotation> {
             }
         }
     }
+
+    protected abstract Class<AnnotationClass> getAnnotationClass();
 
     public void processElements(ProcessorManager processorManager, Set<Element> annotatedElements) {
 

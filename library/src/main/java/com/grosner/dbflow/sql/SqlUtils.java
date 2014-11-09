@@ -190,6 +190,9 @@ public class SqlUtils {
             if (!exists) {
                 long id = db.insert(modelAdapter.getTableName(), null, contentValues);
 
+                if(id != 0) {
+
+                }
                 // TODO: add a method for primary increment fields
                 /*Collection<Field> primaryFields = flowManager.getTableStructureForClass(model.getClass()).getPrimaryKeys();
                 for (Field field : primaryFields) {

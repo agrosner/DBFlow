@@ -3,10 +3,13 @@ package com.grosner.dbflow.config;
 import android.content.Context;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.*;
 import com.grosner.dbflow.structure.container.ContainerAdapter;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Author: andrewgrosner
@@ -29,8 +32,9 @@ public class FlowManager {
         ModelAdapter modelAdapter = getModelAdapter(table);
         String tableName = null;
         if(modelAdapter == null) {
-            if(table.isAssignableFrom(BaseModelView.class)) {
-                tableName = getManagerForTable(table).getModelViewAdapterForTable((Class<? extends BaseModelView>) table).getViewName();
+            ModelViewAdapter modelViewAdapter = getManagerForTable(table).getModelViewAdapterForTable((Class<? extends BaseModelView>) table);
+            if(modelViewAdapter != null) {
+                tableName = modelViewAdapter.getViewName();
             }
         } else {
             tableName = modelAdapter.getTableName();
@@ -54,6 +58,28 @@ public class FlowManager {
         }
 
         BaseFlowManager flowManager = mManagerHolder.getFlowManagerForTable(table);
+        if (flowManager == null) {
+            throw new InvalidDBConfiguration();
+        }
+        return flowManager;
+    }
+
+    /**
+     * Returns the corresponding {@link com.grosner.dbflow.config.FlowManager} for the specified model
+     *
+     * @param table
+     * @return
+     */
+    public static BaseFlowManager getManager(String databaseName) {
+        if(mManagerHolder == null) {
+            try {
+                mManagerHolder = (FlowManagerHolder) Class.forName("com.grosner.dbflow.config.FlowManager$Holder").newInstance();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        BaseFlowManager flowManager = mManagerHolder.getFlowManager(databaseName);
         if (flowManager == null) {
             throw new InvalidDBConfiguration();
         }
@@ -140,6 +166,10 @@ public class FlowManager {
     @SuppressWarnings("unchecked")
     public static <ModelViewClass extends BaseModelView<? extends Model>> ModelViewAdapter<? extends Model, ModelViewClass> getModelViewAdapter(Class<ModelViewClass> modelViewClass) {
         return FlowManager.getManagerForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
+    }
+
+    static Map<Integer, List<Migration>> getMigrations(String databaseName) {
+        return getManager(databaseName).getMigrations();
     }
 
     // endregion

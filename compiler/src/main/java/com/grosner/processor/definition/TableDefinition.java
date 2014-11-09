@@ -6,6 +6,7 @@ import com.grosner.dbflow.annotation.Table;
 import com.grosner.processor.Classes;
 import com.grosner.processor.DBFlowProcessor;
 import com.grosner.processor.model.ProcessorManager;
+import com.grosner.processor.utils.WriterUtils;
 import com.grosner.processor.writer.*;
 import com.squareup.javawriter.JavaWriter;
 
@@ -161,6 +162,15 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         for (FlowWriter writer : mMethodWriters) {
             writer.write(javaWriter);
         }
+
+        javaWriter.emitEmptyLine();
+        javaWriter.emitAnnotation(Override.class);
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return new %1s()", getQualifiedModelClassName());
+            }
+        }, getQualifiedModelClassName(), "newInstance", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
 
         javaWriter.endType();
         javaWriter.close();

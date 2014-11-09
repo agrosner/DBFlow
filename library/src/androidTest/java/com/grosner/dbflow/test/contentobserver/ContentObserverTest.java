@@ -1,6 +1,5 @@
 package com.grosner.dbflow.test.contentobserver;
 
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.runtime.FlowContentObserver;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;

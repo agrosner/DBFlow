@@ -7,6 +7,10 @@ import com.grosner.dbflow.annotation.Database;
  * Contributors: { }
  * Description:
  */
-@Database(name = "App", version = 1, foreignKeysSupported = true)
+@Database(name = AppDatabase.NAME, version = AppDatabase.VERSION, foreignKeysSupported = true)
 public class AppDatabase {
+
+    public static final String NAME = "App";
+
+    public static final int VERSION = 1;
 }

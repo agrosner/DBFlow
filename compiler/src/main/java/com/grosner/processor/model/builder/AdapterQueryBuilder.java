@@ -34,9 +34,9 @@ public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
         return append("(").appendParenthesisEnclosed(type);
     }
 
-    public AdapterQueryBuilder appendTypeConverter(String fieldReturnType, String modelClassName) {
+    public AdapterQueryBuilder appendTypeConverter(String fieldReturnType, String modelClassName, boolean isLoading) {
         return appendCast(fieldReturnType).append("FlowManager.getTypeConverterForClass(")
                 .append(ModelUtils.getFieldClass(modelClassName)).append(")")
-                .append(".getDBValue(");
+                .append(isLoading ?  ".getModelValue(": ".getDBValue(");
     }
 }

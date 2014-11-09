@@ -5,6 +5,7 @@ import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.structure.InvalidDBConfiguration;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelAdapter;
+import org.json.JSONObject;
 
 /**
  * Author: andrewgrosner
@@ -52,6 +53,22 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         }
 
         return mModel;
+    }
+
+    protected abstract BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
+
+
+    @SuppressWarnings("unchecked")
+    protected Object getModelValue(Object inValue, String columnName) {
+        ContainerAdapter<? extends Model> containerAdapter = FlowManager.getContainerAdapter(getTable());
+        Class<? extends Model> columnClass = (Class<? extends Model>) containerAdapter.getClassForColumn(columnName);
+        ContainerAdapter<? extends Model> columnAdapter = FlowManager.getContainerAdapter(columnClass);
+        if(columnAdapter != null) {
+            inValue = columnAdapter.toModel(getInstance(inValue, columnClass));
+        } else {
+            throw new RuntimeException("Column: " + columnName + "'s class needs to add the @ContainerAdapter annotation");
+        }
+        return inValue;
     }
 
     @Override

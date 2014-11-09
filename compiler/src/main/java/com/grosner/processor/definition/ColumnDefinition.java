@@ -215,7 +215,7 @@ public class ColumnDefinition implements FlowWriter {
         queryBuilder.appendSpaceSeparated("=");
 
         if(hasTypeConverter) {
-            queryBuilder.appendTypeConverter(columnFieldType, columnFieldType);
+            queryBuilder.appendTypeConverter(columnFieldType, columnFieldType, true);
         } else {
             queryBuilder.appendCast(isModelContainer ? modelContainerType : columnFieldType);
         }

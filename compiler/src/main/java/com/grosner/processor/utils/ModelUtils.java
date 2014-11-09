@@ -46,7 +46,7 @@ public class ModelUtils {
         String accessStatement = getAccessStatement(localColumnName, castedClass,
                 foreignColumnName, isContainer, isModelContainer, isForeignKey, requiresTypeConverter);
         if(requiresTypeConverter) {
-            contentValue.appendTypeConverter(castedClass, databaseTypeName);
+            contentValue.appendTypeConverter(castedClass, databaseTypeName, false);
         }
         return contentValue.append(accessStatement).append(")").append(requiresTypeConverter ? "))" : "").getQuery();
     }
@@ -115,7 +115,7 @@ public class ModelUtils {
         }
         String cursorStatment = ModelUtils.getCursorStatement(newFieldType, columnName);
         if(hasTypeConverter && !isModelContainerDefinition) {
-            queryBuilder.appendTypeConverter(columnFieldType, columnFieldType);
+            queryBuilder.appendTypeConverter(columnFieldType, columnFieldType, true);
         }
 
         queryBuilder.append(cursorStatment);

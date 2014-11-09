@@ -76,4 +76,6 @@ public class Classes {
     public static final String BASE_FLOW_MANAGER = FLOW_MANAGER_PACKAGE + ".BaseFlowManager";
 
     public static final String MODEL_VIEW_ADAPTER = STRUCTURE + "ModelViewAdapter";
+
+    public static final String MIGRATION = SQL + "migration.Migration";
 }

@@ -25,8 +25,9 @@ public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
             SqlDateConverter.class,
     };
 
-    public TypeConverterHandler(RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
-        super(TypeConverter.class, roundEnvironment, processorManager);
+    @Override
+    protected Class<TypeConverter> getAnnotationClass() {
+        return TypeConverter.class;
     }
 
     @Override

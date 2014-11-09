@@ -4,6 +4,7 @@ import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.ContainerAdapter;
 import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.annotation.Table;
+import com.grosner.dbflow.test.TestDatabase;
 import com.grosner.dbflow.test.structure.TestModel1;
 
 /**
@@ -11,7 +12,7 @@ import com.grosner.dbflow.test.structure.TestModel1;
 * Contributors: { }
 * Description:
 */
-@Table(value = "TestModelContainer")
+@Table(value = "TestModelContainer", databaseName = TestDatabase.NAME)
 @ContainerAdapter
 public class TestModelContainerClass extends TestModel1 {
 

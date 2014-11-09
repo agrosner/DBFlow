@@ -3,6 +3,7 @@ package com.grosner.dbflow.test.typeconverter;
 import android.location.Location;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.Table;
+import com.grosner.dbflow.test.TestDatabase;
 import com.grosner.dbflow.test.structure.TestModel1;
 import org.json.JSONObject;
 
@@ -14,7 +15,7 @@ import java.util.Date;
 * Contributors: { }
 * Description:
 */
-@Table
+@Table(databaseName = TestDatabase.NAME)
 public class TestType extends TestModel1 {
     @Column
     Calendar calendar;

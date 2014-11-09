@@ -16,8 +16,9 @@ import java.io.IOException;
  */
 public class TableHandler extends BaseContainerHandler<Table> {
 
-    public TableHandler(RoundEnvironment roundEnv, ProcessorManager manager) {
-        super(Table.class, roundEnv, manager);
+    @Override
+    protected Class<Table> getAnnotationClass() {
+        return Table.class;
     }
 
     @Override

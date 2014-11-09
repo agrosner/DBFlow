@@ -1,9 +1,12 @@
 package com.grosner.dbflow.structure.container;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.structure.Model;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Author: andrewgrosner
@@ -16,13 +19,23 @@ public class MapModel<ModelClass extends Model> extends BaseModelContainer<Model
         this(new HashMap<String, Object>(), table);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    protected BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
+        return new MapModel((Map<String, Object>) inValue, columnClass);
+    }
+
     public MapModel(Map<String, Object> map, Class<ModelClass> table) {
         super(table, map);
     }
 
     @Override
     public Object getValue(String columnName) {
-        return getData().get(columnName);
+        Object data = getData().get(columnName);
+        if(data instanceof Map) {
+            data = getModelValue(data, columnName);
+        }
+        return data;
     }
 
     @Override

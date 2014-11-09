@@ -17,8 +17,9 @@ import java.io.IOException;
  */
 public class ModelContainerHandler extends BaseContainerHandler<ContainerAdapter> {
 
-    public ModelContainerHandler(RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
-        super(ContainerAdapter.class, roundEnvironment, processorManager);
+    @Override
+    protected Class<ContainerAdapter> getAnnotationClass() {
+        return ContainerAdapter.class;
     }
 
     @Override

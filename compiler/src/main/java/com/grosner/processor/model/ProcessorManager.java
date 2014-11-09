@@ -3,17 +3,18 @@ package com.grosner.processor.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.grosner.processor.definition.ModelContainerDefinition;
-import com.grosner.processor.definition.ModelViewDefinition;
-import com.grosner.processor.definition.TableDefinition;
-import com.grosner.processor.definition.TypeConverterDefinition;
-import com.grosner.processor.writer.FlowManagerWriter;
+import com.grosner.processor.definition.*;
+import com.grosner.processor.handler.BaseContainerHandler;
+import com.grosner.processor.handler.Handler;
+import com.grosner.processor.writer.DatabaseWriter;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +24,7 @@ import java.util.Set;
  * Contributors: { }
  * Description:
  */
-public class ProcessorManager {
+public class ProcessorManager implements Handler{
 
     private ProcessingEnvironment mProcessingEnv;
 
@@ -39,10 +40,22 @@ public class ProcessorManager {
 
     private Map<String, Map<String, ModelViewDefinition>> mModelViewDefinition = Maps.newHashMap();
 
-    private List<FlowManagerWriter> mManagerWriters = Lists.newArrayList();
+    private Map<String, Map<Integer, List<MigrationDefinition>>> mMigrations = Maps.newHashMap();
+
+    private List<DatabaseWriter> mManagerWriters = Lists.newArrayList();
+
+    private List<BaseContainerHandler> mHandlers = new ArrayList<>();
 
     public ProcessorManager(ProcessingEnvironment processingEnv) {
         mProcessingEnv = processingEnv;
+    }
+
+    public void addHandlers(BaseContainerHandler...containerHandlers) {
+        for(BaseContainerHandler containerHandler: containerHandlers) {
+            if(!mHandlers.contains(containerHandler)) {
+                mHandlers.add(containerHandler);
+            }
+        }
     }
 
     public Messager getMessager() {
@@ -71,11 +84,11 @@ public class ProcessorManager {
         return mUniqueDatabases.size() == 1;
     }
 
-    public void addFlowManagerWriter(FlowManagerWriter flowManagerWriter) {
-        mManagerWriters.add(flowManagerWriter);
+    public void addFlowManagerWriter(DatabaseWriter databaseWriter) {
+        mManagerWriters.add(databaseWriter);
     }
 
-    public List<FlowManagerWriter> getManagerWriters() {
+    public List<DatabaseWriter> getManagerWriters() {
         return mManagerWriters;
     }
 
@@ -174,6 +187,44 @@ public class ProcessorManager {
             return Sets.newHashSet(mModelViewDefinition.get(databaseName).values());
         } else {
             return Sets.newHashSet();
+        }
+    }
+
+    public void addMigrationDefinition(MigrationDefinition migrationDefinition) {
+        Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = mMigrations.get(migrationDefinition.databaseName);
+        if(migrationDefinitionMap == null) {
+            migrationDefinitionMap = Maps.newHashMap();
+            mMigrations.put(migrationDefinition.databaseName, migrationDefinitionMap);
+        }
+
+        List<MigrationDefinition> migrationDefinitions = migrationDefinitionMap.get(migrationDefinition.version);
+        if(migrationDefinitions == null) {
+            migrationDefinitions = Lists.newArrayList();
+            migrationDefinitionMap.put(migrationDefinition.version, migrationDefinitions);
+        }
+
+        if(!migrationDefinitions.contains(migrationDefinition)) {
+            migrationDefinitions.add(migrationDefinition);
+        }
+    }
+
+    public Map<Integer, List<MigrationDefinition>> getMigrationsForDatabase(String databaseName) {
+        if(hasOneDatabase()) {
+            databaseName = "";
+        }
+
+        Map<Integer, List<MigrationDefinition>> migrationDefinitions = mMigrations.get(databaseName);
+        if(migrationDefinitions != null) {
+            return migrationDefinitions;
+        } else {
+            return Maps.newHashMap();
+        }
+    }
+
+    @Override
+    public void handle(ProcessorManager processorManager, RoundEnvironment roundEnvironment) {
+        for(BaseContainerHandler containerHandler: mHandlers) {
+            containerHandler.handle(processorManager, roundEnvironment);
         }
     }
 }

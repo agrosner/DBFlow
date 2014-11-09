@@ -4,10 +4,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.list.FlowCursorList;
 import com.grosner.dbflow.list.FlowTableList;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
+import com.grosner.dbflow.sql.language.Delete;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
 import com.grosner.dbflow.test.utils.GenerationUtils;
@@ -26,6 +26,9 @@ public class ListTest extends FlowTestCase {
     }
 
     public void testTableList() {
+
+        new Delete().from(TestModel1.class).where().query();
+
         List<TestModel1> testModel1s = GenerationUtils.generateRandomModels(100);
 
         FlowTableList<TestModel1> flowTableList = new FlowTableList<TestModel1>(TestModel1.class);
@@ -51,9 +54,9 @@ public class ListTest extends FlowTestCase {
 
     private class TestModelAdapter extends BaseAdapter {
 
-        private FlowCursorList<TestModel1> mFlowCursorList;
+        private FlowCursorList<ListModel> mFlowCursorList;
 
-        public TestModelAdapter(FlowCursorList<TestModel1> flowCursorList) {
+        public TestModelAdapter(FlowCursorList<ListModel> flowCursorList) {
             mFlowCursorList = flowCursorList;
         }
 
@@ -63,7 +66,7 @@ public class ListTest extends FlowTestCase {
         }
 
         @Override
-        public TestModel1 getItem(int position) {
+        public ListModel getItem(int position) {
             return mFlowCursorList.getItem(position);
         }
 
@@ -81,17 +84,19 @@ public class ListTest extends FlowTestCase {
 
     public void testCursorList() {
 
-        final List<TestModel1> testModel1s = GenerationUtils.generateRandomModels(50);
+        new Delete().from(ListModel.class).where().query();
 
-        FlowCursorList<TestModel1> flowCursorList = new FlowCursorList<TestModel1>(true, TestModel1.class);
+        final List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 50);
+
+        FlowCursorList<ListModel> flowCursorList = new FlowCursorList<>(true, ListModel.class);
 
         TestModelAdapter modelAdapter = new TestModelAdapter(flowCursorList);
 
         assertTrue(testModel1s.size() == modelAdapter.getCount());
 
-        flowCursorList.fetchAll(new ResultReceiver<List<TestModel1>>() {
+        flowCursorList.fetchAll(new ResultReceiver<List<ListModel>>() {
             @Override
-            public void onResultReceived(List<TestModel1> models) {
+            public void onResultReceived(List<ListModel> models) {
                 assertTrue(models.size() == testModel1s.size());
             }
         });

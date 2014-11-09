@@ -39,4 +39,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     @Override
     public abstract String getTableName();
+
+    public abstract ModelClass newInstance();
 }

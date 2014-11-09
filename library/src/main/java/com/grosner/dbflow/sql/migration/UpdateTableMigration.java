@@ -40,8 +40,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * @param table            The table to update
      * @param migrationVersion The version of the db to update at.
      */
-    public UpdateTableMigration(Class<ModelClass> table, int migrationVersion) {
-        super(migrationVersion);
+    public UpdateTableMigration(Class<ModelClass> table) {
         mTable = table;
     }
 

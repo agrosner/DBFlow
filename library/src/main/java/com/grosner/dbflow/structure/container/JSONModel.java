@@ -40,25 +40,18 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    protected BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
+        return new JSONModel((JSONObject) inValue, columnClass);
+    }
+
+    @Override
     public Object getValue(String columnName) {
         Object value = getData().opt(columnName);
         if(value != null && value instanceof JSONObject) {
-            value = getModelValue(value);
+            value = getModelValue(value, columnName);
         }
         return value;
-    }
-
-    /**
-     * Taps into the {@link com.grosner.dbflow.structure.container.ContainerAdapter} for converting the json into a model
-     * @param inValue
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private Object getModelValue(Object inValue) {
-        Class<? extends Model> modelClass = (Class<? extends Model>) inValue.getClass();
-        ContainerAdapter<? extends Model> containerAdapter = FlowManager.getContainerAdapter(modelClass);
-        inValue = containerAdapter.toModel(new JSONModel((JSONObject) inValue, modelClass));
-        return inValue;
     }
 
     @Override

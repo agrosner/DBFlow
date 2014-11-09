@@ -16,10 +16,6 @@ import java.io.IOException;
  */
 public class ModelViewHandler extends BaseContainerHandler<ModelView> {
 
-    public ModelViewHandler(RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
-        super(ModelView.class, roundEnvironment, processorManager);
-    }
-
     @Override
     protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
         ModelViewDefinition modelViewDefinition = new ModelViewDefinition(processorManager, packageName, element);
@@ -35,5 +31,10 @@ public class ModelViewHandler extends BaseContainerHandler<ModelView> {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected Class<ModelView> getAnnotationClass() {
+        return ModelView.class;
     }
 }

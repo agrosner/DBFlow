@@ -34,8 +34,6 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private DatabaseHelperListener mListener;
     private BaseFlowManager mManager;
 
-    private SparseArray<List<Migration>> mMigrations;
-
     public FlowSQLiteOpenHelper(BaseFlowManager flowManager) {
         super(FlowManager.getContext(), flowManager.getDatabaseName(), null, flowManager.getDatabaseVersion());
         mManager = flowManager;
@@ -149,13 +147,6 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                     database.execSQL(modelAdapter.getCreationQuery());
                 }
 
-                /*Collection<TableStructure> tableStructures = mManager.getStructure().getModelAdapter().values();
-                for (TableStructure tableStructure : tableStructures) {
-                    if (!tableStructure.isModelView()) {
-                        database.execSQL(tableStructure.getCreationQuery().getQuery());
-                    }
-                }*/
-
                 // create our model views
                 List<ModelViewAdapter> modelViews = mManager.getModelViewAdapters();
                 for (ModelViewAdapter modelView : modelViews) {
@@ -198,12 +189,13 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e);
         }
 
-        if (mMigrations != null) {
+        Map<Integer, List<Migration>> migrationMap = mManager.getMigrations();
+        if (migrationMap != null) {
             int curVersion = oldVersion + 1;
 
             // execute migrations in order
             for (int i = curVersion; i <= newVersion; i++) {
-                List<Migration> migrationsList = mMigrations.get(i);
+                List<Migration> migrationsList = migrationMap.get(i);
                 if (migrationsList != null) {
                     for (Migration migration : migrationsList) {
 

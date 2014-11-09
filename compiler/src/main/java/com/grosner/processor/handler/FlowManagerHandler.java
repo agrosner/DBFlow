@@ -4,8 +4,8 @@ import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Database;
 import com.grosner.processor.Classes;
 import com.grosner.processor.model.ProcessorManager;
-import com.grosner.processor.writer.FlowManagerWriter;
-import com.grosner.processor.writer.FlowManagerHolder;
+import com.grosner.processor.writer.DatabaseWriter;
+import com.grosner.processor.writer.FlowManagerHolderWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -36,16 +36,19 @@ public class FlowManagerHandler extends BaseContainerHandler<Database> {
     public static final String FLOW_SQL_LITE_OPEN_HELPER_FIELD_NAME = "mHelper";
     public static final String IS_RESETTING = "isResetting";
     public static final String MANAGER_MAP_NAME = "mManagerMap";
+    public static final String MANAGER_NAME_MAP = "mManagerNameMap";
+    public static final String MIGRATION_FIELD_NAME = "mMigrationMap";
 
     public static final String MODEL_VIEW_ADAPTER_MAP_FIELD_NAME = "mModelViewAdapterMap";
 
-    public FlowManagerHandler(RoundEnvironment roundEnvironment, ProcessorManager processorManager) {
-        super(Database.class, roundEnvironment, processorManager);
+    @Override
+    public void handle(ProcessorManager processorManager, RoundEnvironment roundEnvironment) {
+        super.handle(processorManager, roundEnvironment);
         if (roundEnvironment.processingOver()) {
             try {
                 JavaWriter staticFlowManager = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
                         .createSourceFile(Classes.FLOW_MANAGER_PACKAGE + "." + Classes.FLOW_MANAGER_STATIC_CLASS_NAME).openWriter());
-                new FlowManagerHolder(processorManager).write(staticFlowManager);
+                new FlowManagerHolderWriter(processorManager).write(staticFlowManager);
 
                 staticFlowManager.close();
             } catch (IOException e) {
@@ -55,12 +58,17 @@ public class FlowManagerHandler extends BaseContainerHandler<Database> {
 
     }
 
+    @Override
+    protected Class<Database> getAnnotationClass() {
+        return Database.class;
+    }
+
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
         try {
 
-            FlowManagerWriter managerWriter = new FlowManagerWriter(processorManager, packageName, element);
+            DatabaseWriter managerWriter = new DatabaseWriter(processorManager, packageName, element);
             JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
                     .createSourceFile(managerWriter.getFQCN()).openWriter());
             managerWriter.write(javaWriter);

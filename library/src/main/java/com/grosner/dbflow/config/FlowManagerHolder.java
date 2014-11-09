@@ -14,6 +14,8 @@ public interface FlowManagerHolder {
 
     public BaseFlowManager getFlowManagerForTable(Class<?> clazz);
 
+    public BaseFlowManager getFlowManager(String databaseName);
+
     void putFlowManagerForTable(Class<? extends Model> table, BaseFlowManager baseFlowManager);
 
 }

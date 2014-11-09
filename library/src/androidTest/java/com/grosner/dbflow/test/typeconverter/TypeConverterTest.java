@@ -2,7 +2,7 @@ package com.grosner.dbflow.test.typeconverter;
 
 import android.location.Location;
 
-import com.grosner.dbflow.config.DBConfiguration;
+import com.grosner.dbflow.sql.language.Delete;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.test.FlowTestCase;
 
@@ -24,6 +24,9 @@ public class TypeConverterTest extends FlowTestCase {
     }
 
     public void testConverters() {
+
+        new Delete().from(TestType.class).where().query();
+
         TestType testType = new TestType();
         testType.name = "Name";
 

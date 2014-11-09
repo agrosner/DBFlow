@@ -3,6 +3,7 @@ package com.grosner.processor.writer;
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Database;
 import com.grosner.processor.Classes;
+import com.grosner.processor.definition.MigrationDefinition;
 import com.grosner.processor.definition.ModelContainerDefinition;
 import com.grosner.processor.definition.ModelViewDefinition;
 import com.grosner.processor.definition.TableDefinition;
@@ -15,14 +16,14 @@ import com.squareup.javawriter.JavaWriter;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Author: andrewgrosner
  * Contributors: { }
  * Description:
  */
-public class FlowManagerWriter implements FlowWriter {
+public class DatabaseWriter implements FlowWriter {
 
     private final ProcessorManager manager;
 
@@ -36,7 +37,7 @@ public class FlowManagerWriter implements FlowWriter {
 
     boolean foreignKeysSupported;
 
-    public FlowManagerWriter(ProcessorManager manager, String packageName, Element element) {
+    public DatabaseWriter(ProcessorManager manager, String packageName, Element element) {
         this.manager = manager;
         this.element = element;
         this.packageName = Classes.FLOW_MANAGER_PACKAGE;
@@ -66,7 +67,6 @@ public class FlowManagerWriter implements FlowWriter {
         javaWriter.emitEmptyLine();
 
         writeFields(javaWriter);
-        writeInitialization(javaWriter);
         writeConstructor(javaWriter);
         writeGetters(javaWriter);
 
@@ -75,20 +75,47 @@ public class FlowManagerWriter implements FlowWriter {
 
     private void writeImports(JavaWriter javaWriter) throws IOException {
         Set<String> imports = Sets.newHashSet(Classes.MODEL_ADAPTER,
-                Classes.BASE_FLOW_MANAGER,
-                Classes.FLOW_MANAGER,
                 Classes.MODEL_VIEW,
                 Classes.MODEL_VIEW_ADAPTER,
                 Classes.MODEL, Classes.CONTAINER_ADAPTER,
-                Classes.TYPE_CONVERTER, Classes.MAP,
+                Classes.MAP,
                 Classes.HASH_MAP, Classes.LIST,
-                Classes.ARRAY_LIST);
+                Classes.ARRAY_LIST, Classes.MIGRATION);
 
         javaWriter.emitImports(imports);
     }
 
-    private void writeInitialization(JavaWriter javaWriter) throws IOException {
-        javaWriter.beginInitializer(false);
+    private void writeConstructor(JavaWriter javaWriter) throws IOException {
+        javaWriter.emitEmptyLine();
+
+        javaWriter.beginConstructor(Sets.newHashSet(Modifier.PUBLIC), "FlowManagerHolder", "holder");
+        // Register this manager with classes if multitable is enabled.
+        // Need to figure out how to
+        for (TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {
+            javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+        }
+
+        for(ModelViewDefinition modelViewDefinition: manager.getModelViewDefinitions(databaseName)) {
+            javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+        }
+
+        javaWriter.emitEmptyLine();
+        javaWriter.emitSingleLineComment("Begin Migrations");
+        Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = manager.getMigrationsForDatabase(databaseName);
+        if(migrationDefinitionMap != null && !migrationDefinitionMap.isEmpty()) {
+            List<Integer> versionSet = new ArrayList<>(migrationDefinitionMap.keySet());
+            Collections.sort(versionSet);
+            for (Integer version : versionSet) {
+                List<MigrationDefinition> migrationDefinitions = migrationDefinitionMap.get(version);
+                javaWriter.emitStatement("List<%1s> migrations%1s = new ArrayList<>()", Classes.MIGRATION, version);
+                javaWriter.emitStatement("%1s.put(%1s,%1s%1s)", FlowManagerHandler.MIGRATION_FIELD_NAME, version, "migrations", version);
+                for (MigrationDefinition migrationDefinition : migrationDefinitions) {
+                    javaWriter.emitStatement("%1s%1s.add(new %1s())", "migrations", version, migrationDefinition.getMigrationClassName());
+                }
+            }
+        }
+        javaWriter.emitSingleLineComment("End Migrations");
+        javaWriter.emitEmptyLine();
 
         for(TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {
             javaWriter.emitStatement(FlowManagerHandler.MODEL_FIELD_NAME +".add(%1s)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
@@ -107,27 +134,17 @@ public class FlowManagerWriter implements FlowWriter {
                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()), modelViewDefinition.getFQCN());
         }
 
-        javaWriter.endInitializer();
-    }
-
-    private void writeConstructor(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitEmptyLine();
-
-        javaWriter.beginConstructor(Sets.newHashSet(Modifier.PUBLIC), "FlowManagerHolder", "holder");
-        // Register this manager with classes if multitable is enabled.
-        // Need to figure out how to
-        for (TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {
-            javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
-        }
-
-        for(ModelViewDefinition modelViewDefinition: manager.getModelViewDefinitions(databaseName)) {
-            javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
-        }
-
         javaWriter.endConstructor();
     }
 
     private void writeFields(JavaWriter javaWriter) throws IOException {
+
+        // Migrations
+        javaWriter.emitField("Map<Integer, List<Migration>>", FlowManagerHandler.MIGRATION_FIELD_NAME,
+                FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
+        javaWriter.emitEmptyLine();
+
+
         // Model classes
         javaWriter.emitField("List<Class<? extends Model>>", FlowManagerHandler.MODEL_FIELD_NAME,
                 FlowManagerHandler.FIELD_MODIFIERS, "new ArrayList<>()");
@@ -222,6 +239,15 @@ public class FlowManagerWriter implements FlowWriter {
                 javaWriter.emitStatement("return new ArrayList(%1s.values())", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME);
             }
         }, "List<ModelViewAdapter>", "getModelViewAdapters", FlowManagerHandler.METHOD_MODIFIERS);
+
+        // Get Migrations
+        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
+        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return %1s", FlowManagerHandler.MIGRATION_FIELD_NAME);
+            }
+        }, "Map<Integer, List<Migration>>", "getMigrations", FlowManagerHandler.METHOD_MODIFIERS);
 
 
         // Get Model Container

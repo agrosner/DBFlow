@@ -1,6 +1,5 @@
 package com.grosner.dbflow.test.container;
 
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.structure.container.MapModel;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;

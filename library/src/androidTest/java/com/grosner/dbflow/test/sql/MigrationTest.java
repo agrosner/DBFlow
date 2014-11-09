@@ -33,12 +33,12 @@ public class MigrationTest extends AndroidTestCase {
 
         List<String> columnNames = Arrays.asList("fraction REAL", "time INTEGER", "name2 TEXT", "number INTEGER", "blobby BLOB");
 
-        AlterTableMigration<TestModel1> renameMigration = new AlterTableMigration<TestModel1>(TestModel1.class, 2).renameFrom("TestModel");
+        AlterTableMigration<TestModel1> renameMigration = new AlterTableMigration<TestModel1>(TestModel1.class).renameFrom("TestModel");
         renameMigration.onPreMigrate();
         assertEquals("ALTER TABLE TestModel RENAME TO TestModel1", renameMigration.getRenameQuery());
         renameMigration.onPostMigrate();
 
-        AlterTableMigration<TestModel1> alterTableMigration = new AlterTableMigration<TestModel1>(TestModel1.class, 2);
+        AlterTableMigration<TestModel1> alterTableMigration = new AlterTableMigration<TestModel1>(TestModel1.class);
         alterTableMigration.addColumn(float.class, "fraction")
                 .addColumn(long.class, "time")
                 .addColumn(String.class, "name2")
@@ -68,7 +68,7 @@ public class MigrationTest extends AndroidTestCase {
 
     public void testUpdateMigration() {
         UpdateTableMigration<TestModel1> updateTableMigration
-                = new UpdateTableMigration<TestModel1>(TestModel1.class, 2)
+                = new UpdateTableMigration<TestModel1>(TestModel1.class)
                 .set(Condition.column("name").is("test")).where(Condition.column("name").is("notTest"));
         updateTableMigration.onPreMigrate();
 

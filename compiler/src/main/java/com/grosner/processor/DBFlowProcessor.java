@@ -1,17 +1,11 @@
 package com.grosner.processor;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.*;
-import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.handler.*;
 import com.grosner.processor.model.ProcessorManager;
-import com.grosner.processor.writer.FlowManagerWriter;
-import com.squareup.javawriter.JavaWriter;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -22,7 +16,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
 
 /**
  * Author: andrewgrosner
@@ -53,6 +46,7 @@ public class DBFlowProcessor extends AbstractProcessor {
         supportedTypes.add(TypeConverter.class.getName());
         supportedTypes.add(ContainerAdapter.class.getName());
         supportedTypes.add(ModelView.class.getName());
+        supportedTypes.add(Migration.class.getName());
         return supportedTypes;
     }
 
@@ -73,6 +67,13 @@ public class DBFlowProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         manager = new ProcessorManager(processingEnv);
+        manager.addHandlers(
+                new MigrationHandler(),
+                new TypeConverterHandler(),
+                new TableHandler(),
+                new ModelContainerHandler(),
+                new ModelViewHandler(),
+                new FlowManagerHandler());
     }
 
     /**
@@ -89,14 +90,7 @@ public class DBFlowProcessor extends AbstractProcessor {
             Database database = elements.get(0).getAnnotation(Database.class);
             DEFAULT_DB_NAME = database.name();
         }
-        new TypeConverterHandler(roundEnv, manager);
-
-        new TableHandler(roundEnv, manager);
-        new ModelContainerHandler(roundEnv, manager);
-
-        new ModelViewHandler(roundEnv, manager);
-
-        new FlowManagerHandler(roundEnv, manager);
+        manager.handle(manager, roundEnv);
 
         // return true if we successfully processed the Annotation.
         return true;
