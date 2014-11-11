@@ -107,6 +107,21 @@ public class Migration1 extends BaseMigration {
 
 ```
 
+## Basic Query Wrapping
+
+The SQL language is wrapped in a nice builder notation. DBFlow generates a ```$Table``` containing static final column strings to use in your queries!
+
+```java
+
+new Select().from(DeviceObject.class)
+                             .where(Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy S5"))
+                             .and(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
+                             .and(Condition.column(DeviceObject$Table.LOCATION).is(location);
+
+```
+
+To see more go to the full [tutorial](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
+
 ## Model Containers
 
 Model containers are classes that __imitate__ and use the blueprint of ```Model``` classes in order to save data such as JSON, Hashmap, or your own kind of data to the database. To create your own, extend the ```BaseModelContainer``` class or implement the ```ModelContainer``` interface. 
