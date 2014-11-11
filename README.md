@@ -62,3 +62,48 @@ public class AppDatabase {
 
 ```
 
+Second, you need to define at least one ```@Table``` class. The ```databaseName``` is only required when dealing with multiple
+databases.
+
+```java
+
+@Table(databaseName = TestDatabase.NAME)
+public class TestModel1 extends BaseModel {
+    @Column(columnType = Column.PRIMARY_KEY)
+    public
+    String name;
+}
+
+```
+
+## Prepackaged Databases
+
+So you have an existing DB you wish to include in your project. Just name the database the same as the database to copy, and put it in the ```app/src/main/assets/``` directory.
+
+## Migrations
+
+in DBFlow migrations are separate, public classes that contain both the ```@Migration``` and ```Migration```interface. If you are using multiple databases, you're required to specify it for the migration.
+
+```java
+
+@Migration(version = 2, databaseName = TestDatabase.NAME)
+public class Migration1 extends BaseMigration {
+
+    @Override
+    public void onPreMigrate() {
+      // called before migration, instantiate any migration query here
+    }
+
+    @Override
+    public void migrate(SQLiteDatabase database) {
+      // call your migration query
+    }
+
+    @Override
+    public void onPostMigrate() {
+      // release migration resources here
+    }
+}
+
+```
+
