@@ -38,7 +38,7 @@ public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
     }
 
     @Override
-    protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
+    protected void onProcessElement(ProcessorManager processorManager, Element element) {
         processorManager.addTypeConverterDefinition(new TypeConverterDefinition((TypeElement) element, processorManager));
     }
 }

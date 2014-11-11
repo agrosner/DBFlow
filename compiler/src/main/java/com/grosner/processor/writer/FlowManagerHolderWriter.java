@@ -49,7 +49,7 @@ public class FlowManagerHolderWriter implements FlowWriter {
 
         staticFlowManager.emitSingleLineComment("Registering with FlowManagerHolder");
         for(DatabaseWriter databaseWriter : processorManager.getManagerWriters()) {
-            staticFlowManager.emitStatement("new %1s(this)", databaseWriter.getFQCN());
+            staticFlowManager.emitStatement("new %1s(this)", databaseWriter.getSourceFileName());
         }
         staticFlowManager.emitEmptyLine();
 

@@ -1,5 +1,6 @@
 package com.grosner.processor.writer;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.sql.QueryBuilder;
@@ -13,6 +14,7 @@ import com.grosner.processor.definition.TypeConverterDefinition;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.model.ReflectionUtils;
 import com.grosner.processor.model.builder.TableCreationQueryBuilder;
+import com.grosner.processor.utils.ModelUtils;
 import com.grosner.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
@@ -20,6 +22,7 @@ import javax.lang.model.element.Modifier;
 import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -48,23 +51,25 @@ public class CreationQueryWriter implements FlowWriter{
                 tableCreationQuery.appendCreateTableIfNotExists(tableDefinition.tableName);
 
                 ArrayList<QueryBuilder> mColumnDefinitions = new ArrayList<QueryBuilder>();
+                List<String> foreignColumnClasses = Lists.newArrayList();
                 for(ColumnDefinition columnDefinition: tableDefinition.getColumnDefinitions()) {
 
                     TableCreationQueryBuilder queryBuilder = new TableCreationQueryBuilder();
                     if(columnDefinition.columnType == Column.FOREIGN_KEY) {
-                        queryBuilder.appendForeignKeys(columnDefinition.foreignKeyReferences);
-                    }
+                        queryBuilder.appendSpace().appendForeignKeys(columnDefinition.foreignKeyReferences);
+                    } else {
 
-                    queryBuilder.append(columnDefinition.columnName)
-                            .appendSpace();
+                        queryBuilder.append(columnDefinition.columnName)
+                                .appendSpace();
 
-                    if(columnDefinition.hasTypeConverter) {
-                        TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.modelType);
-                        queryBuilder.appendType(typeConverterDefinition.getDbElement().asType().toString());
-                    } else if (SQLiteType.containsClass(columnDefinition.columnFieldType)) {
-                        queryBuilder.appendType(columnDefinition.columnFieldType);
-                    } else if (ReflectionUtils.isSubclassOf(columnDefinition.columnFieldType, Enum.class)) {
-                        queryBuilder.appendSQLiteType(SQLiteType.TEXT);
+                        if (columnDefinition.hasTypeConverter) {
+                            TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.modelType);
+                            queryBuilder.appendType(typeConverterDefinition.getDbElement().asType().toString());
+                        } else if (SQLiteType.containsClass(columnDefinition.columnFieldType)) {
+                            queryBuilder.appendType(columnDefinition.columnFieldType);
+                        } else if (ReflectionUtils.isSubclassOf(columnDefinition.columnFieldType, Enum.class)) {
+                            queryBuilder.appendSQLiteType(SQLiteType.TEXT);
+                        }
                     }
 
                     mColumnDefinitions.add(queryBuilder.appendColumn(columnDefinition.column));
@@ -114,9 +119,9 @@ public class CreationQueryWriter implements FlowWriter{
                         }
 
                         foreignKeyQueryBuilder.appendArray(columns)
-                                .append(")").appendSpaceSeparated("REFERENCES")
-                                .append(tableDefinition.tableName)
-                                .append("(").appendArray(foreignColumns).append(")");
+                                .append(")").appendSpaceSeparated("REFERENCES %1s");
+
+                        foreignColumnClasses.add("FlowManager.getTableName(" + ModelUtils.getFieldClass(foreignKeyField.columnFieldType) + ")");
 
                         mColumnDefinitions.add(foreignKeyQueryBuilder);
                     }
@@ -127,7 +132,17 @@ public class CreationQueryWriter implements FlowWriter{
                 }
 
                 tableCreationQuery.appendList(mColumnDefinitions).append("););");
-                javaWriter.emitStatement("return \"%1s\"", tableCreationQuery.getQuery());
+                QueryBuilder returnQuery = new QueryBuilder();
+                returnQuery.append("return ");
+                if(!foreignColumnClasses.isEmpty()) {
+                    returnQuery.append("String.format(");
+                }
+                returnQuery.append("\"%1s\"");
+                if(!foreignColumnClasses.isEmpty()) {
+                    returnQuery.append(",");
+                    returnQuery.appendList(foreignColumnClasses).append(")");
+                }
+                javaWriter.emitStatement(returnQuery.getQuery(), tableCreationQuery.getQuery());
             }
         }, "String", "getCreationQuery", Sets.newHashSet(Modifier.PUBLIC));
     }

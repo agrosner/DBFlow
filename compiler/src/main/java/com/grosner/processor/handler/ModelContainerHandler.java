@@ -23,12 +23,12 @@ public class ModelContainerHandler extends BaseContainerHandler<ContainerAdapter
     }
 
     @Override
-    protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
-        ModelContainerDefinition modelContainerDefinition = new ModelContainerDefinition(packageName, (TypeElement) element, processorManager);
+    protected void onProcessElement(ProcessorManager processorManager, Element element) {
+        ModelContainerDefinition modelContainerDefinition = new ModelContainerDefinition((TypeElement) element, processorManager);
         processorManager.addModelContainerDefinition(modelContainerDefinition);
         try {
             JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                    .createSourceFile(modelContainerDefinition.getFQCN()).openWriter());
+                    .createSourceFile(modelContainerDefinition.getSourceFileName()).openWriter());
             modelContainerDefinition.write(javaWriter);
 
             javaWriter.close();

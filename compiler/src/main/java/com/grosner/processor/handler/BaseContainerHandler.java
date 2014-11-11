@@ -24,9 +24,7 @@ public abstract class BaseContainerHandler<AnnotationClass extends Annotation> i
             Iterator<? extends Element> iterator = annotatedElements.iterator();
             while (iterator.hasNext()) {
                 Element element = iterator.next();
-                final String packageName = processorManager.getElements()
-                        .getPackageOf(element).toString();
-                onProcessElement(processorManager, packageName, element);
+                onProcessElement(processorManager, element);
             }
         }
     }
@@ -37,5 +35,5 @@ public abstract class BaseContainerHandler<AnnotationClass extends Annotation> i
 
     }
 
-    protected abstract void onProcessElement(ProcessorManager processorManager, String packageName, Element element);
+    protected abstract void onProcessElement(ProcessorManager processorManager,  Element element);
 }

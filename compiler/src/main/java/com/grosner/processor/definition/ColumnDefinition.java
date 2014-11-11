@@ -28,7 +28,7 @@ import java.io.IOException;
  * Contributors: { }
  * Description:
  */
-public class ColumnDefinition implements FlowWriter {
+public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public String columnName;
 
@@ -44,15 +44,11 @@ public class ColumnDefinition implements FlowWriter {
 
     public int columnType;
 
-    public Element element;
-
     public Column column;
 
     public ForeignKeyReference[] foreignKeyReferences;
 
     public boolean isModel;
-
-    private ProcessorManager processorManager;
 
     /**
      * Whether this field is itself a model container
@@ -60,8 +56,7 @@ public class ColumnDefinition implements FlowWriter {
     public boolean isModelContainer;
 
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
-        this.processorManager = processorManager;
-        this.element = element;
+        super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
         this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
@@ -79,6 +74,8 @@ public class ColumnDefinition implements FlowWriter {
             } else if(element.asType() instanceof ArrayType) {
                 processorManager.getMessager().printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
             }
+
+            // TODO: not currently correctly supporting model containers as fields. Certainly is possible
             if (isAModelContainer) {
                 isModelContainer = true;
                 // TODO: hack for now
@@ -142,7 +139,7 @@ public class ColumnDefinition implements FlowWriter {
         javaWriter.emitEmptyLine();
     }
 
-    public void writeSaveDefinition(JavaWriter javaWriter, boolean isContainer) throws IOException {
+    public void writeSaveDefinition(JavaWriter javaWriter, boolean isModelContainerDefinition) throws IOException {
         if(columnType == Column.FOREIGN_KEY && isModel) {
             javaWriter.emitEmptyLine();
             if(isModelContainer) {
@@ -150,29 +147,52 @@ public class ColumnDefinition implements FlowWriter {
             } else {
                 javaWriter.emitSingleLineComment("Begin Saving Foreign Key References From Model");
             }
-            javaWriter.emitStatement((isContainer ? ModelUtils.getCastedValue(columnFieldType, ModelUtils.getContainerStatement(columnFieldName)) :
-                    ModelUtils.getModelStatement(columnFieldName)) + ".save(false)");
-            for(ForeignKeyReference foreignKeyReference: foreignKeyReferences) {
-                javaWriter.emitStatement(ModelUtils.getContentValueStatement(foreignKeyReference.columnName(),
-                        columnName, ModelUtils.getClassFromAnnotation(foreignKeyReference),
-                        foreignKeyReference.foreignColumnName(),
-                        isContainer, isModelContainer, true, false, columnFieldType));
+
+            if(isModelContainerDefinition) {
+                String modelContainerName = ModelUtils.getVariable(true) + columnFieldName;
+                javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.getValue(\"%1s\"), %1s.class)", modelContainerName,
+                        ModelUtils.getVariable(true), ModelUtils.getVariable(true), columnFieldName, columnFieldType);
+                javaWriter.emitStatement("%1s.save(false)", modelContainerName);
+                for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                    AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
+                    adapterQueryBuilder.appendContentValues()
+                            .appendPut(foreignKeyReference.columnName())
+                            .appendCast(ModelUtils.getClassFromAnnotation(foreignKeyReference))
+                            .append(modelContainerName)
+                            .append(".")
+                            .appendGetValue(foreignKeyReference.foreignColumnName())
+                            .append("))");
+                    javaWriter.emitStatement(adapterQueryBuilder.getQuery());
+                }
+
+            } else {
+                String modelStatement = ModelUtils.getModelStatement(columnFieldName);
+                javaWriter.beginControlFlow("if (%1s != null)", modelStatement);
+                    javaWriter.emitStatement("%1s.save(false)", modelStatement);
+                    for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                        javaWriter.emitStatement(ModelUtils.getContentValueStatement(foreignKeyReference.columnName(),
+                                columnName, ModelUtils.getClassFromAnnotation(foreignKeyReference),
+                                foreignKeyReference.foreignColumnName(),
+                                false, isModelContainer, true, false, columnFieldType));
+                    }
+                javaWriter.endControlFlow();
             }
             javaWriter.emitSingleLineComment("End");
             javaWriter.emitEmptyLine();
         } else {
-            String newFieldType;
+            String newFieldType = null;
             if(hasTypeConverter) {
-                TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(modelType);
+                TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(modelType);
                 if(typeConverterDefinition == null) {
-                    processorManager.getMessager().printMessage(Diagnostic.Kind.ERROR, String.format("No Type Converter found for %1s", modelType));
+                    manager.getMessager().printMessage(Diagnostic.Kind.ERROR, String.format("No Type Converter found for %1s", modelType));
+                } else {
+                    newFieldType = typeConverterDefinition.getDbElement().asType().toString();
                 }
-                newFieldType = typeConverterDefinition.getDbElement().asType().toString();
             } else {
                 newFieldType = columnFieldType;
             }
             javaWriter.emitStatement(ModelUtils.getContentValueStatement(columnName, columnName,
-                    newFieldType, columnFieldName, isContainer, isModelContainer, false, hasTypeConverter, columnFieldType));
+                    newFieldType, columnFieldName, isModelContainerDefinition, isModelContainer, false, hasTypeConverter, columnFieldType));
         }
     }
 
@@ -195,16 +215,35 @@ public class ColumnDefinition implements FlowWriter {
                 adapterQueryBuilder.append(rawConditionStatement);
                 javaWriter.emitStatement(adapterQueryBuilder.getQuery());
             } else {
-                for(ForeignKeyReference foreignKeyReference: foreignKeyReferences) {
-                    javaWriter.emitStatement(ModelUtils.getLoadFromCursorDefinitionField(processorManager, ModelUtils.getClassFromAnnotation(foreignKeyReference),
-                            columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(), null, false, isModelContainerDefinition, isModelContainer));
+                if(isModelContainerDefinition) {
+                    String modelContainerName = ModelUtils.getVariable(true) + columnFieldName;
+                    javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.newDataInstance(), %1s.class)",
+                            modelContainerName, ModelUtils.getVariable(true), ModelUtils.getVariable(true),
+                            columnFieldType);
+                    for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                        AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
+                        adapterQueryBuilder.append(modelContainerName)
+                                .appendPut(foreignKeyReference.foreignColumnName())
+                                .append(ModelUtils.getCursorStatement(ModelUtils.getClassFromAnnotation(foreignKeyReference),
+                                        foreignKeyReference.columnName()))
+                                .append(")");
+                        javaWriter.emitStatement(adapterQueryBuilder.getQuery());
+                    }
+
+                    javaWriter.emitStatement("%1s.put(\"%1s\",%1s.getData())", ModelUtils.getVariable(true), columnFieldName, modelContainerName);
+                } else {
+
+                    for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                        javaWriter.emitStatement(ModelUtils.getLoadFromCursorDefinitionField(manager, ModelUtils.getClassFromAnnotation(foreignKeyReference),
+                                columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(), null, false, isModelContainerDefinition, isModelContainer));
+                    }
                 }
             }
             javaWriter.emitSingleLineComment("End");
             javaWriter.emitEmptyLine();
 
         } else {
-            javaWriter.emitStatement(ModelUtils.getLoadFromCursorDefinitionField(processorManager, columnFieldType, columnFieldName,
+            javaWriter.emitStatement(ModelUtils.getLoadFromCursorDefinitionField(manager, columnFieldType, columnFieldName,
                     columnName, "", modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer));
         }
     }
@@ -219,10 +258,28 @@ public class ColumnDefinition implements FlowWriter {
         } else {
             queryBuilder.appendCast(isModelContainer ? modelContainerType : columnFieldType);
         }
-        queryBuilder.appendVariable(true).append(".").appendGetValue(columnFieldName).append(")");
+
+        if(isModel) {
+            queryBuilder.appendVariable(true)
+                    .append(".getInstance(");
+        }
+
+        queryBuilder.appendVariable(true).append(".").appendGetValue(columnFieldName);
+
+        if(!isModel) {
+            queryBuilder.append(")");
+        }
+
+        if(isModel) {
+            queryBuilder.append(",").append(ModelUtils.getFieldClass(columnFieldType)).append(")");
+        }
 
         if(hasTypeConverter) {
             queryBuilder.append(")");
+        }
+
+        if(isModel) {
+            queryBuilder.append(".toModel())");
         }
 
         javaWriter.emitStatement(queryBuilder.getQuery());

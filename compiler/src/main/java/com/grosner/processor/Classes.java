@@ -59,9 +59,7 @@ public class Classes {
 
     public static final String FLOW_MANAGER_STATIC_CLASS_NAME = "FlowManager$Holder";
 
-    public static final String FLOW_MANAGER_CLASS_NAME = "FlowManager$Generated";
-
-    public static final String FLOW_MANAGER_INTERFACE = "BaseFlowManager";
+    public static final String BASE_DATABASE_DEFINITION = "BaseDatabaseDefinition";
 
     public static final String MAP = "java.util.Map";
 
@@ -71,9 +69,7 @@ public class Classes {
 
     public static final String ARRAY_LIST = "java.util.ArrayList";
 
-    public static final String FLOW_MANAGER_STATIC_INTERFACE = FLOW_MANAGER_PACKAGE + ".FlowManagerHolder";
-
-    public static final String BASE_FLOW_MANAGER = FLOW_MANAGER_PACKAGE + ".BaseFlowManager";
+    public static final String FLOW_MANAGER_STATIC_INTERFACE = FLOW_MANAGER_PACKAGE + ".DatabaseHolder";
 
     public static final String MODEL_VIEW_ADAPTER = STRUCTURE + "ModelViewAdapter";
 

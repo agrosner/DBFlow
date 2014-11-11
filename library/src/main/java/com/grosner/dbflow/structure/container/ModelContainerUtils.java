@@ -3,7 +3,7 @@ package com.grosner.dbflow.structure.container;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.config.BaseFlowManager;
+import com.grosner.dbflow.config.BaseDatabaseDefinition;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.SqlUtils;
@@ -32,7 +32,7 @@ public class ModelContainerUtils {
     public static <ModelClass extends Model> void sync(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContentValues contentValues, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
-            BaseFlowManager flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
+            BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
             ContainerAdapter<ModelClass> containerAdapter = flowManager.getModelContainerAdapterForTable(modelContainer.getTable());
             ModelAdapter<ModelClass> modelAdapter = modelContainer.getModelAdapter();
 
@@ -55,6 +55,9 @@ public class ModelContainerUtils {
 
             if (!exists) {
                 long id = db.insert(modelAdapter.getTableName(), null, contentValues);
+                if(id != 0) {
+
+                }
 
                 /*Collection<Field> primaryKeys = tableStructure.getPrimaryKeys();
                 for (Field field : primaryKeys) {

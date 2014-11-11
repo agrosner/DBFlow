@@ -41,17 +41,18 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
 
     @Override
     @SuppressWarnings("unchecked")
-    protected BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
+    public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
         return new JSONModel((JSONObject) inValue, columnClass);
     }
 
     @Override
+    public JSONObject newDataInstance() {
+        return new JSONObject();
+    }
+
+    @Override
     public Object getValue(String columnName) {
-        Object value = getData().opt(columnName);
-        if(value != null && value instanceof JSONObject) {
-            value = getModelValue(value, columnName);
-        }
-        return value;
+        return getData().opt(columnName);
     }
 
     @Override

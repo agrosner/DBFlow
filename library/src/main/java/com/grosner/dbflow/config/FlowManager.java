@@ -7,7 +7,6 @@ import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.*;
 import com.grosner.dbflow.structure.container.ContainerAdapter;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class FlowManager {
 
     private static Context context;
 
-    private static FlowManagerHolder mManagerHolder;
+    private static DatabaseHolder mManagerHolder;
 
     /**
      * Returns the table name for the specific model class
@@ -48,16 +47,16 @@ public class FlowManager {
      * @param table
      * @return
      */
-    public static BaseFlowManager getManagerForTable(Class<? extends Model> table) {
+    public static BaseDatabaseDefinition getManagerForTable(Class<? extends Model> table) {
         if(mManagerHolder == null) {
             try {
-                mManagerHolder = (FlowManagerHolder) Class.forName("com.grosner.dbflow.config.FlowManager$Holder").newInstance();
+                mManagerHolder = (DatabaseHolder) Class.forName("com.grosner.dbflow.config.FlowManager$Holder").newInstance();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }
 
-        BaseFlowManager flowManager = mManagerHolder.getFlowManagerForTable(table);
+        BaseDatabaseDefinition flowManager = mManagerHolder.getFlowManagerForTable(table);
         if (flowManager == null) {
             throw new InvalidDBConfiguration();
         }
@@ -70,16 +69,16 @@ public class FlowManager {
      * @param table
      * @return
      */
-    public static BaseFlowManager getManager(String databaseName) {
+    public static BaseDatabaseDefinition getManager(String databaseName) {
         if(mManagerHolder == null) {
             try {
-                mManagerHolder = (FlowManagerHolder) Class.forName("com.grosner.dbflow.config.FlowManager$Holder").newInstance();
+                mManagerHolder = (DatabaseHolder) Class.forName("com.grosner.dbflow.config.FlowManager$Holder").newInstance();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }
 
-        BaseFlowManager flowManager = mManagerHolder.getFlowManager(databaseName);
+        BaseDatabaseDefinition flowManager = mManagerHolder.getFlowManager(databaseName);
         if (flowManager == null) {
             throw new InvalidDBConfiguration();
         }

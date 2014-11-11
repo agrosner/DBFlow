@@ -65,12 +65,12 @@ public class FlowManagerHandler extends BaseContainerHandler<Database> {
 
 
     @Override
-    protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
+    protected void onProcessElement(ProcessorManager processorManager, Element element) {
         try {
 
-            DatabaseWriter managerWriter = new DatabaseWriter(processorManager, packageName, element);
+            DatabaseWriter managerWriter = new DatabaseWriter(processorManager, element);
             JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                    .createSourceFile(managerWriter.getFQCN()).openWriter());
+                    .createSourceFile(managerWriter.getSourceFileName()).openWriter());
             managerWriter.write(javaWriter);
             javaWriter.close();
         } catch (IOException e) {

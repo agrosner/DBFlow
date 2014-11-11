@@ -15,15 +15,25 @@ import java.util.Set;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description: The main interface that all Flow Managers implement.
+ * Description: The main interface that all Flow Managers implement. This is for internal usage only
+ * as it will be generated for every {@link com.grosner.dbflow.annotation.Database}.
  */
-public abstract class BaseFlowManager {
+public abstract class BaseDatabaseDefinition {
 
+    /**
+     * The helper that manages database changes and initialization
+     */
     private FlowSQLiteOpenHelper mHelper;
 
+    /**
+     * Used when resetting the DB
+     */
     private boolean isResetting = false;
 
+    /**
+     * Returns a list of all model classes in this database.
+     * @return
+     */
     public abstract List<Class<? extends Model>> getModelClasses();
 
     public abstract List<ModelAdapter> getModelAdapters();

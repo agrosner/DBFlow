@@ -1,6 +1,5 @@
 package com.grosner.processor.definition;
 
-import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
 import com.grosner.dbflow.annotation.ModelView;
 import com.grosner.processor.Classes;
@@ -8,11 +7,13 @@ import com.grosner.processor.DBFlowProcessor;
 import com.grosner.processor.handler.FlowManagerHandler;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.utils.WriterUtils;
-import com.grosner.processor.writer.*;
+import com.grosner.processor.writer.ExistenceWriter;
+import com.grosner.processor.writer.FlowWriter;
+import com.grosner.processor.writer.LoadCursorWriter;
+import com.grosner.processor.writer.WhereQueryWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -30,13 +31,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     private static final String DBFLOW_MODEL_VIEW_TAG = "$View";
 
-    public final String modelViewSourceClassName;
-
-    public Element element;
-
     public String databaseName;
-
-    public String packageName;
 
     private String query;
 
@@ -44,15 +39,11 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     private TypeElement modelReferenceClass;
 
-    private ProcessorManager manager;
-
     private FlowWriter[] mMethodWriters;
 
-    public ModelViewDefinition(ProcessorManager manager, String packageName, Element element) {
-        super(element);
-        this.manager = manager;
-        this.element = element;
-        this.packageName = packageName;
+    public ModelViewDefinition(ProcessorManager manager, Element element) {
+        super(element, manager);
+        setDefinitionClassName(DBFLOW_MODEL_VIEW_TAG);
 
         ModelView modelView = element.getAnnotation(ModelView.class);
         this.query = modelView.query();
@@ -84,8 +75,6 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
             final List<? extends TypeMirror> typeArguments = typeAdapterInterface.getTypeArguments();
             modelReferenceClass = manager.getElements().getTypeElement(typeArguments.get(0).toString());
         }
-
-        this.modelViewSourceClassName = getModelClassName() + DBFLOW_MODEL_VIEW_TAG;
 
         createColumnDefinitions((TypeElement) element);
 
@@ -120,31 +109,26 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
         return packageName + "." + getModelClassName();
     }
 
-    public String getFQCN() {
-        return packageName + "." + modelViewSourceClassName;
-    }
-
     @Override
     public String getTableSourceClassName() {
         return modelReferenceClass + TableDefinition.DBFLOW_TABLE_TAG;
     }
 
     @Override
-    public void write(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitPackage(packageName);
-
-        javaWriter.emitImports(Classes.CURSOR, Classes.SELECT, Classes.CONDITION_QUERY_BUILDER,
-                Classes.CONDITION);
-
-        javaWriter.beginType(modelViewSourceClassName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
-                String.format("%1s<%1s,%1s>", Classes.MODEL_VIEW_ADAPTER, modelReferenceClass, getModelClassName()));
-
-        writeMethods(javaWriter);
-
-        javaWriter.endType();
+    protected String[] getImports() {
+        return new String[] {
+                Classes.CURSOR, Classes.SELECT, Classes.CONDITION_QUERY_BUILDER,
+                Classes.CONDITION
+        };
     }
 
-    private void writeMethods(JavaWriter javaWriter) throws IOException {
+    @Override
+    protected String getExtendsClass() {
+        return String.format("%1s<%1s,%1s>", Classes.MODEL_VIEW_ADAPTER, modelReferenceClass, getModelClassName());
+    }
+
+    @Override
+    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
         for (FlowWriter writer: mMethodWriters) {
             writer.write(javaWriter);
         }

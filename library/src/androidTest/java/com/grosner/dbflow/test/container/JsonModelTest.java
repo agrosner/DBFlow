@@ -21,7 +21,7 @@ public class JsonModelTest extends FlowTestCase {
     public void testJsonModel() {
         try {
             JSONObject jsonObject = new JSONObject("{" +
-                    "name: test" +
+                    "name: testModel" +
                     "}");
             JSONModel<TestModel1> testJsonModel1 = new JSONModel<TestModel1>(jsonObject, TestModel1.class);
             testJsonModel1.save(false);
@@ -44,6 +44,11 @@ public class JsonModelTest extends FlowTestCase {
             assertTrue(testJsonModel.exists());
             assertNotNull(testJsonModel.toModel());
             assertNotNull(testJsonModel.toModel().testModel);
+
+            testJsonModel.delete(false);
+            testJsonModel1.delete(false);
+            assertFalse(testJsonModel1.exists());
+            assertFalse(testJsonModel.exists());
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

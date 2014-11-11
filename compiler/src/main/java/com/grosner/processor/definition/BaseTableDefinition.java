@@ -12,15 +12,14 @@ import java.util.List;
  * Contributors: { }
  * Description:
  */
-public abstract class BaseTableDefinition {
+public abstract class BaseTableDefinition extends BaseDefinition {
 
     protected List<ColumnDefinition> columnDefinitions;
 
-    protected ProcessorManager manager;
-
     private String modelClassName;
 
-    public BaseTableDefinition(Element typeElement) {
+    public BaseTableDefinition(Element typeElement, ProcessorManager processorManager) {
+        super(typeElement, processorManager);
         this.modelClassName = typeElement.getSimpleName().toString();
         columnDefinitions = new ArrayList<>();
     }
@@ -33,9 +32,9 @@ public abstract class BaseTableDefinition {
 
     public abstract List<ColumnDefinition> getPrimaryColumnDefinitions();
 
-    public abstract String getTableSourceClassName();
-
     public String getModelClassName() {
         return modelClassName;
     }
+
+    public abstract String getTableSourceClassName();
 }

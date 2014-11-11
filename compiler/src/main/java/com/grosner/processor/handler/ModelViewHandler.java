@@ -17,12 +17,12 @@ import java.io.IOException;
 public class ModelViewHandler extends BaseContainerHandler<ModelView> {
 
     @Override
-    protected void onProcessElement(ProcessorManager processorManager, String packageName, Element element) {
-        ModelViewDefinition modelViewDefinition = new ModelViewDefinition(processorManager, packageName, element);
+    protected void onProcessElement(ProcessorManager processorManager, Element element) {
+        ModelViewDefinition modelViewDefinition = new ModelViewDefinition(processorManager, element);
 
         try {
             JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment()
-                    .getFiler().createSourceFile(modelViewDefinition.getFQCN()).openWriter());
+                    .getFiler().createSourceFile(modelViewDefinition.getSourceFileName()).openWriter());
             modelViewDefinition.write(javaWriter);
 
             processorManager.addModelViewDefinition(modelViewDefinition);

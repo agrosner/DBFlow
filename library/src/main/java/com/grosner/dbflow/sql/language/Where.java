@@ -3,9 +3,9 @@ package com.grosner.dbflow.sql.language;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 
+import com.grosner.dbflow.config.BaseDatabaseDefinition;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.config.BaseFlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.QueryTransaction;
@@ -35,7 +35,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     /**
      * The database manager we run this query on
      */
-    private final BaseFlowManager mManager;
+    private final BaseDatabaseDefinition mManager;
     /**
      * Helps to build the where statement easily
      */

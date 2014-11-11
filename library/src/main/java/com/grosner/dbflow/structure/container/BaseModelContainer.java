@@ -55,7 +55,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         return mModel;
     }
 
-    protected abstract BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
+    public abstract BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
 
 
     @SuppressWarnings("unchecked")

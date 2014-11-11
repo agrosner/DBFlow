@@ -14,28 +14,18 @@ import java.io.IOException;
  * Contributors: { }
  * Description:
  */
-public class MigrationDefinition implements FlowWriter {
+public class MigrationDefinition extends BaseDefinition implements FlowWriter {
 
 
     public static final String DBFLOW_MIGRATION_CONTAINER_TAG = "$Migrations";
-
-    public final TypeElement classElement;
-
-    private final ProcessorManager manager;
-
-    private String sourceFileName;
-
-    private String packageName;
 
     public String databaseName;
 
     public Integer version;
 
-    public MigrationDefinition(String packageName, ProcessorManager processorManager, TypeElement typeElement) {
-        this.classElement = typeElement;
-        this.manager = processorManager;
-        this.sourceFileName = classElement.getSimpleName().toString() + DBFLOW_MIGRATION_CONTAINER_TAG;
-        this.packageName = packageName;
+    public MigrationDefinition(ProcessorManager processorManager, TypeElement typeElement) {
+        super(typeElement, processorManager);
+        setDefinitionClassName("");
 
         Migration migration = typeElement.getAnnotation(Migration.class);
 
@@ -45,10 +35,6 @@ public class MigrationDefinition implements FlowWriter {
         }
 
         version = migration.version();
-    }
-
-    public String getMigrationClassName() {
-        return packageName + "." + classElement.getSimpleName().toString();
     }
 
     @Override

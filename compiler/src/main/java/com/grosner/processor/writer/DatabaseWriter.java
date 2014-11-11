@@ -3,10 +3,7 @@ package com.grosner.processor.writer;
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Database;
 import com.grosner.processor.Classes;
-import com.grosner.processor.definition.MigrationDefinition;
-import com.grosner.processor.definition.ModelContainerDefinition;
-import com.grosner.processor.definition.ModelViewDefinition;
-import com.grosner.processor.definition.TableDefinition;
+import com.grosner.processor.definition.*;
 import com.grosner.processor.handler.FlowManagerHandler;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.utils.ModelUtils;
@@ -23,13 +20,7 @@ import java.util.*;
  * Contributors: { }
  * Description:
  */
-public class DatabaseWriter implements FlowWriter {
-
-    private final ProcessorManager manager;
-
-    public Element element;
-
-    public String packageName;
+public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     public String databaseName;
 
@@ -37,10 +28,9 @@ public class DatabaseWriter implements FlowWriter {
 
     boolean foreignKeysSupported;
 
-    public DatabaseWriter(ProcessorManager manager, String packageName, Element element) {
-        this.manager = manager;
-        this.element = element;
-        this.packageName = Classes.FLOW_MANAGER_PACKAGE;
+    public DatabaseWriter(ProcessorManager manager, Element element) {
+        super(element, manager);
+        packageName = Classes.FLOW_MANAGER_PACKAGE;
 
         Database database = element.getAnnotation(Database.class);
         databaseName = database.name();
@@ -48,41 +38,39 @@ public class DatabaseWriter implements FlowWriter {
             databaseName = element.getSimpleName().toString();
         }
 
+        definitionClassName = databaseName + "$Database";
+
         databaseVersion = database.version();
         foreignKeysSupported = database.foreignKeysSupported();
 
         manager.addFlowManagerWriter(this);
     }
 
-    public String getFQCN() {
-        return packageName + "." + databaseName +"$Database";
+    @Override
+    protected String getExtendsClass() {
+        return Classes.BASE_DATABASE_DEFINITION;
     }
 
     @Override
-    public void write(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitPackage(packageName);
-
-        writeImports(javaWriter);
-        javaWriter.beginType(databaseName + "$Database", "class", FlowManagerHandler.METHOD_MODIFIERS, Classes.FLOW_MANAGER_INTERFACE);
+    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
 
         writeFields(javaWriter);
         writeConstructor(javaWriter);
         writeGetters(javaWriter);
-
-        javaWriter.endType();
     }
 
-    private void writeImports(JavaWriter javaWriter) throws IOException {
-        Set<String> imports = Sets.newHashSet(Classes.MODEL_ADAPTER,
+    @Override
+    protected String[] getImports() {
+        return new String[] {
+                Classes.MODEL_ADAPTER,
                 Classes.MODEL_VIEW,
                 Classes.MODEL_VIEW_ADAPTER,
                 Classes.MODEL, Classes.CONTAINER_ADAPTER,
                 Classes.MAP,
                 Classes.HASH_MAP, Classes.LIST,
-                Classes.ARRAY_LIST, Classes.MIGRATION);
-
-        javaWriter.emitImports(imports);
+                Classes.ARRAY_LIST, Classes.MIGRATION
+        };
     }
 
     private void writeConstructor(JavaWriter javaWriter) throws IOException {
@@ -110,7 +98,7 @@ public class DatabaseWriter implements FlowWriter {
                 javaWriter.emitStatement("List<%1s> migrations%1s = new ArrayList<>()", Classes.MIGRATION, version);
                 javaWriter.emitStatement("%1s.put(%1s,%1s%1s)", FlowManagerHandler.MIGRATION_FIELD_NAME, version, "migrations", version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {
-                    javaWriter.emitStatement("%1s%1s.add(new %1s())", "migrations", version, migrationDefinition.getMigrationClassName());
+                    javaWriter.emitStatement("%1s%1s.add(new %1s())", "migrations", version, migrationDefinition.getSourceFileName());
                 }
             }
         }
@@ -125,13 +113,13 @@ public class DatabaseWriter implements FlowWriter {
 
         for(ModelContainerDefinition modelContainerDefinition: manager.getModelContainers(databaseName)) {
             javaWriter.emitStatement(FlowManagerHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
-                    modelContainerDefinition.getFQCN());
+                    modelContainerDefinition.getSourceFileName());
         }
 
         for (ModelViewDefinition modelViewDefinition: manager.getModelViewDefinitions(databaseName)) {
             javaWriter.emitStatement(FlowManagerHandler.MODEL_VIEW_FIELD_NAME +".add(%1s)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
             javaWriter.emitStatement(FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()), modelViewDefinition.getFQCN());
+                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()), modelViewDefinition.getSourceFileName());
         }
 
         javaWriter.endConstructor();

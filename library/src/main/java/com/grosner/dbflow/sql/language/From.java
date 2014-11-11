@@ -1,6 +1,8 @@
 package com.grosner.dbflow.sql.language;
 
+import android.database.Cursor;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.sql.Queriable;
 import com.grosner.dbflow.sql.Query;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
@@ -15,7 +17,7 @@ import java.util.List;
  * Contributors: { }
  * Description: The SQL FROM query wrapper that must have a {@link com.grosner.dbflow.sql.Query} base.
  */
-public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
+public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Queriable<ModelClass> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!
@@ -109,6 +111,36 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass> {
      */
     public Where<ModelClass> where(Condition... conditions) {
         return where().andThese(conditions);
+    }
+
+    /**
+     * Run this query and returns the {@link android.database.Cursor} for it
+     *
+     * @return the Sqlite {@link android.database.Cursor} from this query
+     */
+    @Override
+    public Cursor query() {
+        return where().query();
+    }
+
+    /**
+     * Queries for all of the results this statement returns from a DB cursor in the form of the {@link ModelClass}
+     *
+     * @return All of the entries in the DB converted into {@link ModelClass}
+     */
+    @Override
+    public List<ModelClass> queryList() {
+        return where().queryList();
+    }
+
+    /**
+     * Queries and returns only the first {@link ModelClass} result from the DB.
+     *
+     * @return The first result of this query. Note: this query may return more than one from the DB.
+     */
+    @Override
+    public ModelClass querySingle() {
+        return where().querySingle();
     }
 
     public Set<ModelClass> set(Condition... conditions) {

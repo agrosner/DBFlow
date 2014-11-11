@@ -21,5 +21,5 @@ public class OtherModel extends BaseModel {
     @Column(columnType = Column.FOREIGN_KEY,
     references = {@ForeignKeyReference(columnType = String.class,
     columnName = "json", foreignColumnName = "name")})
-    String candy;
+    SecondModel candy;
 }

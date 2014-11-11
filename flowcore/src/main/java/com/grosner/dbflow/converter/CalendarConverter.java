@@ -4,7 +4,6 @@ import java.util.Calendar;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Defines how we store and retrieve a {@link java.util.Calendar}
  */
 public class CalendarConverter extends TypeConverter<Long, Calendar> {

@@ -5,7 +5,7 @@ import com.grosner.dbflow.config.FlowManager;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: Provides a base implementation for a ModelView. Define a {@link com.grosner.dbflow.structure.ModelViewDefinition} to describe
+ * Description: Provides a base implementation for a ModelView.
  * how to create the model view.
  */
 public abstract class BaseModelView<ModelClass extends Model> implements Model {

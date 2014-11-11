@@ -9,7 +9,6 @@ import com.grosner.dbflow.list.FlowTableList;
 import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.sql.language.Delete;
 import com.grosner.dbflow.test.FlowTestCase;
-import com.grosner.dbflow.test.structure.TestModel1;
 import com.grosner.dbflow.test.utils.GenerationUtils;
 
 import java.util.List;
@@ -27,17 +26,17 @@ public class ListTest extends FlowTestCase {
 
     public void testTableList() {
 
-        new Delete().from(TestModel1.class).where().query();
+        Delete.table(ListModel.class);
 
-        List<TestModel1> testModel1s = GenerationUtils.generateRandomModels(100);
+        List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 100);
 
-        FlowTableList<TestModel1> flowTableList = new FlowTableList<TestModel1>(TestModel1.class);
+        FlowTableList<ListModel> flowTableList = new FlowTableList<>(ListModel.class);
 
         assertTrue(flowTableList.size() == 100);
 
         assertTrue(flowTableList.containsAll(testModel1s));
 
-        TestModel1 model1 = flowTableList.remove(0);
+        ListModel model1 = flowTableList.remove(0);
 
         assertTrue(flowTableList.size() == 99);
 
@@ -84,7 +83,7 @@ public class ListTest extends FlowTestCase {
 
     public void testCursorList() {
 
-        new Delete().from(ListModel.class).where().query();
+        Delete.table(ListModel.class);
 
         final List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 50);
 

@@ -9,7 +9,6 @@ import com.grosner.dbflow.structure.ModelAdapter;
  * that it corresponds to. It is also used in {@link com.grosner.dbflow.structure.Column#FOREIGN_KEY} to save
  * and retrieve values of objects.
  */
-@com.grosner.dbflow.annotation.ContainerAdapter
 public interface ModelContainer<ModelClass extends Model, DataClass> extends Model {
 
     /**
@@ -23,6 +22,19 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      * @return The underlying data object that this container uses to imitate a model.
      */
     public DataClass getData();
+
+    /**
+     * @return New instance of underlying data for parsing
+     */
+    public DataClass newDataInstance();
+
+    /**
+     * Returns a new instance of this container with a different Model class
+     * @param inValue
+     * @param columnClass
+     * @return
+     */
+    public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
 
     /**
      * Returns the value with the specified key

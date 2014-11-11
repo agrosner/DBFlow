@@ -17,27 +17,17 @@ import java.util.Set;
  * Contributors: { }
  * Description:
  */
-public class ModelContainerDefinition implements FlowWriter {
+public class ModelContainerDefinition extends BaseDefinition {
 
     public static final String DBFLOW_MODEL_CONTAINER_TAG = "$Container";
-
-    public final TypeElement classElement;
-
-    private final ProcessorManager manager;
-
-    private String sourceFileName;
-
-    private String packageName;
 
     private FlowWriter[] mMethodWriters;
 
     private TableDefinition tableDefinition;
 
-    public ModelContainerDefinition(String packageName, TypeElement classElement, ProcessorManager manager) {
-        this.classElement = classElement;
-        this.manager = manager;
-        this.sourceFileName = classElement.getSimpleName().toString() + DBFLOW_MODEL_CONTAINER_TAG;
-        this.packageName = packageName;
+    public ModelContainerDefinition(TypeElement classElement, ProcessorManager manager) {
+        super(classElement, manager);
+        setDefinitionClassName(DBFLOW_MODEL_CONTAINER_TAG);
 
         tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()), classElement);
 
@@ -51,11 +41,9 @@ public class ModelContainerDefinition implements FlowWriter {
         };
     }
 
-
     @Override
-    public void write(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitPackage(packageName);
-        javaWriter.emitImports(
+    protected String[] getImports() {
+        return new String[] {
                 Classes.HASH_MAP,
                 Classes.MAP,
                 Classes.FLOW_MANAGER,
@@ -69,8 +57,16 @@ public class ModelContainerDefinition implements FlowWriter {
                 Classes.SQL_UTILS,
                 Classes.SELECT,
                 Classes.CONDITION
-        );
-        javaWriter.beginType(sourceFileName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ContainerAdapter<" + classElement.getSimpleName() + ">");
+        };
+    }
+
+    @Override
+    protected String getExtendsClass() {
+        return "ContainerAdapter<" + elementClassName + ">";
+    }
+
+    @Override
+    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
 
         javaWriter.emitField("Map<String, Class<?>>", "mColumnMap", Sets.newHashSet(Modifier.PRIVATE, Modifier.FINAL), "new HashMap<>()");
         javaWriter.emitEmptyLine();
@@ -93,24 +89,16 @@ public class ModelContainerDefinition implements FlowWriter {
         }, "Class<?>", "getClassForColumn", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "String", "columnName");
 
         InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassQualifiedName());
-        InternalAdapterHelper.writeGetTableName(javaWriter, classElement.getSimpleName().toString() + TableDefinition.DBFLOW_TABLE_TAG);
+        InternalAdapterHelper.writeGetTableName(javaWriter, elementClassName + TableDefinition.DBFLOW_TABLE_TAG);
 
 
 
         for (FlowWriter writer : mMethodWriters) {
             writer.write(javaWriter);
         }
-
-        javaWriter.endType();
-        javaWriter.close();
     }
 
     public String getModelClassQualifiedName() {
-        return classElement.getQualifiedName().toString();
+        return ((TypeElement)element).getQualifiedName().toString();
     }
-
-    public String getFQCN() {
-        return packageName + "." + sourceFileName;
-    }
-
 }

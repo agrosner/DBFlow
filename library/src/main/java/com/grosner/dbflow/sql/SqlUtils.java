@@ -5,9 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.IntDef;
+import com.grosner.dbflow.config.BaseDatabaseDefinition;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.config.BaseFlowManager;
 import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.process.DeleteModelListTransaction;
@@ -62,7 +62,7 @@ public class SqlUtils {
      * @return a list of {@link ModelClass}
      */
     public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql, String... args) {
-        BaseFlowManager flowManager = FlowManager.getManagerForTable(modelClass);
+        BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = convertToList(modelClass, cursor);
         cursor.close();
@@ -151,7 +151,7 @@ public class SqlUtils {
      * @return
      */
     public static <ModelClass extends Model> boolean hasData(Class<ModelClass> modelClass, String sql, String... args) {
-        BaseFlowManager flowManager = FlowManager.getManagerForTable(modelClass);
+        BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();
@@ -168,7 +168,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void sync(boolean async, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
         if (!async) {
-            BaseFlowManager flowManager = FlowManager.getManagerForTable(model.getClass());
+            BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(model.getClass());
             ModelAdapter<ModelClass> modelAdapter = (ModelAdapter<ModelClass>) FlowManager.getModelAdapter(model.getClass());
             final SQLiteDatabase db = flowManager.getWritableDatabase();
 

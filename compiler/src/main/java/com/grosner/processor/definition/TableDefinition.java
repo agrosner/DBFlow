@@ -7,6 +7,7 @@ import com.grosner.processor.Classes;
 import com.grosner.processor.DBFlowProcessor;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.utils.WriterUtils;
+import com.grosner.processor.validator.ColumnValidator;
 import com.grosner.processor.writer.*;
 import com.squareup.javawriter.JavaWriter;
 
@@ -30,15 +31,9 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public static final String DBFLOW_TABLE_ADAPTER = "$Adapter";
 
-    public String packageName;
-
     public String tableName;
 
-    public String tableSourceClassName;
-
     public String adapterName;
-
-    public Element element;
 
     public String databaseName;
 
@@ -48,11 +43,9 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     FlowWriter[] mMethodWriters;
 
-    public TableDefinition(ProcessorManager manager, String packageName, Element element) {
-        super(element);
-        this.element = element;
-        this.packageName = packageName;
-        this.tableSourceClassName = getModelClassName() + DBFLOW_TABLE_TAG;
+    public TableDefinition(ProcessorManager manager, Element element) {
+        super(element, manager);
+        setDefinitionClassName(DBFLOW_TABLE_TAG);
         this.adapterName = getModelClassName() + DBFLOW_TABLE_ADAPTER;
 
         Table table = element.getAnnotation(Table.class);
@@ -67,8 +60,6 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         if (tableName == null || tableName.isEmpty()) {
             tableName = element.getSimpleName().toString();
         }
-        this.manager = manager;
-
         primaryColumnDefinitions = new ArrayList<>();
         foreignKeyDefinitions = new ArrayList<>();
 
@@ -86,17 +77,24 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
     }
 
     @Override
+    public String getTableSourceClassName() {
+        return definitionClassName;
+    }
+
+    @Override
     protected void createColumnDefinitions(TypeElement element) {
         List<? extends Element> variableElements = manager.getElements().getAllMembers(element);
+        ColumnValidator columnValidator = new ColumnValidator();
         for (Element variableElement : variableElements) {
             if (variableElement.getAnnotation(Column.class) != null) {
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
-                columnDefinitions.add(columnDefinition);
-
-                if (columnDefinition.columnType == Column.PRIMARY_KEY) {
-                    primaryColumnDefinitions.add(columnDefinition);
-                } else if (columnDefinition.columnType == Column.FOREIGN_KEY) {
-                    foreignKeyDefinitions.add(columnDefinition);
+                if(columnValidator.validate(manager, columnDefinition)) {
+                    columnDefinitions.add(columnDefinition);
+                    if (columnDefinition.columnType == Column.PRIMARY_KEY) {
+                        primaryColumnDefinitions.add(columnDefinition);
+                    } else if (columnDefinition.columnType == Column.FOREIGN_KEY) {
+                        foreignKeyDefinitions.add(columnDefinition);
+                    }
                 }
             }
         }
@@ -107,17 +105,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         return primaryColumnDefinitions;
     }
 
-    @Override
-    public String getTableSourceClassName() {
-        return tableSourceClassName;
-    }
-
     public String getQualifiedAdapterClassName() {
         return packageName + "." + adapterName;
-    }
-
-    public String getFQCN() {
-        return packageName + "." + tableSourceClassName;
     }
 
     public String getQualifiedModelClassName() {
@@ -125,16 +114,13 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
     }
 
     @Override
-    public void write(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitPackage(packageName);
-        javaWriter.beginType(tableSourceClassName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
         javaWriter.emitField("String", "TABLE_NAME", Sets.newHashSet(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL), "\"" + tableName + "\"");
         javaWriter.emitEmptyLine();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.write(javaWriter);
         }
-        javaWriter.endType();
     }
 
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
@@ -157,7 +143,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         javaWriter.emitSingleLineComment("This table belongs to the %1s database", databaseName);
         javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ModelAdapter<" + element.getSimpleName() + ">");
         InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassName());
-        InternalAdapterHelper.writeGetTableName(javaWriter, tableSourceClassName);
+        InternalAdapterHelper.writeGetTableName(javaWriter, getSourceFileName());
 
         for (FlowWriter writer : mMethodWriters) {
             writer.write(javaWriter);

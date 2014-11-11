@@ -40,7 +40,7 @@ public enum SQLiteType {
     /**
      * Returns the {@link SQLiteType} for this class
      *
-     * @param clazz
+     * @param className The fully qualified class name
      * @return
      */
     public static SQLiteType get(String className) {

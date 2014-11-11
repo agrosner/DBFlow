@@ -4,7 +4,6 @@ import java.sql.Date;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Defines how we store and retrieve a {@link java.sql.Date}
  */
 public class SqlDateConverter extends TypeConverter<Long, Date> {

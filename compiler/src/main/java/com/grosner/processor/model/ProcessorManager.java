@@ -14,6 +14,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +111,7 @@ public class ProcessorManager implements Handler{
     }
 
     public void addModelContainerDefinition(ModelContainerDefinition modelContainerDefinition) {
-        String modelClassName = modelContainerDefinition.classElement.getSimpleName().toString();
+        String modelClassName = modelContainerDefinition.element.getSimpleName().toString();
         Map<String, ModelContainerDefinition> modelContainerDefinitionMap = mModelContainers.get(getDatabase(modelClassName));
         if(modelContainerDefinitionMap == null) {
             modelContainerDefinitionMap = Maps.newHashMap();
@@ -219,6 +220,10 @@ public class ProcessorManager implements Handler{
         } else {
             return Maps.newHashMap();
         }
+    }
+
+    public void logError(String error, Object...args) {
+        getMessager().printMessage(Diagnostic.Kind.ERROR, String.format(error, args));
     }
 
     @Override

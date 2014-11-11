@@ -67,7 +67,7 @@ public class WhereQueryWriter implements FlowWriter {
                     conditionQueryBuilder.appendCreation(tableDefinition.getModelClassName());
                     for (int i = 0; i < definition.primaryColumnDefinitions.size(); i++) {
                         ColumnDefinition columnDefinition = definition.primaryColumnDefinitions.get(i);
-                        conditionQueryBuilder.appendMockCondition(definition.tableSourceClassName + "." + columnDefinition.columnName.toUpperCase(), "\"?\"");
+                        conditionQueryBuilder.appendMockCondition(definition.definitionClassName + "." + columnDefinition.columnName.toUpperCase(), "\"?\"");
 
                         if(i < definition.primaryColumnDefinitions.size()-1) {
                             conditionQueryBuilder.append(",");

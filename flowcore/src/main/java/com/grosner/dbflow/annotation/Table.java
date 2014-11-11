@@ -7,8 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * Author: andrewgrosner
- * Description: An optional annotation for {@link com.grosner.dbflow.structure.Model} classes
- * that allow a different name than the Model's class name.
+ * Description: Marks a class as being a table for only ONE DB. It must implement the Model interface and all fields MUST be package private.
+ * This will generate a $Table and $Adapter class. The $Table class generates static final column name variables to reference in queries.
+ * The $Adapter class defines how to retrieve and store this object as well as other methods for acting on model objects in the database.
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)

@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description: The main annotation that marks a field as
+ * Description: Marks a field as corresponding to a column in the DB.
+ * When adding new columns or changing names, you need to define a new {@link com.grosner.dbflow.annotation.Migration}.
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
@@ -25,15 +25,21 @@ public @interface Column {
     public static final int PRIMARY_KEY = 0;
 
     /**
-     * The field is marked as an auto-incrementing primary key and will increment with every new row.
+     * The field is marked as an auto-incrementing primary key and will increment with every new row. Only
+     * one column should be auto-incrementing.
      */
     public static final int PRIMARY_KEY_AUTO_INCREMENT = 1;
 
     /**
-     * The field references another column from another table and will retrieve the object upon load of the {@link com.grosner.dbflow.structure.Model}
+     * The field references another column from another table and will retrieve the object upon load of the Model
      */
     public static final int FOREIGN_KEY = 2;
 
+    /**
+     * Specifies the column type. Can be {@link #NORMAL}, {@link #PRIMARY_KEY}, {@link #PRIMARY_KEY_AUTO_INCREMENT},
+     * or {@link #FOREIGN_KEY}
+     * @return
+     */
     int columnType() default NORMAL;
 
     /**
@@ -80,7 +86,8 @@ public @interface Column {
     ConflictAction onUniqueConflict() default ConflictAction.FAIL;
 
     /**
-     * Defines the references to the foreignkeys
+     * Defines the references for a composite {@link #FOREIGN_KEY} definition. It enables for multiple local
+     * columns that reference another Model's primary keys.
      *
      * @return
      */

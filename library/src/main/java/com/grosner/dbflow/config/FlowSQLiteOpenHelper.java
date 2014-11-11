@@ -2,7 +2,6 @@ package com.grosner.dbflow.config;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.SparseArray;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.runtime.TransactionManager;
@@ -32,13 +31,13 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     public final static String MIGRATION_PATH = "migrations";
     private DatabaseHelperListener mListener;
-    private BaseFlowManager mManager;
+    private BaseDatabaseDefinition mManager;
 
-    public FlowSQLiteOpenHelper(BaseFlowManager flowManager) {
+    public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager) {
         super(FlowManager.getContext(), flowManager.getDatabaseName(), null, flowManager.getDatabaseVersion());
         mManager = flowManager;
         //mMigrations = dbConfiguration.mMigrations;
-        movePrepackagedDB(flowManager.getDatabaseName());
+        movePrepackagedDB(flowManager.getDatabaseName() + ".db");
     }
 
     /**
