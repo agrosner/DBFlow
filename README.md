@@ -152,3 +152,43 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
 }
 
 ```
+
+And then in **every** ```Model``` class you wish to use this class, you need to add the annotation ```@ContainerAdapter```. This generates the definition required to save objects correctly to the DB.
+
+## Type Converters
+
+```TypeConverter``` allows non-Model objects to save to the database by converting it from its ```Model``` value to its ```Database``` value. These are statically allocated accross all databases.
+
+```java
+
+public class CalendarConverter extends TypeConverter<Long, Calendar> {
+
+    @Override
+    public Long getDBValue(Calendar model) {
+        return model.getTimeInMillis();
+    }
+
+    @Override
+    public Calendar getModelValue(Long data) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(data);
+        return calendar;
+    }
+}
+
+```
+
+## Model Views
+
+```ModelView``` are a special kind of ```Model``` that creates a database **VIEW** based on a special SQL statement. They must reference another ```Model``` class currently. 
+
+```java
+
+@ModelView(query = "SELECT * FROM TestModel2 WHERE model_order > 5", databaseName = TestDatabase.NAME)
+public class TestModelView extends BaseModelView<TestModel2> {
+    @Column
+    long model_order;
+}
+
+```
+
