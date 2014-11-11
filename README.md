@@ -4,7 +4,7 @@
 DBFlow (BETA)
 ======
 
-A robust, powerful, and very simple ORM android database library.
+A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
 The library eliminates the need for writing most SQL statements, writing ``ContentValues`` for every table, converting cursors into models, and so much more. 
 
@@ -124,7 +124,7 @@ To see more go to the full [tutorial](https://github.com/agrosner/DBFlow/wiki/Ba
 
 ## Model Containers
 
-Model containers are classes that __imitate__ and use the blueprint of ```Model``` classes in order to save data such as JSON, Hashmap, or your own kind of data to the database. To create your own, extend the ```BaseModelContainer``` class or implement the ```ModelContainer``` interface. 
+Model containers are classes that __imitate__ and use the blueprint of ```Model``` classes in order to save data such as JSON, Hashmap, or your own kind of data to the database. To create your own, extend the ```BaseModelContainer``` class or implement the ```ModelContainer``` interface.  More info [here](https://github.com/agrosner/DBFlow/wiki/Model-Containers)
 
 For example here is the ```JSONModel``` implementation:
 
@@ -172,7 +172,7 @@ And then in **every** ```Model``` class you wish to use this class, you need to 
 
 ## Type Converters
 
-```TypeConverter``` allows non-Model objects to save to the database by converting it from its ```Model``` value to its ```Database``` value. These are statically allocated accross all databases.
+```TypeConverter``` allows non-Model objects to save to the database by converting it from its ```Model``` value to its ```Database``` value. These are statically allocated accross all databases. More info [here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
 
 ```java
 
