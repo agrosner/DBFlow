@@ -34,7 +34,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private BaseDatabaseDefinition mManager;
 
     public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager) {
-        super(FlowManager.getContext(), flowManager.getDatabaseName(), null, flowManager.getDatabaseVersion());
+        super(FlowManager.getContext(), flowManager.getDatabaseName() + ".db", null, flowManager.getDatabaseVersion());
         mManager = flowManager;
         //mMigrations = dbConfiguration.mMigrations;
         movePrepackagedDB(flowManager.getDatabaseName() + ".db");

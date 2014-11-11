@@ -76,7 +76,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
     private void writeConstructor(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
 
-        javaWriter.beginConstructor(Sets.newHashSet(Modifier.PUBLIC), "FlowManagerHolder", "holder");
+        javaWriter.beginConstructor(Sets.newHashSet(Modifier.PUBLIC), "DatabaseHolder", "holder");
         // Register this manager with classes if multitable is enabled.
         // Need to figure out how to
         for (TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {

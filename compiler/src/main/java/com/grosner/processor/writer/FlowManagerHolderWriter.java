@@ -32,11 +32,11 @@ public class FlowManagerHolderWriter implements FlowWriter {
         staticFlowManager.beginType(Classes.FLOW_MANAGER_STATIC_CLASS_NAME, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), null, Classes.FLOW_MANAGER_STATIC_INTERFACE);
 
         // Flow managers
-        staticFlowManager.emitField("Map<Class<? extends Model>, BaseFlowManager>",FlowManagerHandler.MANAGER_MAP_NAME,
+        staticFlowManager.emitField("Map<Class<? extends Model>, BaseDatabaseDefinition>",FlowManagerHandler.MANAGER_MAP_NAME,
                 Sets.newHashSet(Modifier.STATIC, Modifier.FINAL), "new HashMap<>()");
         staticFlowManager.emitEmptyLine();
 
-        staticFlowManager.emitField("Map<String, BaseFlowManager>",FlowManagerHandler.MANAGER_NAME_MAP,
+        staticFlowManager.emitField("Map<String, BaseDatabaseDefinition>",FlowManagerHandler.MANAGER_NAME_MAP,
                 Sets.newHashSet(Modifier.STATIC, Modifier.FINAL), "new HashMap<>()");
         staticFlowManager.emitEmptyLine();
 
@@ -80,7 +80,7 @@ public class FlowManagerHolderWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MANAGER_MAP_NAME, "table");
             }
-        }, "BaseFlowManager", "getFlowManagerForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<?>", "table");
+        }, "BaseDatabaseDefinition", "getFlowManagerForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<?>", "table");
 
 
         // Get Managers
@@ -90,7 +90,7 @@ public class FlowManagerHolderWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MANAGER_NAME_MAP, "databaseName");
             }
-        }, "BaseFlowManager", "getFlowManager", FlowManagerHandler.METHOD_MODIFIERS, "String", "databaseName");
+        }, "BaseDatabaseDefinition", "getFlowManager", FlowManagerHandler.METHOD_MODIFIERS, "String", "databaseName");
 
 
         // Get Managers
@@ -102,7 +102,7 @@ public class FlowManagerHolderWriter implements FlowWriter {
                 javaWriter.emitStatement("%1s.put(%1s, %1s)", FlowManagerHandler.MANAGER_NAME_MAP, "manager.getDatabaseName()", "manager");
             }
         }, "void", "putFlowManagerForTable", FlowManagerHandler.METHOD_MODIFIERS,
-                "Class<? extends Model>", "table", "BaseFlowManager", "manager");
+                "Class<? extends Model>", "table", "BaseDatabaseDefinition", "manager");
 
 
         staticFlowManager.endType();
