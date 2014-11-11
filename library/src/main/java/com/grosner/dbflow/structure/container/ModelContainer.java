@@ -1,7 +1,7 @@
 package com.grosner.dbflow.structure.container;
 
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.ModelAdapter;
 
 /**
  * Author: andrewgrosner
@@ -24,6 +24,19 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     public DataClass getData();
 
     /**
+     * @return New instance of underlying data for parsing
+     */
+    public DataClass newDataInstance();
+
+    /**
+     * Returns a new instance of this container with a different Model class
+     * @param inValue
+     * @param columnClass
+     * @return
+     */
+    public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
+
+    /**
      * Returns the value with the specified key
      *
      * @param columnName
@@ -44,7 +57,7 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      *
      * @return
      */
-    public TableStructure<ModelClass> getTableStructure();
+    public ModelAdapter<ModelClass> getModelAdapter();
 
     /**
      * Returns the table that's associated with this container

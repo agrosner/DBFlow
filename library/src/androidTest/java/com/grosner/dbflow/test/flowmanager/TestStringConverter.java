@@ -7,17 +7,7 @@ import com.grosner.dbflow.converter.TypeConverter;
 * Contributors: { }
 * Description:
 */
-public class TestStringConverter implements TypeConverter<String, String> {
-
-    @Override
-    public Class<String> getDatabaseType() {
-        return String.class;
-    }
-
-    @Override
-    public Class<String> getModelType() {
-        return String.class;
-    }
+public class TestStringConverter extends TypeConverter<String, String> {
 
     @Override
     public String getDBValue(String model) {

@@ -10,13 +10,6 @@ import android.database.sqlite.SQLiteDatabase;
 public interface Migration {
 
     /**
-     * Returns the DB migration version
-     *
-     * @return
-     */
-    public int getNewVersion();
-
-    /**
      * Called before we migrate data
      */
     public void onPreMigrate();

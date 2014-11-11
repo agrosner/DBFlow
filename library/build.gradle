@@ -1,20 +1,36 @@
 apply plugin: 'com.android.library'
+apply plugin: 'android-apt'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "20.0.0"
+    buildToolsVersion "21.0.2"
 
     defaultConfig {
         applicationId "com.grosner.dbflow"
         minSdkVersion 4
         targetSdkVersion 21
-        versionName = version.replace("-SNAPSHOT", "")
-        versionCode = Integer.parseInt(versionName.replace(".", ""))
+        versionName = VERSION_NAME
+        versionCode = VERSION_CODE
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
 }
 
 dependencies {
+    compile project(':flowcore')
     compile "com.android.support:support-annotations:21.+"
+    androidTestApt project(':compiler')
 }
 
 apply from: '../maven_push.gradle'

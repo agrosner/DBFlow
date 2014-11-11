@@ -3,7 +3,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.13.3'
+        classpath 'com.android.tools.build:gradle:0.13.2'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.+'
     }
 }
 
@@ -12,12 +13,10 @@ def isReleaseBuild() {
 }
 
 allprojects {
-    version = VERSION_NAME
-    group = GROUP
-
     repositories {
         mavenCentral()
     }
 }
+
 
 apply plugin: 'android-reporting'

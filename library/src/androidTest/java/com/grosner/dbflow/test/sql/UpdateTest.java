@@ -1,12 +1,10 @@
 package com.grosner.dbflow.test.sql;
 
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.sql.language.From;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.language.Update;
 import com.grosner.dbflow.sql.language.Where;
 import com.grosner.dbflow.sql.builder.Condition;
-import com.grosner.dbflow.structure.Column;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
 
@@ -19,11 +17,6 @@ public class UpdateTest extends FlowTestCase {
     @Override
     protected String getDBName() {
         return "update";
-    }
-
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.addModelClasses(TestUpdateModel.class);
     }
 
     public void testUpdateStatement() {
@@ -67,8 +60,4 @@ public class UpdateTest extends FlowTestCase {
         assertEquals("UPDATE OR " + suffix, update.getQuery().trim());
     }
 
-    private static class TestUpdateModel extends TestModel1 {
-        @Column
-        private String value;
-    }
 }

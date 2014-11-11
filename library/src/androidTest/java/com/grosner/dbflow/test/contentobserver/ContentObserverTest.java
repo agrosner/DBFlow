@@ -1,6 +1,5 @@
 package com.grosner.dbflow.test.contentobserver;
 
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.runtime.FlowContentObserver;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
@@ -15,11 +14,6 @@ public class ContentObserverTest extends FlowTestCase {
     @Override
     protected String getDBName() {
         return "contentobserver";
-    }
-
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-
     }
 
     public void testContentObserver() {

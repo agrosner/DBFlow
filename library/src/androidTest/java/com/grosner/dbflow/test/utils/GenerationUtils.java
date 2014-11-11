@@ -1,5 +1,6 @@
 package com.grosner.dbflow.test.utils;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.test.structure.TestModel1;
 
 import java.util.ArrayList;
@@ -18,16 +19,20 @@ public class GenerationUtils {
      * @param size
      * @return
      */
-    public static List<TestModel1> generateRandomModels(int size) {
-        List<TestModel1> testModel1s = new ArrayList<TestModel1>();
-        TestModel1 testModel1;
+    public static <TestClass extends TestModel1> List<TestClass> generateRandomModels(Class<TestClass> testClass, int size) {
+        List<TestClass> testModel1s = new ArrayList<>();
+        TestClass testModel1;
         for(int i = 0; i < 100; i++) {
-            testModel1 = new TestModel1();
+            testModel1 = FlowManager.getModelAdapter(testClass).newInstance();
             testModel1.name = UUID.randomUUID().toString();
             testModel1.save(false);
             testModel1s.add(testModel1);
         }
 
         return testModel1s;
+    }
+
+    public static List<TestModel1> generateRandomModels(int size) {
+        return generateRandomModels(TestModel1.class, size);
     }
 }

@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.grosner.dbflow.sql.Query;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.sql.language.Update;
 import com.grosner.dbflow.structure.Model;
 
@@ -40,8 +40,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * @param table            The table to update
      * @param migrationVersion The version of the db to update at.
      */
-    public UpdateTableMigration(Class<ModelClass> table, int migrationVersion) {
-        super(migrationVersion);
+    public UpdateTableMigration(Class<ModelClass> table) {
         mTable = table;
     }
 

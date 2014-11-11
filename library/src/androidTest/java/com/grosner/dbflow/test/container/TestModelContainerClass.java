@@ -1,7 +1,10 @@
 package com.grosner.dbflow.test.container;
 
-import com.grosner.dbflow.structure.Column;
-import com.grosner.dbflow.structure.ForeignKeyReference;
+import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ContainerAdapter;
+import com.grosner.dbflow.annotation.ForeignKeyReference;
+import com.grosner.dbflow.annotation.Table;
+import com.grosner.dbflow.test.TestDatabase;
 import com.grosner.dbflow.test.structure.TestModel1;
 
 /**
@@ -9,7 +12,9 @@ import com.grosner.dbflow.test.structure.TestModel1;
 * Contributors: { }
 * Description:
 */
-class TestModelContainerClass extends TestModel1 {
+@Table(value = "TestModelContainer", databaseName = TestDatabase.NAME)
+@ContainerAdapter
+public class TestModelContainerClass extends TestModel1 {
 
     @Column(columnType = Column.PRIMARY_KEY)
     String party_type;

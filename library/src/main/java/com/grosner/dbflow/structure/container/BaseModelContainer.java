@@ -1,11 +1,11 @@
 package com.grosner.dbflow.structure.container;
 
-import android.database.Cursor;
-
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.SqlUtils;
+import com.grosner.dbflow.structure.InvalidDBConfiguration;
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.ModelAdapter;
+import org.json.JSONObject;
 
 /**
  * Author: andrewgrosner
@@ -22,7 +22,9 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     /**
      * The {@link com.grosner.dbflow.structure.TableStructure} that is defined for this {@link org.json.JSONObject}
      */
-    TableStructure<ModelClass> mTableStructure;
+    ModelAdapter<ModelClass> mModelAdapter;
+
+    ContainerAdapter<ModelClass> mContainerAdapter;
 
     /**
      * The data thats stored in the container
@@ -30,21 +32,43 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     DataClass mData;
 
     public BaseModelContainer(Class<ModelClass> table) {
-        mTableStructure = FlowManager.getManagerForTable(table).getTableStructureForClass(table);
+        mModelAdapter = FlowManager.getModelAdapter(table);
     }
 
     public BaseModelContainer(Class<ModelClass> table, DataClass data) {
-        mTableStructure = FlowManager.getManagerForTable(table).getTableStructureForClass(table);
+        mModelAdapter = FlowManager.getModelAdapter(table);
+        mContainerAdapter = FlowManager.getContainerAdapter(table);
         mData = data;
+
+        if(mContainerAdapter == null) {
+            throw new InvalidDBConfiguration("The table" + FlowManager.getTableName(table) + " did not specify the ContainerAdapter" +
+                    "annotation. Please add and rebuild");
+        }
     }
 
     @Override
     public ModelClass toModel() {
         if (mModel == null) {
-            mModel = ModelContainerUtils.toModel(this);
+            mModel = mContainerAdapter.toModel(this);
         }
 
         return mModel;
+    }
+
+    public abstract BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
+
+
+    @SuppressWarnings("unchecked")
+    protected Object getModelValue(Object inValue, String columnName) {
+        ContainerAdapter<? extends Model> containerAdapter = FlowManager.getContainerAdapter(getTable());
+        Class<? extends Model> columnClass = (Class<? extends Model>) containerAdapter.getClassForColumn(columnName);
+        ContainerAdapter<? extends Model> columnAdapter = FlowManager.getContainerAdapter(columnClass);
+        if(columnAdapter != null) {
+            inValue = columnAdapter.toModel(getInstance(inValue, columnClass));
+        } else {
+            throw new RuntimeException("Column: " + columnName + "'s class needs to add the @ContainerAdapter annotation");
+        }
+        return inValue;
     }
 
     @Override
@@ -63,48 +87,37 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     public abstract void put(String columnName, Object value);
 
     @Override
-    public TableStructure<ModelClass> getTableStructure() {
-        return mTableStructure;
+    public ModelAdapter<ModelClass> getModelAdapter() {
+        return mModelAdapter;
     }
 
     @Override
     public Class<ModelClass> getTable() {
-        return mTableStructure.getModelType();
+        return mModelAdapter.getModelClass();
     }
 
     @Override
     public void save(boolean async) {
-        ModelContainerUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT);
+        mContainerAdapter.save(async, this, SqlUtils.SAVE_MODE_DEFAULT);
     }
 
     @Override
     public void delete(boolean async) {
-        ModelContainerUtils.delete(this, async);
+        mContainerAdapter.delete(async, this);
     }
 
     @Override
     public void update(boolean async) {
-        ModelContainerUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE);
+        mContainerAdapter.save(async, this, SqlUtils.SAVE_MODE_UPDATE);
     }
 
     @Override
     public void insert(boolean async) {
-        ModelContainerUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT);
-    }
-
-    /**
-     * Loads the cursor into the the data contained in this class. This will never
-     * be called unless we want to use the data in native format
-     *
-     * @param cursor The cursor to load.
-     */
-    @Override
-    public void load(Cursor cursor) {
-        ModelContainerUtils.loadFromCursor(this, cursor);
+        mContainerAdapter.save(async, this, SqlUtils.SAVE_MODE_INSERT);
     }
 
     @Override
     public boolean exists() {
-        return ModelContainerUtils.exists(this);
+        return mContainerAdapter.exists(this);
     }
 }

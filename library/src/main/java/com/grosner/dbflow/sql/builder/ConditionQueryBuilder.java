@@ -1,15 +1,11 @@
 package com.grosner.dbflow.sql.builder;
 
 import android.database.DatabaseUtils;
-
-import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
-import com.grosner.dbflow.converter.TypeConverter;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.ModelAdapter;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +25,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * The structure of the ModelClass this query pertains to
      */
-    private TableStructure<ModelClass> mTableStructure;
+    private ModelAdapter<ModelClass> mTableStructure;
 
     /**
      * The parameters to build this query with
@@ -58,7 +54,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param tableClass
      */
     public ConditionQueryBuilder(Class<ModelClass> tableClass, Condition... conditions) {
-        mTableStructure = FlowManager.getManagerForTable(tableClass).getTableStructureForClass(tableClass);
+        mTableStructure = FlowManager.getModelAdapter(tableClass);
         putConditions(conditions);
     }
 
@@ -76,48 +72,6 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             isChanged = true;
         }
         return this;
-    }
-
-    /**
-     * Builds a {@link com.grosner.dbflow.structure.Model} where query with its primary keys. The existing must
-     * be based off the primary keys of the model.
-     *
-     * @param existing The existing where query we wish to generate new one from the model.
-     * @param model    The existing model with all of its primary keys filled in
-     * @return
-     */
-    public static String getPrimaryModelWhere(ConditionQueryBuilder<? extends Model> existing, Model model) {
-        return getModelBackedWhere(existing, existing.mTableStructure.getPrimaryKeys(), model);
-    }
-
-    /**
-     * Returns a where query String from the existing builder and collection of fields.
-     *
-     * @param existing     The existing where query we wish to generate new one from the model.
-     * @param fields       The list of fields that we look up the column names for
-     * @param model        The model to get the field values from
-     * @param <ModelClass>
-     * @return
-     */
-    static String getModelBackedWhere(ConditionQueryBuilder<? extends Model> existing,
-                                      Collection<Field> fields, Model model) {
-        String query = existing.getQuery();
-        for (Field primaryField : fields) {
-            String columnName = existing.mTableStructure.getColumnName(primaryField);
-            primaryField.setAccessible(true);
-            try {
-                Object object = primaryField.get(model);
-                if (object == null) {
-                    throw new PrimaryKeyCannotBeNullException("The primary key: " + primaryField.getName()
-                            + "from " + existing.mTableStructure.getTableName() + " cannot be null.");
-                } else {
-                    query = query.replaceFirst("\\?", existing.convertValueToString(columnName, object));
-                }
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return query;
     }
 
     @Override
@@ -152,7 +106,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     public String convertValueToString(String columnName, Object value) {
         String stringVal;
         if (!useEmptyParams) {
-            Field field = mTableStructure.getField(columnName);
+            /*Field field = mTableStructure.getField(columnName);
             if (field != null) {
                 final TypeConverter typeConverter = FlowManager.getTypeConverterForClass(mTableStructure.getField(columnName).getType());
                 if (typeConverter != null) {
@@ -171,7 +125,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
                 }
             } else {
                 throw new ColumnNameNotFoundException(columnName, mTableStructure);
-            }
+            }*/
         }
 
         if (value instanceof Number) {
@@ -202,44 +156,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         return this;
     }
 
-    /**
-     * Appends all primary field parameters with the specified value to this query statement.
-     *
-     * @param values The values of the primary keys we wish to query for. Must match the length and order of primary keys
-     * @return
-     */
-    public ConditionQueryBuilder<ModelClass> primaryConditions(Object... values) {
-        return appendFieldParams(mTableStructure.getPrimaryKeys(), values);
-    }
-
-    /**
-     * Appends a bunch of fields to the condition list. It will retrieve the proper column name for the passed fields.
-     *
-     * @param fields The list of fields that we look up the column names for
-     * @param values The values of the fields we wish to query for. Must match the length of fields keys
-     * @return
-     */
-    ConditionQueryBuilder<ModelClass> appendFieldParams(Collection<Field> fields, Object... values) {
-        if (!useEmptyParams && fields.size() != values.length) {
-            throw new IllegalArgumentException("The count of values MUST match the number of fields they correspond to for " +
-                    mTableStructure.getTableName());
-        } else if (useEmptyParams) {
-            values = new Object[fields.size()];
-            for (int i = 0; i < values.length; i++) {
-                values[i] = EMPTY_PARAM;
-            }
-        }
-
-        int count = 0;
-        for (Field field : fields) {
-            String fieldName = mTableStructure.getColumnName(field);
-            Object value = values[count];
-            putCondition(fieldName, value);
-            count++;
-        }
-
+    public ConditionQueryBuilder<ModelClass> setUseEmptyParams(boolean useEmptyParams) {
+        this.useEmptyParams = useEmptyParams;
         return this;
     }
+
 
     /**
      * Appends a condition to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
@@ -291,8 +212,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public ConditionQueryBuilder<ModelClass> emptyPrimaryConditions() {
-        useEmptyParams = true;
-        return appendFieldParams(mTableStructure.getPrimaryKeys());
+        return append(mTableStructure.getPrimaryModelWhere());
     }
 
     /**
@@ -361,7 +281,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         }
 
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder =
-                new ConditionQueryBuilder<ModelClass>(mTableStructure.getModelType());
+                new ConditionQueryBuilder<ModelClass>(mTableStructure.getModelClass());
         Set<String> columnNames = mParams.keySet();
 
         int count = 0;
@@ -379,7 +299,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public Class<ModelClass> getTableClass() {
-        return getTableStructure().getModelType();
+        return getModelAdapter().getModelClass();
     }
 
     /**
@@ -387,9 +307,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      *
      * @return
      */
-    public TableStructure<ModelClass> getTableStructure() {
+    public ModelAdapter<ModelClass> getModelAdapter() {
         return mTableStructure;
     }
-
 
 }

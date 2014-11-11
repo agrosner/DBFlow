@@ -10,16 +10,6 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public abstract class BaseMigration implements Migration {
 
-    private int mMigrationVersion;
-
-    public BaseMigration(int newVersion) {
-        mMigrationVersion = newVersion;
-    }
-
-    @Override
-    public int getNewVersion() {
-        return mMigrationVersion;
-    }
 
     @Override
     public void onPreMigrate() {

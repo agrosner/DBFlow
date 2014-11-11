@@ -14,9 +14,7 @@ public class DBFlowTestApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        FlowManager.setContext(this);
-        FlowManager.setMultipleDatabases(true);
+        FlowManager.init(this);
     }
 
     @Override

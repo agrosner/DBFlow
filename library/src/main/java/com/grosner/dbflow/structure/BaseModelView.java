@@ -1,16 +1,13 @@
 package com.grosner.dbflow.structure;
 
-import android.database.Cursor;
-
-import com.grosner.dbflow.sql.SqlUtils;
+import com.grosner.dbflow.config.FlowManager;
 
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: Provides a base implementation for a ModelView. Define a {@link com.grosner.dbflow.structure.ModelViewDefinition} to describe
+ * Description: Provides a base implementation for a ModelView.
  * how to create the model view.
  */
-@Ignore
 public abstract class BaseModelView<ModelClass extends Model> implements Model {
 
     @Override
@@ -33,14 +30,10 @@ public abstract class BaseModelView<ModelClass extends Model> implements Model {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not insertable");
     }
 
-    @Override
-    public void load(Cursor cursor) {
-        SqlUtils.loadFromCursor(this, cursor);
-    }
-
+    @SuppressWarnings("unchecked")
     @Override
     public boolean exists() {
-        return SqlUtils.exists(this);
+        return ((ModelViewAdapter<? extends Model, BaseModelView<ModelClass>>) FlowManager.getModelViewAdapter(getClass())).exists(this);
     }
 
     /**

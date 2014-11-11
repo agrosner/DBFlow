@@ -2,14 +2,13 @@ package com.grosner.dbflow.config;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.SparseArray;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.runtime.TransactionManager;
-import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.sql.migration.Migration;
-import com.grosner.dbflow.structure.ModelViewDefinition;
-import com.grosner.dbflow.structure.TableStructure;
+import com.grosner.dbflow.structure.ModelAdapter;
+import com.grosner.dbflow.structure.ModelViewAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,10 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Author: andrewgrosner
@@ -34,18 +30,14 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * Location where the migration files should exist.
      */
     public final static String MIGRATION_PATH = "migrations";
-    private final boolean foreignKeysSupported;
     private DatabaseHelperListener mListener;
-    private FlowManager mManager;
+    private BaseDatabaseDefinition mManager;
 
-    private SparseArray<List<Migration>> mMigrations;
-
-    public FlowSQLiteOpenHelper(FlowManager flowManager, DBConfiguration dbConfiguration) {
-        super(FlowManager.getContext(), dbConfiguration.mDatabaseName, null, dbConfiguration.mDatabaseVersion);
+    public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager) {
+        super(FlowManager.getContext(), flowManager.getDatabaseName() + ".db", null, flowManager.getDatabaseVersion());
         mManager = flowManager;
-        mMigrations = dbConfiguration.mMigrations;
-        movePrepackagedDB(dbConfiguration.mDatabaseName);
-        foreignKeysSupported = dbConfiguration.foreignKeysSupported;
+        //mMigrations = dbConfiguration.mMigrations;
+        movePrepackagedDB(flowManager.getDatabaseName() + ".db");
     }
 
     /**
@@ -132,7 +124,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * @param database
      */
     private void checkForeignKeySupport(SQLiteDatabase database) {
-        if (foreignKeysSupported) {
+        if (mManager.isForeignKeysSupported()) {
             database.execSQL("PRAGMA foreign_keys=ON;");
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.");
         }
@@ -148,21 +140,20 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         TransactionManager.transact(database, new Runnable() {
             @Override
             public void run() {
-                Collection<TableStructure> tableStructures = mManager.getStructure().getTableStructure().values();
-                for (TableStructure tableStructure : tableStructures) {
-                    if (!tableStructure.isModelView()) {
-                        database.execSQL(tableStructure.getCreationQuery().getQuery());
-                    }
+
+                List<ModelAdapter> modelAdapters = mManager.getModelAdapters();
+                for(ModelAdapter modelAdapter: modelAdapters) {
+                    database.execSQL(modelAdapter.getCreationQuery());
                 }
 
-                Collection<ModelViewDefinition> modelViews = mManager.getStructure().getModelViews().values();
-
-                for (ModelViewDefinition modelView : modelViews) {
+                // create our model views
+                List<ModelViewAdapter> modelViews = mManager.getModelViewAdapters();
+                for (ModelViewAdapter modelView : modelViews) {
                     QueryBuilder queryBuilder = new QueryBuilder()
                             .append("CREATE VIEW")
-                            .appendSpaceSeparated(modelView.getName())
+                            .appendSpaceSeparated(modelView.getViewName())
                             .append("AS ")
-                            .append(modelView.getWhere().getQuery());
+                            .append(modelView.getCreationQuery());
                     database.execSQL(queryBuilder.getQuery());
                 }
             }
@@ -197,12 +188,13 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e);
         }
 
-        if (mMigrations != null) {
+        Map<Integer, List<Migration>> migrationMap = mManager.getMigrations();
+        if (migrationMap != null) {
             int curVersion = oldVersion + 1;
 
             // execute migrations in order
             for (int i = curVersion; i <= newVersion; i++) {
-                List<Migration> migrationsList = mMigrations.get(i);
+                List<Migration> migrationsList = migrationMap.get(i);
                 if (migrationsList != null) {
                     for (Migration migration : migrationsList) {
 

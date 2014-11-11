@@ -1,13 +1,10 @@
 package com.grosner.dbflow.structure;
 
-import android.database.Cursor;
-
 /**
  * Author: andrewgrosner
  * Contributors: { }
  * Description: The main interface for which all DB-based objects should implement.
  */
-@Ignore
 public interface Model {
 
     /**
@@ -37,13 +34,6 @@ public interface Model {
      * @param async
      */
     public void insert(boolean async);
-
-    /**
-     * Loads the {@link com.grosner.dbflow.structure.Model} from the specified cursor.
-     *
-     * @param cursor
-     */
-    public void load(Cursor cursor);
 
     /**
      * Returns whether this Model exists or not

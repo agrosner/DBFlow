@@ -10,67 +10,200 @@ The library eliminates the need for writing most SQL statements, writing ``Conte
 
 Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your complex problem and not be hindered by repetitive code writing. 
 
-This library is based on both [Active Android](https://github.com/pardom/ActiveAndroid) and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of both while offering much more functionality and extensibility. 
+This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility. 
 
-**Please** note that this is not in full release yet, and thus is in **Beta**. Also the code is **not** fully guaranteed yet, but I promise to be nicer in changes from now on.
+What sets this library apart: baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
-**Also** Try out branch "compiler". I am making this library use annotation processing to generate database class files!
+## Including in your project
 
-## Features:
+### Gradle
 
-[Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
+Local, using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt)
 
-### Efficiency
-[Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
+```groovy
 
-[Transactions](https://github.com/agrosner/DBFlow/wiki/Database-Transactions) wrap batch operations in one database transaction and run all on a priority queue.
+dependencies {
+  apt project(':Libraries:DBFlow:compiler')
+  compile project(':Libraries:DBFlow:library')
+}
 
-eliminates repetitive code, built to handle large DB operations, caching where needed
+```
 
-### Extensibility
-customizable interfaces for many aspects of the library
+Remote, will be available **soon*
 
-```Model```: The main table class
+```groovy
 
-```Transaction```: Runs a [transaction](https://github.com/agrosner/DBFlow/wiki/Database-Transactions) on the ```DBTransactionQueue```
+dependencies {
+  apt 'com.github.agrosner:DBFlow-compiler:1.+'
+  compile 'com.github.agrosner:DBFlow-library:1.+'
+}
 
-```Migration```: Define how you wish to modify the database
+```
 
-```Queriable```: Custom definition for how to retrieve data from the database
+### Eclipse
 
-```ModelChangeListener```: Listens for operations on a ```Model``` and provides a callback for when they change. [Example](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
+No official support as of now, if anyone gets it working in a pull request, send it my way!
 
-```TypeConverter```: Allows non-model classes to define how they save to a singular column in the database ([here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)).
+## Configuration
 
-```ModelContainer```: Allows data that does not look like a ```Model``` class to operate like a model. Such examples are ```JSONModel``` and ```MapModel```[here](https://github.com/agrosner/DBFlow/wiki/Model-Containers). 
+First class you need to define is the ```@Database```. It is recommended you store the name and version as static final fields.
+The database name is not required for singular databases, however it is good practice to include it here.
 
-### Power
-[SQL-lite query wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
 
-```Select```, ```Update```, ```Delete``` are all supported.
+```java
 
-[**Multiple database support**](https://github.com/agrosner/DBFlow/wiki/Multiple-Databases)
+@Database(name = AppDatabase.NAME, version = AppDatabase.VERSION, foreignKeysSupported = true)
+public class AppDatabase {
 
-```FlowManager```: Manages a database. To enable multiple databases, call ```FlowManager.setMultipleDatabases(true)``` and specify in each's ```DBConfiguration``` which ```Model``` class to use (two dbs cannot share the same model class).
+    public static final String NAME = "App";
 
-[Model Containers](https://github.com/agrosner/DBFlow/wiki/Model-Containers)
+    public static final int VERSION = 1;
+}
 
-```JSONModel```: Maps a Json object to a ```Model``` in the database. It will directly save the JSON into the DB using a ```Model``` class as its blueprint.
+```
 
-```MapModel```: Maps a Map<String, Object> to a ```Model``` in the database. It will directly save the map into the DB using a ```Model``` class as its blueprint.
+Second, you need to define at least one ```@Table``` class. The ```databaseName``` is only required when dealing with multiple
+databases. You can either implement the ```Model``` interface or extend ```BaseModel```.
 
-### Ease
-[Migration handling](https://github.com/agrosner/DBFlow/wiki/Migrations)
+```java
 
-```BaseMigration```: Provides a base implementation to execute some operation on the database
+@Table(databaseName = TestDatabase.NAME)
+public class TestModel1 extends BaseModel {
+    @Column(columnType = Column.PRIMARY_KEY)
+    public
+    String name;
+}
 
-```AlterTableMigration```: When you want to change table's name or add columns
+```
 
-```UpdateTableMigration```: Define the ```Update``` to run for a specific DB version
+## Prepackaged Databases
 
-### Familiarity
-Handling DB tables like a java ```List``` with the ```FlowTableList``` ([here](https://github.com/agrosner/DBFlow/wiki/Tables-as-Lists))
+So you have an existing DB you wish to include in your project. Just name the database the same as the database to copy, and put it in the ```app/src/main/assets/``` directory.
 
-### Flexibility
-Can use the [SQL wrapping language](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping), ```FlowCursorList```, or ```TransactionManager``` to perform DB operations. Each one serves a specific purpose. 
+## Migrations
+
+in DBFlow migrations are separate, public classes that contain both the ```@Migration``` and ```Migration```interface. If you are using multiple databases, you're required to specify it for the migration.
+
+```java
+
+@Migration(version = 2, databaseName = TestDatabase.NAME)
+public class Migration1 extends BaseMigration {
+
+    @Override
+    public void onPreMigrate() {
+      // called before migration, instantiate any migration query here
+    }
+
+    @Override
+    public void migrate(SQLiteDatabase database) {
+      // call your migration query
+    }
+
+    @Override
+    public void onPostMigrate() {
+      // release migration resources here
+    }
+}
+
+```
+
+## Basic Query Wrapping
+
+The SQL language is wrapped in a nice builder notation. DBFlow generates a ```$Table``` containing static final column strings to use in your queries!
+
+```java
+
+new Select().from(DeviceObject.class)
+                             .where(Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy S5"))
+                             .and(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
+                             .and(Condition.column(DeviceObject$Table.LOCATION).is(location);
+
+```
+
+To see more go to the full [tutorial](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
+
+## Model Containers
+
+Model containers are classes that __imitate__ and use the blueprint of ```Model``` classes in order to save data such as JSON, Hashmap, or your own kind of data to the database. To create your own, extend the ```BaseModelContainer``` class or implement the ```ModelContainer``` interface. 
+
+For example here is the ```JSONModel``` implementation:
+
+```java
+
+public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model {
+
+    public JSONModel(JSONObject jsonObject, Class<ModelClass> table) {
+        super(table, jsonObject);
+    }
+
+    public JSONModel(Class<ModelClass> table) {
+        super(table, new JSONObject());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
+        return new JSONModel((JSONObject) inValue, columnClass);
+    }
+
+    @Override
+    public JSONObject newDataInstance() {
+        return new JSONObject();
+    }
+
+    @Override
+    public Object getValue(String columnName) {
+        return getData().opt(columnName);
+    }
+
+    @Override
+    public void put(String columnName, Object value) {
+        try {
+            getData().put(columnName, value);
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+        }
+    }
+}
+
+```
+
+And then in **every** ```Model``` class you wish to use this class, you need to add the annotation ```@ContainerAdapter```. This generates the definition required to save objects correctly to the DB.
+
+## Type Converters
+
+```TypeConverter``` allows non-Model objects to save to the database by converting it from its ```Model``` value to its ```Database``` value. These are statically allocated accross all databases.
+
+```java
+
+public class CalendarConverter extends TypeConverter<Long, Calendar> {
+
+    @Override
+    public Long getDBValue(Calendar model) {
+        return model.getTimeInMillis();
+    }
+
+    @Override
+    public Calendar getModelValue(Long data) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(data);
+        return calendar;
+    }
+}
+
+```
+
+## Model Views
+
+```ModelView``` are a special kind of ```Model``` that creates a database **VIEW** based on a special SQL statement. They must reference another ```Model``` class currently. 
+
+```java
+
+@ModelView(query = "SELECT * FROM TestModel2 WHERE model_order > 5", databaseName = TestDatabase.NAME)
+public class TestModelView extends BaseModelView<TestModel2> {
+    @Column
+    long model_order;
+}
+
+```
 

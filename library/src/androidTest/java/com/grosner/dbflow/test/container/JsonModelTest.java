@@ -1,6 +1,5 @@
 package com.grosner.dbflow.test.container;
 
-import com.grosner.dbflow.config.DBConfiguration;
 import com.grosner.dbflow.structure.container.JSONModel;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
@@ -19,15 +18,10 @@ public class JsonModelTest extends FlowTestCase {
         return "jsonmodel";
     }
 
-    @Override
-    protected void modifyConfiguration(DBConfiguration.Builder builder) {
-        builder.addModelClasses(TestModelContainerClass.class);
-    }
-
     public void testJsonModel() {
         try {
             JSONObject jsonObject = new JSONObject("{" +
-                    "name: test" +
+                    "name: testModel" +
                     "}");
             JSONModel<TestModel1> testJsonModel1 = new JSONModel<TestModel1>(jsonObject, TestModel1.class);
             testJsonModel1.save(false);
@@ -50,6 +44,11 @@ public class JsonModelTest extends FlowTestCase {
             assertTrue(testJsonModel.exists());
             assertNotNull(testJsonModel.toModel());
             assertNotNull(testJsonModel.toModel().testModel);
+
+            testJsonModel.delete(false);
+            testJsonModel1.delete(false);
+            assertFalse(testJsonModel1.exists());
+            assertFalse(testJsonModel.exists());
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

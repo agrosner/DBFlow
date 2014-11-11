@@ -2,6 +2,7 @@ package com.grosner.dbflow.structure;
 
 import android.database.Cursor;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.SqlUtils;
 
 /**
@@ -12,22 +13,27 @@ import com.grosner.dbflow.sql.SqlUtils;
  * If you wish not to extend from this class you will need to implement {@link com.grosner.dbflow.structure.Model}
  * instead.
  */
-@Ignore
 public abstract class BaseModel implements Model {
+
+    private ModelAdapter mModelAdapter;
+
+    public BaseModel() {
+        mModelAdapter = FlowManager.getModelAdapter(getClass());
+    }
 
     @Override
     public void save(boolean async) {
-        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_DEFAULT);
+       mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_DEFAULT);
     }
 
     @Override
     public void delete(boolean async) {
-        SqlUtils.delete(this, async);
+       mModelAdapter.delete(async, this);
     }
 
     @Override
     public void update(boolean async) {
-        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_UPDATE);
+        mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_UPDATE);
     }
 
     /**
@@ -37,17 +43,12 @@ public abstract class BaseModel implements Model {
      */
     @Override
     public void insert(boolean async) {
-        SqlUtils.save(this, async, SqlUtils.SAVE_MODE_INSERT);
-    }
-
-    @Override
-    public void load(Cursor cursor) {
-        SqlUtils.loadFromCursor(this, cursor);
+        mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_INSERT);
     }
 
     @Override
     public boolean exists() {
-        return SqlUtils.exists(this);
+        return mModelAdapter.exists(this);
     }
 
     public enum Action {

@@ -4,7 +4,6 @@ import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.language.Select;
-import com.grosner.dbflow.structure.Ignore;
 import com.grosner.dbflow.structure.Model;
 
 import org.json.JSONException;
@@ -19,7 +18,6 @@ import org.json.JSONObject;
  * <br />
  * <li>The names of the keys must match the column names</li>
  */
-@Ignore
 public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model {
 
     /**
@@ -39,6 +37,17 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
      */
     public JSONModel(Class<ModelClass> table) {
         super(table, new JSONObject());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
+        return new JSONModel((JSONObject) inValue, columnClass);
+    }
+
+    @Override
+    public JSONObject newDataInstance() {
+        return new JSONObject();
     }
 
     @Override
@@ -63,7 +72,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     public void load(Object... primaryKeys) {
         setData(new JSONObject());
         ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(getTable());
-        load(new Select().from(mTableStructure.getModelType())
+        load(new Select().from(mModelAdapter.getModelClass())
                 .where(primaryQuery.replaceEmptyParams(primaryKeys)).query());
     }
 

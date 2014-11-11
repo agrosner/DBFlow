@@ -3,7 +3,7 @@ package com.grosner.dbflow.sql.language;
 import com.grosner.dbflow.sql.Query;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.sql.builder.QueryBuilder;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 
 /**

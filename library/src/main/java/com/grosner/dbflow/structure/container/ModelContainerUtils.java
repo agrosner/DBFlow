@@ -1,24 +1,16 @@
 package com.grosner.dbflow.structure.container;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.config.BaseDatabaseDefinition;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.grosner.dbflow.sql.SqlUtils;
-import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
-import com.grosner.dbflow.sql.builder.PrimaryKeyCannotBeNullException;
-import com.grosner.dbflow.sql.language.Select;
+import com.grosner.dbflow.sql.language.Delete;
 import com.grosner.dbflow.structure.BaseModel;
 import com.grosner.dbflow.structure.Model;
-import com.grosner.dbflow.structure.StructureUtils;
-import com.grosner.dbflow.structure.TableStructure;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Set;
+import com.grosner.dbflow.structure.ModelAdapter;
 
 /**
  * Author: andrewgrosner
@@ -28,7 +20,7 @@ import java.util.Set;
 public class ModelContainerUtils {
 
     /**
-     * Saves a {@link com.grosner.dbflow.structure.container.BaseModelContainer} to the database.
+     * Syncs a {@link com.grosner.dbflow.structure.container.BaseModelContainer} to the database.
      *
      * @param modelContainer The container model to save
      * @param async          Where it goes on the {@link com.grosner.dbflow.runtime.DBTransactionQueue} or done immediately/
@@ -36,29 +28,20 @@ public class ModelContainerUtils {
      *                       {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, {@link com.grosner.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void save(ModelContainer<ModelClass, ?> modelContainer, boolean async, @SqlUtils.SaveMode int mode) {
+    @SuppressWarnings("unchecked")
+    public static <ModelClass extends Model> void sync(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContentValues contentValues, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
-            TableStructure<ModelClass> tableStructure = modelContainer.getTableStructure();
-            FlowManager flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
-
-            ConditionQueryBuilder<ModelClass> primaryConditionQueryBuilder = FlowManager.getPrimaryWhereQuery(modelContainer.getTable());
+            BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
+            ContainerAdapter<ModelClass> containerAdapter = flowManager.getModelContainerAdapterForTable(modelContainer.getTable());
+            ModelAdapter<ModelClass> modelAdapter = modelContainer.getModelAdapter();
 
             final SQLiteDatabase db = flowManager.getWritableDatabase();
-            final ContentValues values = new ContentValues();
-
-            Set<Field> fields = tableStructure.getColumns();
-            for (Field field : fields) {
-                String columnName = tableStructure.getColumnName(field);
-                Object value = modelContainer.getValue(columnName);
-                field.setAccessible(true);
-                SqlUtils.putField(values, flowManager, field, columnName, value);
-            }
 
             boolean exists = false;
             BaseModel.Action action = BaseModel.Action.SAVE;
             if (mode == SqlUtils.SAVE_MODE_DEFAULT) {
-                exists = exists(modelContainer);
+                exists = containerAdapter.exists(modelContainer);
             } else if (mode == SqlUtils.SAVE_MODE_UPDATE) {
                 exists = true;
                 action = BaseModel.Action.UPDATE;
@@ -67,14 +50,16 @@ public class ModelContainerUtils {
             }
 
             if (exists) {
-                exists = (db.update(tableStructure.getTableName(), values,
-                        getModelBackedWhere(primaryConditionQueryBuilder, tableStructure.getPrimaryKeys(), modelContainer), null) != 0);
+                exists = (db.update(modelAdapter.getTableName(), contentValues, containerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null) != 0);
             }
 
             if (!exists) {
-                long id = db.insert(tableStructure.getTableName(), null, values);
+                long id = db.insert(modelAdapter.getTableName(), null, contentValues);
+                if(id != 0) {
 
-                Collection<Field> primaryKeys = tableStructure.getPrimaryKeys();
+                }
+
+                /*Collection<Field> primaryKeys = tableStructure.getPrimaryKeys();
                 for (Field field : primaryKeys) {
                     if (StructureUtils.isPrimaryKeyAutoIncrement(field)) {
                         field.setAccessible(true);
@@ -84,7 +69,7 @@ public class ModelContainerUtils {
                             throw new RuntimeException(e);
                         }
                     }
-                }
+                }*/
             }
 
             SqlUtils.notifyModelChanged(modelContainer.getTable(), action);
@@ -94,92 +79,6 @@ public class ModelContainerUtils {
         }
     }
 
-    /**
-     * Returns whether the given {@link com.grosner.dbflow.structure.container.BaseModelContainer} exists in the DB as the {@link ModelClass}
-     * table it points to.
-     *
-     * @param jsonModel    The json model that points to a {@link com.grosner.dbflow.structure.Model} class
-     * @param <ModelClass> The class that implements {@link ModelClass}
-     * @return If the model that the {@link JSONModel} points to exists in the DB
-     */
-    public static <ModelClass extends Model> boolean exists(ModelContainer<ModelClass, ?> jsonModel) {
-        return new Select().from(jsonModel.getTable())
-                .where(getPrimaryModelWhere(jsonModel)).hasData();
-    }
-
-    /**
-     * Returns a where query String from the existing builder and collection of fields. This is only different
-     * than {@link com.grosner.dbflow.sql.builder.ConditionQueryBuilder#getModelBackedWhere(com.grosner.dbflow.sql.builder.ConditionQueryBuilder, java.util.Collection, com.grosner.dbflow.structure.Model)}
-     * in that we call {@link org.json.JSONObject#get(String)} for the value of the field.
-     *
-     * @param existing       The existing where query we wish to generate new one from the model.
-     * @param fields         The list of fields that we look up the column names for
-     * @param modelContainer The {@link com.grosner.dbflow.structure.container.BaseModelContainer} to get the field values from
-     * @param <ModelClass>
-     * @return
-     */
-    public static <ModelClass extends Model> String getModelBackedWhere(ConditionQueryBuilder<ModelClass> existing,
-                                                                        Collection<Field> fields, ModelContainer<ModelClass, ?> modelContainer) {
-        String query = existing.getQuery();
-        for (Field primaryField : fields) {
-            String columnName = existing.getTableStructure().getColumnName(primaryField);
-            try {
-                Object object = modelContainer.getValue(primaryField.getName());
-                if (object == null) {
-                    throw new PrimaryKeyCannotBeNullException("The primary key: " + primaryField.getName()
-                            + "from " + existing.getTableStructure().getTableName() + " cannot be null.");
-                } else {
-                    query = query.replaceFirst("\\?", existing.convertValueToString(columnName, object));
-                }
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return query;
-    }
-
-    /**
-     * Builds a {@link com.grosner.dbflow.structure.Model} where query with its primary keys.
-     *
-     * @param modelContainer The existing model with all of its primary keys filled in
-     * @return
-     */
-    public static <ModelClass extends Model> String getPrimaryModelWhere(ModelContainer<ModelClass, ?> modelContainer) {
-        ConditionQueryBuilder<ModelClass> existing = FlowManager.getPrimaryWhereQuery(modelContainer.getTable());
-        return getModelBackedWhere(existing, existing.getTableStructure().getPrimaryKeys(), modelContainer);
-    }
-
-    /**
-     * Loads a {@link com.grosner.dbflow.structure.Model} from the DB cursor into data from the {@link com.grosner.dbflow.structure.container.ModelContainer}.
-     *
-     * @param modelContainer The data to load the cursor into
-     * @param cursor         The cursor from the DB
-     * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
-     */
-    public static <ModelClass extends Model> void loadFromCursor(ModelContainer<ModelClass, ?> modelContainer, Cursor cursor) {
-        Set<Field> fields = modelContainer.getTableStructure().getColumns();
-        for (Field field : fields) {
-            Object value = SqlUtils.getModelValueFromCursor(cursor, modelContainer.getTableStructure(), field, modelContainer.getTableStructure().getColumnName(field), field.getType());
-
-            if (value != null) {
-                modelContainer.put(modelContainer.getTableStructure().getColumnName(field), value);
-            }
-        }
-    }
-
-    /**
-     * Converts data into its corresponding {@link ModelClass}.
-     *
-     * @param modelContainer The model that holds preconverted data
-     * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
-     */
-    public static <ModelClass extends Model> ModelClass toModel(ModelContainer<ModelClass, ?> modelContainer) {
-        Cursor cursor = new Select().from(modelContainer.getTable()).where(getPrimaryModelWhere(modelContainer)).query();
-        ModelClass model = SqlUtils.convertToModel(false, modelContainer.getTable(), cursor);
-        cursor.close();
-
-        return model;
-    }
 
     /**
      * Deletes {@link com.grosner.dbflow.structure.Model} from the database using the specfied {@link com.grosner.dbflow.config.FlowManager}
@@ -189,10 +88,10 @@ public class ModelContainerUtils {
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void delete(final ModelContainer<ModelClass, ?> modelContainer, boolean async) {
+    public static <ModelClass extends Model> void delete(final ModelContainer<ModelClass, ?> modelContainer,
+                                                         ContainerAdapter<ModelClass> containerAdapter, boolean async) {
         if (!async) {
-            FlowManager flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
-            flowManager.getWritableDatabase().delete(modelContainer.getTableStructure().getTableName(), getPrimaryModelWhere(modelContainer), null);
+            new Delete().from(modelContainer.getTable()).where(containerAdapter.getPrimaryModelWhere(modelContainer)).query();
             SqlUtils.notifyModelChanged(modelContainer.getTable(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(modelContainer));
