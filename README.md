@@ -10,65 +10,32 @@ The library eliminates the need for writing most SQL statements, writing ``Conte
 
 Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your complex problem and not be hindered by repetitive code writing. 
 
-This library is based on both [Active Android](https://github.com/pardom/ActiveAndroid) and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of both while offering much more functionality and extensibility. 
+This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility. 
 
-**Please** note that this is not in full release yet, and thus is in **Beta**. Also the code is **not** fully guaranteed yet, but I promise to be nicer in changes from now on.
+## Getting Started
 
-## Features:
+### Gradle
 
-[Getting Started](https://github.com/agrosner/DBFlow/wiki/Getting-Started)
+Local, using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt)
 
-### Efficiency
-[Building your database structure](https://github.com/agrosner/DBFlow/wiki/Building-your-database-structure)
+```groovy
 
-[Transactions](https://github.com/agrosner/DBFlow/wiki/Database-Transactions) wrap batch operations in one database transaction and run all on a priority queue.
+dependencies {
+  apt project(':Libraries:DBFlow:compiler')
+  compile project(':Libraries:DBFlow:library')
+}
 
-eliminates repetitive code, built to handle large DB operations, caching where needed
+```
 
-### Extensibility
-customizable interfaces for many aspects of the library
+Remote, will be available **soon*
 
-```Model```: The main table class
+```groovy
 
-```Transaction```: Runs a [transaction](https://github.com/agrosner/DBFlow/wiki/Database-Transactions) on the ```DBTransactionQueue```
+dependencies {
+  apt 'com.github.agrosner:DBFlow-compiler:1.+'
+  compile 'com.github.agrosner:DBFlow-library:1.+'
+}
 
-```Migration```: Define how you wish to modify the database
+```
 
-```Queriable```: Custom definition for how to retrieve data from the database
-
-```ModelChangeListener```: Listens for operations on a ```Model``` and provides a callback for when they change. [Example](https://github.com/agrosner/DBFlow/wiki/Observable-Models)
-
-```TypeConverter```: Allows non-model classes to define how they save to a singular column in the database ([here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)).
-
-```ModelContainer```: Allows data that does not look like a ```Model``` class to operate like a model. Such examples are ```JSONModel``` and ```MapModel```[here](https://github.com/agrosner/DBFlow/wiki/Model-Containers). 
-
-### Power
-[SQL-lite query wrapping](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
-
-```Select```, ```Update```, ```Delete``` are all supported.
-
-[**Multiple database support**](https://github.com/agrosner/DBFlow/wiki/Multiple-Databases)
-
-```FlowManager```: Manages a database. To enable multiple databases, call ```FlowManager.setMultipleDatabases(true)``` and specify in each's ```DBConfiguration``` which ```Model``` class to use (two dbs cannot share the same model class).
-
-[Model Containers](https://github.com/agrosner/DBFlow/wiki/Model-Containers)
-
-```JSONModel```: Maps a Json object to a ```Model``` in the database. It will directly save the JSON into the DB using a ```Model``` class as its blueprint.
-
-```MapModel```: Maps a Map<String, Object> to a ```Model``` in the database. It will directly save the map into the DB using a ```Model``` class as its blueprint.
-
-### Ease
-[Migration handling](https://github.com/agrosner/DBFlow/wiki/Migrations)
-
-```BaseMigration```: Provides a base implementation to execute some operation on the database
-
-```AlterTableMigration```: When you want to change table's name or add columns
-
-```UpdateTableMigration```: Define the ```Update``` to run for a specific DB version
-
-### Familiarity
-Handling DB tables like a java ```List``` with the ```FlowTableList``` ([here](https://github.com/agrosner/DBFlow/wiki/Tables-as-Lists))
-
-### Flexibility
-Can use the [SQL wrapping language](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping), ```FlowCursorList```, or ```TransactionManager``` to perform DB operations. Each one serves a specific purpose. 
 
