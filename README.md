@@ -63,7 +63,7 @@ public class AppDatabase {
 ```
 
 Second, you need to define at least one ```@Table``` class. The ```databaseName``` is only required when dealing with multiple
-databases.
+databases. You can either implement the ```Model``` interface or extend ```BaseModel```.
 
 ```java
 
@@ -107,3 +107,48 @@ public class Migration1 extends BaseMigration {
 
 ```
 
+## Model Containers
+
+Model containers are classes that __imitate__ and use the blueprint of ```Model``` classes in order to save data such as JSON, Hashmap, or your own kind of data to the database. To create your own, extend the ```BaseModelContainer``` class or implement the ```ModelContainer``` interface. 
+
+For example here is the ```JSONModel``` implementation:
+
+```java
+
+public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model {
+
+    public JSONModel(JSONObject jsonObject, Class<ModelClass> table) {
+        super(table, jsonObject);
+    }
+
+    public JSONModel(Class<ModelClass> table) {
+        super(table, new JSONObject());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
+        return new JSONModel((JSONObject) inValue, columnClass);
+    }
+
+    @Override
+    public JSONObject newDataInstance() {
+        return new JSONObject();
+    }
+
+    @Override
+    public Object getValue(String columnName) {
+        return getData().opt(columnName);
+    }
+
+    @Override
+    public void put(String columnName, Object value) {
+        try {
+            getData().put(columnName, value);
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+        }
+    }
+}
+
+```
