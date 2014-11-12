@@ -28,6 +28,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     boolean foreignKeysSupported;
 
+    boolean consistencyChecksEnabled;
+
     public DatabaseWriter(ProcessorManager manager, Element element) {
         super(element, manager);
         packageName = Classes.FLOW_MANAGER_PACKAGE;
@@ -37,6 +39,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         if(databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
         }
+
+        consistencyChecksEnabled = database.consistencyCheckEnabled();
 
         definitionClassName = databaseName + "$Database";
 
@@ -164,8 +168,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     private void writeGetters(JavaWriter javaWriter) throws IOException {
         // Get model Classes
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s", FlowManagerHandler.MODEL_FIELD_NAME);
@@ -173,8 +176,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         }, "List<Class<? extends Model>>", "getModelClasses", FlowManagerHandler.METHOD_MODIFIERS);
 
         // Get model Classes
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s", FlowManagerHandler.MODEL_VIEW_FIELD_NAME);
@@ -182,8 +184,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         }, "List<Class<? extends BaseModelView>>", "getModelViews", FlowManagerHandler.METHOD_MODIFIERS);
 
         // Get Model Adapter
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return new ArrayList(%1s.values())", FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME);
@@ -192,8 +193,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
 
         // Get Model Adapter
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME, "table");
@@ -201,8 +201,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         }, "ModelAdapter", "getModelAdapterForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<? extends Model>", "table");
 
         // Get Model Container
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME, "table");
@@ -210,8 +209,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         }, "ContainerAdapter", "getModelContainerAdapterForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<? extends Model>", "table");
 
         // Get Model Container
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME, "table");
@@ -220,8 +218,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
 
         // Get Model View Adapters
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return new ArrayList(%1s.values())", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME);
@@ -229,8 +226,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         }, "List<ModelViewAdapter>", "getModelViewAdapters", FlowManagerHandler.METHOD_MODIFIERS);
 
         // Get Migrations
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s", FlowManagerHandler.MIGRATION_FIELD_NAME);
@@ -239,8 +235,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
 
         // Get Model Container
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s", foreignKeysSupported);
@@ -248,8 +243,15 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         }, "boolean", "isForeignKeysSupported", FlowManagerHandler.METHOD_MODIFIERS);
 
         // Get Model Container
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return %1s", consistencyChecksEnabled);
+            }
+        }, "boolean", "areConsistencyChecksEnabled", FlowManagerHandler.METHOD_MODIFIERS);
+
+        // Get Model Container
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s", databaseVersion);
@@ -257,8 +259,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         }, "int", "getDatabaseVersion", FlowManagerHandler.METHOD_MODIFIERS);
 
         // Get Model Container
-        javaWriter.emitEmptyLine().emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return \"%1s\"", databaseName);

@@ -33,6 +33,15 @@ public class WriterUtils {
         }
     }
 
+    public static void emitOverriddenMethod(JavaWriter javaWriter, FlowWriter flowWriter, String returnType, String name, Set<Modifier> modifiers, String...params) {
+        try {
+            javaWriter.emitEmptyLine().emitAnnotation(Override.class);
+            emitMethod(javaWriter, flowWriter, returnType, name, modifiers, params);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void emitTransactionManagerCall(JavaWriter javaWriter, String method, String variable) throws IOException {
         javaWriter.emitStatement("TransactionManager.getInstance().%1s(ProcessModelInfo.withModels(%1s).info(DBTransactionInfo.create()));",
                 method, variable);

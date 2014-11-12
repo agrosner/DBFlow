@@ -1,8 +1,13 @@
 package com.grosner.dbflow.config;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import android.database.sqlite.SQLiteStatement;
+import android.os.Build;
+import android.util.Log;
+import android.util.Pair;
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.sql.QueryBuilder;
@@ -37,7 +42,38 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         super(FlowManager.getContext(), flowManager.getDatabaseName() + ".db", null, flowManager.getDatabaseVersion());
         mManager = flowManager;
         //mMigrations = dbConfiguration.mMigrations;
-        movePrepackagedDB(flowManager.getDatabaseName() + ".db");
+
+        boolean forceMove = false;
+        if(flowManager.areConsistencyChecksEnabled()) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                forceMove = !getWritableDatabase().isDatabaseIntegrityOk();
+            } else {
+                forceMove = !isDatabaseIntegrityOk();
+            }
+        }
+
+        movePrepackagedDB(flowManager.getDatabaseName() + ".db", forceMove);
+    }
+
+
+    /**
+     * Pulled partially from code, runs the integrity check on pre-honeycomb devices.
+     * @return
+     */
+    public boolean isDatabaseIntegrityOk() {
+        SQLiteStatement prog = null;
+        try {
+            prog = getWritableDatabase().compileStatement("PRAGMA integrity_check;");
+            String rslt = prog.simpleQueryForString();
+            if (!rslt.equalsIgnoreCase("ok")) {
+                // integrity_checker failed on main or attached databases
+                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " + mManager.getDatabaseName() + " returned: " + rslt);
+                return false;
+            }
+        } finally {
+            if (prog != null) prog.close();
+        }
+        return true;
     }
 
     /**
@@ -45,12 +81,15 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      *
      * @param databaseName
      */
-    public void movePrepackagedDB(String databaseName) {
+    public void movePrepackagedDB(String databaseName, boolean forceMove) {
         final File dbPath = FlowManager.getContext().getDatabasePath(databaseName);
 
         // If the database already exists, return
-        if (dbPath.exists()) {
+        if (!forceMove && dbPath.exists()) {
             return;
+        } else if(forceMove) {
+            // If we are force moving the prepackaged, we will delete the existing file.
+            dbPath.delete();
         }
 
         // Make sure we have a path to the file
@@ -125,7 +164,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     private void checkForeignKeySupport(SQLiteDatabase database) {
         if (mManager.isForeignKeysSupported()) {
-            database.execSQL("PRAGMA foreign_keys=ON;");
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                database.setForeignKeyConstraintsEnabled(true);
+            } else {
+                database.execSQL("PRAGMA foreign_keys=ON;");
+            }
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.");
         }
     }

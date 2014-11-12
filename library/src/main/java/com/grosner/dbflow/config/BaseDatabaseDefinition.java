@@ -50,8 +50,6 @@ public abstract class BaseDatabaseDefinition {
 
     abstract Map<Integer, List<Migration>> getMigrations();
 
-    public abstract boolean isForeignKeysSupported();
-
     public SQLiteDatabase getWritableDatabase() {
         if(mHelper == null) {
             mHelper = new FlowSQLiteOpenHelper(this);
@@ -62,6 +60,10 @@ public abstract class BaseDatabaseDefinition {
     public abstract String getDatabaseName();
 
     public abstract int getDatabaseVersion();
+
+    public abstract boolean areConsistencyChecksEnabled();
+
+    public abstract boolean isForeignKeysSupported();
 
     public void reset(Context context) {
         if(!isResetting) {

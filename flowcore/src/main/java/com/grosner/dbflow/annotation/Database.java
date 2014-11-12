@@ -36,4 +36,10 @@ public @interface Database {
      * @return
      */
     boolean foreignKeysSupported() default false;
+
+    /**
+     * Checks for consistency in the DB, if true it will recopy over the prepackage database.
+     * @return
+     */
+    boolean consistencyCheckEnabled() default false;
 }
