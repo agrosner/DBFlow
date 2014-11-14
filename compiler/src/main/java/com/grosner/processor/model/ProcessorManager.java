@@ -155,10 +155,6 @@ public class ProcessorManager implements Handler{
     }
 
     public Set<ModelContainerDefinition> getModelContainers(String databaseName) {
-        if(hasOneDatabase()) {
-            databaseName = "";
-        }
-
         Map<String, ModelContainerDefinition> modelContainerDefinitionMap = mModelContainers.get(databaseName);
         if(modelContainerDefinitionMap!= null) {
             return  Sets.newHashSet(mModelContainers.get(databaseName).values());
@@ -167,10 +163,6 @@ public class ProcessorManager implements Handler{
     }
 
     public Set<TableDefinition> getTableDefinitions(String databaseName) {
-        if(hasOneDatabase()) {
-            databaseName = "";
-        }
-
         Map<String, TableDefinition> tableDefinitionMap = mTableDefinitions.get(databaseName);
         if(tableDefinitionMap != null) {
             return Sets.newHashSet(mTableDefinitions.get(databaseName).values());
@@ -179,10 +171,6 @@ public class ProcessorManager implements Handler{
     }
 
     public Set<ModelViewDefinition> getModelViewDefinitions(String databaseName) {
-        if(hasOneDatabase()) {
-            databaseName = "";
-        }
-
         Map<String, ModelViewDefinition> modelViewDefinitionMap = mModelViewDefinition.get(databaseName);
         if(modelViewDefinitionMap != null) {
             return Sets.newHashSet(mModelViewDefinition.get(databaseName).values());
@@ -210,10 +198,6 @@ public class ProcessorManager implements Handler{
     }
 
     public Map<Integer, List<MigrationDefinition>> getMigrationsForDatabase(String databaseName) {
-        if(hasOneDatabase()) {
-            databaseName = "";
-        }
-
         Map<Integer, List<MigrationDefinition>> migrationDefinitions = mMigrations.get(databaseName);
         if(migrationDefinitions != null) {
             return migrationDefinitions;

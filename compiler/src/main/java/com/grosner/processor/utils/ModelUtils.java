@@ -106,10 +106,12 @@ public class ModelUtils {
         }
 
         // TODO: find a way to convert a type properly
-        String newFieldType;
+        String newFieldType = null;
         if(hasTypeConverter) {
             TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(modelType);
-            newFieldType = typeConverterDefinition.getDbElement().asType().toString();
+            if(typeConverterDefinition!=null) {
+                newFieldType = typeConverterDefinition.getDbElement().asType().toString();
+            }
         } else {
             newFieldType = columnFieldType;
         }

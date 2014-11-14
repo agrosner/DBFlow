@@ -202,6 +202,17 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     }
 
     /**
+     * Defines a SQL ORDER BY statement without the ORDER BY.
+     *
+     * @param ascending If we should be in ascending order
+     * @return
+     */
+    public Where<ModelClass> orderBy(String orderby) {
+        mOrderBy = orderby;
+        return this;
+    }
+
+    /**
      * Defines a SQL LIMIT statement without the LIMIT.
      *
      * @param limit

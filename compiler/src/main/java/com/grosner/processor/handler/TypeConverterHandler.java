@@ -1,6 +1,7 @@
 package com.grosner.processor.handler;
 
 import com.grosner.dbflow.annotation.TypeConverter;
+import com.grosner.dbflow.converter.BooleanConverter;
 import com.grosner.dbflow.converter.CalendarConverter;
 import com.grosner.dbflow.converter.DateConverter;
 import com.grosner.dbflow.converter.SqlDateConverter;
@@ -23,6 +24,7 @@ public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
             CalendarConverter.class,
             DateConverter.class,
             SqlDateConverter.class,
+            BooleanConverter.class,
     };
 
     @Override

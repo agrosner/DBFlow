@@ -13,7 +13,7 @@ public class ReflectionUtils {
         try {
             Class type = Class.forName(columnFieldType);
             isSubClass = type.getSuperclass() != null && (type.getSuperclass().equals(enumClass) ||
-                    isSubclassOf(type.getSuperclass().getTypeName(), enumClass));
+                    isSubclassOf(type.getSuperclass().getName(), enumClass));
         } catch (ClassNotFoundException e) {
         }
         return isSubClass;

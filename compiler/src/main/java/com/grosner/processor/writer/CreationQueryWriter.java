@@ -64,7 +64,12 @@ public class CreationQueryWriter implements FlowWriter{
 
                         if (columnDefinition.hasTypeConverter) {
                             TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.modelType);
-                            queryBuilder.appendType(typeConverterDefinition.getDbElement().asType().toString());
+                            if(typeConverterDefinition != null) {
+                                queryBuilder.appendType(typeConverterDefinition.getDbElement().asType().toString());
+                            } else {
+                                manager.logError("No type converter defined for: " + columnDefinition.columnFieldType);
+                                queryBuilder.append("null");
+                            }
                         } else if (SQLiteType.containsClass(columnDefinition.columnFieldType)) {
                             queryBuilder.appendType(columnDefinition.columnFieldType);
                         } else if (ReflectionUtils.isSubclassOf(columnDefinition.columnFieldType, Enum.class)) {
@@ -81,9 +86,7 @@ public class CreationQueryWriter implements FlowWriter{
 
                 // Views do not have primary keys
                 if(!isModelView) {
-                    if(tableDefinition.primaryColumnDefinitions.isEmpty()) {
-                        throw new PrimaryKeyNotFoundException("Table: " + tableDefinition.tableName + " must define a primary key");
-                    }
+
 
                     QueryBuilder primaryKeyQueryBuilder = new QueryBuilder().append("PRIMARY KEY(");
                     int count = 0;

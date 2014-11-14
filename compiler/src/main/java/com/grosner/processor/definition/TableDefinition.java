@@ -39,6 +39,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public ArrayList<ColumnDefinition> primaryColumnDefinitions;
 
+    public ColumnDefinition autoIncrementDefinition;
+
     public ArrayList<ColumnDefinition> foreignKeyDefinitions;
 
     FlowWriter[] mMethodWriters;
@@ -94,10 +96,16 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                         primaryColumnDefinitions.add(columnDefinition);
                     } else if (columnDefinition.columnType == Column.FOREIGN_KEY) {
                         foreignKeyDefinitions.add(columnDefinition);
+                    } else if (columnDefinition.columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
+                        autoIncrementDefinition = columnDefinition;
                     }
                 }
             }
         }
+    }
+
+    public ColumnDefinition getAutoIncrementPrimaryKey() {
+        return autoIncrementDefinition;
     }
 
     @Override

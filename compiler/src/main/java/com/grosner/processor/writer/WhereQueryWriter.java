@@ -1,6 +1,7 @@
 package com.grosner.processor.writer;
 
 import com.google.common.collect.Sets;
+import com.grosner.dbflow.annotation.Column;
 import com.grosner.processor.definition.BaseTableDefinition;
 import com.grosner.processor.definition.ColumnDefinition;
 import com.grosner.processor.definition.ModelViewDefinition;
@@ -38,13 +39,22 @@ public class WhereQueryWriter implements FlowWriter {
                 conditionQueryBuilder.appendCreation(tableDefinition.getModelClassName());
 
                 int primaryColumnSize = tableDefinition.getPrimaryColumnDefinitions().size();
-                for (int i = 0; i < primaryColumnSize; i++) {
-                    ColumnDefinition columnDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
-                    conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), columnDefinition.columnName),
-                            ModelUtils.getAccessStatement(columnDefinition.columnName, columnDefinition.columnFieldType,
-                                    columnDefinition.columnFieldName, isModelContainer, false, false, columnDefinition.hasTypeConverter));
-                    if(i < tableDefinition.getPrimaryColumnDefinitions().size()-1) {
-                        conditionQueryBuilder.append(",");
+                if(primaryColumnSize > 0) {
+                    for (int i = 0; i < primaryColumnSize; i++) {
+                        ColumnDefinition columnDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
+                        conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), columnDefinition.columnName),
+                                ModelUtils.getAccessStatement(columnDefinition.columnName, columnDefinition.columnFieldType,
+                                        columnDefinition.columnFieldName, isModelContainer, false, false, columnDefinition.hasTypeConverter));
+                        if (i < tableDefinition.getPrimaryColumnDefinitions().size() - 1) {
+                            conditionQueryBuilder.append(",");
+                        }
+                    }
+                } else if(!(tableDefinition instanceof ModelViewDefinition)){
+                    ColumnDefinition autoIncrementDefinition = ((TableDefinition)tableDefinition).autoIncrementDefinition;
+                    if(autoIncrementDefinition != null) {
+                        conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), autoIncrementDefinition.columnName),
+                                ModelUtils.getAccessStatement(autoIncrementDefinition.columnName, autoIncrementDefinition.columnFieldType,
+                                        autoIncrementDefinition.columnFieldName, isModelContainer, false, false, autoIncrementDefinition.hasTypeConverter));
                     }
                 }
                 conditionQueryBuilder.appendEndCreation();
@@ -65,12 +75,20 @@ public class WhereQueryWriter implements FlowWriter {
                 public void write(JavaWriter javaWriter) throws IOException {
                     MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder("return ");
                     conditionQueryBuilder.appendCreation(tableDefinition.getModelClassName());
-                    for (int i = 0; i < definition.primaryColumnDefinitions.size(); i++) {
-                        ColumnDefinition columnDefinition = definition.primaryColumnDefinitions.get(i);
-                        conditionQueryBuilder.appendMockCondition(definition.definitionClassName + "." + columnDefinition.columnName.toUpperCase(), "\"?\"");
+                    int primaryColumnSize = tableDefinition.getPrimaryColumnDefinitions().size();
+                    if(primaryColumnSize > 0) {
+                        for (int i = 0; i < definition.primaryColumnDefinitions.size(); i++) {
+                            ColumnDefinition columnDefinition = definition.primaryColumnDefinitions.get(i);
+                            conditionQueryBuilder.appendMockCondition(definition.definitionClassName + "." + columnDefinition.columnName.toUpperCase(), "\"?\"");
 
-                        if(i < definition.primaryColumnDefinitions.size()-1) {
-                            conditionQueryBuilder.append(",");
+                            if (i < definition.primaryColumnDefinitions.size() - 1) {
+                                conditionQueryBuilder.append(",");
+                            }
+                        }
+                    } else {
+                        ColumnDefinition autoIncrementDefinition = ((TableDefinition)tableDefinition).autoIncrementDefinition;
+                        if(autoIncrementDefinition != null) {
+                            conditionQueryBuilder.appendMockCondition(definition.definitionClassName + "." + autoIncrementDefinition.columnName.toUpperCase(), "\"?\"");
                         }
                     }
 

@@ -22,7 +22,10 @@ public class TableValidator implements Validator<TableDefinition> {
             success = false;
         }
 
-        if(tableDefinition.primaryColumnDefinitions.isEmpty()) {
+        boolean hasPrimary = (tableDefinition.autoIncrementDefinition != null && tableDefinition.primaryColumnDefinitions.isEmpty()
+                || tableDefinition.autoIncrementDefinition == null && !tableDefinition.primaryColumnDefinitions.isEmpty());
+
+        if(!hasPrimary) {
             processorManager.logError("Table %1s needs to define at least one primary key", tableDefinition.tableName);
             success = false;
         }

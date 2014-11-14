@@ -83,6 +83,9 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         javaWriter.beginConstructor(Sets.newHashSet(Modifier.PUBLIC), "DatabaseHolder", "holder");
         // Register this manager with classes if multitable is enabled.
         // Need to figure out how to
+
+        javaWriter.emitSingleLineComment("Writing for: " + databaseName);
+
         for (TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
         }

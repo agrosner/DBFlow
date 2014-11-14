@@ -191,8 +191,15 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             } else {
                 newFieldType = columnFieldType;
             }
+
+            String getType = columnFieldType;
+            // Type converters can never be primitive except boolean
+            if(element.asType().getKind().isPrimitive()) {
+                getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
+            }
+
             javaWriter.emitStatement(ModelUtils.getContentValueStatement(columnName, columnName,
-                    newFieldType, columnFieldName, isModelContainerDefinition, isModelContainer, false, hasTypeConverter, columnFieldType));
+                    newFieldType, columnFieldName, isModelContainerDefinition, isModelContainer, false, hasTypeConverter, getType));
         }
     }
 
@@ -243,7 +250,13 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             javaWriter.emitEmptyLine();
 
         } else {
-            javaWriter.emitStatement(ModelUtils.getLoadFromCursorDefinitionField(manager, columnFieldType, columnFieldName,
+            String getType = columnFieldType;
+            // Type converters can never be primitive except boolean
+            if(element.asType().getKind().isPrimitive()) {
+                getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
+            }
+
+            javaWriter.emitStatement(ModelUtils.getLoadFromCursorDefinitionField(manager, getType, columnFieldName,
                     columnName, "", modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer));
         }
     }
