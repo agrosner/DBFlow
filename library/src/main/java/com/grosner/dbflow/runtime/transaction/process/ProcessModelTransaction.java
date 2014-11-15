@@ -33,7 +33,7 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
     @Override
     public List<ModelClass> onExecute() {
         final List<ModelClass> processedModels = mModelInfo.mModels;
-        ProcessModelHelper.process(processedModels, this);
+        ProcessModelHelper.process(mModelInfo.mTable, processedModels, this);
         return processedModels;
     }
 

@@ -22,6 +22,8 @@ public class ProcessModelInfo<ModelClass extends Model> {
 
     DBTransactionInfo mInfo;
 
+    Class<ModelClass> mTable;
+
     /**
      * Required to construct this information with Models
      */
@@ -35,8 +37,12 @@ public class ProcessModelInfo<ModelClass extends Model> {
                 .models(models);
     }
 
+    @SuppressWarnings("unchecked")
     public ProcessModelInfo<ModelClass> models(ModelClass... models) {
         mModels.addAll(Arrays.asList(models));
+        if(models.length > 0) {
+            mTable = (Class<ModelClass>) models[0].getClass();
+        }
         return this;
     }
 
@@ -45,8 +51,12 @@ public class ProcessModelInfo<ModelClass extends Model> {
                 .models(models);
     }
 
+    @SuppressWarnings("unchecked")
     public ProcessModelInfo<ModelClass> models(Collection<ModelClass> models) {
         mModels.addAll(models);
+        if(models != null && models.size() > 0) {
+            mTable = (Class<ModelClass>) new ArrayList<>(models).get(0).getClass();
+        }
         return this;
     }
 

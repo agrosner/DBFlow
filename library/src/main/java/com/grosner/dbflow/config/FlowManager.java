@@ -48,17 +48,12 @@ public class FlowManager {
      * @return
      */
     public static BaseDatabaseDefinition getManagerForTable(Class<? extends Model> table) {
-        if(mManagerHolder == null) {
-            try {
-                mManagerHolder = (DatabaseHolder) Class.forName("com.grosner.dbflow.config.FlowManager$Holder").newInstance();
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
-            }
-        }
+        getManagerHolder();
 
         BaseDatabaseDefinition flowManager = mManagerHolder.getFlowManagerForTable(table);
         if (flowManager == null) {
-            throw new InvalidDBConfiguration();
+            throw new InvalidDBConfiguration("Table: " + table.getName() + " is not registered with a Database. " +
+                    "Did you forget the @Table annotation?");
         }
         return flowManager;
     }
@@ -70,6 +65,16 @@ public class FlowManager {
      * @return
      */
     public static BaseDatabaseDefinition getManager(String databaseName) {
+        getManagerHolder();
+
+        BaseDatabaseDefinition flowManager = mManagerHolder.getFlowManager(databaseName);
+        if (flowManager == null) {
+            throw new InvalidDBConfiguration();
+        }
+        return flowManager;
+    }
+
+    protected static DatabaseHolder getManagerHolder() {
         if(mManagerHolder == null) {
             try {
                 mManagerHolder = (DatabaseHolder) Class.forName("com.grosner.dbflow.config.FlowManager$Holder").newInstance();
@@ -78,11 +83,7 @@ public class FlowManager {
             }
         }
 
-        BaseDatabaseDefinition flowManager = mManagerHolder.getFlowManager(databaseName);
-        if (flowManager == null) {
-            throw new InvalidDBConfiguration();
-        }
-        return flowManager;
+        return mManagerHolder;
     }
 
     /**
@@ -110,6 +111,7 @@ public class FlowManager {
 
     public static void init(Context context) {
         FlowManager.context = context;
+        getManagerHolder();
     }
 
     /**

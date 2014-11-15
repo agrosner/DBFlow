@@ -228,6 +228,10 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                             modelContainerName, ModelUtils.getVariable(true), ModelUtils.getVariable(true),
                             columnFieldType);
                     for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+
+                        javaWriter.emitStatement(ModelUtils.getColumnIndex(columnName));
+                        javaWriter.beginControlFlow("if (%1s != -1) ", "index" + columnName);
+
                         AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
                         adapterQueryBuilder.append(modelContainerName)
                                 .appendPut(foreignKeyReference.foreignColumnName())
@@ -235,14 +239,16 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                                         foreignKeyReference.columnName()))
                                 .append(")");
                         javaWriter.emitStatement(adapterQueryBuilder.getQuery());
+
+                        javaWriter.endControlFlow();
                     }
 
                     javaWriter.emitStatement("%1s.put(\"%1s\",%1s.getData())", ModelUtils.getVariable(true), columnFieldName, modelContainerName);
                 } else {
 
                     for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                        javaWriter.emitStatement(ModelUtils.getLoadFromCursorDefinitionField(manager, ModelUtils.getClassFromAnnotation(foreignKeyReference),
-                                columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(), null, false, isModelContainerDefinition, isModelContainer));
+                        ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, ModelUtils.getClassFromAnnotation(foreignKeyReference),
+                                columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(), null, false, isModelContainerDefinition, isModelContainer););
                     }
                 }
             }
@@ -256,8 +262,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
             }
 
-            javaWriter.emitStatement(ModelUtils.getLoadFromCursorDefinitionField(manager, getType, columnFieldName,
-                    columnName, "", modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer));
+            ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, getType, columnFieldName,
+                    columnName, "", modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer);
         }
     }
 

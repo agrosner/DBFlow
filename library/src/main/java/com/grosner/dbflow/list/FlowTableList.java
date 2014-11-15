@@ -194,7 +194,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         if (transact) {
             TransactionManager.getInstance().save(getProcessModelInfo(tmpCollection));
         } else {
-            ProcessModelHelper.process(tmpCollection, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(mCursorList.getTable(), tmpCollection, new ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
                     model.save(false);
@@ -360,7 +360,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
             if (transact) {
                 TransactionManager.getInstance().delete(getProcessModelInfo(modelCollection));
             } else {
-                ProcessModelHelper.process(modelCollection, new ProcessModel<ModelClass>() {
+                ProcessModelHelper.process(mCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
                     @Override
                     public void processModel(ModelClass model) {
                         model.delete(false);
@@ -389,7 +389,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         if (transact) {
             TransactionManager.getInstance().delete(getProcessModelInfo(tableList));
         } else {
-            ProcessModelHelper.process(tableList, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(mCursorList.getTable(), tableList, new ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
                     model.delete(false);

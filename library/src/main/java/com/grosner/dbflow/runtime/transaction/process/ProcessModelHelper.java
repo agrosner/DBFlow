@@ -2,10 +2,13 @@ package com.grosner.dbflow.runtime.transaction.process;
 
 import android.support.annotation.NonNull;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.structure.Model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -20,15 +23,18 @@ public class ProcessModelHelper {
      * @param processModel The callback to run custom handling of the model object
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void process(@NonNull final Collection<ModelClass> collection, final ProcessModel<ModelClass> processModel) {
-        TransactionManager.transact(new Runnable() {
-            @Override
-            public void run() {
-                for (ModelClass collectionModel : collection) {
-                    processModel.processModel(collectionModel);
-                }
-            }
-        });
+    public static <ModelClass extends Model> void process(Class<ModelClass> modelClass, @NonNull final Collection<ModelClass> collection, final ProcessModel<ModelClass> processModel) {
+        if(!collection.isEmpty()) {
+            TransactionManager.transact(FlowManager.getManagerForTable(modelClass).getWritableDatabase(),
+                    new Runnable() {
+                    @Override
+                    public void run() {
+                        for (ModelClass collectionModel : collection) {
+                            processModel.processModel(collectionModel);
+                        }
+                    }
+            });
+        }
     }
 
     /**
@@ -39,8 +45,10 @@ public class ProcessModelHelper {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SafeVarargs
-    public static <ModelClass extends Model> void process(final ProcessModel<ModelClass> processModel, final ModelClass... models) {
-        TransactionManager.transact(new Runnable() {
+    public static <ModelClass extends Model> void process(Class<ModelClass> modelClass,
+                                                          final ProcessModel<ModelClass> processModel, final ModelClass... models) {
+        TransactionManager.transact(FlowManager.getManagerForTable(modelClass).getWritableDatabase(),
+                new Runnable() {
             @Override
             public void run() {
                 for (ModelClass model : models) {

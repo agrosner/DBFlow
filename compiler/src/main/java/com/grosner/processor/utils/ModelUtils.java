@@ -6,6 +6,9 @@ import com.grosner.processor.definition.TypeConverterDefinition;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.model.builder.AdapterQueryBuilder;
 import com.grosner.processor.writer.LoadCursorWriter;
+import com.squareup.javawriter.JavaWriter;
+
+import java.io.IOException;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
@@ -90,9 +93,9 @@ public class ModelUtils {
         return contentValue.getQuery();
     }
 
-    public static String getLoadFromCursorDefinitionField(ProcessorManager processorManager, String columnFieldType, String columnFieldName, String columnName,
+    public static void writeLoadFromCursorDefinitionField(JavaWriter javaWriter, ProcessorManager processorManager, String columnFieldType, String columnFieldName, String columnName,
                                                           String foreignColumnName,
-                                                          TypeElement modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer) {
+                                                          TypeElement modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer) throws IOException {
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isModelContainerDefinition);
         if(isFieldModelContainer) {
             queryBuilder.append(".").append(columnFieldName);
@@ -115,6 +118,10 @@ public class ModelUtils {
         } else {
             newFieldType = columnFieldType;
         }
+
+        javaWriter.emitStatement(getColumnIndex(columnName));
+        javaWriter.beginControlFlow("if (%1s != -1) ", "index" + columnName);
+
         String cursorStatment = ModelUtils.getCursorStatement(newFieldType, columnName);
         if(hasTypeConverter && !isModelContainerDefinition) {
             queryBuilder.appendTypeConverter(columnFieldType, columnFieldType, true);
@@ -127,7 +134,8 @@ public class ModelUtils {
             queryBuilder.append(")");
         }
 
-        return queryBuilder.getQuery();
+        javaWriter.emitStatement(queryBuilder.getQuery());
+        javaWriter.endControlFlow();
     }
 
     public static String getContainerValueStatement(String columnFieldName) {
@@ -142,9 +150,13 @@ public class ModelUtils {
         return "model." + columnFieldName;
     }
 
+    public static String getColumnIndex(String columnName) {
+        return "int index" + columnName + " = cursor.getColumnIndex(\""  + columnName + "\")";
+    }
+
     public static String getCursorStatement(String columnFieldType, String columnName) {
         String cursorMethod = LoadCursorWriter.CURSOR_METHOD_MAP.get(columnFieldType);
-        return "cursor." + cursorMethod + "(cursor.getColumnIndex(\""  + columnName + "\"))";
+        return "cursor." + cursorMethod + "(index"+ columnName + ")";
     }
 
     public static String getFieldClass(String columnFieldType) {
