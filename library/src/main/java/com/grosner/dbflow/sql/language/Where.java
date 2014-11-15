@@ -69,7 +69,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      */
     public Where(WhereBase<ModelClass> whereBase) {
         mWhereBase = whereBase;
-        mManager = FlowManager.getManagerForTable(mWhereBase.getTable());
+        mManager = FlowManager.getDatabaseForTable(mWhereBase.getTable());
         mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
         mHaving = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
     }

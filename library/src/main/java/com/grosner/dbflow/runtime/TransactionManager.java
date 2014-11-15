@@ -104,7 +104,7 @@ public class TransactionManager {
      * @param runnable
      */
     public static void transact(Runnable runnable) {
-        transact(FlowManager.getManagerForTable(null).getWritableDatabase(), runnable);
+        transact(FlowManager.getDatabaseForTable(null).getWritableDatabase(), runnable);
     }
 
     /**

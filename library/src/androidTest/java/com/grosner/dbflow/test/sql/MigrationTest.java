@@ -50,7 +50,7 @@ public class MigrationTest extends AndroidTestCase {
             assertEquals("ALTER TABLE MigrationModel ADD COLUMN " + columnNames.get(i), columnDefinitions.get(i));
         }
 
-        alterTableMigration.migrate(FlowManager.getManagerForTable(MigrationModel.class).getWritableDatabase());
+        alterTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
 
         // test the column sizes
         Cursor cursor = new Select().from(MigrationModel.class).where().query();
@@ -73,7 +73,7 @@ public class MigrationTest extends AndroidTestCase {
 
         assertEquals("UPDATE MigrationModel SET name = 'test' WHERE name = 'notTest'", updateTableMigration.getQuery().trim());
 
-        updateTableMigration.migrate(FlowManager.getManagerForTable(MigrationModel.class).getWritableDatabase());
+        updateTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
         updateTableMigration.onPostMigrate();
     }
 

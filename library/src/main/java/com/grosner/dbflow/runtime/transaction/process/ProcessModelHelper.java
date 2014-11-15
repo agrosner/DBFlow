@@ -6,9 +6,7 @@ import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.runtime.TransactionManager;
 import com.grosner.dbflow.structure.Model;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -25,7 +23,7 @@ public class ProcessModelHelper {
      */
     public static <ModelClass extends Model> void process(Class<ModelClass> modelClass, @NonNull final Collection<ModelClass> collection, final ProcessModel<ModelClass> processModel) {
         if(!collection.isEmpty()) {
-            TransactionManager.transact(FlowManager.getManagerForTable(modelClass).getWritableDatabase(),
+            TransactionManager.transact(FlowManager.getDatabaseForTable(modelClass).getWritableDatabase(),
                     new Runnable() {
                     @Override
                     public void run() {
@@ -47,7 +45,7 @@ public class ProcessModelHelper {
     @SafeVarargs
     public static <ModelClass extends Model> void process(Class<ModelClass> modelClass,
                                                           final ProcessModel<ModelClass> processModel, final ModelClass... models) {
-        TransactionManager.transact(FlowManager.getManagerForTable(modelClass).getWritableDatabase(),
+        TransactionManager.transact(FlowManager.getDatabaseForTable(modelClass).getWritableDatabase(),
                 new Runnable() {
             @Override
             public void run() {

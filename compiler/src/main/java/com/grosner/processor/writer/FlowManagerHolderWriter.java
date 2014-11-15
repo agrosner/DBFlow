@@ -29,7 +29,7 @@ public class FlowManagerHolderWriter implements FlowWriter {
     public void write(JavaWriter staticFlowManager) throws IOException {
         staticFlowManager.emitPackage(Classes.FLOW_MANAGER_PACKAGE);
         staticFlowManager.emitImports(Classes.MAP, Classes.HASH_MAP, Classes.TYPE_CONVERTER, Classes.MODEL);
-        staticFlowManager.beginType(Classes.FLOW_MANAGER_STATIC_CLASS_NAME, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), null, Classes.FLOW_MANAGER_STATIC_INTERFACE);
+        staticFlowManager.beginType(Classes.DATABASE_HOLDER_STATIC_CLASS_NAME, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), null, Classes.FLOW_MANAGER_STATIC_INTERFACE);
 
         // Flow managers
         staticFlowManager.emitField("Map<Class<? extends Model>, BaseDatabaseDefinition>",FlowManagerHandler.MANAGER_MAP_NAME,
@@ -80,7 +80,7 @@ public class FlowManagerHolderWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MANAGER_MAP_NAME, "table");
             }
-        }, "BaseDatabaseDefinition", "getFlowManagerForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<?>", "table");
+        }, "BaseDatabaseDefinition", "getDatabaseForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<?>", "table");
 
 
         // Get Managers
@@ -90,7 +90,7 @@ public class FlowManagerHolderWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MANAGER_NAME_MAP, "databaseName");
             }
-        }, "BaseDatabaseDefinition", "getFlowManager", FlowManagerHandler.METHOD_MODIFIERS, "String", "databaseName");
+        }, "BaseDatabaseDefinition", "getDatabase", FlowManagerHandler.METHOD_MODIFIERS, "String", "databaseName");
 
 
         // Get Managers
@@ -98,11 +98,11 @@ public class FlowManagerHolderWriter implements FlowWriter {
         WriterUtils.emitMethod(staticFlowManager, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("%1s.put(%1s, %1s)", FlowManagerHandler.MANAGER_MAP_NAME, "table", "manager");
-                javaWriter.emitStatement("%1s.put(%1s, %1s)", FlowManagerHandler.MANAGER_NAME_MAP, "manager.getDatabaseName()", "manager");
+                javaWriter.emitStatement("%1s.put(%1s, %1s)", FlowManagerHandler.MANAGER_MAP_NAME, "table", "database");
+                javaWriter.emitStatement("%1s.put(%1s, %1s)", FlowManagerHandler.MANAGER_NAME_MAP, "database.getDatabaseName()", "database");
             }
-        }, "void", "putFlowManagerForTable", FlowManagerHandler.METHOD_MODIFIERS,
-                "Class<? extends Model>", "table", "BaseDatabaseDefinition", "manager");
+        }, "void", "putDatabaseForTable", FlowManagerHandler.METHOD_MODIFIERS,
+                "Class<? extends Model>", "table", "BaseDatabaseDefinition", "database");
 
 
         staticFlowManager.endType();

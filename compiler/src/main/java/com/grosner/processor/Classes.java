@@ -57,7 +57,7 @@ public class Classes {
 
     public static final String FLOW_MANAGER_PACKAGE = "com.grosner.dbflow.config";
 
-    public static final String FLOW_MANAGER_STATIC_CLASS_NAME = "FlowManager$Holder";
+    public static final String DATABASE_HOLDER_STATIC_CLASS_NAME = "Database$Holder";
 
     public static final String BASE_DATABASE_DEFINITION = "BaseDatabaseDefinition";
 

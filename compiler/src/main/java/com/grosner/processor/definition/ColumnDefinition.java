@@ -248,7 +248,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                     for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                         ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, ModelUtils.getClassFromAnnotation(foreignKeyReference),
-                                columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(), null, false, isModelContainerDefinition, isModelContainer););
+                                columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(), null, false, isModelContainerDefinition, isModelContainer);
                     }
                 }
             }

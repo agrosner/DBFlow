@@ -47,7 +47,7 @@ public class FlowManagerHandler extends BaseContainerHandler<Database> {
         if (roundEnvironment.processingOver()) {
             try {
                 JavaWriter staticFlowManager = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                        .createSourceFile(Classes.FLOW_MANAGER_PACKAGE + "." + Classes.FLOW_MANAGER_STATIC_CLASS_NAME).openWriter());
+                        .createSourceFile(Classes.FLOW_MANAGER_PACKAGE + "." + Classes.DATABASE_HOLDER_STATIC_CLASS_NAME).openWriter());
                 new FlowManagerHolderWriter(processorManager).write(staticFlowManager);
 
                 staticFlowManager.close();

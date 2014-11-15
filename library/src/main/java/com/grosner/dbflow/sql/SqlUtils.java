@@ -62,7 +62,7 @@ public class SqlUtils {
      * @return a list of {@link ModelClass}
      */
     public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql, String... args) {
-        BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(modelClass);
+        BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = convertToList(modelClass, cursor);
         cursor.close();
@@ -134,7 +134,7 @@ public class SqlUtils {
      * @return a single {@link ModelClass}
      */
     public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql, String... args) {
-        Cursor cursor = FlowManager.getManagerForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
+        Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
         ModelClass retModel = convertToModel(false, modelClass, cursor);
         cursor.close();
         return retModel;
@@ -151,7 +151,7 @@ public class SqlUtils {
      * @return
      */
     public static <ModelClass extends Model> boolean hasData(Class<ModelClass> modelClass, String sql, String... args) {
-        BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(modelClass);
+        BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();
@@ -168,7 +168,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void sync(boolean async, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
         if (!async) {
-            BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(model.getClass());
+            BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(model.getClass());
             ModelAdapter<ModelClass> modelAdapter = (ModelAdapter<ModelClass>) FlowManager.getModelAdapter(model.getClass());
             final SQLiteDatabase db = flowManager.getWritableDatabase();
 

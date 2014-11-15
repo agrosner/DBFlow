@@ -40,7 +40,7 @@ public class StringQuery<ModelClass extends Model> implements Query, Queriable<M
 
     @Override
     public Cursor query() {
-        return FlowManager.getManagerForTable(mTable).getWritableDatabase().rawQuery(mQuery, null);
+        return FlowManager.getDatabaseForTable(mTable).getWritableDatabase().rawQuery(mQuery, null);
     }
 
     @Override

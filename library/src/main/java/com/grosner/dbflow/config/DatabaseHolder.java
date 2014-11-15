@@ -12,10 +12,10 @@ public interface DatabaseHolder {
 
     public TypeConverter getTypeConverterForClass(Class<?> clazz);
 
-    public BaseDatabaseDefinition getFlowManagerForTable(Class<?> clazz);
+    public BaseDatabaseDefinition getDatabaseForTable(Class<?> clazz);
 
-    public BaseDatabaseDefinition getFlowManager(String databaseName);
+    public BaseDatabaseDefinition getDatabase(String databaseName);
 
-    void putFlowManagerForTable(Class<? extends Model> table, BaseDatabaseDefinition baseDatabaseDefinition);
+    void putDatabaseForTable(Class<? extends Model> table, BaseDatabaseDefinition baseDatabaseDefinition);
 
 }

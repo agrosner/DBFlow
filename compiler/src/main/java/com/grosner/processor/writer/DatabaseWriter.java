@@ -87,11 +87,11 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         javaWriter.emitSingleLineComment("Writing for: " + databaseName);
 
         for (TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {
-            javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+            javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
         }
 
         for(ModelViewDefinition modelViewDefinition: manager.getModelViewDefinitions(databaseName)) {
-            javaWriter.emitStatement("holder.putFlowManagerForTable(%1s, this)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+            javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
         }
 
         javaWriter.emitEmptyLine();

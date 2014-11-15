@@ -1,10 +1,16 @@
 package com.grosner.dbflow.config;
 
 import android.content.Context;
+
+import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.sql.migration.Migration;
-import com.grosner.dbflow.structure.*;
+import com.grosner.dbflow.structure.BaseModelView;
+import com.grosner.dbflow.structure.InvalidDBConfiguration;
+import com.grosner.dbflow.structure.Model;
+import com.grosner.dbflow.structure.ModelAdapter;
+import com.grosner.dbflow.structure.ModelViewAdapter;
 import com.grosner.dbflow.structure.container.ContainerAdapter;
 
 import java.util.List;
@@ -18,7 +24,7 @@ public class FlowManager {
 
     private static Context context;
 
-    private static DatabaseHolder mManagerHolder;
+    private static DatabaseHolder mDatabaseHolder;
 
     /**
      * Returns the table name for the specific model class
@@ -30,9 +36,9 @@ public class FlowManager {
     public static String getTableName(Class<? extends Model> table) {
         ModelAdapter modelAdapter = getModelAdapter(table);
         String tableName = null;
-        if(modelAdapter == null) {
-            ModelViewAdapter modelViewAdapter = getManagerForTable(table).getModelViewAdapterForTable((Class<? extends BaseModelView>) table);
-            if(modelViewAdapter != null) {
+        if (modelAdapter == null) {
+            ModelViewAdapter modelViewAdapter = getDatabaseForTable(table).getModelViewAdapterForTable((Class<? extends BaseModelView>) table);
+            if (modelViewAdapter != null) {
                 tableName = modelViewAdapter.getViewName();
             }
         } else {
@@ -47,10 +53,10 @@ public class FlowManager {
      * @param table
      * @return
      */
-    public static BaseDatabaseDefinition getManagerForTable(Class<? extends Model> table) {
-        getManagerHolder();
+    public static BaseDatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
+        getDatabaseHolder();
 
-        BaseDatabaseDefinition flowManager = mManagerHolder.getFlowManagerForTable(table);
+        BaseDatabaseDefinition flowManager = mDatabaseHolder.getDatabaseForTable(table);
         if (flowManager == null) {
             throw new InvalidDBConfiguration("Table: " + table.getName() + " is not registered with a Database. " +
                     "Did you forget the @Table annotation?");
@@ -64,26 +70,26 @@ public class FlowManager {
      * @param table
      * @return
      */
-    public static BaseDatabaseDefinition getManager(String databaseName) {
-        getManagerHolder();
+    public static BaseDatabaseDefinition getDatabase(String databaseName) {
+        getDatabaseHolder();
 
-        BaseDatabaseDefinition flowManager = mManagerHolder.getFlowManager(databaseName);
+        BaseDatabaseDefinition flowManager = mDatabaseHolder.getDatabase(databaseName);
         if (flowManager == null) {
             throw new InvalidDBConfiguration();
         }
         return flowManager;
     }
 
-    protected static DatabaseHolder getManagerHolder() {
-        if(mManagerHolder == null) {
+    protected static DatabaseHolder getDatabaseHolder() {
+        if (mDatabaseHolder == null) {
             try {
-                mManagerHolder = (DatabaseHolder) Class.forName("com.grosner.dbflow.config.FlowManager$Holder").newInstance();
+                mDatabaseHolder = (DatabaseHolder) Class.forName("com.grosner.dbflow.config.Database$Holder").newInstance();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return mManagerHolder;
+        return mDatabaseHolder;
     }
 
     /**
@@ -94,7 +100,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ConditionQueryBuilder<ModelClass> getPrimaryWhereQuery(Class<ModelClass> table) {
-        return getManagerForTable(table).getModelAdapterForTable(table).getPrimaryModelWhere();
+        return getDatabaseForTable(table).getModelAdapterForTable(table).getPrimaryModelWhere();
     }
 
     /**
@@ -111,7 +117,17 @@ public class FlowManager {
 
     public static void init(Context context) {
         FlowManager.context = context;
-        getManagerHolder();
+        getDatabaseHolder();
+    }
+
+    /**
+     * Registers a listener for database creation/update events. Call this before running any query.
+     *
+     * @param databaseName           The name of the database. Will throw an exception if the database doesn't exist.
+     * @param databaseHelperListener Provides callbacks for database events.
+     */
+    public static void setDatabaseListener(String databaseName, DatabaseHelperListener databaseHelperListener) {
+        getDatabase(databaseName).setHelperListener(databaseHelperListener);
     }
 
     /**
@@ -123,7 +139,7 @@ public class FlowManager {
      * @return
      */
     public static TypeConverter getTypeConverterForClass(Class<?> modelClass) {
-        return mManagerHolder.getTypeConverterForClass(modelClass);
+        return mDatabaseHolder.getTypeConverterForClass(modelClass);
     }
 
     // region Getters
@@ -137,40 +153,43 @@ public class FlowManager {
 
     /**
      * Returns the model adapter for the specified table. Used in loading and modifying the model class.
-     * @param modelClass The class of the table
+     *
+     * @param modelClass   The class of the table
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ModelAdapter<ModelClass > getModelAdapter(Class<ModelClass> modelClass) {
-        return FlowManager.getManagerForTable(modelClass).getModelAdapterForTable(modelClass);
+    public static <ModelClass extends Model> ModelAdapter<ModelClass> getModelAdapter(Class<ModelClass> modelClass) {
+        return FlowManager.getDatabaseForTable(modelClass).getModelAdapterForTable(modelClass);
     }
 
     /**
      * Returns the container adapter for the specified table. These are only generated when you specify {@link com.grosner.dbflow.annotation.ContainerAdapter}
      * in your model class so it can be used for containers. These are not generated by default as a means to save space.
-     * @param modelClass The class of the table
+     *
+     * @param modelClass   The class of the table
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ContainerAdapter<ModelClass> getContainerAdapter(Class<ModelClass> modelClass) {
-        return FlowManager.getManagerForTable(modelClass).getModelContainerAdapterForTable(modelClass);
+        return FlowManager.getDatabaseForTable(modelClass).getModelContainerAdapterForTable(modelClass);
     }
 
     /**
      * Returns the model view adapter for a SQLite VIEW. These are only created with the {@link com.grosner.dbflow.annotation.ModelView} annotation.
-     * @param modelViewClass The class of the VIEW
+     *
+     * @param modelViewClass   The class of the VIEW
      * @param <ModelViewClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      * @return
      */
     @SuppressWarnings("unchecked")
     public static <ModelViewClass extends BaseModelView<? extends Model>> ModelViewAdapter<? extends Model, ModelViewClass> getModelViewAdapter(Class<ModelViewClass> modelViewClass) {
-        return FlowManager.getManagerForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
+        return FlowManager.getDatabaseForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
     }
 
     static Map<Integer, List<Migration>> getMigrations(String databaseName) {
-        return getManager(databaseName).getMigrations();
+        return getDatabase(databaseName).getMigrations();
     }
 
     // endregion

@@ -38,8 +38,9 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private DatabaseHelperListener mListener;
     private BaseDatabaseDefinition mManager;
 
-    public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager) {
+    public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager, DatabaseHelperListener listener) {
         super(FlowManager.getContext(), flowManager.getDatabaseName() + ".db", null, flowManager.getDatabaseVersion());
+        mListener = listener;
         mManager = flowManager;
         //mMigrations = dbConfiguration.mMigrations;
 

@@ -1,6 +1,7 @@
 package com.grosner.dbflow.runtime;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Build;
@@ -54,15 +55,15 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Registers the observer for model change events for specific class.
      */
-    public void registerForContentChanges(Class<? extends Model> table) {
-        FlowManager.getContext().getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
+    public void registerForContentChanges(Context context, Class<? extends Model> table) {
+        context.getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
     }
 
     /**
      * Unregisters this list for model change events
      */
-    public void unregisterForContentChanges() {
-        FlowManager.getContext().getContentResolver().unregisterContentObserver(this);
+    public void unregisterForContentChanges(Context context) {
+        context.getContentResolver().unregisterContentObserver(this);
     }
 
     @Override

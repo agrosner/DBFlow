@@ -1,6 +1,7 @@
 package com.grosner.dbflow.list;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Build;
@@ -72,15 +73,15 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     /**
      * Registers the list for model change events
      */
-    public void registerForContentChanges() {
-        FlowManager.getContext().getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(mCursorList.getTable(), null), true, this);
+    public void registerForContentChanges(Context context) {
+        context.getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(mCursorList.getTable(), null), true, this);
     }
 
     /**
      * Unregisters this list for model change events
      */
-    public void unregisterForContentChanges() {
-        FlowManager.getContext().getContentResolver().unregisterContentObserver(this);
+    public void unregisterForContentChanges(Context context) {
+        context.getContentResolver().unregisterContentObserver(this);
     }
 
     @Override

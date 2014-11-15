@@ -32,7 +32,7 @@ public class ModelContainerUtils {
     public static <ModelClass extends Model> void sync(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContentValues contentValues, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
-            BaseDatabaseDefinition flowManager = FlowManager.getManagerForTable(modelContainer.getTable());
+            BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelContainer.getTable());
             ContainerAdapter<ModelClass> containerAdapter = flowManager.getModelContainerAdapterForTable(modelContainer.getTable());
             ModelAdapter<ModelClass> modelAdapter = modelContainer.getModelAdapter();
 
