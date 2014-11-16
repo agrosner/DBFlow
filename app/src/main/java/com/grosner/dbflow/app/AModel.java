@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @Table
 @ContainerAdapter
-public class AModel extends BaseModel {
+public class    AModel extends BaseModel {
 
     @Column(columnType = Column.PRIMARY_KEY)
     String name;

@@ -13,14 +13,20 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.SOURCE)
 public @interface ForeignKeyReference {
 
+    /**
+     * @return The local column name that will be referenced in the DB
+     */
     String columnName();
 
     /**
      * Needs to match both tables!
      *
-     * @return
+     * @return The type of columns between tables
      */
     Class<?> columnType();
 
+    /**
+     * @return The column name in the referenced table
+     */
     String foreignColumnName();
 }

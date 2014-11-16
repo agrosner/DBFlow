@@ -38,35 +38,32 @@ public @interface Column {
     /**
      * Specifies the column type. Can be {@link #NORMAL}, {@link #PRIMARY_KEY}, {@link #PRIMARY_KEY_AUTO_INCREMENT},
      * or {@link #FOREIGN_KEY}
-     * @return
+     *
+     * @return the columnType int
      */
     int columnType() default NORMAL;
 
     /**
-     * The name of the column. The default is the field name.
-     *
-     * @return
+     * @return The name of the column. The default is the field name.
      */
     String name() default "";
 
     /**
-     * Specify an optional column length
-     *
-     * @return
+     * @return An optional column length
      */
     int length() default -1;
 
     /**
      * Marks this field as not null and will throw an exception if it is.
      *
-     * @return
+     * @return if field cannot be null.
      */
     boolean notNull() default false;
 
     /**
      * Defines how to handle conflicts for not null column
      *
-     * @return
+     * @return a {@link com.grosner.dbflow.annotation.ConflictAction} enum
      */
     ConflictAction onNullConflict() default ConflictAction.FAIL;
 
@@ -74,14 +71,14 @@ public @interface Column {
      * Marks the field as unique, meaning its value cannot be repeated. It is, however,
      * NOT a primary key.
      *
-     * @return
+     * @return if field is unique
      */
     boolean unique() default false;
 
     /**
      * Defines how to handle conflicts for a unique column
      *
-     * @return
+     * @return a {@link com.grosner.dbflow.annotation.ConflictAction} enum
      */
     ConflictAction onUniqueConflict() default ConflictAction.FAIL;
 
@@ -89,7 +86,7 @@ public @interface Column {
      * Defines the references for a composite {@link #FOREIGN_KEY} definition. It enables for multiple local
      * columns that reference another Model's primary keys.
      *
-     * @return
+     * @return the set of references
      */
     ForeignKeyReference[] references() default {};
 

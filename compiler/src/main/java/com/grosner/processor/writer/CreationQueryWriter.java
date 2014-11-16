@@ -8,7 +8,6 @@ import com.grosner.dbflow.sql.SQLiteType;
 import com.grosner.processor.Classes;
 import com.grosner.processor.ProcessorUtils;
 import com.grosner.processor.definition.ColumnDefinition;
-import com.grosner.processor.definition.PrimaryKeyNotFoundException;
 import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.definition.TypeConverterDefinition;
 import com.grosner.processor.model.ProcessorManager;

@@ -11,13 +11,12 @@ import java.util.List;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description: Wraps around creating the table creation in a simple way. This is used in {@link com.grosner.dbflow.structure.TableStructure}
+ * Description: Wraps around creating the table creation in a simple way.
  */
 public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBuilder> {
 
     /**
-     * Appens a column to this class. It will append the correct string value based on the {@link com.grosner.dbflow.structure.Column}
+     * Appends a column to this class. It will append the correct string value based on the {@link com.grosner.dbflow.annotation.Column}
      *
      * @param column
      * @return
@@ -49,7 +48,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
      * Appends this to the beginning of the query.
      *
      * @param tableName The name of the table to pass in
-     * @return
+     * @return This instance
      */
     public QueryBuilder appendCreateTableIfNotExists(String tableName) {
         mQuery.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append("(");

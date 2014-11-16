@@ -33,7 +33,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Appends a space to this query
      *
-     * @return
+     * @return This instance
      */
     public QueryClass appendSpace() {
         return append(" ");
@@ -43,7 +43,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * Appends the string with spaces on the front and end of the string
      *
      * @param string The string to append
-     * @return
+     * @return This instance
      */
     @SuppressWarnings("unchecked")
     public QueryClass appendSpaceSeparated(String string) {
@@ -53,8 +53,8 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Appends the string as (string)
      *
-     * @param string
-     * @return
+     * @param string The string to append
+     * @return This instance
      */
     @SuppressWarnings("unchecked")
     public QueryClass appendParenthesisEnclosed(String string) {
@@ -65,7 +65,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * Appends an object to this query
      *
      * @param object The object to append
-     * @return
+     * @return This instance
      */
     public QueryClass append(Object object) {
         mQuery.append(object);
@@ -75,7 +75,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Casts the current object to the {@link QueryClass}
      *
-     * @return
+     * @return This casted instance
      */
     @SuppressWarnings("unchecked")
     protected QueryClass castThis() {
@@ -87,7 +87,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * passed in.
      *
      * @param type The Class to look up from {@link com.grosner.dbflow.sql.SQLiteType}
-     * @return
+     * @return This instance
      */
     public QueryClass appendType(String type) {
         return appendSQLiteType(SQLiteType.get(type));
@@ -97,7 +97,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * Appends the {@link com.grosner.dbflow.sql.SQLiteType} to this query
      *
      * @param sqLiteType The {@link com.grosner.dbflow.sql.SQLiteType} to append
-     * @return
+     * @return This instance
      */
     public QueryClass appendSQLiteType(SQLiteType sqLiteType) {
         return append(sqLiteType.name());
@@ -105,10 +105,10 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends an array of these objects by joining them with a comma with
-     * {@link android.text.TextUtils#join(CharSequence, Object[])}
+     * {@link #join(CharSequence, Object[])}
      *
      * @param objects The array of objects to pass in
-     * @return
+     * @return This instance
      */
     public QueryClass appendArray(Object... objects) {
         return append(join(", ", objects));
@@ -116,21 +116,21 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends a list of objects by joining them with a comma with
-     * {@link android.text.TextUtils#join(CharSequence, Object[])}
+     * {@link #join(CharSequence, Iterable)}
      *
      * @param objects The list of objects to pass in
-     * @return
+     * @return This instance
      */
     public QueryClass appendList(List<?> objects) {
-        return append(join(", ",objects));
+        return append(join(", ", objects));
     }
 
     /**
-     * Appends a value only if it's not {@link android.text.TextUtils#isEmpty(CharSequence)}
+     * Appends a value only if it's not empty or null
      *
      * @param name  The name of the qualifier
      * @param value The value to append after the name
-     * @return
+     * @return This instance
      */
     public QueryClass appendQualifier(String name, String value) {
         if (value != null && !value.isEmpty()) {
@@ -143,7 +143,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * Only appends the text if it is not null or empty
      *
      * @param string The string to append
-     * @return
+     * @return This instance
      */
     public QueryClass appendNotEmpty(String string) {
         if (string != null && !string.isEmpty()) {
@@ -164,13 +164,16 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Returns a string containing the tokens joined by delimiters.
-     * @param tokens an array objects to be joined. Strings will be formed from
-     *     the objects by calling object.toString().
+     *
+     * @param delimiter The text to join the text with.
+     * @param tokens    an array objects to be joined. Strings will be formed from
+     *                  the objects by calling object.toString().
+     * @return A joined string
      */
     public static String join(CharSequence delimiter, Object[] tokens) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
-        for (Object token: tokens) {
+        for (Object token : tokens) {
             if (firstTime) {
                 firstTime = false;
             } else {
@@ -183,13 +186,16 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Returns a string containing the tokens joined by delimiters.
-     * @param tokens an array objects to be joined. Strings will be formed from
-     *     the objects by calling object.toString().
+     *
+     * @param delimiter The text to join the text with.
+     * @param tokens    an array objects to be joined. Strings will be formed from
+     *                  the objects by calling object.toString().
+     * @return A joined string
      */
     public static String join(CharSequence delimiter, Iterable tokens) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
-        for (Object token: tokens) {
+        for (Object token : tokens) {
             if (firstTime) {
                 firstTime = false;
             } else {

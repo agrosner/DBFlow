@@ -15,15 +15,13 @@ import java.lang.annotation.Target;
 public @interface Migration {
 
     /**
-     * The version the migration will trigger at.
-     * @return
+     * @return The version the migration will trigger at.
      */
     int version();
 
     /**
-     * Specify the database name that this migration belongs to. By default it will reference the main Db if only
+     * @return Specify the database name that this migration belongs to. By default it will reference the main Db if only
      * one DB is specified.
-     * @return
      */
     String databaseName() default "";
 

@@ -14,20 +14,17 @@ import java.lang.annotation.Target;
 public @interface ModelView {
 
     /**
-     * The fully qualified query that is used for this View
-     * @return
+     * @return The fully qualified query that is used for this View
      */
     String query();
 
     /**
-     * The name of this view
-     * @return
+     * @return The name of this view
      */
     String name() default "";
 
     /**
-     * The name of the database this corresponds to. By default if one DB is defined, no need to specify the name.
-     * @return
+     * @return The name of the database this corresponds to. By default if one DB is defined, no need to specify the name.
      */
     String databaseName() default "";
 }

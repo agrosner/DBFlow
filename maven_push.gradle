@@ -74,26 +74,4 @@ afterEvaluate { project ->
         sign configurations.archives
     }
 
-    /*
-
-    task androidJavadocs(type: Javadoc) {
-        source = android.sourceSets.main.java.sourceFiles
-    }
-
-    task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-        classifier = 'javadoc'
-        //basename = artifact_id
-        from androidJavadocs.destinationDir
-    }
-
-    task androidSourcesJar(type: Jar) {
-        classifier = 'sources'
-        //basename = artifact_id
-        from android.sourceSets.main.java.sourceFiles
-    }
-
-    artifacts {
-        archives androidSourcesJar
-        archives androidJavadocsJar
-    }*/
 }

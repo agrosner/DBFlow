@@ -14,15 +14,6 @@ import java.util.Set;
  */
 public class WriterUtils {
 
-    /**
-     * Emits a method for safety reasons
-     * @param javaWriter
-     * @param flowWriter
-     * @param returnType
-     * @param name
-     * @param modifiers
-     * @param params
-     */
     public static void emitMethod(JavaWriter javaWriter, FlowWriter flowWriter, String returnType, String name, Set<Modifier> modifiers, String...params) {
         try {
             javaWriter.beginMethod(returnType, name, modifiers, params);

@@ -41,7 +41,7 @@ public enum SQLiteType {
      * Returns the {@link SQLiteType} for this class
      *
      * @param className The fully qualified class name
-     * @return
+     * @return The type from the class name
      */
     public static SQLiteType get(String className) {
         return sTypeMap.get(className);

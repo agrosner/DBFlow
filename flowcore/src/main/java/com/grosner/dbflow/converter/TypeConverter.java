@@ -3,7 +3,7 @@ package com.grosner.dbflow.converter;
 /**
  * Author: andrewgrosner
  * Description: This class is responsible for converting the stored database value into the field value in
- * a {@link com.grosner.dbflow.structure.Model}
+ * a Model.
  */
 @com.grosner.dbflow.annotation.TypeConverter
 public abstract class TypeConverter<DataClass, ModelClass> {

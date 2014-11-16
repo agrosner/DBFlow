@@ -16,15 +16,12 @@ import java.lang.annotation.Target;
 public @interface Table {
 
     /**
-     * Specifies a different name for the table
-     *
-     * @return
+     * @return Specifies a different name for the table
      */
     String value() default "";
 
     /**
-     * Specify the database name that this table belongs to. By default it will reference the main Db.
-     * @return
+     * @return Specify the database name that this table belongs to. By default it will reference the main Db.
      */
     String databaseName() default "";
 }

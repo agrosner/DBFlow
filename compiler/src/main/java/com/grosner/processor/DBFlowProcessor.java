@@ -19,8 +19,6 @@ import javax.lang.model.element.TypeElement;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description:
  */
 @AutoService(Processor.class)
 public class DBFlowProcessor extends AbstractProcessor {
@@ -76,12 +74,6 @@ public class DBFlowProcessor extends AbstractProcessor {
                 new FlowManagerHandler());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param annotations
-     * @param roundEnv
-     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 

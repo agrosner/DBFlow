@@ -8,9 +8,7 @@ package com.grosner.dbflow.sql;
 public interface Query {
 
     /**
-     * Return the SQL query statement here
-     *
-     * @return
+     * @return the SQL query statement here
      */
     public String getQuery();
 }
