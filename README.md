@@ -18,24 +18,14 @@ What sets this library apart: baked in support for **multiple** databases seamle
 
 ### Gradle
 
-Local, using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt)
+Using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt)
 
 ```groovy
 
 dependencies {
-  apt project(':Libraries:DBFlow:compiler')
-  compile project(':Libraries:DBFlow:library')
-}
-
-```
-
-Remote, will be available **soon*
-
-```groovy
-
-dependencies {
-  apt 'com.github.agrosner:DBFlow-compiler:1.+'
-  compile 'com.github.agrosner:DBFlow-library:1.+'
+  apt 'com.github.agrosner:DBFlow-Compiler:1.+'
+  compile 'com.github.agrosner:DBFlow-Core:1.+' 
+  compile 'com.github.agrosner:DBFlow:1.+'
 }
 
 ```
