@@ -1,3 +1,5 @@
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+
 ![Image](https://github.com/agrosner/DBFlow/blob/master/clear-river.jpg?raw=true)
 
 
