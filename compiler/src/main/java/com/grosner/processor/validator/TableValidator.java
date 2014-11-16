@@ -22,6 +22,13 @@ public class TableValidator implements Validator<TableDefinition> {
             success = false;
         }
 
+        boolean hasTwoKinds = (tableDefinition.autoIncrementDefinition != null && !tableDefinition.primaryColumnDefinitions.isEmpty());
+
+        if(hasTwoKinds) {
+            processorManager.logError("Table %1s cannot mix and match autoincrement and composite primary keys", tableDefinition.tableName);
+            success = false;
+        }
+
         boolean hasPrimary = (tableDefinition.autoIncrementDefinition != null && tableDefinition.primaryColumnDefinitions.isEmpty()
                 || tableDefinition.autoIncrementDefinition == null && !tableDefinition.primaryColumnDefinitions.isEmpty());
 

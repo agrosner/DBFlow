@@ -1,6 +1,7 @@
 package com.grosner.processor.writer;
 
 import com.google.common.collect.Sets;
+import com.grosner.dbflow.annotation.Column;
 import com.grosner.processor.definition.ColumnDefinition;
 import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.utils.ModelUtils;
@@ -41,7 +42,9 @@ public class ContentValuesWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("ContentValues contentValues = new ContentValues()");
                 for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
-                    columnDefinition.writeSaveDefinition(javaWriter, isModelContainer);
+                    if(columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
+                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainer);
+                    }
                 }
                 javaWriter.emitEmptyLine();
 

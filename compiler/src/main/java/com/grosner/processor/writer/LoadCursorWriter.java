@@ -1,9 +1,11 @@
 package com.grosner.processor.writer;
 
 import com.google.common.collect.Sets;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.processor.definition.BaseTableDefinition;
 import com.grosner.processor.definition.ColumnDefinition;
 import com.grosner.processor.definition.TableDefinition;
+import com.grosner.processor.model.builder.AdapterQueryBuilder;
 import com.grosner.processor.utils.ModelUtils;
 import com.grosner.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
@@ -73,5 +75,25 @@ public class LoadCursorWriter implements FlowWriter {
                 }
             }
         }, isModelContainerDefinition ? "void" : tableDefinition.getModelClassName(), "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
+
+        if(tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).autoIncrementDefinition != null) {
+            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                @Override
+                public void write(JavaWriter javaWriter) throws IOException {
+                        // TODOL: generate method
+                    ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+                    AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
+                            .append(ModelUtils.getVariable(false))
+                            .append(".").append(columnDefinition.columnFieldName)
+                            .append(" = " )
+                            .appendCast(columnDefinition.columnFieldType)
+                            .append("id)");
+
+                    javaWriter.emitStatement(queryBuilder.getQuery());
+                }
+            }, "void", "updateAutoIncrement", Sets.newHashSet(Modifier.PUBLIC),
+                    tableDefinition.getModelClassName(), ModelUtils.getVariable(false),
+                    "long" , "id");
+        }
     }
 }

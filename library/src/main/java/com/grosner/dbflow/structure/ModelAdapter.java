@@ -16,6 +16,16 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     public abstract void save(boolean async, ModelClass model, int saveMode);
 
+    /**
+     * If a {@link com.grosner.dbflow.structure.Model} has an autoincrementing primary key, then
+     * this method will be overridden.
+     * @param model The model object to store the key
+     * @param id The key to store
+     */
+    public void updateAutoIncrement(ModelClass model, long id) {
+
+    }
+
     public abstract boolean exists(ModelClass model);
 
     public abstract void delete(boolean async, ModelClass model);
