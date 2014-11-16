@@ -1,7 +1,7 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/master/clear-river.jpg?raw=true)
 
 
-DBFlow (BETA)
+DBFlow
 ======
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
