@@ -28,9 +28,9 @@ android {
 }
 
 dependencies {
-    compile project(':flowcore')
+    compile project(dbflow_project_prefix + "flowcore")
     compile "com.android.support:support-annotations:21.+"
-    androidTestApt project(':compiler')
+    androidTestApt project(dbflow_project_prefix + "compiler")
 }
 
 apply from: '../maven_push.gradle'
