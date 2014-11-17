@@ -1,7 +1,9 @@
 package com.grosner.dbflow.sql.builder;
 
 import android.database.DatabaseUtils;
+
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelAdapter;
@@ -51,10 +53,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Constructs an instance of this class
      * and {@link ModelClass}.
      *
-     * @param tableClass
+     * @param table      The table to use
+     * @param conditions The array of conditions to add to the mapping.
      */
-    public ConditionQueryBuilder(Class<ModelClass> tableClass, Condition... conditions) {
-        mTableStructure = FlowManager.getModelAdapter(tableClass);
+    public ConditionQueryBuilder(Class<ModelClass> table, Condition... conditions) {
+        mTableStructure = FlowManager.getModelAdapter(table);
         putConditions(conditions);
     }
 
@@ -62,7 +65,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Appends all the conditions from the specified array
      *
      * @param conditions The array of conditions to add to the mapping.
-     * @return
+     * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
         if (conditions.length > 0) {
@@ -105,27 +108,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     @SuppressWarnings("unchecked")
     public String convertValueToString(String columnName, Object value) {
         String stringVal;
-        if (!useEmptyParams) {
-            /*Field field = mTableStructure.getField(columnName);
-            if (field != null) {
-                final TypeConverter typeConverter = FlowManager.getTypeConverterForClass(mTableStructure.getField(columnName).getType());
-                if (typeConverter != null) {
-                    // serialize data
-                    value = typeConverter.getDBValue(value);
-                    // set new object type
-                    if (value != null) {
-                        Class fieldType = value.getClass();
-                        // check that the serializer returned what it promised
-                        if (!fieldType.equals(typeConverter.getDatabaseType())) {
-                            FlowLog.log(FlowLog.Level.W, String.format(TypeConverter.class.getSimpleName() +
-                                            " returned wrong type: expected a %s but got a %s",
-                                    typeConverter.getDatabaseType(), fieldType));
-                        }
-                    }
-                }
-            } else {
-                throw new ColumnNameNotFoundException(columnName, mTableStructure);
-            }*/
+        if (!useEmptyParams && value != null) {
+            TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+            if(typeConverter != null) {
+                value = typeConverter.getDBValue(value);
+            }
         }
 
         if (value instanceof Number) {

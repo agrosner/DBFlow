@@ -104,7 +104,7 @@ public class FlowManager {
     }
 
     /**
-     * Will throw an exception if this class is not initialized yet in {@link #initialize(android.content.Context, DBConfiguration)}
+     * Will throw an exception if this class is not initialized yet in {@link #init(android.content.Context)}
      *
      * @return
      */

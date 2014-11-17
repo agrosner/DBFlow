@@ -37,15 +37,13 @@ public abstract class BaseDatabaseDefinition {
     private boolean isResetting = false;
 
     /**
-     * Returns a list of all model classes in this database.
-     *
-     * @return
+     * @return a list of all model classes in this database.
      */
     abstract List<Class<? extends Model>> getModelClasses();
 
     /**
      * Internal method used to create the database schema.
-     * @return
+     * @return List of Model Adapters
      */
     abstract List<ModelAdapter> getModelAdapters();
 
@@ -53,8 +51,8 @@ public abstract class BaseDatabaseDefinition {
      * Returns the associated {@link com.grosner.dbflow.structure.ModelAdapter} within this database for
      * the specified table. If the Model is missing the {@link com.grosner.dbflow.annotation.Table} annotation,
      * this will fail.
-     * @param table
-     * @return
+     * @param table The model that exists in this database.
+     * @return The ModelAdapter for the table.
      */
     abstract ModelAdapter getModelAdapterForTable(Class<? extends Model> table);
 
@@ -73,7 +71,7 @@ public abstract class BaseDatabaseDefinition {
     abstract List<Class<? extends BaseModelView>> getModelViews();
 
     /**
-     * @param table
+     * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated {@link com.grosner.dbflow.structure.ModelViewAdapter} for the specified table.
      */
     abstract ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table);
@@ -85,8 +83,7 @@ public abstract class BaseDatabaseDefinition {
     abstract List<ModelViewAdapter> getModelViewAdapters();
 
     /**
-     *
-     * @return
+     * @return The map of migrations to DB version
      */
     abstract Map<Integer, List<Migration>> getMigrations();
 
@@ -99,7 +96,7 @@ public abstract class BaseDatabaseDefinition {
 
     /**
      * Register to listen for database changes
-     * @param databaseHelperListener
+     * @param databaseHelperListener Listens for DB changes
      */
     public void setHelperListener(DatabaseHelperListener databaseHelperListener) {
         mHelperListener = databaseHelperListener;
@@ -109,14 +106,25 @@ public abstract class BaseDatabaseDefinition {
 
     public abstract int getDatabaseVersion();
 
+    /**
+     * @return True if the {@link com.grosner.dbflow.annotation.Database} annotation is true.
+     */
     public abstract boolean areConsistencyChecksEnabled();
 
+    /**
+     * @return True if the {@link com.grosner.dbflow.annotation.Database} annotation is true.
+     */
     public abstract boolean isForeignKeysSupported();
 
+    /**
+     * Performs a full deletion of this database.
+     * @param context Where the database resides
+     */
     public void reset(Context context) {
         if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(getDatabaseName());
+            mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
             isResetting = false;
         }
     }

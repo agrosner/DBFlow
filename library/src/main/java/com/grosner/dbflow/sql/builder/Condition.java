@@ -38,8 +38,8 @@ public class Condition {
     /**
      * Assigns the operation to "="
      *
-     * @param value The value of the column in the DB in String value
-     * @return
+     * @param value The value of the column in the DB
+     * @return This condition
      */
     public Condition is(Object value) {
         mOperation = "=";
@@ -47,10 +47,10 @@ public class Condition {
     }
 
     /**
-     * The string value of the parameter
+     * The value of the parameter
      *
-     * @param value
-     * @return
+     * @param value The value of the column in the DB
+     * @return This condition
      */
     public Condition value(Object value) {
         mValue = value;
@@ -60,8 +60,8 @@ public class Condition {
     /**
      * Assigns operation to ">"
      *
-     * @param value The value of the column in the DB in String value
-     * @return
+     * @param value The value of the column in the DB
+     * @return This condition
      */
     public Condition greaterThan(Object value) {
         mOperation = ">";
@@ -71,8 +71,8 @@ public class Condition {
     /**
      * Assigns operation to "<"
      *
-     * @param value The value of the column in the DB in String value
-     * @return
+     * @param value The value of the column in the DB
+     * @return This condition
      */
     public Condition lessThan(Object value) {
         mOperation = "<";
@@ -82,8 +82,8 @@ public class Condition {
     /**
      * Add a custom operation to this argument
      *
-     * @param operation
-     * @return
+     * @param operation The SQLite operator
+     * @return This condition
      */
     public Condition operation(String operation) {
         mOperation = operation;
@@ -91,27 +91,21 @@ public class Condition {
     }
 
     /**
-     * Returns the operation of it
-     *
-     * @return
+     * @return the operator such as "<", "<", or "="
      */
     public String operation() {
         return mOperation;
     }
 
     /**
-     * Returns the value of the arg
-     *
-     * @return
+     * @return the value of the argument
      */
     public Object value() {
         return mValue;
     }
 
     /**
-     * Returns the column name
-     *
-     * @return
+     * @return the column name
      */
     public String columnName() {
         return mColumn;

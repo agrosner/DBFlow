@@ -67,7 +67,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * or by changing the name through a {@link com.grosner.dbflow.structure.Table}
      *
      * @param oldName The new name to call the table.
-     * @return
+     * @return This instance
      */
     public AlterTableMigration<ModelClass> renameFrom(String oldName) {
         mOldTableName = oldName;
@@ -79,9 +79,9 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * Add a column to the DB. This does not necessarily need to be reflected in the {@link ModelClass},
      * but it is recommended.
      *
-     * @param columnType
-     * @param columnName
-     * @return
+     * @param columnType The type of column that pertains to an {@link com.grosner.dbflow.sql.SQLiteType}
+     * @param columnName The name of the column to add. Use the "$Table" class for the specified table.
+     * @return This instance
      */
     public AlterTableMigration<ModelClass> addColumn(Class columnType, String columnName) {
         if (mColumnDefinitions == null) {
@@ -95,12 +95,18 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         return this;
     }
 
+    /**
+     * @return The query that renames the table.
+     */
     public String getRenameQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(mQuery.getQuery()).append(mOldTableName)
                 .append(mRenameQuery).append(FlowManager.getTableName(mTable));
         return queryBuilder.getQuery();
     }
 
+    /**
+     * @return A List of column definitions that add column to a table in the DB.
+     */
     public List<String> getColumnDefinitions() {
         String sql = mQuery.getQuery() + FlowManager.getTableName(mTable);
         List<String> columnDefinitions = new ArrayList<String>();
