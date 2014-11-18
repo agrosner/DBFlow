@@ -13,10 +13,6 @@ import java.util.Map;
  * Description:
  */
 public class MapModelTest extends FlowTestCase {
-    @Override
-    protected String getDBName() {
-        return "mapmodel";
-    }
 
     public void testMapModel() {
         Map<String, Object> dataMap = new HashMap<String, Object>();

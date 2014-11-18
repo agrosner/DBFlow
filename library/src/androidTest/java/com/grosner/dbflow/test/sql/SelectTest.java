@@ -16,10 +16,6 @@ import java.util.List;
  * Description:
  */
 public class SelectTest extends FlowTestCase {
-    @Override
-    protected String getDBName() {
-        return "select";
-    }
 
     public void testSelectStatement() {
         Where<TestModel1> where = new Select("name").from(TestModel1.class)

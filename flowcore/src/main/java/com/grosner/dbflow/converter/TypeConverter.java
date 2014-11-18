@@ -9,18 +9,18 @@ package com.grosner.dbflow.converter;
 public abstract class TypeConverter<DataClass, ModelClass> {
 
     /**
-     * Converts the {@link ModelClass} into a {@link DataClass}
+     * Converts the ModelClass into a DataClass
      *
      * @param model this will be called upon syncing
-     * @return The {@link DataClass} value that converts into a SQLite type
+     * @return The DataClass value that converts into a SQLite type
      */
     public abstract DataClass getDBValue(ModelClass model);
 
     /**
-     * Converts a {@link DataClass} from the DB into a {@link ModelClass}/
+     * Converts a DataClass from the DB into a ModelClass
      *
      * @param data This will be called when the model is loaded from the DB
-     * @return The {@link ModelClass} value that gets set in a Model that holds the data class.
+     * @return The ModelClass value that gets set in a Model that holds the data class.
      */
     public abstract ModelClass getModelValue(DataClass data);
 }

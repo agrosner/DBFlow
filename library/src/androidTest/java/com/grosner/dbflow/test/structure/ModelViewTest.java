@@ -12,10 +12,6 @@ import java.util.List;
  * Description:
  */
 public class ModelViewTest extends FlowTestCase {
-    @Override
-    protected String getDBName() {
-        return "modelview";
-    }
 
     /**
      * Tests to ensure the model view operates as expected

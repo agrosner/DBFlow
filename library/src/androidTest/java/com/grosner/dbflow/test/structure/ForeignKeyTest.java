@@ -1,5 +1,6 @@
 package com.grosner.dbflow.test.structure;
 
+import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.test.FlowTestCase;
 
 /**
@@ -8,10 +9,6 @@ import com.grosner.dbflow.test.FlowTestCase;
  * Description:
  */
 public class ForeignKeyTest extends FlowTestCase {
-    @Override
-    protected String getDBName() {
-        return "foreignkey";
-    }
 
     // region Test Foreign Key
 
@@ -25,13 +22,10 @@ public class ForeignKeyTest extends FlowTestCase {
         foreignModel.name = "Test";
         foreignModel.save(false);
 
-        // For now will comment it out.
-        /*TransactionManager transactionManager = new TransactionManager(mManager, "Foreign Test", false);
-
-        ForeignModel retrieved = transactionManager.selectModelById(ForeignModel.class, "Test");
+        ForeignModel retrieved = Select.byId(ForeignModel.class, "Test");
         assertNotNull(retrieved);
         assertNotNull(retrieved.testModel1);
-        assertEquals(retrieved.testModel1, foreignModel.testModel1);*/
+        assertEquals(retrieved.testModel1, foreignModel.testModel1);
     }
 
     // endregion Test Foreign Key

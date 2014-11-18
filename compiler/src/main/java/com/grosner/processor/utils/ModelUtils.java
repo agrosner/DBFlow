@@ -11,6 +11,7 @@ import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 
@@ -28,11 +29,12 @@ public class ModelUtils {
         return new StringBuilder(classname).append(".").append(fieldName.toUpperCase()).toString();
     }
 
-    public static String getContentValueStatement(String putValue, String localColumnName,
+    public static void writeContentValueStatement(JavaWriter javaWriter,
+                                                  String putValue, String localColumnName,
                                                   String castedClass, String foreignColumnName,
                                                   boolean isContainer, boolean isModelContainer,
                                                   boolean isForeignKey,
-                                                  boolean requiresTypeConverter, String databaseTypeName) {
+                                                  boolean requiresTypeConverter, String databaseTypeName) throws IOException {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
         contentValue.appendContentValues();
         contentValue.appendPut(putValue);
@@ -41,7 +43,11 @@ public class ModelUtils {
         if (requiresTypeConverter) {
             contentValue.appendTypeConverter(castedClass, databaseTypeName, false);
         }
-        return contentValue.append(accessStatement).append(")").append(requiresTypeConverter ? "))" : "").getQuery();
+        String query = contentValue.append(accessStatement).append(")").append(requiresTypeConverter ? "))" : "").getQuery();
+
+
+
+        javaWriter.emitStatement(query);
     }
 
     public static String getAccessStatement(String localColumnName,
@@ -75,7 +81,7 @@ public class ModelUtils {
 
     public static void writeLoadFromCursorDefinitionField(JavaWriter javaWriter, ProcessorManager processorManager, String columnFieldType, String columnFieldName, String columnName,
                                                           String foreignColumnName,
-                                                          TypeElement modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer) throws IOException {
+                                                          Element modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer) throws IOException {
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isModelContainerDefinition);
         if (isFieldModelContainer) {
             queryBuilder.append(".").append(columnFieldName);
@@ -91,7 +97,7 @@ public class ModelUtils {
         // TODO: find a way to convert a type properly
         String newFieldType = null;
         if (hasTypeConverter) {
-            TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(modelType);
+            TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition((TypeElement) modelType);
             if (typeConverterDefinition != null) {
                 newFieldType = typeConverterDefinition.getDbElement().asType().toString();
             }

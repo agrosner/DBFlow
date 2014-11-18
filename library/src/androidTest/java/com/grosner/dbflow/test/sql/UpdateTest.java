@@ -14,10 +14,6 @@ import com.grosner.dbflow.test.structure.TestModel1;
  * Description:
  */
 public class UpdateTest extends FlowTestCase {
-    @Override
-    protected String getDBName() {
-        return "update";
-    }
 
     public void testUpdateStatement() {
         Update update = new Update();

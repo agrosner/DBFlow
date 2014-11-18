@@ -81,6 +81,7 @@ public class MigrationTest extends AndroidTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        getContext().deleteDatabase(MigrationDatabase.NAME);
         FlowManager.destroy();
     }
 }

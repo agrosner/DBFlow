@@ -23,10 +23,10 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
             processorManager.logError("Field %1s cannot have a null column name", columnDefinition.columnFieldName);
         }
 
-        if(columnDefinition.isModelContainer) {
+        /*if(columnDefinition.isModelContainer) {
             success = false;
             processorManager.logError("Fields that are model containers are not currently supported");
-        }
+        }*/
 
         int columnType = columnDefinition.columnType;
         if(columnType == Column.FOREIGN_KEY) {

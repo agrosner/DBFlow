@@ -165,12 +165,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     private void checkForeignKeySupport(SQLiteDatabase database) {
         if (mManager.isForeignKeysSupported()) {
-
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                database.setForeignKeyConstraintsEnabled(true);
-            } else {
-                database.execSQL("PRAGMA foreign_keys=ON;");
-            }
+            database.execSQL("PRAGMA foreign_keys=ON;");
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.");
         }
     }
@@ -199,7 +194,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                             .appendSpaceSeparated(modelView.getViewName())
                             .append("AS ")
                             .append(modelView.getCreationQuery());
-                    database.execSQL(queryBuilder.getQuery());
+                    try {
+                        database.execSQL(queryBuilder.getQuery());
+                    } catch (SQLiteException e) {
+                        FlowLog.logError(e);
+                    }
                 }
             }
         });

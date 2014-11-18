@@ -1,6 +1,7 @@
 package com.grosner.dbflow.test.structure;
 
 import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ContainerAdapter;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.dbflow.test.TestDatabase;
 
@@ -10,6 +11,7 @@ import com.grosner.dbflow.test.TestDatabase;
 * Description:
 */
 @Table(databaseName = TestDatabase.NAME)
+@ContainerAdapter
 public class TestModel2 extends TestModel1 {
     @Column(name = "model_order")
     int order;
