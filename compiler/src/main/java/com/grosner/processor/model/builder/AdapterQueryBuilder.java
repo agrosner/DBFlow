@@ -10,6 +10,13 @@ import com.grosner.processor.utils.ModelUtils;
  */
 public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
 
+    public AdapterQueryBuilder() {
+    }
+
+    public AdapterQueryBuilder(String string) {
+        super(string);
+    }
+
     public AdapterQueryBuilder appendQuotesEnclosed(String string) {
         return append("\"").append(string).append("\"");
     }
@@ -32,6 +39,10 @@ public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
 
     public AdapterQueryBuilder appendCast(String type) {
         return append("(").appendParenthesisEnclosed(type);
+    }
+
+    public AdapterQueryBuilder appendClass(String className) {
+        return append(className).append(".class");
     }
 
     public AdapterQueryBuilder appendTypeConverter(String fieldReturnType, String modelClassName, boolean isLoading) {

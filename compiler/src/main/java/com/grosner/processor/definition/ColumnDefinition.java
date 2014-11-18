@@ -156,10 +156,10 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                     AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
                     adapterQueryBuilder.appendContentValues()
                             .appendPut(foreignKeyReference.columnName())
-                            .appendCast(ModelUtils.getClassFromAnnotation(foreignKeyReference))
-                            .append(modelContainerName)
-                            .append(".")
-                            .appendGetValue(foreignKeyReference.foreignColumnName())
+                                .appendCast(ModelUtils.getClassFromAnnotation(foreignKeyReference))
+                                    .append(modelContainerName)
+                                    .append(".")
+                                    .appendGetValue(foreignKeyReference.foreignColumnName())
                             .append("))");
                     javaWriter.emitStatement(adapterQueryBuilder.getQuery());
                 }
@@ -179,7 +179,10 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             javaWriter.emitSingleLineComment("End");
             javaWriter.emitEmptyLine();
         } else {
+            // Normal field
             String newFieldType = null;
+
+            // convert field type for what type converter reports
             if (hasTypeConverter) {
                 TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(modelType);
                 if (typeConverterDefinition == null) {
@@ -195,6 +198,12 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             // Type converters can never be primitive except boolean
             if (element.asType().getKind().isPrimitive()) {
                 getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
+            }
+
+            if(isModelContainerDefinition) {
+                if (element.asType().getKind().isPrimitive()) {
+                    newFieldType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
+                }
             }
 
             ModelUtils.writeContentValueStatement(javaWriter, columnName, columnName,
