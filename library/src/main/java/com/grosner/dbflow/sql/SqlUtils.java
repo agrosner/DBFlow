@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.IntDef;
+
 import com.grosner.dbflow.config.BaseDatabaseDefinition;
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
@@ -30,25 +31,34 @@ import java.util.List;
  */
 public class SqlUtils {
 
-    public @IntDef @interface SaveMode{}
+    public
+    @IntDef
+    @interface SaveMode {
+    }
 
     /**
      * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as checking to see if the model exists before saving.
      */
-    public static final @SaveMode int SAVE_MODE_DEFAULT = 0;
+    public static final
+    @SaveMode
+    int SAVE_MODE_DEFAULT = 0;
 
     ;
     /**
      * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as updating only without checking for it to exist. This is when we know the data exists.
      */
-    public static final @SaveMode int SAVE_MODE_UPDATE = 1;
+    public static final
+    @SaveMode
+    int SAVE_MODE_UPDATE = 1;
     /**
      * This marks the {@link #save(com.grosner.dbflow.structure.Model, boolean, int)}
      * operation as inserting only without checking for it to exist. This is for when we know the data is new.
      */
-    public static final @SaveMode int SAVE_MODE_INSERT = 2;
+    public static final
+    @SaveMode
+    int SAVE_MODE_INSERT = 2;
 
     /**
      * Queries the DB for a {@link android.database.Cursor} and converts it into a list.
@@ -93,22 +103,22 @@ public class SqlUtils {
     /**
      * Takes first {@link ModelClass} from the cursor
      *
-     * @param isList       If it's a list, do not reset the cursor
-     * @param table        The model class that we convert the cursor data into.
-     * @param cursor       The cursor from the DB
+     * @param dontMoveToFirst If it's a list or at a specific position, do not reset the cursor
+     * @param table           The model class that we convert the cursor data into.
+     * @param cursor          The cursor from the DB
      * @param <ModelClass>
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ModelClass convertToModel(boolean isList, Class<ModelClass> table, Cursor cursor) {
+    public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table, Cursor cursor) {
         ModelClass model = null;
         try {
-            if (isList || cursor.moveToFirst()) {
+            if (dontMoveToFirst || cursor.moveToFirst()) {
                 ModelAdapter<ModelClass> modelAdapter = FlowManager.getModelAdapter(table);
-                if(modelAdapter == null) {
+                if (modelAdapter == null) {
                     Class persistentClass = (Class) ((ParameterizedType) table.getGenericSuperclass()).getActualTypeArguments()[0];
-                    if(persistentClass.isAssignableFrom(BaseModelView.class)) {
-                        model = (ModelClass) FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>)table).loadFromCursor(cursor);
+                    if (persistentClass.isAssignableFrom(BaseModelView.class)) {
+                        model = (ModelClass) FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table).loadFromCursor(cursor);
                     }
                 } else {
                     model = modelAdapter.loadFromCursor(cursor);
@@ -160,6 +170,7 @@ public class SqlUtils {
 
     /**
      * Syncs the model to the database depending on it's save mode.
+     *
      * @param async
      * @param model
      * @param contentValues
@@ -184,7 +195,7 @@ public class SqlUtils {
             }
 
             if (exists) {
-                exists = (db.update(modelAdapter.getTableName(), contentValues,modelAdapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
+                exists = (db.update(modelAdapter.getTableName(), contentValues, modelAdapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
             }
 
             if (!exists) {
@@ -214,7 +225,7 @@ public class SqlUtils {
     }
 
 
-   /***
+    /**
      * Deletes {@link com.grosner.dbflow.structure.Model} from the database using the specfied {@link com.grosner.dbflow.config.FlowManager}
      *
      * @param model        The model to delete
@@ -222,9 +233,9 @@ public class SqlUtils {
      * @param <ModelClass> The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void   delete(final ModelClass model, ModelAdapter<ModelClass> modelAdapter, boolean async) {
+    public static <ModelClass extends Model> void delete(final ModelClass model, ModelAdapter<ModelClass> modelAdapter, boolean async) {
         if (!async) {
-            new Delete().from((Class<ModelClass>)model.getClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
+            new Delete().from((Class<ModelClass>) model.getClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
             notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<ModelClass>(ProcessModelInfo.withModels(model).fetch()));
