@@ -37,6 +37,41 @@ No official support as of now, if anyone gets it working in a pull request, send
 
 ## Configuration
 
+We need to configure the ```FlowManager``` properly. Instead of passing in a ```Context``` wherever it is used,
+we hold onto the ```Application``` context instead and reference it. 
+
+You will need to extend the ```Application``` class for proper configuration:
+
+```java
+
+public class ExampleApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FlowManager.init(this);
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        FlowManager.destroy();
+    }
+}
+
+```
+
+Lastly, add the definition to the manifest (with the name that you chose for your custom application):
+
+```xml
+
+<application
+  android:name="{packageName}.ExampleApplication"
+  ...>
+</application>
+
+```
+
 First class you need to define is the ```@Database```. It is recommended you store the name and version as static final fields.
 The database name is not required for singular databases, however it is good practice to include it here.
 
