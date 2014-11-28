@@ -115,7 +115,7 @@ public class FlowManager {
         return context;
     }
 
-    /*
+    /**
      * Initializes DBFlow, retrieving the Database holder via reflection. This will trigger all creations,
      * updates, and instantiation for each database defined.
      * @param context               The shared context for database usage.
