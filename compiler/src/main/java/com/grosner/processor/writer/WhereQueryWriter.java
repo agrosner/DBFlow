@@ -44,7 +44,7 @@ public class WhereQueryWriter implements FlowWriter {
                         ColumnDefinition columnDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
                         conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), columnDefinition.columnName),
                                 ModelUtils.getAccessStatement(columnDefinition.columnName, columnDefinition.columnFieldType,
-                                        columnDefinition.columnFieldName, isModelContainer, false, false, columnDefinition.hasTypeConverter));
+                                        columnDefinition.columnFieldName, columnDefinition.containerKeyName, isModelContainer, false, false, columnDefinition.hasTypeConverter));
                         if (i < tableDefinition.getPrimaryColumnDefinitions().size() - 1) {
                             conditionQueryBuilder.append(",");
                         }
@@ -54,7 +54,7 @@ public class WhereQueryWriter implements FlowWriter {
                     if(autoIncrementDefinition != null) {
                         conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), autoIncrementDefinition.columnName),
                                 ModelUtils.getAccessStatement(autoIncrementDefinition.columnName, autoIncrementDefinition.columnFieldType,
-                                        autoIncrementDefinition.columnFieldName, isModelContainer, false, false, autoIncrementDefinition.hasTypeConverter));
+                                        autoIncrementDefinition.columnFieldName, autoIncrementDefinition.containerKeyName, isModelContainer, false, false, autoIncrementDefinition.hasTypeConverter));
                     }
                 }
                 conditionQueryBuilder.appendEndCreation();

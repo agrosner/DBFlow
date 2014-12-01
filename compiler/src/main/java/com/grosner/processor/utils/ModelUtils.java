@@ -32,6 +32,7 @@ public class ModelUtils {
     public static void writeContentValueStatement(JavaWriter javaWriter,
                                                   String putValue, String localColumnName,
                                                   String castedClass, String foreignColumnName,
+                                                  String containerKeyName,
                                                   boolean isContainer, boolean isModelContainer,
                                                   boolean isForeignKey,
                                                   boolean requiresTypeConverter, String databaseTypeName) throws IOException {
@@ -39,7 +40,7 @@ public class ModelUtils {
         contentValue.appendContentValues();
         contentValue.appendPut(putValue);
         String accessStatement = getAccessStatement(localColumnName, castedClass,
-                foreignColumnName, isContainer, isModelContainer, isForeignKey, requiresTypeConverter);
+                foreignColumnName, containerKeyName, isContainer, isModelContainer, isForeignKey, requiresTypeConverter);
         if (requiresTypeConverter) {
             contentValue.appendTypeConverter(castedClass, databaseTypeName, false);
         }
@@ -51,7 +52,7 @@ public class ModelUtils {
     }
 
     public static String getAccessStatement(String localColumnName,
-                                            String castedClass, String foreignColumnName,
+                                            String castedClass, String foreignColumnName, String containerKeyName,
                                             boolean isContainer, boolean isModelContainer, boolean isForeignKey, boolean requiresTypeConverter) {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
 
@@ -60,7 +61,7 @@ public class ModelUtils {
         }
         contentValue.appendVariable(isContainer).append(".");
         if (isContainer) {
-            contentValue.appendGetValue(foreignColumnName);
+            contentValue.appendGetValue(containerKeyName);
         } else if (isModelContainer) {
             contentValue.append(localColumnName)
                     .append(".")
@@ -80,14 +81,14 @@ public class ModelUtils {
     }
 
     public static void writeLoadFromCursorDefinitionField(JavaWriter javaWriter, ProcessorManager processorManager, String columnFieldType, String columnFieldName, String columnName,
-                                                          String foreignColumnName,
+                                                          String foreignColumnName, String containerKeyName,
                                                           Element modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer) throws IOException {
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isModelContainerDefinition);
         if (isFieldModelContainer) {
             queryBuilder.append(".").append(columnFieldName);
         }
         if (isModelContainerDefinition) {
-            queryBuilder.appendPut(columnFieldName);
+            queryBuilder.appendPut(containerKeyName);
         } else if (isFieldModelContainer) {
             queryBuilder.appendPut(foreignColumnName);
         } else {

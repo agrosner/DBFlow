@@ -2,6 +2,7 @@ package com.grosner.processor.definition;
 
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ContainerKey;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.processor.Classes;
 import com.grosner.processor.DBFlowProcessor;

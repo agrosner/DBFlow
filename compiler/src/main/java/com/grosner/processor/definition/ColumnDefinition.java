@@ -2,6 +2,7 @@ package com.grosner.processor.definition;
 
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ContainerKey;
 import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.sql.SQLiteType;
 import com.grosner.processor.Classes;
@@ -54,6 +55,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
      */
     public boolean isModelContainer;
 
+    public String containerKeyName;
+
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         super(element, processorManager);
 
@@ -61,6 +64,13 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
         this.columnFieldName = element.getSimpleName().toString();
         this.columnFieldType = element.asType().toString();
+
+        ContainerKey containerKey = element.getAnnotation(ContainerKey.class);
+        if(containerKey != null) {
+            containerKeyName = containerKey.value();
+        } else {
+            containerKeyName = columnFieldName;
+        }
 
         if (element.asType().getKind().isPrimitive()) {
             this.modelType = processorManager.getTypeUtils().boxedClass((PrimitiveType) element.asType());
@@ -171,7 +181,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     ModelUtils.writeContentValueStatement(javaWriter, foreignKeyReference.columnName(),
                             columnName, ModelUtils.getClassFromAnnotation(foreignKeyReference),
-                            foreignKeyReference.foreignColumnName(),
+                            foreignKeyReference.foreignColumnName(), foreignKeyReference.foreignColumnName(),
                             false, isModelContainer, true, false, columnFieldType);
                 }
                 javaWriter.endControlFlow();
@@ -207,7 +217,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             ModelUtils.writeContentValueStatement(javaWriter, columnName, columnName,
-                    newFieldType, columnFieldName, isModelContainerDefinition, isModelContainer, false, hasTypeConverter, getType);
+                    newFieldType, columnFieldName, containerKeyName, isModelContainerDefinition, isModelContainer, false, hasTypeConverter, getType);
         }
     }
 
@@ -269,7 +279,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                         }
 
                         ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, ModelUtils.getClassFromAnnotation(foreignKeyReference),
-                                columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(), element, false, isModelContainerDefinition, isModelContainer);
+                                columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(),
+                                foreignKeyReference.columnName(), element, false, isModelContainerDefinition, isModelContainer);
                     }
                 }
             }
@@ -284,7 +295,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, getType, columnFieldName,
-                    columnName, "", modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer);
+                    columnName, "",containerKeyName, modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer);
         }
     }
 
@@ -304,7 +315,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                     .append(".getInstance(");
         }
 
-        queryBuilder.appendVariable(true).append(".").appendGetValue(columnFieldName);
+        queryBuilder.appendVariable(true).append(".").appendGetValue(containerKeyName);
 
         if (!isModel) {
             queryBuilder.append(")");
