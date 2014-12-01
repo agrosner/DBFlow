@@ -142,11 +142,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 Classes.CONTENT_VALUES,
                 Classes.SQL_UTILS,
                 Classes.SELECT,
-                Classes.CONDITION,
-                Classes.DELETE,
-                Classes.TRANSACTION_MANAGER,
-                Classes.PROCESS_MODEL_INFO,
-                Classes.DBTRANSACTION_INFO
+                Classes.CONDITION
         );
         javaWriter.emitSingleLineComment("This table belongs to the %1s database", databaseName);
         javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ModelAdapter<" + element.getSimpleName() + ">");

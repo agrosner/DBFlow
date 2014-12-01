@@ -1,7 +1,9 @@
 package com.grosner.dbflow.sql.builder;
 
 import android.database.DatabaseUtils;
+
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.converter.TypeConverter;
 import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.structure.Model;
 import com.grosner.dbflow.structure.ModelAdapter;
@@ -13,7 +15,9 @@ import java.util.Set;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: Constructs a condition statement for a specific {@link com.grosner.dbflow.structure.Model} class
+ * Description: Constructs a condition statement for a specific {@link com.grosner.dbflow.structure.Model} class.
+ * This enables easy combining of conditions for SQL statements and will handle converting the model value for each column into
+ * the correct database-valued-string.
  */
 public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilder<ConditionQueryBuilder<ModelClass>> {
 
@@ -25,7 +29,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * The structure of the ModelClass this query pertains to
      */
-    private ModelAdapter<ModelClass> mTableStructure;
+    private ModelAdapter<ModelClass> mModelAdapter;
 
     /**
      * The parameters to build this query with
@@ -51,10 +55,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Constructs an instance of this class
      * and {@link ModelClass}.
      *
-     * @param tableClass
+     * @param table      The table to use
+     * @param conditions The array of conditions to add to the mapping.
      */
-    public ConditionQueryBuilder(Class<ModelClass> tableClass, Condition... conditions) {
-        mTableStructure = FlowManager.getModelAdapter(tableClass);
+    public ConditionQueryBuilder(Class<ModelClass> table, Condition... conditions) {
+        mModelAdapter = FlowManager.getModelAdapter(table);
         putConditions(conditions);
     }
 
@@ -62,7 +67,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Appends all the conditions from the specified array
      *
      * @param conditions The array of conditions to add to the mapping.
-     * @return
+     * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
         if (conditions.length > 0) {
@@ -96,36 +101,19 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Converts the given value for the column
+     * Converts the given value for the column if it has a type converter. Then it turns that result into a string.
      *
-     * @param columnName The name of the column in the DB
-     * @param value      The value of the column we are looking for
+     * @param value The value of the column in Model format.
      * @return
      */
     @SuppressWarnings("unchecked")
-    public String convertValueToString(String columnName, Object value) {
+    public String convertValueToString(Object value) {
         String stringVal;
-        if (!useEmptyParams) {
-            /*Field field = mTableStructure.getField(columnName);
-            if (field != null) {
-                final TypeConverter typeConverter = FlowManager.getTypeConverterForClass(mTableStructure.getField(columnName).getType());
-                if (typeConverter != null) {
-                    // serialize data
-                    value = typeConverter.getDBValue(value);
-                    // set new object type
-                    if (value != null) {
-                        Class fieldType = value.getClass();
-                        // check that the serializer returned what it promised
-                        if (!fieldType.equals(typeConverter.getDatabaseType())) {
-                            FlowLog.log(FlowLog.Level.W, String.format(TypeConverter.class.getSimpleName() +
-                                            " returned wrong type: expected a %s but got a %s",
-                                    typeConverter.getDatabaseType(), fieldType));
-                        }
-                    }
-                }
-            } else {
-                throw new ColumnNameNotFoundException(columnName, mTableStructure);
-            }*/
+        if (!useEmptyParams && value != null) {
+            TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+            if (typeConverter != null) {
+                value = typeConverter.getDBValue(value);
+            }
         }
 
         if (value instanceof Number) {
@@ -144,18 +132,28 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Internal utility method for appending a condition to the query
      *
      * @param condition The value of the column we are looking for
-     * @return
+     * @return This instance
      */
     ConditionQueryBuilder<ModelClass> appendConditionToQuery(Condition condition) {
         return append(condition.columnName()).appendSpaceSeparated(condition.operation())
-                .append(convertValueToString(condition.columnName(), condition.value()));
+                .append(convertValueToString(condition.value()));
     }
 
+    /**
+     * Sets the condition separator for when we build the query.
+     * @param separator AND, OR, etc.
+     * @return This instance
+     */
     public ConditionQueryBuilder<ModelClass> setSeparator(String separator) {
         mSeparator = separator;
         return this;
     }
 
+    /**
+     * Sets this class to use empty params ONLY. Cannot mix empty and non-empty for query building.
+     * @param useEmptyParams If true, only empty parameters will be accepted.
+     * @return This instance
+     */
     public ConditionQueryBuilder<ModelClass> setUseEmptyParams(boolean useEmptyParams) {
         this.useEmptyParams = useEmptyParams;
         return this;
@@ -197,8 +195,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Appends a condition to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
-     * @param condition The where arguments. We can specify other operators than just "="
-     * @return
+     * @param condition The condition to append
+     * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> putCondition(Condition condition) {
         mParams.put(condition.columnName(), condition);
@@ -207,19 +205,20 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * This will append all the primary key names with empty params. Ex: name = ?, columnName = ?
+     * This will append all the primary key names with empty params from the underlying {@link com.grosner.dbflow.structure.ModelAdapter}.
+     * Ex: name = ?, columnName = ?
      *
-     * @return
+     * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> emptyPrimaryConditions() {
-        return append(mTableStructure.getPrimaryModelWhere());
+        return append(mModelAdapter.getPrimaryModelWhere());
     }
 
     /**
      * Appends all the parameters from the specified map
      *
      * @param params The mapping between column names and the string-represented value
-     * @return
+     * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> putConditionMap(Map<String, Condition> params) {
         if (params != null && !params.isEmpty()) {
@@ -233,7 +232,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Appends an empty condition to this map that will be represented with a "?". All params must either be empty or not.
      *
      * @param columnName The name of the column in the DB
-     * @return
+     * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> emptyCondition(String columnName) {
         useEmptyParams = true;
@@ -268,7 +267,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * match the count of columns that are in this where query.
      *
      * @param values The values of the fields we wish to replace. Must match the length of the empty params and must be in empty param mode.
-     * @return The query with the paramters filled in.
+     * @return The query with the parameters filled in.
      */
     public ConditionQueryBuilder<ModelClass> replaceEmptyParams(Object... values) {
         if (!useEmptyParams) {
@@ -277,11 +276,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         }
         if (mParams.size() != values.length) {
             throw new IllegalArgumentException("The count of values MUST match the number of columns they correspond to for " +
-                    mTableStructure.getTableName());
+                    mModelAdapter.getTableName());
         }
 
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder =
-                new ConditionQueryBuilder<ModelClass>(mTableStructure.getModelClass());
+                new ConditionQueryBuilder<ModelClass>(mModelAdapter.getModelClass());
         Set<String> columnNames = mParams.keySet();
 
         int count = 0;
@@ -294,21 +293,17 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Returns the {@link ModelClass} that this query belongs to
-     *
-     * @return
+     * @return the {@link ModelClass} that this query belongs to
      */
     public Class<ModelClass> getTableClass() {
         return getModelAdapter().getModelClass();
     }
 
     /**
-     * Returns the table structure that this {@link ConditionQueryBuilder} uses.
-     *
-     * @return
+     * @return the table structure that this {@link ConditionQueryBuilder} uses.
      */
     public ModelAdapter<ModelClass> getModelAdapter() {
-        return mTableStructure;
+        return mModelAdapter;
     }
 
 }

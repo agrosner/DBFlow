@@ -11,8 +11,6 @@ import com.grosner.dbflow.config.FlowManager;
  */
 public abstract class FlowTestCase extends AndroidTestCase {
 
-    protected abstract String getDBName();
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();

@@ -55,9 +55,7 @@ public class ModelContainerUtils {
 
             if (!exists) {
                 long id = db.insert(modelAdapter.getTableName(), null, contentValues);
-                if(id != 0) {
-
-                }
+                //containerAdapter.updateAutoIncrement(modelContainer, id);
 
                 /*Collection<Field> primaryKeys = tableStructure.getPrimaryKeys();
                 for (Field field : primaryKeys) {

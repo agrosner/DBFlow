@@ -11,18 +11,12 @@ import com.grosner.dbflow.test.FlowTestCase;
  */
 public class BuilderTest extends FlowTestCase {
 
-    @Override
-    protected String getDBName() {
-        return "builder";
-    }
-
     /**
      * This test will ensure that all column values are converted appropriately
      */
     public void testConditions() {
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder
                 = new ConditionQueryBuilder<ConditionModel>(ConditionModel.class);
-        byte[] bytes = new byte[] {5,5,5};
         conditionQueryBuilder.putConditions(
                 Condition.column("number").is(5L),
                 Condition.column("bytes").is(5),

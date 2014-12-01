@@ -197,7 +197,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * @return
      */
     public Where<ModelClass> orderBy(boolean ascending, String... columns) {
-        mOrderBy = new QueryBuilder().appendArray(columns).appendSpace().append(ascending ? "ASC" : "DSC").getQuery();
+        mOrderBy = new QueryBuilder().appendArray(columns).appendSpace().append(ascending ? "ASC" : "DESC").getQuery();
         return this;
     }
 

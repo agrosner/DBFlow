@@ -18,10 +18,6 @@ import java.util.Date;
  * Description:
  */
 public class TypeConverterTest extends FlowTestCase {
-    @Override
-    protected String getDBName() {
-        return "typeconverter";
-    }
 
     public void testConverters() {
 

@@ -11,14 +11,9 @@ import com.grosner.dbflow.test.structure.TestModel1;
  */
 public class ContentObserverTest extends FlowTestCase {
 
-    @Override
-    protected String getDBName() {
-        return "contentobserver";
-    }
-
     public void testContentObserver() {
         FlowContentObserver flowContentObserver = new FlowContentObserver();
-        flowContentObserver.registerForContentChanges(TestModel1.class);
+        flowContentObserver.registerForContentChanges(getContext(), TestModel1.class);
 
         final Boolean[] methodcalled = {false, false, false, false};
         FlowContentObserver.ModelChangeListener modelChangeListener = new FlowContentObserver.ModelChangeListener() {
@@ -75,6 +70,6 @@ public class ContentObserverTest extends FlowTestCase {
         // updated
         assertTrue(methodcalled[3]);
 
-        flowContentObserver.unregisterForContentChanges();
+        flowContentObserver.unregisterForContentChanges(getContext());
     }
 }

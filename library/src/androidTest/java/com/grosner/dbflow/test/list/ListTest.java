@@ -19,10 +19,6 @@ import java.util.List;
  * Description:
  */
 public class ListTest extends FlowTestCase {
-    @Override
-    protected String getDBName() {
-        return "list";
-    }
 
     public void testTableList() {
 

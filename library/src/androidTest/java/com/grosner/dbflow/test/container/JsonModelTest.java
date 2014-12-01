@@ -13,10 +13,6 @@ import org.json.JSONObject;
  * Description:
  */
 public class JsonModelTest extends FlowTestCase {
-    @Override
-    protected String getDBName() {
-        return "jsonmodel";
-    }
 
     public void testJsonModel() {
         try {

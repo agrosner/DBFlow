@@ -11,11 +11,6 @@ import com.grosner.dbflow.test.FlowTestCase;
  */
 public class DBStructureTest extends FlowTestCase {
 
-    @Override
-    protected String getDBName() {
-        return "dbstructure";
-    }
-
     // region Test Primary Where Query
 
     public void testPrimaryWhereQuery() {

@@ -78,12 +78,12 @@ public class FlowCursorList<ModelClass extends Model> {
         if (cacheModels) {
             model = mModelCache.get(position);
             if (model == null && mCursor.moveToPosition(position)) {
-                model = SqlUtils.convertToModel(false, mTable, mCursor);
+                model = SqlUtils.convertToModel(true, mTable, mCursor);
                 mModelCache.put(position, model);
             }
         } else {
             mCursor.moveToPosition(position);
-            model = SqlUtils.convertToModel(false, mTable, mCursor);
+            model = SqlUtils.convertToModel(true, mTable, mCursor);
         }
         return model;
     }

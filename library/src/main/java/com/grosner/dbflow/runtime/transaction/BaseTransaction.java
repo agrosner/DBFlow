@@ -47,7 +47,8 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
     /**
      * Constructs this class using the specified DBRequest info
      *
-     * @param dbTransactionInfo
+     * @param dbTransactionInfo Tells the {@link com.grosner.dbflow.runtime.DBTransactionQueue} how to process
+     *                          this transaction.
      */
     public BaseTransaction(DBTransactionInfo dbTransactionInfo) {
         mInfo = dbTransactionInfo;
@@ -64,7 +65,7 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
      * Tells the queue if this request is ready to run. The default is true. This is run on the
      * {@link com.grosner.dbflow.runtime.DBTransactionQueue}'s thread.
      *
-     * @return
+     * @return True if we run the request, if false we throw it away.
      */
     public boolean onReady() {
         return true;

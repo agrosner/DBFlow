@@ -104,7 +104,7 @@ public class FlowManager {
     }
 
     /**
-     * Will throw an exception if this class is not initialized yet in {@link #initialize(android.content.Context, DBConfiguration)}
+     * Will throw an exception if this class is not initialized yet in {@link #init(android.content.Context)}
      *
      * @return
      */
@@ -115,6 +115,11 @@ public class FlowManager {
         return context;
     }
 
+    /**
+     * Initializes DBFlow, retrieving the Database holder via reflection. This will trigger all creations,
+     * updates, and instantiation for each database defined.
+     * @param context               The shared context for database usage.
+     */
     public static void init(Context context) {
         FlowManager.context = context;
         getDatabaseHolder();
@@ -145,7 +150,7 @@ public class FlowManager {
     // region Getters
 
     /**
-     * Releases references to the structure, configuration, and closes the DB.
+     * Release reference to context
      */
     public static synchronized void destroy() {
         context = null;
