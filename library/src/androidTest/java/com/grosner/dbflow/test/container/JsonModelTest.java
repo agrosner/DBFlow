@@ -28,7 +28,7 @@ public class JsonModelTest extends FlowTestCase {
             jsonObject = new JSONObject("{" +
                     "name: test," +
                     "party_type: club," +
-                    "count: 10," +
+                    "count1: 10," +
                     "testModel: {" +
                     "name: testModel" +
                     "}" +

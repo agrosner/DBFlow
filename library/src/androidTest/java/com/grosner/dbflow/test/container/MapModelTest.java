@@ -26,7 +26,7 @@ public class MapModelTest extends FlowTestCase {
         Map<String, Object> otherDataMap = new HashMap<String, Object>();
         otherDataMap.put("name", "test");
         otherDataMap.put("party_type", "club");
-        otherDataMap.put("count", 10);
+        otherDataMap.put("count1", 10);
 
         otherDataMap.put("testModel", dataMap);
 
