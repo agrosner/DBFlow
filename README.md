@@ -1,4 +1,4 @@
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Maven Central](http://img.shields.io/badge/Maven%20Central-1.0.1-blue.svg)](http://search.maven.org/#artifactdetails%7Ccom.github.agrosner%7CDBFlow%7C1.0.1%7Caar)
 
 DBFlow
 ======
