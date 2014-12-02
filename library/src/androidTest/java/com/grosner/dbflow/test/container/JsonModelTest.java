@@ -4,6 +4,7 @@ import com.grosner.dbflow.structure.container.JSONArrayModel;
 import com.grosner.dbflow.structure.container.JSONModel;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
+import com.grosner.dbflow.test.structure.TestModel1$Table;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,16 +59,46 @@ public class JsonModelTest extends FlowTestCase {
                     "}");
             JSONArrayModel<TestModel1> jsonArrayModel = new JSONArrayModel<TestModel1>(TestModel1.class);
             jsonArrayModel.addJSONObject(jsonObject);
+
+            jsonObject = new JSONObject("{" +
+                    "name: testModel1" +
+                    "}");
+
             jsonArrayModel.addJSONObject(jsonObject);
+
+            jsonObject = new JSONObject("{" +
+                    "name: testModel2" +
+                    "}");
             jsonArrayModel.addJSONObject(jsonObject);
+
+            jsonObject = new JSONObject("{" +
+                    "name: testModel3" +
+                    "}");
             jsonArrayModel.addJSONObject(jsonObject);
+
+            jsonArrayModel.insert(false);
+            jsonArrayModel.update(false);
+            jsonArrayModel.save(false);
+
+            for(int i = 0 ; i < jsonArrayModel.length(); i++) {
+                assertTrue(jsonArrayModel.exists(i));
+            }
+
+            jsonArrayModel.delete(false);
+
+            for(int i = 0 ; i < jsonArrayModel.length(); i++) {
+                assertFalse(jsonArrayModel.exists(i));
+            }
 
             assertTrue(jsonArrayModel.length() == 4);
 
             TestModel1 firstModel = jsonArrayModel.getModelObject(0);
             assertTrue(firstModel.name.equals("testModel"));
 
-            JSONModel<TestModel1> firstJsonModel = jsonArrayModel.
+            JSONModel<TestModel1> firstJsonModel = jsonArrayModel.getJsonModel(0);
+            assertTrue(firstJsonModel.getValue(TestModel1$Table.NAME).equals("testModel"));
+
+
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
