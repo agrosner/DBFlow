@@ -3,8 +3,6 @@
 DBFlow
 ======
 
-![Image](https://github.com/agrosner/DBFlow/blob/master/clear-river.jpg?raw=true)
-
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
 The library eliminates the need for writing most SQL statements, writing ``ContentValues`` for every table, converting cursors into models, and so much more. 
