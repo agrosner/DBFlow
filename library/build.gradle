@@ -29,7 +29,7 @@ android {
 
 dependencies {
     compile project(dbflow_project_prefix + "flowcore")
-    compile "com.android.support:support-annotations:21.+"
+    compile "com.android.support:support-annotations:21.0.0"
     androidTestApt project(dbflow_project_prefix + "compiler")
 }
 
