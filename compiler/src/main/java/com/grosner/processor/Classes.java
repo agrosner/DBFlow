@@ -74,4 +74,6 @@ public class Classes {
     public static final String MODEL_VIEW_ADAPTER = STRUCTURE + "ModelViewAdapter";
 
     public static final String MIGRATION = SQL + "migration.Migration";
+
+    public static final String SQLITE_STATEMENT = "android.database.sqlite.SQLiteStatement";
 }

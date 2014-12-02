@@ -30,15 +30,14 @@ public class ModelUtils {
     }
 
     public static void writeContentValueStatement(JavaWriter javaWriter,
-                                                  String putValue, String localColumnName,
+                                                  int index,String localColumnName,
                                                   String castedClass, String foreignColumnName,
                                                   String containerKeyName,
                                                   boolean isContainer, boolean isModelContainer,
                                                   boolean isForeignKey,
                                                   boolean requiresTypeConverter, String databaseTypeName) throws IOException {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
-        contentValue.appendContentValues();
-        contentValue.appendPut(putValue);
+        contentValue.appendBindSQLiteStatement(index, castedClass);
         String accessStatement = getAccessStatement(localColumnName, castedClass,
                 foreignColumnName, containerKeyName, isContainer, isModelContainer, isForeignKey, requiresTypeConverter);
         if (requiresTypeConverter) {

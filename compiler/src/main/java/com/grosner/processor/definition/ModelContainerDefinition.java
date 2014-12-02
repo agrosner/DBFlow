@@ -10,7 +10,6 @@ import com.squareup.javawriter.JavaWriter;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
-import java.util.Set;
 
 /**
  * Author: andrewgrosner
@@ -32,7 +31,7 @@ public class ModelContainerDefinition extends BaseDefinition {
         tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()), classElement);
 
         mMethodWriters = new FlowWriter[]{
-                new ContentValuesWriter(tableDefinition, true),
+                new SQLiteStatementWriter(tableDefinition, true),
                 new ExistenceWriter(tableDefinition, true),
                 new WhereQueryWriter(tableDefinition, true),
                 new ToModelWriter(tableDefinition),

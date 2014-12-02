@@ -40,7 +40,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
     @SuppressWarnings("unchecked")
     public ProcessModelInfo<ModelClass> models(ModelClass... models) {
         mModels.addAll(Arrays.asList(models));
-        if(models.length > 0) {
+        if (models.length > 0) {
             mTable = (Class<ModelClass>) models[0].getClass();
         }
         return this;
@@ -54,7 +54,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
     @SuppressWarnings("unchecked")
     public ProcessModelInfo<ModelClass> models(Collection<ModelClass> models) {
         mModels.addAll(models);
-        if(models != null && models.size() > 0) {
+        if (models != null && models.size() > 0) {
             mTable = (Class<ModelClass>) new ArrayList<>(models).get(0).getClass();
         }
         return this;
@@ -83,5 +83,18 @@ public class ProcessModelInfo<ModelClass extends Model> {
 
     public boolean hasData() {
         return !mModels.isEmpty();
+    }
+
+    /**
+     * Iterates through the models in this class and allows for a process on it.
+     *
+     * @param processModel Process model
+     */
+    public void processModels(ProcessModel<ModelClass> processModel) {
+        if (processModel != null) {
+            for (ModelClass model : mModels) {
+                processModel.processModel(model);
+            }
+        }
     }
 }

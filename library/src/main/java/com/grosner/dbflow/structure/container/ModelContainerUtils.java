@@ -29,11 +29,10 @@ public class ModelContainerUtils {
      * @param <ModelClass>   The class that implements {@link com.grosner.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void sync(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContentValues contentValues, @SqlUtils.SaveMode int mode) {
+    public static <ModelClass extends Model> void sync(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContainerAdapter<ModelClass> containerAdapter, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
             BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelContainer.getTable());
-            ContainerAdapter<ModelClass> containerAdapter = flowManager.getModelContainerAdapterForTable(modelContainer.getTable());
             ModelAdapter<ModelClass> modelAdapter = modelContainer.getModelAdapter();
 
             final SQLiteDatabase db = flowManager.getWritableDatabase();
@@ -50,11 +49,11 @@ public class ModelContainerUtils {
             }
 
             if (exists) {
-                exists = (db.update(modelAdapter.getTableName(), contentValues, containerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null) != 0);
+                exists = (modelAdapter.getUpdateStatement().executeUpdateDelete()!=0);
             }
 
             if (!exists) {
-                long id = db.insert(modelAdapter.getTableName(), null, contentValues);
+                long id = modelAdapter.getInsertStatement().executeInsert();
                 //containerAdapter.updateAutoIncrement(modelContainer, id);
 
                 /*Collection<Field> primaryKeys = tableStructure.getPrimaryKeys();

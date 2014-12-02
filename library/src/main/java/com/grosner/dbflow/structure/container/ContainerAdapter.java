@@ -1,10 +1,13 @@
 package com.grosner.dbflow.structure.container;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 
+import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 import com.grosner.dbflow.structure.InternalAdapter;
 import com.grosner.dbflow.structure.Model;
+import com.grosner.dbflow.structure.ModelAdapter;
 
 /**
  * Author: andrewgrosner
@@ -29,7 +32,16 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
      * @param modelContainer The container to read data from into {@link android.content.ContentValues}
      * @param saveMode       The {@link com.grosner.dbflow.sql.SqlUtils.SaveMode}
      */
-    public abstract void save(boolean async, ModelContainer<ModelClass, ?> modelContainer, int saveMode);
+    public void save(boolean async, ModelContainer<ModelClass, ?> modelContainer, int saveMode) {
+        ModelContainerUtils.sync(async, modelContainer, this, saveMode);
+    }
+
+    /**
+     *
+     * @param sqLiteStatement
+     * @param modelContainer
+     */
+    public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelContainer<ModelClass, ?> modelContainer);
 
     /**
      * @param modelContainer The container to check if exists by combining the primary keys into a query.

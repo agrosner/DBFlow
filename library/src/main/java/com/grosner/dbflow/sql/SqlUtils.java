@@ -3,6 +3,7 @@ package com.grosner.dbflow.sql;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.IntDef;
 
@@ -177,10 +178,9 @@ public class SqlUtils {
      * @param mode
      * @param <ModelClass>
      */
-    public static <ModelClass extends Model> void sync(boolean async, ModelClass model, ContentValues contentValues, @SaveMode int mode) {
+    public static <ModelClass extends Model> void sync(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter, @SaveMode int mode) {
         if (!async) {
             BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(model.getClass());
-            ModelAdapter<ModelClass> modelAdapter = (ModelAdapter<ModelClass>) FlowManager.getModelAdapter(model.getClass());
             final SQLiteDatabase db = flowManager.getWritableDatabase();
 
             boolean exists = false;
@@ -195,11 +195,11 @@ public class SqlUtils {
             }
 
             if (exists) {
-                exists = (db.update(modelAdapter.getTableName(), contentValues, modelAdapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
+                exists = (modelAdapter.getUpdateStatement().executeUpdateDelete() != 0);
             }
 
             if (!exists) {
-                long id = db.insert(modelAdapter.getTableName(), null, contentValues);
+                long id = modelAdapter.getInsertStatement().executeInsert();
 
                 modelAdapter.updateAutoIncrement(model, id);
 

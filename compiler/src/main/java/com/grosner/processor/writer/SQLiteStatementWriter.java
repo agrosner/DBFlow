@@ -2,6 +2,7 @@ package com.grosner.processor.writer;
 
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
+import com.grosner.processor.Classes;
 import com.grosner.processor.definition.ColumnDefinition;
 import com.grosner.processor.definition.TableDefinition;
 import com.grosner.processor.utils.ModelUtils;
@@ -10,47 +11,47 @@ import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Author: andrewgrosner
  * Contributors: { }
  * Description:
  */
-public class ContentValuesWriter implements FlowWriter {
+public class SQLiteStatementWriter implements FlowWriter {
 
     private TableDefinition tableDefinition;
 
-    private String mSaveMethod;
-
-    private String mSaveVariable;
-
     private boolean isModelContainer;
 
-    public ContentValuesWriter(TableDefinition tableDefinition, boolean isModelContainer) {
+    public SQLiteStatementWriter(TableDefinition tableDefinition, boolean isModelContainer) {
         this.tableDefinition = tableDefinition;
         this.isModelContainer = isModelContainer;
-        mSaveMethod = isModelContainer ? "ModelContainerUtils" : "SqlUtils";
-        mSaveVariable = isModelContainer ? "modelContainer" : "model";
     }
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);
+        String[] args = new String[4];
+        args[0] = Classes.SQLITE_STATEMENT;
+        args[1] = "statement";
+        args[2] = isModelContainer ? "ModelContainer<" + tableDefinition.getModelClassName() + ", ?>"
+                : tableDefinition.getModelClassName();
+        args[3] = ModelUtils.getVariable(isModelContainer);
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("ContentValues contentValues = new ContentValues()");
-                for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
+
+                AtomicInteger columnCounter = new AtomicInteger(1);
+                for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
+                    ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
                     if(columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
-                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainer);
+                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainer,columnCounter);
                     }
                 }
                 javaWriter.emitEmptyLine();
-
-                javaWriter.emitStatement(mSaveMethod + ".sync(%1s, %1s, %1s, %1s)", "async", mSaveVariable, "contentValues", "saveMode");
             }
-        }, "void", "save", Sets.newHashSet(Modifier.PUBLIC), "boolean", "async",
-                ModelUtils.getParameter(isModelContainer,tableDefinition.getModelClassName()), mSaveVariable, "int", "saveMode");
+        }, "void", "bindToStatement", Sets.newHashSet(Modifier.PUBLIC), args);
     }
 }

@@ -2,7 +2,6 @@ package com.grosner.processor.definition;
 
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
-import com.grosner.dbflow.annotation.ContainerKey;
 import com.grosner.dbflow.annotation.Table;
 import com.grosner.processor.Classes;
 import com.grosner.processor.DBFlowProcessor;
@@ -69,7 +68,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         createColumnDefinitions((TypeElement) element);
 
         mMethodWriters = new FlowWriter[]{
-                new ContentValuesWriter(this, false),
+                new SQLiteStatementWriter(this, false),
                 new ExistenceWriter(this, false),
                 new LoadCursorWriter(this, false),
                 new WhereQueryWriter(this, false),

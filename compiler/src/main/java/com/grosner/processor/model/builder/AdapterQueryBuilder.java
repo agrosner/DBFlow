@@ -1,6 +1,8 @@
 package com.grosner.processor.model.builder;
 
 import com.grosner.dbflow.sql.QueryBuilder;
+import com.grosner.dbflow.sql.SQLiteType;
+import com.grosner.dbflow.sql.StatementMap;
 import com.grosner.processor.utils.ModelUtils;
 
 /**
@@ -23,6 +25,11 @@ public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
 
     public AdapterQueryBuilder appendVariable(boolean isMCDefinition) {
         return append(isMCDefinition ? "modelContainer" : "model");
+    }
+
+    public AdapterQueryBuilder appendBindSQLiteStatement(int index, String columnFieldType) {
+        return append("statement.bind").append(StatementMap.getStatement(SQLiteType.get(columnFieldType)))
+                .append("(").append(index).append(",");
     }
 
     public AdapterQueryBuilder appendContentValues() {
