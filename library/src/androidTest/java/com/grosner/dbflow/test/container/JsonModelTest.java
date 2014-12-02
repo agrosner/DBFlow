@@ -1,5 +1,6 @@
 package com.grosner.dbflow.test.container;
 
+import com.grosner.dbflow.structure.container.JSONArrayModel;
 import com.grosner.dbflow.structure.container.JSONModel;
 import com.grosner.dbflow.test.FlowTestCase;
 import com.grosner.dbflow.test.structure.TestModel1;
@@ -45,6 +46,28 @@ public class JsonModelTest extends FlowTestCase {
             testJsonModel1.delete(false);
             assertFalse(testJsonModel1.exists());
             assertFalse(testJsonModel.exists());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void testJsonArrayModel() {
+        try {
+            JSONObject jsonObject = new JSONObject("{" +
+                    "name: testModel" +
+                    "}");
+            JSONArrayModel<TestModel1> jsonArrayModel = new JSONArrayModel<TestModel1>(TestModel1.class);
+            jsonArrayModel.addJSONObject(jsonObject);
+            jsonArrayModel.addJSONObject(jsonObject);
+            jsonArrayModel.addJSONObject(jsonObject);
+            jsonArrayModel.addJSONObject(jsonObject);
+
+            assertTrue(jsonArrayModel.length() == 4);
+
+            TestModel1 firstModel = jsonArrayModel.getModelObject(0);
+            assertTrue(firstModel.name.equals("testModel"));
+
+            JSONModel<TestModel1> firstJsonModel = jsonArrayModel.
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

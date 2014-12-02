@@ -48,7 +48,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public ModelClass toModel() {
-        if (mModel == null) {
+        if (mModel == null && mData != null) {
             mModel = mContainerAdapter.toModel(this);
         }
 
