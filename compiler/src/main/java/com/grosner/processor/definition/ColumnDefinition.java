@@ -123,11 +123,15 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
     public void write(JavaWriter javaWriter) throws IOException {
         if (isModel || isModelContainer) {
             for (ForeignKeyReference reference : foreignKeyReferences) {
-                writeColumnDefinition(javaWriter, (columnName + "_" + reference.columnName()).toUpperCase(), reference.columnName());
+                writeColumnDefinition(javaWriter, getReferenceColumnName(reference), reference.columnName());
             }
         } else {
             writeColumnDefinition(javaWriter, columnName);
         }
+    }
+
+    public String getReferenceColumnName(ForeignKeyReference reference) {
+        return  (columnName + "_" + reference.columnName()).toUpperCase();
     }
 
     protected void writeColumnDefinition(JavaWriter javaWriter, String columnName) throws IOException {

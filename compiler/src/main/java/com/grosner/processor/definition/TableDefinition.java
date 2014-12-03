@@ -2,23 +2,32 @@ package com.grosner.processor.definition;
 
 import com.google.common.collect.Sets;
 import com.grosner.dbflow.annotation.Column;
+import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.annotation.Table;
+import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.processor.Classes;
 import com.grosner.processor.DBFlowProcessor;
 import com.grosner.processor.model.ProcessorManager;
 import com.grosner.processor.utils.WriterUtils;
 import com.grosner.processor.validator.ColumnValidator;
-import com.grosner.processor.writer.*;
+import com.grosner.processor.writer.CreationQueryWriter;
+import com.grosner.processor.writer.DeleteWriter;
+import com.grosner.processor.writer.ExistenceWriter;
+import com.grosner.processor.writer.FlowWriter;
+import com.grosner.processor.writer.LoadCursorWriter;
+import com.grosner.processor.writer.SQLiteStatementWriter;
+import com.grosner.processor.writer.WhereQueryWriter;
 import com.squareup.javawriter.JavaWriter;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Author: andrewgrosner
@@ -90,7 +99,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         for (Element variableElement : variableElements) {
             if (variableElement.getAnnotation(Column.class) != null) {
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
-                if(columnValidator.validate(manager, columnDefinition)) {
+                if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
                     if (columnDefinition.columnType == Column.PRIMARY_KEY) {
                         primaryColumnDefinitions.add(columnDefinition);
@@ -152,11 +161,26 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                StringBuilder stringBuilder = new StringBuilder("return \"INSERT INTO %1s VALUES (");
-                for(int i = 0; i < getColumnDefinitions().size(); i++) {
-                    stringBuilder.append(i>0? ",?" : "?");
+                QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT INTO %1s (");
+
+                List<String> columnNames = new ArrayList<String>();
+                List<String> bindings = new ArrayList<String>();
+                for (int i = 0; i < getColumnDefinitions().size(); i++) {
+                    ColumnDefinition columnDefinition = getColumnDefinitions().get(i);
+
+                    if (columnDefinition.columnType == Column.FOREIGN_KEY) {
+                        for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
+                            columnNames.add(columnDefinition.getReferenceColumnName(reference));
+                            bindings.add("?");
+                        }
+                    } else if (columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
+                        columnNames.add(columnDefinition.columnName.toUpperCase());
+                        bindings.add("?");
+                    }
                 }
-                stringBuilder.append(")\"");
+
+                stringBuilder.appendList(columnNames).append(") VALUES (");
+                stringBuilder.appendList(bindings).append(")\"");
                 javaWriter.emitStatement(stringBuilder.toString(), tableName);
             }
         }, "String", "getInsertStatementQuery", Sets.newHashSet(Modifier.PROTECTED, Modifier.FINAL));
