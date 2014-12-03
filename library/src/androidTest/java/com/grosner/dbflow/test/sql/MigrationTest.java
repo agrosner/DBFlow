@@ -71,7 +71,7 @@ public class MigrationTest extends AndroidTestCase {
                 .set(Condition.column("name").is("test")).where(Condition.column("name").is("notTest"));
         updateTableMigration.onPreMigrate();
 
-        assertEquals("UPDATE MigrationModel SET name = 'test' WHERE name = 'notTest'", updateTableMigration.getQuery().trim());
+        assertEquals("UPDATE MigrationModel SET name='test' WHERE name='notTest'", updateTableMigration.getQuery().trim());
 
         updateTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
         updateTableMigration.onPostMigrate();

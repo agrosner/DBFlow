@@ -22,7 +22,7 @@ public class BuilderTest extends FlowTestCase {
                 Condition.column("bytes").is(5),
                 Condition.column("fraction").is(6.5d));
 
-        assertEquals("number = 5 AND bytes = 5 AND fraction = 6.5", conditionQueryBuilder.getQuery());
+        assertEquals("number=5 AND bytes=5 AND fraction=6.5", conditionQueryBuilder.getQuery());
     }
 
 }

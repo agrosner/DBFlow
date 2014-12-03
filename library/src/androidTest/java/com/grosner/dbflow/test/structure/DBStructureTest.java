@@ -15,7 +15,7 @@ public class DBStructureTest extends FlowTestCase {
 
     public void testPrimaryWhereQuery() {
         ConditionQueryBuilder<TestPrimaryWhere> primaryWhere = FlowManager.getPrimaryWhereQuery(TestPrimaryWhere.class);
-        assertEquals(primaryWhere.getQuery(), "name = ? AND location = ?");
+        assertEquals(primaryWhere.getQuery(), "name=? AND location=?");
     }
 
     // endregion Test Primary Where Query

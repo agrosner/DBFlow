@@ -21,14 +21,14 @@ public class SelectTest extends FlowTestCase {
         Where<TestModel1> where = new Select("name").from(TestModel1.class)
                 .where(Condition.column("name").is("test"));
 
-        assertEquals("SELECT name FROM TestModel1 WHERE name = 'test'", where.getQuery().trim());
+        assertEquals("SELECT name FROM TestModel1 WHERE name='test'", where.getQuery().trim());
         where.query();
 
         Where<TestModel3> where1 = new Select("name", "type").from(TestModel3.class)
                 .where(Condition.column("name").is("test"),
                         Condition.column("type").is("test"));
 
-        assertEquals("SELECT name, type FROM TestModel3 WHERE name = 'test' AND type = 'test'", where1.getQuery().trim());
+        assertEquals("SELECT name, type FROM TestModel3 WHERE name='test' AND type='test'", where1.getQuery().trim());
 
         Where<TestModel3> where2 = new Select().distinct().from(TestModel3.class).where();
 
