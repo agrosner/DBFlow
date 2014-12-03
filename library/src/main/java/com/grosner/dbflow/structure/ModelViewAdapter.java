@@ -16,6 +16,8 @@ public abstract class ModelViewAdapter<ModelClass extends Model, ModelViewClass 
 
     public abstract ConditionQueryBuilder<ModelViewClass> getPrimaryModelWhere(ModelViewClass modelView);
 
+    public abstract ConditionQueryBuilder<ModelClass> getFullModelWhere(ModelViewClass model);
+
     public abstract boolean exists(ModelViewClass model);
 
     public abstract String getViewName();

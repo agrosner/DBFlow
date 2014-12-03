@@ -75,6 +75,8 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model);
 
+    public abstract ConditionQueryBuilder<ModelClass> getFullModelWhere(ModelClass model);
+
     protected abstract ConditionQueryBuilder<ModelClass> createPrimaryModelWhere();
 
     protected abstract ConditionQueryBuilder<ModelClass> createFullModelWhere();

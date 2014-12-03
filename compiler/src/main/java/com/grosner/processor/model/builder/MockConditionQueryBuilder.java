@@ -4,6 +4,8 @@ import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.processor.utils.ModelUtils;
 
+import java.util.List;
+
 /**
  * Author: andrewgrosner
  * Contributors: { }
@@ -38,10 +40,23 @@ public class MockConditionQueryBuilder extends QueryBuilder<MockConditionQueryBu
         return appendMockCondition(foreignColumnModelField, ModelUtils.getCursorStatement(fieldType, localColumn));
     }
 
-    public MockConditionQueryBuilder appendMockCondition(String foreignColumnModelField, String modelStatement) {
-        append("Condition.column").appendParenthesisEnclosed(foreignColumnModelField).append(".is")
-                .appendParenthesisEnclosed(modelStatement);
+    public MockConditionQueryBuilder appendEmptyMockConditions(List<String> fields) {
+        boolean isFirst = true;
+        for(String field: fields) {
+            if(!isFirst) {
+                append(",");
+            } else {
+                isFirst = false;
+            }
+            appendMockCondition(field, "\"?\"");
+        }
+
         return this;
+    }
+
+    public MockConditionQueryBuilder appendMockCondition(String foreignColumnModelField, String modelStatement) {
+        return append("Condition.column").appendParenthesisEnclosed(foreignColumnModelField).append(".is")
+                .appendParenthesisEnclosed(modelStatement);
     }
 
     public MockConditionQueryBuilder appendCreation(String modelClassName) {
