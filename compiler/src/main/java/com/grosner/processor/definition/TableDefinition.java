@@ -170,7 +170,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
                     if (columnDefinition.columnType == Column.FOREIGN_KEY) {
                         for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
-                            columnNames.add(columnDefinition.getReferenceColumnName(reference));
+                            columnNames.add(reference.columnName());
                             bindings.add("?");
                         }
                     } else if (columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {

@@ -2,6 +2,8 @@ package com.grosner.processor.utils;
 
 import com.grosner.dbflow.annotation.ForeignKeyReference;
 import com.grosner.dbflow.sql.QueryBuilder;
+import com.grosner.dbflow.sql.SQLiteType;
+import com.grosner.dbflow.sql.StatementMap;
 import com.grosner.processor.Classes;
 import com.grosner.processor.definition.TypeConverterDefinition;
 import com.grosner.processor.model.ProcessorManager;
@@ -37,9 +39,16 @@ public class ModelUtils {
                                                   boolean isForeignKey,
                                                   boolean requiresTypeConverter, String databaseTypeName) throws IOException {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
-        contentValue.appendBindSQLiteStatement(index, castedClass);
+        String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
+        boolean needsNullCheck = statement.equals("String") || statement.equals("Blob");
         String accessStatement = getAccessStatement(localColumnName, castedClass,
                 foreignColumnName, containerKeyName, isContainer, isModelContainer, isForeignKey, requiresTypeConverter);
+        // if statements of this type, we need to check for null :(
+        if(needsNullCheck) {
+            javaWriter.beginControlFlow("if (%1s != null) ", accessStatement);
+        }
+        contentValue.appendBindSQLiteStatement(index, castedClass);
+
         if (requiresTypeConverter) {
             contentValue.appendTypeConverter(castedClass, databaseTypeName, false);
         }
@@ -48,6 +57,12 @@ public class ModelUtils {
 
 
         javaWriter.emitStatement(query);
+
+        if(needsNullCheck) {
+            javaWriter.nextControlFlow("else");
+            javaWriter.emitStatement("statement.bindNull(%1s)", index);
+            javaWriter.endControlFlow();
+        }
     }
 
     public static String getAccessStatement(String localColumnName,
