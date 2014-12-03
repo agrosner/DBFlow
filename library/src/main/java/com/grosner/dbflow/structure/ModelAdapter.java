@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteStatement;
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.sql.SqlUtils;
 import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
+import com.grosner.dbflow.sql.language.Update;
 
 /**
  * Author: andrewgrosner
@@ -15,6 +16,8 @@ import com.grosner.dbflow.sql.builder.ConditionQueryBuilder;
 public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass> {
 
     private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
+
+    private ConditionQueryBuilder<ModelClass> mFullWhere;
 
     private SQLiteStatement mInsertStatement;
 
@@ -74,6 +77,8 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     protected abstract ConditionQueryBuilder<ModelClass> createPrimaryModelWhere();
 
+    protected abstract ConditionQueryBuilder<ModelClass> createFullModelWhere();
+
     public ConditionQueryBuilder<ModelClass> getPrimaryModelWhere() {
         if (mPrimaryWhere == null) {
             mPrimaryWhere = createPrimaryModelWhere();
@@ -82,11 +87,21 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
         return mPrimaryWhere;
     }
 
+    public ConditionQueryBuilder<ModelClass> getFullModelWhere() {
+        if (mFullWhere == null) {
+            mFullWhere = createFullModelWhere();
+        }
+        mFullWhere.setUseEmptyParams(true);
+        return mFullWhere;
+    }
+
     public abstract String getCreationQuery();
 
     protected abstract String getInsertStatementQuery();
 
-    protected abstract String getUpdateStatementQuery();
+    protected String getUpdateStatementQuery() {
+        return new Update().table(getModelClass()).set(getFullModelWhere()).getQuery();
+    }
 
     @Override
     public abstract Class<ModelClass> getModelClass();

@@ -149,13 +149,23 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassName());
         InternalAdapterHelper.writeGetTableName(javaWriter, getSourceFileName());
 
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                StringBuilder stringBuilder = new StringBuilder("return \"INSERT INTO %1s VALUES (");
+                for(int i = 0; i < getColumnDefinitions().size(); i++) {
+                    stringBuilder.append(i>0? ",?" : "?");
+                }
+                stringBuilder.append(")\"");
+                javaWriter.emitStatement(stringBuilder.toString(), tableName);
+            }
+        }, "String", "getInsertStatementQuery", Sets.newHashSet(Modifier.PROTECTED, Modifier.FINAL));
+
         for (FlowWriter writer : mMethodWriters) {
             writer.write(javaWriter);
         }
 
-        javaWriter.emitEmptyLine();
-        javaWriter.emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return new %1s()", getQualifiedModelClassName());

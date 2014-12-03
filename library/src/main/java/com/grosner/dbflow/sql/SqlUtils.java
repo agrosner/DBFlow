@@ -195,11 +195,15 @@ public class SqlUtils {
             }
 
             if (exists) {
-                exists = (modelAdapter.getUpdateStatement().executeUpdateDelete() != 0);
+                SQLiteStatement updateStatement = modelAdapter.getUpdateStatement();
+                modelAdapter.bindToStatement(updateStatement, model);
+                exists = (updateStatement.executeUpdateDelete() != 0);
             }
 
             if (!exists) {
-                long id = modelAdapter.getInsertStatement().executeInsert();
+                SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
+                modelAdapter.bindToStatement(insertStatement, model);
+                long id = insertStatement.executeInsert();
 
                 modelAdapter.updateAutoIncrement(model, id);
 

@@ -2,6 +2,8 @@ package com.grosner.dbflow.structure.container;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
+
 import com.grosner.dbflow.config.FlowManager;
 import com.grosner.dbflow.config.BaseDatabaseDefinition;
 import com.grosner.dbflow.runtime.TransactionManager;
@@ -49,11 +51,15 @@ public class ModelContainerUtils {
             }
 
             if (exists) {
-                exists = (modelAdapter.getUpdateStatement().executeUpdateDelete()!=0);
+                SQLiteStatement updateStatement = modelAdapter.getUpdateStatement();
+                containerAdapter.bindToStatement(updateStatement, modelContainer);
+                exists = (updateStatement.executeUpdateDelete()!=0);
             }
 
             if (!exists) {
-                long id = modelAdapter.getInsertStatement().executeInsert();
+                SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
+                containerAdapter.bindToStatement(insertStatement, modelContainer);
+                long id = insertStatement.executeInsert();
                 //containerAdapter.updateAutoIncrement(modelContainer, id);
 
                 /*Collection<Field> primaryKeys = tableStructure.getPrimaryKeys();
