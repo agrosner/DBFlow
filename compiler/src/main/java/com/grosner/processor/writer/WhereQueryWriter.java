@@ -71,27 +71,39 @@ public class WhereQueryWriter implements FlowWriter {
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                     @Override
                     public void write(JavaWriter javaWriter) throws IOException {
-                        MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder("return ");
-                        conditionQueryBuilder.appendCreation(tableDefinition.getModelClassName());
+                        MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder("ConditionQueryBuilder<")
+                                .append(tableDefinition.getModelClassName()).append("> query = ")
+                                .appendEmptyCreation(tableDefinition.getModelClassName()).appendEndCreation();
+                        javaWriter.emitStatement(conditionQueryBuilder.getQuery());
 
-                        int primaryColumnSize = tableDefinition.getColumnDefinitions().size();
-                        if (primaryColumnSize > 0) {
-                            for (int i = 0; i < primaryColumnSize; i++) {
+                        int columnSize = tableDefinition.getColumnDefinitions().size();
+                        if (columnSize > 0) {
+                            for (int i = 0; i < columnSize; i++) {
                                 ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
                                 if(columnDefinition.columnType == Column.FOREIGN_KEY) {
-
+                                    String fieldAccess = columnDefinition.columnFieldName;
+                                    if(isModelContainer) {
+                                        fieldAccess = String.format("getValue(\"%1s\")", fieldAccess);
+                                    }
+                                    javaWriter.beginControlFlow("if (%1s.%1s != null)", ModelUtils.getVariable(isModelContainer), fieldAccess);
+                                    for(ForeignKeyReference reference: columnDefinition.foreignKeyReferences) {
+                                        String access = ModelUtils.getAccessStatement(columnDefinition.columnName, ModelUtils.getClassFromAnnotation(reference),
+                                                reference.foreignColumnName(), reference.foreignColumnName(), columnDefinition.isModelContainer,isModelContainer, true, false);
+                                        String condition = new MockConditionQueryBuilder("query").appendMockContinueCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), columnDefinition.getReferenceColumnName(reference)),
+                                                access).getQuery();
+                                        javaWriter.emitStatement(condition);
+                                    }
+                                    javaWriter.endControlFlow();
                                 } else {
-                                    conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), columnDefinition.columnName),
+                                    String condition = new MockConditionQueryBuilder("query").appendMockContinueCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), columnDefinition.columnName),
                                             ModelUtils.getAccessStatement(columnDefinition.columnName, columnDefinition.columnFieldType,
-                                                    columnDefinition.columnFieldName, columnDefinition.containerKeyName, isModelContainer, false, false, columnDefinition.hasTypeConverter));
-                                }
-                                if (i < tableDefinition.getPrimaryColumnDefinitions().size() - 1) {
-                                    conditionQueryBuilder.append(",");
+                                                    columnDefinition.columnFieldName, columnDefinition.containerKeyName, isModelContainer, false, false, columnDefinition.hasTypeConverter)).getQuery();
+                                    javaWriter.emitStatement(condition);
                                 }
                             }
                         }
-                        conditionQueryBuilder.appendEndCreation();
-                        javaWriter.emitStatement(conditionQueryBuilder.getQuery());
+
+                        javaWriter.emitStatement("return query");
 
                     }
                 }, "ConditionQueryBuilder<" + tableDefinition.getModelClassName() + ">", "getFullModelWhere", Sets.newHashSet(Modifier.PUBLIC),

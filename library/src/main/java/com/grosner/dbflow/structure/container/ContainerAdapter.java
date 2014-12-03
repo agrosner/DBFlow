@@ -78,6 +78,8 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
      */
     public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelContainer<ModelClass, ?> modelContainer);
 
+    public abstract ConditionQueryBuilder<ModelClass> getFullModelWhere(ModelContainer<ModelClass, ?> modelContainer);
+
     /**
      * Returns the type of the column for this model container. It's useful for when we do not know the exact class of the column
      * when in a {@link com.grosner.dbflow.structure.container.ModelContainer}

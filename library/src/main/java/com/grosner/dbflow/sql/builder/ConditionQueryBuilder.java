@@ -193,7 +193,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
 
     /**
      * Appends a condition to this map. It will take the value and see if a {@link com.grosner.dbflow.converter.TypeConverter}
-     * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
+     * exists for the field. If so, we convert it to the database valu  e. Also if the value is a string, we escape the string.
      *
      * @param condition The condition to append
      * @return This instance

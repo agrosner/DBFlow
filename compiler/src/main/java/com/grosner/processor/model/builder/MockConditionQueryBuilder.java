@@ -59,9 +59,17 @@ public class MockConditionQueryBuilder extends QueryBuilder<MockConditionQueryBu
                 .appendParenthesisEnclosed(modelStatement);
     }
 
+    public MockConditionQueryBuilder appendMockContinueCondition(String foreignColumnModelField, String modelStatement) {
+        return append(".putCondition").append("(").appendMockCondition(foreignColumnModelField, modelStatement).append(")");
+    }
+
     public MockConditionQueryBuilder appendCreation(String modelClassName) {
+        return appendEmptyCreation(modelClassName).append(", ");
+    }
+
+    public MockConditionQueryBuilder appendEmptyCreation(String modelClassName) {
         return append("new").appendSpace().append("ConditionQueryBuilder<").append(modelClassName)
-                .append(">(").append(ModelUtils.getFieldClass(modelClassName)).append(", ");
+                .append(">(").append(ModelUtils.getFieldClass(modelClassName));
     }
 
     public MockConditionQueryBuilder appendEndCreation() {
