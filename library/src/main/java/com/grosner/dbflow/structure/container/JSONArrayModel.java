@@ -137,7 +137,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
-                    jsonModel.update(async);
+                    jsonModel.insert(async);
                 } catch (JSONException e) {
                     FlowLog.logError(e);
                 }
