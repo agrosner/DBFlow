@@ -434,14 +434,42 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Supports multiline sql statements with ended with the standard ";"
+     * @param db The database to run it on
+     * @param file the file name in assets/migrations that we read from
+     */
     private void executeSqlScript(SQLiteDatabase db, String file) {
         try {
             final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + file);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String line;
 
-            while ((line = reader.readLine()) != null) {
-                db.execSQL(line.replace(";", ""));
+            // ends line with SQL
+            String querySuffix= ";";
+
+            // standard java comments
+            String queryCommentPrefix = "\\";
+            StringBuffer query = new StringBuffer();
+
+            while((line = reader.readLine()) != null){
+                line = line.trim();
+                boolean isEndOfQuery = line.endsWith(querySuffix);
+                if(line.startsWith(queryCommentPrefix)){
+                    continue;
+                }
+                if(isEndOfQuery){
+                    line = line.substring(0, line.length()-querySuffix.length());
+                }
+                query.append(" ").append(line);
+                if(isEndOfQuery){
+                    db.execSQL(query.toString());
+                    query = new StringBuffer();
+                }
+            }
+
+            if(query.length() > 0){
+                db.execSQL(query.toString());
             }
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to execute " + file, e);
