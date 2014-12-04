@@ -1,6 +1,8 @@
 package com.grosner.dbflow.config;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 
 import com.grosner.dbflow.DatabaseHelperListener;
 import com.grosner.dbflow.converter.TypeConverter;
@@ -195,6 +197,32 @@ public class FlowManager {
 
     static Map<Integer, List<Migration>> getMigrations(String databaseName) {
         return getDatabase(databaseName).getMigrations();
+    }
+
+    /**
+     * Checks a standard database helper for integrity using quick_check(1).
+     * @param helper
+     * @return true if it's integrity is OK.
+     */
+    public static boolean isDatabaseIntegrityOk(SQLiteOpenHelper helper) {
+        boolean integrityOk = true;
+
+        SQLiteStatement prog = null;
+        try {
+            prog = helper.getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
+            String rslt = prog.simpleQueryForString();
+            if (!rslt.equalsIgnoreCase("ok")) {
+                // integrity_checker failed on main or attached databases
+                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on temp DB returned: " + rslt);
+
+                integrityOk = false;
+            }
+        } finally {
+            if (prog != null) {
+                prog.close();
+            }
+        }
+        return integrityOk;
     }
 
     // endregion

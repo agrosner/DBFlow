@@ -107,14 +107,19 @@ public abstract class BaseDatabaseDefinition {
     public abstract int getDatabaseVersion();
 
     /**
-     * @return True if the {@link com.grosner.dbflow.annotation.Database} annotation is true.
+     * @return True if the {@link com.grosner.dbflow.annotation.Database#consistencyCheckEnabled()} annotation is true.
      */
     public abstract boolean areConsistencyChecksEnabled();
 
     /**
-     * @return True if the {@link com.grosner.dbflow.annotation.Database} annotation is true.
+     * @return True if the {@link com.grosner.dbflow.annotation.Database#foreignKeysSupported()} annotation is true.
      */
     public abstract boolean isForeignKeysSupported();
+
+    /**
+     * @return True if the {@link com.grosner.dbflow.annotation.Database#backupEnabled()} annotation is true.
+     */
+    public abstract boolean backupEnabled();
 
     /**
      * Performs a full deletion of this database.
@@ -127,6 +132,14 @@ public abstract class BaseDatabaseDefinition {
             mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
             isResetting = false;
         }
+    }
+
+    /**
+     * @return True if the database is ok. If backups are enabled, we restore from backup and will
+     * override the return value if it replaces the main DB.
+     */
+    public boolean isDatabaseIntegrityOk() {
+        return mHelper.isDatabaseIntegrityOk();
     }
 
     private final DatabaseHelperListener mInternalHelperListener = new DatabaseHelperListener() {

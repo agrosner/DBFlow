@@ -1,15 +1,15 @@
 package com.grosner.dbflow.config;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import android.database.sqlite.SQLiteStatement;
-import android.os.Build;
-import android.util.Log;
-import android.util.Pair;
+
 import com.grosner.dbflow.DatabaseHelperListener;
+import com.grosner.dbflow.runtime.DBTransactionInfo;
 import com.grosner.dbflow.runtime.TransactionManager;
+import com.grosner.dbflow.runtime.transaction.BaseTransaction;
 import com.grosner.dbflow.sql.QueryBuilder;
 import com.grosner.dbflow.sql.migration.Migration;
 import com.grosner.dbflow.structure.ModelAdapter;
@@ -17,19 +17,24 @@ import com.grosner.dbflow.structure.ModelViewAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
+
+    public final static String TEMP_DB_NAME = "temp-";
 
     /**
      * Location where the migration files should exist.
@@ -38,59 +43,98 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private DatabaseHelperListener mListener;
     private BaseDatabaseDefinition mManager;
 
+    private SQLiteOpenHelper mBackupDB;
+
     public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager, DatabaseHelperListener listener) {
         super(FlowManager.getContext(), flowManager.getDatabaseName() + ".db", null, flowManager.getDatabaseVersion());
         mListener = listener;
         mManager = flowManager;
-        //mMigrations = dbConfiguration.mMigrations;
 
-        boolean forceMove = false;
-        if(flowManager.areConsistencyChecksEnabled()) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                forceMove = !getWritableDatabase().isDatabaseIntegrityOk();
-            } else {
-                forceMove = !isDatabaseIntegrityOk();
-            }
+        movePrepackagedDB(getDatabaseFileName(), getDatabaseFileName());
+
+        if (flowManager.backupEnabled()) {
+            // Temp database mirrors existing
+            mBackupDB = new SQLiteOpenHelper(FlowManager.getContext(), getTempDbFileName(),
+                    null, flowManager.getDatabaseVersion()) {
+                @Override
+                public void onOpen(SQLiteDatabase db) {
+                    checkForeignKeySupport(db);
+                }
+
+                @Override
+                public void onCreate(SQLiteDatabase db) {
+                    checkForeignKeySupport(db);
+                    executeCreations(db);
+                    executeMigrations(db, -1, db.getVersion());
+                }
+
+                @Override
+                public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+                    checkForeignKeySupport(db);
+                    executeCreations(db);
+                    executeMigrations(db, oldVersion, newVersion);
+                }
+            };
+            restoreDatabase(getTempDbFileName(), getDatabaseFileName());
+            mBackupDB.getWritableDatabase();
         }
+    }
 
-        movePrepackagedDB(flowManager.getDatabaseName() + ".db", forceMove);
+    /**
+     * @return the temporary database file name for when we have backups enabled {@link BaseDatabaseDefinition#backupEnabled()}
+     */
+    private String getTempDbFileName() {
+        return TEMP_DB_NAME + mManager.getDatabaseName() + ".db";
+    }
+
+    private String getDatabaseFileName() {
+        return mManager.getDatabaseName() + ".db";
     }
 
 
     /**
      * Pulled partially from code, runs the integrity check on pre-honeycomb devices.
+     *
      * @return
      */
     public boolean isDatabaseIntegrityOk() {
+        boolean integrityOk = true;
+
         SQLiteStatement prog = null;
         try {
-            prog = getWritableDatabase().compileStatement("PRAGMA integrity_check;");
+            prog = getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
             String rslt = prog.simpleQueryForString();
             if (!rslt.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases
                 FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " + mManager.getDatabaseName() + " returned: " + rslt);
-                return false;
+
+                integrityOk = false;
+
+                if (mManager.backupEnabled()) {
+                    integrityOk = restoreBackUp();
+                }
             }
         } finally {
-            if (prog != null) prog.close();
+            if (prog != null) {
+                prog.close();
+            }
         }
-        return true;
+        return integrityOk;
     }
 
     /**
-     * Copies over the prepackaged DB into the main DB then deletes the existing DB to save storage space.
+     * Will use the already existing app database if {@link BaseDatabaseDefinition#backupEnabled()} is true. If the existing
+     * is not there we will try to use the prepackaged database for that purpose.
      *
-     * @param databaseName
+     * @param databaseName    The name of the database to restore
+     * @param prepackagedName The name of the prepackaged db file
      */
-    public void movePrepackagedDB(String databaseName, boolean forceMove) {
+    public void restoreDatabase(String databaseName, String prepackagedName) {
         final File dbPath = FlowManager.getContext().getDatabasePath(databaseName);
 
         // If the database already exists, return
-        if (!forceMove && dbPath.exists()) {
+        if (dbPath.exists()) {
             return;
-        } else if(forceMove) {
-            // If we are force moving the prepackaged, we will delete the existing file.
-            dbPath.delete();
         }
 
         // Make sure we have a path to the file
@@ -98,23 +142,142 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         // Try to copy database file
         try {
-            final InputStream inputStream = FlowManager.getContext().getAssets().open(databaseName);
-            final OutputStream output = new FileOutputStream(dbPath);
-
-            byte[] buffer = new byte[1024];
-            int length;
-
-            while ((length = inputStream.read(buffer)) > 0) {
-                output.write(buffer, 0, length);
+            // check existing and use that as backup
+            File existingDb = FlowManager.getContext().getDatabasePath(getDatabaseFileName());
+            InputStream inputStream;
+            // if it exists and the integrity is ok
+            if (existingDb.exists() && (mManager.backupEnabled() && FlowManager.isDatabaseIntegrityOk(mBackupDB))) {
+                inputStream = new FileInputStream(existingDb);
+            } else {
+                inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
             }
+            writeDB(dbPath, inputStream);
+        } catch (IOException e) {
+            FlowLog.logError(e);
+        }
+    }
 
-            output.flush();
-            output.close();
-            inputStream.close();
+
+    /**
+     * If integrity check fails, this method will use the backup db to fix itself. In order to prevent
+     * loss of data, please backup often!
+     */
+    public boolean restoreBackUp() {
+        boolean success = true;
+
+        File db = FlowManager.getContext().getDatabasePath(TEMP_DB_NAME + mManager.getDatabaseName());
+        File corrupt = FlowManager.getContext().getDatabasePath(mManager.getDatabaseName());
+        if (corrupt.delete()) {
+            try {
+                writeDB(corrupt, new FileInputStream(db));
+            } catch (IOException e) {
+                FlowLog.logError(e);
+                success = false;
+            }
+        } else {
+            FlowLog.log(FlowLog.Level.E, "Failed to delete DB");
+        }
+        return success;
+    }
+
+    /**
+     * Writes the inputstream of the existing db to the file specified.
+     * @param dbPath
+     * @param existingDB
+     * @throws IOException
+     */
+    private void writeDB(File dbPath, InputStream existingDB) throws IOException {
+        final OutputStream output = new FileOutputStream(dbPath);
+
+        byte[] buffer = new byte[1024];
+        int length;
+
+        while ((length = existingDB.read(buffer)) > 0) {
+            output.write(buffer, 0, length);
+        }
+
+        output.flush();
+        output.close();
+        existingDB.close();
+    }
+
+    /**
+     * Copies over the prepackaged DB into the main DB then deletes the existing DB to save storage space. If
+     * we have a backup that exists
+     *
+     * @param databaseName
+     */
+    public void movePrepackagedDB(String databaseName, String prepackagedName) {
+        final File dbPath = FlowManager.getContext().getDatabasePath(databaseName);
+
+        // If the database already exists, and is ok return
+        if (dbPath.exists() && (!mManager.areConsistencyChecksEnabled() || (mManager.areConsistencyChecksEnabled() && isDatabaseIntegrityOk()))) {
+            return;
+        }
+
+        // Make sure we have a path to the file
+        dbPath.getParentFile().mkdirs();
+
+        // Try to copy database file
+        try {
+            // check existing and use that as backup
+            File existingDb = FlowManager.getContext().getDatabasePath(getTempDbFileName());
+            InputStream inputStream;
+            // if it exists and the integrity is ok we use backup as the main DB is no longer valid
+            if (existingDb.exists() && (!mManager.backupEnabled() || mManager.backupEnabled() && FlowManager.isDatabaseIntegrityOk(mBackupDB))) {
+                inputStream = new FileInputStream(existingDb);
+            } else {
+                inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
+            }
+            writeDB(dbPath, inputStream);
 
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to open file", e);
         }
+    }
+
+    /**
+     * Saves the database as a backup on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}. This will
+     * create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
+     */
+    public void backupDB() {
+        if(!mManager.backupEnabled() || !mManager.areConsistencyChecksEnabled()) {
+            throw new IllegalStateException("Backups are not enabled for : " + mManager.getDatabaseName() + ". Please consider adding " +
+                    "both backupEnabled and consistency checks enabled to the Database annotation");
+        }
+        // highest priority ever!
+        TransactionManager.getInstance().addTransaction(new BaseTransaction(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI + 1)) {
+            @Override
+            public Object onExecute() {
+
+                Context context = FlowManager.getContext();
+                File backup = context.getDatabasePath(getTempDbFileName());
+                File temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + getDatabaseFileName());
+
+                // if exists we want to delete it before rename
+                if (temp.exists()) {
+                    temp.delete();
+                }
+
+                backup.renameTo(temp);
+                if (backup.exists()) {
+                    backup.delete();
+                }
+                File existing = context.getDatabasePath(getDatabaseFileName());
+
+                try {
+                    backup.getParentFile().mkdirs();
+                    writeDB(backup, new FileInputStream(existing));
+
+                    temp.delete();
+                } catch (Exception e) {
+                    FlowLog.logError(e);
+
+                }
+                return null;
+            }
+
+        });
     }
 
     /**
@@ -182,7 +345,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             public void run() {
 
                 List<ModelAdapter> modelAdapters = mManager.getModelAdapters();
-                for(ModelAdapter modelAdapter: modelAdapters) {
+                for (ModelAdapter modelAdapter : modelAdapters) {
                     database.execSQL(modelAdapter.getCreationQuery());
                 }
 

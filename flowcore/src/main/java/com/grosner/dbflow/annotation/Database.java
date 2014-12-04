@@ -44,4 +44,10 @@ public @interface Database {
      * @return Checks for consistency in the DB, if true it will recopy over the prepackage database.
      */
     boolean consistencyCheckEnabled() default false;
+
+    /**
+     * @return Keeps a backup for whenever the database integrity fails a "PRAGMA quick_check(1)" that will
+     * replace the corrupted DB
+     */
+    boolean backupEnabled() default false;
 }

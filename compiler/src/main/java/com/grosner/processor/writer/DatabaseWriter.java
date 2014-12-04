@@ -30,6 +30,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     boolean consistencyChecksEnabled;
 
+    boolean backupEnabled;
+
     public DatabaseWriter(ProcessorManager manager, Element element) {
         super(element, manager);
         packageName = Classes.FLOW_MANAGER_PACKAGE;
@@ -41,6 +43,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         }
 
         consistencyChecksEnabled = database.consistencyCheckEnabled();
+        backupEnabled = database.backupEnabled();
 
         definitionClassName = databaseName + "$Database";
 
@@ -244,6 +247,14 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
                 javaWriter.emitStatement("return %1s", foreignKeysSupported);
             }
         }, "boolean", "isForeignKeysSupported", FlowManagerHandler.METHOD_MODIFIERS);
+
+        // Get Model Container
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return %1s", backupEnabled);
+            }
+        }, "boolean", "backupEnabled", FlowManagerHandler.METHOD_MODIFIERS);
 
         // Get Model Container
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
