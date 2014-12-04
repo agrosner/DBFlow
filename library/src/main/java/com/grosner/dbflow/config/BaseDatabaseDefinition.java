@@ -142,6 +142,16 @@ public abstract class BaseDatabaseDefinition {
         return mHelper.isDatabaseIntegrityOk();
     }
 
+    /**
+     * Saves the database as a backup on the {@link com.grosner.dbflow.runtime.DBTransactionQueue}. This will
+     * create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
+     * @throws java.lang.IllegalStateException if {@link com.grosner.dbflow.annotation.Database#backupEnabled()}
+     * or {@link com.grosner.dbflow.annotation.Database#consistencyCheckEnabled()} is not enabled.
+     */
+    public void backupDatabase() {
+        mHelper.backupDB();
+    }
+
     private final DatabaseHelperListener mInternalHelperListener = new DatabaseHelperListener() {
         @Override
         public void onOpen(SQLiteDatabase database) {
