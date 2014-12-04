@@ -206,20 +206,6 @@ public class SqlUtils {
                 long id = insertStatement.executeInsert();
 
                 modelAdapter.updateAutoIncrement(model, id);
-
-                // TODO: add a method for primary increment fields
-
-                /*Collection<Field> primaryFields = flowManager.getTableStructureForClass(model.getClass()).getPrimaryKeys();
-                for (Field field : primaryFields) {
-                    if (StructureUtils.isPrimaryKeyAutoIncrement(field)) {
-                        field.setAccessible(true);
-                        try {
-                            field.set(mode, id);
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }*/
             }
 
             notifyModelChanged(model.getClass(), action);

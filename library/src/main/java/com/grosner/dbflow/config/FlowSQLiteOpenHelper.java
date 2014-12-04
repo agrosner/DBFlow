@@ -373,7 +373,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         // will try migrations file or execute migrations from code
         try {
-            final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(MIGRATION_PATH));
+            final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(MIGRATION_PATH+"/" + mManager.getDatabaseName()));
             Collections.sort(files, new NaturalOrderComparator());
 
             final Map<Integer, List<String>> migrationFileMap = new HashMap<>();

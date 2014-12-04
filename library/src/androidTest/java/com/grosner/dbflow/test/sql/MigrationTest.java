@@ -5,6 +5,9 @@ import android.test.AndroidTestCase;
 
 import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
+import com.grosner.dbflow.runtime.DBTransactionInfo;
+import com.grosner.dbflow.runtime.transaction.QueryTransaction;
+import com.grosner.dbflow.runtime.transaction.ResultReceiver;
 import com.grosner.dbflow.sql.language.Select;
 import com.grosner.dbflow.sql.builder.Condition;
 import com.grosner.dbflow.sql.migration.AlterTableMigration;
@@ -77,6 +80,16 @@ public class MigrationTest extends AndroidTestCase {
         updateTableMigration.onPostMigrate();
     }
 
+    public void testSqlFile() {
+        MigrationModel migrationModel = new MigrationModel();
+        migrationModel.name = "test";
+        migrationModel.save(false);
+        Cursor cursor = new Select().from(MigrationModel.class).query();
+        assertTrue(cursor.moveToFirst());
+
+        int addedColumIndex = cursor.getColumnIndex("addedColumn");
+        assertFalse(addedColumIndex == -1);
+    }
 
     @Override
     protected void tearDown() throws Exception {

@@ -7,7 +7,7 @@ import com.grosner.dbflow.annotation.Database;
  * Contributors: { }
  * Description:
  */
-@Database(version = 1, name = MigrationDatabase.NAME)
+@Database(version = 2, name = MigrationDatabase.NAME)
 public class MigrationDatabase {
 
     public static final String NAME = "Migrations";
