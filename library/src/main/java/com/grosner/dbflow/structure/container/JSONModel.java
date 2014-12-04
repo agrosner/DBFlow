@@ -52,11 +52,14 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
 
     @Override
     public Object getValue(String columnName) {
-        return getData().opt(columnName);
+        return getData() != null ? getData().opt(columnName) : null;
     }
 
     @Override
     public void put(String columnName, Object value) {
+        if(getData() == null) {
+            setData(newDataInstance());
+        }
         try {
             getData().put(columnName, value);
         } catch (JSONException e) {

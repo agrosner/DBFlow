@@ -54,7 +54,7 @@ public class SelectTest extends FlowTestCase {
         From<TestModel1> baseFrom = new Select().from(TestModel1.class);
         baseFrom.join(TestModel3.class, Join.JoinType.CROSS).on(Condition.column("TestModel1.name").is("TestModel3.name"));
 
-        assertEquals("SELECT * FROM TestModel1 CROSS JOIN TestModel3 ON TestModel1.name = TestModel3.name", baseFrom.getQuery().trim());
+        assertEquals("SELECT * FROM TestModel1 CROSS JOIN TestModel3 ON TestModel1.name=TestModel3.name", baseFrom.getQuery().trim());
 
         List<TestModel1> list = baseFrom.where().queryList();
         assertTrue(!list.isEmpty());

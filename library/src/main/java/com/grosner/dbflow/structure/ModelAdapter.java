@@ -1,5 +1,6 @@
 package com.grosner.dbflow.structure;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
@@ -21,8 +22,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     private SQLiteStatement mInsertStatement;
 
-    private SQLiteStatement mUpdateStatement;
-
     /**
      * @return The precompiled insert statement for this table model adapter
      */
@@ -34,16 +33,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
         return mInsertStatement;
     }
-
-    public SQLiteStatement getUpdateStatement() {
-        if(mUpdateStatement == null) {
-            mUpdateStatement = FlowManager.getDatabaseForTable(getModelClass())
-                    .getWritableDatabase().compileStatement(getUpdateStatementQuery());
-        }
-
-        return mUpdateStatement;
-    }
-
 
     public abstract ModelClass loadFromCursor(Cursor cursor);
 
@@ -57,6 +46,13 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param sqLiteStatement The statement to insert
      */
     public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
+
+    /**
+     * Binds a {@link ModelClass to the specified db statement}
+     * @param contentValues
+     * @param model
+     */
+    public abstract void bindToContentValues(ContentValues contentValues, ModelClass model);
 
     /**
      * If a {@link com.grosner.dbflow.structure.Model} has an autoincrementing primary key, then
@@ -75,11 +71,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model);
 
-    public abstract ConditionQueryBuilder<ModelClass> getFullModelWhere(ModelClass model);
-
     protected abstract ConditionQueryBuilder<ModelClass> createPrimaryModelWhere();
-
-    protected abstract ConditionQueryBuilder<ModelClass> createFullModelWhere();
 
     public ConditionQueryBuilder<ModelClass> getPrimaryModelWhere() {
         if (mPrimaryWhere == null) {
@@ -89,21 +81,9 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
         return mPrimaryWhere;
     }
 
-    public ConditionQueryBuilder<ModelClass> getFullModelWhere() {
-        if (mFullWhere == null) {
-            mFullWhere = createFullModelWhere();
-        }
-        mFullWhere.setUseEmptyParams(true);
-        return mFullWhere;
-    }
-
     public abstract String getCreationQuery();
 
     protected abstract String getInsertStatementQuery();
-
-    protected String getUpdateStatementQuery() {
-        return new Update().table(getModelClass()).set(getFullModelWhere()).getQuery();
-    }
 
     @Override
     public abstract Class<ModelClass> getModelClass();

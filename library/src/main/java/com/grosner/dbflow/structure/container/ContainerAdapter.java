@@ -1,5 +1,6 @@
 package com.grosner.dbflow.structure.container;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
@@ -43,6 +44,8 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
      */
     public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelContainer<ModelClass, ?> modelContainer);
 
+    public abstract void bindToContentValues(ContentValues contentValues, ModelContainer<ModelClass, ?> modelContainer);
+
     /**
      * @param modelContainer The container to check if exists by combining the primary keys into a query.
      * @return whether the specified container exists in the DB
@@ -77,8 +80,6 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
      * of the model object.
      */
     public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelContainer<ModelClass, ?> modelContainer);
-
-    public abstract ConditionQueryBuilder<ModelClass> getFullModelWhere(ModelContainer<ModelClass, ?> modelContainer);
 
     /**
      * Returns the type of the column for this model container. It's useful for when we do not know the exact class of the column

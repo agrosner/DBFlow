@@ -31,23 +31,33 @@ public class ModelUtils {
         return new StringBuilder(classname).append(".").append(fieldName.toUpperCase()).toString();
     }
 
-    public static void writeContentValueStatement(JavaWriter javaWriter,
-                                                  int index,String localColumnName,
+    public static void writeContentValueStatement(JavaWriter javaWriter, boolean isContentValues,
+                                                  int index, String putValue, String localColumnName,
                                                   String castedClass, String foreignColumnName,
                                                   String containerKeyName,
                                                   boolean isContainer, boolean isModelContainer,
                                                   boolean isForeignKey,
                                                   boolean requiresTypeConverter, String databaseTypeName) throws IOException {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
-        String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
-        boolean needsNullCheck = statement.equals("String") || statement.equals("Blob");
+
+        boolean nullCheck = !isContentValues;
+        if(nullCheck) {
+            String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
+            nullCheck = (statement.equals("String") || statement.equals("Blob"));
+        } else {
+            contentValue.appendContentValues();
+            contentValue.appendPut(putValue);
+        }
         String accessStatement = getAccessStatement(localColumnName, castedClass,
                 foreignColumnName, containerKeyName, isContainer, isModelContainer, isForeignKey, requiresTypeConverter);
         // if statements of this type, we need to check for null :(
-        if(needsNullCheck) {
+        if(nullCheck) {
             javaWriter.beginControlFlow("if (%1s != null) ", accessStatement);
         }
-        contentValue.appendBindSQLiteStatement(index, castedClass);
+
+        if(!isContentValues) {
+            contentValue.appendBindSQLiteStatement(index, castedClass);
+        }
 
         if (requiresTypeConverter) {
             contentValue.appendTypeConverter(castedClass, databaseTypeName, false);
@@ -58,7 +68,7 @@ public class ModelUtils {
 
         javaWriter.emitStatement(query);
 
-        if(needsNullCheck) {
+        if(nullCheck) {
             javaWriter.nextControlFlow("else");
             javaWriter.emitStatement("statement.bindNull(%1s)", index);
             javaWriter.endControlFlow();

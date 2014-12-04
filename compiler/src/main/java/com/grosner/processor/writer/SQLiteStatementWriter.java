@@ -31,15 +31,13 @@ public class SQLiteStatementWriter implements FlowWriter {
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitEmptyLine();
-        javaWriter.emitAnnotation(Override.class);
         String[] args = new String[4];
         args[0] = Classes.SQLITE_STATEMENT;
         args[1] = "statement";
         args[2] = isModelContainer ? "ModelContainer<" + tableDefinition.getModelClassName() + ", ?>"
                 : tableDefinition.getModelClassName();
         args[3] = ModelUtils.getVariable(isModelContainer);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
 
@@ -47,11 +45,28 @@ public class SQLiteStatementWriter implements FlowWriter {
                 for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
                     ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
                     if(columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
-                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainer,columnCounter);
+                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainer, false, columnCounter);
                     }
                 }
                 javaWriter.emitEmptyLine();
             }
         }, "void", "bindToStatement", Sets.newHashSet(Modifier.PUBLIC), args);
+
+        args[0] = Classes.CONTENT_VALUES;
+        args[1] = "contentValues";
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+
+                AtomicInteger columnCounter = new AtomicInteger(1);
+                for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
+                    ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
+                    if(columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
+                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainer, true, columnCounter);
+                    }
+                }
+                javaWriter.emitEmptyLine();
+            }
+        }, "void", "bindToContentValues", Sets.newHashSet(Modifier.PUBLIC), args);
     }
 }

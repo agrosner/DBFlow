@@ -51,9 +51,9 @@ public class ModelContainerUtils {
             }
 
             if (exists) {
-                SQLiteStatement updateStatement = modelAdapter.getUpdateStatement();
-                containerAdapter.bindToStatement(updateStatement, modelContainer);
-                exists = (updateStatement.executeUpdateDelete()!=0);
+                ContentValues contentValues = new ContentValues();
+                containerAdapter.bindToContentValues(contentValues, modelContainer);
+                exists = (db.update(modelAdapter.getTableName(), contentValues, containerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null)!=0);
             }
 
             if (!exists) {
