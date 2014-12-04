@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -374,48 +376,61 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(MIGRATION_PATH));
             Collections.sort(files, new NaturalOrderComparator());
 
+            final Map<Integer, List<String>> migrationFileMap = new HashMap<>();
+            for(String file: files) {
+                try {
+                    final Integer version = Integer.valueOf(file.replace(".sql", ""));
+                    List<String> fileList = migrationFileMap.get(version);
+                    if (fileList == null) {
+                        fileList = new ArrayList<>();
+                        migrationFileMap.put(version, fileList);
+                    }
+                    fileList.add(file);
+                } catch (NumberFormatException e) {
+                    FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: " + file, e);
+                }
+            }
+
+            final Map<Integer, List<Migration>> migrationMap = mManager.getMigrations();
+
+            final int curVersion = oldVersion + 1;
+
             TransactionManager.transact(db, new Runnable() {
                 @Override
                 public void run() {
-                    for (String file : files) {
-                        try {
-                            final int version = Integer.valueOf(file.replace(".sql", ""));
 
-                            if (version > oldVersion && version <= newVersion) {
-                                executeSqlScript(db, file);
-                                FlowLog.log(FlowLog.Level.I, file + " executed succesfully.");
+                    // execute migrations in order, migration file first before wrapped migration classes.
+                    for (int i = curVersion; i <= newVersion; i++) {
+                        List<String> migrationFiles = migrationFileMap.get(i);
+                        if (migrationFiles != null) {
+                            for (String migrationFile : migrationFiles) {
+                                executeSqlScript(db, migrationFile);
+                                FlowLog.log(FlowLog.Level.I, migrationFile + " executed succesfully.");
                             }
-                        } catch (NumberFormatException e) {
-                            FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: " + file, e);
                         }
+
+                        if (migrationMap != null) {
+                            List<Migration> migrationsList = migrationMap.get(i);
+                            if (migrationsList != null) {
+                                for (Migration migration : migrationsList) {
+
+                                    // before migration
+                                    migration.onPreMigrate();
+
+                                    // migrate
+                                    migration.migrate(db);
+
+                                    // after migration cleanup
+                                    migration.onPostMigrate();
+                                }
+                            }
+                        }
+
                     }
                 }
             });
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e);
-        }
-
-        Map<Integer, List<Migration>> migrationMap = mManager.getMigrations();
-        if (migrationMap != null) {
-            int curVersion = oldVersion + 1;
-
-            // execute migrations in order
-            for (int i = curVersion; i <= newVersion; i++) {
-                List<Migration> migrationsList = migrationMap.get(i);
-                if (migrationsList != null) {
-                    for (Migration migration : migrationsList) {
-
-                        // before migration
-                        migration.onPreMigrate();
-
-                        // migrate
-                        migration.migrate(db);
-
-                        // after migration cleanup
-                        migration.onPostMigrate();
-                    }
-                }
-            }
         }
     }
 
