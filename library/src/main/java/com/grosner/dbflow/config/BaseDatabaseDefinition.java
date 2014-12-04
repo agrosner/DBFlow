@@ -87,11 +87,15 @@ public abstract class BaseDatabaseDefinition {
      */
     abstract Map<Integer, List<Migration>> getMigrations();
 
-    public SQLiteDatabase getWritableDatabase() {
+    private FlowSQLiteOpenHelper getHelper() {
         if (mHelper == null) {
             mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
         }
-        return mHelper.getWritableDatabase();
+        return mHelper;
+    }
+
+    public SQLiteDatabase getWritableDatabase() {
+        return getHelper().getWritableDatabase();
     }
 
     /**
@@ -139,7 +143,7 @@ public abstract class BaseDatabaseDefinition {
      * override the return value if it replaces the main DB.
      */
     public boolean isDatabaseIntegrityOk() {
-        return mHelper.isDatabaseIntegrityOk();
+        return getHelper().isDatabaseIntegrityOk();
     }
 
     /**
@@ -149,7 +153,7 @@ public abstract class BaseDatabaseDefinition {
      * or {@link com.grosner.dbflow.annotation.Database#consistencyCheckEnabled()} is not enabled.
      */
     public void backupDatabase() {
-        mHelper.backupDB();
+        getHelper().backupDB();
     }
 
     private final DatabaseHelperListener mInternalHelperListener = new DatabaseHelperListener() {
