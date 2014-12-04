@@ -48,7 +48,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
 
     /**
-     * Binds a {@link ModelClass to the specified db statement}
+     * Binds a {@link ModelClass} to the specified db statement
      * @param contentValues
      * @param model
      */

@@ -38,12 +38,17 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
     }
 
     /**
-     *
-     * @param sqLiteStatement
-     * @param modelContainer
+     * Binds a {@link ModelClass} container to the specified db statement
+     * @param sqLiteStatement The statement to insert
+     * @param modelContainer The container to read data from into {@link android.database.sqlite.SQLiteStatement}
      */
     public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelContainer<ModelClass, ?> modelContainer);
 
+    /**
+     * Binds a {@link ModelClass} container to the specified db statement
+     * @param contentValues The content values to bind to
+     * @param modelContainer The container to read data from into {@link android.content.ContentValues}
+     */
     public abstract void bindToContentValues(ContentValues contentValues, ModelContainer<ModelClass, ?> modelContainer);
 
     /**
