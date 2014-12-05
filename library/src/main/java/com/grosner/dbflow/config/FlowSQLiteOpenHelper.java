@@ -441,7 +441,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     private void executeSqlScript(SQLiteDatabase db, String file) {
         try {
-            final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + file);
+            final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + mManager.getDatabaseName()+ "/" + file);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String line;
 

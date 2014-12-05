@@ -2,6 +2,7 @@ package com.grosner.dbflow.test;
 
 import android.app.Application;
 
+import com.grosner.dbflow.config.FlowLog;
 import com.grosner.dbflow.config.FlowManager;
 
 /**
@@ -14,6 +15,7 @@ public class DBFlowTestApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        FlowLog.setMinimumLoggingLevel(FlowLog.Level.V);
         FlowManager.init(this);
     }
 

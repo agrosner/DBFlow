@@ -58,7 +58,7 @@ public class MigrationTest extends AndroidTestCase {
         // test the column sizes
         Cursor cursor = new Select().from(MigrationModel.class).where().query();
         String[] columns = cursor.getColumnNames();
-        assertTrue(columns.length == columnNames.size()+1);
+        assertTrue(columns.length == columnNames.size()+2);
 
         // make sure column exists now
         for(int i = 0; i < columnNames.size(); i++) {
