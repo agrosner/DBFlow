@@ -24,7 +24,7 @@ Marks a large change in the library:
   4. Support for backing up databases and ```pragma quick_check``` for maintaining DB integrity
   5. Multiline migration file query support. commands must be separated by ";"
   6. Bug fixes
-  7. Added a postfix operator to ```Condition``` as ```postFix()```
+  7. Added a postfix operator to ```Condition``` as ```postfix()```
 
 #### 1.0.3
 
