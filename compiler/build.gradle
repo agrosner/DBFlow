@@ -9,5 +9,5 @@ dependencies {
     compile 'com.google.auto.service:auto-service:1.0-rc2'
 }
 
-apply from: 'http://github.com/Raizlabs/maven-releases/blob/master/maven_push.gradle'
-apply from: 'http://github.com/Raizlabs/maven-releases/blob/master/java-artifacts.gradle'
+apply from: '../maven_push.gradle'
+apply from: '../java-artifacts.gradle'
