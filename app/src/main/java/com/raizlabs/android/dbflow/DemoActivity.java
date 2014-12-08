@@ -1,10 +1,11 @@
 package com.raizlabs.android.dbflow;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.raizlabs.android.dbflow.app.R;
 
 
 public class DemoActivity extends Activity {
@@ -12,14 +13,14 @@ public class DemoActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.grosner.dbflow.app.R.layout.activity_demo);
+        setContentView(R.layout.activity_demo);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(com.grosner.dbflow.app.R.menu.menu_demo, menu);
+        getMenuInflater().inflate(R.menu.menu_demo, menu);
         return true;
     }
 
@@ -31,7 +32,7 @@ public class DemoActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == com.grosner.dbflow.app.R.id.action_settings) {
+        if (id == R.id.action_settings) {
             return true;
         }
 
