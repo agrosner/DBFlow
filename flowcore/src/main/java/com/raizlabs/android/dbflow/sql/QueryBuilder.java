@@ -73,6 +73,18 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     /**
+     * Appends the object only if its not null
+     * @param object
+     * @return
+     */
+    public QueryClass appendOptional(Object object) {
+       if(object != null) {
+           append(object);
+       }
+        return castThis();
+    }
+
+    /**
      * Casts the current object to the {@link QueryClass}
      *
      * @return This casted instance

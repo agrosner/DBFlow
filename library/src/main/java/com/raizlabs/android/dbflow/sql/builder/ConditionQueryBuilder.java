@@ -136,7 +136,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      */
     ConditionQueryBuilder<ModelClass> appendConditionToQuery(Condition condition) {
         return append(condition.columnName()).append(condition.operation())
-                .append(convertValueToString(condition.value()));
+                .append(convertValueToString(condition.value()))
+                .appendSpace().appendOptional(condition.postArgument());
     }
 
     /**
@@ -252,7 +253,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         for (String key : keys) {
             Condition condition = mParams.get(key);
             rawQuery.append(condition.columnName()).append(condition.operation())
-                    .append(condition.value());
+                    .append(condition.value()).appendSpace().appendOptional(condition.postArgument());
             if (count < keys.size() - 1) {
                 rawQuery.append(mSeparator);
             }

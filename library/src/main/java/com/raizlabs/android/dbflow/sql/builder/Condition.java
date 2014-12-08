@@ -23,6 +23,11 @@ public class Condition {
     private String mColumn;
 
     /**
+     * A custom SQL statement after the value of the Condition
+     */
+    private String mPostArgument;
+
+    /**
      * Creates a new instance
      *
      * @param columnName The name of the column in the DB
@@ -91,6 +96,26 @@ public class Condition {
     }
 
     /**
+     * Adds a COLLATE to the end of this condition
+     * @param collation
+     * @return
+     */
+    public Condition collate(String collation) {
+        mOperation = "COLLATE " + collation;
+        return this;
+    }
+
+    /**
+     * Appends an optional SQL string to the end of this condition
+     * @param postfix
+     * @return
+     */
+    public Condition postfix(String postfix) {
+        mPostArgument = postfix;
+        return this;
+    }
+
+    /**
      * @return the operator such as "<", "<", or "="
      */
     public String operation() {
@@ -109,5 +134,12 @@ public class Condition {
      */
     public String columnName() {
         return mColumn;
+    }
+
+    /**
+     * @return An optional post argument for this condition
+     */
+    public String postArgument() {
+        return mPostArgument;
     }
 }
