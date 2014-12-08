@@ -32,5 +32,5 @@ dependencies {
     androidTestApt project(dbflow_project_prefix + "compiler")
 }
 
-apply from: '../../maven-releases/maven_push.gradle'
-apply from: '../../maven-releases/android_artifacts.gradle'
+apply from: 'http://github.com/Raizlabs/maven-releases/blob/master/maven_push.gradle'
+apply from: 'http://github.com/Raizlabs/maven-releases/blob/master/android_artifacts.gradle'

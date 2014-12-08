@@ -3,5 +3,5 @@ apply plugin: 'java'
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
-apply from: '../../maven-releases/maven_push.gradle'
-apply from: '../../maven-releases/java-artifacts.gradle'
+apply from: 'http://github.com/Raizlabs/maven-releases/blob/master/maven_push.gradle'
+apply from: 'http://github.com/Raizlabs/maven-releases/blob/master/java-artifacts.gradle'
