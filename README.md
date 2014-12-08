@@ -13,6 +13,29 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
+## Changelog
+
+#### 1.1.0
+
+Marks a large change in the library:
+  1. All base package names "com.grosner.dbflow" are now "com.raizlabs.android.dbflow"
+  2. The library will no longer be hosted on Maven Central. It now uses the new "https://github.com/Raizlabs/maven-releases" repository
+  3. Significant changes to ```ModelAdapter```, inserts now reuse ```SQLiteStatement```for each table. ```save(ContentValues)``` has changed to ```bindToContentValues(ContentValues, ModelClass)``` 
+  4. Support for backing up databases and ```pragma quick_check``` for maintaining DB integrity
+  5. Multiline migration file query support. commands must be separated by ";"
+  6. Bug fixes
+  7. 
+
+#### 1.0.3
+
+  1. Added ```JSONArrayModel```, which will operate on all items and backed by a ```JSONArray```
+  2. ```@ContainerKey``` enables different key from a model container ```@Key``` field
+
+#### 1.0.2
+  1. Fixes issue in ```FlowCursorList``` that caused the cursor to reset everytime ```getItem(int)``` was called
+  2. Fixes "DSC" to "DESC" for SQL orderby 
+
+
 ## Including in your project
 
 ### Gradle
