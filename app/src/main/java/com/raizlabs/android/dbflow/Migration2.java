@@ -1,4 +1,4 @@
-package com.grosner.dbflow.app;
+package com.raizlabs.android.dbflow;
 
 import android.database.sqlite.SQLiteDatabase;
 import com.raizlabs.android.dbflow.annotation.Migration;
@@ -9,9 +9,8 @@ import com.raizlabs.android.dbflow.sql.migration.BaseMigration;
  * Contributors: { }
  * Description:
  */
-@Migration(version = 2, databaseName = "App")
-public class Migration1 extends BaseMigration {
-
+@Migration(version = 3, databaseName = "App")
+public class Migration2 extends BaseMigration {
     @Override
     public void migrate(SQLiteDatabase database) {
 

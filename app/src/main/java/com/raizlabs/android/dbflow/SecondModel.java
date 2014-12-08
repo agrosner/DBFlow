@@ -1,4 +1,4 @@
-package com.grosner.dbflow.app;
+package com.raizlabs.android.dbflow;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Table;
