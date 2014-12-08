@@ -1,5 +1,5 @@
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Maven Central](http://img.shields.io/badge/Maven%20Central-1.0.1-blue.svg)](http://search.maven.org/#artifactdetails%7Ccom.github.agrosner%7CDBFlow%7C1.0.1%7Caar)
-
+[![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Maven Central](http://img.shields.io/badge/Maven%20Central-1.0.3-blue.svg?style=flat)](http://search.maven.org/#artifactdetails%7Ccom.github.agrosner%7CDBFlow%7C1.0.3%7Caar)
 DBFlow
 ======
 
@@ -12,6 +12,28 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your 
 This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility. 
 
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
+
+## Changelog
+
+#### 1.1.0
+
+Marks a large change in the library:
+  1. All base package names "com.grosner.dbflow" are now "com.raizlabs.android.dbflow"
+  2. The library will no longer be hosted on Maven Central. It now uses the new "https://github.com/Raizlabs/maven-releases" repository
+  3. Significant changes to ```ModelAdapter```, inserts now reuse ```SQLiteStatement```for each table. ```save(ContentValues)``` has changed to ```bindToContentValues(ContentValues, ModelClass)``` 
+  4. Support for backing up databases and ```pragma quick_check``` for maintaining DB integrity
+  5. Multiline migration file query support. commands must be separated by ";"
+  6. Bug fixes
+
+#### 1.0.3
+
+  1. Added ```JSONArrayModel```, which will operate on all items and backed by a ```JSONArray```
+  2. ```@ContainerKey``` enables different key from a model container ```@Key``` field
+
+#### 1.0.2
+  1. Fixes issue in ```FlowCursorList``` that caused the cursor to reset everytime ```getItem(int)``` was called
+  2. Fixes "DSC" to "DESC" for SQL orderby 
+
 
 ## Including in your project
 
