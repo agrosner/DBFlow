@@ -29,12 +29,6 @@ android {
     }
 }
 
-apt {
-    arguments {
-        schematicOutPackage 'com.grosner.dbflow.app.provider'
-    }
-}
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     apt project(':compiler')

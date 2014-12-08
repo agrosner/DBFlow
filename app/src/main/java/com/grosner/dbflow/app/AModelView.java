@@ -1,8 +1,8 @@
 package com.grosner.dbflow.app;
 
-import com.grosner.dbflow.annotation.Column;
-import com.grosner.dbflow.annotation.ModelView;
-import com.grosner.dbflow.structure.BaseModelView;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ModelView;
+import com.raizlabs.android.dbflow.structure.BaseModelView;
 
 /**
  * Author: andrewgrosner

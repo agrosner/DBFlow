@@ -1,6 +1,6 @@
 package com.grosner.dbflow.app;
 
-import com.grosner.dbflow.annotation.Database;
+import com.raizlabs.android.dbflow.annotation.Database;
 
 /**
  * Author: andrewgrosner

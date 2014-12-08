@@ -1,8 +1,8 @@
 package com.grosner.dbflow.app;
 
 import android.database.sqlite.SQLiteDatabase;
-import com.grosner.dbflow.annotation.Migration;
-import com.grosner.dbflow.sql.migration.BaseMigration;
+import com.raizlabs.android.dbflow.annotation.Migration;
+import com.raizlabs.android.dbflow.sql.migration.BaseMigration;
 
 /**
  * Author: andrewgrosner

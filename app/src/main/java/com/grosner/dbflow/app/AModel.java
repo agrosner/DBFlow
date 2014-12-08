@@ -1,10 +1,10 @@
 package com.grosner.dbflow.app;
 
-import com.grosner.dbflow.annotation.Column;
-import com.grosner.dbflow.annotation.ContainerAdapter;
-import com.grosner.dbflow.annotation.ForeignKeyReference;
-import com.grosner.dbflow.annotation.Table;
-import com.grosner.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.Date;
 

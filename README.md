@@ -199,7 +199,7 @@ And then in **every** ```Model``` class you wish to use this class, you need to 
 ```TypeConverter``` allows non-Model objects to save to the database by converting it from its ```Model``` value to its ```Database``` value. These are statically allocated accross all databases. More info [here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
 
 ```java
-@com.grosner.dbflow.annotation.TypeConverter
+@com.raizlabs.android.dbflow.annotation.TypeConverter
 public class CalendarConverter extends TypeConverter<Long, Calendar> {
 
     @Override
