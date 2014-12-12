@@ -19,7 +19,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 Marks a large change in the library:
   1. All base package names "com.grosner.dbflow" are now "com.raizlabs.android.dbflow"
-  2. The library will no longer be hosted on Maven Central. It now uses the new "https://github.com/Raizlabs/maven-releases" repository
+  2. The library will no longer be updated on Maven Central. For versions < 1.1, you can find it there, otherwise you will need to use the new "https://github.com/Raizlabs/maven-releases" repository.
   3. Significant changes to ```ModelAdapter```, inserts now reuse ```SQLiteStatement```for each table. ```save(ContentValues)``` has changed to ```bindToContentValues(ContentValues, ModelClass)``` 
   4. Support for backing up databases and ```pragma quick_check``` for maintaining DB integrity
   5. Multiline migration file query support. commands must be separated by ";"
@@ -50,15 +50,10 @@ repositories {
   maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
 }
 
-```
-
-Add this to the build.gradle (replace with intended version):
-
-```groovy
 dependencies {
-  apt 'com.github.agrosner:DBFlow-Compiler:1.1.+'
-  compile 'com.github.agrosner:DBFlow-Core:1.1.+' 
-  compile 'com.github.agrosner:DBFlow:1.1.+'
+  apt 'com.raizlabs.android:DBFlow-Compiler:1.1.+'
+  compile 'com.raizlabs.android:DBFlow-Core:1.1.+' 
+  compile 'com.raizlabs.android:DBFlow:1.1.+'
 }
 
 ```
