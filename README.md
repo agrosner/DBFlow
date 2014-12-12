@@ -1,5 +1,5 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Maven Central](http://img.shields.io/badge/Maven%20Central-1.0.3-blue.svg?style=flat)](http://search.maven.org/#artifactdetails%7Ccom.github.agrosner%7CDBFlow%7C1.0.3%7Caar)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 DBFlow
 ======
 
@@ -13,25 +13,59 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
+## Changelog
+
+#### 1.1.0
+
+Marks a large change in the library:
+  1. All base package names "com.grosner.dbflow" are now "com.raizlabs.android.dbflow"
+  2. The library will no longer be hosted on Maven Central. It now uses the new "https://github.com/Raizlabs/maven-releases" repository
+  3. Significant changes to ```ModelAdapter```, inserts now reuse ```SQLiteStatement```for each table. ```save(ContentValues)``` has changed to ```bindToContentValues(ContentValues, ModelClass)``` 
+  4. Support for backing up databases and ```pragma quick_check``` for maintaining DB integrity
+  5. Multiline migration file query support. commands must be separated by ";"
+  6. Bug fixes
+  7. Added a postfix operator to ```Condition``` as ```postfix()```
+
+#### 1.0.3
+
+  1. Added ```JSONArrayModel```, which will operate on all items and backed by a ```JSONArray```
+  2. ```@ContainerKey``` enables different key from a model container ```@Key``` field
+
+#### 1.0.2
+  1. Fixes issue in ```FlowCursorList``` that caused the cursor to reset everytime ```getItem(int)``` was called
+  2. Fixes "DSC" to "DESC" for SQL orderby 
+
+
 ## Including in your project
 
 ### Gradle
 
-Using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt)
+Using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt).
+
+For 1.1+ (recommended), add this repo to your build.gradle:
 
 ```groovy
 
+repositories {
+  maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
+}
+
+```
+
+Add this to the build.gradle (replace with intended version):
+
+```groovy
 dependencies {
-  apt 'com.github.agrosner:DBFlow-Compiler:1.+'
-  compile 'com.github.agrosner:DBFlow-Core:1.+' 
-  compile 'com.github.agrosner:DBFlow:1.+'
+  apt 'com.github.agrosner:DBFlow-Compiler:1.1.+'
+  compile 'com.github.agrosner:DBFlow-Core:1.1.+' 
+  compile 'com.github.agrosner:DBFlow:1.1.+'
 }
 
 ```
 
 ### Eclipse
 
-No official support as of now, if anyone gets it working in a pull request, send it my way!
+Not supported as google is no longer supporting it.
 
 ## Configuration
 
@@ -199,7 +233,7 @@ And then in **every** ```Model``` class you wish to use this class, you need to 
 ```TypeConverter``` allows non-Model objects to save to the database by converting it from its ```Model``` value to its ```Database``` value. These are statically allocated accross all databases. More info [here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
 
 ```java
-@com.grosner.dbflow.annotation.TypeConverter
+@com.raizlabs.android.dbflow.annotation.TypeConverter
 public class CalendarConverter extends TypeConverter<Long, Calendar> {
 
     @Override
