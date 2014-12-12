@@ -1,5 +1,5 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Maven Central](http://img.shields.io/badge/Maven%20Central-1.0.3-blue.svg?style=flat)](http://search.maven.org/#artifactdetails%7Ccom.github.agrosner%7CDBFlow%7C1.0.3%7Caar)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.0.3-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 DBFlow
 ======
 
@@ -40,21 +40,32 @@ Marks a large change in the library:
 
 ### Gradle
 
-Using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt)
+Using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt).
+
+For 1.1+ (recommended), add this repo to your build.gradle:
 
 ```groovy
 
+repositories {
+  maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
+}
+
+```
+
+Add this to the build.gradle (replace with intended version):
+
+```groovy
 dependencies {
-  apt 'com.github.agrosner:DBFlow-Compiler:1.+'
-  compile 'com.github.agrosner:DBFlow-Core:1.+' 
-  compile 'com.github.agrosner:DBFlow:1.+'
+  apt 'com.github.agrosner:DBFlow-Compiler:1.1.+'
+  compile 'com.github.agrosner:DBFlow-Core:1.1.+' 
+  compile 'com.github.agrosner:DBFlow:1.1.+'
 }
 
 ```
 
 ### Eclipse
 
-No official support as of now, if anyone gets it working in a pull request, send it my way!
+Not supported as google is no longer supporting it.
 
 ## Configuration
 
