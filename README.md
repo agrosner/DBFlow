@@ -19,7 +19,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 Marks a large change in the library:
   1. All base package names "com.grosner.dbflow" are now "com.raizlabs.android.dbflow"
-  2. The library will no longer be updated on Maven Central. For versions < 1.1, you can find it there, otherwise you will need to use the new "https://github.com/Raizlabs/maven-releases" repository.
+  2. The library will no longer be updated on Maven Central. For versions < 1.1, you can find it there, otherwise you will need to use the new "https://github.com/Raizlabs/maven-releases" repository. Also the group artifact has changed from ```com.github.agrosner``` to ```com.raizlabs.android```
   3. Significant changes to ```ModelAdapter```, inserts now reuse ```SQLiteStatement```for each table. ```save(ContentValues)``` has changed to ```bindToContentValues(ContentValues, ModelClass)``` 
   4. Support for backing up databases and ```pragma quick_check``` for maintaining DB integrity
   5. Multiline migration file query support. commands must be separated by ";"
