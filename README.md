@@ -15,6 +15,10 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
+#### 1.1.1
+
+Fixed an issue where ```TypeConverter``` for boolean values would incorrectly try to cast in ```bindLong``` to ```Boolean```
+
 #### 1.1.0
 
 Marks a large change in the library:
