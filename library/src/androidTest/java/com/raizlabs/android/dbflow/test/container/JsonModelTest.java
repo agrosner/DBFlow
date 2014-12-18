@@ -31,6 +31,7 @@ public class JsonModelTest extends FlowTestCase {
                     "name: test," +
                     "party_type: club," +
                     "count1: 10," +
+                    "isHappy: true," +
                     "testModel: {" +
                     "name: testModel" +
                     "}" +

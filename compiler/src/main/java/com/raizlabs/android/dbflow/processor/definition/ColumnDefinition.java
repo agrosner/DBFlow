@@ -225,7 +225,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             if(isModelContainerDefinition) {
-                if (element.asType().getKind().isPrimitive()) {
+                if (element.asType().getKind().isPrimitive() && !hasTypeConverter) {
                     newFieldType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
                 }
             }

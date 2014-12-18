@@ -27,6 +27,9 @@ public class TestModelContainerClass extends TestModel1 {
     @Column
     String party_name;
 
+    @Column
+    boolean isHappy;
+
     @Column(columnType = Column.FOREIGN_KEY,
             references = {@ForeignKeyReference(columnName = "testName", columnType = String.class, foreignColumnName = "name")})
     TestModel1 testModel;
