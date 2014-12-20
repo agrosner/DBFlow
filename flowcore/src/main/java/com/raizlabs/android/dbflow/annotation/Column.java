@@ -76,6 +76,12 @@ public @interface Column {
     boolean unique() default false;
 
     /**
+     * Marks the field as having a specified collation to use in it's creation.
+     * @return
+     */
+    String collate() default "";
+
+    /**
      * Defines how to handle conflicts for a unique column
      *
      * @return a {@link com.raizlabs.android.dbflow.annotation.ConflictAction} enum

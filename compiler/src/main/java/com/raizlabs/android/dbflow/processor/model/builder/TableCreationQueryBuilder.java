@@ -29,17 +29,22 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
         }
 
         if (column.columnType() == Column.PRIMARY_KEY_AUTO_INCREMENT) {
-            mQuery.append(" PRIMARY KEY AUTOINCREMENT");
+            append(" PRIMARY KEY AUTOINCREMENT");
         }
 
         if (column.notNull()) {
-            mQuery.append(" NOT NULL ON CONFLICT ");
-            mQuery.append(column.onNullConflict().toString());
+            appendSpaceSeparated("NOT NULL ON CONFLICT")
+                    .append(column.onNullConflict().toString());
         }
 
         if (column.unique()) {
-            mQuery.append(" UNIQUE ON CONFLICT ");
-            mQuery.append(column.onUniqueConflict().toString());
+            appendSpaceSeparated("UNIQUE ON CONFLICT")
+                    .append(column.onUniqueConflict().toString());
+        }
+
+        if(column.collate() != null && !column.collate().isEmpty()) {
+            appendSpaceSeparated("COLLATE")
+                    .append(column.collate());
         }
         return this;
     }

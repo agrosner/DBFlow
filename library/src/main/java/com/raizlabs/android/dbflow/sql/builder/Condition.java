@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.builder;
 
+import com.raizlabs.android.dbflow.sql.Collate;
+
 /**
  * The class that contains a column name, operator, and value. The operator can be any Sqlite conditional
  * operator. The value is the {@link com.raizlabs.android.dbflow.structure.Model} value of the column and WILL be
@@ -97,16 +99,34 @@ public class Condition {
 
     /**
      * Adds a COLLATE to the end of this condition
-     * @param collation
+     *
+     * @param collation The SQLite collate function
      * @return
      */
     public Condition collate(String collation) {
-        mOperation = "COLLATE " + collation;
+        mPostArgument = "COLLATE " + collation;
+        return this;
+    }
+
+    /**
+     * Adds a COLLATE to the end of this condition using the {@link com.raizlabs.android.dbflow.sql.Collate} enum.
+     *
+     * @param collation The SQLite collate function
+     * @return
+     */
+    public Condition collate(Collate collation) {
+        if (collation.equals(Collate.NONE)) {
+            mPostArgument = null;
+        } else {
+            mPostArgument = collation.name();
+        }
+
         return this;
     }
 
     /**
      * Appends an optional SQL string to the end of this condition
+     *
      * @param postfix
      * @return
      */
