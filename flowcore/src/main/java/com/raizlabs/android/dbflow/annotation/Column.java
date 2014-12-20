@@ -76,14 +76,12 @@ public @interface Column {
     boolean unique() default false;
 
     /**
-     * Marks the field as having a specified collation to use in it's creation.
-     * @return
+     * @return Marks the field as having a specified collation to use in it's creation.
      */
     String collate() default "";
 
     /**
-     * Adds a default value for this column when saving
-     * @return
+     * @return Adds a default value for this column when saving
      */
     String defaultValue() default "";
 

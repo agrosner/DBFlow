@@ -1,8 +1,7 @@
 package com.raizlabs.android.dbflow.annotation;
 
 /**
- * Constant strings to aid in {@link com.raizlabs.android.dbflow.sql.builder.Condition#collate(String)} part of the condition
- * and in creation of columns.
+ * Represents a SQL Collate method for comparing string columns.
  */
 public enum Collate {
 
@@ -25,5 +24,5 @@ public enum Collate {
     /**
      * Trims trailing space characters before performing comparison.
      */
-    RTRIM;
+    RTRIM
 }
