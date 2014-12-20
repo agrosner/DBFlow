@@ -82,6 +82,12 @@ public @interface Column {
     String collate() default "";
 
     /**
+     * Adds a default value for this column when saving
+     * @return
+     */
+    String defaultValue() default "";
+
+    /**
      * Defines how to handle conflicts for a unique column
      *
      * @return a {@link com.raizlabs.android.dbflow.annotation.ConflictAction} enum

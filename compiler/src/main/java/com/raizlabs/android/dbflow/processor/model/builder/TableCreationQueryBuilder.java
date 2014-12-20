@@ -46,6 +46,11 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
             appendSpaceSeparated("COLLATE")
                     .append(column.collate());
         }
+
+        if(column.defaultValue() != null && !column.defaultValue().isEmpty()) {
+            appendSpaceSeparated("DEFAULT")
+                    .append(column.defaultValue());
+        }
         return this;
     }
 

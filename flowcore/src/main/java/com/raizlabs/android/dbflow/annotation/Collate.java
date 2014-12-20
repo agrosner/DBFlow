@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.sql;
+package com.raizlabs.android.dbflow.annotation;
 
 /**
  * Constant strings to aid in {@link com.raizlabs.android.dbflow.sql.builder.Condition#collate(String)} part of the condition

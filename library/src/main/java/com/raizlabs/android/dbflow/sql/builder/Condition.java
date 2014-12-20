@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.sql.builder;
 
-import com.raizlabs.android.dbflow.sql.Collate;
+import com.raizlabs.android.dbflow.annotation.Collate;
 
 /**
  * The class that contains a column name, operator, and value. The operator can be any Sqlite conditional
@@ -109,7 +109,7 @@ public class Condition {
     }
 
     /**
-     * Adds a COLLATE to the end of this condition using the {@link com.raizlabs.android.dbflow.sql.Collate} enum.
+     * Adds a COLLATE to the end of this condition using the {@link com.raizlabs.android.dbflow.annotation.Collate} enum.
      *
      * @param collation The SQLite collate function
      * @return
