@@ -8,7 +8,7 @@ import android.util.SparseArray;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -38,20 +38,52 @@ public class FlowCursorList<ModelClass extends Model> {
      *
      * @param cacheModels For every call to {@link #getItem(int)}, do we want to keep a reference to it so
      *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
+     * @param where       The SQL where query to use when doing a query.
+     */
+    public FlowCursorList(boolean cacheModels, Where<ModelClass> where) {
+        mWhere = where;
+        mCursor = mWhere.query();
+        mTable = where.getTable();
+
+        if (cacheModels) {
+            mModelCache = new SparseArray<>(mCursor.getCount());
+        }
+
+        mCursor.registerContentObserver(new CursorObserver());
+    }
+
+    /**
+     * Constructs an instance of this list.
+     *
+     * @param cacheModels For every call to {@link #getItem(int)}, do we want to keep a reference to it so
+     *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
      * @param table       The table to query from
      * @param conditions  The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query with
      */
     public FlowCursorList(boolean cacheModels, Class<ModelClass> table, Condition... conditions) {
+        this(cacheModels, new Select().from(table).where(conditions));
+    }
+
+    /**
+     * Sets this list to being caching models. If set to false, this will immediately clear the cache for you.
+     * @param cacheModels
+     */
+    public void setCacheModels(boolean cacheModels) {
         this.cacheModels = cacheModels;
-        mWhere = new Select().from(table).where(conditions);
-        mCursor = mWhere.query();
-        mTable = table;
-
-        if (cacheModels) {
-            mModelCache = new SparseArray<ModelClass>(mCursor.getCount());
+        if(!cacheModels) {
+            clearCache();
+        } else {
+            mModelCache = new SparseArray<>(mCursor.getCount());
         }
+    }
 
-        mCursor.registerContentObserver(new CursorObserver());
+    /**
+     * Clears the {@link ModelClass} cache if we use a cache.
+     */
+    public void clearCache() {
+        if (cacheModels) {
+            mModelCache.clear();
+        }
     }
 
     /**
@@ -89,13 +121,14 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     /**
-     * Fetches the query on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * Fetches the list on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. For
+     * large data sets this will take some time.
      *
-     * @param resultReceiver Called when we retrieve the results.
+     * @param transactionListener Called when we retrieve the results.
      */
-    public void fetchAll(ResultReceiver<List<ModelClass>> resultReceiver) {
+    public void fetchAll(TransactionListener<List<ModelClass>> transactionListener) {
         TransactionManager.getInstance().addTransaction(
-                new BaseResultTransaction<List<ModelClass>>(DBTransactionInfo.createFetch(), resultReceiver) {
+                new BaseResultTransaction<List<ModelClass>>(DBTransactionInfo.createFetch(), transactionListener) {
                     @Override
                     public List<ModelClass> onExecute() {
                         return getAll();
@@ -104,9 +137,9 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     /**
-     * Returns the full, converted {@link ModelClass} list from the database on this list.
-     *
-     * @return
+     * @return the full, converted {@link ModelClass} list from the database on this list. For very
+     * large datasets, it's not encouraged to use this method. Use {@link #fetchAll(com.raizlabs.android.dbflow.runtime.transaction.TransactionListener)}
+     * instead.
      */
     public List<ModelClass> getAll() {
         return SqlUtils.convertToList(mTable, mCursor);

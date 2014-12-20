@@ -98,6 +98,17 @@ public class Select implements Query {
     }
 
     /**
+     * Retrieves the count of the {@link ModelClass} table based on the specified WHERE conditions.
+     * @param tableClass The table to select count from
+     * @param conditions The list of conditions to select the count of models from
+     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @return The count of how many rows exist within the table based on the conditions passed.
+     */
+    public static <ModelClass extends Model> long count(Class<ModelClass> tableClass, Condition...conditions) {
+        return new Select().count().from(tableClass).where(conditions).count();
+    }
+
+    /**
      * Passes this statement to the {@link From}
      *
      * @param table        The model table to run this query on

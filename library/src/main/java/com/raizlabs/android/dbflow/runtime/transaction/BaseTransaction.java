@@ -90,6 +90,8 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
 
     /**
      * Called When the transaction is completed. This is run on the UI thread.
+     *
+     * @param result the result to return
      */
     public void onPostExecute(TransactionResult result) {
 

@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -335,10 +335,10 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return a list of
      * {@link ModelClass} on the UI thread with the shared {@link com.raizlabs.android.dbflow.runtime.TransactionManager}.
      *
-     * @param listResultReceiver The result of this transaction
+     * @param listTransactionListener The result of this transaction
      */
-    public void transactList(ResultReceiver<List<ModelClass>> listResultReceiver) {
-        transactList(TransactionManager.getInstance(), listResultReceiver);
+    public void transactList(TransactionListener<List<ModelClass>> listTransactionListener) {
+        transactList(TransactionManager.getInstance(), listTransactionListener);
     }
 
     /**
@@ -346,21 +346,21 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * {@link ModelClass} on the UI thread.
      *
      * @param transactionManager The transaction manager to add the query to
-     * @param listResultReceiver The result of this transaction
+     * @param listTransactionListener The result of this transaction
      */
-    public void transactList(TransactionManager transactionManager, ResultReceiver<List<ModelClass>> listResultReceiver) {
+    public void transactList(TransactionManager transactionManager, TransactionListener<List<ModelClass>> listTransactionListener) {
         checkSelect("transact");
-        transactionManager.fetchFromTable(this, listResultReceiver);
+        transactionManager.fetchFromTable(this, listTransactionListener);
     }
 
     /**
      * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return
      * a single item on the UI thread with the shared {@link com.raizlabs.android.dbflow.runtime.TransactionManager}.
      *
-     * @param resultReceiver The result of this transaction
+     * @param transactionListener The result of this transaction
      */
-    public void transactSingleModel(ResultReceiver<ModelClass> resultReceiver) {
-        transactSingleModel(TransactionManager.getInstance(), resultReceiver);
+    public void transactSingleModel(TransactionListener<ModelClass> transactionListener) {
+        transactSingleModel(TransactionManager.getInstance(), transactionListener);
     }
 
     /**
@@ -368,11 +368,11 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * a single item on the UI thread.
      *
      * @param transactionManager The transaction manager to add the query to
-     * @param resultReceiver     The result of this transaction
+     * @param transactionListener     The result of this transaction
      */
-    public void transactSingleModel(TransactionManager transactionManager, ResultReceiver<ModelClass> resultReceiver) {
+    public void transactSingleModel(TransactionManager transactionManager, TransactionListener<ModelClass> transactionListener) {
         checkSelect("transact");
-        transactionManager.fetchModel(this, resultReceiver);
+        transactionManager.fetchModel(this, transactionListener);
     }
 
     /**

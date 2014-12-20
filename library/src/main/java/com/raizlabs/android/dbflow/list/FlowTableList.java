@@ -10,7 +10,8 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModel;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelper;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
@@ -31,7 +32,7 @@ import java.util.ListIterator;
  * Author: andrewgrosner
  * Description: Operates very similiar to a {@link java.util.List} except its backed by a table cursor. All of
  * the {@link java.util.List} modifications default to the main thread, but it can be set to
- * run on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. Register a {@link com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver}
+ * run on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. Register a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener}
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
@@ -47,14 +48,14 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     private FlowCursorList<ModelClass> mCursorList;
 
-    private ResultReceiver<List<ModelClass>> mResultReceiver;
-    private ResultReceiver<List<ModelClass>> mInternalResultReceiver = new ResultReceiver<List<ModelClass>>() {
+    private TransactionListener<List<ModelClass>> mTransactionListener;
+    private TransactionListener<List<ModelClass>> mInternalTransactionListener = new TransactionListenerAdapter<List<ModelClass>>() {
         @Override
         public void onResultReceived(List<ModelClass> modelClasses) {
             mCursorList.refresh();
 
-            if (mResultReceiver != null) {
-                mResultReceiver.onResultReceived(modelClasses);
+            if (mTransactionListener != null) {
+                mTransactionListener.onResultReceived(modelClasses);
             }
         }
     };
@@ -97,10 +98,10 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     /**
      * Register for callbacks when data is changed on this list.
      *
-     * @param resultReceiver
+     * @param transactionListener
      */
-    public void setModificationReceiver(ResultReceiver<List<ModelClass>> resultReceiver) {
-        mResultReceiver = resultReceiver;
+    public void setModificationReceiver(TransactionListener<List<ModelClass>> transactionListener) {
+        mTransactionListener = transactionListener;
     }
 
     /**
@@ -138,7 +139,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     @SafeVarargs
     protected final ProcessModelInfo<ModelClass> getProcessModelInfo(ModelClass... modelClasses) {
-        return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
+        return ProcessModelInfo.withModels(modelClasses).result(mInternalTransactionListener).info(MODIFICATION_INFO);
     }
 
     /**
@@ -147,7 +148,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      * @return
      */
     protected final ProcessModelInfo<ModelClass> getProcessModelInfo(Collection<ModelClass> modelClasses) {
-        return ProcessModelInfo.withModels(modelClasses).result(mInternalResultReceiver).info(MODIFICATION_INFO);
+        return ProcessModelInfo.withModels(modelClasses).result(mInternalTransactionListener).info(MODIFICATION_INFO);
     }
 
     /**
@@ -162,7 +163,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
             TransactionManager.getInstance().save(getProcessModelInfo(object));
         } else {
             object.save(false);
-            mInternalResultReceiver.onResultReceived(Arrays.asList(object));
+            mInternalTransactionListener.onResultReceived(Arrays.asList(object));
         }
         return true;
     }
@@ -200,7 +201,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
                     model.save(false);
                 }
             });
-            mInternalResultReceiver.onResultReceived((List<ModelClass>) tmpCollection);
+            mInternalTransactionListener.onResultReceived((List<ModelClass>) tmpCollection);
         }
         return true;
     }
@@ -215,7 +216,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         } else {
             Delete.table(mCursorList.getTable());
         }
-        mInternalResultReceiver.onResultReceived(null);
+        mInternalTransactionListener.onResultReceived(null);
     }
 
     /**
@@ -317,7 +318,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
             TransactionManager.getInstance().delete(getProcessModelInfo(model));
         } else {
             model.delete(false);
-            mInternalResultReceiver.onResultReceived(Arrays.asList(model));
+            mInternalTransactionListener.onResultReceived(Arrays.asList(model));
         }
         return model;
     }
@@ -340,7 +341,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
                 TransactionManager.getInstance().delete(getProcessModelInfo(model));
             } else {
                 model.delete(false);
-                mInternalResultReceiver.onResultReceived(Arrays.asList(model));
+                mInternalTransactionListener.onResultReceived(Arrays.asList(model));
             }
             removed = true;
         }
@@ -366,7 +367,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
                         model.delete(false);
                     }
                 });
-                mInternalResultReceiver.onResultReceived((List<ModelClass>) modelCollection);
+                mInternalTransactionListener.onResultReceived((List<ModelClass>) modelCollection);
 
             }
             removed = true;
@@ -395,7 +396,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
                     model.delete(false);
                 }
             });
-            mInternalResultReceiver.onResultReceived(tableList);
+            mInternalTransactionListener.onResultReceived(tableList);
         }
         return true;
     }
@@ -423,7 +424,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
             TransactionManager.getInstance().update(getProcessModelInfo(object));
         } else {
             object.update(false);
-            mInternalResultReceiver.onResultReceived(Arrays.asList(object));
+            mInternalTransactionListener.onResultReceived(Arrays.asList(object));
         }
         return object;
     }
@@ -467,10 +468,10 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     /**
      * Fetches a list of all items in this table
      *
-     * @param resultReceiver The callback that will receive the list.
+     * @param transactionListener The callback that will receive the list.
      */
-    public void fetchAll(ResultReceiver<List<ModelClass>> resultReceiver) {
-        mCursorList.fetchAll(resultReceiver);
+    public void fetchAll(TransactionListener<List<ModelClass>> transactionListener) {
+        mCursorList.fetchAll(transactionListener);
     }
 
     /**
@@ -483,7 +484,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
             TransactionManager.getInstance().delete(getProcessModelInfo(getAll(conditions)));
         } else {
             Delete.table(mCursorList.getTable(), conditions);
-            mInternalResultReceiver.onResultReceived(null);
+            mInternalTransactionListener.onResultReceived(null);
         }
     }
 

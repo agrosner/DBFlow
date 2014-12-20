@@ -19,36 +19,36 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
     /**
      * Creates an instance of this class
      *
-     * @param resultReceiver  The result that returns from this query
+     * @param transactionListener  The result that returns from this query
      * @param tableClass      The table to select from
      * @param whereConditions The conditions to use in the SELECT query
      */
     public SelectSingleModelTransaction(Class<ModelClass> tableClass,
-                                        ResultReceiver<ModelClass> resultReceiver, Condition... whereConditions) {
-        this(new Select().from(tableClass).where(whereConditions), resultReceiver);
+                                        TransactionListener<ModelClass> transactionListener, Condition... whereConditions) {
+        this(new Select().from(tableClass).where(whereConditions), transactionListener);
     }
 
     /**
      * Creates this class with a {@link com.raizlabs.android.dbflow.sql.language.From}
      *
      * @param where          The completed Sql Statement we will use to fetch the models
-     * @param resultReceiver
+     * @param transactionListener
      */
-    public SelectSingleModelTransaction(Where<ModelClass> where, ResultReceiver<ModelClass> resultReceiver) {
-        super(DBTransactionInfo.createFetch(), resultReceiver);
+    public SelectSingleModelTransaction(Where<ModelClass> where, TransactionListener<ModelClass> transactionListener) {
+        super(DBTransactionInfo.createFetch(), transactionListener);
         mWhere = where;
     }
 
     /**
      * Creates an instance of this class
      *
-     * @param resultReceiver             The result that returns from this query
+     * @param transactionListener             The result that returns from this query
      * @param whereConditionQueryBuilder The query builder used to SELECT
      * @param columns                    The columns to select
      */
-    public SelectSingleModelTransaction(ResultReceiver<ModelClass> resultReceiver,
+    public SelectSingleModelTransaction(TransactionListener<ModelClass> transactionListener,
                                         ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
-        this(new Select(columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), resultReceiver);
+        this(new Select(columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), transactionListener);
     }
 
     @Override

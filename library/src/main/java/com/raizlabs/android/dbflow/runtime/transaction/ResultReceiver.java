@@ -2,18 +2,21 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description: Provides a simple callback interface that returns a result. This result is on the main UI thread
- * when completed.
+ * Description: Provides the legacy callback wrapper to the ResultReceiver class.
  */
-public interface ResultReceiver<ResultClass> {
+@Deprecated
+public abstract class ResultReceiver<ResultClass> implements TransactionListener<ResultClass> {
 
-    /**
-     * The result of the transaction is placed here on the UI thread. For retrievals, it returns the
-     * list models or single model item. For any other operation it will return the {@link ResultClass} that was
-     * included in the main {@link com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction}
-     *
-     * @param resultClass The result that we will return
-     */
-    public void onResultReceived(ResultClass resultClass);
+    @Override
+    public abstract void onResultReceived(ResultClass resultClass);
+
+    @Override
+    public boolean onReady(BaseTransaction<ResultClass> transaction) {
+        return true;
+    }
+
+    @Override
+    public boolean hasResult(BaseTransaction<ResultClass> transaction, ResultClass result) {
+        return false;
+    }
 }

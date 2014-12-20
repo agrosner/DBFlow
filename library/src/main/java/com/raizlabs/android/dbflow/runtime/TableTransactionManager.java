@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.runtime;
 
-import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -41,20 +41,20 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
-     * @param resultReceiver The result of the selection will be placed here on the main thread.
-     * @see #fetchFromTable(Class, com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver, com.raizlabs.android.dbflow.sql.builder.Condition...)
+     * @param transactionListener The result of the selection will be placed here on the main thread.
+     * @see #fetchFromTable(Class, com.raizlabs.android.dbflow.runtime.transaction.TransactionListener, com.raizlabs.android.dbflow.sql.builder.Condition...)
      */
-    public void fetchFromTable(ResultReceiver<List<ModelClass>> resultReceiver, Condition... conditions) {
-        super.fetchFromTable(mTableClass, resultReceiver, conditions);
+    public void fetchFromTable(TransactionListener<List<ModelClass>> transactionListener, Condition... conditions) {
+        super.fetchFromTable(mTableClass, transactionListener, conditions);
     }
 
     /**
-     * @param resultReceiver The result will be passed here.
+     * @param transactionListener The result will be passed here.
      * @param ids            The list of ids given by the {@link ModelClass}
-     * @see #fetchModelById(Class, com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver, Object...)
+     * @see #fetchModelById(Class, com.raizlabs.android.dbflow.runtime.transaction.TransactionListener, Object...)
      */
-    public void fetchModelById(ResultReceiver<ModelClass> resultReceiver, Object... ids) {
-        super.fetchModelById(mTableClass, resultReceiver, ids);
+    public void fetchModelById(TransactionListener<ModelClass> transactionListener, Object... ids) {
+        super.fetchModelById(mTableClass, transactionListener, ids);
     }
 
     /**

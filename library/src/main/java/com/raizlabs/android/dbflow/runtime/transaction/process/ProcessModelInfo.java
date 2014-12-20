@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction.process;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
 
     List<ModelClass> mModels = new ArrayList<ModelClass>();
 
-    ResultReceiver<List<ModelClass>> mReceiver;
+    TransactionListener<List<ModelClass>> mReceiver;
 
     DBTransactionInfo mInfo;
 
@@ -60,8 +60,8 @@ public class ProcessModelInfo<ModelClass extends Model> {
         return this;
     }
 
-    public ProcessModelInfo<ModelClass> result(ResultReceiver<List<ModelClass>> resultReceiver) {
-        mReceiver = resultReceiver;
+    public ProcessModelInfo<ModelClass> result(TransactionListener<List<ModelClass>> transactionListener) {
+        mReceiver = transactionListener;
         return this;
     }
 

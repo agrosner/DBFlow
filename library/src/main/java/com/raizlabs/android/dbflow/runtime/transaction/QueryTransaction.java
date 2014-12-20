@@ -20,8 +20,8 @@ public class QueryTransaction<ModelClass extends Model> extends BaseResultTransa
         this(dbTransactionInfo, queriable, null);
     }
 
-    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable<ModelClass> queriable, ResultReceiver<Cursor> cursorResultReceiver) {
-        super(dbTransactionInfo, cursorResultReceiver);
+    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable<ModelClass> queriable, TransactionListener<Cursor> cursorTransactionListener) {
+        super(dbTransactionInfo, cursorTransactionListener);
         mQueriable = queriable;
     }
 

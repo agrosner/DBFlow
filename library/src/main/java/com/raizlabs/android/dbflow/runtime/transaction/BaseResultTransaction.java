@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 /**
  * Author: andrewgrosner
  * Contributors: { }
- * Description: Provides a base implementation where the {@link com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver}
+ * Description: Provides a base implementation where the {@link TransactionListener}
  * is called, returning a {@link ResultClass}.
  */
 public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction<ResultClass> {
@@ -13,31 +13,31 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
     /**
      * The callback to be executed when the transaction completes
      */
-    private ResultReceiver<ResultClass> mReceiver;
+    private TransactionListener<ResultClass> mReceiver;
 
     /**
      * Constructs this transaction with the default {@link com.raizlabs.android.dbflow.runtime.DBTransactionInfo}
      *
-     * @param resultReceiver Will be called when the transaction completes.
+     * @param transactionListener Will be called when the transaction completes.
      */
-    public BaseResultTransaction(ResultReceiver<ResultClass> resultReceiver) {
-        this(DBTransactionInfo.create(), resultReceiver);
+    public BaseResultTransaction(TransactionListener<ResultClass> transactionListener) {
+        this(DBTransactionInfo.create(), transactionListener);
     }
 
     /**
      * Constructs this transaction
      *
      * @param dbTransactionInfo The information about this transaction
-     * @param resultReceiver    Will be called when the transaction completes.
+     * @param transactionListener    Will be called when the transaction completes.
      */
-    public BaseResultTransaction(DBTransactionInfo dbTransactionInfo, ResultReceiver<ResultClass> resultReceiver) {
+    public BaseResultTransaction(DBTransactionInfo dbTransactionInfo, TransactionListener<ResultClass> transactionListener) {
         super(dbTransactionInfo);
-        this.mReceiver = resultReceiver;
+        this.mReceiver = transactionListener;
     }
 
     @Override
     public boolean hasResult(ResultClass result) {
-        return mReceiver != null;
+        return mReceiver != null && mReceiver.hasResult(this, result);
     }
 
     @Override
@@ -45,5 +45,10 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
         if (mReceiver != null) {
             mReceiver.onResultReceived(modelClasses);
         }
+    }
+
+    @Override
+    public boolean onReady() {
+        return mReceiver != null && mReceiver.onReady(this);
     }
 }
