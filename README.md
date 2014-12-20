@@ -1,5 +1,5 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.2-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 DBFlow
 ======
 
@@ -14,6 +14,11 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
 ## Changelog
+
+#### 1.1.2
+  1. Added support for SQLite ```COLLATE``` in ```@Column``` and ```Condition``` classes
+  2. Added support for ```DEFAULT``` values in column creation.
+  3. Deprecated ```ResultReceiver``` to replace it with ```TransactionListenerAdapter``` which provides a base implementation of ```TransactionListener```. ```TransactionListener``` provides more callback methods to the state of a DB transaction. As a result ```ResultReceiver``` is no longer an interface, rather an abstract class.
 
 #### 1.1.1
 
