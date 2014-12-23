@@ -18,7 +18,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 #### 1.1.2
   1. Added support for SQLite ```COLLATE``` in ```@Column``` and ```Condition``` classes
   2. Added support for ```DEFAULT``` values in column creation.
-  3. Deprecated ```ResultReceiver``` to replace it with ```TransactionListenerAdapter``` which provides a base implementation of ```TransactionListener```. ```TransactionListener``` provides more callback methods to the state of a DB transaction. As a result ```ResultReceiver``` is no longer an interface, rather an abstract class.
+  3. Deprecated ```ResultReceiver``` to replace it with ```TransactionListenerAdapter``` which provides a base implementation of ```TransactionListener```. ```TransactionListener``` provides more callback methods to the state of a DB transaction. As a result ```ResultReceiver``` is no longer an interface, rather an abstract class. ***NOTE:*** ```BaseResultTransaction```'s ```TransactionListener``` must return true from ```hasResult(BaseResultTransaction, ResultClass)``` to have ```onResultReceived()``` called.
   4. ```FlowCursorList``` is more flexible by adding methods to clear the cache, dynamically enable/disable the cache, and set a custom ```Where``` for the cursor to use.
 
 #### 1.1.1
