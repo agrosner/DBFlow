@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.builder;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
  * The class that contains a column name, operator, and value. The operator can be any Sqlite conditional
@@ -9,25 +10,70 @@ import com.raizlabs.android.dbflow.annotation.Collate;
  */
 public class Condition {
 
+    public static class Between extends Condition {
+
+        private Object mSecondValue;
+
+        /**
+         * Creates a new instance
+         *
+         * @param condition
+         * @param value     The value of the first argument of the BETWEEN clause
+         */
+        private Between(Condition condition, Object value) {
+            super(condition.columnName());
+            this.mOperation = " BETWEEN ";
+            this.mValue = value;
+            this.mPostArgument = condition.postArgument();
+        }
+
+        public Between and(Object secondValue) {
+            mSecondValue = secondValue;
+            return this;
+        }
+
+        public Object secondValue() {
+            return mSecondValue;
+        }
+
+        @Override
+        public void appendConditionToQuery(ConditionQueryBuilder conditionQueryBuilder) {
+            conditionQueryBuilder.append(columnName()).append(operation())
+                    .append(conditionQueryBuilder.convertValueToString(value()))
+                    .appendSpaceSeparated("AND")
+                    .append(conditionQueryBuilder.convertValueToString(secondValue()))
+                    .appendSpace().appendOptional(postArgument());
+        }
+
+        @Override
+        public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
+            queryBuilder.append(columnName()).append(operation())
+                    .append((value()))
+                    .appendSpaceSeparated("AND")
+                    .append(secondValue())
+                    .appendSpace().appendOptional(postArgument());
+        }
+    }
+
     /**
      * The operation such as "=", "<", and more
      */
-    private String mOperation;
+    protected String mOperation;
 
     /**
      * The value of the column we care about
      */
-    private Object mValue;
+    protected Object mValue;
 
     /**
      * The column name
      */
-    private String mColumn;
+    protected String mColumn;
 
     /**
      * A custom SQL statement after the value of the Condition
      */
-    private String mPostArgument;
+    protected String mPostArgument;
 
     /**
      * Creates a new instance
@@ -51,6 +97,47 @@ public class Condition {
     public Condition is(Object value) {
         mOperation = "=";
         return value(value);
+    }
+
+    /**
+     * Assigns the operation to "!="
+     *
+     * @param value The value of the column in the DB
+     * @return This condition
+     */
+    public Condition isNot(Object value) {
+        mOperation = "!=";
+        return value(value);
+    }
+
+    /**
+     * Uses the LIKE operation. Case insensitive comparisons.
+     *
+     * @param likeRegex Uses sqlite LIKE regex to match rows.
+     *                  It must be a string to escape it properly.
+     *                  There are two wildcards: % and _
+     *                  % represents [0,many) numbers or characters.
+     *                  The _ represents a single number or character.
+     * @return This condition
+     */
+    public Condition like(String likeRegex) {
+        mOperation = " LIKE ";
+        return value(likeRegex);
+    }
+
+    /**
+     * Uses the GLOB operation. Similar to LIKE except it uses case sensitive comparisons.
+     *
+     * @param globRegex Uses sqlite GLOB regex to match rows.
+     *                  It must be a string to escape it properly.
+     *                  There are two wildcards: * and ?
+     *                  * represents [0,many) numbers or characters.
+     *                  The ? represents a single number or character
+     * @return This condition
+     */
+    public Condition glob(String globRegex) {
+        mOperation = " GLOB ";
+        return value(globRegex);
     }
 
     /**
@@ -136,6 +223,38 @@ public class Condition {
     }
 
     /**
+     * Appends IS NULL to the end of this condition
+     *
+     * @return
+     */
+    public Condition isNull() {
+        mOperation = " IS ";
+        mValue = "NULL";
+        return this;
+    }
+
+    /**
+     * Appends IS NOT NULL to the end of this condition
+     *
+     * @return
+     */
+    public Condition isNotNull() {
+        mOperation = " IS NOT ";
+        mValue = "NULL";
+        return this;
+    }
+
+    /**
+     * Turns this condition into a SQL BETWEEN operation
+     *
+     * @param value The value of the first argument of the BETWEEN clause
+     * @return Between operator
+     */
+    public Between between(Object value) {
+        return new Between(this, value);
+    }
+
+    /**
      * @return the operator such as "<", "<", or "="
      */
     public String operation() {
@@ -161,5 +280,31 @@ public class Condition {
      */
     public String postArgument() {
         return mPostArgument;
+    }
+
+    /**
+     * Appends the condition to the {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     *
+     * @param conditionQueryBuilder
+     */
+    public void appendConditionToQuery(ConditionQueryBuilder conditionQueryBuilder) {
+        conditionQueryBuilder.append(columnName()).append(operation())
+                .append(conditionQueryBuilder.convertValueToString(value()));
+        if (postArgument() != null) {
+            conditionQueryBuilder.appendSpace().append(postArgument());
+        }
+    }
+
+    /**
+     * Appends the condition to the {@link com.raizlabs.android.dbflow.sql.QueryBuilder} without converting values.
+     *
+     * @param queryBuilder
+     */
+    public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
+        queryBuilder.append(columnName()).append(operation())
+                .append(value());
+        if (postArgument() != null) {
+            queryBuilder.appendSpace().append(postArgument());
+        }
     }
 }

@@ -57,7 +57,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     @SuppressWarnings("unchecked")
-    public QueryClass appendParenthesisEnclosed(String string) {
+    public QueryClass appendParenthesisEnclosed(Object string) {
         return (QueryClass) append("(").append(string).append(")");
     }
 

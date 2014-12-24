@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -21,6 +21,18 @@ public class Delete implements Query {
      */
     public static <ModelClass extends Model> void table(Class<ModelClass> table, Condition... conditions) {
         new Delete().from(table).where(conditions).query();
+    }
+
+    /**
+     * Deletes the list of tables specified.
+     * WARNING: this will completely clear all rows from each table.
+     *
+     * @param tables The list of tables to wipe.
+     */
+    public static void tables(Class<? extends Model>... tables) {
+        for (Class modelClass : tables) {
+            table(modelClass);
+        }
     }
 
     /**

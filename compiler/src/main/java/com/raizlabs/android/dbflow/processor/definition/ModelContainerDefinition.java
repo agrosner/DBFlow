@@ -34,7 +34,7 @@ public class ModelContainerDefinition extends BaseDefinition {
                 new SQLiteStatementWriter(tableDefinition, true),
                 new ExistenceWriter(tableDefinition, true),
                 new WhereQueryWriter(tableDefinition, true),
-                new ToModelWriter(tableDefinition),
+                new ToModelWriter(tableDefinition, true),
                 new LoadCursorWriter(tableDefinition, true),
                 new DeleteWriter(tableDefinition, true)
         };

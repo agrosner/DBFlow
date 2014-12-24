@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.model.builder.MockConditionQueryBuilder;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
+import com.raizlabs.android.dbflow.sql.StatementMap;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Modifier;
@@ -23,6 +24,8 @@ import javax.lang.model.type.PrimitiveType;
 import javax.tools.Diagnostic;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -190,13 +193,36 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 String modelStatement = ModelUtils.getModelStatement(columnFieldName);
                 javaWriter.beginControlFlow("if (%1s != null)", modelStatement);
                 javaWriter.emitStatement("%1s.save(false)", modelStatement);
+
+                List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                    String castedClass = ModelUtils.getClassFromAnnotation(foreignKeyReference);
                     ModelUtils.writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(),
                             foreignKeyReference.columnName(),
-                            columnName, ModelUtils.getClassFromAnnotation(foreignKeyReference),
+                            columnName, castedClass,
                             foreignKeyReference.foreignColumnName(), foreignKeyReference.foreignColumnName(),
                             false, isModelContainer, true, false, columnFieldType);
+
+                    AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
+                    if(isContentValues) {
+                        adapterQueryBuilder.appendContentValues();
+                        adapterQueryBuilder.append(".putNull").appendParenthesisEnclosed("\"" + foreignKeyReference.columnName() + "\"");
+                    } else {
+                        String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
+                        boolean bindNull = (statement.equals("String") || statement.equals("Blob"));
+                        adapterQueryBuilder.append("statement.");
+                        if(bindNull) {
+                            adapterQueryBuilder.append("bindNull").appendParenthesisEnclosed(columnCount);
+                        } else {
+                            adapterQueryBuilder.appendBindSQLiteStatement(columnCount.intValue(), castedClass).append(0).append(")");
+                        }
+                    }
+                    elseNullPuts.add(adapterQueryBuilder);
                     columnCount.incrementAndGet();
+                }
+                javaWriter.nextControlFlow("else");
+                for(AdapterQueryBuilder queryBuilder : elseNullPuts) {
+                    javaWriter.emitStatement(queryBuilder.getQuery());
                 }
                 javaWriter.endControlFlow();
             }
@@ -316,40 +342,42 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
     }
 
     public void writeToModelDefinition(JavaWriter javaWriter) throws IOException {
+
+        if(!isModel) {
+            AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder("Object value");
+            adapterQueryBuilder.append(columnFieldName).appendSpaceSeparated("=")
+                    .appendVariable(true).append(".").appendGetValue(containerKeyName);
+            javaWriter.emitStatement(adapterQueryBuilder.getQuery());
+            javaWriter.beginControlFlow("if (value%1s != null) ", columnFieldName);
+        }
+
+
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder();
         queryBuilder.appendVariable(false).append(".").append(columnFieldName);
         queryBuilder.appendSpaceSeparated("=");
 
-        if (hasTypeConverter) {
-            queryBuilder.appendTypeConverter(columnFieldType, columnFieldType, true);
-        } else {
-            queryBuilder.appendCast(isModelContainer ? modelContainerType : columnFieldType);
+        String getType = columnFieldType;
+        // Type converters can never be primitive except boolean
+        if (element.asType().getKind().isPrimitive()) {
+            getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
         }
+
+        queryBuilder.appendCast(isModelContainer ? modelContainerType : getType);
 
         if (isModel) {
             queryBuilder.appendVariable(true)
                     .append(".getInstance(");
-        }
-
-        queryBuilder.appendVariable(true).append(".").appendGetValue(containerKeyName);
-
-        if (!isModel) {
-            queryBuilder.append(")");
-        }
-
-        if (isModel) {
-            queryBuilder.append(",").append(ModelUtils.getFieldClass(columnFieldType)).append(")");
-        }
-
-        if (hasTypeConverter) {
-            queryBuilder.append(")");
-        }
-
-        if (isModel) {
-            queryBuilder.append(".toModel())");
+            queryBuilder.appendVariable(true).append(".").appendGetValue(containerKeyName);
+            queryBuilder.append(",").append(ModelUtils.getFieldClass(columnFieldType)).append(")").append(".toModel())");
+        } else {
+            queryBuilder.append(String.format("value%1s)", columnFieldName));
         }
 
         javaWriter.emitStatement(queryBuilder.getQuery());
+
+        if(!isModel) {
+            javaWriter.endControlFlow();
+        }
     }
 
 

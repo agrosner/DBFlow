@@ -13,6 +13,6 @@ public class BooleanConverter extends TypeConverter<Integer,Boolean> {
 
     @Override
     public Boolean getModelValue(Integer data) {
-        return data == 1;
+        return data != null && data == 1;
     }
 }

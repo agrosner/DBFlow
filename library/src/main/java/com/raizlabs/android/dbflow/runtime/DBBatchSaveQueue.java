@@ -47,6 +47,8 @@ public class DBBatchSaveQueue extends Thread {
      */
     private boolean mQuit = false;
 
+    private DBTransactionInfo mSaveQueueInfo = DBTransactionInfo.create("Batch Saving Models");
+
     /**
      * Creates a new instance of this class to batch save {@link com.raizlabs.android.dbflow.structure.Model} classes.
      */
@@ -87,6 +89,14 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
+     * Change the priority of the queue, add a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} for when saving is done
+     * @param mSaveQueueInfo
+     */
+    public void setSaveQueueInfo(DBTransactionInfo mSaveQueueInfo) {
+        this.mSaveQueueInfo = mSaveQueueInfo;
+    }
+
+    /**
      * Sets how long, in millis that this queue will check for leftover {@link com.raizlabs.android.dbflow.structure.Model} that have not been saved yet.
      * The default is {@link #sMODEL_SAVE_CHECK_TIME}
      *
@@ -110,7 +120,7 @@ public class DBBatchSaveQueue extends Thread {
             if (tmpModels.size() > 0) {
                 //onExecute this on the DBManager thread
                 TransactionManager.getInstance().save(
-                        ProcessModelInfo.withModels(tmpModels).info(DBTransactionInfo.create("Batch Saving Models")));
+                        ProcessModelInfo.withModels(tmpModels).info(mSaveQueueInfo));
             }
 
             try {
@@ -124,6 +134,13 @@ public class DBBatchSaveQueue extends Thread {
                 return;
             }
         }
+    }
+
+    /**
+     * Will cause the queue to wake from sleep and handle it's current list of items.
+     */
+    public void purgeQueue() {
+        interrupt();
     }
 
     /**

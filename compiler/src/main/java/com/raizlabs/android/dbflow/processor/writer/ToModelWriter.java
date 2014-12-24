@@ -18,9 +18,11 @@ import java.io.IOException;
 public class ToModelWriter implements FlowWriter {
 
     private TableDefinition tableDefinition;
+    private boolean isModelContainerDefinition;
 
-    public ToModelWriter(TableDefinition tableDefinition) {
+    public ToModelWriter(TableDefinition tableDefinition, boolean isModelContainerDefinition) {
         this.tableDefinition = tableDefinition;
+        this.isModelContainerDefinition = isModelContainerDefinition;
     }
 
     @Override
