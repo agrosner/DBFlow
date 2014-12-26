@@ -14,7 +14,6 @@ import java.util.Set;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Constructs a condition statement for a specific {@link com.raizlabs.android.dbflow.structure.Model} class.
  * This enables easy combining of conditions for SQL statements and will handle converting the model value for each column into
  * the correct database-valued-string.
@@ -79,6 +78,22 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         return this;
     }
 
+    /**
+     * Clears all conditions
+     */
+    public void clear() {
+        mParams.clear();
+    }
+
+    /**
+     * Returns the specified condition for the column.
+     * @param columnName The name of the column in the DB
+     * @return The condition (or null) within this builder.
+     */
+    public Condition getCondition(String columnName) {
+        return mParams.get(columnName);
+    }
+
     @Override
     public String getQuery() {
         // Empty query, we will build it now with params, or if the query has changed.
@@ -89,9 +104,14 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             Set<String> keys = mParams.keySet();
             int count = 0;
             for (String key : keys) {
-                appendConditionToQuery(mParams.get(key));
+                Condition tempCondition = mParams.get(key);
+                appendConditionToQuery(tempCondition);
                 if (count < keys.size() - 1) {
-                    appendSpaceSeparated(mSeparator);
+                    if(tempCondition.hasSeparator()) {
+                        appendSpaceSeparated(tempCondition.separator());
+                    } else {
+                        appendSpaceSeparated(mSeparator);
+                    }
                 }
                 count++;
             }
@@ -253,7 +273,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             Condition condition = mParams.get(key);
             condition.appendConditionToRawQuery(rawQuery);
             if (count < keys.size() - 1) {
-                rawQuery.append(mSeparator);
+                if(condition.hasSeparator()) {
+                    rawQuery.appendSpaceSeparated(condition.separator());
+                } else {
+                    rawQuery.appendSpaceSeparated(mSeparator);
+                }
             }
             count++;
         }

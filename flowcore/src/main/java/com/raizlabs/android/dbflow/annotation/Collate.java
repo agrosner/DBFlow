@@ -19,7 +19,7 @@ public enum Collate {
      * Ignores case for the 26 upper case characters of ASCII are folded to lower case equivalents.
      * Does not attempt to fold UTF so be careful!
      */
-    NO_CASE,
+    NOCASE,
 
     /**
      * Trims trailing space characters before performing comparison.

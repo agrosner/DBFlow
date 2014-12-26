@@ -76,6 +76,11 @@ public class Condition {
     protected String mPostArgument;
 
     /**
+     * An optional separator to use when chaining these together
+     */
+    protected String mSeparator;
+
+    /**
      * Creates a new instance
      *
      * @param columnName The name of the column in the DB
@@ -205,7 +210,7 @@ public class Condition {
         if (collation.equals(Collate.NONE)) {
             mPostArgument = null;
         } else {
-            mPostArgument = collation.name();
+            collate(collation.name());
         }
 
         return this;
@@ -245,6 +250,17 @@ public class Condition {
     }
 
     /**
+     * Optional separator when chaining this Condition within a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     *
+     * @param separator The separator to use
+     * @return This instance
+     */
+    public Condition separator(String separator) {
+        mSeparator = separator;
+        return this;
+    }
+
+    /**
      * Turns this condition into a SQL BETWEEN operation
      *
      * @param value The value of the first argument of the BETWEEN clause
@@ -280,6 +296,17 @@ public class Condition {
      */
     public String postArgument() {
         return mPostArgument;
+    }
+
+    public String separator() {
+        return mSeparator;
+    }
+
+    /**
+     * @return true if has a separator defined for this condition.
+     */
+    public boolean hasSeparator() {
+        return mSeparator != null && (mSeparator.length()>0);
     }
 
     /**
