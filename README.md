@@ -1,5 +1,5 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.3-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 DBFlow
 ======
 
@@ -14,6 +14,20 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
 ## Changelog
+
+#### 1.1.3
+  1. Fixes an issue with Boolean converter throwing a ```NullPointerException``` when a ```ModelContainer``` does not contain the field.
+  2. Added null checks in the ```toModel()``` method of a ```ContainerAdapter``` definition class.
+  3. We ```bindNull()``` and ```putNull()``` for missing foreign key fields in the ````$Adapter``` definition, previously this bug did not allow the removal of foreign key object fields.
+  4. Added a  ```purgeQueue()``` and the ability to set the priority of the batches in the ```DBBatchSaveQueue```
+  5. Added the ```Between``` method for SQLite statements
+  6. Added  a method in ```Delete``` for clearing multiple tables
+
+#### 1.1.2
+  1. Added support for SQLite ```COLLATE``` in ```@Column``` and ```Condition``` classes
+  2. Added support for ```DEFAULT``` values in column creation.
+  3. Deprecated ```ResultReceiver``` to replace it with ```TransactionListenerAdapter``` which provides a base implementation of ```TransactionListener```. ```TransactionListener``` provides more callback methods to the state of a DB transaction. As a result ```ResultReceiver``` is no longer an interface, rather an abstract class. ***NOTE:*** ```BaseResultTransaction```'s ```TransactionListener``` must return true from ```hasResult(BaseResultTransaction, ResultClass)``` to have ```onResultReceived()``` called.
+  4. ```FlowCursorList``` is more flexible by adding methods to clear the cache, dynamically enable/disable the cache, and set a custom ```Where``` for the cursor to use.
 
 #### 1.1.1
 
