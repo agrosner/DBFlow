@@ -6,10 +6,12 @@ package com.raizlabs.android.dbflow.runtime.transaction;
  * It provides a unified listener for transactions and enables more-powerful callbacks.
  * Replaces the deprecated {@link com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver}
  */
-public abstract class TransactionListenerAdapter<ResultClass> extends ResultReceiver<ResultClass> {
+public class TransactionListenerAdapter<ResultClass> extends ResultReceiver<ResultClass> {
 
     @Override
-    public abstract void onResultReceived(ResultClass resultClass);
+    public void onResultReceived(ResultClass resultClass) {
+        super.onResultReceived(resultClass);
+    }
 
     @Override
     public boolean onReady(BaseTransaction<ResultClass> transaction) {
