@@ -6,16 +6,16 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
-* Author: andrewgrosner
-* Contributors: { }
-* Description:
-*/
+ * Author: andrewgrosner
+ * Contributors: { }
+ * Description:
+ */
 @Table(databaseName = TestDatabase.NAME)
-public class ForeignModel extends TestModel1 {
+public class ForeignModel2 extends TestModel1 {
+
     @Column(columnType = Column.FOREIGN_KEY,
-            references =
-                    {@ForeignKeyReference(columnName = "testmodel_id",
-                            foreignColumnName = "name",
-                            columnType = String.class)})
-    TestModel1 testModel1;
+        references = {@ForeignKeyReference(columnName = "testmodel_id",
+                columnType = Long.class, foreignColumnName = "id"
+        )})
+    TestModelAI testModelAI;
 }
