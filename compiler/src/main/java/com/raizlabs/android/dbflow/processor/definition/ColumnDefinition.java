@@ -208,14 +208,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                         adapterQueryBuilder.appendContentValues();
                         adapterQueryBuilder.append(".putNull").appendParenthesisEnclosed("\"" + foreignKeyReference.columnName() + "\"");
                     } else {
-                        String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
-                        boolean bindNull = (statement.equals("String") || statement.equals("Blob"));
                         adapterQueryBuilder.append("statement.");
-                        if(bindNull) {
-                            adapterQueryBuilder.append("bindNull").appendParenthesisEnclosed(columnCount);
-                        } else {
-                            adapterQueryBuilder.appendBindSQLiteStatement(columnCount.intValue(), castedClass).append(0).append(")");
-                        }
+                        adapterQueryBuilder.append("bindNull").appendParenthesisEnclosed(columnCount);
                     }
                     elseNullPuts.add(adapterQueryBuilder);
                     columnCount.incrementAndGet();

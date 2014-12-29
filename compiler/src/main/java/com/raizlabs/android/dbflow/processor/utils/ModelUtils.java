@@ -212,7 +212,12 @@ public class ModelUtils {
         QueryBuilder queryBuilder = new QueryBuilder("if ( ");
         for (int i = 0; i < foreignKeyReferences.length; i++) {
             ForeignKeyReference foreignKeyReference = foreignKeyReferences[i];
-            queryBuilder.append("index").append(foreignKeyReference.columnName()).append(" != -1");
+            queryBuilder.append("index")
+                    .append(foreignKeyReference.columnName())
+                    .append(" != -1")
+                    .append(" && !cursor.isNull(index")
+                    .append(foreignKeyReference.columnName())
+                    .append(")");
 
             if(i < foreignKeyReferences.length - 1) {
                 queryBuilder.appendSpaceSeparated("&&");
