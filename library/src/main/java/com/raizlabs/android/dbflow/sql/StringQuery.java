@@ -60,4 +60,9 @@ public class StringQuery<ModelClass extends Model> implements Query, Queriable<M
     public ModelClass querySingle() {
         return SqlUtils.querySingle(mTable, mQuery);
     }
+
+    @Override
+    public Class<ModelClass> getTable() {
+        return mTable;
+    }
 }

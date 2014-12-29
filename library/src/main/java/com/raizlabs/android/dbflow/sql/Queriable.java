@@ -33,4 +33,9 @@ public interface Queriable<ModelClass extends Model> {
      * @return Single model, the first of potentially many results
      */
     public ModelClass querySingle();
+
+    /**
+     * @return the table that this query comes from.
+     */
+    public Class<ModelClass> getTable();
 }

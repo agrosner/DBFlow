@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
+import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -31,7 +32,7 @@ public class FlowCursorList<ModelClass extends Model> {
 
     private boolean cacheModels;
 
-    private Where<ModelClass> mWhere;
+    private Queriable<ModelClass> mWhere;
 
     /**
      * Constructs an instance of this list.
@@ -40,7 +41,7 @@ public class FlowCursorList<ModelClass extends Model> {
      *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
      * @param where       The SQL where query to use when doing a query.
      */
-    public FlowCursorList(boolean cacheModels, Where<ModelClass> where) {
+    public FlowCursorList(boolean cacheModels, Queriable<ModelClass> where) {
         mWhere = where;
         mCursor = mWhere.query();
         mTable = where.getTable();

@@ -208,9 +208,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Qu
         return queryBuilder.getQuery();
     }
 
-    /**
-     * @return The table this From corresponds to
-     */
+    @Override
     public Class<ModelClass> getTable() {
         return mTable;
     }

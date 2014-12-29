@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapte
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModel;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelper;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
+import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -65,9 +66,25 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     private boolean transact = false;
 
-    public FlowTableList(Class<ModelClass> table) {
+    /**
+     * Constructs an instance of this list with the specified conditions.
+     *
+     * @param table      The table to load into this list.
+     * @param conditions The set of conditions to use when querying the DB.
+     */
+    public FlowTableList(Class<ModelClass> table, Condition... conditions) {
         super(null);
-        mCursorList = new FlowCursorList<ModelClass>(true, table);
+        mCursorList = new FlowCursorList<ModelClass>(true, table, conditions);
+    }
+
+    /**
+     * Constructs an instance of this list with the specfied {@link com.raizlabs.android.dbflow.sql.Queriable} object.
+     *
+     * @param queriable The object that can query from a database.
+     */
+    public FlowTableList(Queriable<ModelClass> queriable) {
+        super(null);
+        mCursorList = new FlowCursorList<ModelClass>(transact, queriable);
     }
 
     /**
@@ -134,6 +151,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
 
     /**
      * Internal helper method for constructing {@link com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo}
+     *
      * @param modelClasses
      * @return
      */
@@ -144,6 +162,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
 
     /**
      * Internal helper method for constructing {@link com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo}
+     *
      * @param modelClasses
      * @return
      */

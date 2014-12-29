@@ -23,7 +23,6 @@ import java.util.Map;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: Defines the SQL WHERE statement of the query.
  */
 public class Where<ModelClass extends Model> implements Query, Queriable<ModelClass> {
@@ -393,11 +392,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
         return SqlUtils.hasData(mWhereBase.getTable(), getQuery());
     }
 
-    /**
-     * Returns the table this query points to
-     *
-     * @return
-     */
+    @Override
     public Class<ModelClass> getTable() {
         return mWhereBase.getTable();
     }
