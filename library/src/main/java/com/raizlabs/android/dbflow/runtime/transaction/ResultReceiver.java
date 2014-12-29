@@ -17,6 +17,6 @@ public abstract class ResultReceiver<ResultClass> implements TransactionListener
 
     @Override
     public boolean hasResult(BaseTransaction<ResultClass> transaction, ResultClass result) {
-        return false;
+        return true;
     }
 }
