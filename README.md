@@ -16,7 +16,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 ## Changelog
 
 #### 1.1.5
-  1. Fixed issue where using non-string primary queries caused a build error.
+  1. Fixed issue where using non-string forein keys caused a build error.
   2. Optimized loading foreign key objects from the DB by checking using the ```Cursor.isNull()``` method before calling a SELECT query
   3. Made ```FlowCursorList``` and ```FlowTableList``` more robust and flexible by enabling ```Queriable``` objects to be used to generate it's internal cursor. Added ```Condition...``` parameter to ```FlowTableList``` as well.
   4. Added two new methods to ```Queriable```: ```queryClose()``` will execute a query on the DB and close the ```Cursor``` if needed. ```getTable()``` simply returns the table that the query comes from.
