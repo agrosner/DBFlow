@@ -19,6 +19,12 @@ public interface Queriable<ModelClass extends Model> {
     public Cursor query();
 
     /**
+     * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
+     * you're not interested in the result.
+     */
+    public void queryClose();
+
+    /**
      * @return a list of model converted items
      */
     public List<ModelClass> queryList();

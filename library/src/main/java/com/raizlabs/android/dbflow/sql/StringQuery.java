@@ -44,6 +44,14 @@ public class StringQuery<ModelClass extends Model> implements Query, Queriable<M
     }
 
     @Override
+    public void queryClose() {
+        Cursor query = query();
+        if (query != null) {
+            query.close();
+        }
+    }
+
+    @Override
     public List<ModelClass> queryList() {
         return SqlUtils.queryList(mTable, mQuery);
     }

@@ -1,12 +1,13 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
+
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -14,7 +15,6 @@ import java.util.List;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: The SQL FROM query wrapper that must have a {@link com.raizlabs.android.dbflow.sql.Query} base.
  */
 public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Queriable<ModelClass> {
@@ -54,7 +54,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Qu
      * The alias that this table name we use
      *
      * @param alias
-     * @return
+     * @return This FROM statement
      */
     public From<ModelClass> as(String alias) {
         mAlias = alias;
@@ -66,7 +66,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Qu
      *
      * @param table    The table this corresponds to
      * @param joinType The type of join to use
-     * @return
+     * @return The join contained in this FROM statement
      */
     public <JoinType extends Model> Join<JoinType, ModelClass> join(Class<JoinType> table, Join.JoinType joinType) {
         Join<JoinType, ModelClass> join = new Join<JoinType, ModelClass>(this, table, joinType);
@@ -78,16 +78,14 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Qu
      * Returns a {@link Where} statement with the sql clause
      *
      * @param whereClause The full SQL string after the WHERE keyword
-     * @return
+     * @return The WHERE piece of the query
      */
     public Where<ModelClass> where(String whereClause) {
         return where().whereClause(whereClause);
     }
 
     /**
-     * Returns an empty {@link Where} statement
-     *
-     * @return
+     * @return an empty {@link Where} statement
      */
     public Where<ModelClass> where() {
         return new Where<ModelClass>(this);
@@ -143,10 +141,29 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Qu
         return where().querySingle();
     }
 
+    @Override
+    public void queryClose() {
+        Cursor query = query();
+        if (query != null) {
+            query.close();
+        }
+    }
+
+    /**
+     * Begins a SET piece of the SQL query
+     *
+     * @param conditions The array of conditions that define this SET statement
+     * @return A SET query piece of this statement
+     */
     public Set<ModelClass> set(Condition... conditions) {
         return set().conditions(conditions);
     }
 
+    /**
+     * Begins a SET query
+     *
+     * @return A SET query piece of this statement
+     */
     public Set<ModelClass> set() {
         if (!(mQueryBuilderBase instanceof Update)) {
             throw new IllegalStateException("Cannot use set() without an UPDATE as the base");
@@ -154,6 +171,12 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Qu
         return new Set<ModelClass>(this, mTable);
     }
 
+    /**
+     * Begins a SET piece of this query with a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} as its conditions.
+     *
+     * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
+     * @return A SET query piece of this statment
+     */
     public Set<ModelClass> set(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         return set().conditionQuery(conditionQueryBuilder);
     }
@@ -186,18 +209,15 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Qu
     }
 
     /**
-     * The table this From corresponds to
-     *
-     * @return
+     * @return The table this From corresponds to
      */
     public Class<ModelClass> getTable() {
         return mTable;
     }
 
     /**
-     * The base query
-     *
-     * @return
+     * @return The base query, usually a {@link com.raizlabs.android.dbflow.sql.language.Delete}.
+     * {@link com.raizlabs.android.dbflow.sql.language.Select}, or {@link com.raizlabs.android.dbflow.sql.language.Update}
      */
     public Query getQueryBuilderBase() {
         return mQueryBuilderBase;

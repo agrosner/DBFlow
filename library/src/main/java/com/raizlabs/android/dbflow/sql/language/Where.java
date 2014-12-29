@@ -12,10 +12,10 @@ import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -283,6 +283,14 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
         return cursor;
     }
 
+    @Override
+    public void queryClose() {
+        Cursor query = query();
+        if (query != null) {
+            query.close();
+        }
+    }
+
     /**
      * Queries for all of the results this statement returns from a DB cursor in the form of the {@link ModelClass}
      *
@@ -345,7 +353,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return a list of
      * {@link ModelClass} on the UI thread.
      *
-     * @param transactionManager The transaction manager to add the query to
+     * @param transactionManager      The transaction manager to add the query to
      * @param listTransactionListener The result of this transaction
      */
     public void transactList(TransactionManager transactionManager, TransactionListener<List<ModelClass>> listTransactionListener) {
@@ -367,8 +375,8 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return
      * a single item on the UI thread.
      *
-     * @param transactionManager The transaction manager to add the query to
-     * @param transactionListener     The result of this transaction
+     * @param transactionManager  The transaction manager to add the query to
+     * @param transactionListener The result of this transaction
      */
     public void transactSingleModel(TransactionManager transactionManager, TransactionListener<ModelClass> transactionListener) {
         checkSelect("transact");

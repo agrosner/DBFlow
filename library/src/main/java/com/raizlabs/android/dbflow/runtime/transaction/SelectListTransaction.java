@@ -21,10 +21,10 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
     /**
      * Creates an instance of this class
      *
-     * @param flowManager     The database manager to use
-     * @param transactionListener  The result that returns from this query
-     * @param tableClass      The table to select from
-     * @param whereConditions The conditions to use in the SELECT query
+     * @param flowManager         The database manager to use
+     * @param transactionListener The result that returns from this query
+     * @param tableClass          The table to select from
+     * @param whereConditions     The conditions to use in the SELECT query
      */
     public SelectListTransaction(TransactionListener<List<ModelClass>> transactionListener,
                                  Class<ModelClass> tableClass, Condition... whereConditions) {
@@ -34,8 +34,8 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
     /**
      * Creates this class with a {@link com.raizlabs.android.dbflow.sql.language.From}
      *
-     * @param where          The completed Sql Statement we will use to fetch the models
-     * @param transactionListener
+     * @param where               The completed Sql Statement we will use to fetch the models
+     * @param transactionListener The result that returns from this query
      */
     public SelectListTransaction(Where<ModelClass> where, TransactionListener<List<ModelClass>> transactionListener) {
         super(DBTransactionInfo.createFetch(), transactionListener);
@@ -45,7 +45,7 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
     /**
      * Creates an instance of this class
      *
-     * @param transactionListener             The result that returns from this query
+     * @param transactionListener        The result that returns from this query
      * @param whereConditionQueryBuilder The query builder used to SELECT
      * @param columns                    The columns to select
      */
@@ -58,8 +58,8 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
      * Creates an instance of this class
      *
      * @param transactionListener The result that returns from this query
-     * @param table          The table to select from
-     * @param columns        The columns to select
+     * @param table               The table to select from
+     * @param columns             The columns to select
      */
     public SelectListTransaction(TransactionListener<List<ModelClass>> transactionListener,
                                  Class<ModelClass> table, String... columns) {
