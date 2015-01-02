@@ -1,5 +1,5 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.4-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.5-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 DBFlow
 ======
 
@@ -15,9 +15,16 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
+#### 1.1.5
+  1. Fixed issue where using non-string foreign keys caused a build error.
+  2. Optimized loading foreign key objects from the DB by checking using the ```Cursor.isNull()``` method before calling a SELECT query (thanks [Michal](https://github.com/mozarcik))
+  3. Made ```FlowCursorList``` and ```FlowTableList``` more robust and flexible by enabling ```Queriable``` objects to be used to generate it's internal cursor. Added ```Condition...``` parameter to ```FlowTableList``` as well.
+  4. Added two new methods to ```Queriable```: ```queryClose()``` will execute a query on the DB and close the ```Cursor``` if needed. ```getTable()``` simply returns the table that the query comes from.
+  5. Made ```TransactionListenerAdapter``` both the class and the ```onResultReceived()``` method no longer abstract to make it useful in situations other than results.
+
 #### 1.1.4
   1. Fixed issue where ```Collate``` enum was not appending ```COLLATE``` to the SQL query
-  2. Added the ability to chain ```Condition``` together using different separators. Just call ```separator()``` on a ```Condition``` used in a ````ConditionQueryBuilder```. 
+  2. Added the ability to chain ```Condition``` together using different separators. Just call ```separator()``` on a ```Condition``` used in a ```ConditionQueryBuilder```. 
   3. Added tests for ```Between``` and these fixes.
 
 #### 1.1.3
@@ -49,14 +56,7 @@ Marks a large change in the library:
   6. Bug fixes
   7. Added a postfix operator to ```Condition``` as ```postfix()```
 
-#### 1.0.3
-
-  1. Added ```JSONArrayModel```, which will operate on all items and backed by a ```JSONArray```
-  2. ```@ContainerKey``` enables different key from a model container ```@Key``` field
-
-#### 1.0.2
-  1. Fixes issue in ```FlowCursorList``` that caused the cursor to reset everytime ```getItem(int)``` was called
-  2. Fixes "DSC" to "DESC" for SQL orderby 
+for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
 
 ## Including in your project
@@ -74,9 +74,9 @@ repositories {
 }
 
 dependencies {
-  apt 'com.raizlabs.android:DBFlow-Compiler:1.1.+'
-  compile 'com.raizlabs.android:DBFlow-Core:1.1.+' 
-  compile 'com.raizlabs.android:DBFlow:1.1.+'
+  apt 'com.raizlabs.android:DBFlow-Compiler:1.1.5'
+  compile 'com.raizlabs.android:DBFlow-Core:1.1.5' 
+  compile 'com.raizlabs.android:DBFlow:1.1.5'
 }
 
 ```
