@@ -138,6 +138,13 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
+     * @return The {@link com.raizlabs.android.dbflow.list.FlowCursorList} that backs this table list.
+     */
+    public FlowCursorList<ModelClass> getCursorList() {
+        return mCursorList;
+    }
+
+    /**
      * Adds an item to this table, but does not allow positonal insertion. Same as calling
      * {@link #add(com.raizlabs.android.dbflow.structure.Model)}
      *

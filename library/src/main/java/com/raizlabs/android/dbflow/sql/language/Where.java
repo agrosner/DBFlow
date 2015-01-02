@@ -6,6 +6,8 @@ import android.database.DatabaseUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.list.FlowCursorList;
+import com.raizlabs.android.dbflow.list.FlowTableList;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
@@ -380,6 +382,16 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     public void transactSingleModel(TransactionManager transactionManager, TransactionListener<ModelClass> transactionListener) {
         checkSelect("transact");
         transactionManager.fetchModel(this, transactionListener);
+    }
+
+    @Override
+    public FlowCursorList<ModelClass> queryCursorList() {
+        return new FlowCursorList<ModelClass>(false, this);
+    }
+
+    @Override
+    public FlowTableList<ModelClass> queryTableList() {
+        return new FlowTableList<ModelClass>(this);
     }
 
     /**

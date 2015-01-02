@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.sql;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.list.FlowCursorList;
+import com.raizlabs.android.dbflow.list.FlowTableList;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -38,4 +40,16 @@ public interface Queriable<ModelClass extends Model> {
      * @return the table that this query comes from.
      */
     public Class<ModelClass> getTable();
+
+    /**
+     * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
+     * cache models dynamically by setting {@link com.raizlabs.android.dbflow.list.FlowCursorList#setCacheModels(boolean)} to true.
+     */
+    public FlowCursorList<ModelClass> queryCursorList();
+
+    /**
+     * @return A cursor-backed {@link java.util.List} that handles conversion, retrieval, caching, content changes,
+     * and more.
+     */
+    public FlowTableList<ModelClass> queryTableList();
 }

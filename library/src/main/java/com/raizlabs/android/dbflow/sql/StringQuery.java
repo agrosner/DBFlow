@@ -3,6 +3,8 @@ package com.raizlabs.android.dbflow.sql;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.list.FlowCursorList;
+import com.raizlabs.android.dbflow.list.FlowTableList;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -59,6 +61,16 @@ public class StringQuery<ModelClass extends Model> implements Query, Queriable<M
     @Override
     public ModelClass querySingle() {
         return SqlUtils.querySingle(mTable, mQuery);
+    }
+
+    @Override
+    public FlowCursorList<ModelClass> queryCursorList() {
+        return new FlowCursorList<ModelClass>(false, this);
+    }
+
+    @Override
+    public FlowTableList<ModelClass> queryTableList() {
+        return new FlowTableList<ModelClass>(this);
     }
 
     @Override

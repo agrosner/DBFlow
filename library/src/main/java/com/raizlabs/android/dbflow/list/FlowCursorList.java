@@ -13,7 +13,6 @@ import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
-import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -39,12 +38,12 @@ public class FlowCursorList<ModelClass extends Model> {
      *
      * @param cacheModels For every call to {@link #getItem(int)}, do we want to keep a reference to it so
      *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
-     * @param where       The SQL where query to use when doing a query.
+     * @param queriable   The SQL where query to use when doing a query.
      */
-    public FlowCursorList(boolean cacheModels, Queriable<ModelClass> where) {
-        mWhere = where;
+    public FlowCursorList(boolean cacheModels, Queriable<ModelClass> queriable) {
+        mWhere = queriable;
         mCursor = mWhere.query();
-        mTable = where.getTable();
+        mTable = queriable.getTable();
 
         if (cacheModels) {
             mModelCache = new SparseArray<>(mCursor.getCount());
@@ -67,11 +66,12 @@ public class FlowCursorList<ModelClass extends Model> {
 
     /**
      * Sets this list to being caching models. If set to false, this will immediately clear the cache for you.
+     *
      * @param cacheModels
      */
     public void setCacheModels(boolean cacheModels) {
         this.cacheModels = cacheModels;
-        if(!cacheModels) {
+        if (!cacheModels) {
             clearCache();
         } else {
             mModelCache = new SparseArray<>(mCursor.getCount());
