@@ -16,6 +16,7 @@ import java.io.IOException;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Author: andrewgrosner
@@ -37,13 +38,14 @@ public class ModelUtils {
                                                   String containerKeyName,
                                                   boolean isContainer, boolean isModelContainer,
                                                   boolean isForeignKey,
-                                                  boolean requiresTypeConverter, String databaseTypeName) throws IOException {
+                                                  boolean requiresTypeConverter, String databaseTypeName,
+                                                  boolean isColumnPrimitive) throws IOException {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
 
         boolean nullCheck = !isContentValues;
         if(nullCheck) {
             String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
-            nullCheck = (statement.equals("String") || statement.equals("Blob"));
+            nullCheck = (statement.equals("String") || statement.equals("Blob") || !isColumnPrimitive);
         } else {
             contentValue.appendContentValues();
             contentValue.appendPut(putValue);
@@ -184,6 +186,18 @@ public class ModelUtils {
             }
         }
         return clazz;
+    }
+
+    public static TypeMirror getTypeMirrorFromAnnotation(ForeignKeyReference reference) {
+        TypeMirror typeMirror = null;
+        if (reference != null) {
+            try {
+                reference.columnType();
+            } catch (MirroredTypeException mte) {
+                typeMirror = mte.getTypeMirror();
+            }
+        }
+        return typeMirror;
     }
 
     public static String getCastedValue(String columnFieldType, String statement) {

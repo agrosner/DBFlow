@@ -27,7 +27,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
         mJoinType = joinType;
     }
 
-    public Join as(String alias) {
+    public Join<ModelClass, FromClass> as(String alias) {
         mAlias = alias;
         return this;
     }

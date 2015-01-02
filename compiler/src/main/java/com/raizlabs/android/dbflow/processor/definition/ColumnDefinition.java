@@ -21,6 +21,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 import java.io.IOException;
@@ -196,12 +197,12 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                    String castedClass = ModelUtils.getClassFromAnnotation(foreignKeyReference);
+                    TypeMirror castedClass = ModelUtils.getTypeMirrorFromAnnotation(foreignKeyReference);
                     ModelUtils.writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(),
                             foreignKeyReference.columnName(),
-                            columnName, castedClass,
+                            columnName, castedClass.toString(),
                             foreignKeyReference.foreignColumnName(), foreignKeyReference.foreignColumnName(),
-                            false, isModelContainer, true, false, columnFieldType);
+                            false, isModelContainer, true, false, columnFieldType, castedClass.getKind().isPrimitive());
 
                     AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
                     if(isContentValues) {
@@ -239,8 +240,9 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             String getType = columnFieldType;
+            boolean isPrimitive = element.asType().getKind().isPrimitive();
             // Type converters can never be primitive except boolean
-            if (element.asType().getKind().isPrimitive()) {
+            if (isPrimitive) {
                 getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
             }
 
@@ -251,7 +253,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             ModelUtils.writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(), columnName, columnName,
-                    newFieldType, columnFieldName, containerKeyName, isModelContainerDefinition, isModelContainer, false, hasTypeConverter, getType);
+                    newFieldType, columnFieldName, containerKeyName, isModelContainerDefinition, isModelContainer,
+                    false, hasTypeConverter, getType, isPrimitive);
 
             columnCount.incrementAndGet();
         }
