@@ -8,7 +8,8 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * The parameters to build this query with
      */
-    private LinkedHashMap<String, Condition> mParams = new LinkedHashMap<String, Condition>();
+    private List<Condition> mParams = new ArrayList<>();
 
     /**
      * Whether there is a new param, we will rebuild the query.
@@ -71,7 +72,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
         if (conditions.length > 0) {
             for (Condition condition : conditions) {
-                mParams.put(condition.columnName(), condition);
+                mParams.add(condition);
             }
             isChanged = true;
         }
@@ -86,12 +87,32 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Returns the specified condition for the column.
      * @param columnName The name of the column in the DB
-     * @return The condition (or null) within this builder.
+     * @return the specified conditions matching the specified column name.
+     * Case sensitive so use the $Table class fields.
      */
-    public Condition getCondition(String columnName) {
-        return mParams.get(columnName);
+    public List<Condition> getConditionsMatchingColumName(String columnName) {
+        List<Condition> matching = new ArrayList<>();
+        for (Condition condition : mParams) {
+            if (condition.columnName().equals(columnName)) {
+                matching.add(condition);
+            }
+        }
+        return matching;
+    }
+
+    /**
+     * @param value The value of the conditions we're looking for
+     * @return The specified conditions containing the value we're looking for. This should be the non-type-converted object.
+     */
+    public List<Condition> getConditionsMatchingValue(Object value) {
+        List<Condition> matching = new ArrayList<>();
+        for (Condition condition : mParams) {
+            if (condition.value() == null ? value == null : condition.value().equals(value)) {
+                matching.add(condition);
+            }
+        }
+        return matching;
     }
 
     @Override
@@ -101,13 +122,13 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             isChanged = false;
             mQuery = new StringBuilder();
 
-            Set<String> keys = mParams.keySet();
             int count = 0;
-            for (String key : keys) {
-                Condition tempCondition = mParams.get(key);
+            int paramSize = mParams.size();
+            for (int i = 0; i < paramSize; i++) {
+                Condition tempCondition = mParams.get(i);
                 appendConditionToQuery(tempCondition);
-                if (count < keys.size() - 1) {
-                    if(tempCondition.hasSeparator()) {
+                if (count < paramSize - 1) {
+                    if (tempCondition.hasSeparator()) {
                         appendSpaceSeparated(tempCondition.separator());
                     } else {
                         appendSpaceSeparated(mSeparator);
@@ -161,6 +182,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
 
     /**
      * Sets the condition separator for when we build the query.
+     *
      * @param separator AND, OR, etc.
      * @return This instance
      */
@@ -171,6 +193,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
 
     /**
      * Sets this class to use empty params ONLY. Cannot mix empty and non-empty for query building.
+     *
      * @param useEmptyParams If true, only empty parameters will be accepted.
      * @return This instance
      */
@@ -219,7 +242,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> putCondition(Condition condition) {
-        mParams.put(condition.columnName(), condition);
+        mParams.add(condition);
         isChanged = true;
         return this;
     }
@@ -240,9 +263,9 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param params The mapping between column names and the string-represented value
      * @return This instance
      */
-    public ConditionQueryBuilder<ModelClass> putConditionMap(Map<String, Condition> params) {
+    public ConditionQueryBuilder<ModelClass> putConditions(List<Condition> params) {
         if (params != null && !params.isEmpty()) {
-            mParams.putAll(params);
+            mParams.addAll(params);
             isChanged = true;
         }
         return this;
@@ -267,13 +290,13 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     public String getRawQuery() {
         QueryBuilder rawQuery = new QueryBuilder();
 
-        Set<String> keys = mParams.keySet();
         int count = 0;
-        for (String key : keys) {
-            Condition condition = mParams.get(key);
+        int paramSize = mParams.size();
+        for (int i = 0; i < paramSize; i++) {
+            Condition condition = mParams.get(i);
             condition.appendConditionToRawQuery(rawQuery);
-            if (count < keys.size() - 1) {
-                if(condition.hasSeparator()) {
+            if (count < paramSize - 1) {
+                if (condition.hasSeparator()) {
                     rawQuery.appendSpaceSeparated(condition.separator());
                 } else {
                     rawQuery.appendSpaceSeparated(mSeparator);
@@ -304,12 +327,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
 
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder =
                 new ConditionQueryBuilder<ModelClass>(mModelAdapter.getModelClass());
-        Set<String> columnNames = mParams.keySet();
-
-        int count = 0;
-        for (String columnName : columnNames) {
-            conditionQueryBuilder.putCondition(columnName, values[count]);
-            count++;
+        for (int i = 0; i < values.length; i++) {
+            conditionQueryBuilder.putCondition(mParams.get(i).columnName(), values[i]);
         }
 
         return conditionQueryBuilder;

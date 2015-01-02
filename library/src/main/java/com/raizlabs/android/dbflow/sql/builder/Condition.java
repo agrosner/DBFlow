@@ -86,6 +86,9 @@ public class Condition {
      * @param columnName The name of the column in the DB
      */
     private Condition(String columnName) {
+        if(columnName == null) {
+            throw new IllegalArgumentException("Column " + columnName + " cannot be null");
+        }
         mColumn = columnName;
     }
 

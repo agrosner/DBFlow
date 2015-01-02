@@ -153,8 +153,8 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
      * @param conditionMap The map of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
      * @return
      */
-    public Where<ModelClass> andThese(Map<String, Condition> conditionMap) {
-        mConditionQueryBuilder.putConditionMap(conditionMap);
+    public Where<ModelClass> andThese(List<Condition> conditionMap) {
+        mConditionQueryBuilder.putConditions(conditionMap);
         return this;
     }
 
