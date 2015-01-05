@@ -1,5 +1,5 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.5-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.6-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 DBFlow
 ======
 
@@ -14,6 +14,11 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
 ## Changelog
+
+#### 1.1.6
+  1. Fixes issue where boxed primitive values such as Long, when null, were throwing ```NullPointerException``` in ```bindToStatement()```. Added a test to prevent any future issues.
+  2. ```From.as()``` wasn't using type parameters in return, thus a warning would be thrown.
+  3. Added two new methods to ```Queriable```: ```queryCursorList()``` and ```queryTableList()```. These corresponding methods will make constructing a ```FlowCursorList``` or ```FlowTableList``` from a completed query much simpler.
 
 #### 1.1.5
   1. Fixed issue where using non-string foreign keys caused a build error.
