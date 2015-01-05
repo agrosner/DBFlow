@@ -48,4 +48,11 @@ public class BuilderTest extends FlowTestCase {
         assertEquals("name='James' OR number=6 AND fraction=4.5", conditionQueryBuilder.getQuery().trim());
     }
 
+    public void testIsOperators() {
+        ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class);
+        conditionQueryBuilder.putCondition(Condition.column(ConditionModel$Table.NAME).is("James"))
+                .or(Condition.column(ConditionModel$Table.FRACTION).isNotNull());
+        assertEquals("name='James' OR fraction IS NOT NULL", conditionQueryBuilder.getQuery().trim());
+    }
+
 }

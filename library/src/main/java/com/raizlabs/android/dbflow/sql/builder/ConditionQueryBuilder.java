@@ -369,27 +369,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         return this;
     }
 
-    /**
-     * Sets the previous condition to use the LIKE separator
-     * @param condition The condition to "LIKE"
-     * @return
-     */
-    public ConditionQueryBuilder<ModelClass> like(Condition condition) {
-        setPreviousSeparator(Condition.Operation.LIKE);
-        putCondition(condition);
-        return this;
-    }
-
-    public ConditionQueryBuilder<ModelClass> glob(Condition condition) {
-        setPreviousSeparator(Condition.Operation.GLOB);
-        putCondition(condition);
-        return this;
-    }
 
     protected void setPreviousSeparator(String separator) {
         if (mParams.size() > 0) {
             // set previous to use OR separator
-            mParams.get(mParams.size()).separator(separator);
+            mParams.get(mParams.size()-1).separator(separator);
         }
     }
 }

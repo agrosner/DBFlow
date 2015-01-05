@@ -71,6 +71,18 @@ public class Condition {
          * you need to replace all of these with actual values.
          */
         public static final String EMPTY_PARAM = "?";
+
+        /**
+         * Special operation that specify if the column is not null for a specified row. Use of this as
+         * an operator will ignore the value of the {@link com.raizlabs.android.dbflow.sql.builder.Condition} for it.
+         */
+        public static final String IS_NOT_NULL = "IS NOT NULL";
+
+        /**
+         * Special operation that specify if the column is null for a specified row. Use of this as
+         * an operator will ignore the value of the {@link com.raizlabs.android.dbflow.sql.builder.Condition} for it.
+         */
+        public static final String IS_NULL = "IS NULL";
     }
 
     /**
@@ -302,8 +314,7 @@ public class Condition {
      * @return
      */
     public Condition isNull() {
-        mOperation = " IS ";
-        mValue = "NULL";
+        mOperation = String.format(" %1s ", Operation.IS_NULL);
         return this;
     }
 
@@ -313,8 +324,7 @@ public class Condition {
      * @return
      */
     public Condition isNotNull() {
-        mOperation = " IS NOT ";
-        mValue = "NULL";
+        mOperation = String.format(" %1s ", Operation.IS_NOT_NULL);
         return this;
     }
 
@@ -384,8 +394,12 @@ public class Condition {
      * @param conditionQueryBuilder
      */
     public void appendConditionToQuery(ConditionQueryBuilder conditionQueryBuilder) {
-        conditionQueryBuilder.append(columnName()).append(operation())
-                .append(conditionQueryBuilder.convertValueToString(value()));
+        conditionQueryBuilder.append(columnName()).append(operation());
+
+        // Do not use value for these operators, we do not want to convert the value to a string.
+        if (!Operation.IS_NOT_NULL.equals(operation()) && !Operation.IS_NULL.equals(operation())) {
+            conditionQueryBuilder.append(conditionQueryBuilder.convertValueToString(value()));
+        }
         if (postArgument() != null) {
             conditionQueryBuilder.appendSpace().append(postArgument());
         }
