@@ -397,7 +397,7 @@ public class Condition {
         conditionQueryBuilder.append(columnName()).append(operation());
 
         // Do not use value for these operators, we do not want to convert the value to a string.
-        if (!Operation.IS_NOT_NULL.equals(operation()) && !Operation.IS_NULL.equals(operation())) {
+        if (!Operation.IS_NOT_NULL.equals(operation().trim()) && !Operation.IS_NULL.equals(operation().trim())) {
             conditionQueryBuilder.append(conditionQueryBuilder.convertValueToString(value()));
         }
         if (postArgument() != null) {
