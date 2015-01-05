@@ -148,6 +148,16 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     }
 
     /**
+     * Appends an OR with a Condition to the WHERE clause with the specified {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @param condition
+     * @return
+     */
+    public Where<ModelClass> or(Condition condition) {
+        mConditionQueryBuilder.or(condition);
+        return this;
+    }
+
+    /**
      * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to this builder.
      *
      * @param conditionMap The map of {@link com.raizlabs.android.dbflow.sql.builder.Condition}

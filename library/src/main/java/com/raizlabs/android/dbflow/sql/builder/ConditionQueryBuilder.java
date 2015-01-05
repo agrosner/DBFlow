@@ -11,7 +11,6 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Author: andrewgrosner
@@ -272,6 +271,22 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
+     * Appends all the parameters from the specified map. The keys are ignored and now just take the values.
+     * This is for backportability.
+     * @param params
+     * @deprecated {@link #putConditions(java.util.List)}
+     * @return
+     */
+    @Deprecated
+    public ConditionQueryBuilder<ModelClass> putConditionMap(Map<String, Condition> params) {
+        if (params != null && !params.isEmpty()) {
+            mParams.addAll(params.values());
+            isChanged = true;
+        }
+        return this;
+    }
+
+    /**
      * Appends an empty condition to this map that will be represented with a "?". All params must either be empty or not.
      *
      * @param columnName The name of the column in the DB
@@ -348,4 +363,26 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         return mModelAdapter;
     }
 
+    /**
+     * Sets the previous condition to use the OR separator.
+     * @param condition The condition to "OR"
+     * @return This instance
+     */
+    public ConditionQueryBuilder<ModelClass> or(Condition condition) {
+        if (mParams.size() > 0) {
+            // set previous to use OR separator
+            mParams.get(mParams.size()).separator("OR");
+        }
+        putCondition(condition);
+        return this;
+    }
+
+    public ConditionQueryBuilder<ModelClass> like(Condition condition) {
+        if (mParams.size() > 0) {
+            // set previous to use OR separator
+            mParams.get(mParams.size()).separator("LIKE");
+        }
+        putCondition(condition);
+        return this;
+    }
 }
