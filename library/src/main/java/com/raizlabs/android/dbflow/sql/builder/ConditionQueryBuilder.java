@@ -21,11 +21,6 @@ import java.util.Map;
 public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilder<ConditionQueryBuilder<ModelClass>> {
 
     /**
-     * Default empty param that will be replaced with the actual value when we call {@link #replaceEmptyParams(Object[])}
-     */
-    private static final String EMPTY_PARAM = "?";
-
-    /**
      * The structure of the ModelClass this query pertains to
      */
     private ModelAdapter<ModelClass> mModelAdapter;
@@ -48,7 +43,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * The separator between the conditions
      */
-    private String mSeparator = "AND";
+    private String mSeparator = Condition.Operation.AND;
 
     /**
      * Constructs an instance of this class
@@ -160,7 +155,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             stringVal = String.valueOf(value);
         } else {
             stringVal = String.valueOf(value);
-            if (!stringVal.equals(EMPTY_PARAM)) {
+            if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
                 stringVal = DatabaseUtils.sqlEscapeString(stringVal);
             }
         }
@@ -212,7 +207,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public ConditionQueryBuilder<ModelClass> putCondition(String columnName, Object value) {
-        return putCondition(columnName, "=", value);
+        return putCondition(columnName, Condition.Operation.EQUALS, value);
     }
 
     /**
@@ -225,7 +220,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return
      */
     public ConditionQueryBuilder<ModelClass> putCondition(String columnName, String operator, Object value) {
-        if (useEmptyParams && !EMPTY_PARAM.equals(value)) {
+        if (useEmptyParams && !Condition.Operation.EMPTY_PARAM.equals(value)) {
             throw new IllegalStateException("The " + ConditionQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
@@ -294,7 +289,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      */
     public ConditionQueryBuilder<ModelClass> emptyCondition(String columnName) {
         useEmptyParams = true;
-        return putCondition(columnName, EMPTY_PARAM);
+        return putCondition(columnName, Condition.Operation.EMPTY_PARAM);
     }
 
     /**
@@ -369,20 +364,32 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> or(Condition condition) {
-        if (mParams.size() > 0) {
-            // set previous to use OR separator
-            mParams.get(mParams.size()).separator("OR");
-        }
+        setPreviousSeparator(Condition.Operation.OR);
         putCondition(condition);
         return this;
     }
 
+    /**
+     * Sets the previous condition to use the LIKE separator
+     * @param condition The condition to "LIKE"
+     * @return
+     */
     public ConditionQueryBuilder<ModelClass> like(Condition condition) {
-        if (mParams.size() > 0) {
-            // set previous to use OR separator
-            mParams.get(mParams.size()).separator("LIKE");
-        }
+        setPreviousSeparator(Condition.Operation.LIKE);
         putCondition(condition);
         return this;
+    }
+
+    public ConditionQueryBuilder<ModelClass> glob(Condition condition) {
+        setPreviousSeparator(Condition.Operation.GLOB);
+        putCondition(condition);
+        return this;
+    }
+
+    protected void setPreviousSeparator(String separator) {
+        if (mParams.size() > 0) {
+            // set previous to use OR separator
+            mParams.get(mParams.size()).separator(separator);
+        }
     }
 }

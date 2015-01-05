@@ -10,6 +10,72 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
  */
 public class Condition {
 
+    /**
+     * Static constants that define condition operations
+     */
+    public static class Operation {
+
+        /**
+         * Equals comparison
+         */
+        public static final String EQUALS = "=";
+
+        /**
+         * Not-equals comparison
+         */
+        public static final String NOT_EQUALS = "!=";
+
+        /**
+         * If something is LIKE another (a case insensitive search).
+         * There are two wildcards: % and _
+         * % represents [0,many) numbers or characters.
+         * The _ represents a single number or character.
+         */
+        public static final String LIKE = "LIKE";
+
+        /**
+         * If something is case sensitive like another.
+         * It must be a string to escape it properly.
+         * There are two wildcards: * and ?
+         * * represents [0,many) numbers or characters.
+         * The ? represents a single number or character
+         */
+        public static final String GLOB = "GLOB";
+
+        /**
+         * Greater than some value comparison
+         */
+        public static final String GREATER_THAN = ">";
+
+        /**
+         * Less than some value comparison
+         */
+        public static final String LESS_THAN = "<";
+
+        /**
+         * Between comparison. A simplification of X<Y AND Y<Z to Y BETWEEN X AND Z
+         */
+        public static final String BETWEEN = "BETWEEN";
+
+        /**
+         * AND comparison separator
+         */
+        public static final String AND = "AND";
+
+        /**
+         * OR comparison separator
+         */
+        public static final String OR = "OR";
+        /**
+         * An empty value for the condition. If empty in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+         * you need to replace all of these with actual values.
+         */
+        public static final String EMPTY_PARAM = "?";
+    }
+
+    /**
+     * The SQL BETWEEN operator that contains two values instead of the normal 1.
+     */
     public static class Between extends Condition {
 
         private Object mSecondValue;
@@ -22,7 +88,7 @@ public class Condition {
          */
         private Between(Condition condition, Object value) {
             super(condition.columnName());
-            this.mOperation = " BETWEEN ";
+            this.mOperation = String.format(" %1s ", Operation.BETWEEN);
             this.mValue = value;
             this.mPostArgument = condition.postArgument();
         }
@@ -49,7 +115,7 @@ public class Condition {
         public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
                     .append((value()))
-                    .appendSpaceSeparated("AND")
+                    .appendSpaceSeparated(Operation.AND)
                     .append(secondValue())
                     .appendSpace().appendOptional(postArgument());
         }
@@ -86,7 +152,7 @@ public class Condition {
      * @param columnName The name of the column in the DB
      */
     private Condition(String columnName) {
-        if(columnName == null) {
+        if (columnName == null) {
             throw new IllegalArgumentException("Column " + columnName + " cannot be null");
         }
         mColumn = columnName;
@@ -103,7 +169,7 @@ public class Condition {
      * @return This condition
      */
     public Condition is(Object value) {
-        mOperation = "=";
+        mOperation = Operation.EQUALS;
         return value(value);
     }
 
@@ -114,7 +180,7 @@ public class Condition {
      * @return This condition
      */
     public Condition isNot(Object value) {
-        mOperation = "!=";
+        mOperation = Operation.NOT_EQUALS;
         return value(value);
     }
 
@@ -129,7 +195,7 @@ public class Condition {
      * @return This condition
      */
     public Condition like(String likeRegex) {
-        mOperation = " LIKE ";
+        mOperation = String.format(" %1s ", Operation.LIKE);
         return value(likeRegex);
     }
 
@@ -144,7 +210,7 @@ public class Condition {
      * @return This condition
      */
     public Condition glob(String globRegex) {
-        mOperation = " GLOB ";
+        mOperation = String.format(" %1s ", Operation.GLOB);
         return value(globRegex);
     }
 
@@ -166,7 +232,7 @@ public class Condition {
      * @return This condition
      */
     public Condition greaterThan(Object value) {
-        mOperation = ">";
+        mOperation = Operation.GREATER_THAN;
         return value(value);
     }
 
@@ -177,7 +243,7 @@ public class Condition {
      * @return This condition
      */
     public Condition lessThan(Object value) {
-        mOperation = "<";
+        mOperation = Operation.LESS_THAN;
         return value(value);
     }
 
@@ -309,7 +375,7 @@ public class Condition {
      * @return true if has a separator defined for this condition.
      */
     public boolean hasSeparator() {
-        return mSeparator != null && (mSeparator.length()>0);
+        return mSeparator != null && (mSeparator.length() > 0);
     }
 
     /**
