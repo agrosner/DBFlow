@@ -20,6 +20,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 #### 1.1.7
   1. ```ConditionQueryBuilder``` no longer maps ```columnName``` to a ```Condition``` since if we wanted to do ```OR``` operation on the same column multiple times, it would only take the last condition since it was a ```Map``` of columnNames.
   2. Added ```Condition.Operation``` constant class for operation and SQL method constants
+  3. Fixed the ```IS NULL``` and ```IS NOT NULL``` conditions and wrote test to ensure working
 
 #### 1.1.6
   1. Fixes issue where boxed primitive values such as Long, when null, were throwing ```NullPointerException``` in ```bindToStatement()```. Added a test to prevent any future issues.
