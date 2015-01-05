@@ -18,7 +18,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 ## Changelog
 
 #### 1.1.7
-  1. ```ConditionQueryBuilder`` no longer maps ```columnName``` to a ```Condition``` since if we wanted to do ```OR``` operation on the same column multiple times, it would only take the last condition since it was a ```Map``` of columnNames.
+  1. ```ConditionQueryBuilder``` no longer maps ```columnName``` to a ```Condition``` since if we wanted to do ```OR``` operation on the same column multiple times, it would only take the last condition since it was a ```Map``` of columnNames.
   2. Added ```Condition.Operation``` constant class for operation and SQL method constants
 
 #### 1.1.6
