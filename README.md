@@ -1,5 +1,7 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.6-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.7-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+
 DBFlow
 ======
 
@@ -14,6 +16,10 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
 ## Changelog
+
+#### 1.1.7
+  1. ```ConditionQueryBuilder``` no longer maps ```columnName``` to a ```Condition``` since if we wanted to do ```OR``` operation on the same column multiple times, it would only take the last condition since it was a ```Map``` of columnNames.
+  2. Added ```Condition.Operation``` constant class for operation and SQL method constants
 
 #### 1.1.6
   1. Fixes issue where boxed primitive values such as Long, when null, were throwing ```NullPointerException``` in ```bindToStatement()```. Added a test to prevent any future issues.
