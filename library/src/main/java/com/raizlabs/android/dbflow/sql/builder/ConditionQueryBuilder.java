@@ -58,6 +58,26 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
+     * Appends an array of these objects by joining them with a comma by {@link #joinArguments(ConditionQueryBuilder, CharSequence, Object[])}
+     * and converting each value into their proper DB value.
+     * @param arguments The array of arguments to pass in
+     * @return This instance
+     */
+    public ConditionQueryBuilder<ModelClass> appendArgumentArray(Object...arguments) {
+        return append(joinArguments(this, ",", arguments));
+    }
+
+    /**
+     * Appends a list of these objects by joining them with a comma by {@link #joinArguments(ConditionQueryBuilder, CharSequence, Iterable)}
+     * and converting each value into their proper DB value.
+     * @param arguments The list of arguments to pass in
+     * @return This instance
+     */
+    public ConditionQueryBuilder<ModelClass> appendArgumentList(List<?> arguments) {
+        return append(joinArguments(this, ",", arguments));
+    }
+
+    /**
      * Appends all the conditions from the specified array
      *
      * @param conditions The array of conditions to add to the mapping.
@@ -375,5 +395,49 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             // set previous to use OR separator
             mParams.get(mParams.size()-1).separator(separator);
         }
+    }
+
+    /**
+     * Returns a string containing the tokens converted into DBValues joined by delimiters.
+     *
+     * @param delimiter The text to join the text with.
+     * @param tokens    an array objects to be joined. Strings will be formed from
+     *                  the objects by calling object.toString().
+     * @return A joined string
+     */
+    public static String joinArguments(ConditionQueryBuilder conditionQueryBuilder, CharSequence delimiter, Object[] tokens) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token : tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(conditionQueryBuilder.convertValueToString(token));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Returns a string containing the tokens converted into DBValues joined by delimiters.
+     *
+     * @param delimiter The text to join the text with.
+     * @param tokens    an array objects to be joined. Strings will be formed from
+     *                  the objects by calling object.toString().
+     * @return A joined string
+     */
+    public static String joinArguments(ConditionQueryBuilder conditionQueryBuilder, CharSequence delimiter, Iterable tokens) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token : tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(conditionQueryBuilder.convertValueToString(token));
+        }
+        return sb.toString();
     }
 }

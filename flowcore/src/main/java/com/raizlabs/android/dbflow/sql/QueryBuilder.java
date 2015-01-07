@@ -145,7 +145,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     public QueryClass appendQualifier(String name, String value) {
-        if (value != null && !value.isEmpty()) {
+        if (value != null && value.length() > 0) {
             append(name).appendSpaceSeparated(value);
         }
         return castThis();

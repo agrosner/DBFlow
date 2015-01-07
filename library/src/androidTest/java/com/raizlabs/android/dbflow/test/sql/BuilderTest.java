@@ -55,4 +55,14 @@ public class BuilderTest extends FlowTestCase {
         assertEquals("name='James' OR fraction IS NOT NULL", conditionQueryBuilder.getQuery().trim());
     }
 
+    public void testInOperators() {
+        Condition.In in = Condition.column(ConditionModel$Table.NAME).in("Jason").and("Ryan").and("Michael");
+        ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, in);
+        assertEquals(conditionQueryBuilder.getQuery().trim(), "name IN ('Jason','Ryan','Michael')");
+
+        Condition.In notIn = Condition.column(ConditionModel$Table.NAME).notIn("Jason").and("Ryan").and("Michael");
+        conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
+        assertEquals(conditionQueryBuilder.getQuery().trim(), "name NOT IN ('Jason','Ryan','Michael')");
+    }
+
 }
