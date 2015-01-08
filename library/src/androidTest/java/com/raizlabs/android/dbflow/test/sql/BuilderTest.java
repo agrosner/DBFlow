@@ -7,8 +7,8 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Test our {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} and
+ * {@link com.raizlabs.android.dbflow.sql.builder.Condition} classes to ensure they generate what they're supposed to.
  */
 public class BuilderTest extends FlowTestCase {
 

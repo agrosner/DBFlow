@@ -149,6 +149,10 @@ public class Condition {
         }
     }
 
+    /**
+     * The SQL IN and NOT IN operator that specifies a list of values to SELECT rows from.
+     * EX: SELECT * FROM myTable WHERE columnName IN ('column1','column2','etc')
+     */
     public static class In extends Condition {
 
         private List<Object> mArguments = new ArrayList<>();
@@ -186,8 +190,10 @@ public class Condition {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-            super.appendConditionToRawQuery(queryBuilder);
+            queryBuilder.append(columnName()).append(operation())
+                    .append("(").appendList(mArguments).append(")");
         }
     }
 
