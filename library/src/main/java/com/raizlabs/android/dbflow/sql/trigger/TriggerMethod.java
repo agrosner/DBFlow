@@ -29,7 +29,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
 
     private Condition mWhenCondition;
 
-    TriggerMethod(Trigger<ModelClass> trigger, String methodName, String...columns) {
+    TriggerMethod(Trigger<ModelClass> trigger, String methodName, String... columns) {
         mTrigger = trigger;
         mMethodName = methodName;
         of(columns);
@@ -81,17 +81,17 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
         QueryBuilder queryBuilder
                 = new QueryBuilder(mTrigger.getQuery())
                 .append(mMethodName);
-        if(mColumns != null && mColumns.length > 0) {
+        if (mColumns != null && mColumns.length > 0) {
             queryBuilder.appendSpaceSeparated("OF")
                     .appendArray(mColumns);
         }
         queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(mTable));
 
-        if(forEachRow) {
+        if (forEachRow) {
             queryBuilder.appendSpaceSeparated("FOR EACH ROW");
         }
 
-        if(mWhenCondition != null) {
+        if (mWhenCondition != null) {
             queryBuilder.append(" WHEN ");
             mWhenCondition.appendConditionToRawQuery(queryBuilder);
             queryBuilder.appendSpace();

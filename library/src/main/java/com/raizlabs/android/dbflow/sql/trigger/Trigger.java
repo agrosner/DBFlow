@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.sql.trigger;
 
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -40,6 +38,7 @@ public class Trigger<ModelClass extends Model> implements Query {
 
     /**
      * Specifies AFTER eventName
+     *
      * @param eventName The name to put after some event.
      * @return
      */
@@ -51,6 +50,7 @@ public class Trigger<ModelClass extends Model> implements Query {
 
     /**
      * Specifies BEFORE eventName
+     *
      * @param eventName The name to put before some event.
      * @return
      */
@@ -62,6 +62,7 @@ public class Trigger<ModelClass extends Model> implements Query {
 
     /**
      * Specifies INSTEAD OF eventName
+     *
      * @param eventName The name to put instead of some event.
      * @return
      */
