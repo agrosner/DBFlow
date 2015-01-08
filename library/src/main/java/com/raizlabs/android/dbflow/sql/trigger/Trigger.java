@@ -17,16 +17,19 @@ public class Trigger<ModelClass extends Model> implements Query {
 
     public static final String INSTEAD_OF = "INSTEAD OF";
 
-    private final String mTriggerName;
+    final String mTriggerName;
 
-    private String mEventName;
+    String mEventName;
 
-    private String mBeforeOrAfter;
+    String mBeforeOrAfter;
 
-    private Class<ModelClass> mTable;
-
-    private Query mTriggerLogic;
-
+    /**
+     * Creates a trigger with the specified trigger name. You need to complete
+     * the trigger using
+     *
+     * @param triggerName
+     * @return
+     */
     public static Trigger create(String triggerName) {
         return new Trigger(triggerName);
     }
@@ -35,53 +38,74 @@ public class Trigger<ModelClass extends Model> implements Query {
         mTriggerName = triggerName;
     }
 
+    /**
+     * Specifies AFTER eventName
+     * @param eventName The name to put after some event.
+     * @return
+     */
     public Trigger<ModelClass> after(String eventName) {
         mEventName = eventName;
         mBeforeOrAfter = AFTER;
         return this;
     }
 
+    /**
+     * Specifies BEFORE eventName
+     * @param eventName The name to put before some event.
+     * @return
+     */
     public Trigger<ModelClass> before(String eventName) {
         mEventName = eventName;
         mBeforeOrAfter = BEFORE;
         return this;
     }
 
+    /**
+     * Specifies INSTEAD OF eventName
+     * @param eventName The name to put instead of some event.
+     * @return
+     */
     public Trigger<ModelClass> insteadOf(String eventName) {
         mEventName = eventName;
-        mBeforeOrAfter = eventName;
-    }
-
-    public Trigger<ModelClass> on(Class<ModelClass> modelClass) {
-        mTable = modelClass;
+        mBeforeOrAfter = INSTEAD_OF;
         return this;
     }
 
-    public Trigger logic(Query logicQuery) {
-        mTriggerLogic = logicQuery;
-        return this;
+    /**
+     * Starts a DELETE ON command
+     *
+     * @return
+     */
+    public TriggerMethod<ModelClass> delete() {
+        return new TriggerMethod<>(this, TriggerMethod.DELETE);
+    }
+
+    /**
+     * Starts a INSERT ON command
+     *
+     * @return
+     */
+    public TriggerMethod<ModelClass> insert() {
+        return new TriggerMethod<>(this, TriggerMethod.INSERT);
+    }
+
+    /**
+     * Starts an UPDATE ON command
+     *
+     * @param ofColumns if empty, will not execute an OF command. If you specify columns,
+     *                  the UPDATE OF column1, column2,... will be used.
+     * @return
+     */
+    public TriggerMethod<ModelClass> update(String... ofColumns) {
+        return new TriggerMethod<>(this, TriggerMethod.UPDATE, ofColumns);
     }
 
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder("CREATE TRIGGER IF NOT EXISTS")
                 .appendSpaceSeparated(mTriggerName)
-                .appendOptional(" " + mBeforeOrAfter + " ")
-                .append(mEventName)
-                .appendSpaceSeparated("ON").append(FlowManager.getTableName(mTable))
-                .append("\nBEGIN")
-                .append("\n").append(mTriggerLogic).append(";")
-                .append("\nEND");
+                .appendOptional(" " + mBeforeOrAfter + " ");
 
         return queryBuilder.getQuery();
     }
-
-    /**
-     * Turns on this trigger
-     */
-    public void enable() {
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTable);
-        databaseDefinition.getWritableDatabase().execSQL(getQuery());
-    }
-
 }
