@@ -250,3 +250,19 @@ public class TestModelView extends BaseModelView<TestModel2> {
 
 ```
 
+## Triggers
+
+```Trigger``` are actions that are automatically performed before or after some action on the database. For example, we want to log changes for all updates to the name on the ```Friend``` table. 
+
+```java
+
+CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
+                                    .after().update(Friend.class, Friend$Table.NAME)
+                                    .begin(
+                                        new Insert<FriendLog>(FriendLog.class)
+                                          .columns(FriendLog$Table.OLDNAME, FriendLog$Table.NEWNAME, FriendLog$Table.DATE)
+                                          .values("old.Name", "new.Name", "dateTime('now')")
+                                          };
+
+```
+
