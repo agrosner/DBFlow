@@ -57,6 +57,11 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
         return this;
     }
 
+    /**
+     * Appends a WHEN condition after the ON tableName and before BEGIN...END
+     * @param condition The condition for the trigger
+     * @return
+     */
     public TriggerMethod<ModelClass> when(Condition condition) {
         mWhenCondition = condition;
         return this;

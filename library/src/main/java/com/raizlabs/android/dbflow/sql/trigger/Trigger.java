@@ -35,7 +35,6 @@ public class Trigger<ModelClass extends Model> implements Query {
     /**
      * Specifies AFTER eventName
      *
-     * @param eventName The name to put after some event.
      * @return
      */
     public Trigger<ModelClass> after() {
@@ -46,7 +45,6 @@ public class Trigger<ModelClass extends Model> implements Query {
     /**
      * Specifies BEFORE eventName
      *
-     * @param eventName The name to put before some event.
      * @return
      */
     public Trigger<ModelClass> before() {
@@ -57,7 +55,6 @@ public class Trigger<ModelClass extends Model> implements Query {
     /**
      * Specifies INSTEAD OF eventName
      *
-     * @param eventName The name to put instead of some event.
      * @return
      */
     public Trigger<ModelClass> insteadOf() {
