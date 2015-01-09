@@ -17,22 +17,25 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
 
     public static final String UPDATE = "UPDATE";
 
-    private final Trigger<ModelClass> mTrigger;
+    final Trigger<ModelClass> mTrigger;
 
     private String[] mColumns;
 
     private final String mMethodName;
 
-    Class<ModelClass> mTable;
+    Class<ModelClass> mOnTable;
 
     boolean forEachRow = false;
 
     private Condition mWhenCondition;
 
-    TriggerMethod(Trigger<ModelClass> trigger, String methodName, String... columns) {
+    TriggerMethod(Trigger<ModelClass> trigger, String methodName, Class<ModelClass> onTable, String... columns) {
         mTrigger = trigger;
         mMethodName = methodName;
-        of(columns);
+        mOnTable = onTable;
+        if(columns != null && columns.length > 0) {
+            of(columns);
+        }
     }
 
     /**
@@ -46,11 +49,6 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
             throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
         }
         mColumns = columns;
-        return this;
-    }
-
-    public TriggerMethod<ModelClass> on(Class<ModelClass> modelClass) {
-        mTable = modelClass;
         return this;
     }
 
@@ -85,7 +83,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
             queryBuilder.appendSpaceSeparated("OF")
                     .appendArray(mColumns);
         }
-        queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(mTable));
+        queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(mOnTable));
 
         if (forEachRow) {
             queryBuilder.appendSpaceSeparated("FOR EACH ROW");

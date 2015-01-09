@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Description:
+ * Description: The last piece of a TRIGGER statement, this class contains the BEGIN...END and the logic in between.
  */
 public class TriggerLogic<ModelClass extends Model> implements Query {
 
@@ -34,7 +34,7 @@ public class TriggerLogic<ModelClass extends Model> implements Query {
      * Turns on this trigger
      */
     public void enable() {
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTriggerMethod.mTable);
+        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTriggerMethod.mOnTable);
         databaseDefinition.getWritableDatabase().execSQL(getQuery());
     }
 
@@ -42,9 +42,9 @@ public class TriggerLogic<ModelClass extends Model> implements Query {
      * Disables this trigger
      */
     public void disable() {
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTriggerMethod.mTable);
+        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTriggerMethod.mOnTable);
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-                .append(FlowManager.getTableName(mTriggerMethod.mTable));
+                .append(mTriggerMethod.mTrigger.mTriggerName);
         databaseDefinition.getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 }

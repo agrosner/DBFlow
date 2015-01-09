@@ -17,10 +17,10 @@ public class Trigger<ModelClass extends Model> implements Query {
 
     final String mTriggerName;
 
-    String mEventName;
-
     String mBeforeOrAfter;
 
+
+    Class<ModelClass> mTable;
     /**
      * Creates a trigger with the specified trigger name. You need to complete
      * the trigger using
@@ -28,11 +28,7 @@ public class Trigger<ModelClass extends Model> implements Query {
      * @param triggerName
      * @return
      */
-    public static Trigger create(String triggerName) {
-        return new Trigger(triggerName);
-    }
-
-    private Trigger(String triggerName) {
+    public Trigger(String triggerName) {
         mTriggerName = triggerName;
     }
 
@@ -42,8 +38,7 @@ public class Trigger<ModelClass extends Model> implements Query {
      * @param eventName The name to put after some event.
      * @return
      */
-    public Trigger<ModelClass> after(String eventName) {
-        mEventName = eventName;
+    public Trigger<ModelClass> after() {
         mBeforeOrAfter = AFTER;
         return this;
     }
@@ -54,8 +49,7 @@ public class Trigger<ModelClass extends Model> implements Query {
      * @param eventName The name to put before some event.
      * @return
      */
-    public Trigger<ModelClass> before(String eventName) {
-        mEventName = eventName;
+    public Trigger<ModelClass> before() {
         mBeforeOrAfter = BEFORE;
         return this;
     }
@@ -66,8 +60,7 @@ public class Trigger<ModelClass extends Model> implements Query {
      * @param eventName The name to put instead of some event.
      * @return
      */
-    public Trigger<ModelClass> insteadOf(String eventName) {
-        mEventName = eventName;
+    public Trigger<ModelClass> insteadOf() {
         mBeforeOrAfter = INSTEAD_OF;
         return this;
     }
@@ -75,30 +68,33 @@ public class Trigger<ModelClass extends Model> implements Query {
     /**
      * Starts a DELETE ON command
      *
+     * @param onTable The table ON
      * @return
      */
-    public TriggerMethod<ModelClass> delete() {
-        return new TriggerMethod<>(this, TriggerMethod.DELETE);
+    public TriggerMethod<ModelClass> delete(Class<ModelClass> onTable) {
+        return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable);
     }
 
     /**
      * Starts a INSERT ON command
      *
+     * @param onTable The table ON
      * @return
      */
-    public TriggerMethod<ModelClass> insert() {
-        return new TriggerMethod<>(this, TriggerMethod.INSERT);
+    public TriggerMethod<ModelClass> insert(Class<ModelClass> onTable) {
+        return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable);
     }
 
     /**
      * Starts an UPDATE ON command
      *
+     * @param onTable   The table ON
      * @param ofColumns if empty, will not execute an OF command. If you specify columns,
      *                  the UPDATE OF column1, column2,... will be used.
      * @return
      */
-    public TriggerMethod<ModelClass> update(String... ofColumns) {
-        return new TriggerMethod<>(this, TriggerMethod.UPDATE, ofColumns);
+    public TriggerMethod<ModelClass> update(Class<ModelClass> onTable, String... ofColumns) {
+        return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, ofColumns);
     }
 
     @Override

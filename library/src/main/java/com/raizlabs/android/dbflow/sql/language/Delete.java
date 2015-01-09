@@ -29,6 +29,7 @@ public class Delete implements Query {
      *
      * @param tables The list of tables to wipe.
      */
+    @SafeVarargs
     public static void tables(Class<? extends Model>... tables) {
         for (Class modelClass : tables) {
             table(modelClass);
