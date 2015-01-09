@@ -5,8 +5,8 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.sql.language.Where;
+import com.raizlabs.android.dbflow.sql.trigger.CompletedTrigger;
 import com.raizlabs.android.dbflow.sql.trigger.Trigger;
-import com.raizlabs.android.dbflow.sql.trigger.TriggerLogic;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
@@ -39,7 +39,7 @@ public class TriggerTest extends FlowTestCase {
     public void testTriggerFunctions() {
         Delete.tables(TestUpdateModel.class, ConditionModel.class);
 
-        TriggerLogic<ConditionModel> trigger = new Trigger<ConditionModel>("TestTrigger")
+        CompletedTrigger<ConditionModel> trigger = new Trigger<ConditionModel>("TestTrigger")
                     .after().insert(ConditionModel.class).begin(new Update().table(TestUpdateModel.class)
                         .set(Condition.column(TestUpdateModel$Table.VALUE).is("Fired")));
 

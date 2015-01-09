@@ -9,13 +9,13 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: The last piece of a TRIGGER statement, this class contains the BEGIN...END and the logic in between.
  */
-public class TriggerLogic<ModelClass extends Model> implements Query {
+public class CompletedTrigger<ModelClass extends Model> implements Query {
 
     private TriggerMethod<ModelClass> mTriggerMethod;
 
     private Query mTriggerLogicQuery;
 
-    TriggerLogic(TriggerMethod<ModelClass> triggerMethod, Query triggerLogicQuery) {
+    CompletedTrigger(TriggerMethod<ModelClass> triggerMethod, Query triggerLogicQuery) {
         mTriggerMethod = triggerMethod;
         mTriggerLogicQuery = triggerLogicQuery;
     }

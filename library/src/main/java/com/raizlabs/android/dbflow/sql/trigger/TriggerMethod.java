@@ -70,8 +70,8 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
      * @param triggerLogicQuery The query to run for the BEGIN..END of the trigger
      * @return This trigger
      */
-    public TriggerLogic<ModelClass> begin(Query triggerLogicQuery) {
-        return new TriggerLogic<>(this, triggerLogicQuery);
+    public CompletedTrigger<ModelClass> begin(Query triggerLogicQuery) {
+        return new CompletedTrigger<>(this, triggerLogicQuery);
     }
 
     @Override
