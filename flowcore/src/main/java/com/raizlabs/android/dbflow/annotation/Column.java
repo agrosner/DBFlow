@@ -100,4 +100,21 @@ public @interface Column {
      */
     ForeignKeyReference[] references() default {};
 
+    /**
+     * Defines {@link com.raizlabs.android.dbflow.annotation.Action} action to be performed
+     * on delete of referenced record. Defaults to {@link Action#NO_ACTION}. Used only when
+     * columnType is {@link #FOREIGN_KEY}.
+     *
+     * @return {@link Action}
+     */
+    Action onDelete() default Action.NO_ACTION;
+
+    /**
+     * Defines {@link com.raizlabs.android.dbflow.annotation.Action} action to be performed
+     * on update of referenced record. Defaults to {@link Action#NO_ACTION}. Used only when
+     * columnType is {@link #FOREIGN_KEY}.
+     *
+     * @return {@link Action}
+     */
+    Action onUpdate() default Action.NO_ACTION;
 }

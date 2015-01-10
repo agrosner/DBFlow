@@ -1,5 +1,8 @@
 package com.raizlabs.android.dbflow.sql;
 
+import com.raizlabs.android.dbflow.annotation.Action;
+import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+
 import java.util.List;
 
 /**
@@ -162,6 +165,34 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
             append(string);
         }
         return castThis();
+    }
+
+    /**
+     * Appends ON DELETE or ON UPDATE Action defined in ForeignKeyReference.
+     *
+     * @param action defined {@link com.raizlabs.android.dbflow.annotation.Action}
+     * @return QueryBuilder
+     */
+    public QueryBuilder appendAction(Action action) {
+        this.appendSpace();
+        switch (action) {
+            case NO_ACTION:
+                this.append("NO ACTION");
+                break;
+            case RESTRICT:
+                this.append("RESTRICT");
+                break;
+            case SET_NULL:
+                this.append("SET NULL");
+                break;
+            case SET_DEFAULT:
+                this.append("SET DEFAULT");
+                break;
+            case CASCADE:
+                this.append("CASCADE");
+                break;
+        }
+        return this;
     }
 
     @Override
