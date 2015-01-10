@@ -122,10 +122,10 @@ public class CreationQueryWriter implements FlowWriter{
 
                         foreignKeyQueryBuilder.appendArray(columns)
                                 .append(")").appendSpaceSeparated("REFERENCES %1s")
-								.append("ON UPDATE")
+                                .append("ON UPDATE")
                                 .appendAction(foreignKeyField.column.onUpdate())
                                 .appendSpace()
-								.append("ON DELETE")
+                                .append("ON DELETE")
                                 .appendAction(foreignKeyField.column.onDelete());
 
                         foreignColumnClasses.add("FlowManager.getTableName(" + ModelUtils.getFieldClass(foreignKeyField.columnFieldType) + ")");
