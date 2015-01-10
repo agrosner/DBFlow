@@ -221,6 +221,13 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
+     * @return Count of conditions
+     */
+    public int size() {
+        return mParams.size();
+    }
+
+    /**
      * Internal utility method for appending a condition to the query
      *
      * @param condition The value of the column we are looking for

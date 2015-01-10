@@ -3,6 +3,8 @@ package com.raizlabs.android.dbflow.sql.language;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -11,10 +13,19 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class Insert<ModelClass extends Model> implements Query {
 
+    /**
+     * The table class that this INSERT points to
+     */
     private Class<ModelClass> mTable;
 
+    /**
+     * The columns to specify in this query (optional)
+     */
     private String[] mColumns;
 
+    /**
+     * The values to specify in this query
+     */
     private Object[] mValues;
 
     private ConflictAction mConflictAction;
@@ -51,6 +62,48 @@ public class Insert<ModelClass extends Model> implements Query {
         mValues = values;
         return this;
     }
+
+    /**
+     * Uses the {@link com.raizlabs.android.dbflow.sql.builder.Condition} pairs to fill this insert query.
+     *
+     * @param conditions The conditions that we use to fill the columns and values of this INSERT
+     * @return
+     */
+    public Insert<ModelClass> columnValues(Condition... conditions) {
+
+        String[] columns = new String[conditions.length];
+        Object[] values = new Object[conditions.length];
+
+        for (int i = 0; i < conditions.length; i++) {
+            Condition condition = conditions[i];
+            columns[i] = condition.columnName();
+            values[i] = condition.value();
+        }
+
+        return columns(columns).values(values);
+    }
+
+    /**
+     * Uses the {@link com.raizlabs.android.dbflow.sql.builder.Condition} pairs to fill this insert query.
+     *
+     * @param conditionQueryBuilder The condition query builder to use
+     * @return
+     */
+    public Insert<ModelClass> columnValues(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+
+        int size = conditionQueryBuilder.size();
+        String[] columns = new String[size];
+        Object[] values = new Object[size];
+
+        for (int i = 0; i < size; i++) {
+            Condition condition = conditionQueryBuilder.getConditions().get(i);
+            columns[i] = condition.columnName();
+            values[i] = condition.value();
+        }
+
+        return columns(columns).values(values);
+    }
+
 
     /**
      * Specifies the optional OR method to use for this insert query
