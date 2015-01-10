@@ -21,6 +21,50 @@ import java.util.Map;
 public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilder<ConditionQueryBuilder<ModelClass>> {
 
     /**
+     * Returns a string containing the tokens converted into DBValues joined by delimiters.
+     *
+     * @param delimiter The text to join the text with.
+     * @param tokens    an array objects to be joined. Strings will be formed from
+     *                  the objects by calling object.toString().
+     * @return A joined string
+     */
+    public static String joinArguments(ConditionQueryBuilder conditionQueryBuilder, CharSequence delimiter, Object[] tokens) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token : tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(conditionQueryBuilder.convertValueToString(token));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Returns a string containing the tokens converted into DBValues joined by delimiters.
+     *
+     * @param delimiter The text to join the text with.
+     * @param tokens    an array objects to be joined. Strings will be formed from
+     *                  the objects by calling object.toString().
+     * @return A joined string
+     */
+    public static String joinArguments(ConditionQueryBuilder conditionQueryBuilder, CharSequence delimiter, Iterable tokens) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token : tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(conditionQueryBuilder.convertValueToString(token));
+        }
+        return sb.toString();
+    }
+
+    /**
      * The structure of the ModelClass this query pertains to
      */
     private ModelAdapter<ModelClass> mModelAdapter;
@@ -60,37 +104,23 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * Appends an array of these objects by joining them with a comma by {@link #joinArguments(ConditionQueryBuilder, CharSequence, Object[])}
      * and converting each value into their proper DB value.
+     *
      * @param arguments The array of arguments to pass in
      * @return This instance
      */
-    public ConditionQueryBuilder<ModelClass> appendArgumentArray(Object...arguments) {
+    public ConditionQueryBuilder<ModelClass> appendArgumentArray(Object... arguments) {
         return append(joinArguments(this, ",", arguments));
     }
 
     /**
      * Appends a list of these objects by joining them with a comma by {@link #joinArguments(ConditionQueryBuilder, CharSequence, Iterable)}
      * and converting each value into their proper DB value.
+     *
      * @param arguments The list of arguments to pass in
      * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> appendArgumentList(List<?> arguments) {
         return append(joinArguments(this, ",", arguments));
-    }
-
-    /**
-     * Appends all the conditions from the specified array
-     *
-     * @param conditions The array of conditions to add to the mapping.
-     * @return This instance
-     */
-    public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
-        if (conditions.length > 0) {
-            for (Condition condition : conditions) {
-                mParams.add(condition);
-            }
-            isChanged = true;
-        }
-        return this;
     }
 
     /**
@@ -127,6 +157,13 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             }
         }
         return matching;
+    }
+
+    /**
+     * @return A list of conditions from this builder.
+     */
+    public List<Condition> getConditions() {
+        return mParams;
     }
 
     @Override
@@ -216,6 +253,21 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         return this;
     }
 
+    /**
+     * Appends all the conditions from the specified array
+     *
+     * @param conditions The array of conditions to add to the mapping.
+     * @return This instance
+     */
+    public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
+        if (conditions.length > 0) {
+            for (Condition condition : conditions) {
+                putCondition(condition);
+            }
+            isChanged = true;
+        }
+        return this;
+    }
 
     /**
      * Appends a condition to this map. It will take the value and see if a {@link com.raizlabs.android.dbflow.converter.TypeConverter}
@@ -250,7 +302,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
 
     /**
      * Appends a condition to this map. It will take the value and see if a {@link com.raizlabs.android.dbflow.converter.TypeConverter}
-     * exists for the field. If so, we convert it to the database valu  e. Also if the value is a string, we escape the string.
+     * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
      * @param condition The condition to append
      * @return This instance
@@ -262,19 +314,10 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * This will append all the primary key names with empty params from the underlying {@link com.raizlabs.android.dbflow.structure.ModelAdapter}.
-     * Ex: name = ?, columnName = ?
+     * Appends all the parameters from the specified list
+     * <p/>
      *
-     * @return This instance
-     */
-    public ConditionQueryBuilder<ModelClass> emptyPrimaryConditions() {
-        return append(mModelAdapter.getPrimaryModelWhere());
-    }
-
-    /**
-     * Appends all the parameters from the specified map
-     *
-     * @param params The mapping between column names and the string-represented value
+     * @param params The list of conditions
      * @return This instance
      */
     public ConditionQueryBuilder<ModelClass> putConditions(List<Condition> params) {
@@ -288,9 +331,10 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * Appends all the parameters from the specified map. The keys are ignored and now just take the values.
      * This is for backportability.
+     *
      * @param params
-     * @deprecated {@link #putConditions(java.util.List)}
      * @return
+     * @deprecated {@link #putConditions(java.util.List)}
      */
     @Deprecated
     public ConditionQueryBuilder<ModelClass> putConditionMap(Map<String, Condition> params) {
@@ -339,6 +383,20 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
+     * This will append all the primary key names with empty params from the underlying {@link com.raizlabs.android.dbflow.structure.ModelAdapter}.
+     * Ex: name = ?, columnName = ?
+     * <p/>
+     * This method is deprecated, it is faulty because we append the {@link com.raizlabs.android.dbflow.structure.ModelAdapter} primary where
+     * query for it without regard for if the query has already other data within it.
+     *
+     * @return This instance
+     */
+    @Deprecated
+    public ConditionQueryBuilder<ModelClass> emptyPrimaryConditions() {
+        return append(mModelAdapter.getPrimaryModelWhere());
+    }
+
+    /**
      * Replaces empty parameter values such as "columnName = ?" with the array of values passed in. It must
      * match the count of columns that are in this where query.
      *
@@ -372,7 +430,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * @return the table structure that this {@link ConditionQueryBuilder} uses.
+     * @return the ModelAdapter that this {@link ConditionQueryBuilder} uses.
      */
     public ModelAdapter<ModelClass> getModelAdapter() {
         return mModelAdapter;
@@ -380,6 +438,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
 
     /**
      * Sets the previous condition to use the OR separator.
+     *
      * @param condition The condition to "OR"
      * @return This instance
      */
@@ -389,55 +448,28 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         return this;
     }
 
+    /**
+     * Sets the previous condition to use the AND separator
+     *
+     * @param condition The condition to "AND"
+     * @return This instance
+     */
+    public ConditionQueryBuilder<ModelClass> and(Condition condition) {
+        setPreviousSeparator(Condition.Operation.AND);
+        putCondition(condition);
+        return this;
+    }
 
+    /**
+     * Sets the last condition to use the separator specified
+     *
+     * @param separator AND, OR, etc.
+     */
     protected void setPreviousSeparator(String separator) {
         if (mParams.size() > 0) {
             // set previous to use OR separator
-            mParams.get(mParams.size()-1).separator(separator);
+            mParams.get(mParams.size() - 1).separator(separator);
         }
     }
 
-    /**
-     * Returns a string containing the tokens converted into DBValues joined by delimiters.
-     *
-     * @param delimiter The text to join the text with.
-     * @param tokens    an array objects to be joined. Strings will be formed from
-     *                  the objects by calling object.toString().
-     * @return A joined string
-     */
-    public static String joinArguments(ConditionQueryBuilder conditionQueryBuilder, CharSequence delimiter, Object[] tokens) {
-        StringBuilder sb = new StringBuilder();
-        boolean firstTime = true;
-        for (Object token : tokens) {
-            if (firstTime) {
-                firstTime = false;
-            } else {
-                sb.append(delimiter);
-            }
-            sb.append(conditionQueryBuilder.convertValueToString(token));
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Returns a string containing the tokens converted into DBValues joined by delimiters.
-     *
-     * @param delimiter The text to join the text with.
-     * @param tokens    an array objects to be joined. Strings will be formed from
-     *                  the objects by calling object.toString().
-     * @return A joined string
-     */
-    public static String joinArguments(ConditionQueryBuilder conditionQueryBuilder, CharSequence delimiter, Iterable tokens) {
-        StringBuilder sb = new StringBuilder();
-        boolean firstTime = true;
-        for (Object token : tokens) {
-            if (firstTime) {
-                firstTime = false;
-            } else {
-                sb.append(delimiter);
-            }
-            sb.append(conditionQueryBuilder.convertValueToString(token));
-        }
-        return sb.toString();
-    }
 }

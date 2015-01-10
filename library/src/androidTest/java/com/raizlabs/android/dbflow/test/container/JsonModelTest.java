@@ -10,8 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class JsonModelTest extends FlowTestCase {

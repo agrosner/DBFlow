@@ -24,10 +24,10 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Constructs this class with the specified String
      *
-     * @param string The string to append
+     * @param object The string to append
      */
-    public QueryBuilder(String string) {
-        mQuery.append(string);
+    public QueryBuilder(Object object) {
+        append(object);
     }
 
     /**
