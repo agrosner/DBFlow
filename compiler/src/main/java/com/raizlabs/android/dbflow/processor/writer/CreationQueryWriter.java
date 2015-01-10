@@ -121,7 +121,10 @@ public class CreationQueryWriter implements FlowWriter{
                         }
 
                         foreignKeyQueryBuilder.appendArray(columns)
-                                .append(")").appendSpaceSeparated("REFERENCES %1s");
+                                .append(")").appendSpaceSeparated("REFERENCES %1s")
+                                .appendAction("ON UPDATE", foreignKeyField.column.onUpdate())
+                                .appendSpace()
+                                .appendAction("ON DELETE", foreignKeyField.column.onDelete());
 
                         foreignColumnClasses.add("FlowManager.getTableName(" + ModelUtils.getFieldClass(foreignKeyField.columnFieldType) + ")");
 
@@ -133,7 +136,7 @@ public class CreationQueryWriter implements FlowWriter{
                     manager.getMessager().printMessage(Diagnostic.Kind.ERROR, "MODEL VIEWS CANNOT HAVE PRIMARY KEYS OR FOREIGN KEYS");
                 }
 
-                tableCreationQuery.appendList(mColumnDefinitions).append("););");
+                tableCreationQuery.appendList(mColumnDefinitions).append(");");
                 QueryBuilder returnQuery = new QueryBuilder();
                 returnQuery.append("return ");
                 if(!foreignColumnClasses.isEmpty()) {
