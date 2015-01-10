@@ -269,7 +269,7 @@ CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
                                     .begin(
                                         new Insert<FriendLog>(FriendLog.class)
                                           .columns(FriendLog$Table.OLDNAME, FriendLog$Table.NEWNAME, FriendLog$Table.DATE)
-                                          .values("old.Name", "new.Name", "dateTime('now')")
+                                          .values("old.Name", "new.Name", System.currentTimeMillis())
                                           };
 
 ```
