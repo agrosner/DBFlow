@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test.structure;
 
+import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
@@ -27,11 +28,14 @@ public class ModelViewTest extends FlowTestCase {
         testModel2.name = "View2";
         testModel2.save(false);
 
-        TransactionManager transactionManager = new TransactionManager("ModelViewTest", false);
-
         List<TestModelView> testModelViews = Select.all(TestModelView.class);
         assertTrue(!testModelViews.isEmpty());
         assertTrue(testModelViews.size() == 1);
+    }
+
+    public void testModelViewCursorList() {
+        FlowCursorList<TestModelView> list = new FlowCursorList<TestModelView>(true, TestModelView.class);
+        assertNotNull(list.getItem(0));
     }
 
 }
