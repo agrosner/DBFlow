@@ -117,8 +117,7 @@ public class SqlUtils {
             if (dontMoveToFirst || cursor.moveToFirst()) {
                 ModelAdapter<ModelClass> modelAdapter = FlowManager.getModelAdapter(table);
                 if (modelAdapter == null) {
-                    Class persistentClass = (Class) ((ParameterizedType) table.getGenericSuperclass()).getActualTypeArguments()[0];
-                    if (persistentClass.isAssignableFrom(BaseModelView.class)) {
+                    if (BaseModelView.class.isAssignableFrom(table)) {
                         model = (ModelClass) FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table).loadFromCursor(cursor);
                     }
                 } else {
