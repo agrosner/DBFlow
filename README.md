@@ -21,7 +21,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
   1. Added SQLite Triggers!
   2. Added the ```IN``` and ```NOT IN``` operators to ```Condition```
-  3. 
+  3. Fixes an issue where a ```FlowCursorList``` was A. not caching models and B. not handling ```ModelView``` properly.
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
