@@ -27,5 +27,14 @@ public class InsertTest extends FlowTestCase {
         InsertModel model = Select.byId(InsertModel.class, "Test");
         assertNotNull(model);
 
+
+        insert = new Insert<>(InsertModel.class).orAbort()
+                .values("Test2", "Test3");
+        assertEquals("INSERT OR ABORT INTO InsertModel VALUES('Test2','Test3')", insert.getQuery());
+
+        FlowManager.getDatabase(TestDatabase.NAME).getWritableDatabase().execSQL(insert.getQuery());
+
+        model = Select.byId(InsertModel.class, "Test2");
+        assertNotNull(model);
     }
 }
