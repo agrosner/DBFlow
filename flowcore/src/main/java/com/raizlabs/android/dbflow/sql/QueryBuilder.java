@@ -170,12 +170,11 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Appends ON DELETE or ON UPDATE Action defined in ForeignKeyReference.
      *
-     * @param on String "ON DELETE" or "ON UPDATE"
      * @param action defined {@link com.raizlabs.android.dbflow.annotation.Action}
      * @return QueryBuilder
      */
-    public QueryBuilder appendAction(String on, Action action) {
-        this.append(on).appendSpace();
+    public QueryBuilder appendAction(Action action) {
+        this.appendSpace();
         switch (action) {
             case NO_ACTION:
                 this.append("NO ACTION");
