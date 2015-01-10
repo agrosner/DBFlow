@@ -30,21 +30,29 @@ for older changes, from other xx.xx versions, check it out [here](https://github
 
 ### Gradle
 
-Using the [apt plugin for gradle](https://bitbucket.org/hvisser/android-apt).
-
-For 1.1+ (recommended), add this repo to your build.gradle:
+Add the maven repo url to your build.gradle:
 
 ```groovy
 
-repositories {
-  maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
-}
+  repositories {
+        maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
+  }
 
-dependencies {
-  apt 'com.raizlabs.android:DBFlow-Compiler:1.1.5'
-  compile 'com.raizlabs.android:DBFlow-Core:1.1.5' 
-  compile 'com.raizlabs.android:DBFlow:1.1.5'
-}
+```
+
+Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) and the 
+[AARLinkSources](https://github.com/xujiaao/AARLinkSources) plugin::
+
+```groovy
+
+  dependencies {
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.2.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.2.0:sources@jar'
+    compile 'com.raizlabs.android:DBFlow-Core:1.2.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.2.0:sources@jar'
+    compile 'com.raizlabs.android:DBFlow:1.2.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow:1.2.0:sources@jar'
+  }
 
 ```
 
@@ -261,7 +269,7 @@ CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
                                     .begin(
                                         new Insert<FriendLog>(FriendLog.class)
                                           .columns(FriendLog$Table.OLDNAME, FriendLog$Table.NEWNAME, FriendLog$Table.DATE)
-                                          .values("old.Name", "new.Name", "dateTime('now')")
+                                          .values("old.Name", "new.Name", System.currentTimeMillis())
                                           };
 
 ```
