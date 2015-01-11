@@ -47,21 +47,12 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 ```groovy
 
   dependencies {
-<<<<<<< HEAD
     apt 'com.raizlabs.android:DBFlow-Compiler:1.2.0'
     aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.2.0:sources@jar'
     compile 'com.raizlabs.android:DBFlow-Core:1.2.0'
     aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.2.0:sources@jar'
     compile 'com.raizlabs.android:DBFlow:1.2.0'
     aarLinkSources 'com.raizlabs.android:DBFlow:1.2.0:sources@jar'
-=======
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.1.7'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.1.7:sources@jar'
-    compile 'com.raizlabs.android:DBFlow-Core:1.1.7'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.1.7:sources@jar'
-    compile 'com.raizlabs.android:DBFlow:1.1.7'
-    aarLinkSources 'com.raizlabs.android:DBFlow:1.1.7:sources@jar'
->>>>>>> master
   }
 
 ```
