@@ -100,4 +100,21 @@ public @interface Column {
      */
     ForeignKeyReference[] references() default {};
 
+    /**
+     * Defines {@link ForeignKeyAction} action to be performed
+     * on delete of referenced record. Defaults to {@link ForeignKeyAction#NO_ACTION}. Used only when
+     * columnType is {@link #FOREIGN_KEY}.
+     *
+     * @return {@link ForeignKeyAction}
+     */
+    ForeignKeyAction onDelete() default ForeignKeyAction.NO_ACTION;
+
+    /**
+     * Defines {@link ForeignKeyAction} action to be performed
+     * on update of referenced record. Defaults to {@link ForeignKeyAction#NO_ACTION}. Used only when
+     * columnType is {@link #FOREIGN_KEY}.
+     *
+     * @return {@link ForeignKeyAction}
+     */
+    ForeignKeyAction onUpdate() default ForeignKeyAction.NO_ACTION;
 }
