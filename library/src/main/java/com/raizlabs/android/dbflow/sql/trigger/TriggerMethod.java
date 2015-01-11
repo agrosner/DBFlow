@@ -23,6 +23,9 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
 
     private final String mMethodName;
 
+    /**
+     * The table we're operating on.
+     */
     Class<ModelClass> mOnTable;
 
     boolean forEachRow = false;

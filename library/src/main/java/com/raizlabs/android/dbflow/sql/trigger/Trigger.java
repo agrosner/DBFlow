@@ -9,24 +9,36 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class Trigger<ModelClass extends Model> implements Query {
 
+    /**
+     * Specifies that we should do this TRIGGER before some event
+     */
     public static final String BEFORE = "BEFORE";
 
+    /**
+     * Specifies that we should do this TRIGGER after some event
+     */
     public static final String AFTER = "AFTER";
 
+    /**
+     * Specifies that we should do this TRIGGER instead of the specified events
+     */
     public static final String INSTEAD_OF = "INSTEAD OF";
 
+    /**
+     * The name in the DB
+     */
     final String mTriggerName;
 
+    /**
+     * If it's {@link #BEFORE}, {@link #AFTER}, or {@link #INSTEAD_OF}
+     */
     String mBeforeOrAfter;
 
-
-    Class<ModelClass> mTable;
     /**
      * Creates a trigger with the specified trigger name. You need to complete
      * the trigger using
      *
-     * @param triggerName
-     * @return
+     * @param triggerName What we should call this trigger
      */
     public Trigger(String triggerName) {
         mTriggerName = triggerName;
@@ -92,6 +104,13 @@ public class Trigger<ModelClass extends Model> implements Query {
      */
     public TriggerMethod<ModelClass> update(Class<ModelClass> onTable, String... ofColumns) {
         return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, ofColumns);
+    }
+
+    /**
+     * @return The name of this TRIGGER
+     */
+    public String getName() {
+        return mTriggerName;
     }
 
     @Override

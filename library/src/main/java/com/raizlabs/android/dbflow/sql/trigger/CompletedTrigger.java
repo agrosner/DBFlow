@@ -11,8 +11,14 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class CompletedTrigger<ModelClass extends Model> implements Query {
 
+    /**
+     * The first pieces of this TRIGGER statement
+     */
     private TriggerMethod<ModelClass> mTriggerMethod;
 
+    /**
+     * The query to run between the BEGIN and END of this statement
+     */
     private Query mTriggerLogicQuery;
 
     CompletedTrigger(TriggerMethod<ModelClass> triggerMethod, Query triggerLogicQuery) {
