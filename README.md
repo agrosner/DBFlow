@@ -21,7 +21,8 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
   1. Added SQLite Triggers!
   2. Added the ```IN``` and ```NOT IN``` operators to ```Condition```
-  3. Fixes an issue where a ```FlowCursorList``` was A. not caching models and B. not handling ```ModelView``` properly.
+  3. Fixes an issue where a ```FlowCursorList``` was A. not caching models and B. not handling ```ModelView``` properly, thanks [Cain](https://github.com/wongcain).
+  4. Added ```ForeignKeyAction``` which specify the action to take when updates and deletes occur to the foreign key. Thanks [Michal](https://github.com/mozarcik)
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
