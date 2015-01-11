@@ -52,7 +52,6 @@ public enum ConflictAction {
      * delete triggers fire if and only if recursive triggers are enabled.
      * The update hook is not invoked for rows that are deleted by the REPLACE conflict resolution strategy.
      * Nor does REPLACE increment the change counter.
-     * @return
      */
     REPLACE
 }
