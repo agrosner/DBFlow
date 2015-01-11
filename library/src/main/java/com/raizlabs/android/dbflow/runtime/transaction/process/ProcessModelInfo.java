@@ -10,9 +10,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Holds information regarding how to handle a list of {@link com.raizlabs.android.dbflow.structure.Model}
+ * . Typically used in a {@link com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelTransaction}
  */
 public class ProcessModelInfo<ModelClass extends Model> {
 
@@ -30,6 +29,13 @@ public class ProcessModelInfo<ModelClass extends Model> {
     ProcessModelInfo() {
     }
 
+    /**
+     * Creates a new instance with the specified models
+     *
+     * @param models       The varg of models to use
+     * @param <ModelClass>
+     * @return New instance with the specified models.
+     */
     @SuppressWarnings("unchecked")
     @SafeVarargs
     public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(ModelClass... models) {
@@ -37,6 +43,24 @@ public class ProcessModelInfo<ModelClass extends Model> {
                 .models(models);
     }
 
+    /**
+     * Creates a new instance with the specified models
+     *
+     * @param models       The collection of models to use.
+     * @param <ModelClass>
+     * @return New instance with specified models
+     */
+    public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(Collection<ModelClass> models) {
+        return new ProcessModelInfo<ModelClass>()
+                .models(models);
+    }
+
+    /**
+     * Adds the specified {@link ModelClass} into the {@link java.util.List} of models in this class.
+     *
+     * @param models The list of models to add
+     * @return This instance
+     */
     @SuppressWarnings("unchecked")
     public ProcessModelInfo<ModelClass> models(ModelClass... models) {
         mModels.addAll(Arrays.asList(models));
@@ -46,11 +70,12 @@ public class ProcessModelInfo<ModelClass extends Model> {
         return this;
     }
 
-    public static <ModelClass extends Model> ProcessModelInfo<ModelClass> withModels(Collection<ModelClass> models) {
-        return new ProcessModelInfo<ModelClass>()
-                .models(models);
-    }
-
+    /**
+     * Adds a {@link java.util.Collection} of models to the {@link java.util.List} of models in this class.
+     *
+     * @param models The collection of models to append.
+     * @return This instance
+     */
     @SuppressWarnings("unchecked")
     public ProcessModelInfo<ModelClass> models(Collection<ModelClass> models) {
         mModels.addAll(models);
@@ -60,15 +85,34 @@ public class ProcessModelInfo<ModelClass extends Model> {
         return this;
     }
 
+    /**
+     * Sets the {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} to be called
+     * back when a result has been received and during the process of the data. Note: the result is not always called unless a transaction has
+     * {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction#hasResult(Object)}
+     *
+     * @param transactionListener The callback to listener
+     * @return This instance.
+     */
     public ProcessModelInfo<ModelClass> result(TransactionListener<List<ModelClass>> transactionListener) {
         mReceiver = transactionListener;
         return this;
     }
 
+    /**
+     * Sets a {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction#PRIORITY_UI} to this transaction.
+     *
+     * @return This instance.
+     */
     public ProcessModelInfo<ModelClass> fetch() {
-        return info(DBTransactionInfo.create());
+        return info(DBTransactionInfo.createFetch());
     }
 
+    /**
+     * Sets a specific {@link com.raizlabs.android.dbflow.runtime.DBTransactionInfo} to use for this instance.
+     *
+     * @param dbTransactionInfo Specifies information about this transaction
+     * @return This instance.
+     */
     public ProcessModelInfo<ModelClass> info(DBTransactionInfo dbTransactionInfo) {
         mInfo = dbTransactionInfo;
         return this;
@@ -81,6 +125,9 @@ public class ProcessModelInfo<ModelClass extends Model> {
         return mInfo;
     }
 
+    /**
+     * @return True if there are models in this class
+     */
     public boolean hasData() {
         return !mModels.isEmpty();
     }
@@ -91,10 +138,6 @@ public class ProcessModelInfo<ModelClass extends Model> {
      * @param processModel Process model
      */
     public void processModels(ProcessModel<ModelClass> processModel) {
-        if (processModel != null) {
-            for (ModelClass model : mModels) {
-                processModel.processModel(model);
-            }
-        }
+        ProcessModelHelper.process(mTable, mModels, processModel);
     }
 }

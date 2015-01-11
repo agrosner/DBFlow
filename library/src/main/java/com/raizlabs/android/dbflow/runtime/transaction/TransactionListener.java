@@ -1,8 +1,6 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Provides a callback interface to {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction}.
  * This result is on the main UI thread when completed.
  */

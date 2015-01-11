@@ -3,8 +3,6 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Provides a base implementation where the {@link TransactionListener}
  * is called, returning a {@link ResultClass}.
  */

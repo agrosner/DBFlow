@@ -7,8 +7,6 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Runs a delete command on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
  */
 public class DeleteTransaction<ModelClass extends Model> extends QueryTransaction<ModelClass> {

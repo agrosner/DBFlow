@@ -4,9 +4,7 @@ import android.os.Build;
 import android.util.Log;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description: Mirrors {@link android.util.Log} with its own "enabled" flag.
+ * Description: Mirrors {@link android.util.Log} with its own {@link com.raizlabs.android.dbflow.config.FlowLog.Level} flag.
  */
 public class FlowLog {
 

@@ -3,8 +3,6 @@ package com.raizlabs.android.dbflow;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Provides callbacks for {@link android.database.sqlite.SQLiteOpenHelper} methods
  */
 public interface DatabaseHelperListener {

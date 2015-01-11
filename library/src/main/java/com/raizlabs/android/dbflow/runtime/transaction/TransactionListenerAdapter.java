@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 /**
- * Author: andrewgrosner
  * Description: The new interface for callbacks to use. Only requires you to implement {@link #onResultReceived(Object)}.
  * It provides a unified listener for transactions and enables more-powerful callbacks.
  * Replaces the deprecated {@link com.raizlabs.android.dbflow.runtime.transaction.ResultReceiver}

@@ -1,8 +1,6 @@
 package com.raizlabs.android.dbflow;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Provides handy method for strings
  */
 public class StringUtils {

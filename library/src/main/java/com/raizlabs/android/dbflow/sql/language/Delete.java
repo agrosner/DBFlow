@@ -6,8 +6,6 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Constructs the beginning of a SQL DELETE query
  */
 public class Delete implements Query {
