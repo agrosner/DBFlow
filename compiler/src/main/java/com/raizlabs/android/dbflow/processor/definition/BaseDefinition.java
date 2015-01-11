@@ -10,9 +10,7 @@ import javax.lang.model.element.Modifier;
 import java.io.IOException;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: The base source file definition
  */
 public abstract class BaseDefinition implements Definition, FlowWriter {
 

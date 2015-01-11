@@ -30,9 +30,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Used in writing ModelAdapters
  */
 public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 

@@ -11,9 +11,7 @@ import javax.lang.model.element.Modifier;
 import java.io.IOException;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Writes how to convert a ModelContainer into a Model.
  */
 public class ToModelWriter implements FlowWriter {
 

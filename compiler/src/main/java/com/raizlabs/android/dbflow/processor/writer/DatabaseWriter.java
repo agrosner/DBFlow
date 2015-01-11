@@ -3,22 +3,30 @@ package com.raizlabs.android.dbflow.processor.writer;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.Classes;
-import com.raizlabs.android.dbflow.processor.definition.*;
+import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
+import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
+import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
+import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.handler.FlowManagerHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import java.io.IOException;
-import java.util.*;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Writes {@link com.raizlabs.android.dbflow.annotation.Database} definitions,
+ * which contain {@link com.raizlabs.android.dbflow.annotation.Table},
+ * {@link com.raizlabs.android.dbflow.annotation.ModelView}, and {@link com.raizlabs.android.dbflow.annotation.Migration}
  */
 public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
@@ -38,7 +46,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         Database database = element.getAnnotation(Database.class);
         databaseName = database.name();
-        if(databaseName == null || databaseName.isEmpty()) {
+        if (databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
         }
 
@@ -69,7 +77,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     @Override
     protected String[] getImports() {
-        return new String[] {
+        return new String[]{
                 Classes.MODEL_ADAPTER,
                 Classes.MODEL_VIEW,
                 Classes.MODEL_VIEW_ADAPTER,
@@ -89,18 +97,18 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         javaWriter.emitSingleLineComment("Writing for: " + databaseName);
 
-        for (TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {
+        for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
         }
 
-        for(ModelViewDefinition modelViewDefinition: manager.getModelViewDefinitions(databaseName)) {
+        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
         }
 
         javaWriter.emitEmptyLine();
         javaWriter.emitSingleLineComment("Begin Migrations");
         Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = manager.getMigrationsForDatabase(databaseName);
-        if(migrationDefinitionMap != null && !migrationDefinitionMap.isEmpty()) {
+        if (migrationDefinitionMap != null && !migrationDefinitionMap.isEmpty()) {
             List<Integer> versionSet = new ArrayList<>(migrationDefinitionMap.keySet());
             Collections.sort(versionSet);
             for (Integer version : versionSet) {
@@ -115,19 +123,19 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         javaWriter.emitSingleLineComment("End Migrations");
         javaWriter.emitEmptyLine();
 
-        for(TableDefinition tableDefinition: manager.getTableDefinitions(databaseName)) {
-            javaWriter.emitStatement(FlowManagerHandler.MODEL_FIELD_NAME +".add(%1s)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
-            javaWriter.emitStatement(FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME +".put(%1s, new %1s())", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
+        for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
+            javaWriter.emitStatement(FlowManagerHandler.MODEL_FIELD_NAME + ".add(%1s)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+            javaWriter.emitStatement(FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
                     tableDefinition.getQualifiedAdapterClassName());
         }
 
-        for(ModelContainerDefinition modelContainerDefinition: manager.getModelContainers(databaseName)) {
+        for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(databaseName)) {
             javaWriter.emitStatement(FlowManagerHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
                     modelContainerDefinition.getSourceFileName());
         }
 
-        for (ModelViewDefinition modelViewDefinition: manager.getModelViewDefinitions(databaseName)) {
-            javaWriter.emitStatement(FlowManagerHandler.MODEL_VIEW_FIELD_NAME +".add(%1s)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
+            javaWriter.emitStatement(FlowManagerHandler.MODEL_VIEW_FIELD_NAME + ".add(%1s)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
             javaWriter.emitStatement(FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()), modelViewDefinition.getSourceFileName());
         }
@@ -282,7 +290,6 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
 
     }
-
 
 
 }

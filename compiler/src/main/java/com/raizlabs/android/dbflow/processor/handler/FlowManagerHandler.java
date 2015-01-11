@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Deals with writing database definitions
  */
 public class FlowManagerHandler extends BaseContainerHandler<Database> {
 

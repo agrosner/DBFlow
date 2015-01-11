@@ -10,9 +10,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: The base handler than provides common callbacks into processing annotated top-level elements
  */
 public abstract class BaseContainerHandler<AnnotationClass extends Annotation> implements Handler {
 

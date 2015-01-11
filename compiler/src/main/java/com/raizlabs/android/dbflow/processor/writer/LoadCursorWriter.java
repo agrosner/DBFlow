@@ -15,9 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Writes the load from cursor statement.
  */
 public class LoadCursorWriter implements FlowWriter {
 

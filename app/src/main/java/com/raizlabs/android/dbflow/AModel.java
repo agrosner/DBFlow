@@ -9,13 +9,11 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import java.util.Date;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 @Table
 @ContainerAdapter
-public class    AModel extends BaseModel {
+public class AModel extends BaseModel {
 
     @Column(columnType = Column.PRIMARY_KEY)
     String name;

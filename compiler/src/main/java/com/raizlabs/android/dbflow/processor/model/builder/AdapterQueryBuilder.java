@@ -1,14 +1,12 @@
 package com.raizlabs.android.dbflow.processor.model.builder;
 
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.sql.StatementMap;
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Used for writing our adapter classes by providing some reuse and helper methods.
  */
 public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
 
@@ -23,6 +21,11 @@ public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
         return append("\"").append(string).append("\"");
     }
 
+    /**
+     * Appends our variable name for containers or models
+     * @param isMCDefinition If true, append modelContainer, otherwise append model
+     * @return This instance
+     */
     public AdapterQueryBuilder appendVariable(boolean isMCDefinition) {
         return append(isMCDefinition ? "modelContainer" : "model");
     }
@@ -55,6 +58,6 @@ public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
     public AdapterQueryBuilder appendTypeConverter(String fieldReturnType, String modelClassName, boolean isLoading) {
         return appendCast(fieldReturnType).append("FlowManager.getTypeConverterForClass(")
                 .append(ModelUtils.getFieldClass(modelClassName)).append(")")
-                .append(isLoading ?  ".getModelValue(": ".getDBValue(");
+                .append(isLoading ? ".getModelValue(" : ".getDBValue(");
     }
 }

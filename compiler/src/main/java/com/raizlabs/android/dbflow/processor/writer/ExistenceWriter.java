@@ -10,9 +10,7 @@ import javax.lang.model.element.Modifier;
 import java.io.IOException;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Writes the statement if Model or ModelContainer exists.
  */
 public class ExistenceWriter implements FlowWriter {
 

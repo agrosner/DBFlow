@@ -7,9 +7,7 @@ import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Assists in writing ConditionQueryBuilder statements.
  */
 public class MockConditionQueryBuilder extends QueryBuilder<MockConditionQueryBuilder> {
 

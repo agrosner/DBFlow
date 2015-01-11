@@ -3,9 +3,8 @@ package com.raizlabs.android.dbflow.sql;
 import java.util.HashMap;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Holds the methods to write for a specific {@link com.raizlabs.android.dbflow.sql.SQLiteType}
+ * by appending bindTo[method].
  */
 public class StatementMap {
 

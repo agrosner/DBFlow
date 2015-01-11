@@ -13,9 +13,8 @@ import javax.lang.model.element.Modifier;
 import java.io.IOException;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Top-level writer that handles writing all {@link com.raizlabs.android.dbflow.processor.writer.DatabaseWriter}
+ * and {@link com.raizlabs.android.dbflow.annotation.TypeConverter}
  */
 public class FlowManagerHolderWriter implements FlowWriter {
 

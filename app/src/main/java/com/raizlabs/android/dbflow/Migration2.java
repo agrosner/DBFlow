@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.sql.migration.BaseMigration;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 @Migration(version = 3, databaseName = "App")

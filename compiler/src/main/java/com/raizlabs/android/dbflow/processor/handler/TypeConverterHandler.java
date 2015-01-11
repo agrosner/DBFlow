@@ -8,14 +8,14 @@ import com.raizlabs.android.dbflow.converter.SqlDateConverter;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 import java.util.Set;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Handles {@link com.raizlabs.android.dbflow.annotation.TypeConverter} annotations,
+ * adding default methods and adding them to the {@link com.raizlabs.android.dbflow.processor.model.ProcessorManager}
  */
 public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
 

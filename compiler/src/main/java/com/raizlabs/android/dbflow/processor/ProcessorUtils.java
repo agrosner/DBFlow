@@ -1,18 +1,23 @@
 package com.raizlabs.android.dbflow.processor;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Provides handy methods for processing
  */
 public class ProcessorUtils {
 
+    /**
+     * Whether the specified element is assignable to the fqTn parameter
+     *
+     * @param processingEnvironment The environment this runs in
+     * @param fqTn                  THe fully qualified type name of the element we want to check
+     * @param element               The element to check that implements
+     * @return true if element implements the fqTn
+     */
     public static boolean implementsClass(ProcessingEnvironment processingEnvironment, String fqTn, TypeElement element) {
         TypeElement typeElement = processingEnvironment.getElementUtils().getTypeElement(fqTn);
         if (typeElement == null) {
@@ -23,5 +28,16 @@ public class ProcessorUtils {
             TypeMirror classMirror = typeElement.asType();
             return processingEnvironment.getTypeUtils().isAssignable(element.asType(), classMirror);
         }
+    }
+
+    public static boolean isSubclassOf(String columnFieldType, Class<?> enumClass) {
+        boolean isSubClass = false;
+        try {
+            Class type = Class.forName(columnFieldType);
+            isSubClass = type.getSuperclass() != null && (type.getSuperclass().equals(enumClass) ||
+                    isSubclassOf(type.getSuperclass().getName(), enumClass));
+        } catch (ClassNotFoundException e) {
+        }
+        return isSubClass;
     }
 }
