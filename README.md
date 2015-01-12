@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.7-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.2.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -17,56 +17,12 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
-#### 1.1.7
-  1. ```ConditionQueryBuilder``` no longer maps ```columnName``` to a ```Condition``` since if we wanted to do ```OR``` operation on the same column multiple times, it would only take the last condition since it was a ```Map``` of columnNames.
-  2. Added ```Condition.Operation``` constant class for operation and SQL method constants
-  3. Fixed the ```IS NULL``` and ```IS NOT NULL``` conditions and wrote test to ensure working
-
-#### 1.1.6
-  1. Fixes issue where boxed primitive values such as Long, when null, were throwing ```NullPointerException``` in ```bindToStatement()```. Added a test to prevent any future issues.
-  2. ```From.as()``` wasn't using type parameters in return, thus a warning would be thrown.
-  3. Added two new methods to ```Queriable```: ```queryCursorList()``` and ```queryTableList()```. These corresponding methods will make constructing a ```FlowCursorList``` or ```FlowTableList``` from a completed query much simpler.
-
-#### 1.1.5
-  1. Fixed issue where using non-string foreign keys caused a build error.
-  2. Optimized loading foreign key objects from the DB by checking using the ```Cursor.isNull()``` method before calling a SELECT query (thanks [Michal](https://github.com/mozarcik))
-  3. Made ```FlowCursorList``` and ```FlowTableList``` more robust and flexible by enabling ```Queriable``` objects to be used to generate it's internal cursor. Added ```Condition...``` parameter to ```FlowTableList``` as well.
-  4. Added two new methods to ```Queriable```: ```queryClose()``` will execute a query on the DB and close the ```Cursor``` if needed. ```getTable()``` simply returns the table that the query comes from.
-  5. Made ```TransactionListenerAdapter``` both the class and the ```onResultReceived()``` method no longer abstract to make it useful in situations other than results.
-
-#### 1.1.4
-  1. Fixed issue where ```Collate``` enum was not appending ```COLLATE``` to the SQL query
-  2. Added the ability to chain ```Condition``` together using different separators. Just call ```separator()``` on a ```Condition``` used in a ```ConditionQueryBuilder```. 
-  3. Added tests for ```Between``` and these fixes.
-
-#### 1.1.3
-  1. Fixes an issue with Boolean converter throwing a ```NullPointerException``` when a ```ModelContainer``` does not contain the field.
-  2. Added null checks in the ```toModel()``` method of a ```ContainerAdapter``` definition class.
-  3. We ```bindNull()``` and ```putNull()``` for missing foreign key fields in the ````$Adapter``` definition, previously this bug did not allow the removal of foreign key object fields.
-  4. Added a  ```purgeQueue()``` and the ability to set the priority of the batches in the ```DBBatchSaveQueue```
-  5. Added the ```Between``` method for SQLite statements
-  6. Added  a method in ```Delete``` for clearing multiple tables
-
-#### 1.1.2
-  1. Added support for SQLite ```COLLATE``` in ```@Column``` and ```Condition``` classes
-  2. Added support for ```DEFAULT``` values in column creation.
-  3. Deprecated ```ResultReceiver``` to replace it with ```TransactionListenerAdapter``` which provides a base implementation of ```TransactionListener```. ```TransactionListener``` provides more callback methods to the state of a DB transaction. As a result ```ResultReceiver``` is no longer an interface, rather an abstract class. ***NOTE:*** ```BaseResultTransaction```'s ```TransactionListener``` must return true from ```hasResult(BaseResultTransaction, ResultClass)``` to have ```onResultReceived()``` called.
-  4. ```FlowCursorList``` is more flexible by adding methods to clear the cache, dynamically enable/disable the cache, and set a custom ```Where``` for the cursor to use.
-
-#### 1.1.1
-
-Fixed an issue where ```TypeConverter``` for boolean values would incorrectly try to cast in ```bindLong``` to ```Boolean```
-
 #### 1.1.0
 
-Marks a large change in the library:
-  1. All base package names "com.grosner.dbflow" are now "com.raizlabs.android.dbflow"
-  2. The library will no longer be updated on Maven Central. For versions < 1.1, you can find it there, otherwise you will need to use the new "https://github.com/Raizlabs/maven-releases" repository. Also the group artifact has changed from ```com.github.agrosner``` to ```com.raizlabs.android```
-  3. Significant changes to ```ModelAdapter```, inserts now reuse ```SQLiteStatement```for each table. ```save(ContentValues)``` has changed to ```bindToContentValues(ContentValues, ModelClass)``` 
-  4. Support for backing up databases and ```pragma quick_check``` for maintaining DB integrity
-  5. Multiline migration file query support. commands must be separated by ";"
-  6. Bug fixes
-  7. Added a postfix operator to ```Condition``` as ```postfix()```
+  1. Added SQLite Triggers!
+  2. Added the ```IN``` and ```NOT IN``` operators to ```Condition```
+  3. Fixes an issue where a ```FlowCursorList``` was A. not caching models and B. not handling ```ModelView``` properly, thanks [Cain](https://github.com/wongcain).
+  4. Added ```ForeignKeyAction``` which specify the action to take when updates and deletes occur to the foreign key. Thanks [Michal](https://github.com/mozarcik)
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
@@ -91,12 +47,12 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 ```groovy
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.1.7'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.1.7:sources@jar'
-    compile 'com.raizlabs.android:DBFlow-Core:1.1.7'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.1.7:sources@jar'
-    compile 'com.raizlabs.android:DBFlow:1.1.7'
-    aarLinkSources 'com.raizlabs.android:DBFlow:1.1.7:sources@jar'
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.2.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.2.0:sources@jar'
+    compile 'com.raizlabs.android:DBFlow-Core:1.2.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.2.0:sources@jar'
+    compile 'com.raizlabs.android:DBFlow:1.2.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow:1.2.0:sources@jar'
   }
 
 ```
@@ -300,6 +256,22 @@ public class TestModelView extends BaseModelView<TestModel2> {
     @Column
     long model_order;
 }
+
+```
+
+## Triggers
+
+```Trigger``` are actions that are automatically performed before or after some action on the database. For example, we want to log changes for all updates to the name on the ```Friend``` table. 
+
+```java
+
+CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
+                                    .after().update(Friend.class, Friend$Table.NAME)
+                                    .begin(
+                                        new Insert<FriendLog>(FriendLog.class)
+                                          .columns(FriendLog$Table.OLDNAME, FriendLog$Table.NEWNAME, FriendLog$Table.DATE)
+                                          .values("old.Name", "new.Name", System.currentTimeMillis())
+                                          };
 
 ```
 

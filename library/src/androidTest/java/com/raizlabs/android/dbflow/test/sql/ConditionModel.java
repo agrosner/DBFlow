@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
 /**
 * Author: andrewgrosner
-* Contributors: { }
 * Description:
 */
 @Table(databaseName = TestDatabase.NAME)

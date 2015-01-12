@@ -6,8 +6,6 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 @Table(databaseName = TestDatabase.NAME)

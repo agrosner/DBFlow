@@ -17,9 +17,7 @@ import java.util.List;
 import javax.lang.model.element.Modifier;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Writes the completed SQL statement that contains its primary key values checking for existence.
  */
 public class WhereQueryWriter implements FlowWriter {
 

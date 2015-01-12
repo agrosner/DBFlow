@@ -1,9 +1,7 @@
 package com.raizlabs.android.dbflow.processor;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: The static FQCN string file to assist in providing class names for imports and more in the Compiler
  */
 public class Classes {
 

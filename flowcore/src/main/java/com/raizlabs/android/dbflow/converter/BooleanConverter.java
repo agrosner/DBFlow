@@ -1,14 +1,12 @@
 package com.raizlabs.android.dbflow.converter;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Converts a boolean object into an Integer for database storage.
  */
-public class BooleanConverter extends TypeConverter<Integer,Boolean> {
+public class BooleanConverter extends TypeConverter<Integer, Boolean> {
     @Override
     public Integer getDBValue(Boolean model) {
-        return model == null ? 0 : model? 1 : 0;
+        return model == null ? 0 : model ? 1 : 0;
     }
 
     @Override

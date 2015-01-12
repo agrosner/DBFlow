@@ -44,6 +44,7 @@ public class FlowCursorList<ModelClass extends Model> {
         mWhere = queriable;
         mCursor = mWhere.query();
         mTable = queriable.getTable();
+        this.cacheModels = cacheModels;
 
         if (cacheModels) {
             mModelCache = new SparseArray<>(mCursor.getCount());

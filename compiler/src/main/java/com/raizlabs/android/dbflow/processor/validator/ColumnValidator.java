@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Ensures the integrity of the annotation processor for columns.
  */
 public class ColumnValidator implements Validator<ColumnDefinition> {
@@ -22,11 +20,6 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
             success = false;
             processorManager.logError("Field %1s cannot have a null column name", columnDefinition.columnFieldName);
         }
-
-        /*if(columnDefinition.isModelContainer) {
-            success = false;
-            processorManager.logError("Fields that are model containers are not currently supported");
-        }*/
 
         int columnType = columnDefinition.columnType;
         if(columnType == Column.FOREIGN_KEY) {

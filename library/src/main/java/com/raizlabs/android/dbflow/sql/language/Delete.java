@@ -6,8 +6,6 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Constructs the beginning of a SQL DELETE query
  */
 public class Delete implements Query {
@@ -29,6 +27,7 @@ public class Delete implements Query {
      *
      * @param tables The list of tables to wipe.
      */
+    @SafeVarargs
     public static void tables(Class<? extends Model>... tables) {
         for (Class modelClass : tables) {
             table(modelClass);

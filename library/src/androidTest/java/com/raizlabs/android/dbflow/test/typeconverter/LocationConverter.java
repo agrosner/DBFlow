@@ -4,8 +4,6 @@ import android.location.Location;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 @com.raizlabs.android.dbflow.annotation.TypeConverter

@@ -27,10 +27,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: This class manages batch database interactions. It is useful for retrieving, updating, saving,
- * and deleting lists of items. For the bulk of DB operations should exist in this class.
+ * and deleting lists of items. The bulk of DB operations should exist in this class.
  */
 public class TransactionManager {
 

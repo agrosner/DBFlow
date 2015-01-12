@@ -6,13 +6,12 @@ import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
-import javax.lang.model.element.Modifier;
 import java.io.IOException;
 
+import javax.lang.model.element.Modifier;
+
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Handles writing the delete statement for a ModelAdapter
  */
 public class DeleteWriter implements FlowWriter {
 
@@ -24,19 +23,18 @@ public class DeleteWriter implements FlowWriter {
         this.tableDefinition = tableDefinition;
     }
 
-
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("%1s.delete(%1s, this, %1s)",
-                        ModelUtils.getUtils(isModelContainer),
-                        ModelUtils.getVariable(isModelContainer), "async");
-            }
-        }, "void", "delete", Sets.newHashSet(Modifier.PUBLIC),
+                    @Override
+                    public void write(JavaWriter javaWriter) throws IOException {
+                        javaWriter.emitStatement("%1s.delete(%1s, this, %1s)",
+                                ModelUtils.getUtils(isModelContainer),
+                                ModelUtils.getVariable(isModelContainer), "async");
+                    }
+                }, "void", "delete", Sets.newHashSet(Modifier.PUBLIC),
                 "boolean", "async",
                 ModelUtils.getParameter(isModelContainer, tableDefinition.getModelClassName()),
                 ModelUtils.getVariable(isModelContainer));

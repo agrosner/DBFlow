@@ -10,8 +10,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Runs a fetch on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
  */
 public class SelectListTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> {

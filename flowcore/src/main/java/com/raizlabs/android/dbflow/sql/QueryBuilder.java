@@ -3,9 +3,8 @@ package com.raizlabs.android.dbflow.sql;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description: This will hold the SQLiteQuery for anything. It will be generated on the fly.
+ * Description: This is used as a wrapper around {@link java.lang.StringBuilder} in order to provide more
+ * database focused methods and to assist in generating queries to the DB using our SQL wrappers.
  */
 public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
@@ -24,10 +23,10 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Constructs this class with the specified String
      *
-     * @param string The string to append
+     * @param object The string to append
      */
-    public QueryBuilder(String string) {
-        mQuery.append(string);
+    public QueryBuilder(Object object) {
+        append(object);
     }
 
     /**
@@ -74,13 +73,14 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * Appends the object only if its not null
+     *
      * @param object
      * @return This instance
      */
     public QueryClass appendOptional(Object object) {
-       if(object != null) {
-           append(object);
-       }
+        if (object != null) {
+            append(object);
+        }
         return castThis();
     }
 
@@ -145,7 +145,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     public QueryClass appendQualifier(String name, String value) {
-        if (value != null && !value.isEmpty()) {
+        if (value != null && value.length() > 0) {
             append(name).appendSpaceSeparated(value);
         }
         return castThis();

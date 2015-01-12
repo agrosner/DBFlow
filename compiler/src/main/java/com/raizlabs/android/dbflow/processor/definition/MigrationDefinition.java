@@ -10,9 +10,7 @@ import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Used in holding data about migration files.
  */
 public class MigrationDefinition extends BaseDefinition implements FlowWriter {
 

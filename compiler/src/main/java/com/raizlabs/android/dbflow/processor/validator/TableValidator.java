@@ -8,9 +8,7 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Validates proper usage of the {@link com.raizlabs.android.dbflow.annotation.Table}
  */
 public class TableValidator implements Validator<TableDefinition> {
     @Override

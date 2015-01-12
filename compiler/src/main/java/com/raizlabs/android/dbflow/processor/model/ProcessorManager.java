@@ -21,9 +21,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Holds onto {@link com.raizlabs.android.dbflow.processor.definition.Definition}, Writers,
+ * and provides some handy methods for interacting with the {@link javax.annotation.processing.Processor}
  */
 public class ProcessorManager implements Handler{
 

@@ -23,9 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Used in writing ModelViewAdapters
  */
 public class ModelViewDefinition extends BaseTableDefinition implements FlowWriter {
 

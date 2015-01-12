@@ -9,8 +9,6 @@ import com.raizlabs.android.dbflow.structure.container.MapModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 @Table(databaseName = TestDatabase.NAME)

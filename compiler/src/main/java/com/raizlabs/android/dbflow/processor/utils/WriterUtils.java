@@ -3,18 +3,27 @@ package com.raizlabs.android.dbflow.processor.utils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
-import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.lang.model.element.Modifier;
+
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Provides some handy writing methods.
  */
 public class WriterUtils {
 
-    public static void emitMethod(JavaWriter javaWriter, FlowWriter flowWriter, String returnType, String name, Set<Modifier> modifiers, String...params) {
+    /**
+     * Emits a mehod with the proper begin and end of method.
+     *
+     * @param javaWriter The file to write to
+     * @param flowWriter The writer to write on the javawriter
+     * @param returnType The return type FQCN
+     * @param name       The name of the method
+     * @param modifiers  The modifiers to use {@link javax.lang.model.element.Modifier}
+     * @param params     The params to write
+     */
+    public static void emitMethod(JavaWriter javaWriter, FlowWriter flowWriter, String returnType, String name, Set<Modifier> modifiers, String... params) {
         try {
             javaWriter.beginMethod(returnType, name, modifiers, params);
             flowWriter.write(javaWriter);
@@ -24,7 +33,18 @@ public class WriterUtils {
         }
     }
 
-    public static void emitOverriddenMethod(JavaWriter javaWriter, FlowWriter flowWriter, String returnType, String name, Set<Modifier> modifiers, String...params) {
+    /**
+     * Same as {@link #emitMethod(com.squareup.javawriter.JavaWriter, com.raizlabs.android.dbflow.processor.writer.FlowWriter, String, String, java.util.Set, String...)}
+     * except it also emits an {@link java.lang.Override} annotation.
+     *
+     * @param javaWriter The file to write to
+     * @param flowWriter The writer to write on the javawriter
+     * @param returnType The return type FQCN
+     * @param name       The name of the method
+     * @param modifiers  The modifiers to use {@link javax.lang.model.element.Modifier}
+     * @param params     The params to write
+     */
+    public static void emitOverriddenMethod(JavaWriter javaWriter, FlowWriter flowWriter, String returnType, String name, Set<Modifier> modifiers, String... params) {
         try {
             javaWriter.emitEmptyLine().emitAnnotation(Override.class);
             emitMethod(javaWriter, flowWriter, returnType, name, modifiers, params);
@@ -33,8 +53,4 @@ public class WriterUtils {
         }
     }
 
-    public static void emitTransactionManagerCall(JavaWriter javaWriter, String method, String variable) throws IOException {
-        javaWriter.emitStatement("TransactionManager.getInstance().%1s(ProcessModelInfo.withModels(%1s).info(DBTransactionInfo.create()));",
-                method, variable);
-    }
 }

@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Provides some handy methods for dealing with SQL statements. It's purpose is to move the
  * methods away from the {@link com.raizlabs.android.dbflow.structure.Model} class and let any class use these.
  */
@@ -117,8 +115,7 @@ public class SqlUtils {
             if (dontMoveToFirst || cursor.moveToFirst()) {
                 ModelAdapter<ModelClass> modelAdapter = FlowManager.getModelAdapter(table);
                 if (modelAdapter == null) {
-                    Class persistentClass = (Class) ((ParameterizedType) table.getGenericSuperclass()).getActualTypeArguments()[0];
-                    if (persistentClass.isAssignableFrom(BaseModelView.class)) {
+                    if (BaseModelView.class.isAssignableFrom(table)) {
                         model = (ModelClass) FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table).loadFromCursor(cursor);
                     }
                 } else {

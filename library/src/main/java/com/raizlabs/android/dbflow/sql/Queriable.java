@@ -9,8 +9,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: An interface for query objects to enable you to query from the database in a structured way.
  */
 public interface Queriable<ModelClass extends Model> {

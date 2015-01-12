@@ -3,8 +3,6 @@ package com.raizlabs.android.dbflow.runtime.transaction.process;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Deletes a list of models passed into this class from the DB.
  */
 public class DeleteModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {

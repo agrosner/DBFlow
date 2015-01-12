@@ -8,9 +8,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Handles {@link com.raizlabs.android.dbflow.annotation.Migration} by creating {@link com.raizlabs.android.dbflow.processor.definition.MigrationDefinition}
+ * and adds them to the {@link com.raizlabs.android.dbflow.processor.model.ProcessorManager}
  */
 public class MigrationHandler extends BaseContainerHandler<Migration> {
 

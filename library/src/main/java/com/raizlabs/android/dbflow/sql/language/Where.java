@@ -21,7 +21,6 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Author: andrewgrosner
@@ -149,6 +148,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
 
     /**
      * Appends an OR with a Condition to the WHERE clause with the specified {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     *
      * @param condition
      * @return
      */
@@ -160,11 +160,11 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     /**
      * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to this builder.
      *
-     * @param conditionMap The map of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @param conditions The list of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
      * @return
      */
-    public Where<ModelClass> andThese(List<Condition> conditionMap) {
-        mConditionQueryBuilder.putConditions(conditionMap);
+    public Where<ModelClass> andThese(List<Condition> conditions) {
+        mConditionQueryBuilder.putConditions(conditions);
         return this;
     }
 
@@ -193,7 +193,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     /**
      * Defines a SQL HAVING statement without the HAVING.
      *
-     * @param having
+     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
      * @return
      */
     public Where<ModelClass> having(Condition... conditions) {
@@ -215,7 +215,7 @@ public class Where<ModelClass extends Model> implements Query, Queriable<ModelCl
     /**
      * Defines a SQL ORDER BY statement without the ORDER BY.
      *
-     * @param ascending If we should be in ascending order
+     * @param orderby The orderBy command
      * @return
      */
     public Where<ModelClass> orderBy(String orderby) {

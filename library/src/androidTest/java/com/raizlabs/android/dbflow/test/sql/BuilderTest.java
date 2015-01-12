@@ -7,8 +7,8 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Test our {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} and
+ * {@link com.raizlabs.android.dbflow.sql.builder.Condition} classes to ensure they generate what they're supposed to.
  */
 public class BuilderTest extends FlowTestCase {
 
@@ -53,6 +53,16 @@ public class BuilderTest extends FlowTestCase {
         conditionQueryBuilder.putCondition(Condition.column(ConditionModel$Table.NAME).is("James"))
                 .or(Condition.column(ConditionModel$Table.FRACTION).isNotNull());
         assertEquals("name='James' OR fraction IS NOT NULL", conditionQueryBuilder.getQuery().trim());
+    }
+
+    public void testInOperators() {
+        Condition.In in = Condition.column(ConditionModel$Table.NAME).in("Jason").and("Ryan").and("Michael");
+        ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, in);
+        assertEquals(conditionQueryBuilder.getQuery().trim(), "name IN ('Jason','Ryan','Michael')");
+
+        Condition.In notIn = Condition.column(ConditionModel$Table.NAME).notIn("Jason").and("Ryan").and("Michael");
+        conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
+        assertEquals(conditionQueryBuilder.getQuery().trim(), "name NOT IN ('Jason','Ryan','Michael')");
     }
 
 }

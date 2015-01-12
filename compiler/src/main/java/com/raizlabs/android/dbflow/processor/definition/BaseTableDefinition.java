@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Used to write Models and ModelViews
  */
 public abstract class BaseTableDefinition extends BaseDefinition {
 

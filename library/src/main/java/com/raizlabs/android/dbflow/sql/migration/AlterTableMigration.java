@@ -10,16 +10,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
 public class AlterTableMigration<ModelClass extends Model> extends BaseMigration {
 
+    /**
+     * The table to ALTER
+     */
     private final Class<ModelClass> mTable;
+
+    /**
+     * The query we use
+     */
     private QueryBuilder mQuery;
+
+    /**
+     * The query to rename the table with
+     */
     private QueryBuilder mRenameQuery;
+
+    /**
+     * The columns to ALTER within a table
+     */
     private ArrayList<QueryBuilder> mColumnDefinitions;
+
+    /**
+     * The old name of the table before renaming it
+     */
     private String mOldTableName;
 
     public AlterTableMigration(Class<ModelClass> table) {

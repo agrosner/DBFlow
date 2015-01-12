@@ -3,8 +3,6 @@ package com.raizlabs.android.dbflow;
 import com.raizlabs.android.dbflow.annotation.Database;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 @Database(name = AppDatabase.NAME, version = AppDatabase.VERSION, foreignKeysSupported = true)

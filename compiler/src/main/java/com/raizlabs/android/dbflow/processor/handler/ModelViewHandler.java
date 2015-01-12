@@ -9,9 +9,8 @@ import javax.lang.model.element.Element;
 import java.io.IOException;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Handles {@link com.raizlabs.android.dbflow.annotation.ModelView} annotations, writing
+ * ModelViewAdapters, and adding them to the {@link com.raizlabs.android.dbflow.processor.model.ProcessorManager}
  */
 public class ModelViewHandler extends BaseContainerHandler<ModelView> {
 

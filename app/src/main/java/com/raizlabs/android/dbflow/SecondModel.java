@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 @Table(databaseName = "SecondApp")

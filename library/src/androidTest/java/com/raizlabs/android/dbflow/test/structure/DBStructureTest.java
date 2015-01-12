@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class DBStructureTest extends FlowTestCase {

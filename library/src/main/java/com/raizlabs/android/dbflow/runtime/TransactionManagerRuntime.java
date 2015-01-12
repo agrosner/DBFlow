@@ -3,12 +3,10 @@ package com.raizlabs.android.dbflow.runtime;
 import java.util.ArrayList;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Holds onto {@link com.raizlabs.android.dbflow.runtime.TransactionManager} when they are created.
+ * Use this class to stop any running {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
  */
 public class TransactionManagerRuntime {
-
 
     private static ArrayList<TransactionManager> managers;
 
@@ -33,9 +31,15 @@ public class TransactionManagerRuntime {
         return managers;
     }
 
+    /**
+     * Will restart the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} of every manager that
+     * has its own queue.
+     */
     public static void restartManagers() {
         for (TransactionManager manager : getManagers()) {
-            manager.checkQueue();
+            if(manager.hasOwnQueue()) {
+                manager.checkQueue();
+            }
         }
     }
 }

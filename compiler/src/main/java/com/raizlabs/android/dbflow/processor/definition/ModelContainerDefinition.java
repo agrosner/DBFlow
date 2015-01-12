@@ -12,9 +12,7 @@ import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Used in writing model container adapters
  */
 public class ModelContainerDefinition extends BaseDefinition {
 

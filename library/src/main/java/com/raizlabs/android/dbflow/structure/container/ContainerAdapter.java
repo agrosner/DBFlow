@@ -9,9 +9,8 @@ import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: The base class that generated {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter} implement
+ * to provide the necessary interactions.
  */
 public abstract class ContainerAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass> {
 

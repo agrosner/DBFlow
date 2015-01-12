@@ -2,6 +2,10 @@ package com.raizlabs.android.dbflow.sql.builder;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.structure.Model;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The class that contains a column name, operator, and value. The operator can be any Sqlite conditional
@@ -83,6 +87,18 @@ public class Condition {
          * an operator will ignore the value of the {@link com.raizlabs.android.dbflow.sql.builder.Condition} for it.
          */
         public static final String IS_NULL = "IS NULL";
+
+        /**
+         * The SQLite IN command that will select rows that are contained in a list of values.
+         * EX: SELECT * from Table where column IN ('first', 'second', etc)
+         */
+        public static final String IN = "IN";
+
+        /**
+         * The reverse of the {@link #IN} command that selects rows that are not contained
+         * in a list of values specified.
+         */
+        public static final String NOT_IN = "NOT IN";
     }
 
     /**
@@ -115,7 +131,7 @@ public class Condition {
         }
 
         @Override
-        public void appendConditionToQuery(ConditionQueryBuilder conditionQueryBuilder) {
+        public <ModelClass extends Model> void appendConditionToQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
             conditionQueryBuilder.append(columnName()).append(operation())
                     .append(conditionQueryBuilder.convertValueToString(value()))
                     .appendSpaceSeparated("AND")
@@ -130,6 +146,54 @@ public class Condition {
                     .appendSpaceSeparated(Operation.AND)
                     .append(secondValue())
                     .appendSpace().appendOptional(postArgument());
+        }
+    }
+
+    /**
+     * The SQL IN and NOT IN operator that specifies a list of values to SELECT rows from.
+     * EX: SELECT * FROM myTable WHERE columnName IN ('column1','column2','etc')
+     */
+    public static class In extends Condition {
+
+        private List<Object> mArguments = new ArrayList<>();
+
+        /**
+         * Creates a new instance
+         *
+         * @param condition     The condition object to pass in. We only use the column name here.
+         * @param firstArgument The first value in the IN query as one is required.
+         * @param isIn          if this is an {@link com.raizlabs.android.dbflow.sql.builder.Condition.Operation#IN}
+         *                      statement or a {@link com.raizlabs.android.dbflow.sql.builder.Condition.Operation#NOT_IN}
+         */
+        private In(Condition condition, Object firstArgument, boolean isIn) {
+            super(condition.columnName());
+            mArguments.add(firstArgument);
+            mOperation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
+        }
+
+        /**
+         * Appends another value to this In statement
+         *
+         * @param argument The non-type converted value of the object. The value will be converted
+         *                 in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}.
+         * @return
+         */
+        public In and(Object argument) {
+            mArguments.add(argument);
+            return this;
+        }
+
+        @Override
+        public <ModelClass extends Model> void appendConditionToQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+            conditionQueryBuilder.append(columnName()).append(operation())
+                    .append("(").appendArgumentList(mArguments).append(")");
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
+            queryBuilder.append(columnName()).append(operation())
+                    .append("(").appendList(mArguments).append(")");
         }
     }
 
@@ -350,6 +414,26 @@ public class Condition {
     }
 
     /**
+     * Turns this condition into a SQL IN operation.
+     *
+     * @param firstArgument The first value in the IN query as one is required.
+     * @return In operator
+     */
+    public In in(Object firstArgument) {
+        return new In(this, firstArgument, true);
+    }
+
+    /**
+     * Turns this condition into a SQL NOT IN operation.
+     *
+     * @param firstArgument The first value in the NOT IN query as one is required.
+     * @return Not In operator
+     */
+    public In notIn(Object firstArgument) {
+        return new In(this, firstArgument, false);
+    }
+
+    /**
      * @return the operator such as "<", "<", or "="
      */
     public String operation() {
@@ -393,7 +477,7 @@ public class Condition {
      *
      * @param conditionQueryBuilder
      */
-    public void appendConditionToQuery(ConditionQueryBuilder conditionQueryBuilder) {
+    public <ModelClass extends Model> void appendConditionToQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         conditionQueryBuilder.append(columnName()).append(operation());
 
         // Do not use value for these operators, we do not want to convert the value to a string.

@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Writes the bindTo contentValues and SQLiteStatement methods in a ModelAdapter and ContainerAdapter.
  */
 public class SQLiteStatementWriter implements FlowWriter {
 

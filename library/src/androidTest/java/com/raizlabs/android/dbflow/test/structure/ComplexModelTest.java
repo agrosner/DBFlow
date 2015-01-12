@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.structure.container.MapModel;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class ComplexModelTest extends FlowTestCase {

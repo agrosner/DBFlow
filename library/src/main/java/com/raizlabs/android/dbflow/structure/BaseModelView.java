@@ -3,10 +3,8 @@ package com.raizlabs.android.dbflow.structure;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description: Provides a base implementation for a ModelView.
- * how to create the model view.
+ * Description: Provides a base implementation for a ModelView. Use a {@link com.raizlabs.android.dbflow.annotation.ModelView}
+ * annotation to register it properly.
  */
 public abstract class BaseModelView<ModelClass extends Model> implements Model {
 

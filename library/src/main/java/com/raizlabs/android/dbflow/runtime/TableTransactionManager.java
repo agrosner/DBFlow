@@ -7,8 +7,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: This class manages a single table, wrapping all of the relevant
  * {@link TransactionManager} operations with the {@link ModelClass}
  */

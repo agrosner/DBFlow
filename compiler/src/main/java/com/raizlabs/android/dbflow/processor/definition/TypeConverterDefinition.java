@@ -11,9 +11,7 @@ import javax.lang.model.util.Types;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: Holds data about type converters in order to write them.
  */
 public class TypeConverterDefinition {
 
