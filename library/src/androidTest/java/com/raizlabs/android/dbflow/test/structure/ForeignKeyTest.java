@@ -4,8 +4,6 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class ForeignKeyTest extends FlowTestCase {

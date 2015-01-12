@@ -8,8 +8,6 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class ModelViewTest extends FlowTestCase {

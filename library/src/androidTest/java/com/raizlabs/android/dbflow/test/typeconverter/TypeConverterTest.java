@@ -13,8 +13,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class TypeConverterTest extends FlowTestCase {

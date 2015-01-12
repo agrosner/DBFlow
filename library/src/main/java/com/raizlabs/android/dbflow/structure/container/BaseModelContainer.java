@@ -78,6 +78,11 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         return mData;
     }
 
+    /**
+     * Sets the data for this container
+     *
+     * @param data The data object that backs this container
+     */
     public void setData(DataClass data) {
         mData = data;
     }

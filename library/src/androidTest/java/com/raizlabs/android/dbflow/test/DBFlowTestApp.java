@@ -6,8 +6,6 @@ import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class DBFlowTestApp extends Application {

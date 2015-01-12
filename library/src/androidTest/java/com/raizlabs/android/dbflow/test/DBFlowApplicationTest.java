@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.test.list.ListDatabase;
 import com.raizlabs.android.dbflow.test.sql.MigrationDatabase;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class DBFlowApplicationTest extends ApplicationTestCase<DBFlowTestApp> {

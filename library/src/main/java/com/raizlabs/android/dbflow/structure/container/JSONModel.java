@@ -10,13 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: This eliminates the need for converting json into a {@link com.raizlabs.android.dbflow.structure.Model}
- * and then saving to the DB. Let this class handle the saving for you. There are some restrictions to this class:
- * <p/>
- * <br />
- * <li>The names of the keys must match the column names</li>
+ * and then saving to the DB. Let this class handle the saving for you.
  */
 public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model {
 
@@ -57,7 +52,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
 
     @Override
     public void put(String columnName, Object value) {
-        if(getData() == null) {
+        if (getData() == null) {
             setData(newDataInstance());
         }
         try {

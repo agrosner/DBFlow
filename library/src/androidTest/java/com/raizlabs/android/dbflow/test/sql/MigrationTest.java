@@ -14,8 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class MigrationTest extends AndroidTestCase {

@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class ModelAutoIncrementTest extends FlowTestCase {

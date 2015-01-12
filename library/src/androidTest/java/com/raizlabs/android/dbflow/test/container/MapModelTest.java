@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class MapModelTest extends FlowTestCase {

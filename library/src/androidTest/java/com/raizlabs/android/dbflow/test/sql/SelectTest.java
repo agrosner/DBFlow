@@ -11,8 +11,6 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class SelectTest extends FlowTestCase {

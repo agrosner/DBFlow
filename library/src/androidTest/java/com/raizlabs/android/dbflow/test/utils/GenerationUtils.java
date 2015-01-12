@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class GenerationUtils {

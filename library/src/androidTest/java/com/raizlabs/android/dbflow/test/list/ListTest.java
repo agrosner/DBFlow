@@ -15,8 +15,6 @@ import com.raizlabs.android.dbflow.test.utils.GenerationUtils;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description:
  */
 public class ListTest extends FlowTestCase {
