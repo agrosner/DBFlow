@@ -22,7 +22,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
         OUTER,
 
         INNER,
-        
+
         CROSS,
     }
 
@@ -134,7 +134,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
         if (mOn != null) {
             queryBuilder.append("ON")
                     .appendSpace()
-                    .append(mOn.getQuery())
+                    .append(mOn.getRawQuery())
                     .appendSpace();
         } else if (mUsing != null) {
             queryBuilder.append("USING (")

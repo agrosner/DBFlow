@@ -72,8 +72,8 @@ public class Update implements Query {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder("UPDATE ");
-        if (!TextUtils.isEmpty(mConflictAction)) {
-            queryBuilder.append("OR").appendSpaceSeparated(mConflictAction);
+        if (mConflictAction != null) {
+            queryBuilder.append("OR").appendSpaceSeparated(mConflictAction.name());
         }
         return queryBuilder.getQuery();
     }
