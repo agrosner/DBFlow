@@ -10,9 +10,8 @@ import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description: Provides a simple way to update a table's field or fields quickly in a migration. It ties an SQLite {@link com.raizlabs.android.dbflow.sql.language.Update}
+ * Description: Provides a simple way to update a table's field or fields quickly in a migration.
+ * It ties an SQLite {@link com.raizlabs.android.dbflow.sql.language.Update}
  * to migrations whenever we want to batch update tables in a structured manner.
  */
 public class UpdateTableMigration<ModelClass extends Model> extends BaseMigration implements Query {

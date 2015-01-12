@@ -2,44 +2,69 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.text.TextUtils;
 
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: The SQLite UPDATE query. Will update rows in the DB.
  */
 public class Update implements Query {
 
-    private String mOrQualifier;
+    private ConflictAction mConflictAction;
 
+    public Update conflictAction(ConflictAction conflictAction) {
+        mConflictAction = conflictAction;
+        return this;
+    }
+
+    /**
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#ROLLBACK}
+     * @return This instance.
+     */
     public Update orRollback() {
-        mOrQualifier = "ROLLBACK";
-        return this;
+        return conflictAction(ConflictAction.ROLLBACK);
     }
 
+    /**
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#ABORT}
+     * @return This instance.
+     */
     public Update orAbort() {
-        mOrQualifier = "ABORT";
-        return this;
+        return conflictAction(ConflictAction.ABORT);
     }
 
+    /**
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#REPLACE}
+     * @return This instance.
+     */
     public Update orReplace() {
-        mOrQualifier = "REPLACE";
-        return this;
+        return conflictAction(ConflictAction.REPLACE);
     }
 
+    /**
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#FAIL}
+     * @return This instance.
+     */
     public Update orFail() {
-        mOrQualifier = "FAIL";
-        return this;
+        return conflictAction(ConflictAction.FAIL);
     }
 
+    /**
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#IGNORE}
+     * @return This instance.
+     */
     public Update orIgnore() {
-        mOrQualifier = "IGNORE";
-        return this;
+        return conflictAction(ConflictAction.IGNORE);
     }
 
+    /**
+     * Specifies the table to UPDATE
+     * @param table The table to update
+     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @return The FROM part of this query, used in calling a {@link com.raizlabs.android.dbflow.sql.language.Set}
+     */
     public <ModelClass extends Model> From<ModelClass> table(Class<ModelClass> table) {
         return new From<ModelClass>(this, table);
     }
@@ -47,8 +72,8 @@ public class Update implements Query {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder("UPDATE ");
-        if (!TextUtils.isEmpty(mOrQualifier)) {
-            queryBuilder.append("OR").appendSpaceSeparated(mOrQualifier);
+        if (!TextUtils.isEmpty(mConflictAction)) {
+            queryBuilder.append("OR").appendSpaceSeparated(mConflictAction);
         }
         return queryBuilder.getQuery();
     }

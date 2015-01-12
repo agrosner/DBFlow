@@ -1,8 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: The main interface for which all DB-based objects should implement.
  */
 public interface Model {

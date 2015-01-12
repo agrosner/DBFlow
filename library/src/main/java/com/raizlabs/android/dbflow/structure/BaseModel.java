@@ -4,8 +4,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: The base implementation of {@link com.raizlabs.android.dbflow.structure.Model} using the
  * shared {@link com.raizlabs.android.dbflow.config.FlowManager}. It implements the methods so you don't have to.
  * If you wish not to extend from this class you will need to implement {@link com.raizlabs.android.dbflow.structure.Model}
@@ -13,22 +11,51 @@ import com.raizlabs.android.dbflow.sql.SqlUtils;
  */
 public abstract class BaseModel implements Model {
 
+    /**
+     * Specifies the Action that was taken when data changes
+     */
+    public enum Action {
+
+        /**
+         * The model called {@link #save(boolean)}
+         */
+        SAVE,
+
+        /**
+         * The model called {@link #insert(boolean)}
+         */
+        INSERT,
+
+        /**
+         * The model called {@link #update(boolean)}
+         */
+        UPDATE,
+
+        /**
+         * The model called {@link #delete(boolean)}
+         */
+        DELETE;
+    }
+
     private ModelAdapter mModelAdapter;
 
     public BaseModel() {
         mModelAdapter = FlowManager.getModelAdapter(getClass());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void save(boolean async) {
-       mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_DEFAULT);
+        mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_DEFAULT);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void delete(boolean async) {
-       mModelAdapter.delete(async, this);
+        mModelAdapter.delete(async, this);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void update(boolean async) {
         mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_UPDATE);
@@ -39,20 +66,16 @@ public abstract class BaseModel implements Model {
      *
      * @param async If we want this to happen on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void insert(boolean async) {
         mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_INSERT);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean exists() {
         return mModelAdapter.exists(this);
     }
 
-    public enum Action {
-        SAVE,
-        INSERT,
-        UPDATE,
-        DELETE;
-    }
 }

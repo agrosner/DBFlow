@@ -12,8 +12,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
  * Description: A SQL SELECT statement generator. It generates the SELECT part of the statement.
  */
 public class Select implements Query {

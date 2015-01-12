@@ -7,9 +7,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 /**
- * Author: andrewgrosner
- * Contributors: { }
- * Description:
+ * Description: The base class that all ModelContainers should extend.
  */
 public abstract class BaseModelContainer<ModelClass extends Model, DataClass> implements ModelContainer<ModelClass, DataClass>, Model {
 
@@ -19,7 +17,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     ModelClass mModel;
 
     /**
-     * The {@link com.raizlabs.android.dbflow.structure.TableStructure} that is defined for this {@link org.json.JSONObject}
+     * The {@link com.raizlabs.android.dbflow.structure.ModelAdapter} that is defined for this {@link org.json.JSONObject}
      */
     ModelAdapter<ModelClass> mModelAdapter;
 
@@ -39,7 +37,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         mContainerAdapter = FlowManager.getContainerAdapter(table);
         mData = data;
 
-        if(mContainerAdapter == null) {
+        if (mContainerAdapter == null) {
             throw new InvalidDBConfiguration("The table" + FlowManager.getTableName(table) + " did not specify the ContainerAdapter" +
                     "annotation. Please add and rebuild");
         }
@@ -54,6 +52,11 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         return mModel;
     }
 
+    /**
+     * @param inValue     The value of data for a specified field.
+     * @param columnClass The class of the specified field/column
+     * @return A created instance to be used for fields that are model containers.
+     */
     public abstract BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
 
 
@@ -62,7 +65,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         ContainerAdapter<? extends Model> containerAdapter = FlowManager.getContainerAdapter(getTable());
         Class<? extends Model> columnClass = (Class<? extends Model>) containerAdapter.getClassForColumn(columnName);
         ContainerAdapter<? extends Model> columnAdapter = FlowManager.getContainerAdapter(columnClass);
-        if(columnAdapter != null) {
+        if (columnAdapter != null) {
             inValue = columnAdapter.toModel(getInstance(inValue, columnClass));
         } else {
             throw new RuntimeException("Column: " + columnName + "'s class needs to add the @ContainerAdapter annotation");
