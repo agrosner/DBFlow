@@ -17,7 +17,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
-#### 1.1.0
+#### 1.2.0
 
   1. Added SQLite Triggers!
   2. Added the ```IN``` and ```NOT IN``` operators to ```Condition```
