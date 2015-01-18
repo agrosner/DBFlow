@@ -1,8 +1,12 @@
-In SQL with Android, writing SQL can be _fun_, however I provide query wrapping to make it very, very easy.
+# SQL Statements Using the Wrapper Classes
 
-### Example
+In SQL with Android, writing SQL is not that _fun_, so to make it easy and useful,  this library provides a comprehensive set of SQLite statement wrappers. 
 
-Writing the SQL statement is easy enough:
+In the first section I describe how using the wrapper classes drastically simplify code writing.
+
+### Code-Wrapped Exmaple
+
+For example, we want to find all devices from ```DeviceTable``` that are Samsung Galaxy S5 and from T-Mobile. Writing the SQL statement is easy enough:
 
 ```sql
 
@@ -10,7 +14,7 @@ SELECT * FROM DeviceTable where name = 'Samsung-Galaxy-S5' AND carrier = 'T-MOBI
 
 ```
 
-What if we want a different name and carrier? And then we need to retrieve the list of data for our usage.
+We want to write this in Android code, convert the statement into data that we can use in our application:
 
 ```java
 
@@ -19,10 +23,14 @@ args[0] = "Samsung-Galaxy-S5";
 args[1] = "T-MOBILE";
 Cursor cursor = db.rawQuery("SELECT * FROM DeviceTable where name = ? AND carrier = ?", args);
 final List<DeviceObject> entities = new ArrayList<DeviceObject>();
+DeviceObject deviceObject;
 
 if (cursor.moveToFirst()) {
   do {
     // get each column and then set it on each 
+    deviceObject = new DeviceObject();
+    deviceObject.setName(cursor.getString(cursor.getColumnIndex("name")));
+    deviceObject.setCarrier(cursor.getString(cursor.getColumnIndex("carrier"));
     entities.add(deviceObject);
   }
   while (cursor.moveToNext());
@@ -30,42 +38,33 @@ if (cursor.moveToFirst()) {
 
 ```
 
-This is good for simple queries, but why do we have to keep writing these statements, and what happens when we add or remove columns? We want this code to be maintainable, and not to mention if there are SQL errors from these strings.
+This is short and sweet for simple queries, but why do we have to keep writing these statements? 
 
-### Code Wrapped Example
+What happens when:
+  1. We add or remove columns
+  2. Have to write more functions like this for other tables, queries, and other kinds of data?
 
-We introduce something known as the ```Condition```. Conditions are simply pieced together as:
-
-  columnName {operator} value
-
-The **columnName** matches the table's column name. The operator can be any Sqlite comparison such as "=", "<", ">", etc. The value is the ```Model``` value, and the ```WhereQueryBuilder``` converts the value into its proper database value for comparison! Use the ```[ModelClassName]$Table``` class for the column names!
-
-```java
-Location location = new Location("");
-location.setLatitude(40.7127);
-location.setLongitude(74.0059);
-Where<DeviceObject> deviceWhere = new Select().from(DeviceObject.class)
-                             .where(Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy S5"))
-                             .and(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
-                             .and(Condition.column(DeviceObject$Table.LOCATION).is(location);
-
-// or can use Select.all(DeviceObject.class, conditions);
-
-// perform this on current thread (not recommended)
-List<DeviceObject> devices = deviceWhere.queryList();
-
-```
-
-The **recommended** way is to do any kind of large query in the BG:
+In short, we want this code to be maintainable, short, reusable, and expressive of what actually is happening. In this library, calling this statement becomes as easy as, given you built your database and model correctly: 
 
 ```java
 
-// To do it in the background (to not block UI thread)
-deviceWhere.transactList(new TransactionListenerAdapter<List<DeviceObject>>(){
-                             @Override
-                             public void onResultReceived(List<DeviceObject> devices){
-                               // called on the UI thread, do something with the results
-                             }
-                         });
+// main thread retrieval
+List<DeviceObject> devices = new Select().from(DeviceObject.class)
+  .where(
+      Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy-S5"), 
+      Condition.column(DeviceObject$Table.CARRIER).is("T-Mobile")).queryList();
+      
+// Async Transaction Queue Retrieval (Recommended)
+new Select().from(DeviceObject.class)
+  .where(
+      Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy-S5"), 
+      Condition.column(DeviceObject$Table.CARRIER).is("T-Mobile"))
+  .transactList(new TransactionListenerAdapter<List<DeviceObject>>() {
+    @Override
+    public void onResultReceived(List<DeviceObject> devices) {
+      // retrieved here
+    }
+  
+  });
 
 ```
