@@ -44,7 +44,7 @@ What happens when:
   1. We add or remove columns
   2. Have to write more functions like this for other tables, queries, and other kinds of data?
 
-In short, we want this code to be maintainable, short, reusable, and expressive of what actually is happening. In this library, calling this statement becomes as easy as, given you built your database and model correctly: 
+In short, we want this code to be maintainable, short, reusable, and expressive of what actually is happening. In this library, calling this statement becomes as easy as this (given you built your database and model correctly): 
 
 ```java
 
@@ -66,5 +66,55 @@ new Select().from(DeviceObject.class)
     }
   
   });
+
+```
+
+### SELECT Statements and Retrieval Methods
+
+A ```SELECT``` statement retrieves data from the database. This library provides you with a very flexible amount of ways to retrieve data from the database. 
+
+To ```SELECT``` from the database:
+
+```java
+
+// Query a List
+new Select().from(SomeTable.class).queryList();
+new Select().from(SomeTable.class).where(conditions).queryList();
+
+// Query Single Model
+new Select().from(SomeTable.class).querySingle();
+new Select().from(SomeTable.class).where(conditions).querySingle();
+
+// Query a Table List and Cursor List
+new Select().from(SomeTable.class).where(conditions).queryTableList();
+new Select().from(SomeTable.class).where(conditions).queryCursorList();
+
+// Transact a query on the DBTransactionQueue
+new Select().from(SomeTable.class).where(conditions)
+  .transactList(new TransactionListenerAdapter<List<SomeTable>>() {
+    @Override
+    public void onResultReceived(List<SomeTable> someObjectList) {
+      // retrieved here
+    }
+  
+  });
+ 
+new Select().from(SomeTable.class).where(conditions)
+  .transactSingleModel(new TransactionListenerAdapter<SomeTable>() {
+    @Override
+    public void onResultReceived(SomeTable someObject) {
+      // retrieved here
+    }
+  
+  });
+
+// selects all based on these conditions, returns list
+Select.all(SomeTable.class, conditions);
+
+// Selects a single model by id
+Select.byId(SomeTable.class, primaryKey);
+
+// Selects Count of Rows for the SELECT statment
+Select.count(SomeTable.class, conditions);
 
 ```
