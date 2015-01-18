@@ -117,4 +117,58 @@ Select.byId(SomeTable.class, primaryKey);
 // Selects Count of Rows for the SELECT statment
 Select.count(SomeTable.class, conditions);
 
+
+// Using the TransactionManager (there are more methods similiar to this one)
+TransactionManager.getInstance().fetchFromTable(SomeTable.class, transactionListener, conditions);
+
 ```
+
+### UPDATE statements
+
+There are two ways of updating data in the database:
+  1. Using the ```Update``` class
+  2. Calling ```update(async)``` for existing data and ```save(async)``` for unknown on a ```Model``` object
+
+In this section we will describe bulk updating data from the database.
+
+From our earlier example on retrieving device and carrier information, we want to update the table for the same query by setting the carrier to AT&T.
+
+Using native SQL:
+
+```SQL
+
+UPDATE DeviceObject SET carrier = 'AT&T' WHERE device = 'Samsung-Galaxy-S5' AND carrier = 'T-MOBILE`;
+
+```
+
+Using DBFlow:
+
+```java
+
+// Native SQL wrapper
+new Update().table(DeviceObject.class).set(Condition.column(DeviceObject$Table.CARRIER).is("AT&T"))
+  .where(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
+  .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).query();
+  
+// TransactionManager (more methods similar to this one)
+TransactionManager.getInstance().update(ProcessModelInfo.withModels(models));
+
+```
+
+### DELETE statements
+
+```java
+
+// Delete a whole table
+Delete.table(MyTable.class, conditions);
+
+// Delete multiple instantly
+Delete.tables(MyTable1.class, MyTable2.class);
+
+// Delete using query
+new Delete().from(MyTable.class)
+  .where(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
+    .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).query();
+
+```
+
