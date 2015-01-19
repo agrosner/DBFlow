@@ -6,8 +6,6 @@
 
 name = 'Test'
 
-name = 'Test'
-
 name LIKE '%Test%'
 
 name != 'Test'
@@ -27,6 +25,22 @@ The ```Condition``` class can specify:
   3. **value**: The value of the data as represented by the ```Model```. This value will be converted into its database value when appending itself to a ```ConditionQueryBuilder```.
   4. **post argument**: The end of a condition, such as a ```Collate```
   5. **separator** (for within a ```ConditionQueryBuilder```): Specifies an optional SQLite condition separator that the ```ConditionQueryBuilder``` uses to separate its ```Condition```
+
+From our previous examples using this class:
+
+```java
+
+Condition.column(MyTable$Table.NAME).is("Test")
+
+Condition.column(MyTable$Table.NAME).like("%Test%")
+
+Condition.column(MyTable$Table.NAME).isNot("Test")
+
+Condition.column(MyTable$Table.SALARY).between(15000).and(40000)
+
+Condition.column(MyTable$Table.NAME).in("Test").and("Test2").and("TestN")
+
+```
 
 ### ```ConditionQueryBuilder```
 
