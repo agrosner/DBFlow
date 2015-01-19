@@ -22,7 +22,7 @@ not extend any adapter class and provides a simple yet effective API for retriev
   
     // retrieve and cache rows that have a name like pasta%
       mFlowCursorList = new FlowCursorList<>(true, TestModel.class, 
-        Condition.column(TestModel1$Table.NAME).like('pasta%'));
+        Condition.column(TestModel1$Table.NAME).like("pasta%"));
     }
 
     @Override
