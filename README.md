@@ -32,14 +32,23 @@ for older changes, from other xx.xx versions, check it out [here](https://github
 For more detailed usage, check out these sections:
 
 [Conditions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md)
+
 [Creating Tables and Database Structure](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
+
 [Migrations](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migrations.md)
+
 [Model Containers](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelContainers.md)
+
 [Observing Models](https://github.com/Raizlabs/DBFlow/blob/master/usage/ObservableModels.md)
+
 [SQL Statements Using the Wrapper Classes](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLQuery.md)
+
 [Tables as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
+
 [Transactions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Transactions.md)
+
 [Type Converters](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
+
 
 
 
