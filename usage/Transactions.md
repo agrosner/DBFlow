@@ -11,6 +11,8 @@ by using a ```PriorityBlockingQueue```. This queue will order our database trans
   such as displaying data in the UI at some point in the future (not necessarily right away)
   3. **NORMAL**: Default priority for a ```Transaction```, good when adding transactions that the app does not need to access right away.
   4. **LOW**: Low-priority, reserved for non-essential tasks.
+
+```DBTransactionInfo```: Holds information on how to process a ```BaseTransaction``` on the ```DBTransactionQueue```. It contains a name and priority. The name is purely for debugging purposes during runtime and to identify it when executed. The priority corresponds to the previous paragraph on priority. 
   
 These priorities are just ```int``` and you can specify your own higher, or different priorities as needed.
 
