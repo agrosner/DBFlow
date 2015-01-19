@@ -27,6 +27,30 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
+## Usage Docs
+
+For more detailed usage, check out these sections:
+
+[Conditions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md)
+
+[Creating Tables and Database Structure](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
+
+[Migrations](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migrations.md)
+
+[Model Containers](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelContainers.md)
+
+[Observing Models](https://github.com/Raizlabs/DBFlow/blob/master/usage/ObservableModels.md)
+
+[SQL Statements Using the Wrapper Classes](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLQuery.md)
+
+[Tables as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
+
+[Transactions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Transactions.md)
+
+[Type Converters](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
+
+
+
 
 ## Including in your project
 
@@ -135,7 +159,7 @@ So you have an existing DB you wish to include in your project. Just name the da
 
 ## Migrations
 
-in DBFlow migrations are separate, public classes that contain both the ```@Migration``` and ```Migration```interface. If you are using multiple databases, you're required to specify it for the migration.
+in DBFlow migrations are separate, public classes that contain both the ```@Migration``` and ```Migration```interface. If you are using multiple databases, you're required to specify it for the migration. For more information, check it out [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migrations.md)
 
 ```java
 
@@ -173,11 +197,11 @@ new Select().from(DeviceObject.class)
 
 ```
 
-To see more go to the full [tutorial](https://github.com/agrosner/DBFlow/wiki/Basic-Query-Wrapping)
+To see more go to the full [tutorial](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLQuery.md)
 
 ## Model Containers
 
-Model containers are classes that __imitate__ and use the blueprint of ```Model``` classes in order to save data such as JSON, Hashmap, or your own kind of data to the database. To create your own, extend the ```BaseModelContainer``` class or implement the ```ModelContainer``` interface.  More info [here](https://github.com/agrosner/DBFlow/wiki/Model-Containers)
+Model containers are classes that __imitate__ and use the blueprint of ```Model``` classes in order to save data such as JSON, Hashmap, or your own kind of data to the database. To create your own, extend the ```BaseModelContainer``` class or implement the ```ModelContainer``` interface.  More info [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelContainers.md)
 
 For example here is the ```JSONModel``` implementation:
 
@@ -225,7 +249,7 @@ And then in **every** ```Model``` class you wish to use this class, you need to 
 
 ## Type Converters
 
-```TypeConverter``` allows non-Model objects to save to the database by converting it from its ```Model``` value to its ```Database``` value. These are statically allocated accross all databases. More info [here](https://github.com/agrosner/DBFlow/wiki/Type-Conversion)
+```TypeConverter``` allows non-Model objects to save to the database by converting it from its ```Model``` value to its ```Database``` value. These are statically allocated accross all databases. More info [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
 
 ```java
 @com.raizlabs.android.dbflow.annotation.TypeConverter
@@ -248,7 +272,7 @@ public class CalendarConverter extends TypeConverter<Long, Calendar> {
 
 ## Model Views
 
-```ModelView``` are a special kind of ```Model``` that creates a database **VIEW** based on a special SQL statement. They must reference another ```Model``` class currently. 
+```ModelView``` are a special kind of ```Model``` that creates a database **VIEW** based on a special SQL statement. They must reference another ```Model``` class currently. More info [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
 
 ```java
 
