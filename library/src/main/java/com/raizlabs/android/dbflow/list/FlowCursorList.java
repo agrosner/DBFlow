@@ -31,7 +31,7 @@ public class FlowCursorList<ModelClass extends Model> {
 
     private boolean cacheModels;
 
-    private Queriable<ModelClass> mWhere;
+    private Queriable<ModelClass> mQueriable;
 
     private CursorObserver mObserver;
 
@@ -43,8 +43,8 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param queriable   The SQL where query to use when doing a query.
      */
     public FlowCursorList(boolean cacheModels, Queriable<ModelClass> queriable) {
-        mWhere = queriable;
-        mCursor = mWhere.query();
+        mQueriable = queriable;
+        mCursor = mQueriable.query();
         mTable = queriable.getTable();
         this.cacheModels = cacheModels;
 
@@ -96,7 +96,7 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public void refresh() {
         mCursor.close();
-        mCursor = mWhere.query();
+        mCursor = mQueriable.query();
 
         if (cacheModels) {
             mModelCache.clear();
