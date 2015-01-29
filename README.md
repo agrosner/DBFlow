@@ -13,8 +13,6 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your 
 
 This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility. 
 
-Check out a comparison of some of the most popular libraries [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/Comparison.md)
-
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
 ## Changelog
