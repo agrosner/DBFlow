@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -207,7 +208,7 @@ public class SqlUtils {
 
             notifyModelChanged(model.getClass(), action);
         } else {
-            TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.create()));
+            TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
         }
     }
 
@@ -217,27 +218,35 @@ public class SqlUtils {
      * @param modelAdapter The adapter to use
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void update(ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
-        SQLiteDatabase db = FlowManager.getDatabaseForTable(model.getClass()).getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        modelAdapter.bindToContentValues(contentValues, model);
-        boolean exists = (db.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-                modelAdapter.getPrimaryModelWhere(model).getQuery(), null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
-        if (!exists) {
-            // insert
-            insert(model, modelAdapter);
+    public static <ModelClass extends Model> void update(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
+        if(!async) {
+            SQLiteDatabase db = FlowManager.getDatabaseForTable(model.getClass()).getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+            modelAdapter.bindToContentValues(contentValues, model);
+            boolean exists = (db.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
+                    modelAdapter.getPrimaryModelWhere(model).getQuery(), null,
+                    ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
+            if (!exists) {
+                // insert
+                insert(model, modelAdapter);
+            } else {
+                notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
+            }
         } else {
-            notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
+            TransactionManager.getInstance().update(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
         }
     }
 
-    public static <ModelClass extends Model> void insert(ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
-        SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
-        modelAdapter.bindToStatement(insertStatement, model);
-        long id = insertStatement.executeInsert();
-        modelAdapter.updateAutoIncrement(model, id);
-        notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
+    public static <ModelClass extends Model> void insert(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
+        if(!async) {
+            SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
+            modelAdapter.bindToStatement(insertStatement, model);
+            long id = insertStatement.executeInsert();
+            modelAdapter.updateAutoIncrement(model, id);
+            notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
+        } else {
+            TransactionManager.getInstance().addTransaction(new InsertModelTransaction<ModelClass>(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
+        }
     }
 
 

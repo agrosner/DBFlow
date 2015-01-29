@@ -193,4 +193,11 @@ public class Insert<ModelClass extends Model> implements Query {
 
         return queryBuilder.getQuery();
     }
+
+    /**
+     * @return The table associated with this INSERT
+     */
+    public Class<ModelClass> getTable() {
+        return mTable;
+    }
 }
