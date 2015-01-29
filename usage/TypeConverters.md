@@ -14,8 +14,8 @@ Here is the implementation of ```LocationConverter```, converting Locations into
 
   // First type param is the type that goes into the database
   // Second type param is the type that the model contains for that field.
-  @com.grosner.dbflow.annotation.TypeConverter
-  public class LocationConverter implements TypeConverter<String,Location> {
+  @com.raizlabs.android.dbflow.annotation.TypeConverter
+  public class LocationConverter extends TypeConverter<String,Location> {
 
     @Override
     public String getDBValue(Location model) {
