@@ -92,7 +92,8 @@ I welcome and encourage all pull requests. It usually will take me within 24-48 
   1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
   2. If its a feature, bugfix, or anything please only change code to what you specify. 
    **DO NOT** do this: Ex: Title "Fixes Crash Related to Bug" includes other files that were changed without explanation or doesn't relate to the bug you fixed. Or another example is a non-descriptive title "Fixes Stuff".
-  3. Have fun!
+  3. Pull requests must be made against ```develop``` branch.
+  4. Have fun!
 
 ## Configuration
 
@@ -305,6 +306,11 @@ CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
                                           .columns(FriendLog$Table.OLDNAME, FriendLog$Table.NEWNAME, FriendLog$Table.DATE)
                                           .values("old.Name", "new.Name", System.currentTimeMillis())
                                           };
+ // starts a trigger                                         
+ trigger.enable();
+ 
+ // stops a trigger
+ trigger.disable();
 
 ```
 
