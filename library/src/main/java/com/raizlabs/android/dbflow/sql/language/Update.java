@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import android.text.TextUtils;
-
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -12,7 +10,10 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class Update implements Query {
 
-    private ConflictAction mConflictAction;
+    /**
+     * The conflict action to resolve updates.
+     */
+    private ConflictAction mConflictAction = ConflictAction.NONE;
 
     public Update conflictAction(ConflictAction conflictAction) {
         mConflictAction = conflictAction;
@@ -20,40 +21,40 @@ public class Update implements Query {
     }
 
     /**
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#ROLLBACK}
      * @return This instance.
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#ROLLBACK}
      */
     public Update orRollback() {
         return conflictAction(ConflictAction.ROLLBACK);
     }
 
     /**
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#ABORT}
      * @return This instance.
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#ABORT}
      */
     public Update orAbort() {
         return conflictAction(ConflictAction.ABORT);
     }
 
     /**
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#REPLACE}
      * @return This instance.
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#REPLACE}
      */
     public Update orReplace() {
         return conflictAction(ConflictAction.REPLACE);
     }
 
     /**
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#FAIL}
      * @return This instance.
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#FAIL}
      */
     public Update orFail() {
         return conflictAction(ConflictAction.FAIL);
     }
 
     /**
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#IGNORE}
      * @return This instance.
+     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#IGNORE}
      */
     public Update orIgnore() {
         return conflictAction(ConflictAction.IGNORE);
@@ -61,7 +62,8 @@ public class Update implements Query {
 
     /**
      * Specifies the table to UPDATE
-     * @param table The table to update
+     *
+     * @param table        The table to update
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return The FROM part of this query, used in calling a {@link com.raizlabs.android.dbflow.sql.language.Set}
      */
@@ -72,7 +74,7 @@ public class Update implements Query {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder("UPDATE ");
-        if (mConflictAction != null) {
+        if (mConflictAction != null && !mConflictAction.equals(ConflictAction.NONE)) {
             queryBuilder.append("OR").appendSpaceSeparated(mConflictAction.name());
         }
         return queryBuilder.getQuery();

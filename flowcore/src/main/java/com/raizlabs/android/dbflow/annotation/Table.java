@@ -24,4 +24,14 @@ public @interface Table {
      * @return Specify the database name that this table belongs to. By default it will reference the main Db.
      */
     String databaseName() default "";
+
+    /**
+     * @return Specify the general conflict algorithm used by this table when updating records.
+     */
+    ConflictAction updateConflict() default ConflictAction.NONE;
+
+    /**
+     * @return Specify the general insert conflict algorithm used by this table.
+     */
+    ConflictAction insertConflict() default ConflictAction.NONE;
 }

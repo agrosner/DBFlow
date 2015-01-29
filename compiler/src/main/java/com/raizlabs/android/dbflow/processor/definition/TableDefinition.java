@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -44,6 +45,10 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public String databaseName;
 
+    public String insertConflictActionName;
+
+    public String updateConflicationActionName;
+
     public ArrayList<ColumnDefinition> primaryColumnDefinitions;
 
     public ColumnDefinition autoIncrementDefinition;
@@ -63,6 +68,10 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
         }
+        insertConflictActionName = table.insertConflict().equals(ConflictAction.NONE) ? ""
+                : table.insertConflict().name();
+        updateConflicationActionName = table.updateConflict().equals(ConflictAction.NONE) ? ""
+                : table.insertConflict().name();
 
         manager.addModelToDatabase(getModelClassName(), databaseName);
 
@@ -159,7 +168,11 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT INTO %1s (");
+                String insertConflictName = insertConflictActionName;
+                if(!insertConflictName.isEmpty()) {
+                    insertConflictName = String.format(" OR %1s ", insertConflictName);
+                }
+                QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO %1s (");
 
                 List<String> columnNames = new ArrayList<String>();
                 List<String> bindings = new ArrayList<String>();
@@ -179,7 +192,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
                 stringBuilder.appendList(columnNames).append(") VALUES (");
                 stringBuilder.appendList(bindings).append(")\"");
-                javaWriter.emitStatement(stringBuilder.toString(), tableName);
+                javaWriter.emitStatement(stringBuilder.toString(), insertConflictName, tableName);
             }
         }, "String", "getInsertStatementQuery", Sets.newHashSet(Modifier.PROTECTED, Modifier.FINAL));
 
@@ -193,6 +206,24 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 javaWriter.emitStatement("return new %1s()", getQualifiedModelClassName());
             }
         }, getQualifiedModelClassName(), "newInstance", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+
+        if(!updateConflicationActionName.isEmpty()) {
+            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                @Override
+                public void write(JavaWriter javaWriter) throws IOException {
+                    javaWriter.emitStatement("return %1s.%1s", Classes.CONFLICT_ACTION, updateConflicationActionName);
+                }
+            }, Classes.CONFLICT_ACTION, "getUpdateOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        }
+
+        if(!insertConflictActionName.isEmpty()) {
+            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                @Override
+                public void write(JavaWriter javaWriter) throws IOException {
+                    javaWriter.emitStatement("return %1s.%1s", Classes.CONFLICT_ACTION, insertConflictActionName);
+                }
+            }, Classes.CONFLICT_ACTION, "getInsertOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        }
 
         javaWriter.endType();
         javaWriter.close();

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
@@ -135,4 +136,18 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * we don't use reflection to create objects = faster.
      */
     public abstract ModelClass newInstance();
+
+    /**
+     * @return The conflict algorithm to use when updating a row in this table.
+     */
+    public ConflictAction getUpdateOnConflictAction() {
+        return ConflictAction.ABORT;
+    }
+
+    /**
+     * @return The conflict algorithm to use when inserting a row in this table.
+     */
+    public ConflictAction getInsertOnConflictAction() {
+        return ConflictAction.ABORT;
+    }
 }

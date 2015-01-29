@@ -28,7 +28,10 @@ public class Insert<ModelClass extends Model> implements Query {
      */
     private Object[] mValues;
 
-    private ConflictAction mConflictAction;
+    /**
+     * The conflict algorithm to use to resolve inserts.
+     */
+    private ConflictAction mConflictAction = ConflictAction.NONE;
 
     /**
      * Constructs a new INSERT command
@@ -166,7 +169,7 @@ public class Insert<ModelClass extends Model> implements Query {
     @Override
     public String getQuery() {
         ValueQueryBuilder queryBuilder = new ValueQueryBuilder("INSERT ");
-        if (mConflictAction != null) {
+        if (mConflictAction != null && !mConflictAction.equals(ConflictAction.NONE)) {
             queryBuilder.append("OR ").append(mConflictAction);
         }
         queryBuilder.appendSpaceSeparated("INTO")

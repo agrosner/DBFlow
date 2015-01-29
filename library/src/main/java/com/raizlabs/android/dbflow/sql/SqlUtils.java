@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.IntDef;
 
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -20,7 +21,6 @@ import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -209,6 +209,35 @@ public class SqlUtils {
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.create()));
         }
+    }
+
+    /**
+     * Updates the model if it exists. If the model does not exist and no rows are changed, we will attempt an insert into the DB.
+     * @param model The model to update
+     * @param modelAdapter The adapter to use
+     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     */
+    public static <ModelClass extends Model> void update(ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
+        SQLiteDatabase db = FlowManager.getDatabaseForTable(model.getClass()).getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        modelAdapter.bindToContentValues(contentValues, model);
+        boolean exists = (db.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
+                modelAdapter.getPrimaryModelWhere(model).getQuery(), null,
+                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
+        if (!exists) {
+            // insert
+            insert(model, modelAdapter);
+        } else {
+            notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
+        }
+    }
+
+    public static <ModelClass extends Model> void insert(ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
+        SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
+        modelAdapter.bindToStatement(insertStatement, model);
+        long id = insertStatement.executeInsert();
+        modelAdapter.updateAutoIncrement(model, id);
+        notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
     }
 
 

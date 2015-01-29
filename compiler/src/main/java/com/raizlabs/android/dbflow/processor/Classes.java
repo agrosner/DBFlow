@@ -74,4 +74,6 @@ public class Classes {
     public static final String MIGRATION = SQL + "migration.Migration";
 
     public static final String SQLITE_STATEMENT = "android.database.sqlite.SQLiteStatement";
+
+    public static final String CONFLICT_ACTION = BASE_PACKAGE + "annotation.ConflictAction";
 }
