@@ -308,3 +308,12 @@ CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
 
 ```
 
+## Maintainers
+
+[agrosner](https://github.com/agrosner) ([@agrosner](https://www.twitter.com/agrosner))
+
+## Contributors
+
+[wongcain](https://github.com/wongcain)
+[mozarcik](https://github.com/mozarcik)
+[mickele](https://github.com/mickele)
