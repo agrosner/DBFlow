@@ -54,6 +54,24 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
+     * Inserts the specified model into the DB.
+     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param model The model to insert.
+     */
+    public synchronized void insert(boolean async, ModelClass model) {
+        SqlUtils.insert(async, model, this);
+    }
+
+    /**
+     * Updates the specified model into the DB.
+     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param model The model to update.
+     */
+    public synchronized void update(boolean async, ModelClass model) {
+        SqlUtils.update(async, model, this);
+    }
+
+    /**
      * Binds a {@link ModelClass} to the specified db statement
      *
      * @param sqLiteStatement The statement to fill

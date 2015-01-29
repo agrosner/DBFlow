@@ -58,7 +58,7 @@ public abstract class BaseModel implements Model {
     @SuppressWarnings("unchecked")
     @Override
     public void update(boolean async) {
-        mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_UPDATE);
+        mModelAdapter.update(async, this);
     }
 
     /**
@@ -69,7 +69,7 @@ public abstract class BaseModel implements Model {
     @SuppressWarnings("unchecked")
     @Override
     public void insert(boolean async) {
-        mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_INSERT);
+        mModelAdapter.insert(async, this);
     }
 
     @SuppressWarnings("unchecked")

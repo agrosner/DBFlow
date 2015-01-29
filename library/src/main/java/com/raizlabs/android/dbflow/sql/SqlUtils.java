@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.IntDef;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -193,17 +194,11 @@ public class SqlUtils {
             }
 
             if (exists) {
-                ContentValues contentValues = new ContentValues();
-                modelAdapter.bindToContentValues(contentValues, model);
-                exists = (db.update(modelAdapter.getTableName(), contentValues, modelAdapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
+                exists = update(false, model, modelAdapter);
             }
 
             if (!exists) {
-                SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
-                modelAdapter.bindToStatement(insertStatement, model);
-                long id = insertStatement.executeInsert();
-
-                modelAdapter.updateAutoIncrement(model, id);
+                insert(false, model, modelAdapter);
             }
 
             notifyModelChanged(model.getClass(), action);
@@ -214,38 +209,48 @@ public class SqlUtils {
 
     /**
      * Updates the model if it exists. If the model does not exist and no rows are changed, we will attempt an insert into the DB.
-     * @param model The model to update
+     *
+     * @param model        The model to update
      * @param modelAdapter The adapter to use
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     *                    @return true if model was inserted, false if not. Also false could mean that it is placed on the
+     *                    {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} using async to true.
      */
-    public static <ModelClass extends Model> void update(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
-        if(!async) {
+    public static <ModelClass extends Model> boolean update(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
+        boolean exists = false;
+        if (!async) {
             SQLiteDatabase db = FlowManager.getDatabaseForTable(model.getClass()).getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             modelAdapter.bindToContentValues(contentValues, model);
-            boolean exists = (db.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-                    modelAdapter.getPrimaryModelWhere(model).getQuery(), null,
-                    ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+                exists = (db.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
+                        modelAdapter.getPrimaryModelWhere(model).getQuery(), null,
+                        ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
+            } else {
+                exists = (db.update(modelAdapter.getTableName(), contentValues,
+                        modelAdapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
+            }
             if (!exists) {
                 // insert
-                insert(model, modelAdapter);
+                insert(false, model, modelAdapter);
             } else {
                 notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
             }
         } else {
             TransactionManager.getInstance().update(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
         }
+        return exists;
     }
 
     public static <ModelClass extends Model> void insert(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
-        if(!async) {
+        if (!async) {
             SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
             modelAdapter.bindToStatement(insertStatement, model);
             long id = insertStatement.executeInsert();
             modelAdapter.updateAutoIncrement(model, id);
             notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
         } else {
-            TransactionManager.getInstance().addTransaction(new InsertModelTransaction<ModelClass>(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
+            TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
         }
     }
 
@@ -263,7 +268,7 @@ public class SqlUtils {
             new Delete().from((Class<ModelClass>) model.getClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
             notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
         } else {
-            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<ModelClass>(ProcessModelInfo.withModels(model).fetch()));
+            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(ProcessModelInfo.withModels(model).fetch()));
         }
     }
 
