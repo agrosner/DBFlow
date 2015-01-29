@@ -38,7 +38,7 @@ public class SqlUtils {
     }
 
     /**
-     * This marks the {@link #save(com.raizlabs.android.dbflow.structure.Model, boolean, int)}
+     * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
      * operation as checking to see if the model exists before saving.
      */
     public static final
@@ -47,14 +47,14 @@ public class SqlUtils {
 
     ;
     /**
-     * This marks the {@link #save(com.raizlabs.android.dbflow.structure.Model, boolean, int)}
+     * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
      * operation as updating only without checking for it to exist. This is when we know the data exists.
      */
     public static final
     @SaveMode
     int SAVE_MODE_UPDATE = 1;
     /**
-     * This marks the {@link #save(com.raizlabs.android.dbflow.structure.Model, boolean, int)}
+     * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
      * operation as inserting only without checking for it to exist. This is for when we know the data is new.
      */
     public static final
