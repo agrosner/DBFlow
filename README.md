@@ -86,6 +86,14 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 
 Not supported as google is no longer supporting it.
 
+## Pull Requests
+
+I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
+  1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
+  2. If its a feature, bugfix, or anything please only change code to what you specify. 
+   **DO NOT** do this: Ex: Title "Fixes Crash Related to Bug" includes other files that were changed without explanation or doesn't relate to the bug you fixed. Or another example is a non-descriptive title "Fixes Stuff".
+  3. Have fun!
+
 ## Configuration
 
 We need to configure the ```FlowManager``` properly. Instead of passing in a ```Context``` wherever it is used,
