@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -48,9 +49,6 @@ public class CompletedTrigger<ModelClass extends Model> implements Query {
      * Disables this trigger
      */
     public void disable() {
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTriggerMethod.mOnTable);
-        QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-                .append(mTriggerMethod.mTrigger.mTriggerName);
-        databaseDefinition.getWritableDatabase().execSQL(queryBuilder.getQuery());
+        SqlUtils.dropTrigger(mTriggerMethod.mOnTable, mTriggerMethod.mTrigger.mTriggerName);
     }
 }

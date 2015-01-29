@@ -213,8 +213,8 @@ public class SqlUtils {
      * @param model        The model to update
      * @param modelAdapter The adapter to use
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
-     *                    @return true if model was inserted, false if not. Also false could mean that it is placed on the
-     *                    {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} using async to true.
+     * @return true if model was inserted, false if not. Also false could mean that it is placed on the
+     * {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} using async to true.
      */
     public static <ModelClass extends Model> boolean update(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
         boolean exists = false;
@@ -293,5 +293,19 @@ public class SqlUtils {
             mode = "#" + action.name();
         }
         return Uri.parse("dbflow://" + FlowManager.getTableName(modelClass) + mode);
+    }
+
+    /**
+     * Drops an active TRIGGER by specifying the onTable and triggerName
+     *
+     * @param mOnTable     The table that this trigger runs on
+     * @param mTriggerName The name of the trigger
+     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     */
+    public static <ModelClass extends Model> void dropTrigger(Class<ModelClass> mOnTable, String mTriggerName) {
+        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mOnTable);
+        QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
+                .append(mTriggerName);
+        databaseDefinition.getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 }
