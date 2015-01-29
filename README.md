@@ -315,5 +315,8 @@ CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
 ## Contributors
 
 [wongcain](https://github.com/wongcain)
+
 [mozarcik](https://github.com/mozarcik)
+
 [mickele](https://github.com/mickele)
+
