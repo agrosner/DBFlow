@@ -29,11 +29,12 @@ public class ModelContainerDefinition extends BaseDefinition {
         tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()), classElement);
 
         mMethodWriters = new FlowWriter[]{
-                new SQLiteStatementWriter(tableDefinition, true),
+                new SQLiteStatementWriter(tableDefinition, true, tableDefinition.implementsSqlStatementListener,
+                        tableDefinition.implementsContentValuesListener),
                 new ExistenceWriter(tableDefinition, true),
                 new WhereQueryWriter(tableDefinition, true),
                 new ToModelWriter(tableDefinition, true),
-                new LoadCursorWriter(tableDefinition, true),
+                new LoadCursorWriter(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener),
                 new DeleteWriter(tableDefinition, true)
         };
     }

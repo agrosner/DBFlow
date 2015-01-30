@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
@@ -55,6 +56,12 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public ArrayList<ColumnDefinition> foreignKeyDefinitions;
 
+    public boolean implementsContentValuesListener = false;
+
+    public boolean implementsSqlStatementListener = false;
+
+    public boolean implementsLoadFromCursorListener = false;
+
     FlowWriter[] mMethodWriters;
 
     public TableDefinition(ProcessorManager manager, Element element) {
@@ -83,14 +90,24 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
         createColumnDefinitions((TypeElement) element);
 
+        implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                Classes.LOAD_FROM_CURSOR_LISTENER, (TypeElement) element);
+
+        implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                Classes.CONTENT_VALUES_LISTENER, (TypeElement) element);
+
+        implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                Classes.SQLITE_STATEMENT_LISTENER, ((TypeElement) element));
+
         mMethodWriters = new FlowWriter[]{
-                new SQLiteStatementWriter(this, false),
+                new SQLiteStatementWriter(this, false, implementsSqlStatementListener, implementsContentValuesListener),
                 new ExistenceWriter(this, false),
-                new LoadCursorWriter(this, false),
+                new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
                 new WhereQueryWriter(this, false),
                 new CreationQueryWriter(manager, this),
                 new DeleteWriter(this, false)
         };
+
 
     }
 

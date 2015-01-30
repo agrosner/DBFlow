@@ -39,7 +39,18 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param cursor The cursor to load
      * @return A new {@link ModelClass}
      */
-    public abstract ModelClass loadFromCursor(Cursor cursor);
+    public ModelClass loadFromCursor(Cursor cursor) {
+        ModelClass model = newInstance();
+        loadFromCursor(model, cursor);
+        return model;
+    }
+
+    /**
+     * Assigns the {@link android.database.Cursor} data into the specified cursor
+     * @param model The model to assign cursor data to
+     * @param cursor The cursor to load into the model
+     */
+    public abstract void loadFromCursor(ModelClass model, Cursor cursor);
 
     /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.

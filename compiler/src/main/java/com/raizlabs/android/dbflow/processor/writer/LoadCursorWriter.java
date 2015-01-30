@@ -9,10 +9,11 @@ import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
-import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.lang.model.element.Modifier;
 
 /**
  * Description: Writes the load from cursor statement.
@@ -39,58 +40,59 @@ public class LoadCursorWriter implements FlowWriter {
 
     private BaseTableDefinition tableDefinition;
     private final boolean isModelContainerDefinition;
+    private final boolean implementsLoadFromCursorListener;
 
-    public LoadCursorWriter(BaseTableDefinition tableDefinition, boolean isModelContainerDefinition) {
+    public LoadCursorWriter(BaseTableDefinition tableDefinition, boolean isModelContainerDefinition,
+                            boolean implementsLoadFromCursorListener) {
         this.tableDefinition = tableDefinition;
         this.isModelContainerDefinition = isModelContainerDefinition;
+
+        this.implementsLoadFromCursorListener = implementsLoadFromCursorListener;
     }
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);
-        String[] params = new String[isModelContainerDefinition ? 4: 2];
+        final String[] params = new String[isModelContainerDefinition ? 4 : 2];
         params[0] = "Cursor";
         params[1] = "cursor";
-        if(isModelContainerDefinition) {
-            params[2] = ModelUtils.getParameter(true, tableDefinition.getModelClassName());
-            params[3] = ModelUtils.getVariable(true);
-        }
+        params[2] = ModelUtils.getParameter(true, tableDefinition.getModelClassName());
+        params[3] = ModelUtils.getVariable(true);
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                if(!isModelContainerDefinition) {
-                    javaWriter.emitStatement(ModelUtils.getNewModelStatement(tableDefinition.getModelClassName()));
-                }
 
                 for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
                     columnDefinition.writeLoadFromCursorDefinition(javaWriter, isModelContainerDefinition);
                 }
 
-                if(!isModelContainerDefinition) {
-                    javaWriter.emitStatement("return model");
+                if (implementsLoadFromCursorListener) {
+                    javaWriter.emitStatement("%1s.onLoadFromCursor(%1s)", ModelUtils.getVariable(isModelContainerDefinition),
+                            params[1]);
                 }
+
             }
         }, isModelContainerDefinition ? "void" : tableDefinition.getModelClassName(), "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
 
-        if(tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).autoIncrementDefinition != null) {
+        if (tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).autoIncrementDefinition != null) {
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-                @Override
-                public void write(JavaWriter javaWriter) throws IOException {
-                        // TODOL: generate method
-                    ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
-                    AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
-                            .append(ModelUtils.getVariable(false))
-                            .append(".").append(columnDefinition.columnFieldName)
-                            .append(" = " )
-                            .appendCast(columnDefinition.columnFieldType)
-                            .append("id)");
+                        @Override
+                        public void write(JavaWriter javaWriter) throws IOException {
+                            // TODOL: generate method
+                            ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+                            AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
+                                    .append(ModelUtils.getVariable(false))
+                                    .append(".").append(columnDefinition.columnFieldName)
+                                    .append(" = ")
+                                    .appendCast(columnDefinition.columnFieldType)
+                                    .append("id)");
 
-                    javaWriter.emitStatement(queryBuilder.getQuery());
-                }
-            }, "void", "updateAutoIncrement", Sets.newHashSet(Modifier.PUBLIC),
+                            javaWriter.emitStatement(queryBuilder.getQuery());
+                        }
+                    }, "void", "updateAutoIncrement", Sets.newHashSet(Modifier.PUBLIC),
                     tableDefinition.getModelClassName(), ModelUtils.getVariable(false),
-                    "long" , "id");
+                    "long", "id");
         }
     }
 }
