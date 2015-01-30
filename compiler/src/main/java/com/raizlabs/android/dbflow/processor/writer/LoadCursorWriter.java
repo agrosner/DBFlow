@@ -54,11 +54,11 @@ public class LoadCursorWriter implements FlowWriter {
     public void write(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);
-        final String[] params = new String[isModelContainerDefinition ? 4 : 2];
+        final String[] params = new String[4];
         params[0] = "Cursor";
         params[1] = "cursor";
-        params[2] = ModelUtils.getParameter(true, tableDefinition.getModelClassName());
-        params[3] = ModelUtils.getVariable(true);
+        params[2] = ModelUtils.getParameter(isModelContainerDefinition, tableDefinition.getModelClassName());
+        params[3] = ModelUtils.getVariable(isModelContainerDefinition);
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
@@ -73,7 +73,7 @@ public class LoadCursorWriter implements FlowWriter {
                 }
 
             }
-        }, isModelContainerDefinition ? "void" : tableDefinition.getModelClassName(), "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
+        }, "void", "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
 
         if (tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).autoIncrementDefinition != null) {
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {

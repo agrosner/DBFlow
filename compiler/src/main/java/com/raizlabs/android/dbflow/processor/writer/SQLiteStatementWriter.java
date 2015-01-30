@@ -74,7 +74,7 @@ public class SQLiteStatementWriter implements FlowWriter {
                     }
 
                     if(implementsContentValuesListener) {
-                        javaWriter.emitStatement("%1s.onBindToContentValues(%1a)", args[3], args[1]);
+                        javaWriter.emitStatement("%1s.onBindToContentValues(%1s)", args[3], args[1]);
                     }
                 }
                 javaWriter.emitEmptyLine();

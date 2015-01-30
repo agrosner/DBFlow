@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.listener.ContentValuesListener;
-import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
@@ -42,13 +41,11 @@ public class ListenerModelTest extends FlowTestCase {
         Cursor cursor = new Select().from(ListenerModel.class).where(Condition.column(ListenerModel$Table.NAME).is("This is a test")).query();
         assertNotNull(cursor);
 
-        modelModelAdapter.loadFromCursor(listenerModel, cursor);
-
-
+        modelModelAdapter.loadFromCursor(cursor, listenerModel);
 
         cursor.close();
 
-        for(boolean call: called) {
+        for (boolean call : called) {
             assertTrue(call);
         }
     }
