@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.sql.SQLiteType;
+import com.raizlabs.android.dbflow.annotation.ForeignModelInteraction;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -12,8 +12,13 @@ import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.model.builder.MockConditionQueryBuilder;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.raizlabs.android.dbflow.sql.StatementMap;
+import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.squareup.javawriter.JavaWriter;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -23,11 +28,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Author: andrewgrosner
@@ -62,6 +62,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public String containerKeyName;
 
+    public ForeignModelInteraction modelInteraction;
+
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         super(element, processorManager);
 
@@ -71,7 +73,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         this.columnFieldType = element.asType().toString();
 
         ContainerKey containerKey = element.getAnnotation(ContainerKey.class);
-        if(containerKey != null) {
+        if (containerKey != null) {
             containerKeyName = containerKey.value();
         } else {
             containerKeyName = columnName;
@@ -120,6 +122,10 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             hasTypeConverter = !SQLiteType.containsClass(columnFieldType);
         }
 
+        if (isModel) {
+            modelInteraction = column.foreignModelInteraction();
+        }
+
     }
 
 
@@ -135,7 +141,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
     }
 
     public String getReferenceColumnName(ForeignKeyReference reference) {
-        return  (columnName + "_" + reference.columnName()).toUpperCase();
+        return (columnName + "_" + reference.columnName()).toUpperCase();
     }
 
     protected void writeColumnDefinition(JavaWriter javaWriter, String columnName) throws IOException {
@@ -174,23 +180,23 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
 
-                    if(!isContentValues) {
+                    if (!isContentValues) {
                         adapterQueryBuilder.appendBindSQLiteStatement(columnCount.intValue(),
                                 ModelUtils.getClassFromAnnotation(foreignKeyReference));
                     } else {
                         adapterQueryBuilder.appendContentValues().appendPut(foreignKeyReference.columnName());
                     }
                     adapterQueryBuilder
-                                .appendCast(ModelUtils.getClassFromAnnotation(foreignKeyReference))
-                                    .append(modelContainerName)
-                                    .append(".")
-                                    .appendGetValue(foreignKeyReference.foreignColumnName())
+                            .appendCast(ModelUtils.getClassFromAnnotation(foreignKeyReference))
+                            .append(modelContainerName)
+                            .append(".")
+                            .appendGetValue(foreignKeyReference.foreignColumnName())
                             .append("))");
                     javaWriter.emitStatement(adapterQueryBuilder.getQuery());
                     columnCount.incrementAndGet();
                 }
 
-            } else {
+            } else if (!modelInteraction.equals(ForeignModelInteraction.LOAD_ONLY)) {
                 String modelStatement = ModelUtils.getModelStatement(columnFieldName);
                 javaWriter.beginControlFlow("if (%1s != null)", modelStatement);
                 javaWriter.emitStatement("%1s.save(false)", modelStatement);
@@ -205,7 +211,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                             false, isModelContainer, true, false, columnFieldType, castedClass.getKind().isPrimitive());
 
                     AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
-                    if(isContentValues) {
+                    if (isContentValues) {
                         adapterQueryBuilder.appendContentValues();
                         adapterQueryBuilder.append(".putNull").appendParenthesisEnclosed("\"" + foreignKeyReference.columnName() + "\"");
                     } else {
@@ -216,7 +222,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                     columnCount.incrementAndGet();
                 }
                 javaWriter.nextControlFlow("else");
-                for(AdapterQueryBuilder queryBuilder : elseNullPuts) {
+                for (AdapterQueryBuilder queryBuilder : elseNullPuts) {
                     javaWriter.emitStatement(queryBuilder.getQuery());
                 }
                 javaWriter.endControlFlow();
@@ -246,7 +252,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
             }
 
-            if(isModelContainerDefinition) {
+            if (isModelContainerDefinition) {
                 if (element.asType().getKind().isPrimitive() && !hasTypeConverter) {
                     newFieldType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
                 }
@@ -264,24 +270,29 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         if (columnType == Column.FOREIGN_KEY) {
             //TODO: This is wrong, should be using condition query builder
             javaWriter.emitEmptyLine();
-            javaWriter.emitSingleLineComment("Begin Loading %1s Model Foreign Key", columnFieldName);
+            if (modelInteraction == null || !modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)) {
+                javaWriter.emitSingleLineComment("Begin Loading %1s Model Foreign Key", columnFieldName);
+            }
 
             // special case for model objects within class
             if (!isModelContainer && !isModelContainerDefinition && isModel) {
 
-                ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
-                MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder()
-                        .appendForeignKeyReferences(columnFieldType + TableDefinition.DBFLOW_TABLE_TAG, columnName, foreignKeyReferences);
+                if (!modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)) {
+                    ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
+                    MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder()
+                            .appendForeignKeyReferences(columnFieldType + TableDefinition.DBFLOW_TABLE_TAG, columnName, foreignKeyReferences);
 
-                String rawConditionStatement = String.format("new Select().from(%1s).where().%1s.querySingle()",
-                        ModelUtils.getFieldClass(columnFieldType), conditionQueryBuilder);
+                    String rawConditionStatement = String.format("new Select().from(%1s).where().%1s.querySingle()",
+                            ModelUtils.getFieldClass(columnFieldType), conditionQueryBuilder);
 
-                AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder().appendVariable(false);
-                adapterQueryBuilder.append(".").append(columnFieldName).appendSpaceSeparated("=");
-                adapterQueryBuilder.append(rawConditionStatement);
-                javaWriter.emitStatement(adapterQueryBuilder.getQuery());
+                    AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder().appendVariable(false);
+                    adapterQueryBuilder.append(".").append(columnFieldName).appendSpaceSeparated("=");
+                    adapterQueryBuilder.append(rawConditionStatement);
+                    javaWriter.emitStatement(adapterQueryBuilder.getQuery());
 
-                javaWriter.endControlFlow();
+                    javaWriter.endControlFlow();
+                }
+
             } else {
                 if (isModelContainerDefinition) {
                     String modelContainerName = ModelUtils.getVariable(true) + columnFieldName;
@@ -307,7 +318,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                     for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                         // instantiate model container
-                        if(isModelContainer) {
+                        if (isModelContainer) {
                             AdapterQueryBuilder containerBuilder =
                                     new AdapterQueryBuilder().appendVariable(isModelContainerDefinition)
                                             .append(".").append(columnFieldName)
@@ -323,8 +334,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                     }
                 }
             }
-            javaWriter.emitSingleLineComment("End");
-            javaWriter.emitEmptyLine();
+
+            if (modelInteraction == null || !modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)) {
+                javaWriter.emitSingleLineComment("End");
+                javaWriter.emitEmptyLine();
+            }
 
         } else {
             String getType = columnFieldType;
@@ -334,13 +348,13 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, getType, columnFieldName,
-                    columnName, "",containerKeyName, modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer);
+                    columnName, "", containerKeyName, modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer);
         }
     }
 
     public void writeToModelDefinition(JavaWriter javaWriter) throws IOException {
 
-        if(!isModel) {
+        if (!isModel) {
             AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder("Object value");
             adapterQueryBuilder.append(columnFieldName).appendSpaceSeparated("=")
                     .appendVariable(true).append(".").appendGetValue(containerKeyName);
@@ -372,7 +386,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
         javaWriter.emitStatement(queryBuilder.getQuery());
 
-        if(!isModel) {
+        if (!isModel) {
             javaWriter.endControlFlow();
         }
     }
