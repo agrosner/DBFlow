@@ -18,6 +18,12 @@ public abstract class ModelViewAdapter<ModelClass extends Model, ModelViewClass 
      */
     public abstract void loadFromCursor(Cursor cursor, ModelViewClass modelViewClass);
 
+    /**
+     * Creates a new {@link ModelViewClass} and loads the cursor into it.
+     *
+     * @param cursor The cursor to query
+     * @return The new model view with the cursor data in it.
+     */
     public ModelViewClass loadFromCursor(Cursor cursor) {
         ModelViewClass modelViewClass = newInstance();
         loadFromCursor(cursor, modelViewClass);
