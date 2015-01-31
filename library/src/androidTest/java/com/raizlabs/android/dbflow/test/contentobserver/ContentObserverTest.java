@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.test.contentobserver;
 
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
@@ -10,6 +11,8 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 public class ContentObserverTest extends FlowTestCase {
 
     public void testContentObserver() {
+        Delete.table(TestModel1.class);
+
         FlowContentObserver flowContentObserver = new FlowContentObserver();
         flowContentObserver.registerForContentChanges(getContext(), TestModel1.class);
 

@@ -128,4 +128,44 @@ public class FlowContentObserver extends ContentObserver {
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         public void onModelUpdated();
     }
+
+    /**
+     * Provides default implementation of the {@link com.raizlabs.android.dbflow.runtime.FlowContentObserver.ModelChangeListener}
+     * enabling you to only have to implement a small subset of methods.
+     */
+    public static class ModelChangeListenerAdapter implements ModelChangeListener {
+
+        @Override
+        public void onModelChanged() {
+            onModelStateChanged();
+        }
+
+        @Override
+        public void onModelSaved() {
+            onModelStateChanged();
+        }
+
+        @Override
+        public void onModelDeleted() {
+            onModelStateChanged();
+        }
+
+        @Override
+        public void onModelInserted() {
+            onModelStateChanged();
+        }
+
+        @Override
+        public void onModelUpdated() {
+            onModelStateChanged();
+        }
+
+        /**
+         * Called for all versions of devices, will strictly notify that the state of a {@link com.raizlabs.android.dbflow.structure.Model}
+         * has changed.
+         */
+        public void onModelStateChanged() {
+
+        }
+    }
 }

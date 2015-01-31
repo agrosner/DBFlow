@@ -6,9 +6,11 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.listener.ContentValuesListener;
+import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
@@ -18,6 +20,8 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 public class ListenerModelTest extends FlowTestCase {
 
     public void testListeners() {
+        Delete.table(ListenerModel.class);
+
         ListenerModel listenerModel = new ListenerModel();
         listenerModel.name = "This is a test";
         final boolean[] called = new boolean[]{false, false, false};
@@ -34,6 +38,12 @@ public class ListenerModelTest extends FlowTestCase {
                         called[2] = true;
                     }
                 });
+        listenerModel.registerLoadFromCursorListener(new LoadFromCursorListener() {
+            @Override
+            public void onLoadFromCursor(Cursor cursor) {
+                called[0] = true;
+            }
+        });
         listenerModel.insert(false);
         listenerModel.update(false);
 
@@ -41,8 +51,10 @@ public class ListenerModelTest extends FlowTestCase {
         Cursor cursor = new Select().from(ListenerModel.class).where(Condition.column(ListenerModel$Table.NAME).is("This is a test")).query();
         assertNotNull(cursor);
 
+        assertTrue(cursor.moveToFirst());
         modelModelAdapter.loadFromCursor(cursor, listenerModel);
 
+        listenerModel.delete(false);
         cursor.close();
 
         for (boolean call : called) {

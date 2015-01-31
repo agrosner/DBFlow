@@ -34,7 +34,7 @@ public abstract class BaseModel implements Model {
         /**
          * The model called {@link #delete(boolean)}
          */
-        DELETE;
+        DELETE
     }
 
     private ModelAdapter mModelAdapter;
