@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.ForeignModelInteraction;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -197,9 +198,13 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                     ColumnDefinition columnDefinition = getColumnDefinitions().get(i);
 
                     if (columnDefinition.columnType == Column.FOREIGN_KEY) {
-                        for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
-                            columnNames.add(reference.columnName());
-                            bindings.add("?");
+                        if(columnDefinition.modelInteraction == null ||
+                                (columnDefinition.modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)
+                                 && columnDefinition.modelInteraction.equals(ForeignModelInteraction.LOAD_AUTO))) {
+                            for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
+                                columnNames.add(reference.columnName());
+                                bindings.add("?");
+                            }
                         }
                     } else if (columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
                         columnNames.add(columnDefinition.columnName.toUpperCase());

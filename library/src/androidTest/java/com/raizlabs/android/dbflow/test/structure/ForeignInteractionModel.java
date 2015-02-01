@@ -17,6 +17,6 @@ public class ForeignInteractionModel extends TestModel1 {
                     {@ForeignKeyReference(columnName = "testmodel_id",
                             foreignColumnName = "name",
                             columnType = String.class)},
-            foreignModelInteraction = ForeignModelInteraction.SAVE_ONLY)
+            foreignModelInteraction = ForeignModelInteraction.LOAD_ONLY)
     TestModel1 testModel1;
 }

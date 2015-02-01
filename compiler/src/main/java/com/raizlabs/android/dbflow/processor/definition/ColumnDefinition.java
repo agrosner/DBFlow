@@ -165,11 +165,15 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public void writeSaveDefinition(JavaWriter javaWriter, boolean isModelContainerDefinition, boolean isContentValues, AtomicInteger columnCount) throws IOException {
         if (columnType == Column.FOREIGN_KEY && isModel) {
-            javaWriter.emitEmptyLine();
-            if (isModelContainer) {
-                javaWriter.emitSingleLineComment("Begin Saving Model Container To DB");
-            } else {
-                javaWriter.emitSingleLineComment("Begin Saving Foreign Key References From Model");
+
+            if(!modelInteraction.equals(ForeignModelInteraction.LOAD_ONLY)
+                    && !modelInteraction.equals(ForeignModelInteraction.NONE)) {
+                javaWriter.emitEmptyLine();
+                if (isModelContainer) {
+                    javaWriter.emitSingleLineComment("Begin Saving Model Container To DB");
+                } else {
+                    javaWriter.emitSingleLineComment("Begin Saving Foreign Key References From Model");
+                }
             }
 
             if (isModelContainerDefinition) {
@@ -196,7 +200,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                     columnCount.incrementAndGet();
                 }
 
-            } else if (!modelInteraction.equals(ForeignModelInteraction.LOAD_ONLY)) {
+            } else if (!modelInteraction.equals(ForeignModelInteraction.LOAD_ONLY)
+                    && !modelInteraction.equals(ForeignModelInteraction.NONE)) {
                 String modelStatement = ModelUtils.getModelStatement(columnFieldName);
                 javaWriter.beginControlFlow("if (%1s != null)", modelStatement);
                 javaWriter.emitStatement("%1s.save(false)", modelStatement);
@@ -227,8 +232,12 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 }
                 javaWriter.endControlFlow();
             }
-            javaWriter.emitSingleLineComment("End");
-            javaWriter.emitEmptyLine();
+
+            if(!modelInteraction.equals(ForeignModelInteraction.LOAD_ONLY)
+                    && !modelInteraction.equals(ForeignModelInteraction.NONE)) {
+                javaWriter.emitSingleLineComment("End");
+                javaWriter.emitEmptyLine();
+            }
         } else {
             // Normal field
             String newFieldType = null;
@@ -270,14 +279,16 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         if (columnType == Column.FOREIGN_KEY) {
             //TODO: This is wrong, should be using condition query builder
             javaWriter.emitEmptyLine();
-            if (modelInteraction == null || !modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)) {
+            if (modelInteraction == null || (!modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)
+                    && !modelInteraction.equals(ForeignModelInteraction.NONE))) {
                 javaWriter.emitSingleLineComment("Begin Loading %1s Model Foreign Key", columnFieldName);
             }
 
             // special case for model objects within class
             if (!isModelContainer && !isModelContainerDefinition && isModel) {
 
-                if (!modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)) {
+                if (modelInteraction == null || (!modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)
+                        && !modelInteraction.equals(ForeignModelInteraction.NONE))) {
                     ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
                     MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder()
                             .appendForeignKeyReferences(columnFieldType + TableDefinition.DBFLOW_TABLE_TAG, columnName, foreignKeyReferences);
@@ -335,7 +346,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 }
             }
 
-            if (modelInteraction == null || !modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)) {
+            if (modelInteraction == null || (!modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)
+                    && !modelInteraction.equals(ForeignModelInteraction.NONE))) {
                 javaWriter.emitSingleLineComment("End");
                 javaWriter.emitEmptyLine();
             }

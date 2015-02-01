@@ -18,7 +18,13 @@ public enum ForeignModelInteraction {
 
     /**
      * Saves the model only to the database. Will not load the foreign model and could lead to loss
-     * of proper data unless you utilize a Cursor listener.
+     * of proper data unless you utilize a LoadFromCursorListener.
      */
-    SAVE_ONLY;
+    SAVE_ONLY,
+
+    /**
+     * Loading and saving will not be handled by the ModelAdapter, rather the class should
+     * implement LoadFromCursorLister, SQLStatementListener, and ContentValuesListener manually.
+     */
+    NONE
 }
