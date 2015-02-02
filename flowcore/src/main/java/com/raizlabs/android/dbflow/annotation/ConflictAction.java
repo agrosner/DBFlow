@@ -7,6 +7,11 @@ package com.raizlabs.android.dbflow.annotation;
 public enum ConflictAction {
 
     /**
+     * Do nothing and do not specify any algorithm.
+     */
+    NONE,
+
+    /**
      *  When an applicable constraint violation occurs, the ROLLBACK resolution algorithm aborts the
      *  current SQL statement with an SQLITE_CONSTRAINT error and rolls back the current transaction.
      *  If no transaction is active (other than the implied transaction that is created on every command)
@@ -53,5 +58,22 @@ public enum ConflictAction {
      * The update hook is not invoked for rows that are deleted by the REPLACE conflict resolution strategy.
      * Nor does REPLACE increment the change counter.
      */
-    REPLACE
+    REPLACE;
+
+    public static int getSQLiteDatabaseAlgorithmInt(ConflictAction conflictAction) {
+        switch (conflictAction) {
+            case ROLLBACK:
+                return 1;
+            case ABORT:
+                return 2;
+            case FAIL:
+                return 3;
+            case IGNORE:
+                return 4;
+            case REPLACE:
+                return 5;
+            default:
+                return 0;
+        }
+    }
 }

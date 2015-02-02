@@ -24,12 +24,20 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     public DataClass getData();
 
     /**
+     * Changes the underlying data. This method should also invalidate the {@link ModelClass} in this container.
+     *
+     * @param data The data to back this object.
+     */
+    public void setData(DataClass data);
+
+    /**
      * @return New instance of underlying data for parsing
      */
     public DataClass newDataInstance();
 
     /**
      * Returns a new instance of this container with a different Model class
+     *
      * @param inValue
      * @param columnClass
      * @return

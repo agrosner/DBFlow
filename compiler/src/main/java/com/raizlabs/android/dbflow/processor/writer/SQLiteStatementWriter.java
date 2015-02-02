@@ -22,14 +22,20 @@ public class SQLiteStatementWriter implements FlowWriter {
 
     private boolean isModelContainer;
 
-    public SQLiteStatementWriter(TableDefinition tableDefinition, boolean isModelContainer) {
+    private final boolean implementsSqlStatementListener;
+    private final boolean implementsContentValuesListener;
+
+    public SQLiteStatementWriter(TableDefinition tableDefinition, boolean isModelContainer,
+                                 boolean implementsSqlStatementListener, boolean implementsContentValuesListener) {
         this.tableDefinition = tableDefinition;
         this.isModelContainer = isModelContainer;
+        this.implementsSqlStatementListener = implementsSqlStatementListener;
+        this.implementsContentValuesListener = implementsContentValuesListener;
     }
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
-        String[] args = new String[4];
+        final String[] args = new String[4];
         args[0] = Classes.SQLITE_STATEMENT;
         args[1] = "statement";
         args[2] = isModelContainer ? "ModelContainer<" + tableDefinition.getModelClassName() + ", ?>"
@@ -44,6 +50,10 @@ public class SQLiteStatementWriter implements FlowWriter {
                     ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
                     if(columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
                         columnDefinition.writeSaveDefinition(javaWriter, isModelContainer, false, columnCounter);
+                    }
+
+                    if(implementsSqlStatementListener) {
+                        javaWriter.emitStatement("%1s.onBindToStatement(%1s)", args[3], args[1]);
                     }
                 }
                 javaWriter.emitEmptyLine();
@@ -61,6 +71,10 @@ public class SQLiteStatementWriter implements FlowWriter {
                     ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
                     if(columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
                         columnDefinition.writeSaveDefinition(javaWriter, isModelContainer, true, columnCounter);
+                    }
+
+                    if(implementsContentValuesListener) {
+                        javaWriter.emitStatement("%1s.onBindToContentValues(%1s)", args[3], args[1]);
                     }
                 }
                 javaWriter.emitEmptyLine();

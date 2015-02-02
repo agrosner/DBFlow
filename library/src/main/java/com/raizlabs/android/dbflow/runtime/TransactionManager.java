@@ -8,18 +8,21 @@ import android.os.Looper;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.InsertTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.SelectSingleModelTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.UpdateTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
 import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -164,10 +167,10 @@ public class TransactionManager {
     /**
      * Adds an arbitrary statement to be processed on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} in the background.
      *
-     * @param transactionInfo      The information on how we should approach this request.
-     * @param queriable            The {@link com.raizlabs.android.dbflow.sql.Queriable} statement that we wish to execute.
+     * @param transactionInfo           The information on how we should approach this request.
+     * @param queriable                 The {@link com.raizlabs.android.dbflow.sql.Queriable} statement that we wish to execute.
      * @param cursorTransactionListener The cursor from the DB that we can process
-     * @param <ModelClass>         The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <ModelClass>              The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
     public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Queriable<ModelClass> queriable, TransactionListener<Cursor> cursorTransactionListener) {
         addTransaction(new QueryTransaction<ModelClass>(transactionInfo, queriable, cursorTransactionListener));
@@ -186,7 +189,7 @@ public class TransactionManager {
      * Fetchs all items from the table in the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} with
      * the optional array of columns
      *
-     * @param transactionListener             The result of the selection will be placed here on the main thread.
+     * @param transactionListener        The result of the selection will be placed here on the main thread.
      * @param whereConditionQueryBuilder The where query conditions to use
      * @param columns                    The columns to select
      * @param <ModelClass>               The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
@@ -203,9 +206,9 @@ public class TransactionManager {
      * optional array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}.
      * This should be done for simulateneous requests on different threads.
      *
-     * @param tableClass     The table we select from.
+     * @param tableClass          The table we select from.
      * @param transactionListener The result of the selection will be placed here on the main thread.
-     * @param conditions     The list of conditions to select the list of models from
+     * @param conditions          The list of conditions to select the list of models from
      */
     public <ModelClass extends Model> void fetchFromTable(Class<ModelClass> tableClass,
                                                           TransactionListener<List<ModelClass>> transactionListener, Condition... conditions) {
@@ -216,7 +219,7 @@ public class TransactionManager {
      * Fetches a list of {@link ModelClass} on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}.
      *
      * @param conditionQueryBuilder The where query we will use
-     * @param transactionListener        The result will be passed here.
+     * @param transactionListener   The result will be passed here.
      */
     public <ModelClass extends Model> void fetchFromTable(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
                                                           final TransactionListener<List<ModelClass>> transactionListener) {
@@ -227,10 +230,10 @@ public class TransactionManager {
      * Fetches all items from the table with the specified {@link com.raizlabs.android.dbflow.sql.language.Where} in
      * the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}.
      *
-     * @param where          The {@link com.raizlabs.android.dbflow.sql.language.Where} statement that we wish to execute. The base of this
-     *                       query must be {@link com.raizlabs.android.dbflow.sql.language.Select}
+     * @param where               The {@link com.raizlabs.android.dbflow.sql.language.Where} statement that we wish to execute. The base of this
+     *                            query must be {@link com.raizlabs.android.dbflow.sql.language.Select}
      * @param transactionListener
-     * @param <ModelClass>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
+     * @param <ModelClass>        The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void fetchFromTable(Where<ModelClass> where, TransactionListener<List<ModelClass>> transactionListener) {
         addTransaction(new SelectListTransaction<ModelClass>(where, transactionListener));
@@ -241,10 +244,10 @@ public class TransactionManager {
      * The order of the ids must match the ordered they're declared. It reuses the cached {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
      * if it exists for this table.
      *
-     * @param tableClass     The table to select the model from.
+     * @param tableClass          The table to select the model from.
      * @param transactionListener The result will be passed here.
-     * @param ids            The list of ids given by the {@link ModelClass}
-     * @param <ModelClass>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
+     * @param ids                 The list of ids given by the {@link ModelClass}
+     * @param <ModelClass>        The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void fetchModelById(Class<ModelClass> tableClass,
                                                           final TransactionListener<ModelClass> transactionListener,
@@ -258,7 +261,7 @@ public class TransactionManager {
      * The order of the ids must match the ordered they're declared.
      *
      * @param conditionQueryBuilder The where query we will use
-     * @param transactionListener        The result will be passed here.
+     * @param transactionListener   The result will be passed here.
      */
     public <ModelClass extends Model> void fetchModel(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
                                                       final TransactionListener<ModelClass> transactionListener) {
@@ -269,9 +272,9 @@ public class TransactionManager {
      * Selects a single model on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} by
      * {@link com.raizlabs.android.dbflow.sql.language.From}.
      *
-     * @param where          The where to use.
+     * @param where               The where to use.
      * @param transactionListener The result will be passed here.
-     * @param <ModelClass>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
+     * @param <ModelClass>        The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void fetchModel(Where<ModelClass> where,
                                                       final TransactionListener<ModelClass> transactionListener) {
@@ -321,7 +324,7 @@ public class TransactionManager {
     /**
      * Saves the list of {@link ModelClass} into the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * with the specified {@link com.raizlabs.android.dbflow.runtime.DBTransactionInfo}. The corresponding
-     * {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} will be called when the transaction completes.
+     * {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} will be called during this Transaction.
      *
      * @param modelInfo Holds information about this save request
      */
@@ -336,7 +339,7 @@ public class TransactionManager {
     /**
      * Deletes with the specified {@link com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo}.
      * The corresponding
-     * {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} will be called when the transaction completes.
+     * {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} will be called during this Transaction.
      *
      * @param modelInfo Holds information about this delete request
      */
@@ -378,7 +381,7 @@ public class TransactionManager {
     /**
      * Updates the list of {@link ModelClass} into the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * with the specified {@link com.raizlabs.android.dbflow.runtime.DBTransactionInfo}. The corresponding
-     * {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} will be called when the transaction completes.
+     * {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} will be called during this Transaction.
      *
      * @param modelInfo Holds information about this update request
      */
@@ -389,32 +392,79 @@ public class TransactionManager {
     /**
      * Updates all of the models with the {@link com.raizlabs.android.dbflow.runtime.DBTransactionInfo}
      * passed from the list of models. The corresponding {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener}
-     * will be called when the transaction finishes.
+     * will be called during this Transaction.
      *
      * @param transactionInfo       The information on how we should approach this request.
-     * @param whereConditionBuilder The whery query piece
-     * @param setConditions         The conditions for the set part of the query
+     * @param whereConditionBuilder The WHERE query piece
+     * @param setConditions         The conditions for the SET part of the query
      * @param <ModelClass>          The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void update(DBTransactionInfo transactionInfo,
                                                   ConditionQueryBuilder<ModelClass> whereConditionBuilder,
                                                   Condition... setConditions) {
-        addTransaction(new UpdateTransaction<ModelClass>(transactionInfo, whereConditionBuilder, setConditions));
+        addTransaction(new UpdateTransaction<>(transactionInfo, whereConditionBuilder, setConditions));
     }
 
     /**
-     * Used when we don't care about the result of {@link #delete(DBTransactionInfo, java.util.List, com.raizlabs.android.dbflow.runtime.transaction.TransactionListener)}
+     * Updates a a table based on the WHERE condition builder, and SET condition builder.
      *
-     * @param transactionInfo The information on how we should approach this request.
-     * @param models          The list of models to update
-     * @param <ModelClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
-     * @see #update(DBTransactionInfo, com.raizlabs.android.dbflow.runtime.transaction.TransactionListener, java.util.List)
+     * @param transactionInfo       The information on how we should approach this request.
+     * @param whereConditionBuilder The WHERE condition
+     * @param setConditionBuilder   The SET conditions
+     * @param <ModelClass>          The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
+     * @see #update(DBTransactionInfo, com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder, com.raizlabs.android.dbflow.sql.builder.Condition...)
      */
     public <ModelClass extends Model> void update(DBTransactionInfo transactionInfo,
                                                   ConditionQueryBuilder<ModelClass> whereConditionBuilder,
                                                   ConditionQueryBuilder<ModelClass> setConditionBuilder) {
-        addTransaction(new UpdateTransaction<ModelClass>(transactionInfo, whereConditionBuilder, setConditionBuilder));
+        addTransaction(new UpdateTransaction<>(transactionInfo, whereConditionBuilder, setConditionBuilder));
     }
+
+
+    // endregion
+
+    // region Database insert methods
+
+    /**
+     * Insers the list of {@link ModelClass} into the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * with the specified {@link com.raizlabs.android.dbflow.runtime.DBTransactionInfo}. The corresponding
+     * {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} will be called during this Transaction.
+     *
+     * @param modelInfo Holds information about this update request
+     */
+    public <ModelClass extends Model> void insert(ProcessModelInfo<ModelClass> modelInfo) {
+        addTransaction(new InsertModelTransaction<>(modelInfo));
+    }
+
+    /**
+     * Updates all of the models with the {@link com.raizlabs.android.dbflow.runtime.DBTransactionInfo}
+     * passed from the list of models. The corresponding {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener}
+     * will be called when the transaction finishes.
+     *
+     * @param transactionInfo The information on how we should approach this request.
+     * @param table           The table to insert into
+     * @param columnValues    The conditions for columns and values to insert.
+     * @param <ModelClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
+     */
+    public <ModelClass extends Model> void insert(DBTransactionInfo transactionInfo,
+                                                  Class<ModelClass> table,
+                                                  Condition... columnValues) {
+        addTransaction(new InsertTransaction<>(transactionInfo, table, columnValues));
+    }
+
+    /**
+     * Runs the INSERT on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     *
+     * @param transactionInfo The information on how we should approach this request.
+     * @param insert          The INSERT statement to use.
+     * @param <ModelClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
+     * @see #insert(DBTransactionInfo, Class, com.raizlabs.android.dbflow.sql.builder.Condition...)
+     */
+    public <ModelClass extends Model> void insert(DBTransactionInfo transactionInfo,
+                                                  Insert<ModelClass> insert) {
+        addTransaction(new InsertTransaction<>(transactionInfo, insert));
+    }
+
 
     // endregion
 }

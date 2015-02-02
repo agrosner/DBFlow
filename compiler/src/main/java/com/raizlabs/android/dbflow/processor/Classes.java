@@ -21,6 +21,8 @@ public class Classes {
 
     public static final String BUILDER = SQL + "builder.";
 
+    public static final String LISTENER = STRUCTURE + "listener.";
+
     public static final String MODEL_ADAPTER = STRUCTURE + "ModelAdapter";
 
     public static final String MODEL_CONTAINER = CONTAINER + "ModelContainer";
@@ -74,4 +76,12 @@ public class Classes {
     public static final String MIGRATION = SQL + "migration.Migration";
 
     public static final String SQLITE_STATEMENT = "android.database.sqlite.SQLiteStatement";
+
+    public static final String CONFLICT_ACTION = BASE_PACKAGE + "annotation.ConflictAction";
+
+    public static final String CONTENT_VALUES_LISTENER = LISTENER + "ContentValuesListener";
+
+    public static final String LOAD_FROM_CURSOR_LISTENER = LISTENER + "LoadFromCursorListener";
+
+    public static final String SQLITE_STATEMENT_LISTENER = LISTENER + "SQLiteStatementListener";
 }

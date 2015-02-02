@@ -31,7 +31,9 @@ public class FlowCursorList<ModelClass extends Model> {
 
     private boolean cacheModels;
 
-    private Queriable<ModelClass> mWhere;
+    private Queriable<ModelClass> mQueriable;
+
+    private CursorObserver mObserver;
 
     /**
      * Constructs an instance of this list.
@@ -41,8 +43,8 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param queriable   The SQL where query to use when doing a query.
      */
     public FlowCursorList(boolean cacheModels, Queriable<ModelClass> queriable) {
-        mWhere = queriable;
-        mCursor = mWhere.query();
+        mQueriable = queriable;
+        mCursor = mQueriable.query();
         mTable = queriable.getTable();
         this.cacheModels = cacheModels;
 
@@ -50,7 +52,7 @@ public class FlowCursorList<ModelClass extends Model> {
             mModelCache = new SparseArray<>(mCursor.getCount());
         }
 
-        mCursor.registerContentObserver(new CursorObserver());
+        mCursor.registerContentObserver(mObserver = new CursorObserver());
     }
 
     /**
@@ -75,6 +77,7 @@ public class FlowCursorList<ModelClass extends Model> {
         if (!cacheModels) {
             clearCache();
         } else {
+            throwIfCursorClosed();
             mModelCache = new SparseArray<>(mCursor.getCount());
         }
     }
@@ -93,7 +96,7 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public void refresh() {
         mCursor.close();
-        mCursor = mWhere.query();
+        mCursor = mQueriable.query();
 
         if (cacheModels) {
             mModelCache.clear();
@@ -108,6 +111,8 @@ public class FlowCursorList<ModelClass extends Model> {
      * @return The {@link ModelClass} converted from the cursor
      */
     public ModelClass getItem(int position) {
+        throwIfCursorClosed();
+
         ModelClass model;
         if (cacheModels) {
             model = mModelCache.get(position);
@@ -129,6 +134,7 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param transactionListener Called when we retrieve the results.
      */
     public void fetchAll(TransactionListener<List<ModelClass>> transactionListener) {
+        throwIfCursorClosed();
         TransactionManager.getInstance().addTransaction(
                 new BaseResultTransaction<List<ModelClass>>(DBTransactionInfo.createFetch(), transactionListener) {
                     @Override
@@ -144,6 +150,7 @@ public class FlowCursorList<ModelClass extends Model> {
      * instead.
      */
     public List<ModelClass> getAll() {
+        throwIfCursorClosed();
         return SqlUtils.convertToList(mTable, mCursor);
     }
 
@@ -151,6 +158,7 @@ public class FlowCursorList<ModelClass extends Model> {
      * @return the count of rows on this database query list.
      */
     public boolean isEmpty() {
+        throwIfCursorClosed();
         return getCount() == 0;
     }
 
@@ -158,6 +166,7 @@ public class FlowCursorList<ModelClass extends Model> {
      * @return the count of the rows in the {@link android.database.Cursor} backed by this list.
      */
     public int getCount() {
+        throwIfCursorClosed();
         return mCursor != null ? mCursor.getCount() : 0;
     }
 
@@ -165,11 +174,20 @@ public class FlowCursorList<ModelClass extends Model> {
      * Closes the cursor backed by this list
      */
     public void close() {
+        mCursor.unregisterContentObserver(mObserver);
         mCursor.close();
+        mObserver = null;
+        mCursor = null;
     }
 
     public Class<ModelClass> getTable() {
         return mTable;
+    }
+
+    private void throwIfCursorClosed() {
+        if(mCursor == null || mCursor.isClosed()) {
+            throw new IllegalStateException("Cursor has been closed for FlowCursorList");
+        }
     }
 
     class CursorObserver extends ContentObserver {

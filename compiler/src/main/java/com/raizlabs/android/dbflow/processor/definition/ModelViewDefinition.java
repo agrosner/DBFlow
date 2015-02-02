@@ -1,9 +1,11 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.handler.FlowManagerHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
@@ -14,6 +16,7 @@ import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -28,6 +31,8 @@ import java.util.List;
 public class ModelViewDefinition extends BaseTableDefinition implements FlowWriter {
 
     private static final String DBFLOW_MODEL_VIEW_TAG = "$View";
+
+    final boolean implementsLoadFromCursorListener;
 
     public String databaseName;
 
@@ -76,8 +81,11 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
         createColumnDefinitions((TypeElement) element);
 
+        implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                Classes.LOAD_FROM_CURSOR_LISTENER, (TypeElement) element);
+
         mMethodWriters = new FlowWriter[] {
-                new LoadCursorWriter(this, false),
+                new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
                 new ExistenceWriter(this, false),
                 new WhereQueryWriter(this, false)
         };
@@ -149,6 +157,12 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
             }
         }, "String" , "getViewName", FlowManagerHandler.METHOD_MODIFIERS);
 
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return new %1s()", getFullyQualifiedModelClassName());
+            }
+        }, getFullyQualifiedModelClassName(), "newInstance", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
     }
 
 }

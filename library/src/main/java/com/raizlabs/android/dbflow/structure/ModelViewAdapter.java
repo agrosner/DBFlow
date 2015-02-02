@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
+
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 
 /**
@@ -11,10 +12,28 @@ public abstract class ModelViewAdapter<ModelClass extends Model, ModelViewClass 
 
     /**
      * Loads the cursor into a new model view object
-     * @param cursor The cursor to query
-     * @return The new instance of the {@link ModelViewClass}
+     *
+     * @param cursor         The cursor to query
+     * @param modelViewClass The model view to assign the cursor data to
      */
-    public abstract ModelViewClass loadFromCursor(Cursor cursor);
+    public abstract void loadFromCursor(Cursor cursor, ModelViewClass modelViewClass);
+
+    /**
+     * Creates a new {@link ModelViewClass} and loads the cursor into it.
+     *
+     * @param cursor The cursor to query
+     * @return The new model view with the cursor data in it.
+     */
+    public ModelViewClass loadFromCursor(Cursor cursor) {
+        ModelViewClass modelViewClass = newInstance();
+        loadFromCursor(cursor, modelViewClass);
+        return modelViewClass;
+    }
+
+    /**
+     * @return A new instace of the {@link ModelViewClass} must have a default constructor.
+     */
+    protected abstract ModelViewClass newInstance();
 
     /**
      * @return a string of the query that is used to create this model view.

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
@@ -38,7 +39,18 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param cursor The cursor to load
      * @return A new {@link ModelClass}
      */
-    public abstract ModelClass loadFromCursor(Cursor cursor);
+    public ModelClass loadFromCursor(Cursor cursor) {
+        ModelClass model = newInstance();
+        loadFromCursor(cursor, model);
+        return model;
+    }
+
+    /**
+     * Assigns the {@link android.database.Cursor} data into the specified cursor
+     * @param model The model to assign cursor data to
+     * @param cursor The cursor to load into the model
+     */
+    public abstract void loadFromCursor(Cursor cursor, ModelClass model);
 
     /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
@@ -50,6 +62,24 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      */
     public synchronized void save(boolean async, ModelClass model, int saveMode) {
         SqlUtils.sync(async, model, this, saveMode);
+    }
+
+    /**
+     * Inserts the specified model into the DB.
+     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param model The model to insert.
+     */
+    public synchronized void insert(boolean async, ModelClass model) {
+        SqlUtils.insert(async, model, this);
+    }
+
+    /**
+     * Updates the specified model into the DB.
+     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param model The model to update.
+     */
+    public synchronized void update(boolean async, ModelClass model) {
+        SqlUtils.update(async, model, this);
     }
 
     /**
@@ -135,4 +165,18 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * we don't use reflection to create objects = faster.
      */
     public abstract ModelClass newInstance();
+
+    /**
+     * @return The conflict algorithm to use when updating a row in this table.
+     */
+    public ConflictAction getUpdateOnConflictAction() {
+        return ConflictAction.ABORT;
+    }
+
+    /**
+     * @return The conflict algorithm to use when inserting a row in this table.
+     */
+    public ConflictAction getInsertOnConflictAction() {
+        return ConflictAction.ABORT;
+    }
 }

@@ -34,7 +34,12 @@ public abstract class BaseModel implements Model {
         /**
          * The model called {@link #delete(boolean)}
          */
-        DELETE;
+        DELETE,
+
+        /**
+         * The model was changed. used in prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}
+         */
+        CHANGE
     }
 
     private ModelAdapter mModelAdapter;
@@ -58,7 +63,7 @@ public abstract class BaseModel implements Model {
     @SuppressWarnings("unchecked")
     @Override
     public void update(boolean async) {
-        mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_UPDATE);
+        mModelAdapter.update(async, this);
     }
 
     /**
@@ -69,7 +74,7 @@ public abstract class BaseModel implements Model {
     @SuppressWarnings("unchecked")
     @Override
     public void insert(boolean async) {
-        mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_INSERT);
+        mModelAdapter.insert(async, this);
     }
 
     @SuppressWarnings("unchecked")
