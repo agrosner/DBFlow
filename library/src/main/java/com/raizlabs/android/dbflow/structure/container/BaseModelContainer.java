@@ -116,12 +116,12 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public void update(boolean async) {
-        mContainerAdapter.save(async, this, SqlUtils.SAVE_MODE_UPDATE);
+        mContainerAdapter.update(async, this);
     }
 
     @Override
     public void insert(boolean async) {
-        mContainerAdapter.save(async, this, SqlUtils.SAVE_MODE_INSERT);
+        mContainerAdapter.insert(async, this);
     }
 
     @Override

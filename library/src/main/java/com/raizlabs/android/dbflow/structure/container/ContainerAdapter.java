@@ -35,15 +35,37 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
     }
 
     /**
+     * Inserts the specified model into the DB.
+     *
+     * @param async          Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param modelContainer The model container to insert.
+     */
+    public void insert(boolean async, ModelContainer<ModelClass, ?> modelContainer) {
+        ModelContainerUtils.insert(async, modelContainer, this);
+    }
+
+    /**
+     * Updates the specified model into the DB.
+     *
+     * @param async          Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param modelContainer The model to update.
+     */
+    public void update(boolean async, ModelContainer<ModelClass, ?> modelContainer) {
+        ModelContainerUtils.update(async, modelContainer, this);
+    }
+
+    /**
      * Binds a {@link ModelClass} container to the specified db statement
+     *
      * @param sqLiteStatement The statement to insert
-     * @param modelContainer The container to read data from into {@link android.database.sqlite.SQLiteStatement}
+     * @param modelContainer  The container to read data from into {@link android.database.sqlite.SQLiteStatement}
      */
     public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelContainer<ModelClass, ?> modelContainer);
 
     /**
      * Binds a {@link ModelClass} container to the specified db statement
-     * @param contentValues The content values to bind to
+     *
+     * @param contentValues  The content values to bind to
      * @param modelContainer The container to read data from into {@link android.content.ContentValues}
      */
     public abstract void bindToContentValues(ContentValues contentValues, ModelContainer<ModelClass, ?> modelContainer);
@@ -75,6 +97,17 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
      * @return a new model instance.
      */
     public abstract ModelClass toModel(ModelContainer<ModelClass, ?> modelContainer);
+
+    /**
+     * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
+     * this method will be overridden.
+     *
+     * @param modelContainer The model container object to store the key
+     * @param id             The key to store
+     */
+    public void updateAutoIncrement(ModelContainer<ModelClass, ?> modelContainer, long id) {
+
+    }
 
     /**
      * @param modelContainer

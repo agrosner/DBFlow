@@ -3,10 +3,13 @@ package com.raizlabs.android.dbflow.structure.container;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Build;
 
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -34,10 +37,9 @@ public class ModelContainerUtils {
     public static <ModelClass extends Model> void sync(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContainerAdapter<ModelClass> containerAdapter, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
-            BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelContainer.getTable());
-            ModelAdapter<ModelClass> modelAdapter = modelContainer.getModelAdapter();
-
-            final SQLiteDatabase db = flowManager.getWritableDatabase();
+            if (modelContainer == null) {
+                throw new IllegalArgumentException("Model from " + containerAdapter.getModelClass() + " was null");
+            }
 
             boolean exists = false;
             BaseModel.Action action = BaseModel.Action.SAVE;
@@ -51,28 +53,11 @@ public class ModelContainerUtils {
             }
 
             if (exists) {
-                ContentValues contentValues = new ContentValues();
-                containerAdapter.bindToContentValues(contentValues, modelContainer);
-                exists = (db.update(modelAdapter.getTableName(), contentValues, containerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null)!=0);
+                exists = update(false, modelContainer, containerAdapter);
             }
 
             if (!exists) {
-                SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
-                containerAdapter.bindToStatement(insertStatement, modelContainer);
-                long id = insertStatement.executeInsert();
-                //containerAdapter.updateAutoIncrement(modelContainer, id);
-
-                /*Collection<Field> primaryKeys = tableStructure.getPrimaryKeys();
-                for (Field field : primaryKeys) {
-                    if (StructureUtils.isPrimaryKeyAutoIncrement(field)) {
-                        field.setAccessible(true);
-                        try {
-                            field.set(mode, id);
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }*/
+                insert(false, modelContainer, containerAdapter);
             }
 
             SqlUtils.notifyModelChanged(modelContainer.getTable(), action);
@@ -99,5 +84,65 @@ public class ModelContainerUtils {
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(modelContainer));
         }
+    }
+
+    /**
+     * Will attempt to insert the {@link com.raizlabs.android.dbflow.structure.container.ModelContainer} into the DB.
+     *
+     * @param async          Where it goes on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} or done immediately.
+     * @param modelContainer The model container to insert.
+     * @param modelAdapter   The container adapter to use.
+     * @param <ModelClass>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     */
+    public static <ModelClass extends Model> void insert(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContainerAdapter<ModelClass> modelAdapter) {
+        if (!async) {
+            ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(modelContainer.getTable());
+            SQLiteStatement insertStatement = modelClassModelAdapter.getInsertStatement();
+            modelAdapter.bindToStatement(insertStatement, modelContainer);
+            long id = insertStatement.executeInsert();
+            modelAdapter.updateAutoIncrement(modelContainer, id);
+            SqlUtils.notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT);
+        } else {
+            TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(ProcessModelInfo.withModels(modelContainer)
+                    .info(DBTransactionInfo.createSave())));
+        }
+    }
+
+    /**
+     * Updates the model container if it exists. If the model does not exist and no rows are changed, we will attempt an insert into the DB.
+     *
+     * @param async                      Where it goes on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} or done immediately.
+     * @param modelContainer             The model container to update
+     * @param modelClassContainerAdapter The adapter to use
+     * @param <ModelClass>               The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @return true if model was inserted, false if not. Also false could mean that it is placed on the
+     * {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} using async to true.
+     */
+    public static <ModelClass extends Model> boolean update(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContainerAdapter<ModelClass> modelClassContainerAdapter) {
+        boolean exists = false;
+        if (!async) {
+            ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(modelContainer.getTable());
+            SQLiteDatabase db = FlowManager.getDatabaseForTable(modelClassModelAdapter.getModelClass()).getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+            modelClassContainerAdapter.bindToContentValues(contentValues, modelContainer);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+                exists = (db.updateWithOnConflict(modelClassModelAdapter.getTableName(), contentValues,
+                        modelClassContainerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null,
+                        ConflictAction.getSQLiteDatabaseAlgorithmInt(modelClassModelAdapter.getUpdateOnConflictAction())) != 0);
+            } else {
+                exists = (db.update(modelClassModelAdapter.getTableName(), contentValues,
+                        modelClassContainerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null) != 0);
+            }
+            if (!exists) {
+                // insert
+                insert(false, modelContainer, modelClassContainerAdapter);
+            } else {
+                SqlUtils.notifyModelChanged(modelClassModelAdapter.getModelClass(), BaseModel.Action.UPDATE);
+            }
+        } else {
+            TransactionManager.getInstance().update(ProcessModelInfo.withModels(modelContainer).info(DBTransactionInfo.createSave()));
+        }
+        return exists;
+
     }
 }

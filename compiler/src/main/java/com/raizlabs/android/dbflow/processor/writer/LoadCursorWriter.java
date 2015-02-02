@@ -76,23 +76,25 @@ public class LoadCursorWriter implements FlowWriter {
         }, "void", "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
 
         if (tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).autoIncrementDefinition != null) {
+            final String[] params = new String[4];
+            params[0] = ModelUtils.getParameter(isModelContainerDefinition, tableDefinition.getModelClassName());
+            params[1] = ModelUtils.getVariable(isModelContainerDefinition);
+            params[2] = "long";
+            params[3] = "id";
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-                        @Override
-                        public void write(JavaWriter javaWriter) throws IOException {
-                            // TODOL: generate method
-                            ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
-                            AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
-                                    .append(ModelUtils.getVariable(false))
-                                    .append(".").append(columnDefinition.columnFieldName)
-                                    .append(" = ")
-                                    .appendCast(columnDefinition.columnFieldType)
-                                    .append("id)");
+                @Override
+                public void write(JavaWriter javaWriter) throws IOException {
+                    ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+                    AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
+                            .append(ModelUtils.getVariable(false))
+                            .append(".").append(columnDefinition.columnFieldName)
+                            .append(" = ")
+                            .appendCast(columnDefinition.columnFieldType)
+                            .append("id)");
 
-                            javaWriter.emitStatement(queryBuilder.getQuery());
-                        }
-                    }, "void", "updateAutoIncrement", Sets.newHashSet(Modifier.PUBLIC),
-                    tableDefinition.getModelClassName(), ModelUtils.getVariable(false),
-                    "long", "id");
+                    javaWriter.emitStatement(queryBuilder.getQuery());
+                }
+            }, "void", "updateAutoIncrement", Sets.newHashSet(Modifier.PUBLIC), params);
         }
     }
 }

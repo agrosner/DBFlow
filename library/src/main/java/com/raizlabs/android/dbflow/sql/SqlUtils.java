@@ -180,7 +180,7 @@ public class SqlUtils {
     public static <ModelClass extends Model> void sync(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter, @SaveMode int mode) {
         if (!async) {
 
-            if(model == null) {
+            if (model == null) {
                 throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
             }
 
@@ -215,6 +215,7 @@ public class SqlUtils {
     /**
      * Updates the model if it exists. If the model does not exist and no rows are changed, we will attempt an insert into the DB.
      *
+     * @param async        Whether it goes on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} or done immediately.
      * @param model        The model to update
      * @param modelAdapter The adapter to use
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
@@ -247,6 +248,14 @@ public class SqlUtils {
         return exists;
     }
 
+    /**
+     * Will attempt to insert the {@link com.raizlabs.android.dbflow.structure.container.ModelContainer} into the DB.
+     *
+     * @param async        Where it goes on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} or done immediately.
+     * @param model        The model to insert.
+     * @param modelAdapter The adapter to use.
+     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     */
     public static <ModelClass extends Model> void insert(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
         if (!async) {
             SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
