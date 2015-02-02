@@ -115,6 +115,24 @@ Use the ```ColumnType.FOREIGN_KEY``` to enable **one-to-one** relationships. For
 
 ```
 
+### Foreign Key Container
+
+We strongly prefer you use a ```ForeignKeyContainer``` and ```saveForeignKeyModel() = false``` for maximum performance gain:
+
+```java
+
+  @Column(columnType = Column.FOREIGN_KEY, 
+    references = {@ForeignKeyReference(columnName = "columnInTable", columnType = String.class, foreignColumnName = "columnInForeignKeyTable"), 
+                 @ForeignKeyReference(columnName = "column2InTable", columnType = String.class, foreignColumnName = "column2InForeignKeyTable")},
+    saveForeignKeyModel = false)
+  ForeignKeyContainer<SomeOtherTable> object;
+
+```
+
+To lazy-retrieve the ```Model```, call ```object.toModel()```. 
+
+### ForeignKeyReference
+
 Note that the number of ```@ForeignKeyReference``` must match the number of primary keys in the foreign table. 
 
 ```@ForeignKeyReference``` describes three fields:
@@ -122,7 +140,7 @@ Note that the number of ```@ForeignKeyReference``` must match the number of prim
   2. columnType: The type of the field, must be the same between the current table and foreign table.
   3. foreignColumnName: The name of the column in the foreign table
 
-In the original example, this field will load the foreign field up automatically when this model is loaded from the DB.
+In the original example, this field will load the foreign field up automatically when this model is loaded from the DB. __When using the second example, we do not save the contained foreign key object to save on speed when we expect the reference to remain unchanged.__ Also the ```ForeignKeyContainer``` will hold onto data from the load until calling ```toModel()``` to prevent unnecessary DB lookups for maximum performance gain on load.
 
 ### One-to-Many
 
