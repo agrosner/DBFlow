@@ -30,17 +30,16 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     public BaseModelContainer(Class<ModelClass> table) {
         mModelAdapter = FlowManager.getModelAdapter(table);
-    }
-
-    public BaseModelContainer(Class<ModelClass> table, DataClass data) {
-        mModelAdapter = FlowManager.getModelAdapter(table);
         mContainerAdapter = FlowManager.getContainerAdapter(table);
-        mData = data;
-
         if (mContainerAdapter == null) {
             throw new InvalidDBConfiguration("The table" + FlowManager.getTableName(table) + " did not specify the ContainerAdapter" +
                     "annotation. Please add and rebuild");
         }
+    }
+
+    public BaseModelContainer(Class<ModelClass> table, DataClass data) {
+        this(table);
+        mData = data;
     }
 
     @Override
@@ -83,9 +82,10 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      *
      * @param data The data object that backs this container
      */
-    @Override   
+    @Override
     public void setData(DataClass data) {
         mData = data;
+        mModel = null;
     }
 
     @Override

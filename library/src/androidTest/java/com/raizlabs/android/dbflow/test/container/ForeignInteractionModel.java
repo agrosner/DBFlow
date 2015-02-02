@@ -29,7 +29,7 @@ public class ForeignInteractionModel extends TestModel1 {
     }
 
     public void setTestModel1(TestModel1 model1) {
-        testModel1 = new ForeignKeyContainer<TestModel1>(TestModel1.class);
+        testModel1 = new ForeignKeyContainer<>(TestModel1.class);
         Map<String, Object> map = new HashMap<>();
         map.put(TestModel1$Table.NAME, model1.name);
         testModel1.setData(map);
