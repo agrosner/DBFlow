@@ -179,6 +179,11 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void sync(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter, @SaveMode int mode) {
         if (!async) {
+
+            if(model == null) {
+                throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
+            }
+
             BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(model.getClass());
             final SQLiteDatabase db = flowManager.getWritableDatabase();
 

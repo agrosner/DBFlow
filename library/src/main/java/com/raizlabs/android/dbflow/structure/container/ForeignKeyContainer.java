@@ -21,7 +21,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
      * @param table The table to associate the container with
      */
     public ForeignKeyContainer(Class<ModelClass> table) {
-        super(table);
+        super(table, new LinkedHashMap<String, Object>());
     }
 
     /**

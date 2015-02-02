@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
@@ -21,7 +22,9 @@ public class ForeignInteractionModel extends TestModel1 {
             references =
                     {@ForeignKeyReference(columnName = "testmodel_id",
                             foreignColumnName = "name",
-                            columnType = String.class)})
+                            columnType = String.class)},
+            onDelete = ForeignKeyAction.CASCADE,
+    onUpdate = ForeignKeyAction.CASCADE)
     ForeignKeyContainer<TestModel1> testModel1;
 
     public TestModel1 getTestModel1() {
