@@ -137,34 +137,37 @@ public class FlowContentObserver extends ContentObserver {
 
         @Override
         public void onModelChanged() {
-            onModelStateChanged();
+            onModelStateChanged(BaseModel.Action.CHANGE);
         }
 
         @Override
         public void onModelSaved() {
-            onModelStateChanged();
+            onModelStateChanged(BaseModel.Action.SAVE);
         }
 
         @Override
         public void onModelDeleted() {
-            onModelStateChanged();
+            onModelStateChanged(BaseModel.Action.DELETE);
         }
 
         @Override
         public void onModelInserted() {
-            onModelStateChanged();
+            onModelStateChanged(BaseModel.Action.INSERT);
         }
 
         @Override
         public void onModelUpdated() {
-            onModelStateChanged();
+            onModelStateChanged(BaseModel.Action.UPDATE);
         }
 
         /**
          * Called for all versions of devices, will strictly notify that the state of a {@link com.raizlabs.android.dbflow.structure.Model}
          * has changed.
+         *
+         * @param action The action on the model. for versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1} ,
+         *               the {@link com.raizlabs.android.dbflow.structure.BaseModel.Action#CHANGE} will always be called for any action.
          */
-        public void onModelStateChanged() {
+        public void onModelStateChanged(BaseModel.Action action) {
 
         }
     }

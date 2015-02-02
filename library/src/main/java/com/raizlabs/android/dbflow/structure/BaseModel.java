@@ -34,7 +34,12 @@ public abstract class BaseModel implements Model {
         /**
          * The model called {@link #delete(boolean)}
          */
-        DELETE
+        DELETE,
+
+        /**
+         * The model was changed. used in prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}
+         */
+        CHANGE
     }
 
     private ModelAdapter mModelAdapter;
