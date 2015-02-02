@@ -101,17 +101,6 @@ public @interface Column {
     ForeignKeyReference[] references() default {};
 
     /**
-     * @return If it is a {@link #FOREIGN_KEY} and a Model ,
-     * defines how the key is handled when interacting with the
-     * database. The {@link com.raizlabs.android.dbflow.annotation.ForeignModelInteraction#LOAD_AUTO}
-     * is the default method. {@link com.raizlabs.android.dbflow.annotation.ForeignModelInteraction#LOAD_ONLY}
-     * will load the Model only and not save it.
-     * {@link com.raizlabs.android.dbflow.annotation.ForeignModelInteraction#SAVE_ONLY} will not load it upon
-     * cursor load but rather only enable saving of it.
-     */
-    ForeignModelInteraction foreignModelInteraction() default ForeignModelInteraction.LOAD_AUTO;
-
-    /**
      * Defines {@link ForeignKeyAction} action to be performed
      * on delete of referenced record. Defaults to {@link ForeignKeyAction#NO_ACTION}. Used only when
      * columnType is {@link #FOREIGN_KEY}.

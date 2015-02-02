@@ -4,12 +4,10 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.annotation.ForeignModelInteraction;
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.processor.ProcessorUtils;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
@@ -20,6 +18,7 @@ import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
 import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
 import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -187,7 +186,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 String insertConflictName = insertConflictActionName;
-                if(!insertConflictName.isEmpty()) {
+                if (!insertConflictName.isEmpty()) {
                     insertConflictName = String.format(" OR %1s ", insertConflictName);
                 }
                 QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO %1s (");
@@ -198,13 +197,9 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                     ColumnDefinition columnDefinition = getColumnDefinitions().get(i);
 
                     if (columnDefinition.columnType == Column.FOREIGN_KEY) {
-                        if(columnDefinition.modelInteraction == null ||
-                                (columnDefinition.modelInteraction.equals(ForeignModelInteraction.SAVE_ONLY)
-                                 && columnDefinition.modelInteraction.equals(ForeignModelInteraction.LOAD_AUTO))) {
-                            for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
-                                columnNames.add(reference.columnName());
-                                bindings.add("?");
-                            }
+                        for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
+                            columnNames.add(reference.columnName());
+                            bindings.add("?");
                         }
                     } else if (columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
                         columnNames.add(columnDefinition.columnName.toUpperCase());
@@ -229,7 +224,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
             }
         }, getQualifiedModelClassName(), "newInstance", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
 
-        if(!updateConflicationActionName.isEmpty()) {
+        if (!updateConflicationActionName.isEmpty()) {
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                 @Override
                 public void write(JavaWriter javaWriter) throws IOException {
@@ -238,7 +233,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
             }, Classes.CONFLICT_ACTION, "getUpdateOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
         }
 
-        if(!insertConflictActionName.isEmpty()) {
+        if (!insertConflictActionName.isEmpty()) {
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                 @Override
                 public void write(JavaWriter javaWriter) throws IOException {
