@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.2.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.3.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -17,13 +17,16 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
-#### 1.2.0
+### 1.3.0
 
-  1. Added SQLite Triggers!
-  2. Added the ```IN``` and ```NOT IN``` operators to ```Condition```
-  3. Fixes an issue where a ```FlowCursorList``` was A. not caching models and B. not handling ```ModelView``` properly, thanks [Cain](https://github.com/wongcain).
-  4. Added ```ForeignKeyAction``` which specify the action to take when updates and deletes occur to the foreign key. Thanks [Michal](https://github.com/mozarcik)
-  5. Added the ```Insert``` statement wrapper! Particularily useful for ```Trigger```
+
+  1. Adds in ConflictAction you can specify for a @Table insert and update methods. This will not work on earlier than FROYO (API 8) for update statements.
+  2. Added InsertTransaction and InsertModelTransaction that handle insert queries with the TransactionManager
+  3. Now BaseModel will directly call UPDATE and INSERT methods in the update() and insert() instead of using save() when calling those methods directly for a small performance gain.
+  4. Added checking and attempts. Thanks [wongcain](https://github.com/wongcain)
+  5. Now supports ForeignKeyContainer which when placed in a field of a Model, will hold onto the foreign key cursor data and provide an on-demand lazy loading of foreign key objects by calling toModel().
+  6. Added support for LoadFromCursorListener, SQLiteStatementListener, and ContentValuesListener within a model to implement to perform some custom action during use of those methods.
+  7. Added a saveForeignKeyModel() option in Column to disable save() on a contained foreign key Model or ModelContainer from within its associated Adapter class. Thanks [davidschreiber](https://github.com/davidschreiber)
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
