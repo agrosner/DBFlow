@@ -83,6 +83,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      *
      * @param data The data object that backs this container
      */
+    @Override   
     public void setData(DataClass data) {
         mData = data;
     }
