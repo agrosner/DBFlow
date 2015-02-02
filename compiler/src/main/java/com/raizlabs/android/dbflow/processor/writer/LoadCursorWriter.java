@@ -76,7 +76,6 @@ public class LoadCursorWriter implements FlowWriter {
         }, "void", "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
 
         if (tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).autoIncrementDefinition != null) {
-            final String[] params = new String[4];
             params[0] = ModelUtils.getParameter(isModelContainerDefinition, tableDefinition.getModelClassName());
             params[1] = ModelUtils.getVariable(isModelContainerDefinition);
             params[2] = "long";
@@ -86,11 +85,17 @@ public class LoadCursorWriter implements FlowWriter {
                 public void write(JavaWriter javaWriter) throws IOException {
                     ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
                     AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
-                            .append(ModelUtils.getVariable(false))
-                            .append(".").append(columnDefinition.columnFieldName)
-                            .append(" = ")
-                            .appendCast(columnDefinition.columnFieldType)
-                            .append("id)");
+                            .append(ModelUtils.getVariable(isModelContainerDefinition));
+
+                            if(!isModelContainerDefinition) {
+                                queryBuilder.append(".").append(columnDefinition.columnFieldName)
+                                        .append(" = ")
+                                        .appendCast(columnDefinition.columnFieldType)
+                                        .append(params[3]).append(")");
+                            } else {
+                                queryBuilder.appendPut(columnDefinition.columnFieldName)
+                                        .append(params[3]).append(")");
+                            }
 
                     javaWriter.emitStatement(queryBuilder.getQuery());
                 }
