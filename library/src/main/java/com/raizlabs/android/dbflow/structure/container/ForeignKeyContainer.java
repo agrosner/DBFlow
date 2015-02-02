@@ -11,7 +11,8 @@ import java.util.Map;
  * Description: Holds onto {@link com.raizlabs.android.dbflow.annotation.Column#FOREIGN_KEY} data so
  * the {@link com.raizlabs.android.dbflow.structure.Model} can lazy-load the foreign key data. Overrides
  * most {@link com.raizlabs.android.dbflow.structure.Model} methods to save the associated model data instead
- * of its actual underlying data, which in this case is just the primary keys.
+ * of its actual underlying data, which in this case is just the primary keys. Any {@link com.raizlabs.android.dbflow.structure.Model}
+ * method will force this object to load the referenced Model from the DB to interact with.
  */
 public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelContainer<ModelClass, Map<String, Object>> {
 

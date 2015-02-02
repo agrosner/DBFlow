@@ -101,6 +101,14 @@ public @interface Column {
     ForeignKeyReference[] references() default {};
 
     /**
+     * @return When this column is a {@link #FOREIGN_KEY} and a Model, returning true with save the model
+     * before adding the fields to save as a foreign key. If false, we expect the field to not change
+     * and must save the model manually outside of the ModelAdapter. This also applies to ModelContainer objects
+     * as foreign key fields.
+     */
+    boolean saveForeignKeyModel() default true;
+
+    /**
      * Defines {@link ForeignKeyAction} action to be performed
      * on delete of referenced record. Defaults to {@link ForeignKeyAction#NO_ACTION}. Used only when
      * columnType is {@link #FOREIGN_KEY}.

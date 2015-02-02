@@ -61,6 +61,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public String containerKeyName;
 
+    boolean saveModelForeignKey = true;
+
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         super(element, processorManager);
 
@@ -68,6 +70,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
         this.columnFieldName = element.getSimpleName().toString();
         this.columnFieldType = element.asType().toString();
+        this.saveModelForeignKey = column.saveForeignKeyModel();
 
         ContainerKey containerKey = element.getAnnotation(ContainerKey.class);
         if (containerKey != null) {
@@ -169,7 +172,9 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 String modelContainerName = ModelUtils.getVariable(true) + columnFieldName;
                 javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.getValue(\"%1s\"), %1s.class)", modelContainerName,
                         ModelUtils.getVariable(true), ModelUtils.getVariable(true), columnFieldName, columnFieldType);
-                javaWriter.emitStatement("%1s.save(false)", modelContainerName);
+                if(saveModelForeignKey) {
+                    javaWriter.emitStatement("%1s.save(false)", modelContainerName);
+                }
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
 
@@ -192,7 +197,9 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             } else {
                 String modelStatement = ModelUtils.getModelStatement(columnFieldName);
                 javaWriter.beginControlFlow("if (%1s != null)", modelStatement);
-                javaWriter.emitStatement("%1s.save(false)", modelStatement);
+                if(saveModelForeignKey) {
+                    javaWriter.emitStatement("%1s.save(false)", modelStatement);
+                }
 
                 List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {

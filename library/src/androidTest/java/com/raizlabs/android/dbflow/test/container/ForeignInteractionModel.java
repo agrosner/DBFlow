@@ -24,7 +24,8 @@ public class ForeignInteractionModel extends TestModel1 {
                             foreignColumnName = "name",
                             columnType = String.class)},
             onDelete = ForeignKeyAction.CASCADE,
-    onUpdate = ForeignKeyAction.CASCADE)
+            onUpdate = ForeignKeyAction.CASCADE,
+            saveForeignKeyModel = false)
     ForeignKeyContainer<TestModel1> testModel1;
 
     public TestModel1 getTestModel1() {
