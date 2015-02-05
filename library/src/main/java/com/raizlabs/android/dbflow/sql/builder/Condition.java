@@ -456,7 +456,7 @@ public class Condition {
      */
     @SuppressWarnings("unchecked")
     public Condition concatenateToColumn(Object value) {
-        mOperation = String.format(" %1s%1s ", Operation.EQUALS, mColumn);
+        mOperation = String.format("%1s%1s", Operation.EQUALS, mColumn);
         if (value != null) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
