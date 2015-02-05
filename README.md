@@ -202,9 +202,9 @@ The SQL language is wrapped in a nice builder notation. DBFlow generates a ```$T
 ```java
 
 new Select().from(DeviceObject.class)
-                             .where(Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy S5"))
-                             .and(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
-                             .and(Condition.column(DeviceObject$Table.LOCATION).is(location);
+                             .where(Condition.column(DeviceObject$Table.NAME).eq("Samsung-Galaxy S5"))
+                             .and(Condition.column(DeviceObject$Table.CARRIER).eq("T-MOBILE"))
+                             .and(Condition.column(DeviceObject$Table.LOCATION).eq(location);
 
 ```
 
