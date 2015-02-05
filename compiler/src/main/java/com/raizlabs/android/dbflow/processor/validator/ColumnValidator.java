@@ -56,7 +56,7 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
             }
         }
 
-        if (columnType != Column.FOREIGN_KEY && columnDefinition.isModel || columnDefinition.isModelContainer) {
+        if (columnType != Column.FOREIGN_KEY && (columnDefinition.isModel || columnDefinition.isModelContainer)) {
             processorManager.logError("A Model or ModelContainer field must be a Column.FOREIGN_KEY_REFERENCE");
         }
 
