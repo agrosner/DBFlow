@@ -45,6 +45,10 @@ public class ModelUtils {
         boolean nullCheck = !isContentValues;
         if(nullCheck) {
             String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
+            if(statement == null) {
+                throw new IOException(String.format("Writing insert statement failed for: %1s. A type converter" +
+                        "must be defined for this type.", castedClass));
+            }
             nullCheck = (statement.equals("String") || statement.equals("Blob") || !isColumnPrimitive);
         } else {
             contentValue.appendContentValues();
