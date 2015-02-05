@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapte
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModel;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelper;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.sql.Queriable;
+import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -78,13 +78,13 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
-     * Constructs an instance of this list with the specfied {@link com.raizlabs.android.dbflow.sql.Queriable} object.
+     * Constructs an instance of this list with the specfied {@link com.raizlabs.android.dbflow.sql.ModelQueriable} object.
      *
-     * @param queriable The object that can query from a database.
+     * @param modelQueriable The object that can query from a database.
      */
-    public FlowTableList(Queriable<ModelClass> queriable) {
+    public FlowTableList(ModelQueriable<ModelClass> modelQueriable) {
         super(null);
-        mCursorList = new FlowCursorList<ModelClass>(transact, queriable);
+        mCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable);
     }
 
     /**

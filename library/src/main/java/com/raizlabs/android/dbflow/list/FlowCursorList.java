@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.sql.Queriable;
+import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -31,7 +31,7 @@ public class FlowCursorList<ModelClass extends Model> {
 
     private boolean cacheModels;
 
-    private Queriable<ModelClass> mQueriable;
+    private ModelQueriable<ModelClass> mQueriable;
 
     private CursorObserver mObserver;
 
@@ -40,12 +40,12 @@ public class FlowCursorList<ModelClass extends Model> {
      *
      * @param cacheModels For every call to {@link #getItem(int)}, do we want to keep a reference to it so
      *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
-     * @param queriable   The SQL where query to use when doing a query.
+     * @param modelQueriable   The SQL where query to use when doing a query.
      */
-    public FlowCursorList(boolean cacheModels, Queriable<ModelClass> queriable) {
-        mQueriable = queriable;
+    public FlowCursorList(boolean cacheModels, ModelQueriable<ModelClass> modelQueriable) {
+        mQueriable = modelQueriable;
         mCursor = mQueriable.query();
-        mTable = queriable.getTable();
+        mTable = modelQueriable.getTable();
         this.cacheModels = cacheModels;
 
         if (cacheModels) {

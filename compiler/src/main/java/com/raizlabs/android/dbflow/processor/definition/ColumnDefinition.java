@@ -204,7 +204,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     TypeMirror castedClass = ModelUtils.getTypeMirrorFromAnnotation(foreignKeyReference);
-                    ModelUtils.writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(),
+                    ModelUtils. writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(),
                             foreignKeyReference.columnName(),
                             columnName, castedClass.toString(),
                             foreignKeyReference.foreignColumnName(), foreignKeyReference.foreignColumnName(),

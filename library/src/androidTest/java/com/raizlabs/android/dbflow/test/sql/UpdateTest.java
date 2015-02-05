@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
+import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
 
 /**
  * Description:
@@ -33,6 +34,16 @@ public class UpdateTest extends FlowTestCase {
 
         assertEquals("UPDATE TestModel1 SET name='newvalue' WHERE name='oldvalue'", where.getQuery().trim());
         where.query();
+
+        String query = new Update().table(BoxedModel.class).set(Condition.columnRaw(BoxedModel$Table.RBLNUMBER).is(BoxedModel$Table.RBLNUMBER + " + 1")).getQuery();
+        assertEquals("UPDATE BoxedModel SET rblNumber=rblNumber + 1", query.trim());
+
+
+        query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.RBLNUMBER).concatenateToColumn(1)).getQuery();
+        assertEquals("UPDATE BoxedModel SET rblNumber=rblNumber + 1", query.trim());
+
+        query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
+        assertEquals("UPDATE BoxedModel SET name=name || 'Test'", query.trim());
     }
 
     public void testUpdateEffect() {

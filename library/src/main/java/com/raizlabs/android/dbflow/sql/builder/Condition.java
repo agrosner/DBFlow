@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.sql.builder;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -28,6 +30,16 @@ public class Condition {
          * Not-equals comparison
          */
         public static final String NOT_EQUALS = "!=";
+
+        /**
+         * String concatenation
+         */
+        public static final String CONCATENATE = "||";
+
+        /**
+         * Number addition
+         */
+        public static final String PLUS = "+";
 
         /**
          * If something is LIKE another (a case insensitive search).
@@ -223,6 +235,11 @@ public class Condition {
     protected String mSeparator;
 
     /**
+     * If it is a raw condition, we will not attempt to escape or convert the values.
+     */
+    protected boolean isRaw = false;
+
+    /**
      * Creates a new instance
      *
      * @param columnName The name of the column in the DB
@@ -234,6 +251,19 @@ public class Condition {
         mColumn = columnName;
     }
 
+    /**
+     * Creates a new instance with a raw condition query. The values will not be converted into
+     * SQL-safe value. Ex: itemOrder =itemOrder + 1. If not raw, this becomes itemOrder ='itemOrder + 1'
+     *
+     * @param columnName
+     * @return This raw condition
+     */
+    public static Condition columnRaw(String columnName) {
+        Condition condition = column(columnName);
+        condition.isRaw = true;
+        return condition;
+    }
+
     public static Condition column(String columnName) {
         return new Condition(columnName);
     }
@@ -241,12 +271,26 @@ public class Condition {
     /**
      * Assigns the operation to "="
      *
-     * @param value The value of the column in the DB
+     * @param value The value of the column from the {@link com.raizlabs.android.dbflow.structure.Model} Note
+     *              this value may be type converted if used in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
      * @return This condition
      */
     public Condition is(Object value) {
         mOperation = Operation.EQUALS;
         return value(value);
+    }
+
+    /**
+     * Assigns the operation to "=" the equals operator.
+     *
+     * @param value The value of the column from the {@link com.raizlabs.android.dbflow.structure.Model} Note
+     *              this value may be type converted if used in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
+     * @return This condition
+     */
+    public Condition eq(Object value) {
+        return is(value);
     }
 
     /**
@@ -404,6 +448,33 @@ public class Condition {
     }
 
     /**
+     * Will concatenate a value to the specified condition such that: itemOrder=itemOrder + value or
+     * if its a SQL string: name=name||'value'
+     *
+     * @param value
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Condition concatenateToColumn(Object value) {
+        mOperation = String.format("%1s%1s", Operation.EQUALS, mColumn);
+        if (value != null && !isRaw) {
+            TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+            if (typeConverter != null) {
+                value = typeConverter.getDBValue(value);
+            }
+        }
+        if (value instanceof String) {
+            mOperation = String.format("%1s %1s ", mOperation, Operation.CONCATENATE);
+        } else if (value instanceof Number) {
+            mOperation = String.format("%1s %1s ", mOperation, Operation.PLUS);
+        } else {
+            throw new IllegalArgumentException(String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
+        }
+        mValue = value;
+        return this;
+    }
+
+    /**
      * Turns this condition into a SQL BETWEEN operation
      *
      * @param value The value of the first argument of the BETWEEN clause
@@ -482,8 +553,9 @@ public class Condition {
 
         // Do not use value for these operators, we do not want to convert the value to a string.
         if (!Operation.IS_NOT_NULL.equals(operation().trim()) && !Operation.IS_NULL.equals(operation().trim())) {
-            conditionQueryBuilder.append(conditionQueryBuilder.convertValueToString(value()));
+            conditionQueryBuilder.append(isRaw ? value() : conditionQueryBuilder.convertValueToString(value()));
         }
+
         if (postArgument() != null) {
             conditionQueryBuilder.appendSpace().append(postArgument());
         }

@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.3.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.4.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -17,19 +17,15 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
-### 1.3.1
-  1. Fixes issue where ```$ContainerAdapter``` generated the incorrect ```updateAutoIncrement()``` method.
-  2. Also updated ```ModelContainerUtils``` to utilize the more efficient usage of ```save()```, ```insert()```, and ```update()``` just like ```Model``` already do.
+#### 1.4.0
 
-### 1.3.0
-
-  1. Adds in ```ConflictAction``` you can specify for a ```@Table``` insert and update methods. This will not work on earlier than FROYO (API 8) for update statements.
-  2. Added ```InsertTransaction``` and ```InsertModelTransaction``` that handle insert queries with the ```TransactionManager```
-  3. Now ```BaseModel``` will directly call ```UPDATE``` and ```INSERT``` methods in the ```update()``` and ```insert()``` instead of using ```save()``` when calling those methods directly for a small performance gain.
-  4. Added checking and attempts. Thanks [wongcain](https://github.com/wongcain)
-  5. Now supports ```ForeignKeyContainer``` which when placed in a field of a ```Model```, will hold onto the foreign key cursor data and provide an on-demand lazy loading of foreign key objects by calling ```toModel()```.
-  6. Added support for ```LoadFromCursorListener```, ```SQLiteStatementListener```, and ```ContentValuesListener``` within a model to implement to perform some custom action during use of those methods.
-  7. Added a ```saveForeignKeyModel()``` option in ```Column``` to disable ```save()``` on a contained foreign key ```Model``` or ```ModelContainer``` from within its associated Adapter class. Thanks [davidschreiber](https://github.com/davidschreiber)
+1. Fixes a crash within ```ModelUtils`` from the compiler` for a non-standard column
+2. Add validation to ensure crash does not happen from (1).
+3. Add ```INSERT``` as ```Queriable``` interface.
+4. ```Queriable``` interface was drastically simplified down to two methods. ```query()``` and ```queryClose()```. Never fear ```ModelQueriable``` is here! Same as previous ```Queriable``` just new and more descriptive name.
+5. ```Condition.columnRaw()``` will not TypeConvert or convert the value to a SQL escaped string when used. 
+6. ```Condition.eq()``` added that just mirrors ```is()``` but will sound nicer when writing some queries.
+7. ```Condition.column(columnName).concatenateToColumn(value)``` will concatenate the query: ```columnName=columnName || 'value'``` for strings, or ```columnName=columnName + value``` for numbers. It will handle type converters appropriately
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
@@ -78,12 +74,12 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 ```groovy
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.3.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.3.1:sources@jar'
-    compile 'com.raizlabs.android:DBFlow-Core:1.3.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.3.1:sources@jar'
-    compile 'com.raizlabs.android:DBFlow:1.3.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow:1.3.1:sources@jar'
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.4.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.4.0:sources@jar'
+    compile 'com.raizlabs.android:DBFlow-Core:1.4.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.4.0:sources@jar'
+    compile 'com.raizlabs.android:DBFlow:1.4.0'
+    aarLinkSources 'com.raizlabs.android:DBFlow:1.4.0:sources@jar'
   }
 
 ```
@@ -206,9 +202,9 @@ The SQL language is wrapped in a nice builder notation. DBFlow generates a ```$T
 ```java
 
 new Select().from(DeviceObject.class)
-                             .where(Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy S5"))
-                             .and(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
-                             .and(Condition.column(DeviceObject$Table.LOCATION).is(location);
+                             .where(Condition.column(DeviceObject$Table.NAME).eq("Samsung-Galaxy S5"))
+                             .and(Condition.column(DeviceObject$Table.CARRIER).eq("T-MOBILE"))
+                             .and(Condition.column(DeviceObject$Table.LOCATION).eq(location);
 
 ```
 
