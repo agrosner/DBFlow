@@ -99,14 +99,11 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
 
     @Override
     public Cursor query() {
-        return FlowManager.getDatabaseForTable(mConditionQueryBuilder.getTableClass()).getWritableDatabase().rawQuery(getQuery(), null);
+        FlowManager.getDatabaseForTable(mConditionQueryBuilder.getTableClass()).getWritableDatabase().execSQL(getQuery());
+        return null;
     }
 
     @Override
     public void queryClose() {
-        Cursor cursor = query();
-        if (cursor != null) {
-            cursor.close();
-        }
     }
 }
