@@ -1,5 +1,9 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.database.Cursor;
+
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
@@ -9,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
-public class Set<ModelClass extends Model> implements WhereBase<ModelClass> {
+public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Queriable {
 
     private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
 
@@ -91,5 +95,18 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass> {
     @Override
     public Query getQueryBuilderBase() {
         return mUpdate;
+    }
+
+    @Override
+    public Cursor query() {
+        return FlowManager.getDatabaseForTable(mConditionQueryBuilder.getTableClass()).getWritableDatabase().rawQuery(getQuery(), null);
+    }
+
+    @Override
+    public void queryClose() {
+        Cursor cursor = query();
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 }
