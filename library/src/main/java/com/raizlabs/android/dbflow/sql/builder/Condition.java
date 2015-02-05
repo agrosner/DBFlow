@@ -457,7 +457,7 @@ public class Condition {
     @SuppressWarnings("unchecked")
     public Condition concatenateToColumn(Object value) {
         mOperation = String.format("%1s%1s", Operation.EQUALS, mColumn);
-        if (value != null) {
+        if (value != null && !isRaw) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
                 value = typeConverter.getDBValue(value);
