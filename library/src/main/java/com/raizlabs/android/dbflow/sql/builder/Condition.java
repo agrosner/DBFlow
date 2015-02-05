@@ -223,6 +223,11 @@ public class Condition {
     protected String mSeparator;
 
     /**
+     * If it is a raw condition, we will not attempt to escape or convert the values.
+     */
+    protected boolean isRaw = false;
+
+    /**
      * Creates a new instance
      *
      * @param columnName The name of the column in the DB
@@ -232,6 +237,19 @@ public class Condition {
             throw new IllegalArgumentException("Column " + columnName + " cannot be null");
         }
         mColumn = columnName;
+    }
+
+    /**
+     * Creates a new instance with a raw condition query. The values will not be converted into
+     * SQL-safe value. Ex: itemOrder =itemOrder + 1. If not raw, this becomes itemOrder ='itemOrder + 1'
+     *
+     * @param columnName
+     * @return This raw condition
+     */
+    public static Condition columnRaw(String columnName) {
+        Condition condition = column(columnName);
+        condition.isRaw = true;
+        return condition;
     }
 
     public static Condition column(String columnName) {
@@ -482,8 +500,9 @@ public class Condition {
 
         // Do not use value for these operators, we do not want to convert the value to a string.
         if (!Operation.IS_NOT_NULL.equals(operation().trim()) && !Operation.IS_NULL.equals(operation().trim())) {
-            conditionQueryBuilder.append(conditionQueryBuilder.convertValueToString(value()));
+            conditionQueryBuilder.append(isRaw ? value() : conditionQueryBuilder.convertValueToString(value()));
         }
+
         if (postArgument() != null) {
             conditionQueryBuilder.appendSpace().append(postArgument());
         }
