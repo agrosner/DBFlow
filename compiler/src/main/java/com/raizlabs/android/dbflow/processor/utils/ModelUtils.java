@@ -47,7 +47,7 @@ public class ModelUtils {
             String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
             if(statement == null) {
                 throw new IOException(String.format("Writing insert statement failed for: %1s. A type converter" +
-                        "must be defined for this type.", castedClass));
+                        "must be defined for this type, or if this field is a Model, must be a foreign key definition.", castedClass));
             }
             nullCheck = (statement.equals("String") || statement.equals("Blob") || !isColumnPrimitive);
         } else {
