@@ -259,12 +259,26 @@ public class Condition {
     /**
      * Assigns the operation to "="
      *
-     * @param value The value of the column in the DB
+     * @param value The value of the column from the {@link com.raizlabs.android.dbflow.structure.Model} Note
+     *              this value may be type converted if used in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
      * @return This condition
      */
     public Condition is(Object value) {
         mOperation = Operation.EQUALS;
         return value(value);
+    }
+
+    /**
+     * Assigns the operation to "=" the equals operator.
+     *
+     * @param value The value of the column from the {@link com.raizlabs.android.dbflow.structure.Model} Note
+     *              this value may be type converted if used in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
+     * @return This condition
+     */
+    public Condition eq(Object value) {
+        return is(value);
     }
 
     /**
