@@ -105,5 +105,6 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
 
     @Override
     public void queryClose() {
+        query();
     }
 }
