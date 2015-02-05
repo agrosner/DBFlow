@@ -34,8 +34,15 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                 success = false;
             }
         } else if (columnType == Column.PRIMARY_KEY || columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
+            if (autoIncrementingPrimaryKey != null && columnType == Column.PRIMARY_KEY) {
+                processorManager.logError("You cannot mix and match autoincrementing and composite primary keys.");
+                success = false;
+            }
             if (columnDefinition.foreignKeyReferences != null) {
                 processorManager.logError("A non-foreign key field %1s defines references.", columnDefinition.columnFieldName);
+                success = false;
+            } else if (columnDefinition.isModel) {
+                processorManager.logError("Primary keys cannot be Model objects");
                 success = false;
             }
 
@@ -44,11 +51,6 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                     autoIncrementingPrimaryKey = columnDefinition;
                 } else if (!autoIncrementingPrimaryKey.equals(columnDefinition)) {
                     processorManager.logError("Only one autoincrementing primary key is allowed on table");
-                    success = false;
-                }
-            } else {
-                if (columnDefinition.isModel) {
-                    processorManager.logError("Primary keys cannot be model objects");
                     success = false;
                 }
             }

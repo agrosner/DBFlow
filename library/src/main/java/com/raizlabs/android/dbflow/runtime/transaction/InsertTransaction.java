@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.StringQuery;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -20,7 +19,7 @@ public class InsertTransaction<ModelClass extends Model> extends QueryTransactio
      * @param columnValues      The column and their corresponding values.
      */
     public InsertTransaction(DBTransactionInfo dbTransactionInfo, Class<ModelClass> insertTable, Condition... columnValues) {
-        super(dbTransactionInfo, new StringQuery<>(insertTable, new Insert<>(insertTable).columnValues(columnValues).getQuery()), null);
+        super(dbTransactionInfo, new Insert<>(insertTable).columnValues(columnValues), null);
     }
 
     /**
@@ -30,7 +29,7 @@ public class InsertTransaction<ModelClass extends Model> extends QueryTransactio
      * @param insert            The insert statement to use.
      */
     public InsertTransaction(DBTransactionInfo dbTransactionInfo, Insert<ModelClass> insert) {
-        super(dbTransactionInfo, new StringQuery<>(insert.getTable(), insert.getQuery()));
+        super(dbTransactionInfo, insert);
     }
 
 }

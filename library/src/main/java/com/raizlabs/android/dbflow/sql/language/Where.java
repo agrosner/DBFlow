@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.sql.Queriable;
+import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -26,7 +26,7 @@ import java.util.List;
  * Author: andrewgrosner
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<ModelClass extends Model> implements Query, Queriable<ModelClass> {
+public class Where<ModelClass extends Model> implements Query, ModelQueriable<ModelClass> {
 
     /**
      * The first chunk of the SQL statement before this query.

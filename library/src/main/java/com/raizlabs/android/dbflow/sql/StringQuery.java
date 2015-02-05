@@ -14,7 +14,7 @@ import java.util.List;
  * Description: Provides a very basic query mechanism for strings. It runs a modification query and will only run
  * {@link android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])}.
  */
-public class StringQuery<ModelClass extends Model> implements Query, Queriable<ModelClass> {
+public class StringQuery<ModelClass extends Model> implements Query, ModelQueriable<ModelClass> {
 
     /**
      * The full SQLite query to use

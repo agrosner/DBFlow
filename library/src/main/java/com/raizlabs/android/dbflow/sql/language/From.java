@@ -5,7 +5,7 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowTableList;
-import com.raizlabs.android.dbflow.sql.Queriable;
+import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
@@ -19,7 +19,7 @@ import java.util.List;
  * Author: andrewgrosner
  * Description: The SQL FROM query wrapper that must have a {@link com.raizlabs.android.dbflow.sql.Query} base.
  */
-public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Queriable<ModelClass> {
+public class From<ModelClass extends Model> implements WhereBase<ModelClass>, ModelQueriable<ModelClass> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!

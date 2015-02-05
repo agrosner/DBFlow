@@ -158,9 +158,8 @@ public class TransactionManager {
      * @param transactionInfo The information on how we should approach this request.
      * @param queriable       The {@link com.raizlabs.android.dbflow.sql.Queriable} statement that we wish to execute. The query base should not be a select as this
      *                        does not return any results.
-     * @param <ModelClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Queriable<ModelClass> queriable) {
+    public void transactQuery(DBTransactionInfo transactionInfo, Queriable queriable) {
         transactQuery(transactionInfo, queriable, null);
     }
 
@@ -170,10 +169,9 @@ public class TransactionManager {
      * @param transactionInfo           The information on how we should approach this request.
      * @param queriable                 The {@link com.raizlabs.android.dbflow.sql.Queriable} statement that we wish to execute.
      * @param cursorTransactionListener The cursor from the DB that we can process
-     * @param <ModelClass>              The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public <ModelClass extends Model> void transactQuery(DBTransactionInfo transactionInfo, Queriable<ModelClass> queriable, TransactionListener<Cursor> cursorTransactionListener) {
-        addTransaction(new QueryTransaction<ModelClass>(transactionInfo, queriable, cursorTransactionListener));
+    public void transactQuery(DBTransactionInfo transactionInfo, Queriable queriable, TransactionListener<Cursor> cursorTransactionListener) {
+        addTransaction(new QueryTransaction(transactionInfo, queriable, cursorTransactionListener));
     }
 
     /**
@@ -196,7 +194,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void fetchFromTable(TransactionListener<List<ModelClass>> transactionListener,
                                                           ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
-        addTransaction(new SelectListTransaction<ModelClass>(transactionListener, whereConditionQueryBuilder, columns));
+        addTransaction(new SelectListTransaction<>(transactionListener, whereConditionQueryBuilder, columns));
     }
 
     // region Database Select Methods
@@ -212,7 +210,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void fetchFromTable(Class<ModelClass> tableClass,
                                                           TransactionListener<List<ModelClass>> transactionListener, Condition... conditions) {
-        addTransaction(new SelectListTransaction<ModelClass>(transactionListener, tableClass, conditions));
+        addTransaction(new SelectListTransaction<>(transactionListener, tableClass, conditions));
     }
 
     /**
@@ -236,7 +234,7 @@ public class TransactionManager {
      * @param <ModelClass>        The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
      */
     public <ModelClass extends Model> void fetchFromTable(Where<ModelClass> where, TransactionListener<List<ModelClass>> transactionListener) {
-        addTransaction(new SelectListTransaction<ModelClass>(where, transactionListener));
+        addTransaction(new SelectListTransaction<>(where, transactionListener));
     }
 
     /**
@@ -278,7 +276,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void fetchModel(Where<ModelClass> where,
                                                       final TransactionListener<ModelClass> transactionListener) {
-        addTransaction(new SelectSingleModelTransaction<ModelClass>(where, transactionListener));
+        addTransaction(new SelectSingleModelTransaction<>(where, transactionListener));
     }
 
     /**
@@ -329,7 +327,7 @@ public class TransactionManager {
      * @param modelInfo Holds information about this save request
      */
     public <ModelClass extends Model> void save(ProcessModelInfo<ModelClass> modelInfo) {
-        addTransaction(new SaveModelTransaction<ModelClass>(modelInfo));
+        addTransaction(new SaveModelTransaction<>(modelInfo));
     }
 
     // endregion
@@ -344,7 +342,7 @@ public class TransactionManager {
      * @param modelInfo Holds information about this delete request
      */
     public <ModelClass extends Model> void delete(ProcessModelInfo<ModelClass> modelInfo) {
-        addTransaction(new DeleteModelListTransaction<ModelClass>(modelInfo));
+        addTransaction(new DeleteModelListTransaction<>(modelInfo));
     }
 
     /**
@@ -358,7 +356,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo,
                                                   Class<ModelClass> table, Condition... conditions) {
-        addTransaction(new DeleteTransaction<ModelClass>(transactionInfo, table, conditions));
+        addTransaction(new DeleteTransaction<>(transactionInfo, table, conditions));
     }
 
     /**
@@ -371,7 +369,7 @@ public class TransactionManager {
      */
     public <ModelClass extends Model> void delete(DBTransactionInfo transactionInfo,
                                                   ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        addTransaction(new DeleteTransaction<ModelClass>(transactionInfo, conditionQueryBuilder));
+        addTransaction(new DeleteTransaction<>(transactionInfo, conditionQueryBuilder));
     }
 
     // endregion
@@ -386,7 +384,7 @@ public class TransactionManager {
      * @param modelInfo Holds information about this update request
      */
     public <ModelClass extends Model> void update(ProcessModelInfo<ModelClass> modelInfo) {
-        addTransaction(new UpdateModelListTransaction<ModelClass>(modelInfo));
+        addTransaction(new UpdateModelListTransaction<>(modelInfo));
     }
 
     /**
