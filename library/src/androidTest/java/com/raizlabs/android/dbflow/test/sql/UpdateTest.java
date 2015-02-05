@@ -37,6 +37,11 @@ public class UpdateTest extends FlowTestCase {
 
         String query = new Update().table(BoxedModel.class).set(Condition.columnRaw(BoxedModel$Table.RBLNUMBER).is(BoxedModel$Table.RBLNUMBER + " + 1")).getQuery();
         assertEquals("UPDATE BoxedModel SET rblNumber=rblNumber + 1", query.trim());
+
+
+        query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.RBLNUMBER).concatenateToColumn(1)).getQuery();
+        assertEquals("UPDATE BoxedModel SET rblNumber=rblNumber + 1", query.trim());
+
     }
 
     public void testUpdateEffect() {

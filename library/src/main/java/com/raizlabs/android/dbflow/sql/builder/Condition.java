@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.sql.builder;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -28,6 +30,16 @@ public class Condition {
          * Not-equals comparison
          */
         public static final String NOT_EQUALS = "!=";
+
+        /**
+         * String concatenation
+         */
+        public static final String CONCATENATE = "||";
+
+        /**
+         * Number addition
+         */
+        public static final String PLUS = "+";
 
         /**
          * If something is LIKE another (a case insensitive search).
@@ -432,6 +444,33 @@ public class Condition {
      */
     public Condition separator(String separator) {
         mSeparator = separator;
+        return this;
+    }
+
+    /**
+     * Will concatenate a value to the specified condition such that: itemOrder=itemOrder + value or
+     * if its a SQL string: name=name||'value'
+     *
+     * @param value
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Condition concatenateToColumn(Object value) {
+        mOperation = String.format(" %1s%1s ", Operation.EQUALS, mColumn);
+        if (value != null) {
+            TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+            if (typeConverter != null) {
+                value = typeConverter.getDBValue(value);
+            }
+        }
+        if (value instanceof String) {
+            mOperation = String.format("%1s %1s ", mOperation, Operation.CONCATENATE);
+        } else if (value instanceof Number) {
+            mOperation = String.format("%1s %1s ", mOperation, Operation.PLUS);
+        } else {
+            throw new IllegalArgumentException(String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
+        }
+        mValue = value;
         return this;
     }
 
