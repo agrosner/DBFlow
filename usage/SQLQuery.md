@@ -172,3 +172,16 @@ new Delete().from(MyTable.class)
 
 ```
 
+### JOIN statements
+
+```JOIN``` statements are great for combining many-to-many relationships.
+
+For example we have a table named ```Customer``` and another named ```Reservations```. 
+
+```java
+
+List<Customer> customers = new Select().from(Customer.class).as("C")
+  .join(Reservations.class, JoinType.INNER).as("R")
+    .on(Condition.column("C." + Customer$Table.CUSTOMER_ID).eq("R." + Reservations$Table.CUSTOMER_ID)).queryList();
+
+```
