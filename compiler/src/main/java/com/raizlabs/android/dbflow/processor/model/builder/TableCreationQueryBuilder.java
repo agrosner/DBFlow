@@ -61,7 +61,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
      * @return This instance
      */
     public QueryBuilder appendCreateTableIfNotExists(String tableName) {
-        mQuery.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append("(");
+        mQuery.append("CREATE TABLE IF NOT EXISTS `").append(tableName).append("`(");
         return this;
     }
 
@@ -69,7 +69,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
         QueryBuilder queryBuilder;
         List<QueryBuilder> queryBuilders = new ArrayList<QueryBuilder>();
         for (ForeignKeyReference foreignKeyReference : references) {
-            queryBuilder = new QueryBuilder().append(foreignKeyReference.columnName())
+            queryBuilder = new QueryBuilder().appendQuoted(foreignKeyReference.columnName())
                     .appendSpace()
                     .appendType(ModelUtils.getClassFromAnnotation(foreignKeyReference));
             queryBuilders.add(queryBuilder);

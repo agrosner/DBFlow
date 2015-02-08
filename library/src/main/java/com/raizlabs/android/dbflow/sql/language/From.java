@@ -206,7 +206,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
             queryBuilder.append("FROM ");
         }
 
-        queryBuilder.append(FlowManager.getTableName(mTable));
+        queryBuilder.appendQuoted(FlowManager.getTableName(mTable));
 
         if (mQueryBuilderBase instanceof Select) {
             queryBuilder.appendSpace().appendQualifier("AS", mAlias);

@@ -164,6 +164,29 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
         return castThis();
     }
 
+    /**
+     * Returns quoted string.
+     *
+     * @param string The string to quote
+     * @return Quoted string
+     */
+    public static String quote(String string) {
+        if (string.compareTo("*") == 0)
+            return string;
+        return "`" + string.replace(".", "`.`") + "`";
+    }
+
+    /**
+     * Appends quoted string used to append table and columns names.
+     *
+     * @param string The string to append
+     * @return This instance
+     */
+    @SuppressWarnings("unchecked")
+    public QueryClass appendQuoted(String string) {
+        return append(QueryBuilder.quote(string));
+    }
+
     @Override
     public String toString() {
         return getQuery();
