@@ -144,7 +144,7 @@ public class Condition {
 
         @Override
         public <ModelClass extends Model> void appendConditionToQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-            conditionQueryBuilder.append(columnName()).append(operation())
+            conditionQueryBuilder.appendQuoted(columnName()).append(operation())
                     .append(conditionQueryBuilder.convertValueToString(value()))
                     .appendSpaceSeparated("AND")
                     .append(conditionQueryBuilder.convertValueToString(secondValue()))
@@ -153,7 +153,7 @@ public class Condition {
 
         @Override
         public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-            queryBuilder.append(columnName()).append(operation())
+            queryBuilder.appendQuoted(columnName()).append(operation())
                     .append((value()))
                     .appendSpaceSeparated(Operation.AND)
                     .append(secondValue())
@@ -197,14 +197,14 @@ public class Condition {
 
         @Override
         public <ModelClass extends Model> void appendConditionToQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-            conditionQueryBuilder.append(columnName()).append(operation())
+            conditionQueryBuilder.appendQuoted(columnName()).append(operation())
                     .append("(").appendArgumentList(mArguments).append(")");
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-            queryBuilder.append(columnName()).append(operation())
+            queryBuilder.appendQuoted(columnName()).append(operation())
                     .append("(").appendList(mArguments).append(")");
         }
     }
@@ -456,7 +456,7 @@ public class Condition {
      */
     @SuppressWarnings("unchecked")
     public Condition concatenateToColumn(Object value) {
-        mOperation = String.format("%1s%1s", Operation.EQUALS, mColumn);
+        mOperation = String.format("%1s%1s", Operation.EQUALS, QueryBuilder.quote(mColumn));
         if (value != null && !isRaw) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
@@ -549,7 +549,7 @@ public class Condition {
      * @param conditionQueryBuilder
      */
     public <ModelClass extends Model> void appendConditionToQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        conditionQueryBuilder.append(columnName()).append(operation());
+        conditionQueryBuilder.appendQuoted(columnName()).append(operation());
 
         // Do not use value for these operators, we do not want to convert the value to a string.
         if (!Operation.IS_NOT_NULL.equals(operation().trim()) && !Operation.IS_NULL.equals(operation().trim())) {
@@ -567,7 +567,7 @@ public class Condition {
      * @param queryBuilder
      */
     public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-        queryBuilder.append(columnName()).append(operation())
+        queryBuilder.appendQuoted(columnName()).append(operation())
                 .append(value());
         if (postArgument() != null) {
             queryBuilder.appendSpace().append(postArgument());

@@ -71,7 +71,7 @@ public class ValueQueryBuilder extends QueryBuilder<ValueQueryBuilder> {
      * @return
      */
     public ValueQueryBuilder appendTableName(Class<? extends Model> table) {
-        return append(FlowManager.getTableName(table));
+        return appendQuoted(FlowManager.getTableName(table));
     }
 
     /**

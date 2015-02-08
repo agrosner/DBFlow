@@ -52,7 +52,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     public void migrate(SQLiteDatabase database) {
         // "ALTER TABLE "
         String sql = mQuery.getQuery();
-        String tableName = FlowManager.getTableName(mTable);
+        String tableName = QueryBuilder.quote(FlowManager.getTableName(mTable));
 
         // "{oldName}  RENAME TO {newName}"
         // Since the structure has been updated already, the manager knows only the new name.
@@ -106,7 +106,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(columnName).appendSpace().appendType(columnType.getName());
+                .appendQuoted(columnName).appendSpace().appendType(columnType.getName());
         mColumnDefinitions.add(queryBuilder);
 
         return this;
@@ -116,8 +116,8 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return The query that renames the table.
      */
     public String getRenameQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder(mQuery.getQuery()).append(mOldTableName)
-                .append(mRenameQuery).append(FlowManager.getTableName(mTable));
+        QueryBuilder queryBuilder = new QueryBuilder(mQuery.getQuery()).appendQuoted(mOldTableName)
+                .append(mRenameQuery).appendQuoted(FlowManager.getTableName(mTable));
         return queryBuilder.getQuery();
     }
 
@@ -125,7 +125,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return A List of column definitions that add column to a table in the DB.
      */
     public List<String> getColumnDefinitions() {
-        String sql = mQuery.getQuery() + FlowManager.getTableName(mTable);
+        String sql = mQuery.getQuery() + QueryBuilder.quote(FlowManager.getTableName(mTable));
         List<String> columnDefinitions = new ArrayList<String>();
 
         if (mColumnDefinitions != null) {

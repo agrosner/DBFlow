@@ -198,18 +198,18 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
                     if (columnDefinition.columnType == Column.FOREIGN_KEY) {
                         for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
-                            columnNames.add(reference.columnName());
+                            columnNames.add(QueryBuilder.quote(reference.columnName()));
                             bindings.add("?");
                         }
                     } else if (columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
-                        columnNames.add(columnDefinition.columnName.toUpperCase());
+                        columnNames.add(QueryBuilder.quote(columnDefinition.columnName.toUpperCase()));
                         bindings.add("?");
                     }
                 }
 
                 stringBuilder.appendList(columnNames).append(") VALUES (");
                 stringBuilder.appendList(bindings).append(")\"");
-                javaWriter.emitStatement(stringBuilder.toString(), insertConflictName, tableName);
+                javaWriter.emitStatement(stringBuilder.toString(), insertConflictName, QueryBuilder.quote(tableName));
             }
         }, "String", "getInsertStatementQuery", Sets.newHashSet(Modifier.PROTECTED, Modifier.FINAL));
 

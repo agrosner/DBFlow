@@ -56,7 +56,7 @@ public class CreationQueryWriter implements FlowWriter {
                         queryBuilder.appendSpace().appendForeignKeys(columnDefinition.foreignKeyReferences);
                     } else {
 
-                        queryBuilder.append(columnDefinition.columnName)
+                        queryBuilder.appendQuoted(columnDefinition.columnName)
                                 .appendSpace();
 
                         if (columnDefinition.hasTypeConverter) {
@@ -91,7 +91,7 @@ public class CreationQueryWriter implements FlowWriter {
                     for (ColumnDefinition field : tableDefinition.primaryColumnDefinitions) {
                         if (field.columnType == Column.PRIMARY_KEY) {
                             count++;
-                            primaryKeyQueryBuilder.append(field.columnName);
+                            primaryKeyQueryBuilder.appendQuoted(field.columnName);
                             if (index < tableDefinition.primaryColumnDefinitions.size() - 1) {
                                 primaryKeyQueryBuilder.append(", ");
                             }
@@ -110,16 +110,19 @@ public class CreationQueryWriter implements FlowWriter {
 
                         String[] foreignColumns = new String[foreignKeyField.foreignKeyReferences.length];
                         for (int i = 0; i < foreignColumns.length; i++) {
-                            foreignColumns[i] = foreignKeyField.foreignKeyReferences[i].foreignColumnName();
+                            foreignColumns[i] = QueryBuilder.quote(foreignKeyField.foreignKeyReferences[i].foreignColumnName());
                         }
 
                         String[] columns = new String[foreignKeyField.foreignKeyReferences.length];
+                        String[] foreignColumnNames = new String[foreignKeyField.foreignKeyReferences.length];
                         for (int i = 0; i < columns.length; i++) {
-                            columns[i] = foreignKeyField.foreignKeyReferences[i].columnName();
+                            columns[i] = QueryBuilder.quote(foreignKeyField.foreignKeyReferences[i].columnName());
+                            foreignColumnNames[i] = QueryBuilder.quote(foreignKeyField.foreignKeyReferences[i].foreignColumnName());
                         }
 
                         foreignKeyQueryBuilder.appendArray(columns)
                                 .append(")").appendSpaceSeparated("REFERENCES %1s")
+                                .append("(").appendArray(foreignColumnNames).append(")").appendSpace()
                                 .append("ON UPDATE")
                                 .appendSpaceSeparated(foreignKeyField.column.onUpdate().name().replace("_", " "))
                                 .append("ON DELETE")

@@ -122,7 +122,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
 
         queryBuilder.append("JOIN")
                 .appendSpace()
-                .append(FlowManager.getTableName(mTable))
+                .appendQuoted(FlowManager.getTableName(mTable))
                 .appendSpace();
 
         if (mAlias != null) {
