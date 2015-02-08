@@ -48,11 +48,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private SQLiteOpenHelper mBackupDB;
 
     public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager, DatabaseHelperListener listener) {
-        super(FlowManager.getContext(), flowManager.getDatabaseName() + ".db", null, flowManager.getDatabaseVersion());
+        super(FlowManager.getContext(), flowManager.getDatabaseFileName(), null, flowManager.getDatabaseVersion());
         mListener = listener;
         mManager = flowManager;
 
-        movePrepackagedDB(getDatabaseFileName(), getDatabaseFileName());
+        movePrepackagedDB(mManager.getDatabaseFileName(), mManager.getDatabaseFileName());
 
         if (flowManager.backupEnabled()) {
             // Temp database mirrors existing
@@ -77,7 +77,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                     executeMigrations(db, oldVersion, newVersion);
                 }
             };
-            restoreDatabase(getTempDbFileName(), getDatabaseFileName());
+            restoreDatabase(getTempDbFileName(), mManager.getDatabaseFileName());
             mBackupDB.getWritableDatabase();
         }
     }
@@ -88,11 +88,6 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private String getTempDbFileName() {
         return TEMP_DB_NAME + mManager.getDatabaseName() + ".db";
     }
-
-    private String getDatabaseFileName() {
-        return mManager.getDatabaseName() + ".db";
-    }
-
 
     /**
      * Pulled partially from code, runs the integrity check on pre-honeycomb devices.
@@ -145,7 +140,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         // Try to copy database file
         try {
             // check existing and use that as backup
-            File existingDb = FlowManager.getContext().getDatabasePath(getDatabaseFileName());
+            File existingDb = FlowManager.getContext().getDatabasePath(mManager.getDatabaseFileName());
             InputStream inputStream;
             // if it exists and the integrity is ok
             if (existingDb.exists() && (mManager.backupEnabled() && FlowManager.isDatabaseIntegrityOk(mBackupDB))) {
@@ -254,7 +249,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
                 Context context = FlowManager.getContext();
                 File backup = context.getDatabasePath(getTempDbFileName());
-                File temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + getDatabaseFileName());
+                File temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + mManager.getDatabaseFileName());
 
                 // if exists we want to delete it before rename
                 if (temp.exists()) {
@@ -265,7 +260,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                 if (backup.exists()) {
                     backup.delete();
                 }
-                File existing = context.getDatabasePath(getDatabaseFileName());
+                File existing = context.getDatabasePath(mManager.getDatabaseFileName());
 
                 try {
                     backup.getParentFile().mkdirs();
