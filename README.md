@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.4.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.4.2-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -79,12 +79,12 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 ```groovy
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.4.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.4.1:sources@jar'
-    compile 'com.raizlabs.android:DBFlow-Core:1.4.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.4.1:sources@jar'
-    compile 'com.raizlabs.android:DBFlow:1.4.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow:1.4.1:sources@jar'
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.4.2'
+    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.4.2:sources@jar'
+    compile 'com.raizlabs.android:DBFlow-Core:1.4.2'
+    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.4.2:sources@jar'
+    compile 'com.raizlabs.android:DBFlow:1.4.2'
+    aarLinkSources 'com.raizlabs.android:DBFlow:1.4.2:sources@jar'
   }
 
 ```
