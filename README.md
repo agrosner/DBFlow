@@ -19,7 +19,7 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 #### 1.4.2
 
-1. Throws error if the ```TypeConverterDefinition``` cannot process the type parameters, and warns devs of using type parameters for a ```TypeConverter```. Thanks [mariciv](https://github.com/mariciv)
+1. Throws error if the ```TypeConverterDefinition``` cannot process the type parameters, and warns devs of using type parameters for a typeparameter in a ```TypeConverter```. Thanks [mariciv](https://github.com/mariciv)
 2. Fixes ```BaseDatabaseDefinition.reset()``` fails to reset DB. Now appends ".db" to database name. Thanks [bafitor](https://github.com/bafitor)
 
 #### 1.4.1
