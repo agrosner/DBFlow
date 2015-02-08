@@ -13,11 +13,13 @@ public class TypeConverterValidator implements Validator<TypeConverterDefinition
 
         if(typeConverterDefinition.getModelElement() == null) {
             processorManager.logError("TypeConverter: " + typeConverterDefinition.getClassElement().getSimpleName() +
-                " uses an unsupported Model Element parameter");
+                " uses an unsupported Model Element parameter. If it has type parameters, you must remove them or subclass it" +
+                    "for proper usage.");
             success = false;
         } else if(typeConverterDefinition.getDbElement() == null) {
             processorManager.logError("TypeConverter: " + typeConverterDefinition.getClassElement().getSimpleName() +
-                    " uses an unsupported DB Element parameter");
+                    " uses an unsupported DB Element parameter. If it has type parameters, you must remove them or subclass it " +
+                    "for proper usage.");
             success = false;
         }
 
