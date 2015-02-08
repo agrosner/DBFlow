@@ -42,7 +42,7 @@ not extend any adapter class and provides a simple yet effective API for retriev
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-      return null;
+      // Implement here
     }
   }
 
