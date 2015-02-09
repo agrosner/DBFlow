@@ -177,10 +177,10 @@ public class Condition {
          * @param isIn          if this is an {@link com.raizlabs.android.dbflow.sql.builder.Condition.Operation#IN}
          *                      statement or a {@link com.raizlabs.android.dbflow.sql.builder.Condition.Operation#NOT_IN}
          */
-        private In(Condition condition, Object firstArgument, boolean isIn, Object...arguments) {
+        private In(Condition condition, Object firstArgument, boolean isIn, Object... arguments) {
             super(condition.columnName());
             mArguments.add(firstArgument);
-            for(Object argument: arguments) {
+            for (Object argument : arguments) {
                 mArguments.add(argument);
             }
             mOperation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
@@ -491,7 +491,7 @@ public class Condition {
      * Turns this condition into a SQL IN operation.
      *
      * @param firstArgument The first value in the IN query as one is required.
-     * @param arguments     The values in the IN query. One is required to function correctly.
+     * @param arguments     The 2nd to N values in the IN query. Not required.
      * @return In operator
      */
     public In in(Object firstArgument, Object... arguments) {
@@ -502,10 +502,11 @@ public class Condition {
      * Turns this condition into a SQL NOT IN operation.
      *
      * @param firstArgument The first value in the NOT IN query as one is required.
+     * @param arguments     The 2nd to N values in the IN query. Not required.
      * @return Not In operator
      */
-    public In notIn(Object firstArgument) {
-        return new In(this, firstArgument, false);
+    public In notIn(Object firstArgument, Object...arguments) {
+        return new In(this, firstArgument, false, arguments);
     }
 
     /**

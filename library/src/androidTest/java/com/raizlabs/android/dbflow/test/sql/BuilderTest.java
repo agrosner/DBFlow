@@ -56,11 +56,11 @@ public class BuilderTest extends FlowTestCase {
     }
 
     public void testInOperators() {
-        Condition.In in = Condition.column(ConditionModel$Table.NAME).in("Jason").and("Ryan").and("Michael");
+        Condition.In in = Condition.column(ConditionModel$Table.NAME).in("Jason", "Ryan", "Michael");
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, in);
         assertEquals(conditionQueryBuilder.getQuery().trim(), "name IN ('Jason','Ryan','Michael')");
 
-        Condition.In notIn = Condition.column(ConditionModel$Table.NAME).notIn("Jason").and("Ryan").and("Michael");
+        Condition.In notIn = Condition.column(ConditionModel$Table.NAME).notIn("Jason", "Ryan", "Michael");
         conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
         assertEquals(conditionQueryBuilder.getQuery().trim(), "name NOT IN ('Jason','Ryan','Michael')");
     }
