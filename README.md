@@ -75,6 +75,7 @@ Add the maven repo url to your root build.gradle in the ```buildscript{}``` and 
         maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
     }
     classpath 'com.raizlabs:Griddle:1.0.0'
+    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
   }
   
   allprojects {
@@ -90,6 +91,9 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 [Griddle](https://github.com/Raizlabs/Griddle) plugin:
 
 ```groovy
+
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
     apt 'com.raizlabs.android:DBFlow-Compiler:1.4.2'
