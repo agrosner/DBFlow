@@ -92,8 +92,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 
 ```groovy
 
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'com.raizlabs.griddle'
+  apply plugin: 'com.neenbedankt.android-apt'
+  apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
     apt 'com.raizlabs.android:DBFlow-Compiler:1.4.2'
