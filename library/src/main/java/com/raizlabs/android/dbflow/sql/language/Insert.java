@@ -206,14 +206,12 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
 
     @Override
     public Cursor query() {
-        return FlowManager.getDatabaseForTable(mTable).getWritableDatabase().rawQuery(getQuery(), null);
+        FlowManager.getDatabaseForTable(mTable).getWritableDatabase().execSQL(getQuery());
+        return null;
     }
 
     @Override
     public void queryClose() {
-        Cursor cursor = query();
-        if (cursor != null) {
-            cursor.close();
-        }
+        query();
     }
 }
