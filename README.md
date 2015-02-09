@@ -67,28 +67,33 @@ For more detailed usage, check out these sections:
 
 ### Gradle
 
-Add the maven repo url to your build.gradle:
+Add the maven repo url to your root build.gradle in the ```buildscript{}``` and ```allProjects{}``` blocks:
 
 ```groovy
-
-  repositories {
+  buildscript {
+    repositories {
         maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
+    }
+    classpath 'com.raizlabs:Griddle:1.0.0'
   }
+  
+  allprojects {
+    repositories {
+        maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
+    }
+  }
+
 
 ```
 
 Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) and the 
-[AARLinkSources](https://github.com/xujiaao/AARLinkSources) plugin::
+[Griddle](https://github.com/Raizlabs/Griddle) plugin:
 
 ```groovy
 
   dependencies {
     apt 'com.raizlabs.android:DBFlow-Compiler:1.4.2'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.4.2:sources@jar'
-    compile 'com.raizlabs.android:DBFlow-Core:1.4.2'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.4.2:sources@jar'
-    compile 'com.raizlabs.android:DBFlow:1.4.2'
-    aarLinkSources 'com.raizlabs.android:DBFlow:1.4.2:sources@jar'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.4.2"
   }
 
 ```
