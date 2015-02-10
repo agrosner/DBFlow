@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.4.3-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.4.4-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -16,6 +16,12 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
 ## Changelog
+
+#### 1.4.4
+1. Simplifies internal adapter structure and have them implement common interfaces
+2. ```Column.PRIMARY_KEY_AUTO_INCREMENT``` now changes the way existence behaves: instead of using a query on the DB for the existence, it will use that field's value. If the value is 0, it's not in the DB and will ```save()```. 
+3. Deleting an autoincrementing column will reset that object's id column to 0
+4. Fixes issue where a ```@ContainerAdapter``` ```updateAutoIncrement()``` wasn't respecting the ```@ContainerKey```
 
 #### 1.4.3
 1. Adds vargs to the ```Condition.in()``` and ```Condition.notIn()``` methods
@@ -78,7 +84,7 @@ Add the maven repo url to your root build.gradle in the ```buildscript{}``` and 
     repositories {
         maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
     }
-    classpath 'com.raizlabs:Griddle:1.0.0'
+    classpath 'com.raizlabs:Griddle:1.0.1'
     classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
   }
   
@@ -100,8 +106,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.4.3'
-    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.4.3"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.4.4'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.4.4"
   }
 
 ```
