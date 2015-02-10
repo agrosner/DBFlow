@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.test.structure;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
@@ -9,8 +11,10 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description:
  */
 @Table(databaseName = TestDatabase.NAME)
+@ContainerAdapter
 public class TestModelAI extends BaseModel {
 
+    @ContainerKey("_id")
     @Column(columnType = Column.PRIMARY_KEY_AUTO_INCREMENT)
     long id;
 
