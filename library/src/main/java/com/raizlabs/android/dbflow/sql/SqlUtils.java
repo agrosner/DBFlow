@@ -35,9 +35,8 @@ import java.util.List;
  */
 public class SqlUtils {
 
-    public
-    @IntDef
-    @interface SaveMode {
+    @Deprecated
+    public @IntDef @interface SaveMode {
     }
 
     /**
@@ -46,6 +45,7 @@ public class SqlUtils {
      */
     public static final
     @SaveMode
+    @Deprecated
     int SAVE_MODE_DEFAULT = 0;
 
     ;
@@ -55,6 +55,7 @@ public class SqlUtils {
      */
     public static final
     @SaveMode
+    @Deprecated
     int SAVE_MODE_UPDATE = 1;
     /**
      * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
@@ -62,6 +63,7 @@ public class SqlUtils {
      */
     public static final
     @SaveMode
+    @Deprecated
     int SAVE_MODE_INSERT = 2;
 
     /**
