@@ -214,7 +214,7 @@ public class SqlUtils {
             }
 
             if (FlowContentObserver.shouldNotify()) {
-                notifyModelChanged(model.getClass(), action);
+                notifyModelChanged(modelAdapter.getModelClass(), action);
             }
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
@@ -249,7 +249,7 @@ public class SqlUtils {
             }
 
             if (FlowContentObserver.shouldNotify()) {
-                notifyModelChanged(model.getClass(), BaseModel.Action.SAVE);
+                notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.SAVE);
             }
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
@@ -271,7 +271,7 @@ public class SqlUtils {
     boolean update(boolean async, TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         boolean exists = false;
         if (!async) {
-            SQLiteDatabase db = FlowManager.getDatabaseForTable(model.getClass()).getWritableDatabase();
+            SQLiteDatabase db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             adapter.bindToContentValues(contentValues, model);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
@@ -286,7 +286,7 @@ public class SqlUtils {
                 // insert
                 insert(false, model, adapter, modelAdapter);
             } else if (FlowContentObserver.shouldNotify()) {
-                notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
+                notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.UPDATE);
             }
         } else {
             TransactionManager.getInstance().update(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
@@ -311,7 +311,7 @@ public class SqlUtils {
             long id = insertStatement.executeInsert();
             adapter.updateAutoIncrement(model, id);
             if (FlowContentObserver.shouldNotify()) {
-                notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
+                notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT);
             }
         } else {
             TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
@@ -329,7 +329,7 @@ public class SqlUtils {
     public static <TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void delete(final TableClass model, AdapterClass modelAdapter, boolean async) {
         if (!async) {
-            new Delete().from((Class<TableClass>) model.getClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
+            new Delete().from((Class<TableClass>) modelAdapter.getModelClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
             modelAdapter.updateAutoIncrement(model, 0);
             if (FlowContentObserver.shouldNotify()) {
                 notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
