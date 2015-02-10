@@ -12,11 +12,9 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, RetrievalAdapter<ModelClass, ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
 
     private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
-
-    private ConditionQueryBuilder<ModelClass> mFullWhere;
 
     private SQLiteStatement mInsertStatement;
 
@@ -106,14 +104,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @return true if it has a {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT} field.
-     * This is used to help check for existence before saving for maximum speed optimization.
-     */
-    public boolean hasAutoIncrementPrimaryKey() {
-        return false;
-    }
-
-    /**
      * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
@@ -148,12 +138,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @return The query used to insert a model using a {@link android.database.sqlite.SQLiteStatement}
      */
     protected abstract String getInsertStatementQuery();
-
-    /**
-     * @return A new model using its default constructor. This is why default is required so that
-     * we don't use reflection to create objects = faster.
-     */
-    public abstract ModelClass newInstance();
 
     /**
      * @return The conflict algorithm to use when updating a row in this table.

@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  * Description: The base class for a {@link ModelViewClass} adapter that defines how it interacts with the DB.
  */
 public abstract class ModelViewAdapter<ModelClass extends Model, ModelViewClass extends BaseModelView<ModelClass>>
-        implements RetrievalAdapter<ModelViewClass, ModelViewClass> {
+        implements InstanceAdapter<ModelViewClass, ModelViewClass> {
 
     /**
      * Creates a new {@link ModelViewClass} and loads the cursor into it.
@@ -22,11 +22,6 @@ public abstract class ModelViewAdapter<ModelClass extends Model, ModelViewClass 
         loadFromCursor(cursor, modelViewClass);
         return modelViewClass;
     }
-
-    /**
-     * @return A new instace of the {@link ModelViewClass} must have a default constructor.
-     */
-    public abstract ModelViewClass newInstance();
 
     /**
      * @return a string of the query that is used to create this model view.

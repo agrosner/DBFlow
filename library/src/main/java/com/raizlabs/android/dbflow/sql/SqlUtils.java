@@ -20,10 +20,10 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
+import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
-import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 
 import java.util.ArrayList;
@@ -94,19 +94,17 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
         final List<ModelClass> entities = new ArrayList<ModelClass>();
-        RetrievalAdapter modelAdapter = FlowManager.getModelAdapter(table);
-        Model model = null;
+        InstanceAdapter modelAdapter = FlowManager.getModelAdapter(table);
+
         if (modelAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(table)) {
                 modelAdapter = FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table);
-                model = ((ModelViewAdapter<ModelClass, ?>) modelAdapter).newInstance();
             }
-        } else {
-            model = ((ModelAdapter<ModelClass>) modelAdapter).newInstance();
         }
         if (modelAdapter != null) {
             if (cursor.moveToFirst()) {
                 do {
+                    Model model = modelAdapter.newInstance();
                     modelAdapter.loadFromCursor(cursor, model);
                     entities.add((ModelClass) model);
                 }
@@ -341,8 +339,8 @@ public class SqlUtils {
     /**
      * Notifies the {@link android.database.ContentObserver} that the model has changed.
      *
-     * @param action     The {@link com.raizlabs.android.dbflow.structure.BaseModel.Action} enum
-     * @param table The table of the model
+     * @param action The {@link com.raizlabs.android.dbflow.structure.BaseModel.Action} enum
+     * @param table  The table of the model
      */
     public static void notifyModelChanged(Class<? extends Model> table, BaseModel.Action action) {
         FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action), null, true);
