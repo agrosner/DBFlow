@@ -121,20 +121,23 @@ public class SqlUtils {
      * @param dontMoveToFirst If it's a list or at a specific position, do not reset the cursor
      * @param table           The model class that we convert the cursor data into.
      * @param cursor          The cursor from the DB
-     * @param <ModelClass>
-     * @return
+     * @param <ModelClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @return A model transformed from the {@link android.database.Cursor}
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table, Cursor cursor) {
         ModelClass model = null;
         if (dontMoveToFirst || cursor.moveToFirst()) {
-            ModelAdapter<ModelClass> modelAdapter = FlowManager.getModelAdapter(table);
+            InstanceAdapter modelAdapter = FlowManager.getModelAdapter(table);
             if (modelAdapter == null) {
                 if (BaseModelView.class.isAssignableFrom(table)) {
-                    model = (ModelClass) FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table).loadFromCursor(cursor);
+                    modelAdapter = FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table);
                 }
-            } else {
-                model = modelAdapter.loadFromCursor(cursor);
+            }
+
+            if (modelAdapter != null) {
+                model = (ModelClass) modelAdapter.newInstance();
+                modelAdapter.loadFromCursor(cursor, model);
             }
         }
 
