@@ -8,6 +8,7 @@ import android.os.Build;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
@@ -18,10 +19,10 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 /**
- * Author: andrewgrosner
- * Description: Provides helper methods for handling {@link com.raizlabs.android.dbflow.structure.container.ModelContainer} classes.
- * These wrap around {@link com.raizlabs.android.dbflow.structure.Model} to provide more convenient means of interacting with the db.
+ * @see {@link com.raizlabs.android.dbflow.sql.SqlUtils}
+ * @deprecated Now we consolidated methods to elminate duplication. These methods will no longer be updated.
  */
+@Deprecated
 public class ModelContainerUtils {
 
     /**
@@ -34,6 +35,7 @@ public class ModelContainerUtils {
      * @param <ModelClass>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> void sync(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContainerAdapter<ModelClass> containerAdapter, @SqlUtils.SaveMode int mode) {
         if (!async) {
 
@@ -60,7 +62,9 @@ public class ModelContainerUtils {
                 insert(false, modelContainer, containerAdapter);
             }
 
-            SqlUtils.notifyModelChanged(modelContainer.getTable(), action);
+            if (FlowContentObserver.shouldNotify()) {
+                SqlUtils.notifyModelChanged(modelContainer.getTable(), action);
+            }
 
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(modelContainer));
@@ -76,12 +80,15 @@ public class ModelContainerUtils {
      * @param <ModelClass>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> void delete(final ModelContainer<ModelClass, ?> modelContainer,
                                                          ContainerAdapter<ModelClass> containerAdapter, boolean async) {
         if (!async) {
             new Delete().from(modelContainer.getTable()).where(containerAdapter.getPrimaryModelWhere(modelContainer)).query();
             containerAdapter.updateAutoIncrement(modelContainer, 0);
-            SqlUtils.notifyModelChanged(modelContainer.getTable(), BaseModel.Action.DELETE);
+            if (FlowContentObserver.shouldNotify()) {
+                SqlUtils.notifyModelChanged(modelContainer.getTable(), BaseModel.Action.DELETE);
+            }
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(modelContainer));
         }
@@ -95,6 +102,7 @@ public class ModelContainerUtils {
      * @param modelAdapter   The container adapter to use.
      * @param <ModelClass>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
+    @Deprecated
     public static <ModelClass extends Model> void insert(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContainerAdapter<ModelClass> modelAdapter) {
         if (!async) {
             ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(modelContainer.getTable());
@@ -102,7 +110,9 @@ public class ModelContainerUtils {
             modelAdapter.bindToStatement(insertStatement, modelContainer);
             long id = insertStatement.executeInsert();
             modelAdapter.updateAutoIncrement(modelContainer, id);
-            SqlUtils.notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT);
+            if (FlowContentObserver.shouldNotify()) {
+                SqlUtils.notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT);
+            }
         } else {
             TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(ProcessModelInfo.withModels(modelContainer)
                     .info(DBTransactionInfo.createSave())));
@@ -119,6 +129,7 @@ public class ModelContainerUtils {
      * @return true if model was inserted, false if not. Also false could mean that it is placed on the
      * {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} using async to true.
      */
+    @Deprecated
     public static <ModelClass extends Model> boolean update(boolean async, ModelContainer<ModelClass, ?> modelContainer, ContainerAdapter<ModelClass> modelClassContainerAdapter) {
         boolean exists = false;
         if (!async) {
@@ -137,7 +148,7 @@ public class ModelContainerUtils {
             if (!exists) {
                 // insert
                 insert(false, modelContainer, modelClassContainerAdapter);
-            } else {
+            } else if (FlowContentObserver.shouldNotify()) {
                 SqlUtils.notifyModelChanged(modelClassModelAdapter.getModelClass(), BaseModel.Action.UPDATE);
             }
         } else {

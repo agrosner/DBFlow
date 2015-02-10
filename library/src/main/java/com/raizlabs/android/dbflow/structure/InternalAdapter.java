@@ -27,7 +27,17 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      * @param saveMode The {@link com.raizlabs.android.dbflow.sql.SqlUtils} save mode. Can be {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_DEFAULT},
      *                 {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, or {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
      */
+    @Deprecated
     public void save(boolean async, ModelClass model, int saveMode);
+
+    /**
+     * Saves the specified model to the DB.
+     *
+     * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param model    The model to save/insert/update
+     */
+    public void save(boolean async, ModelClass model);
+
 
     /**
      * Inserts the specified model into the DB.

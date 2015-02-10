@@ -12,11 +12,9 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, RetrievalAdapter<ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
 
     private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
-
-    private ConditionQueryBuilder<ModelClass> mFullWhere;
 
     private SQLiteStatement mInsertStatement;
 
@@ -45,15 +43,22 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
+     * @see #save(boolean, Model)
+     */
+    @Deprecated
+    public synchronized void save(boolean async, ModelClass model, int saveMode) {
+        SqlUtils.sync(async, model, this, saveMode);
+    }
+
+    /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
      *
      * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model    The model to save/insert/update
-     * @param saveMode The {@link com.raizlabs.android.dbflow.sql.SqlUtils} save mode. Can be {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_DEFAULT},
-     *                 {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, or {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
      */
-    public synchronized void save(boolean async, ModelClass model, int saveMode) {
-        SqlUtils.sync(async, model, this, saveMode);
+    @Override
+    public synchronized void save(boolean async, ModelClass model) {
+        SqlUtils.save(async, model, this, this);
     }
 
     /**
@@ -63,7 +68,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param model The model to insert.
      */
     public synchronized void insert(boolean async, ModelClass model) {
-        SqlUtils.insert(async, model, this);
+        SqlUtils.insert(async, model, this, this);
     }
 
     /**
@@ -73,7 +78,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param model The model to update.
      */
     public synchronized void update(boolean async, ModelClass model) {
-        SqlUtils.update(async, model, this);
+        SqlUtils.update(async, model, this, this);
     }
 
     /**
@@ -99,22 +104,12 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @return true if it has a {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT} field.
-     * This is used to help check for existence before saving for maximum speed optimization.
-     */
-    public boolean hasAutoIncrementPrimaryKey() {
-        return false;
-    }
-
-    /**
      * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     public long getAutoIncrementingId(ModelClass model) {
         return 0;
     }
-
-    public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model);
 
     /**
      * @return Only created once if doesn't exist, the extended class will return the builder to use.
@@ -143,12 +138,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @return The query used to insert a model using a {@link android.database.sqlite.SQLiteStatement}
      */
     protected abstract String getInsertStatementQuery();
-
-    /**
-     * @return A new model using its default constructor. This is why default is required so that
-     * we don't use reflection to create objects = faster.
-     */
-    public abstract ModelClass newInstance();
 
     /**
      * @return The conflict algorithm to use when updating a row in this table.
