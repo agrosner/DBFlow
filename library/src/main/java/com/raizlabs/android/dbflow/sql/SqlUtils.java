@@ -332,7 +332,7 @@ public class SqlUtils {
             new Delete().from((Class<TableClass>) modelAdapter.getModelClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
             modelAdapter.updateAutoIncrement(model, 0);
             if (FlowContentObserver.shouldNotify()) {
-                notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
+                notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.DELETE);
             }
         } else {
             TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(ProcessModelInfo.withModels(model).fetch()));
