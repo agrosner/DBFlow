@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.writer.CreationQueryWriter;
-import com.raizlabs.android.dbflow.processor.writer.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
@@ -64,6 +63,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     FlowWriter[] mMethodWriters;
 
+    public boolean hasAutoIncrement = false;
+
     public TableDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
         setDefinitionClassName(DBFLOW_TABLE_TAG);
@@ -105,7 +106,6 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
                 new WhereQueryWriter(this, false),
                 new CreationQueryWriter(manager, this),
-                new DeleteWriter(this, false)
         };
 
 
@@ -131,6 +131,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                         foreignKeyDefinitions.add(columnDefinition);
                     } else if (columnDefinition.columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
                         autoIncrementDefinition = columnDefinition;
+                        hasAutoIncrement = true;
                     }
                 }
             }

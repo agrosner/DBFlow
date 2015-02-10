@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
@@ -29,8 +30,14 @@ public class ExistenceWriter implements FlowWriter {
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return new Select().from(%1s).where(getPrimaryModelWhere(%1s)).hasData()",
-                        ModelUtils.getFieldClass(tableDefinition.getModelClassName()), ModelUtils.getVariable(isModelContainer));
+                if(tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).hasAutoIncrement) {
+                    javaWriter.emitStatement("return %1s > 0", ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnName,
+                            long.class.getSimpleName(), ((TableDefinition) tableDefinition).autoIncrementDefinition.columnName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
+                            isModelContainer, false, false, ((TableDefinition) tableDefinition).autoIncrementDefinition.hasTypeConverter));
+                } else {
+                    javaWriter.emitStatement("return new Select().from(%1s).where(getPrimaryModelWhere(%1s)).hasData()",
+                            ModelUtils.getFieldClass(tableDefinition.getModelClassName()), ModelUtils.getVariable(isModelContainer));
+                }
             }
         }, "boolean", "exists", Sets.newHashSet(Modifier.PUBLIC), ModelUtils.getParameter(isModelContainer,tableDefinition.getModelClassName()),
                 ModelUtils.getVariable(isModelContainer));

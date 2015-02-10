@@ -280,6 +280,7 @@ public class SqlUtils {
     public static <ModelClass extends Model> void delete(final ModelClass model, ModelAdapter<ModelClass> modelAdapter, boolean async) {
         if (!async) {
             new Delete().from((Class<ModelClass>) model.getClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
+            modelAdapter.updateAutoIncrement(model, 0);
             notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(ProcessModelInfo.withModels(model).fetch()));
