@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.4.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.4.5-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -17,6 +17,25 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
+#### 1.4.5
+1. Discovered a bottleneck when we call  ```SqlUtils.notifyModelChanged()``` even when not listening for changes. Now it only gets called when we register a ```FlowContentObserver```, **resulting in ~%60 speed improvement** for all DB modification operations!!!!
+2. Consolidated ```ModelContainerUtils``` methods into ```SqlUtils``` due to the adapter improvements in 1.4.2 that enabled the change. Thus ```ModelContainerUtils``` is deprecated.
+3. ```SqlUtils.convertToList()``` should be leaner by reusing a model adapter before looping through a ```Cursor```.  
+
+#### 1.4.4
+1. Simplifies internal adapter structure and have them implement common interfaces
+2. ```Column.PRIMARY_KEY_AUTO_INCREMENT``` now changes the way existence behaves: instead of using a query on the DB for the existence, it will use that field's value. If the value is 0, it's not in the DB and will ```save()```. 
+3. Deleting an autoincrementing column will reset that object's id column to 0
+4. Fixes issue where a ```@ContainerAdapter``` ```updateAutoIncrement()``` wasn't respecting the ```@ContainerKey```
+
+#### 1.4.3
+1. Adds vargs to the ```Condition.in()``` and ```Condition.notIn()``` methods
+2. Fixes issue where ```Insert``` wrapper did not execute the correct method when called ```query()``` or ```queryClose()```
+
+#### 1.4.2
+
+1. Throws error if the ```TypeConverterDefinition``` cannot process the type parameters, and warns devs of using type parameters for a typeparameter in a ```TypeConverter```. Thanks [mariciv](https://github.com/mariciv)
+2. Fixes ```BaseDatabaseDefinition.reset()``` fails to reset DB. Now appends ".db" to database name. Thanks [bafitor](https://github.com/bafitor)
 
 #### 1.4.1
 
@@ -63,28 +82,37 @@ For more detailed usage, check out these sections:
 
 ### Gradle
 
-Add the maven repo url to your build.gradle:
+Add the maven repo url to your root build.gradle in the ```buildscript{}``` and ```allProjects{}``` blocks:
 
 ```groovy
-
-  repositories {
+  buildscript {
+    repositories {
         maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
+    }
+    classpath 'com.raizlabs:Griddle:1.0.1'
+    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
   }
+  
+  allprojects {
+    repositories {
+        maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
+    }
+  }
+
 
 ```
 
 Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) and the 
-[AARLinkSources](https://github.com/xujiaao/AARLinkSources) plugin::
+[Griddle](https://github.com/Raizlabs/Griddle) plugin:
 
 ```groovy
 
+  apply plugin: 'com.neenbedankt.android-apt'
+  apply plugin: 'com.raizlabs.griddle'
+
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.4.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Compiler:1.4.1:sources@jar'
-    compile 'com.raizlabs.android:DBFlow-Core:1.4.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow-Core:1.4.1:sources@jar'
-    compile 'com.raizlabs.android:DBFlow:1.4.1'
-    aarLinkSources 'com.raizlabs.android:DBFlow:1.4.1:sources@jar'
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.4.5'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.4.5"
   }
 
 ```

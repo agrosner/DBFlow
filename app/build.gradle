@@ -1,12 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
+apply plugin: 'com.raizlabs.griddle'
 repositories {
     mavenCentral()
 }
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -30,10 +31,10 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    apt project(':compiler')
-    compile project(':library')
-    compile 'com.android.support:appcompat-v7:21.0.0'
+    jars()
+    mod 'compiler', 'apt'
+    mod 'library'
+    nsMod 'com.android.support:appcompat-v7:21.0.3'
 }
 
 android.applicationVariants.all { variant ->

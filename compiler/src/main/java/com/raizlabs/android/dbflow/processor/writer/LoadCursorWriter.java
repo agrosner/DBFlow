@@ -93,7 +93,11 @@ public class LoadCursorWriter implements FlowWriter {
                                         .appendCast(columnDefinition.columnFieldType)
                                         .append(params[3]).append(")");
                             } else {
-                                queryBuilder.appendPut(columnDefinition.columnFieldName)
+                                String containerKeyName = columnDefinition.columnFieldName;
+                                if(columnDefinition.containerKeyName != null) {
+                                    containerKeyName = columnDefinition.containerKeyName;
+                                }
+                                queryBuilder.appendPut(containerKeyName)
                                         .append(params[3]).append(")");
                             }
 

@@ -108,6 +108,10 @@ public abstract class BaseDatabaseDefinition {
 
     public abstract String getDatabaseName();
 
+    public String getDatabaseFileName() {
+        return getDatabaseName() + ".db";
+    }
+
     public abstract int getDatabaseVersion();
 
     /**
@@ -132,7 +136,7 @@ public abstract class BaseDatabaseDefinition {
     public void reset(Context context) {
         if (!isResetting) {
             isResetting = true;
-            context.deleteDatabase(getDatabaseName());
+            context.deleteDatabase(getDatabaseFileName());
             mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
             isResetting = false;
         }

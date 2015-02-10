@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.structure;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
@@ -13,11 +12,9 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
 
     private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
-
-    private ConditionQueryBuilder<ModelClass> mFullWhere;
 
     private SQLiteStatement mInsertStatement;
 
@@ -46,56 +43,53 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * Assigns the {@link android.database.Cursor} data into the specified cursor
-     * @param model The model to assign cursor data to
-     * @param cursor The cursor to load into the model
+     * @see #save(boolean, Model)
      */
-    public abstract void loadFromCursor(Cursor cursor, ModelClass model);
+    @Deprecated
+    public synchronized void save(boolean async, ModelClass model, int saveMode) {
+        SqlUtils.sync(async, model, this, saveMode);
+    }
 
     /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
      *
      * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model    The model to save/insert/update
-     * @param saveMode The {@link com.raizlabs.android.dbflow.sql.SqlUtils} save mode. Can be {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_DEFAULT},
-     *                 {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, or {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
      */
-    public synchronized void save(boolean async, ModelClass model, int saveMode) {
-        SqlUtils.sync(async, model, this, saveMode);
+    @Override
+    public synchronized void save(boolean async, ModelClass model) {
+        SqlUtils.save(async, model, this, this);
     }
 
     /**
      * Inserts the specified model into the DB.
+     *
      * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to insert.
      */
     public synchronized void insert(boolean async, ModelClass model) {
-        SqlUtils.insert(async, model, this);
+        SqlUtils.insert(async, model, this, this);
     }
 
     /**
      * Updates the specified model into the DB.
+     *
      * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to update.
      */
     public synchronized void update(boolean async, ModelClass model) {
-        SqlUtils.update(async, model, this);
+        SqlUtils.update(async, model, this, this);
     }
 
     /**
-     * Binds a {@link ModelClass} to the specified db statement
+     * Deletes the model from the DB
      *
-     * @param sqLiteStatement The statement to fill
+     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param model The model to delete
      */
-    public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
-
-    /**
-     * Binds a {@link ModelClass} to the specified db statement
-     *
-     * @param contentValues The content values to fill.
-     * @param model         The model values to put on the contentvalues
-     */
-    public abstract void bindToContentValues(ContentValues contentValues, ModelClass model);
+    public void delete(boolean async, ModelClass model) {
+        SqlUtils.delete(model, this, async);
+    }
 
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
@@ -104,27 +98,18 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param model The model object to store the key
      * @param id    The key to store
      */
+    @Override
     public void updateAutoIncrement(ModelClass model, long id) {
 
     }
 
     /**
-     * Checks to see if the model exists in the DB by running a simple query for it with its primary keys.
-     *
-     * @param model The model to check
-     * @return true if it can be found using its primary keys.
+     * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
-    public abstract boolean exists(ModelClass model);
-
-    /**
-     * Deletes the model from the DB
-     *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     * @param model The model to delete
-     */
-    public abstract void delete(boolean async, ModelClass model);
-
-    public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model);
+    public long getAutoIncrementingId(ModelClass model) {
+        return 0;
+    }
 
     /**
      * @return Only created once if doesn't exist, the extended class will return the builder to use.
@@ -153,18 +138,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @return The query used to insert a model using a {@link android.database.sqlite.SQLiteStatement}
      */
     protected abstract String getInsertStatementQuery();
-
-    @Override
-    public abstract Class<ModelClass> getModelClass();
-
-    @Override
-    public abstract String getTableName();
-
-    /**
-     * @return A new model using its default constructor. This is why default is required so that
-     * we don't use reflection to create objects = faster.
-     */
-    public abstract ModelClass newInstance();
 
     /**
      * @return The conflict algorithm to use when updating a row in this table.

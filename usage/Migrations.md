@@ -1,6 +1,6 @@
 # DB Migrations made easy!
 
-Whenever you modify the DB schema you need to increment the DB version through the ``DBConfiguration``. Also you need to add a ```Migration``` to the configuration or define the migration via ```/assets/migrations/{DatabaseName}/{versionName.sql}```. 
+Whenever you modify the DB schema you need to increment the DB version through within the ```@Database``` class it corresponds to. Also you need to add a ```Migration``` to the configuration or define the migration via ```/assets/migrations/{DatabaseName}/{versionName.sql}```. 
 
 ## Migration Classes
 

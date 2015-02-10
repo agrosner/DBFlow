@@ -106,7 +106,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public void save(boolean async) {
-        mContainerAdapter.save(async, this, SqlUtils.SAVE_MODE_DEFAULT);
+        mContainerAdapter.save(async, this);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.converter.DateConverter;
 import com.raizlabs.android.dbflow.converter.SqlDateConverter;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.validator.TypeConverterValidator;
 
 import java.util.Set;
 
@@ -18,6 +19,8 @@ import javax.lang.model.element.TypeElement;
  * adding default methods and adding them to the {@link com.raizlabs.android.dbflow.processor.model.ProcessorManager}
  */
 public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
+
+    private static final TypeConverterValidator VALIDATOR = new TypeConverterValidator();
 
     private static final Class[] DEFAULT_TYPE_CONVERTERS = new Class[]{
             CalendarConverter.class,
@@ -40,6 +43,9 @@ public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        processorManager.addTypeConverterDefinition(new TypeConverterDefinition((TypeElement) element, processorManager));
+        TypeConverterDefinition converterDefinition = new TypeConverterDefinition((TypeElement) element, processorManager);
+        if(VALIDATOR.validate(processorManager, converterDefinition)) {
+            processorManager.addTypeConverterDefinition(converterDefinition);
+        }
     }
 }
