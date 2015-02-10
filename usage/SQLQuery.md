@@ -51,14 +51,14 @@ In short, we want this code to be maintainable, short, reusable, and expressive 
 // main thread retrieval
 List<DeviceObject> devices = new Select().from(DeviceObject.class)
   .where(
-      Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy-S5"), 
-      Condition.column(DeviceObject$Table.CARRIER).is("T-Mobile")).queryList();
+      Condition.column(DeviceObject$Table.NAME).eq("Samsung-Galaxy-S5"), 
+      Condition.column(DeviceObject$Table.CARRIER).eq("T-Mobile")).queryList();
       
 // Async Transaction Queue Retrieval (Recommended)
 new Select().from(DeviceObject.class)
   .where(
-      Condition.column(DeviceObject$Table.NAME).is("Samsung-Galaxy-S5"), 
-      Condition.column(DeviceObject$Table.CARRIER).is("T-Mobile"))
+      Condition.column(DeviceObject$Table.NAME).eq("Samsung-Galaxy-S5"), 
+      Condition.column(DeviceObject$Table.CARRIER).eq("T-Mobile"))
   .transactList(new TransactionListenerAdapter<List<DeviceObject>>() {
     @Override
     public void onResultReceived(List<DeviceObject> devices) {
@@ -172,3 +172,16 @@ new Delete().from(MyTable.class)
 
 ```
 
+### JOIN statements
+
+```JOIN``` statements are great for combining many-to-many relationships.
+
+For example we have a table named ```Customer``` and another named ```Reservations```. 
+
+```java
+
+List<Customer> customers = new Select().from(Customer.class).as("C")
+  .join(Reservations.class, JoinType.INNER).as("R")
+    .on(Condition.column("C." + Customer$Table.CUSTOMER_ID).eq("R." + Reservations$Table.CUSTOMER_ID)).queryList();
+
+```
