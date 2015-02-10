@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.structure;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
@@ -13,7 +12,7 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, RetrievalAdapter<ModelClass> {
 
     private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
 
@@ -46,13 +45,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * Assigns the {@link android.database.Cursor} data into the specified cursor
-     * @param model The model to assign cursor data to
-     * @param cursor The cursor to load into the model
-     */
-    public abstract void loadFromCursor(Cursor cursor, ModelClass model);
-
-    /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
      *
      * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
@@ -66,6 +58,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     /**
      * Inserts the specified model into the DB.
+     *
      * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to insert.
      */
@@ -75,6 +68,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
 
     /**
      * Updates the specified model into the DB.
+     *
      * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to update.
      */
@@ -83,19 +77,14 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * Binds a {@link ModelClass} to the specified db statement
+     * Deletes the model from the DB
      *
-     * @param sqLiteStatement The statement to fill
+     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * @param model The model to delete
      */
-    public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
-
-    /**
-     * Binds a {@link ModelClass} to the specified db statement
-     *
-     * @param contentValues The content values to fill.
-     * @param model         The model values to put on the contentvalues
-     */
-    public abstract void bindToContentValues(ContentValues contentValues, ModelClass model);
+    public void delete(boolean async, ModelClass model) {
+        SqlUtils.delete(model, this, async);
+    }
 
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
@@ -104,25 +93,26 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param model The model object to store the key
      * @param id    The key to store
      */
+    @Override
     public void updateAutoIncrement(ModelClass model, long id) {
 
     }
 
     /**
-     * Checks to see if the model exists in the DB by running a simple query for it with its primary keys.
-     *
-     * @param model The model to check
-     * @return true if it can be found using its primary keys.
+     * @return true if it has a {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT} field.
+     * This is used to help check for existence before saving for maximum speed optimization.
      */
-    public abstract boolean exists(ModelClass model);
+    public boolean hasAutoIncrementPrimaryKey() {
+        return false;
+    }
 
     /**
-     * Deletes the model from the DB
-     *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     * @param model The model to delete
+     * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
-    public abstract void delete(boolean async, ModelClass model);
+    public long getAutoIncrementingId(ModelClass model) {
+        return 0;
+    }
 
     public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model);
 
@@ -153,12 +143,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @return The query used to insert a model using a {@link android.database.sqlite.SQLiteStatement}
      */
     protected abstract String getInsertStatementQuery();
-
-    @Override
-    public abstract Class<ModelClass> getModelClass();
-
-    @Override
-    public abstract String getTableName();
 
     /**
      * @return A new model using its default constructor. This is why default is required so that

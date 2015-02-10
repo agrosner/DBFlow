@@ -80,6 +80,7 @@ public class ModelContainerUtils {
                                                          ContainerAdapter<ModelClass> containerAdapter, boolean async) {
         if (!async) {
             new Delete().from(modelContainer.getTable()).where(containerAdapter.getPrimaryModelWhere(modelContainer)).query();
+            containerAdapter.updateAutoIncrement(modelContainer, 0);
             SqlUtils.notifyModelChanged(modelContainer.getTable(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(modelContainer));
