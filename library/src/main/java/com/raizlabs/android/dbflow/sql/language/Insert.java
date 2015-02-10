@@ -180,11 +180,8 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
                 .appendTableName(mTable);
 
         if (mColumns != null) {
-            String[] columns = new String[mColumns.length];
-            for (int i=0; i < mColumns.length; i++)
-                columns[i] = QueryBuilder.quote(mColumns[i]);
             queryBuilder.append("(")
-                    .appendArray(columns)
+                    .appendQuotedArray(mColumns)
                     .append(")");
         }
 

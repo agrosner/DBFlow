@@ -189,7 +189,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 if (!insertConflictName.isEmpty()) {
                     insertConflictName = String.format(" OR %1s ", insertConflictName);
                 }
-                QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO %1s (");
+                QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO ")
+                        .appendQuoted(tableName).appendSpace().append("(");
 
                 List<String> columnNames = new ArrayList<String>();
                 List<String> bindings = new ArrayList<String>();
@@ -198,18 +199,18 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
                     if (columnDefinition.columnType == Column.FOREIGN_KEY) {
                         for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
-                            columnNames.add(QueryBuilder.quote(reference.columnName()));
+                            columnNames.add(reference.columnName());
                             bindings.add("?");
                         }
                     } else if (columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
-                        columnNames.add(QueryBuilder.quote(columnDefinition.columnName.toUpperCase()));
+                        columnNames.add(columnDefinition.columnName.toUpperCase());
                         bindings.add("?");
                     }
                 }
 
-                stringBuilder.appendList(columnNames).append(") VALUES (");
+                stringBuilder.appendQuotedList(columnNames).append(") VALUES (");
                 stringBuilder.appendList(bindings).append(")\"");
-                javaWriter.emitStatement(stringBuilder.toString(), insertConflictName, QueryBuilder.quote(tableName));
+                javaWriter.emitStatement(stringBuilder.toString(), insertConflictName);
             }
         }, "String", "getInsertStatementQuery", Sets.newHashSet(Modifier.PROTECTED, Modifier.FINAL));
 

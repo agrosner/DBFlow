@@ -110,19 +110,17 @@ public class CreationQueryWriter implements FlowWriter {
 
                         String[] foreignColumns = new String[foreignKeyField.foreignKeyReferences.length];
                         for (int i = 0; i < foreignColumns.length; i++) {
-                            foreignColumns[i] = QueryBuilder.quote(foreignKeyField.foreignKeyReferences[i].foreignColumnName());
+                            foreignColumns[i] = foreignKeyField.foreignKeyReferences[i].foreignColumnName();
                         }
 
                         String[] columns = new String[foreignKeyField.foreignKeyReferences.length];
-                        String[] foreignColumnNames = new String[foreignKeyField.foreignKeyReferences.length];
                         for (int i = 0; i < columns.length; i++) {
-                            columns[i] = QueryBuilder.quote(foreignKeyField.foreignKeyReferences[i].columnName());
-                            foreignColumnNames[i] = QueryBuilder.quote(foreignKeyField.foreignKeyReferences[i].foreignColumnName());
+                            columns[i] = foreignKeyField.foreignKeyReferences[i].columnName();
                         }
 
-                        foreignKeyQueryBuilder.appendArray(columns)
+                        foreignKeyQueryBuilder.appendQuotedArray(columns)
                                 .append(")").appendSpaceSeparated("REFERENCES %1s")
-                                .append("(").appendArray(foreignColumnNames).append(")").appendSpace()
+                                .append("(").appendQuotedArray(foreignColumns).append(")").appendSpace()
                                 .append("ON UPDATE")
                                 .appendSpaceSeparated(foreignKeyField.column.onUpdate().name().replace("_", " "))
                                 .append("ON DELETE")

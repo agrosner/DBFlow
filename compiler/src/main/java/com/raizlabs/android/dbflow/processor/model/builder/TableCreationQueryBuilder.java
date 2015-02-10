@@ -61,7 +61,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
      * @return This instance
      */
     public QueryBuilder appendCreateTableIfNotExists(String tableName) {
-        mQuery.append("CREATE TABLE IF NOT EXISTS `").append(tableName).append("`(");
+        append("CREATE TABLE IF NOT EXISTS ").appendQuoted(tableName).append("(");
         return this;
     }
 

@@ -210,16 +210,13 @@ public class Select implements Query {
             } else if (mSelectQualifier == ALL) {
                 queryBuilder.append("ALL");
             } else if (mSelectQualifier == METHOD) {
-                queryBuilder.append(mMethodName.toUpperCase()).appendParenthesisEnclosed(QueryBuilder.quote(mColumnName));
+                queryBuilder.append(mMethodName.toUpperCase()).append("(").appendQuoted(mColumnName).append(")");
             }
             queryBuilder.appendSpace();
         }
 
         if (mColumns != null && mColumns.length > 0) {
-            String[] columns = new String[mColumns.length];
-            for (int i=0; i < mColumns.length; i++)
-                columns[i] = QueryBuilder.quote(mColumns[i]);
-            queryBuilder.append(TextUtils.join(", ", columns));
+            queryBuilder.appendQuotedArray(mColumns);
         } else if (mSelectQualifier != METHOD) {
             queryBuilder.append("*");
         }

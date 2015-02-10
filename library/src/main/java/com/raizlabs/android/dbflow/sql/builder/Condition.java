@@ -456,7 +456,7 @@ public class Condition {
      */
     @SuppressWarnings("unchecked")
     public Condition concatenateToColumn(Object value) {
-        mOperation = String.format("%1s%1s", Operation.EQUALS, QueryBuilder.quote(mColumn));
+        mOperation = new QueryBuilder(Operation.EQUALS).appendQuoted(mColumn).toString();
         if (value != null && !isRaw) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
