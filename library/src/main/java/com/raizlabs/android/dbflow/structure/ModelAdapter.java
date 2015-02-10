@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, RetrievalAdapter<ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, RetrievalAdapter<ModelClass, ModelClass> {
 
     private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
 
@@ -45,15 +45,22 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
+     * @see #save(boolean, Model)
+     */
+    @Deprecated
+    public synchronized void save(boolean async, ModelClass model, int saveMode) {
+        SqlUtils.sync(async, model, this, saveMode);
+    }
+
+    /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
      *
      * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model    The model to save/insert/update
-     * @param saveMode The {@link com.raizlabs.android.dbflow.sql.SqlUtils} save mode. Can be {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_DEFAULT},
-     *                 {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, or {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
      */
-    public synchronized void save(boolean async, ModelClass model, int saveMode) {
-        SqlUtils.sync(async, model, this, saveMode);
+    @Override
+    public synchronized void save(boolean async, ModelClass model) {
+        SqlUtils.save(async, model, this, this);
     }
 
     /**
@@ -63,7 +70,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param model The model to insert.
      */
     public synchronized void insert(boolean async, ModelClass model) {
-        SqlUtils.insert(async, model, this);
+        SqlUtils.insert(async, model, this, this);
     }
 
     /**
@@ -73,7 +80,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param model The model to update.
      */
     public synchronized void update(boolean async, ModelClass model) {
-        SqlUtils.update(async, model, this);
+        SqlUtils.update(async, model, this, this);
     }
 
     /**
@@ -113,8 +120,6 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     public long getAutoIncrementingId(ModelClass model) {
         return 0;
     }
-
-    public abstract ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model);
 
     /**
      * @return Only created once if doesn't exist, the extended class will return the builder to use.

@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: andrewgrosner
@@ -21,6 +22,17 @@ import java.util.List;
  * above {@link android.os.Build.VERSION_CODES#JELLY_BEAN}. If below it will only provide one callback.
  */
 public class FlowContentObserver extends ContentObserver {
+
+    private static List<FlowContentObserver> mObserverList = new ArrayList<>();
+
+    /**
+     * @return true if we have registered for content changes. Otherwise we do not notify
+     * in {@link com.raizlabs.android.dbflow.sql.SqlUtils#notifyModelChanged(Class, com.raizlabs.android.dbflow.structure.BaseModel.Action)}
+     * for efficiency purposes.
+     */
+    public static boolean shouldNotify() {
+        return !mObserverList.isEmpty();
+    }
 
     /**
      * Listeners for model changes.
@@ -56,6 +68,7 @@ public class FlowContentObserver extends ContentObserver {
      */
     public void registerForContentChanges(Context context, Class<? extends Model> table) {
         context.getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
+        mObserverList.add(this);
     }
 
     /**
@@ -63,6 +76,7 @@ public class FlowContentObserver extends ContentObserver {
      */
     public void unregisterForContentChanges(Context context) {
         context.getContentResolver().unregisterContentObserver(this);
+        mObserverList.remove(this);
     }
 
     @Override

@@ -10,9 +10,9 @@ import android.support.annotation.IntDef;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
@@ -20,6 +20,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
+import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
@@ -98,12 +99,12 @@ public class SqlUtils {
         if (modelAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(table)) {
                 modelAdapter = FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table);
-                model = ((ModelViewAdapter<ModelClass, ?>)modelAdapter).newInstance();
+                model = ((ModelViewAdapter<ModelClass, ?>) modelAdapter).newInstance();
             }
         } else {
             model = ((ModelAdapter<ModelClass>) modelAdapter).newInstance();
         }
-        if(modelAdapter != null) {
+        if (modelAdapter != null) {
             if (cursor.moveToFirst()) {
                 do {
                     modelAdapter.loadFromCursor(cursor, model);
@@ -128,19 +129,15 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table, Cursor cursor) {
         ModelClass model = null;
-        try {
-            if (dontMoveToFirst || cursor.moveToFirst()) {
-                ModelAdapter<ModelClass> modelAdapter = FlowManager.getModelAdapter(table);
-                if (modelAdapter == null) {
-                    if (BaseModelView.class.isAssignableFrom(table)) {
-                        model = (ModelClass) FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table).loadFromCursor(cursor);
-                    }
-                } else {
-                    model = modelAdapter.loadFromCursor(cursor);
+        if (dontMoveToFirst || cursor.moveToFirst()) {
+            ModelAdapter<ModelClass> modelAdapter = FlowManager.getModelAdapter(table);
+            if (modelAdapter == null) {
+                if (BaseModelView.class.isAssignableFrom(table)) {
+                    model = (ModelClass) FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table).loadFromCursor(cursor);
                 }
+            } else {
+                model = modelAdapter.loadFromCursor(cursor);
             }
-        } catch (Exception e) {
-            FlowLog.log(FlowLog.Level.E, "Failed to process cursor.", e);
         }
 
         return model;
@@ -169,14 +166,14 @@ public class SqlUtils {
      * Checks whether the SQL query returns a {@link android.database.Cursor} with a count of at least 1. This
      * means that the query was successful. It is commonly used when checking if a {@link com.raizlabs.android.dbflow.structure.Model} exists.
      *
-     * @param flowManager  The database manager that we run this query on
+     * @param table        The table to check
      * @param sql          The SQL command to perform, must not be ; terminated.
      * @param args         The optional string arguments when we use "?" in the sql
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return
      */
-    public static <ModelClass extends Model> boolean hasData(Class<ModelClass> modelClass, String sql, String... args) {
-        BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
+    public static <ModelClass extends Model> boolean hasData(Class<ModelClass> table, String sql, String... args) {
+        BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(table);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();
@@ -186,21 +183,15 @@ public class SqlUtils {
     /**
      * Syncs the model to the database depending on it's save mode.
      *
-     * @param async
-     * @param model
-     * @param contentValues
-     * @param mode
-     * @param <ModelClass>
+     * @see #save(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.RetrievalAdapter, com.raizlabs.android.dbflow.structure.ModelAdapter)
      */
+    @Deprecated
     public static <ModelClass extends Model> void sync(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter, @SaveMode int mode) {
         if (!async) {
 
             if (model == null) {
                 throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
             }
-
-            BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(model.getClass());
-            final SQLiteDatabase db = flowManager.getWritableDatabase();
 
             boolean exists = false;
             BaseModel.Action action = BaseModel.Action.SAVE;
@@ -214,14 +205,51 @@ public class SqlUtils {
             }
 
             if (exists) {
-                exists = update(false, model, modelAdapter);
+                exists = update(false, model, modelAdapter, modelAdapter);
             }
 
             if (!exists) {
-                insert(false, model, modelAdapter);
+                insert(false, model, modelAdapter, modelAdapter);
             }
 
-            //notifyModelChanged(model.getClass(), action);
+            if (FlowContentObserver.shouldNotify()) {
+                notifyModelChanged(model.getClass(), action);
+            }
+        } else {
+            TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
+        }
+    }
+
+    /**
+     * Saves the model into the DB based on whether it exists or not.
+     *
+     * @param async        Whether it goes on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} or done immediately.
+     * @param model        The model to save
+     * @param modelAdapter The {@link com.raizlabs.android.dbflow.structure.ModelAdapter} to use
+     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     */
+    @SuppressWarnings("unchecked")
+    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
+    void save(boolean async, TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
+        if (!async) {
+
+            if (model == null) {
+                throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
+            }
+
+            boolean exists = adapter.exists(model);
+
+            if (exists) {
+                exists = update(false, model, adapter, modelAdapter);
+            }
+
+            if (!exists) {
+                insert(false, model, adapter, modelAdapter);
+            }
+
+            if (FlowContentObserver.shouldNotify()) {
+                notifyModelChanged(model.getClass(), BaseModel.Action.SAVE);
+            }
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
         }
@@ -237,25 +265,27 @@ public class SqlUtils {
      * @return true if model was inserted, false if not. Also false could mean that it is placed on the
      * {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} using async to true.
      */
-    public static <ModelClass extends Model> boolean update(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
+    @SuppressWarnings("unchecked")
+    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
+    boolean update(boolean async, TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         boolean exists = false;
         if (!async) {
             SQLiteDatabase db = FlowManager.getDatabaseForTable(model.getClass()).getWritableDatabase();
             ContentValues contentValues = new ContentValues();
-            modelAdapter.bindToContentValues(contentValues, model);
+            adapter.bindToContentValues(contentValues, model);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
                 exists = (db.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-                        modelAdapter.getPrimaryModelWhere(model).getQuery(), null,
+                        adapter.getPrimaryModelWhere(model).getQuery(), null,
                         ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
             } else {
                 exists = (db.update(modelAdapter.getTableName(), contentValues,
-                        modelAdapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
+                        adapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
             }
             if (!exists) {
                 // insert
-                insert(false, model, modelAdapter);
-            } else {
-                //notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
+                insert(false, model, adapter, modelAdapter);
+            } else if (FlowContentObserver.shouldNotify()) {
+                notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
             }
         } else {
             TransactionManager.getInstance().update(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
@@ -271,13 +301,17 @@ public class SqlUtils {
      * @param modelAdapter The adapter to use.
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void insert(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter) {
+    @SuppressWarnings("unchecked")
+    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
+    void insert(boolean async, TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         if (!async) {
             SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
-            modelAdapter.bindToStatement(insertStatement, model);
+            adapter.bindToStatement(insertStatement, model);
             long id = insertStatement.executeInsert();
-            modelAdapter.updateAutoIncrement(model, id);
-            //notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
+            adapter.updateAutoIncrement(model, id);
+            if (FlowContentObserver.shouldNotify()) {
+                notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
+            }
         } else {
             TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
         }
@@ -287,16 +321,18 @@ public class SqlUtils {
     /**
      * Deletes {@link com.raizlabs.android.dbflow.structure.Model} from the database using the specfied {@link com.raizlabs.android.dbflow.config.FlowManager}
      *
-     * @param model        The model to delete
-     * @param async        Whether it goes on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} or done immediately.
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param model The model to delete
+     * @param async Whether it goes on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} or done immediately.
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> void delete(final ModelClass model, ModelAdapter<ModelClass> modelAdapter, boolean async) {
+    public static <TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
+    void delete(final TableClass model, AdapterClass modelAdapter, boolean async) {
         if (!async) {
-            new Delete().from((Class<ModelClass>) model.getClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
+            new Delete().from((Class<TableClass>) model.getClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
             modelAdapter.updateAutoIncrement(model, 0);
-            //notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
+            if (FlowContentObserver.shouldNotify()) {
+                notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
+            }
         } else {
             TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(ProcessModelInfo.withModels(model).fetch()));
         }
@@ -305,10 +341,11 @@ public class SqlUtils {
     /**
      * Notifies the {@link android.database.ContentObserver} that the model has changed.
      *
-     * @param model
+     * @param action     The {@link com.raizlabs.android.dbflow.structure.BaseModel.Action} enum
+     * @param table The table of the model
      */
-    public static void notifyModelChanged(Class<? extends Model> modelClass, BaseModel.Action action) {
-        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(modelClass, action), null, true);
+    public static void notifyModelChanged(Class<? extends Model> table, BaseModel.Action action) {
+        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action), null, true);
     }
 
     /**

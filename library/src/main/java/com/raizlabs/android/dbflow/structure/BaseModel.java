@@ -51,7 +51,7 @@ public abstract class BaseModel implements Model {
     @SuppressWarnings("unchecked")
     @Override
     public void save(boolean async) {
-        mModelAdapter.save(async, this, SqlUtils.SAVE_MODE_DEFAULT);
+        mModelAdapter.save(async, this);
     }
 
     @SuppressWarnings("unchecked")
