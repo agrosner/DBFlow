@@ -22,6 +22,8 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
+import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
+import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,14 +90,27 @@ public class SqlUtils {
      * @param <ModelClass>
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
         final List<ModelClass> entities = new ArrayList<ModelClass>();
-
-        if (cursor.moveToFirst()) {
-            do {
-                entities.add(convertToModel(true, table, cursor));
+        RetrievalAdapter modelAdapter = FlowManager.getModelAdapter(table);
+        Model model = null;
+        if (modelAdapter == null) {
+            if (BaseModelView.class.isAssignableFrom(table)) {
+                modelAdapter = FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table);
+                model = ((ModelViewAdapter<ModelClass, ?>)modelAdapter).newInstance();
             }
-            while (cursor.moveToNext());
+        } else {
+            model = ((ModelAdapter<ModelClass>) modelAdapter).newInstance();
+        }
+        if(modelAdapter != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    modelAdapter.loadFromCursor(cursor, model);
+                    entities.add((ModelClass) model);
+                }
+                while (cursor.moveToNext());
+            }
         }
 
         return entities;
@@ -206,7 +221,7 @@ public class SqlUtils {
                 insert(false, model, modelAdapter);
             }
 
-            notifyModelChanged(model.getClass(), action);
+            //notifyModelChanged(model.getClass(), action);
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
         }
@@ -240,7 +255,7 @@ public class SqlUtils {
                 // insert
                 insert(false, model, modelAdapter);
             } else {
-                notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
+                //notifyModelChanged(model.getClass(), BaseModel.Action.UPDATE);
             }
         } else {
             TransactionManager.getInstance().update(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
@@ -262,7 +277,7 @@ public class SqlUtils {
             modelAdapter.bindToStatement(insertStatement, model);
             long id = insertStatement.executeInsert();
             modelAdapter.updateAutoIncrement(model, id);
-            notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
+            //notifyModelChanged(model.getClass(), BaseModel.Action.INSERT);
         } else {
             TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
         }
@@ -281,7 +296,7 @@ public class SqlUtils {
         if (!async) {
             new Delete().from((Class<ModelClass>) model.getClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
             modelAdapter.updateAutoIncrement(model, 0);
-            notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
+            //notifyModelChanged(model.getClass(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(ProcessModelInfo.withModels(model).fetch()));
         }

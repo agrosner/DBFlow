@@ -60,7 +60,7 @@ public class ModelContainerUtils {
                 insert(false, modelContainer, containerAdapter);
             }
 
-            SqlUtils.notifyModelChanged(modelContainer.getTable(), action);
+            //SqlUtils.notifyModelChanged(modelContainer.getTable(), action);
 
         } else {
             TransactionManager.getInstance().save(ProcessModelInfo.withModels(modelContainer));
@@ -81,7 +81,7 @@ public class ModelContainerUtils {
         if (!async) {
             new Delete().from(modelContainer.getTable()).where(containerAdapter.getPrimaryModelWhere(modelContainer)).query();
             containerAdapter.updateAutoIncrement(modelContainer, 0);
-            SqlUtils.notifyModelChanged(modelContainer.getTable(), BaseModel.Action.DELETE);
+            //SqlUtils.notifyModelChanged(modelContainer.getTable(), BaseModel.Action.DELETE);
         } else {
             TransactionManager.getInstance().delete(ProcessModelInfo.withModels(modelContainer));
         }
@@ -102,7 +102,7 @@ public class ModelContainerUtils {
             modelAdapter.bindToStatement(insertStatement, modelContainer);
             long id = insertStatement.executeInsert();
             modelAdapter.updateAutoIncrement(modelContainer, id);
-            SqlUtils.notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT);
+            //SqlUtils.notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT);
         } else {
             TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(ProcessModelInfo.withModels(modelContainer)
                     .info(DBTransactionInfo.createSave())));
@@ -138,7 +138,7 @@ public class ModelContainerUtils {
                 // insert
                 insert(false, modelContainer, modelClassContainerAdapter);
             } else {
-                SqlUtils.notifyModelChanged(modelClassModelAdapter.getModelClass(), BaseModel.Action.UPDATE);
+                //SqlUtils.notifyModelChanged(modelClassModelAdapter.getModelClass(), BaseModel.Action.UPDATE);
             }
         } else {
             TransactionManager.getInstance().update(ProcessModelInfo.withModels(modelContainer).info(DBTransactionInfo.createSave()));
