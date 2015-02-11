@@ -20,11 +20,11 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
     private static Map<Class<? extends BaseCacheableModel>, ModelCache> mCacheMap = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public static <CacheClass extends BaseCacheableModel> ModelCache<CacheClass> getCache(Class<CacheClass> table) {
+    public static <CacheClass extends BaseCacheableModel> ModelCache<CacheClass, ?> getCache(Class<CacheClass> table) {
         return mCacheMap.get(table);
     }
 
-    static void putCache(Class<? extends BaseCacheableModel> table, ModelCache<? extends BaseCacheableModel> modelCache) {
+    static void putCache(Class<? extends BaseCacheableModel> table, ModelCache<? extends BaseCacheableModel, ?> modelCache) {
         mCacheMap.put(table, modelCache);
     }
 
@@ -41,9 +41,17 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
     public BaseCacheableModel() {
         mCache = getCache(getClass());
         if (mCache == null) {
-            mCache = new ModelCache(getCacheSize());
+            mCache = getBackingCache();
             putCache(getClass(), mCache);
         }
+    }
+
+    /**
+     * @return A cache to use for this class statically. Only called if an existing cache does not exist. Override
+     * this method to use your own.
+     */
+    protected ModelCache<? extends BaseCacheableModel, ?> getBackingCache() {
+        return new ModelLruCache<>(getCacheSize());
     }
 
     @Override

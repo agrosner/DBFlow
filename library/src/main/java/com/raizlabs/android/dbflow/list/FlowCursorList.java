@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class FlowCursorList<ModelClass extends Model> {
 
     private Class<ModelClass> mTable;
 
-    private ModelCache<ModelClass> mModelCache;
+    private ModelCache<ModelClass, ?> mModelCache;
 
     private boolean cacheModels;
 
@@ -116,8 +117,12 @@ public class FlowCursorList<ModelClass extends Model> {
         } else {
             throwIfCursorClosed();
             mCacheSize = cacheSize;
-            mModelCache = new ModelCache<>(mCacheSize);
+            mModelCache = getBackingCache();
         }
+    }
+
+    protected ModelCache<ModelClass, ?> getBackingCache() {
+        return new ModelLruCache<>(mCacheSize);
     }
 
     /**
