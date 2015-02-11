@@ -75,20 +75,6 @@ public class Select implements Query {
     }
 
     /**
-     * Selects a {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel} by id. It will
-     * consult the {@link com.raizlabs.android.dbflow.structure.cache.ModelCache} for the class before loading from the DB.
-     * @param cacheableClass The class of the {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel}
-     * @param id The {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT} to use.
-     * @param <CacheableClass> The class that extends {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel}
-     * @return A model from the cache (if it exists), else runs a {@link com.raizlabs.android.dbflow.sql.language.Select} statement to retrieve it.
-     */
-    public static <CacheableClass extends BaseCacheableModel> CacheableClass byCacheableId(Class<CacheableClass> cacheableClass, long id) {
-        ModelCache<CacheableClass> cache = BaseCacheableModel.getCache(cacheableClass);
-        CacheableClass model = cache.get(id);
-        return model != null ? model : byId(cacheableClass, id);
-    }
-
-    /**
      * Selects a single model object with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
      *
      * @param conditionQueryBuilder The where query we will use
