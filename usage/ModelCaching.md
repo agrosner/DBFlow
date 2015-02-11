@@ -11,16 +11,20 @@ can use it anywhere you wish.
 ### BaseCacheableModel
 
 Instead of extending ```BaseModel```, if your class extends ```BaseCacheableModel```, 
-any modification to the Model is saved in the cache. The default cache is a ```ModelLruCache```.
+any modification to the Model is saved in the cache. When a query runs on the DB, it will store the instance of the ```BaseCacheableModel``` in the cache and the cache is soley responsible for handling memory.
+
+The default cache is a ```ModelLruCache```.
 You will need to implement ```getCacheSize()```, which will tell the default ```ModelLruCache``` the size of its contents.
 
 To use a custom cache, simply override:
 
-``java
+```java
+
 @Override
 protected ModelCache<? extends BaseCacheableModel, ?> getBackingCache() {
         return new MyCustomCache<>();
 }
+
 ```
 
 #### FlowCursorList + FlowTable List
@@ -29,10 +33,12 @@ With a ```ModelCache```, the ```FlowCursorList``` and ```FlowTableList``` are mu
 You can now decide how to cache models in these classes by overriding:
 
 ``java
+
 @Override
 protected ModelCache<? extends BaseCacheableModel, ?> getBackingCache() {
         return new MyCustomCache<>();
 }
+
 ```
 
 ## Example Cache
