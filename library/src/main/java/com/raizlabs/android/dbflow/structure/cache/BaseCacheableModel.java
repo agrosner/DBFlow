@@ -19,11 +19,24 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
 
     private static Map<Class<? extends BaseCacheableModel>, ModelCache> mCacheMap = new HashMap<>();
 
+    /**
+     * @param table        The cacheable model class to use
+     * @param <CacheClass> The class that implements {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel}
+     * @return A {@link com.raizlabs.android.dbflow.structure.cache.ModelCache} if it exists in memory. If not,
+     * null is returned.
+     */
     @SuppressWarnings("unchecked")
     public static <CacheClass extends BaseCacheableModel> ModelCache<CacheClass, ?> getCache(Class<CacheClass> table) {
         return mCacheMap.get(table);
     }
 
+    /**
+     * Called when a {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel} is created if
+     * no existing cache exists.
+     *
+     * @param table      The cacheable model to use
+     * @param modelCache The cache to store.
+     */
     static void putCache(Class<? extends BaseCacheableModel> table, ModelCache<? extends BaseCacheableModel, ?> modelCache) {
         mCacheMap.put(table, modelCache);
     }
