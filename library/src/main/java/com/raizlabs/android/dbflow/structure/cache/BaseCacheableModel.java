@@ -34,6 +34,7 @@ public abstract class BaseCacheableModel extends BaseModel {
      * Constructs a new instance, instantiating the {@link com.raizlabs.android.dbflow.structure.cache.ModelCache}
      * if it does not already exist for this model.
      */
+    @SuppressWarnings("unchecked")
     public BaseCacheableModel() {
         mCache = getCache(getClass());
         if (mCache == null) {
