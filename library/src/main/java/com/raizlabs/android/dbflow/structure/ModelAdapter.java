@@ -112,6 +112,14 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
+     * @return The autoincrement column name for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * if it has the field. This method is overridden when its specified for the {@link ModelClass}
+     */
+    public String getAutoIncrementingColumnName() {
+        return "";
+    }
+
+    /**
      * @return Only created once if doesn't exist, the extended class will return the builder to use.
      */
     protected abstract ConditionQueryBuilder<ModelClass> createPrimaryModelWhere();

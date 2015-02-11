@@ -67,7 +67,7 @@ public class LoadCursorWriter implements FlowWriter {
                     columnDefinition.writeLoadFromCursorDefinition(javaWriter, isModelContainerDefinition);
                 }
 
-                if (implementsLoadFromCursorListener) {
+                if (implementsLoadFromCursorListener && !isModelContainerDefinition) {
                     javaWriter.emitStatement("%1s.onLoadFromCursor(%1s)", ModelUtils.getVariable(isModelContainerDefinition),
                             params[1]);
                 }
@@ -87,23 +87,60 @@ public class LoadCursorWriter implements FlowWriter {
                     AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
                             .append(ModelUtils.getVariable(isModelContainerDefinition));
 
-                            if(!isModelContainerDefinition) {
-                                queryBuilder.append(".").append(columnDefinition.columnFieldName)
-                                        .append(" = ")
-                                        .appendCast(columnDefinition.columnFieldType)
-                                        .append(params[3]).append(")");
-                            } else {
-                                String containerKeyName = columnDefinition.columnFieldName;
-                                if(columnDefinition.containerKeyName != null) {
-                                    containerKeyName = columnDefinition.containerKeyName;
-                                }
-                                queryBuilder.appendPut(containerKeyName)
-                                        .append(params[3]).append(")");
-                            }
+                    if (!isModelContainerDefinition) {
+                        queryBuilder.append(".").append(columnDefinition.columnFieldName)
+                                .append(" = ")
+                                .appendCast(columnDefinition.columnFieldType)
+                                .append(params[3]).append(")");
+                    } else {
+                        String containerKeyName = columnDefinition.columnFieldName;
+                        if (columnDefinition.containerKeyName != null) {
+                            containerKeyName = columnDefinition.containerKeyName;
+                        }
+                        queryBuilder.appendPut(containerKeyName)
+                                .append(params[3]).append(")");
+                    }
 
                     javaWriter.emitStatement(queryBuilder.getQuery());
                 }
             }, "void", "updateAutoIncrement", Sets.newHashSet(Modifier.PUBLIC), params);
+
+            String[] params2 = new String[2];
+            params2[0] = ModelUtils.getParameter(isModelContainerDefinition, tableDefinition.getModelClassName());
+            params2[1] = ModelUtils.getVariable(isModelContainerDefinition);
+            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                @Override
+                public void write(JavaWriter javaWriter) throws IOException {
+                    ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+                    AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
+                            .append("return ")
+                            .appendCast("long")
+                            .append(ModelUtils.getVariable(isModelContainerDefinition));
+
+                    if (!isModelContainerDefinition) {
+                        queryBuilder.append(".").append(columnDefinition.columnFieldName);
+                    } else {
+                        String containerKeyName = columnDefinition.columnFieldName;
+                        if (columnDefinition.containerKeyName != null) {
+                            containerKeyName = columnDefinition.containerKeyName;
+                        }
+                        queryBuilder.append(".").appendGetValue(containerKeyName);
+                    }
+
+                    javaWriter.emitStatement(queryBuilder.append(")").getQuery());
+                }
+            }, "long", "getAutoIncrementingId", Sets.newHashSet(Modifier.PUBLIC), params2);
+
+            if (!isModelContainerDefinition) {
+                WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                    @Override
+                    public void write(JavaWriter javaWriter) throws IOException {
+                        ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+
+                        javaWriter.emitStatement("return %1s.%1s", tableDefinition.getTableSourceClassName(), columnDefinition.columnName.toUpperCase());
+                    }
+                }, "String", "getAutoIncrementingColumnName", Sets.newHashSet(Modifier.PUBLIC));
+            }
         }
     }
 }

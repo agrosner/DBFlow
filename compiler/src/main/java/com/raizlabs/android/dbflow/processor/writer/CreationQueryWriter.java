@@ -56,7 +56,7 @@ public class CreationQueryWriter implements FlowWriter {
                         queryBuilder.appendSpace().appendForeignKeys(columnDefinition.foreignKeyReferences);
                     } else {
 
-                        queryBuilder.append(columnDefinition.columnName)
+                        queryBuilder.appendQuoted(columnDefinition.columnName)
                                 .appendSpace();
 
                         if (columnDefinition.hasTypeConverter) {
@@ -91,7 +91,7 @@ public class CreationQueryWriter implements FlowWriter {
                     for (ColumnDefinition field : tableDefinition.primaryColumnDefinitions) {
                         if (field.columnType == Column.PRIMARY_KEY) {
                             count++;
-                            primaryKeyQueryBuilder.append(field.columnName);
+                            primaryKeyQueryBuilder.appendQuoted(field.columnName);
                             if (index < tableDefinition.primaryColumnDefinitions.size() - 1) {
                                 primaryKeyQueryBuilder.append(", ");
                             }
@@ -118,8 +118,9 @@ public class CreationQueryWriter implements FlowWriter {
                             columns[i] = foreignKeyField.foreignKeyReferences[i].columnName();
                         }
 
-                        foreignKeyQueryBuilder.appendArray(columns)
+                        foreignKeyQueryBuilder.appendQuotedArray(columns)
                                 .append(")").appendSpaceSeparated("REFERENCES %1s")
+                                .append("(").appendQuotedArray(foreignColumns).append(")").appendSpace()
                                 .append("ON UPDATE")
                                 .appendSpaceSeparated(foreignKeyField.column.onUpdate().name().replace("_", " "))
                                 .append("ON DELETE")

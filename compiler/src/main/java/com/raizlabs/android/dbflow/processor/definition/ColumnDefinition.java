@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -140,7 +141,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         return (columnName + "_" + reference.columnName()).toUpperCase();
     }
 
-    protected void writeColumnDefinition(JavaWriter javaWriter, String columnName) throws IOException {
+    public void writeColumnDefinition(JavaWriter javaWriter, String columnName) throws IOException {
         writeColumnDefinition(javaWriter, columnName.toUpperCase(), columnName);
     }
 

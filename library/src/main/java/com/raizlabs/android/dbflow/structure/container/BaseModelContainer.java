@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.structure.container;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -49,6 +48,24 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         }
 
         return mModel;
+    }
+
+    /**
+     * Sets a model to back the container. NOTE: this method invalidates results in any underlying data to
+     * be ignored. To resume using this underlying data, set this method wil a null param.
+     *
+     * @param model
+     */
+    public void setModel(ModelClass model) {
+        mModel = model;
+    }
+
+    /**
+     * Invalidates the underlying model. In the next {@link #toModel()} call, it will re-query the DB with
+     * the underlying data.
+     */
+    public void invalidateModel() {
+        setModel(null);
     }
 
     /**

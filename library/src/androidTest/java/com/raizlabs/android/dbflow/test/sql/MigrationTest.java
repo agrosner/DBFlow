@@ -28,11 +28,12 @@ public class MigrationTest extends AndroidTestCase {
 
     public void testMigration() {
 
-        List<String> columnNames = Arrays.asList("fraction REAL", "time INTEGER", "name2 TEXT", "number INTEGER", "blobby BLOB");
+        List<String> columnNames = Arrays.asList("`fraction` REAL", "`time` INTEGER", "`name2` TEXT", "`number` INTEGER", "`blobby` BLOB");
+        List<String> columns = Arrays.asList("fraction", "time", "name2", "number", "blobby");
 
         AlterTableMigration<MigrationModel> renameMigration = new AlterTableMigration<>(MigrationModel.class).renameFrom("TestModel");
         renameMigration.onPreMigrate();
-        assertEquals("ALTER TABLE TestModel RENAME TO MigrationModel", renameMigration.getRenameQuery());
+        assertEquals("ALTER TABLE `TestModel` RENAME TO `MigrationModel`", renameMigration.getRenameQuery());
         renameMigration.onPostMigrate();
 
         AlterTableMigration<MigrationModel> alterTableMigration = new AlterTableMigration<>(MigrationModel.class);
@@ -45,19 +46,18 @@ public class MigrationTest extends AndroidTestCase {
 
         List<String> columnDefinitions = alterTableMigration.getColumnDefinitions();
         for(int i = 0; i < columnDefinitions.size(); i++) {
-            assertEquals("ALTER TABLE MigrationModel ADD COLUMN " + columnNames.get(i), columnDefinitions.get(i));
+            assertEquals("ALTER TABLE `MigrationModel` ADD COLUMN " + columnNames.get(i), columnDefinitions.get(i));
         }
 
         alterTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
 
         // test the column sizes
         Cursor cursor = new Select().from(MigrationModel.class).where().query();
-        String[] columns = cursor.getColumnNames();
-        assertTrue(columns.length == columnNames.size()+2);
+        assertTrue(cursor.getColumnNames().length == columnNames.size()+2);
 
         // make sure column exists now
-        for(int i = 0; i < columnNames.size(); i++) {
-            assertTrue(cursor.getColumnIndex(columnNames.get(i).split(" ")[0]) != -1);
+        for(int i = 0; i < columns.size(); i++) {
+            assertTrue(cursor.getColumnIndex(columns.get(i)) != -1);
         }
 
         alterTableMigration.onPostMigrate();
@@ -69,7 +69,7 @@ public class MigrationTest extends AndroidTestCase {
                 .set(Condition.column("name").is("test")).where(Condition.column("name").is("notTest"));
         updateTableMigration.onPreMigrate();
 
-        assertEquals("UPDATE MigrationModel SET name='test' WHERE name='notTest'", updateTableMigration.getQuery().trim());
+        assertEquals("UPDATE `MigrationModel` SET `name`='test' WHERE `name`='notTest'", updateTableMigration.getQuery().trim());
 
         updateTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
         updateTableMigration.onPostMigrate();

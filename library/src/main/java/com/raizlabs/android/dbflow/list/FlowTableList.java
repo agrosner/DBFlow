@@ -21,6 +21,8 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
@@ -74,7 +76,12 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     public FlowTableList(Class<ModelClass> table, Condition... conditions) {
         super(null);
-        mCursorList = new FlowCursorList<ModelClass>(true, table, conditions);
+        mCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
+            @Override
+            protected ModelCache<ModelClass, ?> getBackingCache() {
+                return FlowTableList.this.getBackingCache(getCount());
+            }
+        };
     }
 
     /**
@@ -85,6 +92,15 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     public FlowTableList(ModelQueriable<ModelClass> modelQueriable) {
         super(null);
         mCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable);
+    }
+
+    /**
+     * @param count The size of the underlying {@link com.raizlabs.android.dbflow.list.FlowCursorList}
+     * @return The cache backing this query. Override to provide a custom {@link com.raizlabs.android.dbflow.structure.cache.ModelCache}
+     * instead.
+     */
+    public ModelCache<ModelClass, ?> getBackingCache(int count) {
+        return new ModelLruCache<>(count);
     }
 
     /**

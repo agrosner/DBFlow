@@ -27,23 +27,23 @@ public class UpdateTest extends FlowTestCase {
 
         From<TestModel1> from = new Update().table(TestModel1.class);
 
-        assertEquals("UPDATE TestModel1", from.getQuery().trim());
+        assertEquals("UPDATE `TestModel1`", from.getQuery().trim());
 
         Where<TestModel1> where = from.set(Condition.column("name").is("newvalue"))
                 .where(Condition.column("name").is("oldvalue"));
 
-        assertEquals("UPDATE TestModel1 SET name='newvalue' WHERE name='oldvalue'", where.getQuery().trim());
+        assertEquals("UPDATE `TestModel1` SET `name`='newvalue' WHERE `name`='oldvalue'", where.getQuery().trim());
         where.query();
 
         String query = new Update().table(BoxedModel.class).set(Condition.columnRaw(BoxedModel$Table.RBLNUMBER).is(BoxedModel$Table.RBLNUMBER + " + 1")).getQuery();
-        assertEquals("UPDATE BoxedModel SET rblNumber=rblNumber + 1", query.trim());
+        assertEquals("UPDATE `BoxedModel` SET `rblNumber`=rblNumber + 1", query.trim());
 
 
         query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.RBLNUMBER).concatenateToColumn(1)).getQuery();
-        assertEquals("UPDATE BoxedModel SET rblNumber=rblNumber + 1", query.trim());
+        assertEquals("UPDATE `BoxedModel` SET `rblNumber`=`rblNumber` + 1", query.trim());
 
         query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
-        assertEquals("UPDATE BoxedModel SET name=name || 'Test'", query.trim());
+        assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
     }
 
     public void testUpdateEffect() {

@@ -164,6 +164,44 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
         return castThis();
     }
 
+    /**
+     * Appends a quoted string. If the string is the all symbol '*', we do not quote it.
+     *
+     * @param string The string to append
+     * @return This instance
+     */
+    @SuppressWarnings("unchecked")
+    public QueryClass appendQuoted(String string) {
+        if (string.equals("*"))
+            return append(string);
+
+        append("`").append(string.replace(".", "`.`")).append("`");
+        return castThis();
+    }
+
+    /**
+     * Appends a list of objects by quoting and joining them with a comma with
+     * {@link #join(CharSequence, Iterable)}
+     *
+     * @param objects The list of objects to pass in
+     * @return This instance
+     */
+    @SuppressWarnings("unchecked")
+    public QueryClass appendQuotedList(List<?> objects) {
+        return appendQuoted(join("`, `", objects));
+    }
+
+    /**
+     * Appends an array of these objects by quoting and joining them with a comma with
+     * {@link #join(CharSequence, Object[])}
+     *
+     * @param objects The array of objects to pass in
+     * @return This instance
+     */
+    public QueryClass appendQuotedArray(Object... objects) {
+        return appendQuoted(join("`, `", objects));
+    }
+
     @Override
     public String toString() {
         return getQuery();

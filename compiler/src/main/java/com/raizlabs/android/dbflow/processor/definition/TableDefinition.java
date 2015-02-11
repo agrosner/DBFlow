@@ -190,7 +190,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 if (!insertConflictName.isEmpty()) {
                     insertConflictName = String.format(" OR %1s ", insertConflictName);
                 }
-                QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO %1s (");
+                QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO ")
+                        .appendQuoted(tableName).appendSpace().append("(");
 
                 List<String> columnNames = new ArrayList<String>();
                 List<String> bindings = new ArrayList<String>();
@@ -208,9 +209,9 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                     }
                 }
 
-                stringBuilder.appendList(columnNames).append(") VALUES (");
+                stringBuilder.appendQuotedList(columnNames).append(") VALUES (");
                 stringBuilder.appendList(bindings).append(")\"");
-                javaWriter.emitStatement(stringBuilder.toString(), insertConflictName, tableName);
+                javaWriter.emitStatement(stringBuilder.toString(), insertConflictName);
             }
         }, "String", "getInsertStatementQuery", Sets.newHashSet(Modifier.PROTECTED, Modifier.FINAL));
 
