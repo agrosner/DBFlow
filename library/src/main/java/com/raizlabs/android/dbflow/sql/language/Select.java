@@ -8,6 +8,8 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
+import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 
 import java.util.List;
 

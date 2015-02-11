@@ -25,6 +25,7 @@ import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
+import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,9 @@ import java.util.List;
 public class SqlUtils {
 
     @Deprecated
-    public @IntDef @interface SaveMode {
+    public
+    @IntDef
+    @interface SaveMode {
     }
 
     /**
@@ -77,12 +80,41 @@ public class SqlUtils {
      * @param <ModelClass> The class implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return a list of {@link ModelClass}
      */
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql, String... args) {
         BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
-        List<ModelClass> list = convertToList(modelClass, cursor);
+        List<ModelClass> list = null;
+        if (BaseCacheableModel.class.isAssignableFrom(modelClass)) {
+            list = (List<ModelClass>) convertToCacheableList((Class<? extends BaseCacheableModel>) modelClass, cursor);
+        } else {
+            list = convertToList(modelClass, cursor);
+        }
         cursor.close();
         return list;
+    }
+
+    private static <CacheableClass extends BaseCacheableModel> List<CacheableClass> convertToCacheableList(Class<CacheableClass> modelClass, Cursor cursor) {
+        final List<CacheableClass> entities = new ArrayList<>();
+        ModelAdapter<CacheableClass> instanceAdapter = FlowManager.getModelAdapter(modelClass);
+        if (instanceAdapter != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    long id = cursor.getLong(cursor.getColumnIndex(instanceAdapter.getAutoIncrementingColumnName()));
+
+                    // if it exists in cache no matter the query we will use that one
+                    CacheableClass cacheable = BaseCacheableModel.getCache(modelClass).get(id);
+                    if (cacheable != null) {
+                        entities.add(cacheable);
+                    } else {
+                        cacheable = instanceAdapter.newInstance();
+                        instanceAdapter.loadFromCursor(cursor, cacheable);
+                        entities.add(cacheable);
+                    }
+                } while (cursor.moveToNext());
+            }
+        }
+        return entities;
     }
 
     /**
@@ -147,6 +179,34 @@ public class SqlUtils {
     }
 
     /**
+     * Takes a {@link CacheableClass} from either cache (if exists) else it reads from the cursor
+     *
+     * @param dontMoveToFirst  If it's a list or at a specific position, do not reset the cursor
+     * @param table            The model class that we convert the cursor data into.
+     * @param cursor           The cursor from the DB
+     * @param <CacheableClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @return A model transformed from the {@link android.database.Cursor}
+     */
+    @SuppressWarnings("unchecked")
+    public static <CacheableClass extends BaseCacheableModel> CacheableClass convertToCacheableModel(boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
+        CacheableClass model = null;
+        if (dontMoveToFirst || cursor.moveToFirst()) {
+            ModelAdapter<CacheableClass> modelAdapter = FlowManager.getModelAdapter(table);
+
+            if (modelAdapter != null) {
+                long id = cursor.getLong(cursor.getColumnIndex(modelAdapter.getAutoIncrementingColumnName()));
+                model = BaseCacheableModel.getCache(table).get(id);
+                if (model == null) {
+                    model = modelAdapter.newInstance();
+                    modelAdapter.loadFromCursor(cursor, model);
+                }
+            }
+        }
+
+        return model;
+    }
+
+    /**
      * Queries the DB and returns the first {@link com.raizlabs.android.dbflow.structure.Model} it finds. Note:
      * this may return more than one object, but only will return the first item in the list.
      *
@@ -158,9 +218,15 @@ public class SqlUtils {
      * @param <ModelClass> The class implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return a single {@link ModelClass}
      */
+    @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql, String... args) {
         Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
-        ModelClass retModel = convertToModel(false, modelClass, cursor);
+        ModelClass retModel = null;
+        if (BaseCacheableModel.class.isAssignableFrom(modelClass)) {
+            retModel = (ModelClass) convertToCacheableModel(false, (Class<? extends BaseCacheableModel>) modelClass, cursor);
+        } else {
+            retModel = convertToModel(false, modelClass, cursor);
+        }
         cursor.close();
         return retModel;
     }

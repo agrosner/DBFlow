@@ -1,8 +1,11 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
+import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,7 +25,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
      * @param table The table to associate the container with
      */
     public ForeignKeyContainer(Class<ModelClass> table) {
-        super(table, new LinkedHashMap<String, Object>());
+        this(table, new LinkedHashMap<String, Object>());
     }
 
     /**
@@ -31,6 +34,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
      * @param table The table to associate the container with
      * @param data  The data to store in this container
      */
+    @SuppressWarnings("unchecked")
     public ForeignKeyContainer(Class<ModelClass> table, Map<String, Object> data) {
         super(table, data);
     }
