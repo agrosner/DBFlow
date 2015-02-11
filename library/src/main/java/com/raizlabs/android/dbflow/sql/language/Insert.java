@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
@@ -180,7 +181,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
 
         if (mColumns != null) {
             queryBuilder.append("(")
-                    .appendArray(mColumns)
+                    .appendQuotedArray(mColumns)
                     .append(")");
         }
 

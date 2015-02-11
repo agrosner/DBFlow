@@ -57,14 +57,17 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         // "{oldName}  RENAME TO {newName}"
         // Since the structure has been updated already, the manager knows only the new name.
         if (mRenameQuery != null) {
-            database.execSQL(sql + mOldTableName +
-                    mRenameQuery.getQuery() + tableName);
+            String renameQuery = new QueryBuilder(sql).appendQuoted(mOldTableName)
+                    .append(mRenameQuery.getQuery())
+                    .appendQuoted(tableName)
+                    .toString();
+            database.execSQL(renameQuery);
         }
 
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (mColumnDefinitions != null) {
-            sql = sql + tableName;
+            sql = new QueryBuilder(sql).appendQuoted(tableName).toString();
             for (QueryBuilder columnDefinition : mColumnDefinitions) {
                 database.execSQL(sql + " ADD COLUMN " + columnDefinition.getQuery());
             }
@@ -106,7 +109,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(columnName).appendSpace().appendType(columnType.getName());
+                .appendQuoted(columnName).appendSpace().appendType(columnType.getName());
         mColumnDefinitions.add(queryBuilder);
 
         return this;
@@ -116,8 +119,8 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return The query that renames the table.
      */
     public String getRenameQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder(mQuery.getQuery()).append(mOldTableName)
-                .append(mRenameQuery).append(FlowManager.getTableName(mTable));
+        QueryBuilder queryBuilder = new QueryBuilder(mQuery.getQuery()).appendQuoted(mOldTableName)
+                .append(mRenameQuery).appendQuoted(FlowManager.getTableName(mTable));
         return queryBuilder.getQuery();
     }
 
@@ -125,7 +128,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return A List of column definitions that add column to a table in the DB.
      */
     public List<String> getColumnDefinitions() {
-        String sql = mQuery.getQuery() + FlowManager.getTableName(mTable);
+        String sql = new QueryBuilder(mQuery.getQuery()).appendQuoted(FlowManager.getTableName(mTable)).toString();
         List<String> columnDefinitions = new ArrayList<String>();
 
         if (mColumnDefinitions != null) {

@@ -23,12 +23,12 @@ public class BuilderTest extends FlowTestCase {
                 Condition.column("bytes").is(5),
                 Condition.column("fraction").is(6.5d));
 
-        assertEquals("number=5 AND bytes=5 AND fraction=6.5", conditionQueryBuilder.getQuery());
+        assertEquals("`number`=5 AND `bytes`=5 AND `fraction`=6.5", conditionQueryBuilder.getQuery());
 
 
         conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class)
                 .putCondition(Condition.column(ConditionModel$Table.NUMBER).between(5L).and(10L));
-        assertEquals("number BETWEEN 5 AND 10", conditionQueryBuilder.getQuery().trim());
+        assertEquals("`number` BETWEEN 5 AND 10", conditionQueryBuilder.getQuery().trim());
     }
 
     public void testCollate() {
@@ -36,7 +36,7 @@ public class BuilderTest extends FlowTestCase {
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class);
         collate.appendConditionToQuery(conditionQueryBuilder);
 
-        assertEquals("name='James' COLLATE NOCASE", conditionQueryBuilder.getQuery().trim());
+        assertEquals("`name`='James' COLLATE NOCASE", conditionQueryBuilder.getQuery().trim());
 
     }
 
@@ -45,24 +45,24 @@ public class BuilderTest extends FlowTestCase {
         conditionQueryBuilder.putCondition(Condition.column(ConditionModel$Table.NAME).is("James").separator("OR"))
                 .putCondition(Condition.column(ConditionModel$Table.NUMBER).is(6).separator("AND"))
                 .putCondition(Condition.column(ConditionModel$Table.FRACTION).is(4.5d));
-        assertEquals("name='James' OR number=6 AND fraction=4.5", conditionQueryBuilder.getQuery().trim());
+        assertEquals("`name`='James' OR `number`=6 AND `fraction`=4.5", conditionQueryBuilder.getQuery().trim());
     }
 
     public void testIsOperators() {
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class);
         conditionQueryBuilder.putCondition(Condition.column(ConditionModel$Table.NAME).is("James"))
                 .or(Condition.column(ConditionModel$Table.FRACTION).isNotNull());
-        assertEquals("name='James' OR fraction IS NOT NULL", conditionQueryBuilder.getQuery().trim());
+        assertEquals("`name`='James' OR `fraction` IS NOT NULL", conditionQueryBuilder.getQuery().trim());
     }
 
     public void testInOperators() {
         Condition.In in = Condition.column(ConditionModel$Table.NAME).in("Jason", "Ryan", "Michael");
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, in);
-        assertEquals(conditionQueryBuilder.getQuery().trim(), "name IN ('Jason','Ryan','Michael')");
+        assertEquals("`name` IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
 
         Condition.In notIn = Condition.column(ConditionModel$Table.NAME).notIn("Jason", "Ryan", "Michael");
         conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
-        assertEquals(conditionQueryBuilder.getQuery().trim(), "name NOT IN ('Jason','Ryan','Michael')");
+        assertEquals("`name` NOT IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
     }
 
 }

@@ -212,13 +212,13 @@ public class Select implements Query {
             } else if (mSelectQualifier == ALL) {
                 queryBuilder.append("ALL");
             } else if (mSelectQualifier == METHOD) {
-                queryBuilder.append(mMethodName.toUpperCase()).appendParenthesisEnclosed(mColumnName);
+                queryBuilder.append(mMethodName.toUpperCase()).append("(").appendQuoted(mColumnName).append(")");
             }
             queryBuilder.appendSpace();
         }
 
         if (mColumns != null && mColumns.length > 0) {
-            queryBuilder.append(TextUtils.join(", ", mColumns));
+            queryBuilder.appendQuotedArray(mColumns);
         } else if (mSelectQualifier != METHOD) {
             queryBuilder.append("*");
         }

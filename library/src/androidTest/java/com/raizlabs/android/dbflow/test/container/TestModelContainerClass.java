@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.container;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
+import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
@@ -31,6 +32,9 @@ public class TestModelContainerClass extends TestModel1 {
     boolean isHappy;
 
     @Column(columnType = Column.FOREIGN_KEY,
-            references = {@ForeignKeyReference(columnName = "testName", columnType = String.class, foreignColumnName = "name")})
+            references = {@ForeignKeyReference(columnName = "testName", columnType = String.class, foreignColumnName = "name")},
+            onDelete = ForeignKeyAction.CASCADE,
+            onUpdate = ForeignKeyAction.CASCADE
+    )
     TestModel1 testModel;
 }
