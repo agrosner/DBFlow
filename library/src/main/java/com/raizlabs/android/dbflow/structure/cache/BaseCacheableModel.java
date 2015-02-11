@@ -16,11 +16,12 @@ public abstract class BaseCacheableModel extends BaseModel {
 
     private static Map<Class<? extends BaseCacheableModel>, ModelCache> mCacheMap = new HashMap<>();
 
-    public static ModelCache getCache(Class<? extends BaseCacheableModel> table) {
+    @SuppressWarnings("unchecked")
+    public static <CacheClass extends BaseCacheableModel> ModelCache<CacheClass> getCache(Class<CacheClass> table) {
         return mCacheMap.get(table);
     }
 
-    static void putCache(Class<? extends BaseCacheableModel> table, ModelCache modelCache) {
+    static void putCache(Class<? extends BaseCacheableModel> table, ModelCache<? extends BaseCacheableModel> modelCache) {
         mCacheMap.put(table, modelCache);
     }
 
@@ -76,7 +77,7 @@ public abstract class BaseCacheableModel extends BaseModel {
     @SuppressWarnings("unchecked")
     protected void addToCache() {
         long id = getModelAdapter().getAutoIncrementingId(this);
-        if(id == 0) {
+        if (id == 0) {
             throw new InvalidDBConfiguration(String.format("The cacheable model class %1s must contain" +
                     "an autoincrementing primary key. Although its possible that this method was called" +
                     "after an insert/update/save failure", getClass()));
@@ -90,5 +91,6 @@ public abstract class BaseCacheableModel extends BaseModel {
      * the cache is not created yet.
      */
     public abstract int getCacheSize();
+
 
 }

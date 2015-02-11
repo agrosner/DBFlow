@@ -104,6 +104,33 @@ public class LoadCursorWriter implements FlowWriter {
                     javaWriter.emitStatement(queryBuilder.getQuery());
                 }
             }, "void", "updateAutoIncrement", Sets.newHashSet(Modifier.PUBLIC), params);
+
+            String[] params2 = new String[2];
+            params2[0] = ModelUtils.getParameter(isModelContainerDefinition, tableDefinition.getModelClassName());
+            params2[1] = ModelUtils.getVariable(isModelContainerDefinition);
+            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                @Override
+                public void write(JavaWriter javaWriter) throws IOException {
+                    ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+                    AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
+                            .append("return ")
+                            .appendCast("long")
+                            .append(ModelUtils.getVariable(isModelContainerDefinition));
+
+                    if(!isModelContainerDefinition) {
+                        queryBuilder.append(".").append(columnDefinition.columnFieldName);
+                    } else {
+                        String containerKeyName = columnDefinition.columnFieldName;
+                        if(columnDefinition.containerKeyName != null) {
+                            containerKeyName = columnDefinition.containerKeyName;
+                        }
+                        queryBuilder.append(".").appendGetValue(containerKeyName);
+                    }
+
+                    javaWriter.emitStatement(queryBuilder.append(")").getQuery());
+                }
+            }, "long", "getAutoIncrementingId", Sets.newHashSet(Modifier.PUBLIC), params2);
+
         }
     }
 }
