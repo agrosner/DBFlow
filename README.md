@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.4.5-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.5.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
