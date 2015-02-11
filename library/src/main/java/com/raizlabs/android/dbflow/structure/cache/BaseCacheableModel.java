@@ -17,6 +17,8 @@ import java.util.Map;
  */
 public abstract class BaseCacheableModel extends BaseModel implements LoadFromCursorListener {
 
+    public static final int DEFAULT_CACHE_SIZE = 1000;
+
     private static Map<Class<? extends BaseCacheableModel>, ModelCache> mCacheMap = new HashMap<>();
 
     /**
@@ -119,10 +121,12 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
     }
 
     /**
-     * @return the size of the cache you wish to maintain for this class. It is only called if
+     * @return Override this method to specify the size of the cache you wish to maintain for this class. It is only called if
      * the cache is not created yet.
      */
-    public abstract int getCacheSize();
+    public int getCacheSize() {
+        return DEFAULT_CACHE_SIZE;
+    }
 
 
 }
