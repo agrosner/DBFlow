@@ -7,6 +7,7 @@ can use it anywhere you wish.
 
 ## Using a Cache
 
+Using a cache is easy-peasy.
 
 ### BaseCacheableModel
 
@@ -14,7 +15,7 @@ Instead of extending ```BaseModel```, if your class extends ```BaseCacheableMode
 any modification to the Model is saved in the cache. When a query runs on the DB, it will store the instance of the ```BaseCacheableModel``` in the cache and the cache is soley responsible for handling memory.
 
 The default cache is a ```ModelLruCache```.
-You will need to implement ```getCacheSize()```, which will tell the default ```ModelLruCache``` the size of its contents.
+You can override ```getCacheSize()``` to tell the default ```ModelLruCache``` the size of its contents.
 
 To use a custom cache, simply override:
 
@@ -32,7 +33,7 @@ protected ModelCache<? extends BaseCacheableModel, ?> getBackingCache() {
 With a ```ModelCache```, the ```FlowCursorList``` and ```FlowTableList``` are much more powerful than before. 
 You can now decide how to cache models in these classes by overriding:
 
-``java
+```java
 
 @Override
 protected ModelCache<? extends BaseCacheableModel, ?> getBackingCache() {
@@ -41,7 +42,10 @@ protected ModelCache<? extends BaseCacheableModel, ?> getBackingCache() {
 
 ```
 
-## Example Cache
+
+#### Custom
+
+You can create your own cache and use it wherever you want. 
 
 An example cache is using a copied ```LruCache``` from the support library:
 
