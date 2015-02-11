@@ -17,6 +17,9 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
+#### 1.5.0
+
+
 #### 1.4.5
 1. Discovered a bottleneck when we call  ```SqlUtils.notifyModelChanged()``` even when not listening for changes. Now it only gets called when we register a ```FlowContentObserver```, **resulting in ~%60 speed improvement** for all DB modification operations!!!!
 2. Consolidated ```ModelContainerUtils``` methods into ```SqlUtils``` due to the adapter improvements in 1.4.2 that enabled the change. Thus ```ModelContainerUtils``` is deprecated.
@@ -60,6 +63,8 @@ For more detailed usage, check out these sections:
 [Conditions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md)
 
 [Creating Tables and Database Structure](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
+
+[Powerful Model Caching](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelCaching.md)
 
 [Migrations](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migrations.md)
 
@@ -111,8 +116,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.4.5'
-    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.4.5"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.0'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.5.0"
   }
 
 ```
