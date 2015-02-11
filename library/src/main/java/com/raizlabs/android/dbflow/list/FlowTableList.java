@@ -79,7 +79,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         mCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
-                return FlowTableList.this.getBackingCache();
+                return FlowTableList.this.getBackingCache(getCount());
             }
         };
     }
@@ -95,11 +95,12 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
+     * @param count The size of the underlying {@link com.raizlabs.android.dbflow.list.FlowCursorList}
      * @return The cache backing this query. Override to provide a custom {@link com.raizlabs.android.dbflow.structure.cache.ModelCache}
      * instead.
      */
-    public ModelCache<ModelClass, ?> getBackingCache() {
-        return new ModelLruCache<>(mCursorList.getCount());
+    public ModelCache<ModelClass, ?> getBackingCache(int count) {
+        return new ModelLruCache<>(count);
     }
 
     /**
