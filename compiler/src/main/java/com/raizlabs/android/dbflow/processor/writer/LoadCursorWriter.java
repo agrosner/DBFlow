@@ -67,7 +67,7 @@ public class LoadCursorWriter implements FlowWriter {
                     columnDefinition.writeLoadFromCursorDefinition(javaWriter, isModelContainerDefinition);
                 }
 
-                if (implementsLoadFromCursorListener) {
+                if (implementsLoadFromCursorListener && !isModelContainerDefinition) {
                     javaWriter.emitStatement("%1s.onLoadFromCursor(%1s)", ModelUtils.getVariable(isModelContainerDefinition),
                             params[1]);
                 }
