@@ -61,6 +61,14 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     /**
+     * Invalidates the underlying model. In the next {@link #toModel()} call, it will re-query the DB with
+     * the underlying data.
+     */
+    public void invalidateModel() {
+        setModel(null);
+    }
+
+    /**
      * @param inValue     The value of data for a specified field.
      * @param columnClass The class of the specified field/column
      * @return A created instance to be used for fields that are model containers.
