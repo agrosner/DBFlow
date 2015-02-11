@@ -1,7 +1,10 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
+import android.database.Cursor;
+
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
+import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +15,7 @@ import java.util.Map;
  * primary key. The corresponding {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
  * describes how to retrieve the Id field so that is why its required.
  */
-public abstract class BaseCacheableModel extends BaseModel {
+public abstract class BaseCacheableModel extends BaseModel implements LoadFromCursorListener {
 
     private static Map<Class<? extends BaseCacheableModel>, ModelCache> mCacheMap = new HashMap<>();
 
@@ -75,6 +78,11 @@ public abstract class BaseCacheableModel extends BaseModel {
         if (!async) {
             addToCache();
         }
+    }
+
+    @Override
+    public void onLoadFromCursor(Cursor cursor) {
+        addToCache();
     }
 
     @SuppressWarnings("unchecked")

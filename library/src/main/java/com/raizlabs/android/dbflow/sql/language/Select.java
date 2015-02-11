@@ -8,6 +8,8 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
+import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 
 import java.util.List;
 
@@ -70,6 +72,20 @@ public class Select implements Query {
     public static <ModelClass extends Model> ModelClass byId(Class<ModelClass> tableClass, Object... ids) {
         ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(tableClass);
         return withCondition(primaryQuery.replaceEmptyParams(ids));
+    }
+
+    /**
+     * Selects a {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel} by id. It will
+     * consult the {@link com.raizlabs.android.dbflow.structure.cache.ModelCache} for the class before loading from the DB.
+     * @param cacheableClass The class of the {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel}
+     * @param id The {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT} to use.
+     * @param <CacheableClass> The class that extends {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel}
+     * @return A model from the cache (if it exists), else runs a {@link com.raizlabs.android.dbflow.sql.language.Select} statement to retrieve it.
+     */
+    public static <CacheableClass extends BaseCacheableModel> CacheableClass byCacheableId(Class<CacheableClass> cacheableClass, long id) {
+        ModelCache<CacheableClass> cache = BaseCacheableModel.getCache(cacheableClass);
+        CacheableClass model = cache.get(id);
+        return model != null ? model : byId(cacheableClass, id);
     }
 
     /**
