@@ -19,40 +19,11 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 #### 1.5.0
 
-
-#### 1.4.5
-1. Discovered a bottleneck when we call  ```SqlUtils.notifyModelChanged()``` even when not listening for changes. Now it only gets called when we register a ```FlowContentObserver```, **resulting in ~%60 speed improvement** for all DB modification operations!!!!
-2. Consolidated ```ModelContainerUtils``` methods into ```SqlUtils``` due to the adapter improvements in 1.4.2 that enabled the change. Thus ```ModelContainerUtils``` is deprecated.
-3. ```SqlUtils.convertToList()``` should be leaner by reusing a model adapter before looping through a ```Cursor```.  
-
-#### 1.4.4
-1. Simplifies internal adapter structure and have them implement common interfaces
-2. ```Column.PRIMARY_KEY_AUTO_INCREMENT``` now changes the way existence behaves: instead of using a query on the DB for the existence, it will use that field's value. If the value is 0, it's not in the DB and will ```save()```. 
-3. Deleting an autoincrementing column will reset that object's id column to 0
-4. Fixes issue where a ```@ContainerAdapter``` ```updateAutoIncrement()``` wasn't respecting the ```@ContainerKey```
-
-#### 1.4.3
-1. Adds vargs to the ```Condition.in()``` and ```Condition.notIn()``` methods
-2. Fixes issue where ```Insert``` wrapper did not execute the correct method when called ```query()``` or ```queryClose()```
-
-#### 1.4.2
-
-1. Throws error if the ```TypeConverterDefinition``` cannot process the type parameters, and warns devs of using type parameters for a typeparameter in a ```TypeConverter```. Thanks [mariciv](https://github.com/mariciv)
-2. Fixes ```BaseDatabaseDefinition.reset()``` fails to reset DB. Now appends ".db" to database name. Thanks [bafitor](https://github.com/bafitor)
-
-#### 1.4.1
-
-1. Fixes issue where using ```Set.query()``` called the wrong query method.
-
-#### 1.4.0
-
-1. Fixes a crash within ```ModelUtils`` from the compiler` for a non-standard column
-2. Add validation to ensure crash does not happen from (1).
-3. Add ```INSERT``` as ```Queriable``` interface.
-4. ```Queriable``` interface was drastically simplified down to two methods. ```query()``` and ```queryClose()```. Never fear ```ModelQueriable``` is here! Same as previous ```Queriable``` just new and more descriptive name.
-5. ```Condition.columnRaw()``` will not TypeConvert or convert the value to a SQL escaped string when used. 
-6. ```Condition.eq()``` added that just mirrors ```is()``` but will sound nicer when writing some queries.
-7. ```Condition.column(columnName).concatenateToColumn(value)``` will concatenate the query: ```columnName=columnName || 'value'``` for strings, or ```columnName=columnName + value``` for numbers. It will handle type converters appropriately
+1. now we quote columns and table creations to support SQLite Keyword named columns and table names from [here](https://www.sqlite.org/lang_keywords.html) thanks @mozarcik 
+2. Can extend ```BaseCacheableModel``` to create an in memory cache for ```Model``` for instant retrieval for any query to the DB if it exists in the cache.
+3. Can create your own ```ModelCache```, however this library comes with ```ModelLruCache``` and ```SparseArrayBasedCache```!
+4. Can define a custom cache for ```FlowTableList``` and ```FlowCursorList```
+5. Added README support for Model caching
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
