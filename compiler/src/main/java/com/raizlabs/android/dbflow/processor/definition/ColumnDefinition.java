@@ -140,7 +140,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         return (columnName + "_" + reference.columnName()).toUpperCase();
     }
 
-    protected void writeColumnDefinition(JavaWriter javaWriter, String columnName) throws IOException {
+    public void writeColumnDefinition(JavaWriter javaWriter, String columnName) throws IOException {
         writeColumnDefinition(javaWriter, columnName.toUpperCase(), columnName);
     }
 

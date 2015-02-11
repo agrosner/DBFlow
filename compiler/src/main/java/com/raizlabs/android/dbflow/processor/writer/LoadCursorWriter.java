@@ -87,19 +87,19 @@ public class LoadCursorWriter implements FlowWriter {
                     AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
                             .append(ModelUtils.getVariable(isModelContainerDefinition));
 
-                            if(!isModelContainerDefinition) {
-                                queryBuilder.append(".").append(columnDefinition.columnFieldName)
-                                        .append(" = ")
-                                        .appendCast(columnDefinition.columnFieldType)
-                                        .append(params[3]).append(")");
-                            } else {
-                                String containerKeyName = columnDefinition.columnFieldName;
-                                if(columnDefinition.containerKeyName != null) {
-                                    containerKeyName = columnDefinition.containerKeyName;
-                                }
-                                queryBuilder.appendPut(containerKeyName)
-                                        .append(params[3]).append(")");
-                            }
+                    if (!isModelContainerDefinition) {
+                        queryBuilder.append(".").append(columnDefinition.columnFieldName)
+                                .append(" = ")
+                                .appendCast(columnDefinition.columnFieldType)
+                                .append(params[3]).append(")");
+                    } else {
+                        String containerKeyName = columnDefinition.columnFieldName;
+                        if (columnDefinition.containerKeyName != null) {
+                            containerKeyName = columnDefinition.containerKeyName;
+                        }
+                        queryBuilder.appendPut(containerKeyName)
+                                .append(params[3]).append(")");
+                    }
 
                     javaWriter.emitStatement(queryBuilder.getQuery());
                 }
@@ -117,11 +117,11 @@ public class LoadCursorWriter implements FlowWriter {
                             .appendCast("long")
                             .append(ModelUtils.getVariable(isModelContainerDefinition));
 
-                    if(!isModelContainerDefinition) {
+                    if (!isModelContainerDefinition) {
                         queryBuilder.append(".").append(columnDefinition.columnFieldName);
                     } else {
                         String containerKeyName = columnDefinition.columnFieldName;
-                        if(columnDefinition.containerKeyName != null) {
+                        if (columnDefinition.containerKeyName != null) {
                             containerKeyName = columnDefinition.containerKeyName;
                         }
                         queryBuilder.append(".").appendGetValue(containerKeyName);
@@ -131,6 +131,16 @@ public class LoadCursorWriter implements FlowWriter {
                 }
             }, "long", "getAutoIncrementingId", Sets.newHashSet(Modifier.PUBLIC), params2);
 
+            if (!isModelContainerDefinition) {
+                WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                    @Override
+                    public void write(JavaWriter javaWriter) throws IOException {
+                        ColumnDefinition columnDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+
+                        javaWriter.emitStatement("return %1s.%1s", tableDefinition.getTableSourceClassName(), columnDefinition.columnName.toUpperCase());
+                    }
+                }, "String", "getAutoIncrementingColumnName", Sets.newHashSet(Modifier.PUBLIC));
+            }
         }
     }
 }

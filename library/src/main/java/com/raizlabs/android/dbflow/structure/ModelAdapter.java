@@ -112,10 +112,10 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @return The autoincrement field name for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * @return The autoincrement column name for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
-    public String getAutoIncrementingFieldName() {
+    public String getAutoIncrementingColumnName() {
         return "";
     }
 
