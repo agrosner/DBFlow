@@ -83,4 +83,7 @@ public abstract class BaseModel implements Model {
         return mModelAdapter.exists(this);
     }
 
+    protected ModelAdapter getModelAdapter() {
+        return mModelAdapter;
+    }
 }
