@@ -51,10 +51,12 @@ public abstract class BaseCacheableModel extends BaseModel {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void delete(boolean async) {
+        long id = getModelAdapter().getAutoIncrementingId(this);
         super.delete(async);
         if (!async) {
-            addToCache();
+            mCache.removeModel(id);
         }
     }
 

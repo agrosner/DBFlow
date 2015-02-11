@@ -24,7 +24,11 @@ public class CacheableModelTest extends FlowTestCase {
                 modelCache = BaseCacheableModel.getCache((Class<CacheableModel>) model.getClass());
             }
 
-            assertNotNull(modelCache.get(model.id));
+            long id = model.id;
+            assertNotNull(modelCache.get(id));
+
+            model.delete(false);
+            assertNull(modelCache.get(id));
         }
 
         Delete.table(CacheableModel.class);
