@@ -143,6 +143,7 @@ public class FlowCursorList<ModelClass extends Model> {
 
         if (cacheModels) {
             mModelCache.clear();
+            mModelCache = getBackingCache();
         }
     }
 

@@ -45,6 +45,13 @@ public abstract class ModelCache<ModelClass extends Model, CacheClass> {
     public abstract ModelClass get(Long id);
 
     /**
+     * Sets a new size for the underlying cache (if applicable) and may destroy the cache.
+     *
+     * @param size The size of cache to set to
+     */
+    public abstract void setCacheSize(int size);
+
+    /**
      * @return The cache that's backing this cache.
      */
     public CacheClass getCache() {

@@ -46,6 +46,19 @@ public class ListTest extends FlowTestCase {
         assertTrue(flowTableList.size() == 0);
     }
 
+    public void testTableListEmpty() {
+        Delete.table(ListModel.class);
+
+        FlowTableList<ListModel> flowTableList = new FlowTableList<>(ListModel.class);
+        ListModel listModel = new ListModel();
+        listModel.name = "Test";
+        flowTableList.add(listModel);
+
+        assertTrue(flowTableList.size() == 1);
+
+        Delete.table(ListModel.class);
+    }
+
     private class TestModelAdapter extends BaseAdapter {
 
         private FlowCursorList<ListModel> mFlowCursorList;

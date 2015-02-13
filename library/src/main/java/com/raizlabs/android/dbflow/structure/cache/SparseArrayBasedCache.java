@@ -2,17 +2,28 @@ package com.raizlabs.android.dbflow.structure.cache;
 
 import android.util.SparseArray;
 
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: A cache backed by a {@link android.util.SparseArray}
  */
 public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<ModelClass, SparseArray<ModelClass>> {
+
     /**
      * Constructs new instance with a {@link android.util.SparseArray} cache
      */
     public SparseArrayBasedCache() {
         super(new SparseArray<ModelClass>());
+    }
+
+    /**
+     * Constructs new instance with a {@link android.util.SparseArray} cache
+     *
+     * @param initialCapacity The initial capacity of the sparse array
+     */
+    public SparseArrayBasedCache(int initialCapacity) {
+        super(new SparseArray<ModelClass>(initialCapacity));
     }
 
     /**
@@ -45,6 +56,11 @@ public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<
         synchronized (getCache()) {
             getCache().clear();
         }
+    }
+
+    @Override
+    public void setCacheSize(int size) {
+        FlowLog.log(FlowLog.Level.I, "The cache size for " + SparseArrayBasedCache.class.getSimpleName() + " is not re-configurable.");
     }
 
     @Override
