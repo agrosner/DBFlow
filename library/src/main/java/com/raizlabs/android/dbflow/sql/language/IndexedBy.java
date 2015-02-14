@@ -1,23 +1,17 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowTableList;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
-
-import java.util.List;
 
 /**
  * Description: The INDEXED BY part of a SELECT/UPDATE/DELETE
  */
-public class IndexedBy<ModelClass extends Model> implements ModelQueriable<ModelClass>, Query {
+public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass> {
 
     private final String mIndexName;
 
@@ -34,14 +28,35 @@ public class IndexedBy<ModelClass extends Model> implements ModelQueriable<Model
         this.mWhereBase = whereBase;
     }
 
-    @Override
-    public List<ModelClass> queryList() {
-        return SqlUtils.convertToList(getTable(), query());
+    /**
+     * @return a WHERE piece of this query
+     */
+    public Where<ModelClass> where() {
+        return new Where<>(this);
     }
 
-    @Override
-    public ModelClass querySingle() {
-        return SqlUtils.convertToModel(false, getTable(), query());
+    /**
+     * @param where The string part of where
+     * @return a WHERE query with the specified string
+     */
+    public Where<ModelClass> where(String where) {
+        return where().whereClause(where);
+    }
+
+    /**
+     * @param conditionQueryBuilder The set of conditions used to build a WHERE query.
+     * @return a WHERE query with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     */
+    public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        return where().whereQuery(conditionQueryBuilder);
+    }
+
+    /**
+     * @param conditions the list of conditions used to build a WHERE query.
+     * @return a WHERE query with the specified {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     */
+    public Where<ModelClass> where(Condition... conditions) {
+        return where().andThese(conditions);
     }
 
     @Override
@@ -50,32 +65,14 @@ public class IndexedBy<ModelClass extends Model> implements ModelQueriable<Model
     }
 
     @Override
-    public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<>(false, this);
-    }
-
-    @Override
-    public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<>(this);
-    }
-
-    @Override
-    public Cursor query() {
-        return FlowManager.getDatabaseForTable(getTable()).getWritableDatabase().rawQuery(getQuery(), null);
-    }
-
-    @Override
-    public void queryClose() {
-        Cursor cursor = query();
-        if (cursor != null) {
-            cursor.close();
-        }
+    public Query getQueryBuilderBase() {
+        return mWhereBase.getQueryBuilderBase();
     }
 
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(mWhereBase.getQuery())
-                .append("INDEXED BY").appendSpaceSeparated(mIndexName);
+                .append("INDEXED BY ").appendQuoted(mIndexName).appendSpace();
         return queryBuilder.getQuery();
     }
 }

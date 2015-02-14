@@ -56,6 +56,27 @@ public class Index<ModelClass extends Model> implements Query {
     }
 
     /**
+     * @return The name of this index.
+     */
+    public String getIndexName() {
+        return mIndex;
+    }
+
+    /**
+     * @return The table this INDEX belongs to.
+     */
+    public Class<ModelClass> getTable() {
+        return mTable;
+    }
+
+    /**
+     * @return true if the index is unique
+     */
+    public boolean isUnique() {
+        return isUnique;
+    }
+
+    /**
      * Enables the TRIGGER.
      */
     public void enable() {
@@ -80,8 +101,8 @@ public class Index<ModelClass extends Model> implements Query {
     @Override
     public String getQuery() {
         return new QueryBuilder("CREATE ")
-                .append(isUnique ? "UNIQUE" : "")
-                .append(" INDEX ")
+                .append(isUnique ? "UNIQUE " : "")
+                .append("INDEX IF NOT EXISTS ")
                 .appendQuoted(mIndex)
                 .append(" ON ").appendQuoted(FlowManager.getTableName(mTable))
                 .append("(").appendQuotedArray(mColumns).append(")").getQuery();
