@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -11,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: Describes a SQLite Index
  */
-public class Index<ModelClass extends Model> {
+public class Index<ModelClass extends Model> implements Query {
 
     private final String mIndex;
 
@@ -66,13 +67,7 @@ public class Index<ModelClass extends Model> {
         }
 
         BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTable);
-        QueryBuilder query = new QueryBuilder("CREATE ")
-                .append(isUnique ? "UNIQUE" : "")
-                .append(" INDEX")
-                .appendSpaceSeparated(mIndex)
-                .append("ON").appendSpaceSeparated(FlowManager.getTableName(mTable))
-                .append("(").appendArray(mColumns).append(")");
-        databaseDefinition.getWritableDatabase().execSQL(query.getQuery());
+        databaseDefinition.getWritableDatabase().execSQL(getQuery());
     }
 
     /**
@@ -82,4 +77,13 @@ public class Index<ModelClass extends Model> {
         SqlUtils.dropIndex(mTable, mIndex);
     }
 
+    @Override
+    public String getQuery() {
+        return new QueryBuilder("CREATE ")
+                .append(isUnique ? "UNIQUE" : "")
+                .append(" INDEX ")
+                .appendQuoted(mIndex)
+                .append(" ON ").appendQuoted(FlowManager.getTableName(mTable))
+                .append("(").appendQuotedArray(mColumns).append(")").getQuery();
+    }
 }

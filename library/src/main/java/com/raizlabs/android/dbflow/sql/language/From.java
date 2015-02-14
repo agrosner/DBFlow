@@ -193,6 +193,16 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
         return set().conditionQuery(conditionQueryBuilder);
     }
 
+    /**
+     * Begins an INDEXED BY piece of this query with the specified name.
+     *
+     * @param indexName The name of the index.
+     * @return An INDEXED BY piece of this statement
+     */
+    public IndexedBy<ModelClass> indexedBy(String indexName) {
+        return new IndexedBy<>(indexName, this);
+    }
+
     @Override
     public String toString() {
         return getQuery();

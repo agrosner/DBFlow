@@ -36,9 +36,14 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
 
     @Override
     public void migrate(SQLiteDatabase database) {
-        Index<ModelClass> index = new Index<ModelClass>(mName)
-                .on(mOnTable, mColumns.toArray(new String[mColumns.size()]));
-        index.enable();
+        getIndex().enable();
+    }
+
+    @Override
+    public void onPostMigrate() {
+        mColumns = null;
+        mOnTable = null;
+        mName = null;
     }
 
     /**
@@ -47,11 +52,26 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      * @param columnName The name of the column to add to the Index
      * @return This migration
      */
-    public IndexMigration addColumn(String columnName) {
+    public IndexMigration<ModelClass> addColumn(String columnName) {
         if (!mColumns.contains(columnName)) {
             mColumns.add(columnName);
         }
         return this;
+    }
+
+    /**
+     * @return The index object based on the contents of this migration.
+     */
+    public Index<ModelClass> getIndex() {
+        return new Index<ModelClass>(mName)
+                .on(mOnTable, mColumns.toArray(new String[mColumns.size()]));
+    }
+
+    /**
+     * @return the query backing this migration.
+     */
+    public String getIndexQuery() {
+        return getIndex().getQuery();
     }
 
 }
