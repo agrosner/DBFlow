@@ -34,8 +34,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
     @Override
     public void onPreMigrate() {
         super.onPreMigrate();
-
-        mIndex = new Index<ModelClass>(mName).on(mOnTable);
+        mIndex = getIndex();
     }
 
     @Override
@@ -57,7 +56,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      * @return This migration
      */
     public IndexMigration<ModelClass> addColumn(String columnName) {
-        mIndex.and(columnName);
+        getIndex().and(columnName);
         return this;
     }
 
@@ -67,7 +66,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      * @return This migration.
      */
     public IndexMigration<ModelClass> unique() {
-        mIndex.unique(true);
+        getIndex().unique(true);
         return this;
     }
 
@@ -75,6 +74,9 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      * @return The index object based on the contents of this migration.
      */
     public Index<ModelClass> getIndex() {
+        if(mIndex == null) {
+            mIndex = new Index<ModelClass>(mName).on(mOnTable);
+        }
         return mIndex;
     }
 

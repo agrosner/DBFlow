@@ -125,6 +125,6 @@ public class Index<ModelClass extends Model> implements Query {
                 .append("INDEX IF NOT EXISTS ")
                 .appendQuoted(mIndex)
                 .append(" ON ").appendQuoted(FlowManager.getTableName(mTable))
-                .append("(").appendList(mColumns).append(")").getQuery();
+                .append("(").appendQuotedList(mColumns).append(")").getQuery();
     }
 }
