@@ -435,13 +435,25 @@ public class SqlUtils {
      * Drops an active TRIGGER by specifying the onTable and triggerName
      *
      * @param mOnTable     The table that this trigger runs on
-     * @param mTriggerName The name of the trigger
+     * @param triggerName  The name of the trigger
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void dropTrigger(Class<ModelClass> mOnTable, String mTriggerName) {
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mOnTable);
+    public static <ModelClass extends Model> void dropTrigger(Class<ModelClass> mOnTable, String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-                .append(mTriggerName);
-        databaseDefinition.getWritableDatabase().execSQL(queryBuilder.getQuery());
+                .append(triggerName);
+        FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
+    }
+
+    /**
+     * Drops an active INDEX by specifying the onTable and indexName
+     *
+     * @param mOnTable     The table that this index runs on
+     * @param indexName    The name of the index.
+     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     */
+    public static <ModelClass extends Model> void dropIndex(Class<ModelClass> mOnTable, String indexName) {
+        QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
+                .append(indexName);
+        FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 }
