@@ -25,6 +25,11 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
     private Class<ModelClass> mOnTable;
 
     /**
+     * Whether to create a UNIQUE index.
+     */
+    private boolean isUnique = false;
+
+    /**
      * The name of this index
      */
     private String mName;
@@ -59,12 +64,18 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
         return this;
     }
 
+    public IndexMigration<ModelClass> unique() {
+        isUnique = true;
+        return this;
+    }
+
     /**
      * @return The index object based on the contents of this migration.
      */
     public Index<ModelClass> getIndex() {
         return new Index<ModelClass>(mName)
-                .on(mOnTable, mColumns.toArray(new String[mColumns.size()]));
+                .on(mOnTable, mColumns.toArray(new String[mColumns.size()]))
+                .unique(isUnique);
     }
 
     /**
