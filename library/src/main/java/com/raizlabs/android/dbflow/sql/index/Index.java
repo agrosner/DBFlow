@@ -102,7 +102,7 @@ public class Index<ModelClass extends Model> implements Query {
 
         if (mTable == null) {
             throw new IllegalStateException("Please call on() to set a table to use this index on.");
-        } else if (mColumns == null || mColumns.length == 0) {
+        } else if (mColumns == null || mColumns.isEmpty()) {
             throw new IllegalStateException("There should be at least one column in this index");
         }
 
@@ -118,12 +118,13 @@ public class Index<ModelClass extends Model> implements Query {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public String getQuery() {
         return new QueryBuilder("CREATE ")
                 .append(isUnique ? "UNIQUE " : "")
                 .append("INDEX IF NOT EXISTS ")
                 .appendQuoted(mIndex)
                 .append(" ON ").appendQuoted(FlowManager.getTableName(mTable))
-                .append("(").appendQuotedArray(mColumns).append(")").getQuery();
+                .append("(").appendList(mColumns).append(")").getQuery();
     }
 }
