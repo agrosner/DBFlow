@@ -2,7 +2,7 @@
 
 Whenever you modify the DB schema you need to increment the DB version through within the ```@Database``` class it corresponds to. Also you need to add a ```Migration``` to the configuration or define the migration via ```/assets/migrations/{DatabaseName}/{versionName.sql}```. 
 
-**Note** any provided subclass such as ```AlterTableMigration``` and ```UpdateTableMigration``` should only override ```onPreMigrate()``` and **call super.onPreMigrate()** so it's instantiated properly. 
+**Note** any provided subclass such as ```AlterTableMigration```, ```UpdateTableMigration```, and ```IndexMigration``` should only override ```onPreMigrate()``` and **call super.onPreMigrate()** so it's instantiated properly. 
 
 ## Migration Classes
 
