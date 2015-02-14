@@ -14,8 +14,10 @@ Using a cache is easy-peasy.
 Instead of extending ```BaseModel```, if your class extends ```BaseCacheableModel```, 
 any modification to the Model is saved in the cache. When a query runs on the DB, it will store the instance of the ```BaseCacheableModel``` in the cache and the cache is soley responsible for handling memory.
 
+**Note** if you run a ```SELECT``` with columns specified, it may cache partial ```Model``` classes. In a later bug fix, a method will enable loading the full ```Model``` from a ```BaseCacheableModel``` to alleviate this.
+
 The default cache is a ```ModelLruCache```.
-You can override ```getCacheSize()``` to tell the default ```ModelLruCache``` the size of its contents.
+You can override ```getCacheSize()``` to tell the default ```ModelLruCache``` the size of its contents. 
 
 To use a custom cache, simply override:
 

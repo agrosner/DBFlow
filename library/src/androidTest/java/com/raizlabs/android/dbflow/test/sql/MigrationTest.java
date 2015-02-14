@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
+import com.raizlabs.android.dbflow.sql.migration.IndexMigration;
 import com.raizlabs.android.dbflow.sql.migration.UpdateTableMigration;
 
 import java.util.Arrays;
@@ -84,6 +85,13 @@ public class MigrationTest extends AndroidTestCase {
 
         int addedColumIndex = cursor.getColumnIndex("addedColumn");
         assertFalse(addedColumIndex == -1);
+    }
+
+    public void testIndexMigration() {
+        IndexMigration<TestModel3> indexMigration
+                = new IndexMigration<>("MyIndex", TestModel3.class)
+                .addColumn(TestModel3$Table.TYPE);
+        assertEquals("CREATE INDEX IF NOT EXISTS `MyIndex` ON `TestModel3`(`type`)", indexMigration.getIndexQuery().trim());
     }
 
     @Override

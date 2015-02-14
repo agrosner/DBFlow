@@ -36,6 +36,11 @@ public class ModelLruCache<ModelClass extends Model> extends ModelCache<ModelCla
     }
 
     @Override
+    public void setCacheSize(int size) {
+        getCache().resize(size);
+    }
+
+    @Override
     public ModelClass get(Long id) {
         return id == null ? null : getCache().get(id);
     }

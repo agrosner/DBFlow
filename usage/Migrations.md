@@ -2,6 +2,8 @@
 
 Whenever you modify the DB schema you need to increment the DB version through within the ```@Database``` class it corresponds to. Also you need to add a ```Migration``` to the configuration or define the migration via ```/assets/migrations/{DatabaseName}/{versionName.sql}```. 
 
+**Note** any provided subclass such as ```AlterTableMigration```, ```UpdateTableMigration```, and ```IndexMigration``` should only override ```onPreMigrate()``` and **call super.onPreMigrate()** so it's instantiated properly. 
+
 ## Migration Classes
 
 The base class, ```BaseMigration``` provides a very simple class to execute your migration:
@@ -53,6 +55,7 @@ public class Migration1 extends AlterTableMigration<TestModel> {
 
     @Override
     public void onPreMigrate() {
+      super.onPreMigrate();
       // Simple ALTER TABLE migration wraps the statements into a nice builder notation
       addColumn(Long.class, "timestamp");
     }

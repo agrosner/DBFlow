@@ -96,8 +96,8 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
     /**
      * Returns a {@link Where} statement with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
      *
-     * @param conditionQueryBuilder
-     * @return
+     * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
+     * @return A where statement.
      */
     public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         return where().whereQuery(conditionQueryBuilder);
@@ -107,7 +107,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      * Returns a {@link Where} statement with the specified array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
      *
      * @param conditions The array of conditions that define this WHERE statement
-     * @return
+     * @return A where statement.
      */
     public Where<ModelClass> where(Condition... conditions) {
         return where().andThese(conditions);
@@ -191,6 +191,16 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      */
     public Set<ModelClass> set(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         return set().conditionQuery(conditionQueryBuilder);
+    }
+
+    /**
+     * Begins an INDEXED BY piece of this query with the specified name.
+     *
+     * @param indexName The name of the index.
+     * @return An INDEXED BY piece of this statement
+     */
+    public IndexedBy<ModelClass> indexedBy(String indexName) {
+        return new IndexedBy<>(indexName, this);
     }
 
     @Override

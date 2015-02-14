@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.list;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
@@ -137,12 +138,13 @@ public class FlowCursorList<ModelClass extends Model> {
     /**
      * Refreshes the data backing this list, and destroys the Model cache.
      */
-    public void refresh() {
+    public synchronized void refresh() {
         mCursor.close();
         mCursor = mQueriable.query();
 
         if (cacheModels) {
             mModelCache.clear();
+            mModelCache = getBackingCache();
         }
     }
 
@@ -235,7 +237,7 @@ public class FlowCursorList<ModelClass extends Model> {
     class CursorObserver extends ContentObserver {
 
         CursorObserver() {
-            super(new Handler());
+            super(new Handler(Looper.getMainLooper()));
         }
 
         @Override

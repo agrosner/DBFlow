@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.5.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.5.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -16,6 +16,15 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
 ## Changelog
+
+#### 1.5.1
+
+1. Adds ```Index``` support and ```IndexMigration``` support!! Fixes #63 
+2. Fixes #76 ```FlowCursorList``` where ```Handler``` was not using main looper 
+3. fixes #72  ```FlowTableList``` where ```LruCache``` does not allow cache size of 0, causing crash. Also now the count can be determined by overriding ```getCacheSize()```
+4. Fixes #71 where ```Migration``` documentation was not fully clear.
+5. Added ```Index``` documentation
+
 
 #### 1.5.0
 
@@ -51,7 +60,7 @@ For more detailed usage, check out these sections:
 
 [Type Converters](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
 
-
+[Triggers, Indexes, and More](https://github.com/Raizlabs/DBFlow/blob/master/usage/TriggersIndexesAndMore.md)
 
 
 ## Including in your project
@@ -87,8 +96,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.0'
-    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.5.0"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.1'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.5.1"
   }
 
 ```
@@ -301,27 +310,6 @@ public class TestModelView extends BaseModelView<TestModel2> {
     @Column
     long model_order;
 }
-
-```
-
-## Triggers
-
-```Trigger``` are actions that are automatically performed before or after some action on the database. For example, we want to log changes for all updates to the name on the ```Friend``` table. 
-
-```java
-
-CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
-                                    .after().update(Friend.class, Friend$Table.NAME)
-                                    .begin(
-                                        new Insert<FriendLog>(FriendLog.class)
-                                          .columns(FriendLog$Table.OLDNAME, FriendLog$Table.NEWNAME, FriendLog$Table.DATE)
-                                          .values("old.Name", "new.Name", System.currentTimeMillis())
-                                          };
- // starts a trigger                                         
- trigger.enable();
- 
- // stops a trigger
- trigger.disable();
 
 ```
 

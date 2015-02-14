@@ -79,7 +79,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         mCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
-                return FlowTableList.this.getBackingCache(getCount());
+                return FlowTableList.this.getBackingCache(getCacheSize());
             }
         };
     }
@@ -91,16 +91,31 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     public FlowTableList(ModelQueriable<ModelClass> modelQueriable) {
         super(null);
-        mCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable);
+        mCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable) {
+            @Override
+            protected ModelCache<ModelClass, ?> getBackingCache() {
+                return FlowTableList.this.getBackingCache(getCacheSize());
+            }
+        };
     }
 
     /**
      * @param count The size of the underlying {@link com.raizlabs.android.dbflow.list.FlowCursorList}
      * @return The cache backing this query. Override to provide a custom {@link com.raizlabs.android.dbflow.structure.cache.ModelCache}
-     * instead.
+     * instead. If the count is somehow 0, it will default to a size of 50.
+     * If you override this method, be careful to call an empty cache to the {@link com.raizlabs.android.dbflow.structure.cache.ModelLruCache}
      */
     public ModelCache<ModelClass, ?> getBackingCache(int count) {
         return new ModelLruCache<>(count);
+    }
+
+    /**
+     * Called when the count for the underlying cache is needed.
+     *
+     * @return 50 as default. Override for different.
+     */
+    public int getCacheSize() {
+        return 50;
     }
 
     /**
