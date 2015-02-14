@@ -9,6 +9,9 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.structure.Model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Description: Describes a SQLite Index
  */
@@ -18,7 +21,7 @@ public class Index<ModelClass extends Model> implements Query {
 
     private Class<ModelClass> mTable;
 
-    private String[] mColumns;
+    private List<String> mColumns;
 
     private boolean isUnique = false;
 
@@ -29,6 +32,7 @@ public class Index<ModelClass extends Model> implements Query {
      */
     public Index(@NonNull String indexName) {
         mIndex = indexName;
+        mColumns = new ArrayList<>();
     }
 
     /**
@@ -51,7 +55,22 @@ public class Index<ModelClass extends Model> implements Query {
      */
     public Index<ModelClass> on(@NonNull Class<ModelClass> table, String... columns) {
         mTable = table;
-        mColumns = columns;
+        for (String column : columns) {
+            and(column);
+        }
+        return this;
+    }
+
+    /**
+     * Appends a column to this index list.
+     *
+     * @param columnName The name of the column. If already exists, this column will not be added
+     * @return This instance.
+     */
+    public Index<ModelClass> and(String columnName) {
+        if (!mColumns.contains(columnName)) {
+            mColumns.add(columnName);
+        }
         return this;
     }
 
