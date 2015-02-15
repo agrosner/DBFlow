@@ -145,6 +145,10 @@ public class ContentProviderDefinition extends BaseDefinition {
 
                         javaWriter.endControlFlow();
 
+                        javaWriter.beginControlFlow("if (cursor != null)");
+                        javaWriter.emitStatement("cursor.setNotificationUri(getContext().getContentResolver(), uri)");
+                        javaWriter.endControlFlow();
+                        javaWriter.emitEmptyLine();
                         javaWriter.emitStatement("return cursor");
                     }
                 }, "Cursor", "query", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
@@ -179,7 +183,6 @@ public class ContentProviderDefinition extends BaseDefinition {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
 
-                javaWriter.emitStatement("String type = null");
                 javaWriter.beginControlFlow("switch(MATCHER.match(uri))");
 
                 for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
@@ -196,6 +199,10 @@ public class ContentProviderDefinition extends BaseDefinition {
                             javaWriter.endControlFlow();
                         }
                     }
+
+                    javaWriter.beginControlFlow("default:")
+                            .emitStatement("throw new IllegalArgumentException(\"Unknown URI \" + uri)")
+                            .endControlFlow();
                 }
 
                 javaWriter.endControlFlow();

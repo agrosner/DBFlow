@@ -8,13 +8,51 @@ import java.lang.annotation.Target;
 /**
  * Description: Defines the URI for a content provider.
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.SOURCE)
 public @interface ContentUri {
 
-    String endpoint();
+    /**
+     * Provides some handy constants for defining a {@link #type()}
+     */
+    public static class ContentType {
 
+        public static final String VND_MULTIPLE = "vnd.android.cursor.dir";
+
+        public static final String VND_SINGLE = "vnd.android.cursor.item";
+    }
+
+    /**
+     * Defines the path segment that we use when we specify "#" in the path.
+     */
+    public @interface PathSegment {
+
+        /**
+         * @return The number segment this corresponds to.
+         */
+        int segment();
+
+        /**
+         * @return The column name that this segment will use.
+         */
+        String column();
+    }
+
+    /**
+     * @return the path of this ContentUri. ex: notes/#, notes/1, etc.
+     */
+    String path();
+
+    /**
+     * @return The type of content that this uri is associated with. Ex: {@link com.raizlabs.android.dbflow.annotation.provider.ContentUri.ContentType#VND_SINGLE}
+     */
     String type();
+
+    /**
+     * @return If the path defines "#", then we use these numbers to find them in the same order as
+     * where column.
+     */
+    PathSegment[] segments() default {};
 
     boolean queryEnabled() default true;
 

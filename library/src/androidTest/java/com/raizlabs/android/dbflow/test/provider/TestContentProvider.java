@@ -19,11 +19,29 @@ public class TestContentProvider {
 
     public static final String BASE_CONTENT_URI = "content://";
 
-    @TableEndpoint("TestModel1")
-    public static class TestModel1 {
+    private static Uri buildUri(String... paths) {
+        Uri.Builder builder = Uri.parse(BASE_CONTENT_URI + AUTHORITY).buildUpon();
+        for (String path : paths) {
+            builder.appendPath(path);
+        }
+        return builder.build();
+    }
 
-        @ContentUri(endpoint = "testmodel1",
-            type = "vnd.android.cursor.dir/testmodel1")
-        public static Uri CONTENT_URI;
+    @TableEndpoint(ContentProviderModel.ENDPOINT)
+    public static class ContentProviderModel {
+
+        public static final String ENDPOINT = "ContentProviderModel";
+
+        @ContentUri(path = ContentProviderModel.ENDPOINT,
+            type = "vnd.android.cursor.dir/" + ENDPOINT)
+        public static Uri CONTENT_URI = buildUri(ENDPOINT);
+
+        @ContentUri(path = ContentProviderModel.ENDPOINT + "/#",
+        type = "vnd.android.cursor.item/" + ENDPOINT,
+        segments = {@ContentUri.PathSegment(segment = 1, column = "id")})
+        public static Uri withId(long id) {
+            return buildUri(String.valueOf(id));
+        }
+
     }
 }

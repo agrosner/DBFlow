@@ -22,12 +22,14 @@ public class ContentUriDefinition extends BaseDefinition {
 
     public boolean insertEnabled;
 
+    public ContentUri.PathSegment[] segments;
+
     public ContentUriDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
 
         ContentUri contentUri = typeElement.getAnnotation(ContentUri.class);
 
-        endpoint = contentUri.endpoint();
+        endpoint = contentUri.path();
 
         type = contentUri.type();
 
@@ -37,5 +39,8 @@ public class ContentUriDefinition extends BaseDefinition {
         queryEnabled = contentUri.queryEnabled();
 
         insertEnabled = contentUri.insertEnabled();
+
+        segments = contentUri.segments();
+
     }
 }
