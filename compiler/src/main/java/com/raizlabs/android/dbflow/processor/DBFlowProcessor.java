@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.processor;
 
 import com.google.auto.service.AutoService;
 import com.raizlabs.android.dbflow.annotation.*;
+import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
+import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.handler.*;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
@@ -45,6 +47,7 @@ public class DBFlowProcessor extends AbstractProcessor {
         supportedTypes.add(ContainerAdapter.class.getName());
         supportedTypes.add(ModelView.class.getName());
         supportedTypes.add(Migration.class.getName());
+        supportedTypes.add(ContentProvider.class.getName());
         return supportedTypes;
     }
 
@@ -71,6 +74,7 @@ public class DBFlowProcessor extends AbstractProcessor {
                 new TableHandler(),
                 new ModelContainerHandler(),
                 new ModelViewHandler(),
+                new ContentProviderHandler(),
                 new FlowManagerHandler());
     }
 

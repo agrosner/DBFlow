@@ -61,6 +61,8 @@ public class Classes {
 
     public static final String BASE_DATABASE_DEFINITION = "BaseDatabaseDefinition";
 
+    public static final String BASE_DATABASE_DEFINITION_NAME = CONFIG + BASE_DATABASE_DEFINITION;
+
     public static final String MAP = "java.util.Map";
 
     public static final String HASH_MAP = "java.util.HashMap";
@@ -84,4 +86,12 @@ public class Classes {
     public static final String LOAD_FROM_CURSOR_LISTENER = LISTENER + "LoadFromCursorListener";
 
     public static final String SQLITE_STATEMENT_LISTENER = LISTENER + "SQLiteStatementListener";
+
+    public static final String CONTENT_PROVIDER = "android.content.ContentProvider";
+
+    public static final String SQLITE_DATABASE = "android.database.sqlite.SQLiteDatabase";
+
+    public static final String URI = "android.net.Uri";
+
+    public static final String URI_MATCHER = "android.content.UriMatcher";
 }
