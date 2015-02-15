@@ -16,6 +16,12 @@ public class ContentUriDefinition extends BaseDefinition {
 
     public String endpoint;
 
+    public String type;
+
+    public boolean queryEnabled;
+
+    public boolean insertEnabled;
+
     public ContentUriDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
 
@@ -23,7 +29,13 @@ public class ContentUriDefinition extends BaseDefinition {
 
         endpoint = contentUri.endpoint();
 
+        type = contentUri.type();
+
         name = typeElement.getEnclosingElement().getSimpleName().toString()
                 + "_" + typeElement.getSimpleName().toString();
+
+        queryEnabled = contentUri.queryEnabled();
+
+        insertEnabled = contentUri.insertEnabled();
     }
 }

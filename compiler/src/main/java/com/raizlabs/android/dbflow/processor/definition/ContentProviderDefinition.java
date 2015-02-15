@@ -51,8 +51,8 @@ public class ContentProviderDefinition extends BaseDefinition {
         authority = provider.authority();
 
         List<? extends Element> elements = manager.getElements().getAllMembers((TypeElement) typeElement);
-        for(Element innerElement: elements) {
-            if(innerElement.getAnnotation(TableEndpoint.class)!=null) {
+        for (Element innerElement : elements) {
+            if (innerElement.getAnnotation(TableEndpoint.class) != null) {
                 TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, manager);
 
                 endpointDefinitions.add(endpointDefinition);
@@ -62,19 +62,25 @@ public class ContentProviderDefinition extends BaseDefinition {
 
     @Override
     protected String getExtendsClass() {
-        return "ContentProvider";
+        return "BaseContentProvider";
     }
 
     @Override
     protected String[] getImports() {
-        return new String[] {
+        return new String[]{
                 Classes.CONTENT_PROVIDER,
                 Classes.FLOW_MANAGER,
                 Classes.SQLITE_DATABASE,
                 Classes.BASE_DATABASE_DEFINITION_NAME,
                 Classes.CURSOR,
                 Classes.URI,
-                Classes.URI_MATCHER
+                Classes.URI_MATCHER,
+                Classes.BASE_CONTENT_PROVIDER,
+                Classes.SELECT,
+                Classes.CONTENT_VALUES,
+                Classes.CONTENT_URIS,
+                Classes.MODEL_ADAPTER,
+                Classes.CONFLICT_ACTION
         };
     }
 
@@ -82,15 +88,12 @@ public class ContentProviderDefinition extends BaseDefinition {
     public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
 
         javaWriter.emitEmptyLine();
-        javaWriter.emitField("BaseDatabaseDefinition", DATABASE_FIELD, Sets.newHashSet(Modifier.PRIVATE));
-        javaWriter.emitEmptyLine();
-
         javaWriter.emitField("String", AUTHORITY, Sets.newHashSet(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL),
                 "\"" + authority + "\"");
         javaWriter.emitEmptyLine();
         int code = 0;
-        for(TableEndpointDefinition endpointDefinition: endpointDefinitions) {
-            for(ContentUriDefinition contentUriDefinition: endpointDefinition.contentUriDefinitions) {
+        for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
+            for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
                 javaWriter.emitField("int", contentUriDefinition.name,
                         EnumSet.of(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL), String.valueOf(code));
                 code++;
@@ -100,15 +103,15 @@ public class ContentProviderDefinition extends BaseDefinition {
         javaWriter.emitEmptyLine();
         javaWriter.emitField("UriMatcher", URI_MATCHER, Sets.newHashSet(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL),
                 "new UriMatcher(UriMatcher.NO_MATCH)").beginInitializer(true);
-        for(TableEndpointDefinition endpointDefinition: endpointDefinitions) {
-            for(ContentUriDefinition contentUriDefinition: endpointDefinition.contentUriDefinitions) {
+        for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
+            for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
                 String path;
                 if (contentUriDefinition.endpoint != null) {
                     path = "\"" + contentUriDefinition.endpoint + "\"";
                 } else {
                     path = String.format("%s.%s.getPath()", contentUriDefinition.classQualifiedName, contentUriDefinition.name);
                 }
-                javaWriter.emitStatement("MATCHER.addURI(%s, %s, %s)", AUTHORITY, path, contentUriDefinition.name);
+                javaWriter.emitStatement("%1s.addURI(%s, %s, %s)", URI_MATCHER, AUTHORITY, path, contentUriDefinition.name);
             }
         }
         javaWriter.endInitializer();
@@ -116,20 +119,88 @@ public class ContentProviderDefinition extends BaseDefinition {
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("FlowManager.init(getContext())");
-                javaWriter.emitStatement("%1s = FlowManager.getDatabase(\"%1s\")", DATABASE_FIELD, databaseName);
-                javaWriter.emitStatement("return true");
+                javaWriter.emitStatement("return \"%1s\"", databaseName);
             }
-        }, "boolean", "onCreate", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        }, "String", "getDatabaseName", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                    @Override
+                    public void write(JavaWriter javaWriter) throws IOException {
+                        javaWriter.emitStatement("Cursor cursor = null");
+
+                        javaWriter.beginControlFlow("switch(%1s.match(uri))", URI_MATCHER);
+                        for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
+                            for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
+                                if(uriDefinition.queryEnabled) {
+                                    javaWriter.beginControlFlow("case %1s:", uriDefinition.name);
+
+                                    javaWriter.emitStatement("cursor = " +
+                                            "new Select(projection).from(FlowManager.getTableClassForName(\"%1s\", \"%1s\"))" +
+                                            ".where(selection, selectionArgs).query()", databaseName, tableEndpointDefinition.tableName);
+                                    javaWriter.emitStatement("break");
+                                    javaWriter.endControlFlow();
+                                }
+                            }
+                        }
+
+                        javaWriter.endControlFlow();
+
+                        javaWriter.emitStatement("return cursor");
+                    }
+                }, "Cursor", "query", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
+                "Uri", "uri", "String[]", "projection", "String", "selection",
+                "String[]", "selectionArgs", "String", "sortOrder");
+
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("String type = null");
+                javaWriter.beginControlFlow("switch(MATCHER.match(uri))");
+
+                for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
+                    for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
+                        javaWriter.beginControlFlow("case " + uriDefinition.name + ":")
+                                .emitStatement("type = \"%1s\"", uriDefinition.type)
+                                .emitStatement("break")
+                                .endControlFlow();
+                    }
+                }
+
+                javaWriter.beginControlFlow("default:")
+                        .emitStatement("throw new IllegalArgumentException(\"Unknown URI \" + uri)")
+                        .endControlFlow();
+
+                javaWriter.endControlFlow();
+                javaWriter.emitStatement("return type");
+            }
+        }, "String", "getType", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "Uri", "uri");
 
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
 
-                javaWriter.emitStatement("return cursor");
+                javaWriter.emitStatement("String type = null");
+                javaWriter.beginControlFlow("switch(MATCHER.match(uri))");
+
+                for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
+                    for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
+                        if(uriDefinition.insertEnabled) {
+                            javaWriter.beginControlFlow("case " + uriDefinition.name + ":");
+                            javaWriter.emitStatement("ModelAdapter adapter = FlowManager.getModelAdapter(FlowManager.getTableClassForName(\"%1s\", \"%1s\"))", databaseName, tableEndpointDefinition.tableName);
+                            javaWriter.emitStatement("final long id = FlowManager.getDatabase(\"%1s\")" +
+                                            ".getWritableDatabase()" +
+                                            ".insertWithOnConflict(\"%1s\", null, values, ConflictAction.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()))", databaseName, tableEndpointDefinition.tableName);
+
+                            javaWriter.emitStatement("getContext().getContentResolver().notifyChange(uri, null)");
+                            javaWriter.emitStatement("return ContentUris.withAppendedId(uri, id)");
+                            javaWriter.endControlFlow();
+                        }
+                    }
+                }
+
+                javaWriter.endControlFlow();
             }
-        }, "Cursor", "cursor", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
-                "Uri", "uri", "String[]", "projection", "String", "selection",
-                "String[]", "selectionArgs", "String", "sortOrder");
+        }, "Uri", "insert", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
+                "Uri", "uri", "ContentValues", "values");
     }
 }

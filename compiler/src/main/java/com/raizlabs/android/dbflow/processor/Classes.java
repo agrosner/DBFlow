@@ -94,4 +94,8 @@ public class Classes {
     public static final String URI = "android.net.Uri";
 
     public static final String URI_MATCHER = "android.content.UriMatcher";
+
+    public static final String BASE_CONTENT_PROVIDER = BASE_PACKAGE + "runtime.BaseContentProvider";
+
+    public static final String CONTENT_URIS = "android.content.ContentUris";
 }

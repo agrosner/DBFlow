@@ -90,10 +90,11 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * Defines the full SQL clause for the WHERE statement
      *
      * @param whereClause The SQL after WHERE . ex: columnName = "name" AND ID = 0
+     * @param args        The optional arguments for the wher clause.
      * @return
      */
-    public Where<ModelClass> whereClause(String whereClause) {
-        mConditionQueryBuilder.append(whereClause);
+    public Where<ModelClass> whereClause(String whereClause, Object... args) {
+        mConditionQueryBuilder.append(whereClause, args);
         return this;
     }
 

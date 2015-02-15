@@ -80,10 +80,11 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      * Returns a {@link Where} statement with the sql clause
      *
      * @param whereClause The full SQL string after the WHERE keyword
+     *                    @param args The arguments to append
      * @return The WHERE piece of the query
      */
-    public Where<ModelClass> where(String whereClause) {
-        return where().whereClause(whereClause);
+    public Where<ModelClass> where(String whereClause, Object...args) {
+        return where().whereClause(whereClause, args);
     }
 
     /**

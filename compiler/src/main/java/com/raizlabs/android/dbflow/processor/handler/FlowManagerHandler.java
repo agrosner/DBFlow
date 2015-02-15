@@ -39,6 +39,8 @@ public class FlowManagerHandler extends BaseContainerHandler<Database> {
 
     public static final String MODEL_VIEW_ADAPTER_MAP_FIELD_NAME = "mModelViewAdapterMap";
 
+    public static final String MODEL_NAME_MAP = "mModelTableNames";
+
     @Override
     public void handle(ProcessorManager processorManager, RoundEnvironment roundEnvironment) {
         super.handle(processorManager, roundEnvironment);

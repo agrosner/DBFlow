@@ -15,4 +15,8 @@ public @interface ContentUri {
     String endpoint();
 
     String type();
+
+    boolean queryEnabled() default true;
+
+    boolean insertEnabled() default true;
 }

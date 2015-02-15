@@ -52,6 +52,17 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     /**
      * Begins completing the rest of this UPDATE statement.
      *
+     * @param whereClause The whereclause to append
+     * @param args        The argument bindings for the whereClause.
+     * @return
+     */
+    public Where<ModelClass> where(String whereClause, Object... args) {
+        return where().whereClause(whereClause, args);
+    }
+
+    /**
+     * Begins completing the rest of this UPDATE statement.
+     *
      * @param conditions The varg of conditions for the WHERE part
      * @return The where piece of this query.
      */

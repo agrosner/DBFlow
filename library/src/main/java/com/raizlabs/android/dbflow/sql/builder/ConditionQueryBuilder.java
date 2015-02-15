@@ -124,6 +124,24 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
+     * Replaces a query string with the specified params as part of this query. Note: appending
+     * any extra condition will invalidate this statement.
+     *
+     * @param selection     The string query to select with ? bindings
+     * @param selectionArgs The arguments that correspond to it. Will be type-converted into proper string values.
+     * @return This builder.
+     */
+    public ConditionQueryBuilder<ModelClass> append(String selection, Object... selectionArgs) {
+        String toAppend = selection;
+
+        for (Object o : selectionArgs) {
+            toAppend = toAppend.replaceFirst("\\?", convertValueToString(o));
+        }
+
+        return super.append(toAppend);
+    }
+
+    /**
      * Clears all conditions
      */
     public void clear() {

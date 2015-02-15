@@ -50,6 +50,15 @@ public class FlowManager {
     }
 
     /**
+     * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
+     * @param tableName    The name of the table in the DB.
+     * @return The associated table class for the specified name.
+     */
+    public static Class<? extends Model> getTableClassForName(String databaseName, String tableName) {
+        return getDatabase(databaseName).getModelClassForName(tableName);
+    }
+
+    /**
      * Returns the corresponding {@link com.raizlabs.android.dbflow.config.FlowManager} for the specified model
      *
      * @param table
@@ -120,7 +129,8 @@ public class FlowManager {
     /**
      * Initializes DBFlow, retrieving the Database holder via reflection. This will trigger all creations,
      * updates, and instantiation for each database defined.
-     * @param context               The shared context for database usage.
+     *
+     * @param context The shared context for database usage.
      */
     public static void init(Context context) {
         FlowManager.context = context;
@@ -201,6 +211,7 @@ public class FlowManager {
 
     /**
      * Checks a standard database helper for integrity using quick_check(1).
+     *
      * @param helper
      * @return true if it's integrity is OK.
      */
