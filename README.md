@@ -74,7 +74,7 @@ Add the maven repo url to your root build.gradle in the ```buildscript{}``` and 
     repositories {
         maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
     }
-    classpath 'com.raizlabs:Griddle:1.0.2'
+    classpath 'com.raizlabs:Griddle:1.0.3'
     classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
   }
   
@@ -87,8 +87,8 @@ Add the maven repo url to your root build.gradle in the ```buildscript{}``` and 
 
 ```
 
-Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) and the 
-[Griddle](https://github.com/Raizlabs/Griddle) plugin:
+Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) to enable Annotation Processing and the 
+[Griddle](https://github.com/Raizlabs/Griddle) plugin to simplify your build.gradle and link sources:
 
 ```groovy
 
@@ -101,6 +101,21 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   }
 
 ```
+
+or by standard Gradle use (without linking sources support):
+
+```groovy
+
+  apply plugin: 'com.neenbedankt.android-apt'
+
+  dependencies {
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.1'
+    compile "com.raizlabs.android:DBFlow-Core:1.5.1"
+    compile "com.raizlabs.android:DBFlow:1.5.1"
+  }
+
+```
+
 
 ### Eclipse
 
