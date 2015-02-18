@@ -22,10 +22,9 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
     public void save(boolean async) {
         super.save(async);
 
-        if(exists()) {
-            update(async);
-        } else {
-            insert(async);
+        int count = ContentUtils.update(getUpdateUri(), this);
+        if (count == 0) {
+            ContentUtils.insert(getInsertUri(), this);
         }
     }
 
@@ -41,14 +40,7 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
         ContentUtils.update(getUpdateUri(), this);
     }
 
-    /**
-     * Queries the {@link android.content.ContentResolver} of the app based on the passed parameters and
-     * populates this object with the first row from the returned data.
-     *
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to filter the query by.
-     * @param orderBy         The order by without the ORDER BY
-     * @param columns         The list of columns to select. Leave blank for *
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public void load(ConditionQueryBuilder<TableClass> whereConditions,
                      String orderBy, String... columns) {

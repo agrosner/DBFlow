@@ -10,14 +10,34 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public interface ModelProvider<TableClass extends Model> {
 
+    /**
+     * Queries the {@link android.content.ContentResolver} of the app based on the passed parameters and
+     * populates this object with the first row from the returned data.
+     *
+     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to filter the query by.
+     * @param orderBy         The order by without the ORDER BY
+     * @param columns         The list of columns to select. Leave blank for *
+     */
     public void load(ConditionQueryBuilder<TableClass> whereConditions,
                      String orderBy, String... columns);
 
+    /**
+     * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to delete a Model.
+     */
     public Uri getDeleteUri();
 
+    /**
+     * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to insert a Model.
+     */
     public Uri getInsertUri();
 
+    /**
+     * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to update a Model.
+     */
     public Uri getUpdateUri();
 
+    /**
+     * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to query a Model.
+     */
     public Uri getQueryUri();
 }

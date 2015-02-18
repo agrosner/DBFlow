@@ -21,8 +21,7 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
 
     @Override
     public void save(boolean async) {
-
-        if(exists()) {
+        if (exists()) {
             update(async);
         } else {
             insert(async);
@@ -39,14 +38,7 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
         ContentUtils.insert(getInsertUri(), this);
     }
 
-    /**
-     * Queries the {@link android.content.ContentResolver} of the app based on the passed parameters and
-     * populates this object with the first row from the returned data.
-     *
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to filter the query by.
-     * @param orderBy         The order by without the ORDER BY
-     * @param columns         The list of columns to select. Leave blank for *
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public void load(ConditionQueryBuilder<TableClass> whereConditions,
                      String orderBy, String... columns) {
