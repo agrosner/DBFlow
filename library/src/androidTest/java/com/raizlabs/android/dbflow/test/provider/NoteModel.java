@@ -17,9 +17,9 @@ public class NoteModel extends BaseModel {
     long id;
 
     @Column(columnType = Column.FOREIGN_KEY,
-            references = {@ForeignKeyReference(columnName = "noteModel",
+            references = {@ForeignKeyReference(columnName = "providerModel",
                     columnType = long.class, foreignColumnName = "id")})
-    NoteModel noteModel;
+    ContentProviderModel contentProviderModel;
 
     @Column
     String note;

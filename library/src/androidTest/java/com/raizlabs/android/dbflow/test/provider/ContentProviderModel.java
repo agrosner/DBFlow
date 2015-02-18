@@ -16,4 +16,7 @@ public class ContentProviderModel extends BaseModel {
 
     @Column
     String notes;
+
+    @Column
+    String title;
 }

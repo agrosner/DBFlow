@@ -8,6 +8,12 @@
 
     <application
         android:name=".DBFlowTestApp"
-        />
+        >
+        
+        <provider
+            android:authorities="com.raizlabs.android.dbflow.test.provider"
+            android:name=".provider.TestContentProvider$Provider"/>
+        
+        </application>
 
 </manifest>
