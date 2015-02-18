@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.sql;
+package com.raizlabs.android.dbflow.structure.provider;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -17,6 +18,20 @@ import java.util.List;
  * Description: Provides handy wrapper mechanisms for {@link android.content.ContentProvider}
  */
 public class ContentUtils {
+
+    public static <TableClass extends Model> Object save(ContentResolver contentResolver, Uri insertUri, Uri updateUri, TableClass model) {
+        ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
+        checkModel(model, adapter);
+
+        Object retValue;
+        boolean exists = adapter.exists(model);
+        if(exists) {
+            retValue = update(contentResolver, updateUri, model);
+        } else {
+            retValue = insert(contentResolver, insertUri, model);
+        }
+
+    }
 
     /**
      * Inserts the model into the {@link android.content.ContentResolver}. Uses the insertUri to resolve
@@ -44,6 +59,8 @@ public class ContentUtils {
     @SuppressWarnings("unchecked")
     public static <TableClass extends Model> Uri insert(ContentResolver contentResolver, Uri insertUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
+        checkModel(model, adapter);
+
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         Uri uri = contentResolver.insert(insertUri, contentValues);
@@ -77,6 +94,8 @@ public class ContentUtils {
     @SuppressWarnings("unchecked")
     public static <TableClass extends Model> int update(ContentResolver contentResolver, Uri updateUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
+        checkModel(model, adapter);
+
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         return contentResolver.update(updateUri, contentValues, null, null);
@@ -109,6 +128,8 @@ public class ContentUtils {
     @SuppressWarnings("unchecked")
     public static <TableClass extends Model> int delete(ContentResolver contentResolver, Uri deleteUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
+        checkModel(model, adapter);
+
         int count = contentResolver.delete(deleteUri, adapter.getPrimaryModelWhere(model).getQuery(), null);
 
         // reset autoincrement to 0
@@ -120,6 +141,23 @@ public class ContentUtils {
         return count;
     }
 
+    /**
+     * Queries the {@link android.content.ContentResolver} with the specified query uri. It generates
+     * the correct query and returns a {@link android.database.Cursor}
+     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
+     * @param queryUri The URI of the query
+     * @param table The table to get from
+     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param orderBy The order by clause without the ORDER BY
+     * @param columns The list of columns to query.
+     * @param <TableClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @return A {@link android.database.Cursor}
+     */
+    public static <TableClass extends Model> Cursor query(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
+                                ConditionQueryBuilder<TableClass> whereConditions,
+                                String orderBy, String... columns) {
+        return contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
+    }
     /**
      * Queries the {@link android.content.ContentResolver} with the specified queryUri. It will generate
      * the correct query and return a list of {@link TableClass}
@@ -195,5 +233,11 @@ public class ContentUtils {
                                                                     String orderBy, String... columns) {
         List<TableClass> list = queryList(contentResolver, queryUri, table, whereConditions, orderBy, columns);
         return list.size() > 0 ? list.get(0) : null;
+    }
+
+    protected static void checkModel(Model model, ModelAdapter modelAdapter) {
+        if (model == null) {
+            throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
+        }
     }
 }

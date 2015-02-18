@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.test.ProviderTestCase2;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.ContentUtils;
+import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 
 /**
