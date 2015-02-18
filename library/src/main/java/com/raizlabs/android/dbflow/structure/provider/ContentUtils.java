@@ -84,7 +84,7 @@ public class ContentUtils {
 
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
-        return contentResolver.update(updateUri, contentValues, null, null);
+        return contentResolver.update(updateUri, contentValues, adapter.getPrimaryModelWhere(model).getQuery(), null);
     }
 
     /**

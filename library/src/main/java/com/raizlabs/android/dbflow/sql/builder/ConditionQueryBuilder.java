@@ -138,17 +138,20 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return This builder.
      */
     public ConditionQueryBuilder<ModelClass> append(String selection, Object... selectionArgs) {
-        String toAppend = selection;
+        if(selection != null) {
+            String toAppend = selection;
 
-        if(selection != null && selectionArgs != null) {
-            for (Object o : selectionArgs) {
-                toAppend = toAppend.replaceFirst("\\?", convertValueToString(o));
+            if (selectionArgs != null) {
+                for (Object o : selectionArgs) {
+                    toAppend = toAppend.replaceFirst("\\?", convertValueToString(o));
+                }
             }
+
+            mWhereRaw = toAppend;
+            return super.append(toAppend);
+        } else {
+            return this;
         }
-
-        mWhereRaw = toAppend;
-
-        return super.append(toAppend);
     }
 
     /**

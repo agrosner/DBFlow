@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure.provider;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -29,7 +30,10 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
 
     @Override
     public void update(boolean async) {
-        ContentUtils.update(getUpdateUri(), this);
+        int count = ContentUtils.update(getUpdateUri(), this);
+        if (count == 0) {
+            FlowLog.log(FlowLog.Level.W, "Updated failed of: " + getClass());
+        }
     }
 
     @Override
@@ -42,7 +46,7 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
     public void load(ConditionQueryBuilder<TableClass> whereConditions,
                      String orderBy, String... columns) {
         Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), (Class<TableClass>) getClass(), whereConditions, orderBy, columns);
-        if(cursor != null && cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             getModelAdapter().loadFromCursor(cursor, this);
         }
     }
