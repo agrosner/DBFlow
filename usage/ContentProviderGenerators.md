@@ -30,7 +30,7 @@ public class TestContentProvider {
 
 ```
 
-In other applications or your current's ```AndroidManifest.xml``` add the provider:
+In other applications or your current's ```AndroidManifest.xml``` add the **generated $Provider** class:
 
 ```xml
 
