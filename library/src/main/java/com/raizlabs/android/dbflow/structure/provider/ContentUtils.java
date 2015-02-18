@@ -134,14 +134,12 @@ public class ContentUtils {
      *
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param queryUri        The URI of the query
-     * @param table           The table to get from
      * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return A {@link android.database.Cursor}
      */
-    public static <TableClass extends Model> Cursor query(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
+    public static <TableClass extends Model> Cursor query(ContentResolver contentResolver, Uri queryUri,
                                                           ConditionQueryBuilder<TableClass> whereConditions,
                                                           String orderBy, String... columns) {
         return contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);

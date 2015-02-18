@@ -45,7 +45,7 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
     @SuppressWarnings("unchecked")
     public void load(ConditionQueryBuilder<TableClass> whereConditions,
                      String orderBy, String... columns) {
-        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), (Class<TableClass>) getClass(), whereConditions, orderBy, columns);
+        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), whereConditions, orderBy, columns);
         getModelAdapter().loadFromCursor(cursor, this);
     }
 
