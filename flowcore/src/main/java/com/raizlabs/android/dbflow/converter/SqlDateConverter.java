@@ -10,11 +10,11 @@ public class SqlDateConverter extends TypeConverter<Long, Date> {
 
     @Override
     public Long getDBValue(Date model) {
-        return model.getTime();
+        return model == null ? null : model.getTime();
     }
 
     @Override
     public Date getModelValue(Long data) {
-        return new Date(data);
+        return data == null ? null : new Date(data);
     }
 }
