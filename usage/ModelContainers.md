@@ -9,9 +9,8 @@ Please note that they come with these restrictions:
   4. This is **NOT** a fully featured JSON/Map/Object parser inside an ORM database library. The column can have a ```@ContainerKey``` to specify a different key name from the ```ModelContainer``` than the column name.
 
 Interesting features:
-  1. Can be Foreign key fields
-  2. ~~The data type (Map, JSONObject, and more) (if present as a Foreign Key) will be converted in a Model Container to save and retrieve it's data~~ (not yet).
-  3. Can define your own container!
+  1. Can be Foreign key fields to enable **lazy-loading** of data such as ```ForeignKeyContainer```.
+  2. Can define your own container!
 
 ## Example
 
@@ -26,3 +25,13 @@ jsonModel.save(false);
 jsonModel.delete(false);
 
 ```
+
+## Supported Kinds
+
+```MapModel```: takes a ```Map``` and operates it like a ```Model```.
+
+```JSONModel````: uses ```JSONObject```
+
+```JSONArrayModel```: all operations are on the contained ```JSONObject``` as one "Model". Each inner ```JSONObject``` is treated like a ```JSONModel```.
+
+```ForeignKeyContainer```: enables lazy-loading of foreign key fields. Instead of querying for the ```Model``` when a parent ```Model``` loads, we can choose when to load the foreign key object using ```toModel()```.
