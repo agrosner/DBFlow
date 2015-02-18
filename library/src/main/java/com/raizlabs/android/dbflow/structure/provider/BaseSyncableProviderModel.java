@@ -22,6 +22,11 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
     public void save(boolean async) {
         super.save(async);
 
+        if(exists()) {
+            update(async);
+        } else {
+            insert(async);
+        }
     }
 
     @Override
