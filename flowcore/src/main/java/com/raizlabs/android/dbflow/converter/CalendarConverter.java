@@ -10,13 +10,17 @@ public class CalendarConverter extends TypeConverter<Long, Calendar> {
 
     @Override
     public Long getDBValue(Calendar model) {
-        return model.getTimeInMillis();
+        return model == null ? null : model.getTimeInMillis();
     }
 
     @Override
     public Calendar getModelValue(Long data) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(data);
-        return calendar;
+        if(data != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(data);
+            return calendar;
+        } else {
+            return null;
+        }
     }
 }

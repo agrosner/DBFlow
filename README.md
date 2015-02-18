@@ -17,6 +17,9 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 
 ## Changelog
 
+#### 1.5.2
+1. Fixes issue where ```TypeConverter``` crashed when null field value was passed. Now it will return null for both methods when data is null
+
 #### 1.5.1
 
 1. Adds ```Index``` support and ```IndexMigration``` support!! Fixes #63 
