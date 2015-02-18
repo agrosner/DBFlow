@@ -30,10 +30,7 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
 
     @Override
     public void update(boolean async) {
-        int count = ContentUtils.update(getUpdateUri(), this);
-        if (count == 0) {
-            FlowLog.log(FlowLog.Level.W, "Updated failed of: " + getClass());
-        }
+        ContentUtils.update(getUpdateUri(), this);
     }
 
     @Override
