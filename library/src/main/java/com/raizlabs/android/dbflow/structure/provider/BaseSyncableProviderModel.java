@@ -22,9 +22,10 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
     public void save(boolean async) {
         super.save(async);
 
-        int count = ContentUtils.update(getUpdateUri(), this);
-        if (count == 0) {
-            ContentUtils.insert(getInsertUri(), this);
+        if (exists()) {
+            update(async);
+        } else {
+            insert(async);
         }
     }
 

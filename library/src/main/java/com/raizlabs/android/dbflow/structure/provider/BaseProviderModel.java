@@ -21,10 +21,9 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
 
     @Override
     public void save(boolean async) {
-        if (exists()) {
-            update(async);
-        } else {
-            insert(async);
+        int count = ContentUtils.update(getUpdateUri(), this);
+        if (count == 0) {
+            ContentUtils.insert(getInsertUri(), this);
         }
     }
 
