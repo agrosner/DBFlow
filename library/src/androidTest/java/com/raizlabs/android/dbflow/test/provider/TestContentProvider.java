@@ -112,9 +112,19 @@ public class TestContentProvider {
             final long listId = c.getLong(c.getColumnIndex("providerModel"));
             c.close();
 
-            return new Uri[] {
+            return new Uri[]{
                     withId(noteId), fromList(listId), ContentProviderModel.withId(listId),
             };
         }
+    }
+
+    @TableEndpoint(TestSyncableModel.ENDPOINT)
+    public static class TestSyncableModel {
+
+        public static final String ENDPOINT = "TestSyncableModel";
+
+        @ContentUri(path = ENDPOINT,
+            type = ContentUri.ContentType.VND_MULTIPLE + ENDPOINT)
+        public static Uri CONTENT_URI = buildUri(ENDPOINT);
     }
 }

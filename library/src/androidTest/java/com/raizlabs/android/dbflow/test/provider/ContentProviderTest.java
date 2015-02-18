@@ -81,6 +81,32 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
         Delete.tables(NoteModel.class, ContentProviderModel.class);
     }
 
+    public void testSyncableModel() {
+        Delete.table(TestSyncableModel.class);
+
+        TestSyncableModel testSyncableModel = new TestSyncableModel();
+        testSyncableModel.name = "Name";
+        testSyncableModel.save(false);
+
+        assertTrue(testSyncableModel.exists());
+
+        testSyncableModel.name = "TestName";
+        testSyncableModel.update(false);
+        assertEquals(testSyncableModel.name, "TestName");
+
+        TestSyncableModel fromContentProvider = new TestSyncableModel();
+        fromContentProvider.id = testSyncableModel.id;
+        fromContentProvider.load();
+
+        assertEquals(fromContentProvider.name, testSyncableModel.name);
+        assertEquals(fromContentProvider.id, testSyncableModel.id);
+
+        testSyncableModel.delete(false);
+        assertFalse(testSyncableModel.exists());
+
+        Delete.table(TestSyncableModel.class);
+    }
+
 
 
     @Override

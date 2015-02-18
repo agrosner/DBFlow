@@ -37,6 +37,22 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
         ContentUtils.insert(getInsertUri(), this);
     }
 
+    /**
+     * Runs a query on the {@link android.content.ContentProvider} to see if it returns data.
+     *
+     * @return true if this model exists in the {@link android.content.ContentProvider} based on its primary keys.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean exists() {
+        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), getModelAdapter().getPrimaryModelWhere(this), "");
+        boolean exists = (cursor != null && cursor.getCount() > 0);
+        if (cursor != null) {
+            cursor.close();
+        }
+        return exists;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public void load(ConditionQueryBuilder<TableClass> whereConditions,
@@ -44,6 +60,7 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
         Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), whereConditions, orderBy, columns);
         if (cursor != null && cursor.moveToFirst()) {
             getModelAdapter().loadFromCursor(cursor, this);
+            cursor.close();
         }
     }
 
