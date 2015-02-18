@@ -56,10 +56,11 @@ public class InsertWriter implements FlowWriter {
                                 }
                             }
 
-                            javaWriter.beginControlFlow("default:")
-                                    .emitStatement("throw new IllegalArgumentException(\"Unknown URI \" + uri)")
-                                    .endControlFlow();
                         }
+
+                        javaWriter.beginControlFlow("default:")
+                                .emitStatement("throw new IllegalArgumentException(\"Unknown URI \" + uri)")
+                                .endControlFlow();
 
                         javaWriter.endControlFlow();
                     }

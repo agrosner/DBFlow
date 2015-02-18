@@ -51,7 +51,17 @@ public class NotifyWriter implements FlowWriter {
         }
 
         if (!hasListener) {
+
+            boolean isUpdateDelete = method.equals(Notify.Method.UPDATE) || method.equals(Notify.Method.DELETE);
+            if(isUpdateDelete) {
+                javaWriter.beginControlFlow("if (count > 0)");
+            }
+
             javaWriter.emitStatement("getContext().getContentResolver().notifyChange(uri, null)");
+
+            if(isUpdateDelete) {
+                javaWriter.endControlFlow();
+            }
         }
     }
 }

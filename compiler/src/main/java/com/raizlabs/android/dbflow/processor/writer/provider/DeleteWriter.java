@@ -45,20 +45,19 @@ public class DeleteWriter implements FlowWriter {
                                             .appendPathSegments(uriDefinition.segments)
                                             .appendCount();
                                     javaWriter.emitStatement(queryBuilder.getQuery());
-                                    javaWriter.emitStatement("return (int) count");
-                                    javaWriter.endControlFlow();
 
                                     new NotifyWriter(tableEndpointDefinition, uriDefinition,
                                             Notify.Method.DELETE).write(javaWriter);
 
+                                    javaWriter.emitStatement("return (int) count");
+                                    javaWriter.endControlFlow();
                                 }
                             }
-
-                            javaWriter.beginControlFlow("default:")
-                                    .emitStatement("throw new IllegalArgumentException(\"Unknown URI \" + uri)")
-                                    .endControlFlow();
                         }
 
+                        javaWriter.beginControlFlow("default:")
+                                .emitStatement("throw new IllegalArgumentException(\"Unknown URI \" + uri)")
+                                .endControlFlow();
 
                         javaWriter.endControlFlow();
                     }
