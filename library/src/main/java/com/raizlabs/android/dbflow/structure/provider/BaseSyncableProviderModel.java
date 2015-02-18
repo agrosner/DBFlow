@@ -48,4 +48,10 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
         Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), (Class<TableClass>) getClass(), whereConditions, orderBy, columns);
         getModelAdapter().loadFromCursor(cursor, this);
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void load() {
+        load(getModelAdapter().getPrimaryModelWhere(this), "");
+    }
 }

@@ -22,7 +22,7 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
         super(TestContentProvider$Provider.class, TestContentProvider.AUTHORITY);
     }
 
-    public void testContentProvider() {
+    public void testContentProviderUtils() {
         Delete.tables(NoteModel.class, ContentProviderModel.class);
 
         ContentProviderModel contentProviderModel = new ContentProviderModel();
@@ -46,6 +46,42 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
 
         Delete.tables(NoteModel.class, ContentProviderModel.class);
     }
+
+    public void testContentProviderNative() {
+        Delete.tables(NoteModel.class, ContentProviderModel.class);
+
+        ContentProviderModel contentProviderModel = new ContentProviderModel();
+        contentProviderModel.notes = "Test";
+        contentProviderModel.insert(false);
+        assertTrue(contentProviderModel.exists());
+
+        contentProviderModel.notes = "NewTest";
+        contentProviderModel.update(false);
+        contentProviderModel.load();
+        assertEquals("NewTest", contentProviderModel.notes);
+
+        NoteModel noteModel = new NoteModel();
+        noteModel.note = "Test";
+        noteModel.contentProviderModel = contentProviderModel;
+        noteModel.insert(false);
+
+        noteModel.note = "NewTest";
+        noteModel.update(false);
+        noteModel.load();
+        assertEquals("NewTest", noteModel.note);
+
+        assertTrue(noteModel.exists());
+
+        assertTrue(ContentUtils.delete(getMockContentResolver(), TestContentProvider.NoteModel.CONTENT_URI, noteModel) > 0);
+        assertTrue(!noteModel.exists());
+
+        assertTrue(ContentUtils.delete(getMockContentResolver(), TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel) > 0);
+        assertTrue(!contentProviderModel.exists());
+
+        Delete.tables(NoteModel.class, ContentProviderModel.class);
+    }
+
+
 
     @Override
     protected void tearDown() throws Exception {

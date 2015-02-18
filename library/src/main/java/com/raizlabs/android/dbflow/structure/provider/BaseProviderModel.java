@@ -42,8 +42,15 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
     public void load(ConditionQueryBuilder<TableClass> whereConditions,
                      String orderBy, String... columns) {
         Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), (Class<TableClass>) getClass(), whereConditions, orderBy, columns);
-        getModelAdapter().loadFromCursor(cursor, this);
+        if(cursor != null && cursor.moveToFirst()) {
+            getModelAdapter().loadFromCursor(cursor, this);
+        }
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public void load() {
+        load(getModelAdapter().getPrimaryModelWhere(this), "");
+    }
 
 }

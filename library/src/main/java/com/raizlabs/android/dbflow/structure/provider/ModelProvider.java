@@ -22,6 +22,12 @@ public interface ModelProvider<TableClass extends Model> {
                      String orderBy, String... columns);
 
     /**
+     * Queries the {@link android.content.ContentResolver} of the app based on the primary keys of the object and populates
+     * this object with the first row from the returned data.
+     */
+    public void load();
+
+    /**
      * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to delete a Model.
      */
     public Uri getDeleteUri();

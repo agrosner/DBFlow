@@ -19,20 +19,6 @@ import java.util.List;
  */
 public class ContentUtils {
 
-    public static <TableClass extends Model> Object save(ContentResolver contentResolver, Uri insertUri, Uri updateUri, TableClass model) {
-        ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
-        checkModel(model, adapter);
-
-        Object retValue;
-        boolean exists = adapter.exists(model);
-        if(exists) {
-            retValue = update(contentResolver, updateUri, model);
-        } else {
-            retValue = insert(contentResolver, insertUri, model);
-        }
-
-    }
-
     /**
      * Inserts the model into the {@link android.content.ContentResolver}. Uses the insertUri to resolve
      * the reference and the model to convert its data into {@link android.content.ContentValues}
