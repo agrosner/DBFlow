@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.test.ProviderTestCase2;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 
@@ -93,6 +94,8 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
         testSyncableModel.name = "TestName";
         testSyncableModel.update(false);
         assertEquals(testSyncableModel.name, "TestName");
+
+        testSyncableModel = Select.byId(TestSyncableModel.class, testSyncableModel.id);
 
         TestSyncableModel fromContentProvider = new TestSyncableModel();
         fromContentProvider.id = testSyncableModel.id;
