@@ -72,10 +72,10 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
 
         assertTrue(noteModel.exists());
 
-        assertTrue(ContentUtils.delete(getMockContentResolver(), TestContentProvider.NoteModel.CONTENT_URI, noteModel) > 0);
+        noteModel.delete(false);
         assertTrue(!noteModel.exists());
 
-        assertTrue(ContentUtils.delete(getMockContentResolver(), TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel) > 0);
+        contentProviderModel.delete(false);
         assertTrue(!contentProviderModel.exists());
 
         Delete.tables(NoteModel.class, ContentProviderModel.class);
