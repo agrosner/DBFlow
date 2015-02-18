@@ -17,9 +17,9 @@ public @interface ContentUri {
      */
     public static class ContentType {
 
-        public static final String VND_MULTIPLE = "vnd.android.cursor.dir";
+        public static final String VND_MULTIPLE = "vnd.android.cursor.dir/";
 
-        public static final String VND_SINGLE = "vnd.android.cursor.item";
+        public static final String VND_SINGLE = "vnd.android.cursor.item/";
     }
 
     /**
@@ -57,4 +57,9 @@ public @interface ContentUri {
     boolean queryEnabled() default true;
 
     boolean insertEnabled() default true;
+
+    boolean deleteEnabled() default true;
+
+    boolean updateEnabled() default true;
+
 }

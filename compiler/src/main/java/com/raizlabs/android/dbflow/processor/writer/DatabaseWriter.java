@@ -67,6 +67,14 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
     }
 
     @Override
+    protected String[] getImports() {
+        return new String[]{
+                Classes.LIST,
+                Classes.ARRAY_LIST
+        };
+    }
+
+    @Override
     public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
         javaWriter.emitEmptyLine();
 

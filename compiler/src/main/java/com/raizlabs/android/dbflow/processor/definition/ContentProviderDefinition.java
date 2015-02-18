@@ -3,17 +3,25 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
+import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
+import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
+import com.raizlabs.android.dbflow.processor.writer.provider.DeleteWriter;
+import com.raizlabs.android.dbflow.processor.writer.provider.InsertWriter;
+import com.raizlabs.android.dbflow.processor.writer.provider.QueryWriter;
+import com.raizlabs.android.dbflow.processor.writer.provider.UpdateWriter;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -28,7 +36,7 @@ public class ContentProviderDefinition extends BaseDefinition {
 
     static final String DATABASE_FIELD = "database";
 
-    private static final String URI_MATCHER = "MATCHER";
+    public static final String URI_MATCHER = "MATCHER";
 
     private static final String AUTHORITY = "AUTHORITY";
 
@@ -37,6 +45,8 @@ public class ContentProviderDefinition extends BaseDefinition {
     public String authority;
 
     public List<TableEndpointDefinition> endpointDefinitions = Lists.newArrayList();
+
+    private FlowWriter[] mWriters;
 
     public ContentProviderDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
@@ -58,6 +68,13 @@ public class ContentProviderDefinition extends BaseDefinition {
                 endpointDefinitions.add(endpointDefinition);
             }
         }
+
+        mWriters = new FlowWriter[] {
+                new QueryWriter(this),
+                new InsertWriter(this),
+                new DeleteWriter(this),
+                new UpdateWriter(this)
+        };
     }
 
     @Override
@@ -80,7 +97,10 @@ public class ContentProviderDefinition extends BaseDefinition {
                 Classes.CONTENT_VALUES,
                 Classes.CONTENT_URIS,
                 Classes.MODEL_ADAPTER,
-                Classes.CONFLICT_ACTION
+                Classes.CONFLICT_ACTION,
+                Classes.CONDITION,
+                Classes.DELETE,
+                Classes.UPDATE
         };
     }
 
@@ -106,8 +126,8 @@ public class ContentProviderDefinition extends BaseDefinition {
         for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
             for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
                 String path;
-                if (contentUriDefinition.endpoint != null) {
-                    path = "\"" + contentUriDefinition.endpoint + "\"";
+                if (contentUriDefinition.path != null) {
+                    path = "\"" + contentUriDefinition.path + "\"";
                 } else {
                     path = String.format("%s.%s.getPath()", contentUriDefinition.classQualifiedName, contentUriDefinition.name);
                 }
@@ -122,38 +142,6 @@ public class ContentProviderDefinition extends BaseDefinition {
                 javaWriter.emitStatement("return \"%1s\"", databaseName);
             }
         }, "String", "getDatabaseName", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
-
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-                    @Override
-                    public void write(JavaWriter javaWriter) throws IOException {
-                        javaWriter.emitStatement("Cursor cursor = null");
-
-                        javaWriter.beginControlFlow("switch(%1s.match(uri))", URI_MATCHER);
-                        for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
-                            for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
-                                if(uriDefinition.queryEnabled) {
-                                    javaWriter.beginControlFlow("case %1s:", uriDefinition.name);
-
-                                    javaWriter.emitStatement("cursor = " +
-                                            "new Select(projection).from(FlowManager.getTableClassForName(\"%1s\", \"%1s\"))" +
-                                            ".where(selection, selectionArgs).query()", databaseName, tableEndpointDefinition.tableName);
-                                    javaWriter.emitStatement("break");
-                                    javaWriter.endControlFlow();
-                                }
-                            }
-                        }
-
-                        javaWriter.endControlFlow();
-
-                        javaWriter.beginControlFlow("if (cursor != null)");
-                        javaWriter.emitStatement("cursor.setNotificationUri(getContext().getContentResolver(), uri)");
-                        javaWriter.endControlFlow();
-                        javaWriter.emitEmptyLine();
-                        javaWriter.emitStatement("return cursor");
-                    }
-                }, "Cursor", "query", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
-                "Uri", "uri", "String[]", "projection", "String", "selection",
-                "String[]", "selectionArgs", "String", "sortOrder");
 
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
@@ -179,35 +167,14 @@ public class ContentProviderDefinition extends BaseDefinition {
             }
         }, "String", "getType", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "Uri", "uri");
 
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
+        for(FlowWriter writer: mWriters) {
+            writer.write(javaWriter);
+        }
 
-                javaWriter.beginControlFlow("switch(MATCHER.match(uri))");
 
-                for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
-                    for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
-                        if(uriDefinition.insertEnabled) {
-                            javaWriter.beginControlFlow("case " + uriDefinition.name + ":");
-                            javaWriter.emitStatement("ModelAdapter adapter = FlowManager.getModelAdapter(FlowManager.getTableClassForName(\"%1s\", \"%1s\"))", databaseName, tableEndpointDefinition.tableName);
-                            javaWriter.emitStatement("final long id = FlowManager.getDatabase(\"%1s\")" +
-                                            ".getWritableDatabase()" +
-                                            ".insertWithOnConflict(\"%1s\", null, values, ConflictAction.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()))", databaseName, tableEndpointDefinition.tableName);
 
-                            javaWriter.emitStatement("getContext().getContentResolver().notifyChange(uri, null)");
-                            javaWriter.emitStatement("return ContentUris.withAppendedId(uri, id)");
-                            javaWriter.endControlFlow();
-                        }
-                    }
 
-                    javaWriter.beginControlFlow("default:")
-                            .emitStatement("throw new IllegalArgumentException(\"Unknown URI \" + uri)")
-                            .endControlFlow();
-                }
 
-                javaWriter.endControlFlow();
-            }
-        }, "Uri", "insert", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
-                "Uri", "uri", "ContentValues", "values");
+
     }
 }

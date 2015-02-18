@@ -1,9 +1,12 @@
 package com.raizlabs.android.dbflow.test.provider;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
+import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
@@ -33,14 +36,23 @@ public class TestContentProvider {
         public static final String ENDPOINT = "ContentProviderModel";
 
         @ContentUri(path = ContentProviderModel.ENDPOINT,
-            type = "vnd.android.cursor.dir/" + ENDPOINT)
+            type = ContentUri.ContentType.VND_MULTIPLE + ENDPOINT)
         public static Uri CONTENT_URI = buildUri(ENDPOINT);
 
         @ContentUri(path = ContentProviderModel.ENDPOINT + "/#",
-        type = "vnd.android.cursor.item/" + ENDPOINT,
+        type = ContentUri.ContentType.VND_SINGLE + ENDPOINT,
         segments = {@ContentUri.PathSegment(segment = 1, column = "id")})
         public static Uri withId(long id) {
             return buildUri(String.valueOf(id));
+        }
+
+        @Notify(method = Notify.Method.INSERT,
+        paths = ContentProviderModel.ENDPOINT + "/#")
+        public static Uri[] onInsert(ContentValues contentValues) {
+            final long id = contentValues.getAsLong("id");
+            return new Uri[] {
+                withId(id)
+            };
         }
 
     }

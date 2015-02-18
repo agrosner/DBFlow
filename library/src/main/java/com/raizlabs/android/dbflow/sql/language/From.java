@@ -80,10 +80,10 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      * Returns a {@link Where} statement with the sql clause
      *
      * @param whereClause The full SQL string after the WHERE keyword
-     *                    @param args The arguments to append
+     * @param args        The arguments to append
      * @return The WHERE piece of the query
      */
-    public Where<ModelClass> where(String whereClause, Object...args) {
+    public Where<ModelClass> where(String whereClause, Object... args) {
         return where().whereClause(whereClause, args);
     }
 
@@ -163,6 +163,15 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
     }
 
     /**
+     * Executes a SQL statement that retrieves the count of results in the DB.
+     *
+     * @return The number of rows this query returns
+     */
+    public long count() {
+        return where().count();
+    }
+
+    /**
      * Begins a SET piece of the SQL query
      *
      * @param conditions The array of conditions that define this SET statement
@@ -188,10 +197,21 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      * Begins a SET piece of this query with a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} as its conditions.
      *
      * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
-     * @return A SET query piece of this statment
+     * @return A SET query piece of this statement
      */
     public Set<ModelClass> set(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         return set().conditionQuery(conditionQueryBuilder);
+    }
+
+    /**
+     * Begins a SET piece of this query with a string clause with args
+     *
+     * @param setClause The clause to use as a string clause.
+     * @param args      The arguments to append that will get properly type-converted.
+     * @return A SET query piece of this statement.
+     */
+    public Set<ModelClass> set(String setClause, Object... args) {
+        return set().conditionClause(setClause, args);
     }
 
     /**

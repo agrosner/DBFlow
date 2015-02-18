@@ -45,6 +45,8 @@ public class Classes {
 
     public static final String DELETE = SQL + "language.Delete";
 
+    public static final String UPDATE = SQL + "language.Update";
+
     public static final String CONTAINER_ADAPTER = CONTAINER + "ContainerAdapter";
 
     public static final String MODEL_CONTAINER_UTILS = CONTAINER + "ModelContainerUtils";
@@ -98,4 +100,5 @@ public class Classes {
     public static final String BASE_CONTENT_PROVIDER = BASE_PACKAGE + "runtime.BaseContentProvider";
 
     public static final String CONTENT_URIS = "android.content.ContentUris";
+
 }

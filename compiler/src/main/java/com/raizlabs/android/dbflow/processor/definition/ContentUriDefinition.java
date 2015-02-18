@@ -14,13 +14,17 @@ public class ContentUriDefinition extends BaseDefinition {
 
     public String classQualifiedName;
 
-    public String endpoint;
+    public String path;
 
     public String type;
 
     public boolean queryEnabled;
 
     public boolean insertEnabled;
+
+    public boolean deleteEnabled;
+
+    public boolean updateEnabled;
 
     public ContentUri.PathSegment[] segments;
 
@@ -29,7 +33,7 @@ public class ContentUriDefinition extends BaseDefinition {
 
         ContentUri contentUri = typeElement.getAnnotation(ContentUri.class);
 
-        endpoint = contentUri.path();
+        path = contentUri.path();
 
         type = contentUri.type();
 
@@ -39,6 +43,10 @@ public class ContentUriDefinition extends BaseDefinition {
         queryEnabled = contentUri.queryEnabled();
 
         insertEnabled = contentUri.insertEnabled();
+
+        deleteEnabled = contentUri.deleteEnabled();
+
+        updateEnabled = contentUri.updateEnabled();
 
         segments = contentUri.segments();
 

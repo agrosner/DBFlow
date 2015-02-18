@@ -21,6 +21,12 @@ import java.util.Map;
 public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilder<ConditionQueryBuilder<ModelClass>> {
 
     /**
+     * If we call {@link #append(String, Object...)}, then the string will persist through calls to {@link #getQuery()}
+     * and adding params.
+     */
+    private String mWhereRaw;
+
+    /**
      * Returns a string containing the tokens converted into DBValues joined by delimiters.
      *
      * @param delimiter The text to join the text with.
@@ -138,6 +144,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             toAppend = toAppend.replaceFirst("\\?", convertValueToString(o));
         }
 
+        mWhereRaw = toAppend;
+
         return super.append(toAppend);
     }
 
@@ -190,6 +198,9 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         if (isChanged || mQuery.length() == 0) {
             isChanged = false;
             mQuery = new StringBuilder();
+            if(mWhereRaw != null) {
+                mQuery.append(mWhereRaw);
+            }
 
             int count = 0;
             int paramSize = mParams.size();
