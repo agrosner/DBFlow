@@ -22,6 +22,11 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
     @Override
     public void save(boolean async) {
 
+        if(exists()) {
+            update(async);
+        } else {
+            insert(async);
+        }
     }
 
     @Override
