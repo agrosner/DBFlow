@@ -1,29 +1,55 @@
 package com.raizlabs.android.dbflow.test.provider;
 
+import android.net.Uri;
+import android.test.ProviderTestCase2;
+
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.ContentUtils;
 import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
  * Description:
  */
-public class ContentProviderTest extends FlowTestCase {
+public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$Provider> {
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        FlowManager.init(getContext());
+    }
+
+    public ContentProviderTest() {
+        super(TestContentProvider$Provider.class, TestContentProvider.AUTHORITY);
+    }
 
     public void testContentProvider() {
-        Delete.tables(NoteModel.class,ContentProviderModel.class);
+        Delete.tables(NoteModel.class, ContentProviderModel.class);
 
         ContentProviderModel contentProviderModel = new ContentProviderModel();
         contentProviderModel.notes = "Test";
-        ContentUtils.insert(TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel);
+        Uri uri = ContentUtils.insert(getMockContentResolver(), TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel);
+        assertEquals(TestContentProvider.ContentProviderModel.CONTENT_URI + "/" + contentProviderModel.id, uri.toString());
         assertTrue(contentProviderModel.exists());
 
         NoteModel noteModel = new NoteModel();
         noteModel.note = "Test";
         noteModel.contentProviderModel = contentProviderModel;
-        ContentUtils.insert(TestContentProvider.NoteModel.CONTENT_URI, noteModel);
+        uri = ContentUtils.insert(getMockContentResolver(), TestContentProvider.NoteModel.CONTENT_URI, noteModel);
+        assertEquals(TestContentProvider.NoteModel.CONTENT_URI + "/" + noteModel.id, uri.toString());
         assertTrue(noteModel.exists());
 
+        assertTrue(ContentUtils.delete(getMockContentResolver(), TestContentProvider.NoteModel.CONTENT_URI, noteModel) > 0);
+        assertTrue(!noteModel.exists());
 
-        Delete.tables(NoteModel.class,ContentProviderModel.class);
+        assertTrue(ContentUtils.delete(getMockContentResolver(), TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel) > 0);
+        assertTrue(!contentProviderModel.exists());
+
+        Delete.tables(NoteModel.class, ContentProviderModel.class);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        FlowManager.destroy();
     }
 }

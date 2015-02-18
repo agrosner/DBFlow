@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test.container;
 
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.container.JSONArrayModel;
 import com.raizlabs.android.dbflow.structure.container.JSONModel;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
@@ -15,6 +16,9 @@ import org.json.JSONObject;
 public class JsonModelTest extends FlowTestCase {
 
     public void testJsonModel() {
+
+        Delete.tables(TestModelContainerClass.class, TestModel1.class);
+
         try {
             JSONObject jsonObject = new JSONObject("{" +
                     "name: testModel" +
@@ -35,7 +39,7 @@ public class JsonModelTest extends FlowTestCase {
                     "}" +
                     "}");
 
-            JSONModel<TestModelContainerClass> testJsonModel = new JSONModel<TestModelContainerClass>(jsonObject, TestModelContainerClass.class);
+            JSONModel<TestModelContainerClass> testJsonModel = new JSONModel<>(jsonObject, TestModelContainerClass.class);
             testJsonModel.save(false);
 
             assertTrue(testJsonModel.exists());
@@ -49,9 +53,14 @@ public class JsonModelTest extends FlowTestCase {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+
+        Delete.tables(TestModelContainerClass.class, TestModel1.class);
     }
 
     public void testJsonArrayModel() {
+
+        Delete.tables(TestModel1.class);
+
         try {
             JSONObject jsonObject = new JSONObject("{" +
                     "name: testModel" +
@@ -97,6 +106,7 @@ public class JsonModelTest extends FlowTestCase {
             JSONModel<TestModel1> firstJsonModel = jsonArrayModel.getJsonModel(0);
             assertTrue(firstJsonModel.getValue(TestModel1$Table.NAME).equals("testModel"));
 
+            Delete.tables(TestModel1.class);
 
         } catch (JSONException e) {
             throw new RuntimeException(e);

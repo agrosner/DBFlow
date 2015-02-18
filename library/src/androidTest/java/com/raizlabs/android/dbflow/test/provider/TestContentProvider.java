@@ -83,7 +83,7 @@ public class TestContentProvider {
 
         @Notify(method = Notify.Method.INSERT, paths = ENDPOINT)
         public static Uri[] onInsert(ContentValues contentValues) {
-            final long listId = contentValues.getAsLong("noteModel");
+            final long listId = contentValues.getAsLong("providerModel");
             return new Uri[]{
                     ContentProviderModel.withId(listId), fromList(listId),
             };
@@ -96,7 +96,7 @@ public class TestContentProvider {
                     "noteModel",
             }, null, null, null);
             c.moveToFirst();
-            final long listId = c.getLong(c.getColumnIndex("noteModel"));
+            final long listId = c.getLong(c.getColumnIndex("providerModel"));
             c.close();
 
             return new Uri[]{
@@ -109,7 +109,7 @@ public class TestContentProvider {
             final long noteId = Long.valueOf(uri.getPathSegments().get(1));
             Cursor c = context.getContentResolver().query(uri, null, null, null, null);
             c.moveToFirst();
-            final long listId = c.getLong(c.getColumnIndex("noteModel"));
+            final long listId = c.getLong(c.getColumnIndex("providerModel"));
             c.close();
 
             return new Uri[] {

@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteStatement;
+import android.os.Build;
 
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
@@ -252,7 +254,18 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return The number of rows this query returns
      */
     public long count() {
-        return DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
+        long count;
+        if(mWhereBase.getQueryBuilderBase() instanceof Update || mWhereBase.getQueryBuilderBase() instanceof Delete) {
+            SQLiteStatement sqLiteStatement = mManager.getWritableDatabase().compileStatement(getQuery());
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                count = sqLiteStatement.executeUpdateDelete();
+            } else {
+                count = sqLiteStatement.executeUpdateDelete();
+            }
+        } else {
+            count = DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
+        }
+        return count;
     }
 
     @Override

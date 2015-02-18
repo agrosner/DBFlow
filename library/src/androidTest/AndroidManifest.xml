@@ -12,6 +12,7 @@
         
         <provider
             android:authorities="com.raizlabs.android.dbflow.test.provider"
+            android:exported="true"
             android:name=".provider.TestContentProvider$Provider"/>
         
         </application>
