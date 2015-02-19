@@ -20,6 +20,38 @@ import java.util.List;
 public class ContentUtils {
 
     /**
+     * The default content URI that Android recommends. Not necessary, however.
+     */
+    public static final String BASE_CONTENT_URI = "content://";
+
+    /**
+     * Constructs an Uri with the {@link #BASE_CONTENT_URI} and authority. Add paths to append to the Uri.
+     *
+     * @param authority The authority for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param paths     The list of paths to append.
+     * @return A complete Uri for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     */
+    public static Uri buildUri(String authority, String... paths) {
+        return buildUri(BASE_CONTENT_URI, authority, paths);
+    }
+
+    /**
+     * Constructs an Uri with the specified basecontent uri and authority. Add paths to append to the Uri.
+     *
+     * @param baseContentUri The base content URI for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param authority      The authority for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param paths          The list of paths to append.
+     * @return A complete Uri for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     */
+    public static Uri buildUri(String baseContentUri, String authority, String... paths) {
+        Uri.Builder builder = Uri.parse(baseContentUri + authority).buildUpon();
+        for (String path : paths) {
+            builder.appendPath(path);
+        }
+        return builder.build();
+    }
+
+    /**
      * Inserts the model into the {@link android.content.ContentResolver}. Uses the insertUri to resolve
      * the reference and the model to convert its data into {@link android.content.ContentValues}
      *

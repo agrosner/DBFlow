@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@Table(databaseName = TestDatabase.NAME)
+@Table(databaseName = ContentDatabase.NAME)
 public class TestSyncableModel extends BaseSyncableProviderModel<TestSyncableModel> {
 
     @Column(columnType = Column.PRIMARY_KEY_AUTO_INCREMENT)

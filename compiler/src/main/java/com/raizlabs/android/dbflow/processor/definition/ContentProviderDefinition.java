@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
+import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.InsertWriter;
@@ -60,12 +61,14 @@ public class ContentProviderDefinition extends BaseDefinition {
 
         authority = provider.authority();
 
+        TableEndpointValidator validator = new TableEndpointValidator();
         List<? extends Element> elements = manager.getElements().getAllMembers((TypeElement) typeElement);
         for (Element innerElement : elements) {
             if (innerElement.getAnnotation(TableEndpoint.class) != null) {
                 TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, manager);
-
-                endpointDefinitions.add(endpointDefinition);
+                if(validator.validate(processorManager, endpointDefinition)) {
+                    endpointDefinitions.add(endpointDefinition);
+                }
             }
         }
 

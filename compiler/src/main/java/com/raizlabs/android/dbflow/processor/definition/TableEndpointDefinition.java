@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 
 /**
@@ -24,12 +25,20 @@ public class TableEndpointDefinition extends BaseDefinition {
 
     public String tableName;
 
+    public String contentProviderName;
+
+    public boolean isTopLevel = false;
+
     public TableEndpointDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
 
         TableEndpoint endpoint = typeElement.getAnnotation(TableEndpoint.class);
 
         tableName = endpoint.value();
+
+        contentProviderName = endpoint.contentProviderName();
+
+        isTopLevel = typeElement.getEnclosingElement() instanceof PackageElement;
 
         List<? extends Element> elements = processorManager.getElements().getAllMembers((TypeElement) typeElement);
         for (Element innerElement : elements) {
@@ -40,9 +49,9 @@ public class TableEndpointDefinition extends BaseDefinition {
             } else if (innerElement.getAnnotation(Notify.class) != null) {
                 NotifyDefinition notifyDefinition = new NotifyDefinition(innerElement, processorManager);
 
-                for(String path: notifyDefinition.paths) {
+                for (String path : notifyDefinition.paths) {
                     Map<Notify.Method, List<NotifyDefinition>> methodListMap = notifyDefinitionPathMap.get(path);
-                    if(methodListMap == null) {
+                    if (methodListMap == null) {
                         methodListMap = Maps.newHashMap();
                         notifyDefinitionPathMap.put(path, methodListMap);
                     }

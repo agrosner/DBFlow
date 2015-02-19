@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@Table(databaseName = TestDatabase.NAME)
+@Table(databaseName = ContentDatabase.NAME)
 public class NoteModel extends BaseProviderModel<NoteModel> {
 
 

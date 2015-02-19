@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description:
  */
 @ContentProvider(authority = TestContentProvider.AUTHORITY,
-        databaseName = TestDatabase.NAME,
+        databaseName = ContentDatabase.NAME,
         baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 public class TestContentProvider {
 

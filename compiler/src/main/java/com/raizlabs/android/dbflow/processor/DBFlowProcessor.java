@@ -48,6 +48,7 @@ public class DBFlowProcessor extends AbstractProcessor {
         supportedTypes.add(ModelView.class.getName());
         supportedTypes.add(Migration.class.getName());
         supportedTypes.add(ContentProvider.class.getName());
+        supportedTypes.add(TableEndpoint.class.getName());
         return supportedTypes;
     }
 
@@ -75,6 +76,7 @@ public class DBFlowProcessor extends AbstractProcessor {
                 new ModelContainerHandler(),
                 new ModelViewHandler(),
                 new ContentProviderHandler(),
+                new TableEndpointHandler(),
                 new FlowManagerHandler());
     }
 
