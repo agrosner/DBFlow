@@ -343,3 +343,5 @@ public class TestModelView extends BaseModelView<TestModel2> {
 
 [mickele](https://github.com/mickele)
 
+[intrications](https://github.com/intrications)
+
