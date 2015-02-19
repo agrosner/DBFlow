@@ -51,7 +51,7 @@ TransactionManager.getInstance().save(ProcessModelInfo.withModels(models));
 
 ```
 
-### Batch Processing of ```Model```
+### Batch Processing of `Model`
 
 ```ProcessModelInfo```: describes how to handle a Transaction by storing information such as the ```DBTransactionInfo```, table,
 a list of models, and a ```TransactionListener``` for the Transaction. 
@@ -61,7 +61,7 @@ For large operations that span hundreds of Models, the preferred method is to ru
 This will queue up the operations on the same thread to mitigate synchronization locking and UI thread blocking.
 
 For massive ```save()``` operations, the preferred method is through the ```DBBatchSaveQueue```. 
-This will run a batch ``DBTransaction`` once the queue is full (default is 50 models and can be changed) on all of the Models at one time. 
+This will run a batch `DBTransaction` once the queue is full (default is 50 models and can be changed) on all of the Models at one time. 
 If you are saving smaller amounts of items, or need them to save right away, the best option is to use regular save transactions. 
 
 #### Example
@@ -81,6 +81,8 @@ If you are saving smaller amounts of items, or need them to save right away, the
   TransactionManager.getInstance().update(processModelInfo);
 
   TransactionManager.getInstance().delete(processModelInfo);
+  
+  ```
 
 
 There are all sorts of methods in ```TransactionManager``` for performing queries on the ```DBTransactionQueue``` 
