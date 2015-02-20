@@ -21,6 +21,11 @@ public class TableEndpointDefinition extends BaseDefinition {
 
     public List<ContentUriDefinition> contentUriDefinitions = Lists.newArrayList();
 
+    /**
+     * Dont want duplicate paths.
+     */
+    Map<String, ContentUriDefinition> pathValidationMap = Maps.newHashMap();
+
     public Map<String, Map<Notify.Method, List<NotifyDefinition>>> notifyDefinitionPathMap = Maps.newHashMap();
 
     public String tableName;
@@ -44,8 +49,12 @@ public class TableEndpointDefinition extends BaseDefinition {
         for (Element innerElement : elements) {
             if (innerElement.getAnnotation(ContentUri.class) != null) {
                 ContentUriDefinition contentUriDefinition = new ContentUriDefinition(innerElement, processorManager);
-
-                contentUriDefinitions.add(contentUriDefinition);
+                if(!pathValidationMap.containsKey(contentUriDefinition.path)) {
+                    contentUriDefinitions.add(contentUriDefinition);
+                } else {
+                    processorManager.logError("There must be unique paths for the specified @ContentUri" +
+                            " %1s from %1s", contentUriDefinition.name, contentProviderName);
+                }
             } else if (innerElement.getAnnotation(Notify.class) != null) {
                 NotifyDefinition notifyDefinition = new NotifyDefinition(innerElement, processorManager);
 

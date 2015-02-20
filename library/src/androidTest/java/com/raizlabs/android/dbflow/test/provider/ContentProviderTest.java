@@ -32,6 +32,13 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
         assertEquals(TestContentProvider.ContentProviderModel.CONTENT_URI + "/" + contentProviderModel.id, uri.toString());
         assertTrue(contentProviderModel.exists());
 
+        contentProviderModel.notes = "NewTest";
+        int update = ContentUtils.update(getMockContentResolver(), TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel);
+        assertEquals(update, 1);
+        assertTrue(contentProviderModel.exists());
+        contentProviderModel.load();
+        assertEquals("NewTest", contentProviderModel.notes);
+
         NoteModel noteModel = new NoteModel();
         noteModel.note = "Test";
         noteModel.contentProviderModel = contentProviderModel;

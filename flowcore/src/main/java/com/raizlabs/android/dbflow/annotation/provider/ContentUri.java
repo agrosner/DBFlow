@@ -39,7 +39,7 @@ public @interface ContentUri {
     }
 
     /**
-     * @return the path of this ContentUri. ex: notes/#, notes/1, etc.
+     * @return the path of this ContentUri. ex: notes/#, notes/1, etc. Must be unique within a {@link com.raizlabs.android.dbflow.annotation.provider.TableEndpoint}
      */
     String path();
 
@@ -54,12 +54,24 @@ public @interface ContentUri {
      */
     PathSegment[] segments() default {};
 
+    /**
+     * @return false if you wish to not allow queries from the specified URI.
+     */
     boolean queryEnabled() default true;
 
+    /**
+     * @return false if you wish to prevent inserts.
+     */
     boolean insertEnabled() default true;
 
+    /**
+     * @return false if you wish to prevent deletion.
+     */
     boolean deleteEnabled() default true;
 
+    /**
+     * @return false if you wish to prevent updates.
+     */
     boolean updateEnabled() default true;
 
 }
