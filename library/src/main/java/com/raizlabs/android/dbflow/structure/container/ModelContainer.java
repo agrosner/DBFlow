@@ -36,41 +36,34 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     public DataClass newDataInstance();
 
     /**
-     * Returns a new instance of this container with a different Model class
-     *
-     * @param inValue
-     * @param columnClass
-     * @return
+     * @param inValue     The data to construct a new instance from
+     * @param columnClass The Model type
+     * @return new instance of this container with a different Model class when we have
+     * children who are {@link com.raizlabs.android.dbflow.structure.Model}
      */
     public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
 
     /**
-     * Returns the value with the specified key
-     *
-     * @param columnName
-     * @return
+     * @param columnName The name of the column
+     * @return the value with the specified key
      */
     public Object getValue(String columnName);
 
     /**
      * Puts the value with the specified key and value to the object
      *
-     * @param columnName
-     * @param value
+     * @param columnName The name of the column
+     * @param value      The value of the item in Model form.
      */
     public void put(String columnName, Object value);
 
     /**
-     * Returns the associated table structure for this container
-     *
-     * @return
+     * @return The associated model adapter from the table for this {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
      */
     public ModelAdapter<ModelClass> getModelAdapter();
 
     /**
-     * Returns the table that's associated with this container
-     *
-     * @return
+     * @return the table that's associated with this container
      */
     public Class<ModelClass> getTable();
 }

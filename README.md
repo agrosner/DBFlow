@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.5.2-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.5.3-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -16,6 +16,10 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
 
 ## Changelog
+
+#### 1.5.3
+1. Fixes issue where using ```ProcessModelInfo``` with a ```ModelContainer``` caused the database table lookup to happen on the ```ModelContainer``` class and not the Model it points to.
+2. Updated code comments and moved most ```Where``` parameters in ```TransactionManager```, ```TableTransactionManager``` and other places where ```SelectListTransaction``` or ```SelectSingleModelTransaction``` were used. Backwards compatability still applies. 
 
 #### 1.5.2
 1. Fixes issue where ```TypeConverter``` crashed when null field value was passed. Now it will return null for both methods when data is null
@@ -99,8 +103,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.2'
-    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.5.2"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.3'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.5.3"
   }
 
 ```
@@ -112,9 +116,9 @@ or by standard Gradle use (without linking sources support):
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.2'
-    compile "com.raizlabs.android:DBFlow-Core:1.5.2"
-    compile "com.raizlabs.android:DBFlow:1.5.2"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.3'
+    compile "com.raizlabs.android:DBFlow-Core:1.5.3"
+    compile "com.raizlabs.android:DBFlow:1.5.3"
   }
 
 ```

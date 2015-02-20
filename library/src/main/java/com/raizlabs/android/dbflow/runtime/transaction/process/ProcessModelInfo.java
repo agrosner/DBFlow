@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime.transaction.process;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +66,12 @@ public class ProcessModelInfo<ModelClass extends Model> {
     public ProcessModelInfo<ModelClass> models(ModelClass... models) {
         mModels.addAll(Arrays.asList(models));
         if (models.length > 0) {
-            mTable = (Class<ModelClass>) models[0].getClass();
+            Class modelClass = models[0].getClass();
+            if (ModelContainer.class.isAssignableFrom(modelClass)) {
+                mTable = ((ModelContainer) models[0]).getTable();
+            } else {
+                mTable = (Class<ModelClass>) modelClass;
+            }
         }
         return this;
     }
@@ -80,7 +86,14 @@ public class ProcessModelInfo<ModelClass extends Model> {
     public ProcessModelInfo<ModelClass> models(Collection<ModelClass> models) {
         mModels.addAll(models);
         if (models != null && models.size() > 0) {
-            mTable = (Class<ModelClass>) new ArrayList<>(models).get(0).getClass();
+            ArrayList<ModelClass> modelList = new ArrayList<>(models);
+            Class modelClass = modelList.get(0).getClass();
+
+            if (ModelContainer.class.isAssignableFrom(modelClass)) {
+                mTable = ((ModelContainer) modelList.get(0)).getTable();
+            } else {
+                mTable = (Class<ModelClass>) modelClass;
+            }
         }
         return this;
     }
@@ -137,7 +150,12 @@ public class ProcessModelInfo<ModelClass extends Model> {
      *
      * @param processModel Process model
      */
+    @SuppressWarnings("unchecked")
     public void processModels(ProcessModel<ModelClass> processModel) {
-        ProcessModelHelper.process(mTable, mModels, processModel);
+        Class<? extends Model> processClass = mTable;
+        if(ModelContainer.class.isAssignableFrom(processClass) && !mModels.isEmpty()) {
+            processClass = ((ModelContainer<ModelClass, ?>) mModels.get(0)).getTable();
+        }
+        ProcessModelHelper.process(processClass, mModels, processModel);
     }
 }

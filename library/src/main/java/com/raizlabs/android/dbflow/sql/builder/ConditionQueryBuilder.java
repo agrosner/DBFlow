@@ -196,7 +196,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * Converts the given value for the column if it has a type converter. Then it turns that result into a string.
      *
      * @param value The value of the column in Model format.
-     * @return
+     * @return Returns the result of converting and type converting the specified value.
      */
     @SuppressWarnings("unchecked")
     public String convertValueToString(Object value) {

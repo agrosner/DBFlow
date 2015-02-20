@@ -19,6 +19,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransa
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
+import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
@@ -270,13 +271,13 @@ public class TransactionManager {
      * Selects a single model on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} by
      * {@link com.raizlabs.android.dbflow.sql.language.From}.
      *
-     * @param where               The where to use.
+     * @param modelQueriable      The model query object to use.
      * @param transactionListener The result will be passed here.
      * @param <ModelClass>        The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
      */
-    public <ModelClass extends Model> void fetchModel(Where<ModelClass> where,
+    public <ModelClass extends Model> void fetchModel(ModelQueriable<ModelClass> modelQueriable,
                                                       final TransactionListener<ModelClass> transactionListener) {
-        addTransaction(new SelectSingleModelTransaction<>(where, transactionListener));
+        addTransaction(new SelectSingleModelTransaction<>(modelQueriable, transactionListener));
     }
 
     /**
