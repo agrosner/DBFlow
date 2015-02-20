@@ -150,7 +150,12 @@ public class ProcessModelInfo<ModelClass extends Model> {
      *
      * @param processModel Process model
      */
+    @SuppressWarnings("unchecked")
     public void processModels(ProcessModel<ModelClass> processModel) {
-        ProcessModelHelper.process(mTable, mModels, processModel);
+        Class<? extends Model> processClass = mTable;
+        if(ModelContainer.class.isAssignableFrom(processClass) && !mModels.isEmpty()) {
+            processClass = ((ModelContainer<ModelClass, ?>) mModels.get(0)).getTable();
+        }
+        ProcessModelHelper.process(processClass, mModels, processModel);
     }
 }

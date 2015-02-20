@@ -28,11 +28,11 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
         return mModelInfo.hasData();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<ModelClass> onExecute() {
-        final List<ModelClass> processedModels = mModelInfo.mModels;
-        ProcessModelHelper.process(mModelInfo.mTable, processedModels, this);
-        return processedModels;
+        mModelInfo.processModels(this);
+        return mModelInfo.mModels;
     }
 
     /**
