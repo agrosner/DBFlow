@@ -20,26 +20,26 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
      * it will use up much more memory.
      *
      * @param createNewQueue Create a separate request queue from the shared one.
-     * @param mTableClass    The table class this manager corresponds to
+     * @param table          The table class this manager corresponds to
      */
-    public TableTransactionManager(boolean createNewQueue, Class<ModelClass> mTableClass) {
-        super(mTableClass.getSimpleName(), createNewQueue);
-        this.mTableClass = mTableClass;
+    public TableTransactionManager(boolean createNewQueue, Class<ModelClass> table) {
+        super(table.getSimpleName(), createNewQueue);
+        this.mTableClass = table;
     }
 
     /**
      * Constructs a new instance of this class with the shared {@link com.raizlabs.android.dbflow.config.FlowManager} and
      * uses the shared {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      *
-     * @param mTableClass The table class this manager corresponds to
+     * @param table The table class this manager corresponds to
      */
-    public TableTransactionManager(Class<ModelClass> mTableClass) {
-        super(mTableClass.getSimpleName(), false);
-        this.mTableClass = mTableClass;
+    public TableTransactionManager(Class<ModelClass> table) {
+        super(table.getSimpleName(), false);
+        this.mTableClass = table;
     }
 
     /**
-     * @param transactionListener The result of the selection will be placed here on the main thread.
+     * @param transactionListener The transaction listener.
      * @see #fetchFromTable(Class, com.raizlabs.android.dbflow.runtime.transaction.TransactionListener, com.raizlabs.android.dbflow.sql.builder.Condition...)
      */
     public void fetchFromTable(TransactionListener<List<ModelClass>> transactionListener, Condition... conditions) {
@@ -47,8 +47,8 @@ public class TableTransactionManager<ModelClass extends Model> extends Transacti
     }
 
     /**
-     * @param transactionListener The result will be passed here.
-     * @param ids            The list of ids given by the {@link ModelClass}
+     * @param transactionListener The transaction listener.
+     * @param ids                 The list of ids given by the {@link ModelClass}
      * @see #fetchModelById(Class, com.raizlabs.android.dbflow.runtime.transaction.TransactionListener, Object...)
      */
     public void fetchModelById(TransactionListener<ModelClass> transactionListener, Object... ids) {
