@@ -1,9 +1,11 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
+import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Description:
@@ -50,5 +52,9 @@ public class ContentUriDefinition extends BaseDefinition {
 
         segments = contentUri.segments();
 
+        TypeMirror typeMirror = typeElement.asType();
+        if (!Classes.URI.equals(typeMirror.toString())) {
+            processorManager.logError("Content Uri field returned wrong type. It must return a Uri");
+        }
     }
 }
