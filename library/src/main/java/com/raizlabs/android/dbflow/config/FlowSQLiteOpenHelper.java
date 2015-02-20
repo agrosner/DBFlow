@@ -238,8 +238,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Saves the database as a backup on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. This will
-     * create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
+     * Saves the database as a backup on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} as
+     * the highest priority ever. This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     public void backupDB() {
         if (!mManager.backupEnabled() || !mManager.areConsistencyChecksEnabled()) {

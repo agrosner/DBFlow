@@ -5,16 +5,15 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 
 /**
  * Created by andrewgrosner
- * Contributors:
  * Description: The basic request object that's placed on the DBRequestQueue for processing.
  * The {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} uses a priority queue that will process
  * this class based on the priority assigned to it.
  * <p/>
  * There are four main kinds of requests:
- * For requests that require UI or immediate retrieval, use PRIORITY_UI
- * For requests that are displayed in the UI some point in the near future, use PRIORITY_HIGH
- * For the bulk of data requests, use PRIORITY_NORMAL
- * For any request that's non-essential use PRIORITY_LOW
+ * For requests that require UI or immediate retrieval, use PRIORITY_UI.
+ * For requests that are displayed in the UI some point in the near future, use PRIORITY_HIGH.
+ * For the bulk of data requests, use PRIORITY_NORMAL.
+ * For any request that's non-essential use PRIORITY_LOW.
  */
 public abstract class BaseTransaction<TransactionResult> implements Comparable<BaseTransaction> {
 
@@ -39,6 +38,7 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
      * Reserved for only immediate tasks and all forms of fetching that will display on the UI
      */
     public static int PRIORITY_UI = 5;
+
     /**
      * Provides information about this transaction such as priority
      */
