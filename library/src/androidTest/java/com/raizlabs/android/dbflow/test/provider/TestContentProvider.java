@@ -89,6 +89,12 @@ public class TestContentProvider {
             };
         }
 
+        @Notify(method = Notify.Method.INSERT, paths = ENDPOINT)
+        public static Uri onInsert2(ContentValues contentValues) {
+            final long listId = contentValues.getAsLong("providerModel");
+            return fromList(listId);
+        }
+
         @Notify(method = Notify.Method.UPDATE, paths = ENDPOINT + "/#")
         public static Uri[] onUpdate(Context context, Uri uri) {
             final long noteId = Long.valueOf(uri.getPathSegments().get(1));

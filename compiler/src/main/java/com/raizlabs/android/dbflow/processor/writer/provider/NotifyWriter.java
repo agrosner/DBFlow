@@ -35,13 +35,18 @@ public class NotifyWriter implements FlowWriter {
             if (notifyDefinitionList != null) {
                 for (int i = 0; i < notifyDefinitionList.size(); i++) {
                     NotifyDefinition notifyDefinition = notifyDefinitionList.get(i);
-                    if (i == 0) {
-                        javaWriter.emitStatement("Uri[] notifyUris = %1s.%1s(%1s)", notifyDefinition.parent, notifyDefinition.methodName, notifyDefinition.params);
-                        javaWriter.beginControlFlow("for (Uri notifyUri: notifyUris)");
+                    if (notifyDefinition.returnsArray) {
+                        javaWriter.emitStatement("Uri[] notifyUris%1s = %1s.%1s(%1s)",
+                                notifyDefinition.methodName, notifyDefinition.parent,
+                                notifyDefinition.methodName, notifyDefinition.params);
+                        javaWriter.beginControlFlow("for (Uri notifyUri: notifyUris%1s)", notifyDefinition.methodName);
+                    } else {
+                        javaWriter.emitStatement("Uri notifyUri%1s = %1s.%1s(%1s)",
+                                notifyDefinition.methodName, notifyDefinition.parent, notifyDefinition.methodName, notifyDefinition.params);
                     }
-                    javaWriter.emitStatement("getContext().getContentResolver().notifyChange(notifyUri, null)");
-
-                    if (i == notifyDefinitionList.size() - 1) {
+                    javaWriter.emitStatement("getContext().getContentResolver().notifyChange(notifyUri%1s, null)",
+                            notifyDefinition.returnsArray ? "" : notifyDefinition.methodName);
+                    if (notifyDefinition.returnsArray) {
                         javaWriter.endControlFlow();
                     }
 
@@ -53,13 +58,13 @@ public class NotifyWriter implements FlowWriter {
         if (!hasListener) {
 
             boolean isUpdateDelete = method.equals(Notify.Method.UPDATE) || method.equals(Notify.Method.DELETE);
-            if(isUpdateDelete) {
+            if (isUpdateDelete) {
                 javaWriter.beginControlFlow("if (count > 0)");
             }
 
             javaWriter.emitStatement("getContext().getContentResolver().notifyChange(uri, null)");
 
-            if(isUpdateDelete) {
+            if (isUpdateDelete) {
                 javaWriter.endControlFlow();
             }
         }
