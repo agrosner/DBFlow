@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * Author: andrewgrosner
- * Description:
+ * Description: Wraps around the {@link android.database.sqlite.SQLiteOpenHelper} and provides extra features for use in this library.
  */
 public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
@@ -90,9 +90,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Pulled partially from code, runs the integrity check on pre-honeycomb devices.
+     * Pulled partially from code, it runs a "PRAGMA quick_check(1)" to see if the database is ok.
+     * This method will {@link #restoreBackUp()} if they are enabled on the database if this check fails. So
+     * use with caution and ensure that you backup the database often!
      *
-     * @return
+     * @return true if the database is ok, false if the consistency has been compromised.
      */
     public boolean isDatabaseIntegrityOk() {
         boolean integrityOk = true;
@@ -179,8 +181,9 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     /**
      * Writes the inputstream of the existing db to the file specified.
-     * @param dbPath
-     * @param existingDB
+     *
+     * @param dbPath     The file to write to.
+     * @param existingDB The existing databasefile's input stream¬
      * @throws IOException
      */
     private void writeDB(File dbPath, InputStream existingDB) throws IOException {
@@ -202,7 +205,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * Copies over the prepackaged DB into the main DB then deletes the existing DB to save storage space. If
      * we have a backup that exists
      *
-     * @param databaseName
+     * @param databaseName    The name of the database to copy over
+     * @param prepackagedName The name of the prepackaged db file
      */
     public void movePrepackagedDB(String databaseName, String prepackagedName) {
         final File dbPath = FlowManager.getContext().getDatabasePath(databaseName);
@@ -229,7 +233,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             writeDB(dbPath, inputStream);
 
         } catch (IOException e) {
-            FlowLog.log(FlowLog.Level.E, "Failed to open file", e);
+            FlowLog.log(FlowLog.Level.W, "Failed to open file", e);
         }
     }
 
@@ -238,7 +242,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     public void backupDB() {
-        if(!mManager.backupEnabled() || !mManager.areConsistencyChecksEnabled()) {
+        if (!mManager.backupEnabled() || !mManager.areConsistencyChecksEnabled()) {
             throw new IllegalStateException("Backups are not enabled for : " + mManager.getDatabaseName() + ". Please consider adding " +
                     "both backupEnabled and consistency checks enabled to the Database annotation");
         }
@@ -368,11 +372,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         // will try migrations file or execute migrations from code
         try {
-            final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(MIGRATION_PATH+"/" + mManager.getDatabaseName()));
+            final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(MIGRATION_PATH + "/" + mManager.getDatabaseName()));
             Collections.sort(files, new NaturalOrderComparator());
 
             final Map<Integer, List<String>> migrationFileMap = new HashMap<>();
-            for(String file: files) {
+            for (String file : files) {
                 try {
                     final Integer version = Integer.valueOf(file.replace(".sql", ""));
                     List<String> fileList = migrationFileMap.get(version);
@@ -431,39 +435,40 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     /**
      * Supports multiline sql statements with ended with the standard ";"
-     * @param db The database to run it on
+     *
+     * @param db   The database to run it on
      * @param file the file name in assets/migrations that we read from
      */
     private void executeSqlScript(SQLiteDatabase db, String file) {
         try {
-            final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + mManager.getDatabaseName()+ "/" + file);
+            final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + mManager.getDatabaseName() + "/" + file);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String line;
 
             // ends line with SQL
-            String querySuffix= ";";
+            String querySuffix = ";";
 
             // standard java comments
             String queryCommentPrefix = "\\";
             StringBuffer query = new StringBuffer();
 
-            while((line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 boolean isEndOfQuery = line.endsWith(querySuffix);
-                if(line.startsWith(queryCommentPrefix)){
+                if (line.startsWith(queryCommentPrefix)) {
                     continue;
                 }
-                if(isEndOfQuery){
-                    line = line.substring(0, line.length()-querySuffix.length());
+                if (isEndOfQuery) {
+                    line = line.substring(0, line.length() - querySuffix.length());
                 }
                 query.append(" ").append(line);
-                if(isEndOfQuery){
+                if (isEndOfQuery) {
                     db.execSQL(query.toString());
                     query = new StringBuffer();
                 }
             }
 
-            if(query.length() > 0){
+            if (query.length() > 0) {
                 db.execSQL(query.toString());
             }
         } catch (IOException e) {
