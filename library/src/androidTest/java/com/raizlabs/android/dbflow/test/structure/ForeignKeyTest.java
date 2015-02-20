@@ -11,12 +11,12 @@ public class ForeignKeyTest extends FlowTestCase {
     // region Test Foreign Key
 
     public void testForeignKey() {
-        TestModel1 testModel1 = new TestModel1();
-        testModel1.name = "Test";
-        testModel1.save(false);
+        ForeignParentModel parentModel = new ForeignParentModel();
+        parentModel.name = "Test";
+        parentModel.save(false);
 
         ForeignModel foreignModel = new ForeignModel();
-        foreignModel.testModel1 = testModel1;
+        foreignModel.testModel1 = parentModel;
         foreignModel.name = "Test";
         foreignModel.save(false);
 

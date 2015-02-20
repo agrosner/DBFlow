@@ -50,6 +50,25 @@ public class FlowManager {
     }
 
     /**
+     * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
+     * @param tableName    The name of the table in the DB.
+     * @return The associated table class for the specified name.
+     */
+    public static Class<? extends Model> getTableClassForName(String databaseName, String tableName) {
+        BaseDatabaseDefinition databaseDefinition = getDatabase(databaseName);
+        if(databaseDefinition == null) {
+            throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
+                    "Did you forget to add the @Database?", databaseName));
+        }
+        Class<? extends Model> modelClass = databaseDefinition.getModelClassForName(tableName);
+        if(modelClass == null) {
+            throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
+                    "Did you forget to add the @Table annotation and point it to %1s?", tableName, databaseName));
+        }
+        return modelClass;
+    }
+
+    /**
      * @param table The table to lookup the database for.
      * @returnthe corresponding {@link com.raizlabs.android.dbflow.config.BaseDatabaseDefinition} for the specified model
      */

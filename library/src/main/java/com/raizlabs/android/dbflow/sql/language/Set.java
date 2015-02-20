@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -25,16 +26,24 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     }
 
     /**
-     * Specifies the condition query for this SET and sets the separator automatically as a comma.
+     * Specifies a condition clause for this SET.
+     * @param setClause
+     * @param args
+     * @return
+     */
+    public Set<ModelClass> conditionClause(String setClause, Object... args) {
+        mConditionQueryBuilder.append(setClause, args);
+        return this;
+    }
+
+    /**
+     * Specifies the condition query for this SET.
      *
      * @param conditionQueryBuilder The condition query to use
      * @return This instance.
      */
     public Set<ModelClass> conditionQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        if (conditionQueryBuilder != null) {
-            mConditionQueryBuilder = conditionQueryBuilder;
-            mConditionQueryBuilder.setSeparator(",");
-        }
+        mConditionQueryBuilder = conditionQueryBuilder;
         return this;
     }
 
@@ -47,6 +56,30 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     public Set<ModelClass> conditions(Condition... conditions) {
         mConditionQueryBuilder.putConditions(conditions);
         return this;
+    }
+
+    /**
+     * Specifies a set of content values to append to this SET as Conditions
+     * @param contentValues The set of values to append.
+     * @return This instance.
+     */
+    public Set<ModelClass> conditionValues(ContentValues contentValues) {
+        java.util.Set<String> contentKeys = contentValues.keySet();
+        for(String key: contentKeys) {
+            mConditionQueryBuilder.putCondition(Condition.column(key).is(contentValues.get(key)));
+        }
+        return this;
+    }
+
+    /**
+     * Begins completing the rest of this UPDATE statement.
+     *
+     * @param whereClause The whereclause to append
+     * @param args        The argument bindings for the whereClause.
+     * @return
+     */
+    public Where<ModelClass> where(String whereClause, Object... args) {
+        return where().whereClause(whereClause, args);
     }
 
     /**

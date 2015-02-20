@@ -45,6 +45,8 @@ public class Classes {
 
     public static final String DELETE = SQL + "language.Delete";
 
+    public static final String UPDATE = SQL + "language.Update";
+
     public static final String CONTAINER_ADAPTER = CONTAINER + "ContainerAdapter";
 
     public static final String MODEL_CONTAINER_UTILS = CONTAINER + "ModelContainerUtils";
@@ -60,6 +62,8 @@ public class Classes {
     public static final String DATABASE_HOLDER_STATIC_CLASS_NAME = "Database$Holder";
 
     public static final String BASE_DATABASE_DEFINITION = "BaseDatabaseDefinition";
+
+    public static final String BASE_DATABASE_DEFINITION_NAME = CONFIG + BASE_DATABASE_DEFINITION;
 
     public static final String MAP = "java.util.Map";
 
@@ -84,4 +88,17 @@ public class Classes {
     public static final String LOAD_FROM_CURSOR_LISTENER = LISTENER + "LoadFromCursorListener";
 
     public static final String SQLITE_STATEMENT_LISTENER = LISTENER + "SQLiteStatementListener";
+
+    public static final String CONTENT_PROVIDER = "android.content.ContentProvider";
+
+    public static final String SQLITE_DATABASE = "android.database.sqlite.SQLiteDatabase";
+
+    public static final String URI = "android.net.Uri";
+
+    public static final String URI_MATCHER = "android.content.UriMatcher";
+
+    public static final String BASE_CONTENT_PROVIDER = BASE_PACKAGE + "runtime.BaseContentProvider";
+
+    public static final String CONTENT_URIS = "android.content.ContentUris";
+
 }

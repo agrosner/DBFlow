@@ -26,14 +26,14 @@ public class ForeignInteractionModel extends TestModel1 {
             onDelete = ForeignKeyAction.CASCADE,
             onUpdate = ForeignKeyAction.CASCADE,
             saveForeignKeyModel = false)
-    ForeignKeyContainer<TestModel1> testModel1;
+    ForeignKeyContainer<ParentModel> testModel1;
 
     public TestModel1 getTestModel1() {
         return testModel1 != null ? testModel1.toModel() : null;
     }
 
-    public void setTestModel1(TestModel1 model1) {
-        testModel1 = new ForeignKeyContainer<>(TestModel1.class);
+    public void setTestModel1(ParentModel model1) {
+        testModel1 = new ForeignKeyContainer<>(ParentModel.class);
         Map<String, Object> map = new HashMap<>();
         map.put(TestModel1$Table.NAME, model1.name);
         testModel1.setData(map);

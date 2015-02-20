@@ -36,5 +36,5 @@ public class TestModelContainerClass extends TestModel1 {
             onDelete = ForeignKeyAction.CASCADE,
             onUpdate = ForeignKeyAction.CASCADE
     )
-    TestModel1 testModel;
+    ParentModel testModel;
 }

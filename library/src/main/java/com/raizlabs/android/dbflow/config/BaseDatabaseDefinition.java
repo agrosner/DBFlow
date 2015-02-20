@@ -11,6 +11,8 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.container.ContainerAdapter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,20 @@ import java.util.Map;
  * as it will be generated for every {@link com.raizlabs.android.dbflow.annotation.Database}.
  */
 public abstract class BaseDatabaseDefinition {
+
+    final Map<Integer, List<Migration>> mMigrationMap = new HashMap<>();
+
+    final List<Class<? extends Model>> mModels = new ArrayList<>();
+
+    final Map<Class<? extends Model>, ModelAdapter> mModelAdapters = new HashMap<>();
+
+    final Map<String, Class<? extends Model>> mModelTableNames = new HashMap<>();
+
+    final Map<Class<? extends Model>, ContainerAdapter> mModelContainerAdapters = new HashMap<>();
+
+    final List<Class<? extends BaseModelView>> mModelViews = new ArrayList<>();
+
+    final Map<Class<? extends BaseModelView>, ModelViewAdapter> mModelViewAdapterMap = new HashMap<>();
 
     /**
      * The helper that manages database changes and initialization
@@ -39,24 +55,39 @@ public abstract class BaseDatabaseDefinition {
     /**
      * @return a list of all model classes in this database.
      */
-    abstract List<Class<? extends Model>> getModelClasses();
+    List<Class<? extends Model>> getModelClasses() {
+        return mModels;
+    }
 
     /**
      * Internal method used to create the database schema.
      *
      * @return List of Model Adapters
      */
-    abstract List<ModelAdapter> getModelAdapters();
+    List<ModelAdapter> getModelAdapters() {
+        return new ArrayList<>(mModelAdapters.values());
+    }
 
     /**
      * Returns the associated {@link com.raizlabs.android.dbflow.structure.ModelAdapter} within this database for
      * the specified table. If the Model is missing the {@link com.raizlabs.android.dbflow.annotation.Table} annotation,
-     * this will fail.
+     * this will return null.
      *
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    abstract ModelAdapter getModelAdapterForTable(Class<? extends Model> table);
+    ModelAdapter getModelAdapterForTable(Class<? extends Model> table) {
+        return mModelAdapters.get(table);
+    }
+
+    /**
+     * @param tableName The name of the table in this db.
+     * @return The associated {@link com.raizlabs.android.dbflow.structure.ModelAdapter} within this database for the specified table name.
+     * If the Model is missing the {@link com.raizlabs.android.dbflow.annotation.Table} annotation, this will return null.
+     */
+    public Class<? extends Model> getModelClassForName(String tableName) {
+        return mModelTableNames.get(tableName);
+    }
 
     /**
      * @param table The table that has a {@link com.raizlabs.android.dbflow.annotation.ContainerAdapter} annotation.
@@ -64,29 +95,39 @@ public abstract class BaseDatabaseDefinition {
      * database for the specified table. These are used for {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
      * and require {@link com.raizlabs.android.dbflow.structure.Model} to add the {@link com.raizlabs.android.dbflow.annotation.ContainerAdapter}.
      */
-    public abstract ContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table);
+    public ContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
+        return mModelContainerAdapters.get(table);
+    }
 
     /**
      * @return the {@link com.raizlabs.android.dbflow.structure.BaseModelView} list for this database.
      */
-    abstract List<Class<? extends BaseModelView>> getModelViews();
+    List<Class<? extends BaseModelView>> getModelViews() {
+        return mModelViews;
+    }
 
     /**
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated {@link com.raizlabs.android.dbflow.structure.ModelViewAdapter} for the specified table.
      */
-    abstract ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table);
+    ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
+        return mModelViewAdapterMap.get(table);
+    }
 
     /**
      * @return The list of {@link com.raizlabs.android.dbflow.structure.ModelViewAdapter}. Internal method for
      * creating model views in the DB.
      */
-    abstract List<ModelViewAdapter> getModelViewAdapters();
+    List<ModelViewAdapter> getModelViewAdapters() {
+        return new ArrayList<>(mModelViewAdapterMap.values());
+    }
 
     /**
      * @return The map of migrations to DB version
      */
-    abstract Map<Integer, List<Migration>> getMigrations();
+    Map<Integer, List<Migration>> getMigrations() {
+        return mMigrationMap;
+    }
 
     FlowSQLiteOpenHelper getHelper() {
         if (mHelper == null) {

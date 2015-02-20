@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -26,14 +27,6 @@ public class ModelContainerHandler extends BaseContainerHandler<ContainerAdapter
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         ModelContainerDefinition modelContainerDefinition = new ModelContainerDefinition((TypeElement) element, processorManager);
         processorManager.addModelContainerDefinition(modelContainerDefinition);
-        try {
-            JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                    .createSourceFile(modelContainerDefinition.getSourceFileName()).openWriter());
-            modelContainerDefinition.write(javaWriter);
-
-            javaWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        WriterUtils.writeBaseDefinition(modelContainerDefinition, processorManager);
     }
 }
