@@ -34,4 +34,11 @@ public @interface Table {
      * @return Specify the general insert conflict algorithm used by this table.
      */
     ConflictAction insertConflict() default ConflictAction.NONE;
+
+    /**
+     * @return When true, all fields of the reference class are considered as {@link com.raizlabs.android.dbflow.annotation.Column} .
+     * The only required annotated field becomes The {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY}
+     * or {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}.
+     */
+    boolean allFields() default false;
 }

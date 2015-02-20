@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -55,6 +56,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public boolean isModel;
 
+    public int length;
+
     /**
      * Whether this field is itself a model container
      */
@@ -64,14 +67,37 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     boolean saveModelForeignKey = true;
 
+    public boolean notNull = false;
+
+    public ConflictAction onNullConflict;
+
+    public boolean unique = false;
+
+    public ConflictAction onUniqueConflict;
+
+    public String collate;
+
+    public String defaultValue;
+
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
-        this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
+        if(column != null) {
+            this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
+            this.saveModelForeignKey = column.saveForeignKeyModel();
+            length = column.length();
+            unique = column.unique();
+            onUniqueConflict = column.onUniqueConflict();
+            notNull = column.notNull();
+            onNullConflict = column.onNullConflict();
+            collate = column.collate();
+            defaultValue = column.defaultValue();
+        } else {
+            this.columnName = element.getSimpleName().toString();
+        }
         this.columnFieldName = element.getSimpleName().toString();
         this.columnFieldType = element.asType().toString();
-        this.saveModelForeignKey = column.saveForeignKeyModel();
 
         ContainerKey containerKey = element.getAnnotation(ContainerKey.class);
         if (containerKey != null) {
@@ -104,7 +130,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
         }
 
-        columnType = column.columnType();
+        if(column != null) {
+            columnType = column.columnType();
+        } else {
+            columnType = Column.NORMAL;
+        }
 
         if (columnType == Column.FOREIGN_KEY) {
             foreignKeyReferences = column.references();

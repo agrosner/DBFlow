@@ -74,7 +74,7 @@ public class CreationQueryWriter implements FlowWriter {
                         }
                     }
 
-                    mColumnDefinitions.add(queryBuilder.appendColumn(columnDefinition.column));
+                    mColumnDefinitions.add(queryBuilder.appendColumn(columnDefinition));
                 }
 
                 boolean isModelView = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
