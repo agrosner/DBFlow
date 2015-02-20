@@ -5,6 +5,8 @@ import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -52,9 +54,16 @@ public class ContentUriDefinition extends BaseDefinition {
 
         segments = contentUri.segments();
 
-        TypeMirror typeMirror = typeElement.asType();
-        if (!Classes.URI.equals(typeMirror.toString())) {
-            processorManager.logError("Content Uri field returned wrong type. It must return a Uri");
+        if(typeElement instanceof VariableElement) {
+            TypeMirror typeMirror = typeElement.asType();
+            if (!Classes.URI.equals(typeMirror.toString())) {
+                processorManager.logError("Content Uri field returned wrong type. It must return a Uri");
+            }
+        } else if(typeElement instanceof ExecutableElement) {
+            TypeMirror typeMirror = ((ExecutableElement) typeElement).getReturnType();
+            if (!Classes.URI.equals(typeMirror.toString())) {
+                processorManager.logError("ContentUri method returns wrong type. It must return Uri");
+            }
         }
     }
 }
