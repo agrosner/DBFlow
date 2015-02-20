@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Description: Describes a SQLite Index
+ * Description: an INDEX class that enables you to index a specific column from a table. This enables
+ * faster retrieval on tables, while increasing the database file size. So enable/disable these as necessary.
  */
 public class Index<ModelClass extends Model> implements Query {
 
