@@ -24,11 +24,9 @@ public interface TransactionListener<ResultClass> {
     public boolean onReady(BaseTransaction<ResultClass> transaction);
 
     /**
-     * If true, the {@link #onResultReceived(Object)} method is called on the UI thread. If false,
-     * we do not pass down a callback.
-     *
      * @param result The result that we will return
-     * @return
+     * @return If true, the {@link #onResultReceived(Object)} method is called on the UI thread. If false,
+     * we do not pass down a callback.
      */
     public boolean hasResult(BaseTransaction<ResultClass> transaction, ResultClass result);
 

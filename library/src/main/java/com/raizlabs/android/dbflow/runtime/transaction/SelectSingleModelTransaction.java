@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Select;
-import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -12,14 +12,14 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class SelectSingleModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
 
-    private Where<ModelClass> mWhere;
+    private ModelQueriable<ModelClass> mModelQueriable;
 
     /**
      * Creates an instance of this class
      *
-     * @param transactionListener  The result that returns from this query
-     * @param tableClass      The table to select from
-     * @param whereConditions The conditions to use in the SELECT query
+     * @param transactionListener The transaction listener.
+     * @param tableClass          The table to select from.
+     * @param whereConditions     The conditions to use in the SELECT query.
      */
     public SelectSingleModelTransaction(Class<ModelClass> tableClass,
                                         TransactionListener<ModelClass> transactionListener, Condition... whereConditions) {
@@ -29,20 +29,20 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
     /**
      * Creates this class with a {@link com.raizlabs.android.dbflow.sql.language.From}
      *
-     * @param where          The completed Sql Statement we will use to fetch the models
-     * @param transactionListener
+     * @param modelQueriable      The model queriable that defines how to fetch models from the DB.
+     * @param transactionListener The transaction listener.
      */
-    public SelectSingleModelTransaction(Where<ModelClass> where, TransactionListener<ModelClass> transactionListener) {
+    public SelectSingleModelTransaction(ModelQueriable<ModelClass> modelQueriable, TransactionListener<ModelClass> transactionListener) {
         super(DBTransactionInfo.createFetch(), transactionListener);
-        mWhere = where;
+        mModelQueriable = modelQueriable;
     }
 
     /**
      * Creates an instance of this class
      *
-     * @param transactionListener             The result that returns from this query
-     * @param whereConditionQueryBuilder The query builder used to SELECT
-     * @param columns                    The columns to select
+     * @param transactionListener        The result that returns from this query.
+     * @param whereConditionQueryBuilder The query builder used to SELECT.
+     * @param columns                    The columns to project the SELECT on.
      */
     public SelectSingleModelTransaction(TransactionListener<ModelClass> transactionListener,
                                         ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
@@ -51,6 +51,6 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
 
     @Override
     public ModelClass onExecute() {
-        return mWhere.querySingle();
+        return mModelQueriable.querySingle();
     }
 }

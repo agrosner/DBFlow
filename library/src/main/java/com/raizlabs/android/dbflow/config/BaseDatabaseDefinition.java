@@ -90,12 +90,10 @@ public abstract class BaseDatabaseDefinition {
     }
 
     /**
-     * Returns the associated {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter} within this
+     * @param table The table that has a {@link com.raizlabs.android.dbflow.annotation.ContainerAdapter} annotation.
+     * @return the associated {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter} within this
      * database for the specified table. These are used for {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
      * and require {@link com.raizlabs.android.dbflow.structure.Model} to add the {@link com.raizlabs.android.dbflow.annotation.ContainerAdapter}.
-     *
-     * @param table
-     * @return
      */
     public ContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
         return mModelContainerAdapters.get(table);
@@ -131,7 +129,7 @@ public abstract class BaseDatabaseDefinition {
         return mMigrationMap;
     }
 
-    private FlowSQLiteOpenHelper getHelper() {
+    FlowSQLiteOpenHelper getHelper() {
         if (mHelper == null) {
             mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
         }
@@ -151,12 +149,21 @@ public abstract class BaseDatabaseDefinition {
         mHelperListener = databaseHelperListener;
     }
 
+    /**
+     * @return The name of this database as defined in {@link com.raizlabs.android.dbflow.annotation.Database}
+     */
     public abstract String getDatabaseName();
 
+    /**
+     * @return The file name that this database points to
+     */
     public String getDatabaseFileName() {
         return getDatabaseName() + ".db";
     }
 
+    /**
+     * @return The version of the database currently.
+     */
     public abstract int getDatabaseVersion();
 
     /**
@@ -175,7 +182,7 @@ public abstract class BaseDatabaseDefinition {
     public abstract boolean backupEnabled();
 
     /**
-     * Performs a full deletion of this database.
+     * Performs a full deletion of this database. Reopens the {@link com.raizlabs.android.dbflow.config.FlowSQLiteOpenHelper} as well.
      *
      * @param context Where the database resides
      */
