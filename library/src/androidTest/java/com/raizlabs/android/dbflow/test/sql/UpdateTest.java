@@ -52,7 +52,7 @@ public class UpdateTest extends FlowTestCase {
         query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
 
-        Uri uri = TestContentProvider.NoteModel.fromList(1);
+        Uri uri = TestContentProvider.NoteModel.withOpenId(1, true);
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(NoteModel$Table.NOTE, "Test");
@@ -64,11 +64,12 @@ public class UpdateTest extends FlowTestCase {
                 .table(FlowManager.getTableClassForName("content", "NoteModel"))
                 .set().conditionValues(contentValues)
                 .where("name = ?", "test")
-                .and(Condition.column("id").is(uri.getPathSegments().get(2)))
+                .and(Condition.column("id").is(Long.valueOf(uri.getPathSegments().get(1))))
+                .and(Condition.column("isOpen").is(Boolean.valueOf(uri.getPathSegments().get(2))))
                 .getQuery();
 
         assertEquals("UPDATE OR ABORT `NoteModel` SET `id`=1 , `providerModel`=1 , " +
-                "`note`='Test' WHERE name = 'test' AND `id`=1", query.trim());
+                "`note`='Test' WHERE name = 'test' AND `id`=1 AND `isOpen`=1", query.trim());
     }
 
     public void testUpdateEffect() {

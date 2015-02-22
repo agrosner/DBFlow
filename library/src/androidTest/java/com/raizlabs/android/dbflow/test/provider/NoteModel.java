@@ -26,6 +26,9 @@ public class NoteModel extends BaseProviderModel<NoteModel> {
     @Column
     String note;
 
+    @Column
+    boolean isOpen;
+
     @Override
     public Uri getDeleteUri() {
         return TestContentProvider.NoteModel.CONTENT_URI;

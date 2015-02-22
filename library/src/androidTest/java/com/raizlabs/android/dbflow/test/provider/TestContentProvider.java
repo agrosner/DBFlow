@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
 import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
-import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
  * Description:
@@ -81,6 +80,14 @@ public class TestContentProvider {
             return buildUri(ENDPOINT, "fromList", String.valueOf(id));
         }
 
+        @ContentUri(path = ENDPOINT + "/#/#",
+                type = ContentUri.ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
+                segments = {@ContentUri.PathSegment(column = "id", segment = 1),
+                        @ContentUri.PathSegment(column = "isOpen", segment = 2)})
+        public static Uri withOpenId(long id, boolean isOpen) {
+            return buildUri(ENDPOINT, String.valueOf(id), String.valueOf(isOpen));
+        }
+
         @Notify(method = Notify.Method.INSERT, paths = ENDPOINT)
         public static Uri[] onInsert(ContentValues contentValues) {
             final long listId = contentValues.getAsLong("providerModel");
@@ -130,7 +137,7 @@ public class TestContentProvider {
         public static final String ENDPOINT = "TestSyncableModel";
 
         @ContentUri(path = ENDPOINT,
-            type = ContentUri.ContentType.VND_MULTIPLE + ENDPOINT)
+                type = ContentUri.ContentType.VND_MULTIPLE + ENDPOINT)
         public static Uri CONTENT_URI = buildUri(ENDPOINT);
     }
 }
