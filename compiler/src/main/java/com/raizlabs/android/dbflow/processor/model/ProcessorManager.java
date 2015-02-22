@@ -48,6 +48,9 @@ public class ProcessorManager implements Handler {
 
     private Map<String, Map<String, TableDefinition>> mTableDefinitions = Maps.newHashMap();
 
+    private Map<String, Map<String, TableDefinition>> mTableNameDefinitionMap = Maps.newHashMap();
+
+
     private Map<String, Map<String, ModelViewDefinition>> mModelViewDefinition = Maps.newHashMap();
 
     private Map<String, Map<Integer, List<MigrationDefinition>>> mMigrations = Maps.newHashMap();
@@ -135,17 +138,28 @@ public class ProcessorManager implements Handler {
         return mModelContainers.get(databaseName).get(typeElement.getQualifiedName().toString());
     }
 
-    public void addTableDefinition(TableDefinition modelContainerDefinition) {
-        Map<String, TableDefinition> tableDefinitionMap = mTableDefinitions.get(modelContainerDefinition.databaseName);
+    public void addTableDefinition(TableDefinition tableDefinition) {
+        Map<String, TableDefinition> tableDefinitionMap = mTableDefinitions.get(tableDefinition.databaseName);
         if (tableDefinitionMap == null) {
             tableDefinitionMap = Maps.newHashMap();
-            mTableDefinitions.put(modelContainerDefinition.databaseName, tableDefinitionMap);
+            mTableDefinitions.put(tableDefinition.databaseName, tableDefinitionMap);
         }
-        tableDefinitionMap.put(modelContainerDefinition.element.asType().toString(), modelContainerDefinition);
+        Map<String, TableDefinition> tableNameMap = mTableNameDefinitionMap.get(tableDefinition.databaseName);
+        if(tableNameMap == null) {
+            tableNameMap = Maps.newHashMap();
+            mTableNameDefinitionMap.put(tableDefinition.databaseName, tableNameMap);
+        }
+
+        tableDefinitionMap.put(tableDefinition.element.asType().toString(), tableDefinition);
+        tableNameMap.put(tableDefinition.tableName, tableDefinition);
     }
 
     public TableDefinition getTableDefinition(String databaseName, TypeElement typeElement) {
         return mTableDefinitions.get(databaseName).get(typeElement.getQualifiedName().toString());
+    }
+
+    public TableDefinition getTableDefinition(String databaseName, String tableName) {
+        return mTableNameDefinitionMap.get(databaseName).get(tableName);
     }
 
     public void addModelViewDefinition(ModelViewDefinition modelViewDefinition) {

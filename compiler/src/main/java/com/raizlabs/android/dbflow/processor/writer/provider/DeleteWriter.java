@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.SqlQueryBuilder;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
@@ -21,8 +22,11 @@ public class DeleteWriter implements FlowWriter {
 
     private final ContentProviderDefinition contentProviderDefinition;
 
-    public DeleteWriter(ContentProviderDefinition contentProviderDefinition) {
+    private ProcessorManager manager;
+
+    public DeleteWriter(ContentProviderDefinition contentProviderDefinition, ProcessorManager manager) {
         this.contentProviderDefinition = contentProviderDefinition;
+        this.manager = manager;
     }
 
     @Override
@@ -42,7 +46,8 @@ public class DeleteWriter implements FlowWriter {
                                             .appendDelete()
                                             .appendFromTable(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName)
                                             .appendWhere()
-                                            .appendPathSegments(uriDefinition.segments)
+                                            .appendPathSegments(manager, contentProviderDefinition.databaseName,
+                                                    tableEndpointDefinition.tableName, uriDefinition.segments)
                                             .appendCount();
                                     javaWriter.emitStatement(queryBuilder.getQuery());
 

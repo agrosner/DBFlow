@@ -74,9 +74,9 @@ public class TestContentProvider {
             return buildUri(ENDPOINT, String.valueOf(id));
         }
 
-        @ContentUri(path = ENDPOINT + "/" + "fromList" + "/#",
+        @ContentUri(path = ENDPOINT + "/#/#",
                 type = ContentUri.ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
-                segments = {@ContentUri.PathSegment(column = "id", segment = 1)})
+                segments = {@ContentUri.PathSegment(column = "id", segment = 2)})
         public static Uri fromList(long id) {
             return buildUri(ENDPOINT, "fromList", String.valueOf(id));
         }

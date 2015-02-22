@@ -1,11 +1,18 @@
 package com.raizlabs.android.dbflow.test.sql;
 
+import android.content.ContentValues;
+import android.net.Uri;
+
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+import com.raizlabs.android.dbflow.test.provider.NoteModel$Table;
+import com.raizlabs.android.dbflow.test.provider.TestContentProvider;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
 
@@ -44,6 +51,24 @@ public class UpdateTest extends FlowTestCase {
 
         query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
+
+        Uri uri = TestContentProvider.NoteModel.fromList(1);
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(NoteModel$Table.NOTE, "Test");
+        contentValues.put(NoteModel$Table.ID, 1);
+        contentValues.put(NoteModel$Table.CONTENTPROVIDERMODEL_PROVIDERMODEL, 1);
+
+        query = new Update()
+                .conflictAction(ConflictAction.ABORT)
+                .table(FlowManager.getTableClassForName("content", "NoteModel"))
+                .set().conditionValues(contentValues)
+                .where("name = ?", "test")
+                .and(Condition.column("id").is(uri.getPathSegments().get(2)))
+                .getQuery();
+
+        assertEquals("UPDATE OR ABORT `NoteModel` SET `id`=1 , `providerModel`=1 , " +
+                "`note`='Test' WHERE name = 'test' AND `id`=1", query.trim());
     }
 
     public void testUpdateEffect() {

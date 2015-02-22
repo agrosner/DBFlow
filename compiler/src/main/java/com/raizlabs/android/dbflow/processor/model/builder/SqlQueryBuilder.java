@@ -1,6 +1,9 @@
 package com.raizlabs.android.dbflow.processor.model.builder;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
+import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
@@ -57,10 +60,25 @@ public class SqlQueryBuilder extends QueryBuilder<SqlQueryBuilder> {
         return append("\n.where(selection, selectionArgs)");
     }
 
-    public SqlQueryBuilder appendPathSegments(ContentUri.PathSegment[] pathSegments) {
+    public SqlQueryBuilder appendPathSegments(ProcessorManager processorManager, String databaseName, String tableName, ContentUri.PathSegment[] pathSegments) {
+        TableDefinition tableDefinition = processorManager.getTableDefinition(databaseName, tableName);
+        if(tableDefinition == null) {
+            processorManager.logError("Could not find table definition for %1s from %1s", tableName, databaseName);
+        }
         for (ContentUri.PathSegment pathSegment : pathSegments) {
-            append(String.format("\n.and(Condition.column(\"%1s\").is(uri.getPathSegments().get(%1d)))",
-                    pathSegment.column(), pathSegment.segment()));
+            ColumnDefinition columnDefinition = tableDefinition.mColumnMap.get(pathSegment.column());
+            if(columnDefinition == null) {
+                processorManager.logError("Column %1s not found for table %1s", pathSegment.column(), tableDefinition.tableName);
+            } else {
+                append(String.format(".and(Condition.column(\"%1s\")", pathSegment.column()));
+                if(columnDefinition.element.asType().getKind().isPrimitive()) {
+                    String name = columnDefinition.element.asType().toString();
+                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                    append(String.format(".is(%1s.valueOf(uri.getPathSegments().get(%1d))))", name, pathSegment.segment()));
+                } else {
+                    append(String.format(".is(uri.getPathSegments().get(%1d)))", pathSegment.segment()));
+                }
+            }
         }
         return this;
     }

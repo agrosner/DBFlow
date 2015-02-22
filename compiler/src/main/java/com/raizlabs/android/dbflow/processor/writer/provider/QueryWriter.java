@@ -1,14 +1,13 @@
 package com.raizlabs.android.dbflow.processor.writer.provider;
 
 import com.google.common.collect.Sets;
-import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.SqlQueryBuilder;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -22,10 +21,13 @@ public class QueryWriter implements FlowWriter {
 
     private final ContentProviderDefinition contentProviderDefinition;
 
-    public QueryWriter(ContentProviderDefinition contentProviderDefinition) {
+    private final ProcessorManager manager;
 
+    public QueryWriter(ContentProviderDefinition contentProviderDefinition, ProcessorManager manager) {
         this.contentProviderDefinition = contentProviderDefinition;
+        this.manager = manager;
     }
+
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
@@ -42,7 +44,8 @@ public class QueryWriter implements FlowWriter {
                                     SqlQueryBuilder select = new SqlQueryBuilder("cursor = ")
                                             .appendSelect()
                                             .appendFromTable(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName)
-                                            .appendWhere().appendPathSegments(uriDefinition.segments)
+                                            .appendWhere().appendPathSegments(manager, contentProviderDefinition.databaseName,
+                                                    tableEndpointDefinition.tableName, uriDefinition.segments)
                                             .appendQuery();
                                     javaWriter.emitStatement(select.getQuery());
                                     javaWriter.emitStatement("break");

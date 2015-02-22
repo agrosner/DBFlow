@@ -3,8 +3,6 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
-import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
-import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
@@ -16,13 +14,11 @@ import com.raizlabs.android.dbflow.processor.writer.provider.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.InsertWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.QueryWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.UpdateWriter;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -73,10 +69,10 @@ public class ContentProviderDefinition extends BaseDefinition {
         }
 
         mWriters = new FlowWriter[] {
-                new QueryWriter(this),
+                new QueryWriter(this, manager),
                 new InsertWriter(this),
-                new DeleteWriter(this),
-                new UpdateWriter(this)
+                new DeleteWriter(this, manager),
+                new UpdateWriter(this, manager)
         };
     }
 

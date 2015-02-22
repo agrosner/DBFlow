@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinitio
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
 import com.raizlabs.android.dbflow.processor.definition.NotifyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.SqlQueryBuilder;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
@@ -24,8 +25,11 @@ public class UpdateWriter implements FlowWriter {
 
     private final ContentProviderDefinition contentProviderDefinition;
 
-    public UpdateWriter(ContentProviderDefinition contentProviderDefinition) {
+    private final ProcessorManager manager;
+
+    public UpdateWriter(ContentProviderDefinition contentProviderDefinition, ProcessorManager manager) {
         this.contentProviderDefinition = contentProviderDefinition;
+        this.manager = manager;
     }
 
     @Override
@@ -44,7 +48,9 @@ public class UpdateWriter implements FlowWriter {
 
                                     SqlQueryBuilder sqlQueryBuilder = new SqlQueryBuilder("final int count = (int) ")
                                             .appendUpdate().appendUpdateConflictAction().appendTable(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName)
-                                            .appendSet().appendWhere().appendPathSegments(uriDefinition.segments).appendCount();
+                                            .appendSet().appendWhere().appendPathSegments(manager, contentProviderDefinition.databaseName,
+                                                    tableEndpointDefinition.tableName, uriDefinition.segments)
+                                            .appendCount();
                                     javaWriter.emitStatement(sqlQueryBuilder.getQuery());
 
                                     new NotifyWriter(tableEndpointDefinition, uriDefinition,
