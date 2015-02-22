@@ -71,7 +71,8 @@ public class SqlQueryBuilder extends QueryBuilder<SqlQueryBuilder> {
                     processorManager.logError("Column %1s not found for table %1s", pathSegment.column(), tableDefinition.tableName);
                 } else {
                     append(String.format("\n.and(Condition.column%s(\"%1s\").is(",
-                            columnDefinition.hasTypeConverter ? "Raw" : "", pathSegment.column()));
+                            (columnDefinition.hasTypeConverter && !columnDefinition.isBoolean)
+                                    ? "Raw" : "", pathSegment.column()));
 
                     // primitive use value of
                     if (columnDefinition.element.asType().getKind().isPrimitive()) {

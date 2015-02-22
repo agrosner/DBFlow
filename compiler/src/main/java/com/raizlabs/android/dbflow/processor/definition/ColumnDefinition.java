@@ -79,6 +79,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public String defaultValue;
 
+    public boolean isBoolean = false;
+
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         super(element, processorManager);
 
@@ -146,6 +148,10 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(modelType);
         if (typeConverterDefinition != null) {
             hasTypeConverter = true;
+        }
+
+        if("java.lang.Boolean".equals(modelType.getQualifiedName().toString())) {
+            isBoolean = true;
         }
 
         // If type cannot be represented, we will get Type converter anyways
