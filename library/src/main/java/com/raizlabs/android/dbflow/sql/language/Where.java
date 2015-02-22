@@ -145,7 +145,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> and(Condition condition) {
-        mConditionQueryBuilder.putCondition(condition);
+        mConditionQueryBuilder.and(condition);
         return this;
     }
 

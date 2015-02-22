@@ -510,6 +510,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         if (mParams.size() > 0) {
             // set previous to use OR separator
             mParams.get(mParams.size() - 1).separator(separator);
+        } else if (mWhereRaw != null && mWhereRaw.length() > 0) {
+            mWhereRaw = new QueryBuilder<>(mWhereRaw).appendSpaceSeparated(separator).getQuery();
         }
     }
 
