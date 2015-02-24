@@ -109,7 +109,8 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      */
     @Override
     public long getAutoIncrementingId(ModelClass model) {
-        return 0;
+        throw new InvalidDBConfiguration(String.format("This method may have been called in error. The model class %1s must contain" +
+                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)", getModelClass()));
     }
 
     /**
@@ -117,7 +118,8 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     public String getAutoIncrementingColumnName() {
-        return "";
+        throw new InvalidDBConfiguration(String.format("This method may have been called in error. The model class %1s must contain" +
+                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)", getModelClass()));
     }
 
     /**
