@@ -41,4 +41,5 @@ public @interface Table {
      * or {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}.
      */
     boolean allFields() default false;
+
 }

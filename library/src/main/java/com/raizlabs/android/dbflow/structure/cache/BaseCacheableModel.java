@@ -12,6 +12,8 @@ import java.util.Map;
 /**
  * Description: Provides a handy way to cache models in memory for even faster data retrieval. Note:
  * this class must utilize an {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+ * or describe a {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY} that returns an id using
+ * the {@link com.raizlabs.android.dbflow.annotation.Table}
  * primary key. The corresponding {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
  * describes how to retrieve the Id field so that is why its required.
  */
@@ -110,7 +112,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
 
     @SuppressWarnings("unchecked")
     protected void addToCache() {
-        long id = getModelAdapter().getAutoIncrementingId(this);
+        long id = getModelAdapter().getCachingId(this);
         if (id == 0) {
             throw new InvalidDBConfiguration(String.format("The cacheable model class %1s must contain" +
                     "an autoincrementing primary key. Although its possible that this method was called" +

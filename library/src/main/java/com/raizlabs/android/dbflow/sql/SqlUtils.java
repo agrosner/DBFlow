@@ -100,7 +100,7 @@ public class SqlUtils {
         if (instanceAdapter != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    long id = cursor.getLong(cursor.getColumnIndex(instanceAdapter.getAutoIncrementingColumnName()));
+                    long id = cursor.getLong(cursor.getColumnIndex(instanceAdapter.getCachingColumnName()));
 
                     // if it exists in cache no matter the query we will use that one
                     CacheableClass cacheable = BaseCacheableModel.getCache(modelClass).get(id);
@@ -194,7 +194,7 @@ public class SqlUtils {
             ModelAdapter<CacheableClass> modelAdapter = FlowManager.getModelAdapter(table);
 
             if (modelAdapter != null) {
-                long id = cursor.getLong(cursor.getColumnIndex(modelAdapter.getAutoIncrementingColumnName()));
+                long id = cursor.getLong(cursor.getColumnIndex(modelAdapter.getCachingColumnName()));
                 model = BaseCacheableModel.getCache(table).get(id);
                 if (model == null) {
                     model = modelAdapter.newInstance();

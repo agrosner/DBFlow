@@ -55,6 +55,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public ColumnDefinition autoIncrementDefinition;
 
+    public boolean hasAutoIncrement = false;
+
     public ArrayList<ColumnDefinition> foreignKeyDefinitions;
 
     public boolean implementsContentValuesListener = false;
@@ -65,7 +67,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     FlowWriter[] mMethodWriters;
 
-    public boolean hasAutoIncrement = false;
+    public boolean hasCachingId = false;
 
     public boolean allFields = false;
 
@@ -116,6 +118,16 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 new CreationQueryWriter(manager, this),
         };
 
+        // single primary key checking for a long or int valued column
+        if (getPrimaryColumnDefinitions().size() == 1) {
+            ColumnDefinition columnDefinition = getColumnDefinitions().get(0);
+            if (columnDefinition.columnType == Column.PRIMARY_KEY) {
+                if (!columnDefinition.hasTypeConverter) {
+                    hasCachingId = int.class.getCanonicalName().equals(columnDefinition.columnFieldType)
+                            || long.class.getCanonicalName().equals(columnDefinition.columnFieldType);
+                }
+            }
+        }
 
     }
 
