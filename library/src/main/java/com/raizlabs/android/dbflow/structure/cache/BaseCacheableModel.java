@@ -115,7 +115,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
         long id = getModelAdapter().getCachingId(this);
         if (id == 0) {
             throw new InvalidDBConfiguration(String.format("The cacheable model class %1s must contain" +
-                    "an autoincrementing primary key. Although its possible that this method was called" +
+                    "an autoincrementing or single int/long primary key. Although its possible that this method was called" +
                     "after an insert/update/save failure", getClass()));
         } else {
             mCache.addModel(id, this);
