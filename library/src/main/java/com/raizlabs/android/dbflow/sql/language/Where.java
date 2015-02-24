@@ -254,9 +254,9 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      */
     public long count() {
         long count;
-        if(((mWhereBase.getQueryBuilderBase() instanceof From) && (((From) mWhereBase.getQueryBuilderBase()).getQueryBuilderBase()) instanceof Update)
+        if (((mWhereBase.getQueryBuilderBase() instanceof From) && (((From) mWhereBase.getQueryBuilderBase()).getQueryBuilderBase()) instanceof Update)
                 || mWhereBase.getQueryBuilderBase() instanceof Delete) {
-            count = SQLiteCompatibilityUtils.executeUpdateDelete(mManager.getWritableDatabase(), FlowManager.getTableName(getTable()), this);
+            count = SQLiteCompatibilityUtils.executeUpdateDelete(mManager.getWritableDatabase(), getQuery());
         } else {
             count = DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
         }

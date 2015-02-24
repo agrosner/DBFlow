@@ -7,8 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Build;
 
-import com.raizlabs.android.dbflow.sql.Query;
-
 /**
  * Description: Provides some backwards compatibility with database operations in Android.
  */
@@ -18,14 +16,13 @@ public class SQLiteCompatibilityUtils {
      * Performs an {@link android.database.sqlite.SQLiteStatement#executeUpdateDelete()} with support for
      * previous versions.
      *
-     * @param database  The database handle
-     * @param tableName The name of the table
-     * @param query     The query to use.
+     * @param database The database handle
+     * @param rawQuery The query to use.
      * @return The count of rows changed.
      */
-    public static long executeUpdateDelete(SQLiteDatabase database, String tableName, Query query) {
+    public static long executeUpdateDelete(SQLiteDatabase database, String rawQuery) {
         long count = 0;
-        SQLiteStatement sqLiteStatement = database.compileStatement(query.getQuery());
+        SQLiteStatement sqLiteStatement = database.compileStatement(rawQuery);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             count = sqLiteStatement.executeUpdateDelete();
         } else {
