@@ -44,6 +44,8 @@ for older changes, from other xx.xx versions, check it out [here](https://github
 
 For more detailed usage, check out these sections:
 
+[Content Provider Generation](https://github.com/Raizlabs/DBFlow/blob/master/usage/ContentProviderGenerators.md)
+
 [Conditions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md)
 
 [Creating Tables and Database Structure](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
