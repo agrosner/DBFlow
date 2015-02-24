@@ -15,7 +15,7 @@ This library is based on [Active Android](https://github.com/pardom/ActiveAndroi
 
 What sets this library apart: 
   1. **Every** feature has been unit tested to ensure functionality.
-  2. Built on maximum performance using **annotation processing** 
+  2. Built on maximum performance using **annotation processing**, lazy-loading, and speed-tests [here](https://github.com/Raizlabs/AndroidDatabaseLibraryComparison)
   3. Powerful and fluid SQL-wrapping statements
   4. Triggers, Views, Indexes, and many more SQLite features.
   5. Baked-in support for **multiple** databases seamlessly
