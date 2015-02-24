@@ -3,8 +3,8 @@ package com.raizlabs.android.dbflow.structure.container;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Build;
 
+import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
@@ -137,14 +137,9 @@ public class ModelContainerUtils {
             SQLiteDatabase db = FlowManager.getDatabaseForTable(modelClassModelAdapter.getModelClass()).getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             modelClassContainerAdapter.bindToContentValues(contentValues, modelContainer);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-                exists = (db.updateWithOnConflict(modelClassModelAdapter.getTableName(), contentValues,
-                        modelClassContainerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null,
-                        ConflictAction.getSQLiteDatabaseAlgorithmInt(modelClassModelAdapter.getUpdateOnConflictAction())) != 0);
-            } else {
-                exists = (db.update(modelClassModelAdapter.getTableName(), contentValues,
-                        modelClassContainerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null) != 0);
-            }
+            exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelClassModelAdapter.getTableName(),
+                    contentValues, modelClassContainerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null,
+                    ConflictAction.getSQLiteDatabaseAlgorithmInt(modelClassModelAdapter.getUpdateOnConflictAction())) != 0);
             if (!exists) {
                 // insert
                 insert(false, modelContainer, modelClassContainerAdapter);

@@ -2,9 +2,8 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteStatement;
-import android.os.Build;
 
+import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -257,12 +256,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
         long count;
         if(((mWhereBase.getQueryBuilderBase() instanceof From) && (((From) mWhereBase.getQueryBuilderBase()).getQueryBuilderBase()) instanceof Update)
                 || mWhereBase.getQueryBuilderBase() instanceof Delete) {
-            SQLiteStatement sqLiteStatement = mManager.getWritableDatabase().compileStatement(getQuery());
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                count = sqLiteStatement.executeUpdateDelete();
-            } else {
-                count = sqLiteStatement.executeUpdateDelete();
-            }
+            count = SQLiteCompatibilityUtils.executeUpdateDelete(mManager.getWritableDatabase(), FlowManager.getTableName(getTable()), this);
         } else {
             count = DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
         }

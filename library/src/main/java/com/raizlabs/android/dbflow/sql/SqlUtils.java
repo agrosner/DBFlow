@@ -5,9 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.IntDef;
 
+import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -342,14 +342,9 @@ public class SqlUtils {
             SQLiteDatabase db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             adapter.bindToContentValues(contentValues, model);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-                exists = (db.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-                        adapter.getPrimaryModelWhere(model).getQuery(), null,
-                        ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
-            } else {
-                exists = (db.update(modelAdapter.getTableName(), contentValues,
-                        adapter.getPrimaryModelWhere(model).getQuery(), null) != 0);
-            }
+            exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
+                    adapter.getPrimaryModelWhere(model).getQuery(), null,
+                    ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
             if (!exists) {
                 // insert
                 insert(false, model, adapter, modelAdapter);

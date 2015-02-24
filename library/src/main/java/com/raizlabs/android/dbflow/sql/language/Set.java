@@ -111,6 +111,15 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
         return where().whereQuery(whereConditionBuilder);
     }
 
+    /**
+     * Executes a SQL statement that retrieves the count of results in the DB.
+     *
+     * @return The number of rows this query returns
+     */
+    public long count() {
+        return where().count();
+    }
+
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder =
