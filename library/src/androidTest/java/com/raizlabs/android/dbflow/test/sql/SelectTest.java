@@ -37,6 +37,13 @@ public class SelectTest extends FlowTestCase {
 
         assertEquals("SELECT COUNT(*)  FROM `TestModel3`", where3.getQuery().trim());
         where3.query();
+
+
+        Where<TestModel3> where4 = new Select().from(TestModel3.class)
+                .where("`name`=?", "test")
+                .and(Condition.column(TestModel3$Table.TYPE).is("test"));
+
+        assertEquals("SELECT * FROM `TestModel3` WHERE `name`='test' AND `type`='test'", where4.getQuery().trim());
     }
 
     public void testJoins() {

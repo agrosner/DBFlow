@@ -15,25 +15,47 @@ public class CacheableModelTest extends FlowTestCase {
 
         Delete.table(CacheableModel.class);
 
-        ModelCache<CacheableModel, ?> modelCache = null;
-        for (int i = 0; i < 1000; i++) {
-            CacheableModel model = new CacheableModel();
+        CacheableModel model = new CacheableModel();
+
+        ModelCache<CacheableModel, ?> modelCache = BaseCacheableModel.getCache((Class<CacheableModel>) model.getClass());
+        for (int i = 0; i < 100; i++) {
             model.name = "Test";
+            model.id = 0;
             model.save(false);
 
-            if (modelCache == null) {
-                modelCache = BaseCacheableModel.getCache((Class<CacheableModel>) model.getClass());
-            }
-
             long id = model.id;
-            assertNotNull(modelCache.get(id));
+            CacheableModel cacheableModel = modelCache.get(id);
+            assertNotNull(cacheableModel);
 
-            assertEquals(Select.byId(CacheableModel.class, id), modelCache.get(id));
+            assertEquals(Select.byId(CacheableModel.class, id), cacheableModel);
 
             model.delete(false);
             assertNull(modelCache.get(id));
         }
 
         Delete.table(CacheableModel.class);
+    }
+
+    public void testCacheableModel2() {
+        Delete.table(CacheableModel2.class);
+
+        CacheableModel2 model = new CacheableModel2();
+
+        ModelCache<CacheableModel2, ?> modelCache = BaseCacheableModel.getCache((Class<CacheableModel2>) model.getClass());
+        for (int i = 0; i < 100; i++) {
+            model.id = i;
+            model.save(false);
+
+            long id = model.id;
+            CacheableModel2 cacheableModel = modelCache.get(id);
+            assertNotNull(cacheableModel);
+
+            assertEquals(Select.byId(CacheableModel2.class, id), cacheableModel);
+
+            model.delete(false);
+            assertNull(modelCache.get(id));
+        }
+
+        Delete.table(CacheableModel2.class);
     }
 }

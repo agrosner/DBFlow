@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.5.3-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.6.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -13,33 +13,30 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your 
 
 This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility. 
 
-What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
+What sets this library apart: 
+  1. **Every** feature has been unit tested to ensure functionality.
+  2. Built on maximum performance using **annotation processing**, lazy-loading, and speed-tests [here](https://github.com/Raizlabs/AndroidDatabaseLibraryComparison)
+  3. Powerful and fluid SQL-wrapping statements
+  4. Triggers, Views, Indexes, and many more SQLite features.
+  5. Baked-in support for **multiple** databases seamlessly
+  6. ```ModelContainer``` classes that enable direct to database parsing for data such as JSON
+  7. Rich interface classes that enable powerful flexibility.
+  8. ```ContentProvider``` generation using annotations
 
 ## Changelog
 
-#### 1.5.3
-1. Fixes issue where using ```ProcessModelInfo``` with a ```ModelContainer``` caused the database table lookup to happen on the ```ModelContainer``` class and not the Model it points to.
-2. Updated code comments and moved most ```Where``` parameters in ```TransactionManager```, ```TableTransactionManager``` and other places where ```SelectListTransaction``` or ```SelectSingleModelTransaction``` were used. Backwards compatability still applies. 
+#### 1.6.0
 
-#### 1.5.2
-1. Fixes issue where ```TypeConverter``` crashed when null field value was passed. Now it will return null for both methods when data is null
-
-#### 1.5.1
-
-1. Adds ```Index``` support and ```IndexMigration``` support!! Fixes #63 
-2. Fixes #76 ```FlowCursorList``` where ```Handler``` was not using main looper 
-3. fixes #72  ```FlowTableList``` where ```LruCache``` does not allow cache size of 0, causing crash. Also now the count can be determined by overriding ```getCacheSize()```
-4. Fixes #71 where ```Migration``` documentation was not fully clear.
-5. Added ```Index``` documentation
-
-
-#### 1.5.0
-
-1. now we quote columns and table creations to support SQLite Keyword named columns and table names from [here](https://www.sqlite.org/lang_keywords.html) thanks @mozarcik 
-2. Can extend ```BaseCacheableModel``` to create an in memory cache for ```Model``` for instant retrieval for any query to the DB if it exists in the cache.
-3. Can create your own ```ModelCache```, however this library comes with ```ModelLruCache``` and ```SparseArrayBasedCache```!
-4. Can define a custom cache for ```FlowTableList``` and ```FlowCursorList```
-5. Added README support for Model caching
+1. Adds annotation processing for creating ```ContentProvider``` access classes
+2. Generates ContentProviders for you
+3. Decent amount of features including connecting ```Model``` classes to a ContentProvider so you don't need to write ```ContentValues```.
+4. Based on [schematic](https://github.com/SimonVT/schematic)
+5. Adds and condenses some adapter code generation as well as adds support for methods needed for them.
+6. Fixes all tests so they can run successfully without clearing data.
+7. Added usage docs for this new major feature!
+8. #95 where a ```JSONObject.NULL``` was not recognized as a proper ```null```.
+9. Added support for non-autoincrementing primary keys as model cache key. Allows for single ```int``` or ```long``` ```PRIMARY_KEY``` field to be a caching id. 
+10. Fixes an issue where a method in ```count()``` for non-SELECT statements was called in pre-honeycomb devices anyways. Now it uses a raw query statement for compatibility.
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
@@ -103,8 +100,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.3'
-    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.5.3"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.6.0'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.6.0"
   }
 
 ```
@@ -116,9 +113,9 @@ or by standard Gradle use (without linking sources support):
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.5.3'
-    compile "com.raizlabs.android:DBFlow-Core:1.5.3"
-    compile "com.raizlabs.android:DBFlow:1.5.3"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.6.0'
+    compile "com.raizlabs.android:DBFlow-Core:1.6.0"
+    compile "com.raizlabs.android:DBFlow:1.6.0"
   }
 
 ```

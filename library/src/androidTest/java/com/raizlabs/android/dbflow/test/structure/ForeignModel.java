@@ -17,5 +17,5 @@ public class ForeignModel extends TestModel1 {
                     {@ForeignKeyReference(columnName = "testmodel_id",
                             foreignColumnName = "name",
                             columnType = String.class)})
-    TestModel1 testModel1;
+    ForeignParentModel testModel1;
 }

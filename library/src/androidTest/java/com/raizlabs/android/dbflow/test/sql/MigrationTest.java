@@ -1,12 +1,13 @@
 package com.raizlabs.android.dbflow.test.sql;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.test.AndroidTestCase;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
 import com.raizlabs.android.dbflow.sql.migration.IndexMigration;
 import com.raizlabs.android.dbflow.sql.migration.UpdateTableMigration;
@@ -46,18 +47,27 @@ public class MigrationTest extends AndroidTestCase {
         alterTableMigration.onPreMigrate();
 
         List<String> columnDefinitions = alterTableMigration.getColumnDefinitions();
-        for(int i = 0; i < columnDefinitions.size(); i++) {
+        for (int i = 0; i < columnDefinitions.size(); i++) {
             assertEquals("ALTER TABLE `MigrationModel` ADD COLUMN " + columnNames.get(i), columnDefinitions.get(i));
         }
 
-        alterTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
+        try {
+            alterTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
+        } catch (SQLiteException e) {
+            if (e.getMessage().startsWith("duplicate column name: fraction (code 1):")) {
+                // ignore since we've already added the column.
+            } else {
+                // some other issue
+                throw new RuntimeException(e);
+            }
+        }
 
         // test the column sizes
         Cursor cursor = new Select().from(MigrationModel.class).where().query();
-        assertTrue(cursor.getColumnNames().length == columnNames.size()+2);
+        assertTrue(cursor.getColumnNames().length == columnNames.size() + 2);
 
         // make sure column exists now
-        for(int i = 0; i < columns.size(); i++) {
+        for (int i = 0; i < columns.size(); i++) {
             assertTrue(cursor.getColumnIndex(columns.get(i)) != -1);
         }
 

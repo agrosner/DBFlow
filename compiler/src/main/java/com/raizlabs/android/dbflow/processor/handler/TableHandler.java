@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.TableValidator;
 import com.raizlabs.android.dbflow.processor.validator.Validator;
 import com.squareup.javawriter.JavaWriter;
@@ -32,10 +33,7 @@ public class TableHandler extends BaseContainerHandler<Table> {
         try {
             TableDefinition tableDefinition = new TableDefinition(processorManager, element);
             if(definitionValidator.validate(processorManager, tableDefinition)) {
-                JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler().createSourceFile(tableDefinition.getSourceFileName()).openWriter());
-                tableDefinition.write(javaWriter);
-                javaWriter.close();
-
+                WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
                 tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
                 processorManager.addTableDefinition(tableDefinition);
             }

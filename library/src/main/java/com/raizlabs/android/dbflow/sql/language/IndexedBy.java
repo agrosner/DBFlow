@@ -36,11 +36,12 @@ public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass
     }
 
     /**
-     * @param where The string part of where
+     * @param whereClause The string part of where
+     * @param args        The argument bindings for the whereClause
      * @return a WHERE query with the specified string
      */
-    public Where<ModelClass> where(String where) {
-        return where().whereClause(where);
+    public Where<ModelClass> where(String whereClause, Object... args) {
+        return where().whereClause(whereClause, args);
     }
 
     /**

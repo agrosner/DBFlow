@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 
+import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -90,10 +91,11 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * Defines the full SQL clause for the WHERE statement
      *
      * @param whereClause The SQL after WHERE . ex: columnName = "name" AND ID = 0
+     * @param args        The optional arguments for the wher clause.
      * @return
      */
-    public Where<ModelClass> whereClause(String whereClause) {
-        mConditionQueryBuilder.append(whereClause);
+    public Where<ModelClass> whereClause(String whereClause, Object... args) {
+        mConditionQueryBuilder.append(whereClause, args);
         return this;
     }
 
@@ -142,7 +144,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> and(Condition condition) {
-        mConditionQueryBuilder.putCondition(condition);
+        mConditionQueryBuilder.and(condition);
         return this;
     }
 
@@ -251,7 +253,14 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return The number of rows this query returns
      */
     public long count() {
-        return DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
+        long count;
+        if (((mWhereBase.getQueryBuilderBase() instanceof From) && (((From) mWhereBase.getQueryBuilderBase()).getQueryBuilderBase()) instanceof Update)
+                || mWhereBase.getQueryBuilderBase() instanceof Delete) {
+            count = SQLiteCompatibilityUtils.executeUpdateDelete(mManager.getWritableDatabase(), getQuery());
+        } else {
+            count = DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
+        }
+        return count;
     }
 
     @Override

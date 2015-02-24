@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.processor.utils;
 
+import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
@@ -51,6 +53,22 @@ public class WriterUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public static boolean writeBaseDefinition(BaseDefinition baseDefinition, ProcessorManager processorManager) {
+        boolean success = false;
+        try {
+            JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
+                    .createSourceFile(baseDefinition.getSourceFileName()).openWriter());
+            baseDefinition.write(javaWriter);
+
+            javaWriter.close();
+            success = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return success;
     }
 
 }

@@ -67,25 +67,19 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
     }
 
     @Override
-    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitEmptyLine();
-
-        writeFields(javaWriter);
-        writeConstructor(javaWriter);
-        writeGetters(javaWriter);
+    protected String[] getImports() {
+        return new String[]{
+                Classes.LIST,
+                Classes.ARRAY_LIST
+        };
     }
 
     @Override
-    protected String[] getImports() {
-        return new String[]{
-                Classes.MODEL_ADAPTER,
-                Classes.MODEL_VIEW,
-                Classes.MODEL_VIEW_ADAPTER,
-                Classes.MODEL, Classes.CONTAINER_ADAPTER,
-                Classes.MAP,
-                Classes.HASH_MAP, Classes.LIST,
-                Classes.ARRAY_LIST, Classes.MIGRATION
-        };
+    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
+        javaWriter.emitEmptyLine();
+
+        writeConstructor(javaWriter);
+        writeGetters(javaWriter);
     }
 
     private void writeConstructor(JavaWriter javaWriter) throws IOException {
@@ -125,6 +119,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
             javaWriter.emitStatement(FlowManagerHandler.MODEL_FIELD_NAME + ".add(%1s)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+            javaWriter.emitStatement(FlowManagerHandler.MODEL_NAME_MAP + ".put(\"%1s\", %1s)", tableDefinition.tableName, ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
             javaWriter.emitStatement(FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
                     tableDefinition.getQualifiedAdapterClassName());
         }
@@ -143,110 +138,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         javaWriter.endConstructor();
     }
 
-    private void writeFields(JavaWriter javaWriter) throws IOException {
-
-        // Migrations
-        javaWriter.emitField("Map<Integer, List<Migration>>", FlowManagerHandler.MIGRATION_FIELD_NAME,
-                FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
-        javaWriter.emitEmptyLine();
-
-
-        // Model classes
-        javaWriter.emitField("List<Class<? extends Model>>", FlowManagerHandler.MODEL_FIELD_NAME,
-                FlowManagerHandler.FIELD_MODIFIERS, "new ArrayList<>()");
-        javaWriter.emitEmptyLine();
-
-        // Model Adapters
-        javaWriter.emitField("Map<Class<? extends Model>, ModelAdapter>", FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
-        javaWriter.emitEmptyLine();
-
-        // Model Container Adapters
-        javaWriter.emitField("Map<Class<? extends Model>, ContainerAdapter>", FlowManagerHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
-                FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
-        javaWriter.emitEmptyLine();
-
-
-        // model views
-        javaWriter.emitField("List<Class<? extends BaseModelView>>", FlowManagerHandler.MODEL_VIEW_FIELD_NAME,
-                FlowManagerHandler.FIELD_MODIFIERS, "new ArrayList<>()");
-        javaWriter.emitEmptyLine();
-
-
-        // Model View Adapters
-        javaWriter.emitField("Map<Class<? extends BaseModelView>, ModelViewAdapter>", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                FlowManagerHandler.FIELD_MODIFIERS, "new HashMap<>()");
-        javaWriter.emitEmptyLine();
-
-    }
-
     private void writeGetters(JavaWriter javaWriter) throws IOException {
-        // Get model Classes
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s", FlowManagerHandler.MODEL_FIELD_NAME);
-            }
-        }, "List<Class<? extends Model>>", "getModelClasses", FlowManagerHandler.METHOD_MODIFIERS);
-
-        // Get model Classes
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s", FlowManagerHandler.MODEL_VIEW_FIELD_NAME);
-            }
-        }, "List<Class<? extends BaseModelView>>", "getModelViews", FlowManagerHandler.METHOD_MODIFIERS);
-
-        // Get Model Adapter
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return new ArrayList(%1s.values())", FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME);
-            }
-        }, "List<ModelAdapter>", "getModelAdapters", FlowManagerHandler.METHOD_MODIFIERS);
-
-
-        // Get Model Adapter
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MODEL_ADAPTER_MAP_FIELD_NAME, "table");
-            }
-        }, "ModelAdapter", "getModelAdapterForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<? extends Model>", "table");
-
-        // Get Model Container
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME, "table");
-            }
-        }, "ContainerAdapter", "getModelContainerAdapterForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<? extends Model>", "table");
-
-        // Get Model Container
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s.get(%1s)", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME, "table");
-            }
-        }, "ModelViewAdapter", "getModelViewAdapterForTable", FlowManagerHandler.METHOD_MODIFIERS, "Class<? extends BaseModelView>", "table");
-
-
-        // Get Model View Adapters
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return new ArrayList(%1s.values())", FlowManagerHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME);
-            }
-        }, "List<ModelViewAdapter>", "getModelViewAdapters", FlowManagerHandler.METHOD_MODIFIERS);
-
-        // Get Migrations
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s", FlowManagerHandler.MIGRATION_FIELD_NAME);
-            }
-        }, "Map<Integer, List<Migration>>", "getMigrations", FlowManagerHandler.METHOD_MODIFIERS);
-
 
         // Get Model Container
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
@@ -287,7 +179,6 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
                 javaWriter.emitStatement("return \"%1s\"", databaseName);
             }
         }, "String", "getDatabaseName", FlowManagerHandler.METHOD_MODIFIERS);
-
 
     }
 

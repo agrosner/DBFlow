@@ -1,8 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -11,6 +14,8 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
+
+import java.util.*;
 
 /**
  * Description: The SQLite INSERT command
@@ -21,6 +26,11 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * The table class that this INSERT points to
      */
     private Class<ModelClass> mTable;
+
+    /**
+     * The database manager
+     */
+    private BaseDatabaseDefinition mManager;
 
     /**
      * The columns to specify in this query (optional)
@@ -44,6 +54,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      */
     public Insert(Class<ModelClass> table) {
         mTable = table;
+        mManager = FlowManager.getDatabaseForTable(table);
     }
 
     /**
@@ -111,6 +122,19 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
         return columns(columns).values(values);
     }
 
+    public Insert<ModelClass> columnValues(ContentValues contentValues) {
+        java.util.Set<String> keys = contentValues.keySet();
+        int count = 0;
+        String[] columns = new String[contentValues.size()];
+        Object[] values = new Object[contentValues.size()];
+        for(String key: keys) {
+            columns[count] = key;
+            values[count] = contentValues.get(key);
+        }
+
+        return columns(columns).values(values);
+    }
+
 
     /**
      * Specifies the optional OR method to use for this insert query
@@ -168,6 +192,13 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      */
     public Insert<ModelClass> orIgnore() {
         return or(ConflictAction.IGNORE);
+    }
+
+    /**
+     * @return Exeuctes and returns the count of rows affected by this query.
+     */
+    public long count() {
+        return DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
     }
 
     @Override

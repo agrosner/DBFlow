@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -23,6 +24,7 @@ import com.squareup.javawriter.JavaWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -53,6 +55,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public ColumnDefinition autoIncrementDefinition;
 
+    public boolean hasAutoIncrement = false;
+
     public ArrayList<ColumnDefinition> foreignKeyDefinitions;
 
     public boolean implementsContentValuesListener = false;
@@ -63,7 +67,11 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     FlowWriter[] mMethodWriters;
 
-    public boolean hasAutoIncrement = false;
+    public boolean hasCachingId = false;
+
+    public boolean allFields = false;
+
+    public Map<String, ColumnDefinition> mColumnMap = Maps.newHashMap();
 
     public TableDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
@@ -80,6 +88,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 : table.insertConflict().name();
         updateConflicationActionName = table.updateConflict().equals(ConflictAction.NONE) ? ""
                 : table.insertConflict().name();
+
+        allFields = table.allFields();
 
         manager.addModelToDatabase(getModelClassName(), databaseName);
 
@@ -108,6 +118,16 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 new CreationQueryWriter(manager, this),
         };
 
+        // single primary key checking for a long or int valued column
+        if (getPrimaryColumnDefinitions().size() == 1) {
+            ColumnDefinition columnDefinition = getColumnDefinitions().get(0);
+            if (columnDefinition.columnType == Column.PRIMARY_KEY) {
+                if (!columnDefinition.hasTypeConverter) {
+                    hasCachingId = int.class.getCanonicalName().equals(columnDefinition.columnFieldType)
+                            || long.class.getCanonicalName().equals(columnDefinition.columnFieldType);
+                }
+            }
+        }
 
     }
 
@@ -121,10 +141,18 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         List<? extends Element> variableElements = manager.getElements().getAllMembers(element);
         ColumnValidator columnValidator = new ColumnValidator();
         for (Element variableElement : variableElements) {
-            if (variableElement.getAnnotation(Column.class) != null) {
+
+            // no private static or final fields
+            boolean isValidColumn = allFields && (variableElement.getKind().isField() &&
+                    !variableElement.getModifiers().contains(Modifier.STATIC) &&
+                    !variableElement.getModifiers().contains(Modifier.PRIVATE) &&
+                    !variableElement.getModifiers().contains(Modifier.FINAL));
+
+            if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
+                    mColumnMap.put(columnDefinition.columnName, columnDefinition);
                     if (columnDefinition.columnType == Column.PRIMARY_KEY) {
                         primaryColumnDefinitions.add(columnDefinition);
                     } else if (columnDefinition.columnType == Column.FOREIGN_KEY) {

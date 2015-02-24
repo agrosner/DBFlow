@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.model.builder;
 
 
+import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
@@ -16,40 +17,40 @@ import java.util.List;
 public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBuilder> {
 
     /**
-     * Appends a column to this class. It will append the correct string value based on the {@link com.raizlabs.android.dbflow.annotation.Column}
+     * Appends a column to this class. It will append the correct string value based on the {@link com.raizlabs.android.dbflow.processor.definition.ColumnDefinition}
      *
      * @param column
      * @return
      */
-    public QueryBuilder appendColumn(Column column) {
-        if (column.length() > -1) {
+    public QueryBuilder appendColumn(ColumnDefinition column) {
+        if (column.length> -1) {
             mQuery.append("(");
-            mQuery.append(column.length());
+            mQuery.append(column.length);
             mQuery.append(")");
         }
 
-        if (column.columnType() == Column.PRIMARY_KEY_AUTO_INCREMENT) {
+        if (column.columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
             append(" PRIMARY KEY AUTOINCREMENT");
         }
 
-        if (column.notNull()) {
+        if (column.notNull) {
             appendSpaceSeparated("NOT NULL ON CONFLICT")
-                    .append(column.onNullConflict().toString());
+                    .append(column.onNullConflict.toString());
         }
 
-        if (column.unique()) {
+        if (column.unique) {
             appendSpaceSeparated("UNIQUE ON CONFLICT")
-                    .append(column.onUniqueConflict().toString());
+                    .append(column.onUniqueConflict.toString());
         }
 
-        if(column.collate() != null && !column.collate().isEmpty()) {
+        if(column.collate != null && !column.collate.isEmpty()) {
             appendSpaceSeparated("COLLATE")
-                    .append(column.collate());
+                    .append(column.collate);
         }
 
-        if(column.defaultValue() != null && !column.defaultValue().isEmpty()) {
+        if(column.defaultValue != null && !column.defaultValue.isEmpty()) {
             appendSpaceSeparated("DEFAULT")
-                    .append(column.defaultValue());
+                    .append(column.defaultValue);
         }
         return this;
     }

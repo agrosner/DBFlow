@@ -72,5 +72,7 @@ public class ContentObserverTest extends FlowTestCase {
         assertTrue(methodcalled[3]);
 
         flowContentObserver.unregisterForContentChanges(getContext());
+
+        Delete.table(TestModel1.class);
     }
 }
