@@ -35,7 +35,8 @@ public class JsonModelTest extends FlowTestCase {
                     "isHappy: true," +
                     "testModel: {" +
                     "name: testModel" +
-                    "}" +
+                    "}, " +
+                    "party_name: null" +
                     "}");
 
             JSONModel<TestModelContainerClass> testJsonModel = new JSONModel<>(jsonObject, TestModelContainerClass.class);

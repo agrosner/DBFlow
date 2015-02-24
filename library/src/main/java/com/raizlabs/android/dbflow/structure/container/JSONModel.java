@@ -47,7 +47,11 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
 
     @Override
     public Object getValue(String columnName) {
-        return getData() != null ? getData().opt(columnName) : null;
+        Object value = getData() != null ? getData().opt(columnName) : null;
+        if(JSONObject.NULL.equals(value)) {
+            value = null;
+        }
+        return value;
     }
 
     @Override
