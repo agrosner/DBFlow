@@ -13,7 +13,15 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your 
 
 This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility. 
 
-What sets this library apart: **every** feature has been unit tested to ensure functionality, baked in support for **multiple** databases seamlessly, powerful and fluid builder logic in expressing SQL statements, **annotation processing** to enable blistering speed, ```ModelContainer``` classes that enable direct to database parsing for data such as JSON, and rich interface classes that enable powerful flexibility.
+What sets this library apart: 
+  1. **Every** feature has been unit tested to ensure functionality.
+  2. Built on maximum performance using **annotation processing** 
+  3. Powerful and fluid SQL-wrapping statements
+  4. Triggers, Views, Indexes, and many more SQLite features.
+  5. Baked-in support for **multiple** databases seamlessly
+  6. ```ModelContainer``` classes that enable direct to database parsing for data such as JSON
+  7. Rich interface classes that enable powerful flexibility.
+  8. ```ContentProvider``` generation using annotations
 
 ## Changelog
 
@@ -26,6 +34,9 @@ What sets this library apart: **every** feature has been unit tested to ensure f
 5. Adds and condenses some adapter code generation as well as adds support for methods needed for them.
 6. Fixes all tests so they can run successfully without clearing data.
 7. Added usage docs for this new major feature!
+8. #95 where a ```JSONObject.NULL``` was not recognized as a proper ```null```.
+9. Added support for non-autoincrementing primary keys as model cache key. Allows for single ```int``` or ```long``` ```PRIMARY_KEY``` field to be a caching id. 
+10. Fixes an issue where a method in ```count()``` for non-SELECT statements was called in pre-honeycomb devices anyways. Now it uses a raw query statement for compatibility.
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
