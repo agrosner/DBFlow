@@ -70,6 +70,8 @@ In other applications or your current's ```AndroidManifest.xml``` add the **gene
 
 **True** is recommended for outside application access.
 
+**Note you must have at least one ```@TableEndpoint``` for it to compile/pass error checking**
+
 ### Adding endpoints into the data
 
 There are two ways of defining ```@TableEndpoint```:
