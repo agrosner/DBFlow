@@ -37,7 +37,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
             FlowManager.getModelAdapter(table).newInstance();
             cache = mCacheMap.get(table);
         }
-        return cache;gitp 
+        return cache;gitp
     }
 
     /**
