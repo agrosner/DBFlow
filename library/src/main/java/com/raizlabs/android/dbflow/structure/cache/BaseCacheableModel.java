@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure.cache;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
@@ -27,11 +28,16 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
      * @param table        The cacheable model class to use
      * @param <CacheClass> The class that implements {@link com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel}
      * @return A {@link com.raizlabs.android.dbflow.structure.cache.ModelCache} if it exists in memory. If not,
-     * null is returned.
+     * it creates a new instance and tries to get the cache again.
      */
     @SuppressWarnings("unchecked")
     public static <CacheClass extends BaseCacheableModel> ModelCache<CacheClass, ?> getCache(Class<CacheClass> table) {
-        return mCacheMap.get(table);
+        ModelCache<CacheClass, ?> cache = mCacheMap.get(table);
+        if(cache == null) {
+            FlowManager.getModelAdapter(table).newInstance();
+            cache = mCacheMap.get(table);
+        }
+        return cache;gitp 
     }
 
     /**
