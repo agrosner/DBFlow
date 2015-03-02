@@ -152,10 +152,14 @@ public class ProcessModelInfo<ModelClass extends Model> {
      */
     @SuppressWarnings("unchecked")
     public void processModels(ProcessModel<ModelClass> processModel) {
-        Class<? extends Model> processClass = mTable;
-        if(ModelContainer.class.isAssignableFrom(processClass) && !mModels.isEmpty()) {
-            processClass = ((ModelContainer<ModelClass, ?>) mModels.get(0)).getTable();
+
+        // ignore empty list.
+        if(!mModels.isEmpty()) {
+            Class<? extends Model> processClass = mTable;
+            if (ModelContainer.class.isAssignableFrom(processClass) && !mModels.isEmpty()) {
+                processClass = ((ModelContainer<ModelClass, ?>) mModels.get(0)).getTable();
+            }
+            ProcessModelHelper.process(processClass, mModels, processModel);
         }
-        ProcessModelHelper.process(processClass, mModels, processModel);
     }
 }

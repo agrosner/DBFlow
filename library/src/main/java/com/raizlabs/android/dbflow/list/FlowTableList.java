@@ -24,7 +24,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -424,37 +423,32 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
-     * Removes all items here from this table in one transaction. This may happen in the background
+     * Removes all items from this table in one transaction based on the list passed. This may happen in the background
      * if {@link #transact} is true.
      *
      * @param collection The collection to remove.
-     * @return true if the collection was removed. Always false if the collection is not from the same table as this list.
+     * @return Always true. Will cause a {@link ClassCastException} if the collection is not of type {@link ModelClass}
      */
     @SuppressWarnings("unchecked")
     @Override
     public boolean removeAll(@NonNull Collection<?> collection) {
-        boolean removed = false;
 
         // if its a ModelClass
-        if (mCursorList.getTable().isAssignableFrom((Class<?>) ((ParameterizedType) getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[0])) {
-            Collection<ModelClass> modelCollection = (Collection<ModelClass>) collection;
-            if (transact) {
-                TransactionManager.getInstance().delete(getProcessModelInfo(modelCollection));
-            } else {
-                ProcessModelHelper.process(mCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
-                    @Override
-                    public void processModel(ModelClass model) {
-                        model.delete(false);
-                    }
-                });
-                mInternalTransactionListener.onResultReceived((List<ModelClass>) modelCollection);
+        Collection<ModelClass> modelCollection = (Collection<ModelClass>) collection;
+        if (transact) {
+            TransactionManager.getInstance().delete(getProcessModelInfo(modelCollection));
+        } else {
+            ProcessModelHelper.process(mCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
+                @Override
+                public void processModel(ModelClass model) {
+                    model.delete(false);
+                }
+            });
+            mInternalTransactionListener.onResultReceived((List<ModelClass>) modelCollection);
 
-            }
-            removed = true;
         }
 
-        return removed;
+        return true;
     }
 
     /**
