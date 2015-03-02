@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Author: andrewgrosner
@@ -25,13 +24,23 @@ public class FlowContentObserver extends ContentObserver {
 
     private static List<FlowContentObserver> mObserverList = new ArrayList<>();
 
+    private static boolean forceNotify = false;
+
     /**
      * @return true if we have registered for content changes. Otherwise we do not notify
      * in {@link com.raizlabs.android.dbflow.sql.SqlUtils#notifyModelChanged(Class, com.raizlabs.android.dbflow.structure.BaseModel.Action)}
      * for efficiency purposes.
      */
     public static boolean shouldNotify() {
-        return !mObserverList.isEmpty();
+        return forceNotify || !mObserverList.isEmpty();
+    }
+
+    /**
+     * @param forceNotify if true, this will force itself to notify whenever a model changes even though
+     *                    an observer (appears to be) is not registered.
+     */
+    public static void setShouldForceNotify(boolean forceNotify) {
+        FlowContentObserver.forceNotify = forceNotify;
     }
 
     /**
