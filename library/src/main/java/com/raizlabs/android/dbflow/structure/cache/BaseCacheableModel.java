@@ -62,7 +62,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
      */
     @SuppressWarnings("unchecked")
     public BaseCacheableModel() {
-        mCache = getCache(getClass());
+        mCache = mCacheMap.get(getClass());
         if (mCache == null) {
             mCache = getBackingCache();
             putCache(getClass(), mCache);
