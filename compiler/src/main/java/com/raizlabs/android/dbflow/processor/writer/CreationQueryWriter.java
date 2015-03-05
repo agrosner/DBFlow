@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.writer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
@@ -19,6 +20,8 @@ import com.squareup.javawriter.JavaWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 import javax.tools.Diagnostic;
@@ -83,6 +86,28 @@ public class CreationQueryWriter implements FlowWriter {
 
                 // Views do not have primary keys
                 if (!isModelView) {
+
+                    Map<Integer, List<ColumnDefinition>> uniqueGroups = tableDefinition.mColumnUniqueMap;
+                    if(!uniqueGroups.isEmpty()) {
+                        Set<Integer> groupSet = uniqueGroups.keySet();
+                        for(Integer group: groupSet) {
+                            List<ColumnDefinition> columnDefinitions = uniqueGroups.get(group);
+
+                            // take first one we find
+                            ConflictAction conflictAction = ConflictAction.FAIL;
+                            List<String> columnNames = Lists.newArrayList();
+                            for(ColumnDefinition columnDefinition: columnDefinitions) {
+                                columnNames.add(columnDefinition.columnName);
+                                if(!columnDefinition.onUniqueConflict.equals(ConflictAction.FAIL)) {
+                                    conflictAction = columnDefinition.onUniqueConflict;
+                                }
+                            }
+                            QueryBuilder uniqueColumnQueryBuilder = new QueryBuilder("UNIQUE (");
+                            uniqueColumnQueryBuilder.appendQuotedList(columnNames).append(") ON CONFLICT ").append(conflictAction.toString());
+                            mColumnDefinitions.add(uniqueColumnQueryBuilder);
+                        }
+
+                    }
 
 
                     QueryBuilder primaryKeyQueryBuilder = new QueryBuilder().append("PRIMARY KEY(");

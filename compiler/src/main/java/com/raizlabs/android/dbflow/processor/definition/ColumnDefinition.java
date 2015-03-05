@@ -73,6 +73,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public boolean unique = false;
 
+    public List<Integer> uniqueGroups = new ArrayList<>();
+
     public ConflictAction onUniqueConflict;
 
     public String collate;
@@ -90,6 +92,12 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             this.saveModelForeignKey = column.saveForeignKeyModel();
             length = column.length();
             unique = column.unique();
+            if(unique) {
+                int[] groups = column.uniqueGroups();
+                for(int group: groups) {
+                    uniqueGroups.add(group);
+                }
+            }
             onUniqueConflict = column.onUniqueConflict();
             notNull = column.notNull();
             onNullConflict = column.onNullConflict();

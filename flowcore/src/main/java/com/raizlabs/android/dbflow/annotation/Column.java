@@ -76,6 +76,12 @@ public @interface Column {
     boolean unique() default false;
 
     /**
+     * @return Marks a unique field as part of a unique group. For every unique number entered,
+     * it will generate a UNIQUE() column statement.
+     */
+    int[] uniqueGroups() default {};
+
+    /**
      * @return Marks the field as having a specified collation to use in it's creation.
      */
     String collate() default "";

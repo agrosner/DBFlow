@@ -38,7 +38,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
                     .append(column.onNullConflict.toString());
         }
 
-        if (column.unique) {
+        if (column.unique && column.uniqueGroups.isEmpty()) {
             appendSpaceSeparated("UNIQUE ON CONFLICT")
                     .append(column.onUniqueConflict.toString());
         }

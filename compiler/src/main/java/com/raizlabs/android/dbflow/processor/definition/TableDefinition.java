@@ -73,6 +73,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public Map<String, ColumnDefinition> mColumnMap = Maps.newHashMap();
 
+    public Map<Integer, List<ColumnDefinition>> mColumnUniqueMap = Maps.newHashMap();
+
     public TableDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
         setDefinitionClassName(DBFLOW_TABLE_TAG);
@@ -160,6 +162,20 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                     } else if (columnDefinition.columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
                         autoIncrementDefinition = columnDefinition;
                         hasAutoIncrement = true;
+                    }
+
+                    if(columnDefinition.unique && !columnDefinition.uniqueGroups.isEmpty()) {
+                        List<Integer> groups = columnDefinition.uniqueGroups;
+                        for(int group: groups) {
+                            List<ColumnDefinition> groupList = mColumnUniqueMap.get(group);
+                            if(groupList == null) {
+                                groupList = new ArrayList<>();
+                                mColumnUniqueMap.put(group, groupList);
+                            }
+                            if(!groupList.contains(columnDefinition)) {
+                                groupList.add(columnDefinition);
+                            }
+                        }
                     }
                 }
             }
