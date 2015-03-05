@@ -164,7 +164,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                         hasAutoIncrement = true;
                     }
 
-                    if(columnDefinition.unique && !columnDefinition.uniqueGroups.isEmpty()) {
+                    if(!columnDefinition.uniqueGroups.isEmpty()) {
                         List<Integer> groups = columnDefinition.uniqueGroups;
                         for(int group: groups) {
                             List<ColumnDefinition> groupList = mColumnUniqueMap.get(group);
