@@ -19,7 +19,7 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
      * @param modelInfo Holds information about this process request
      */
     public ProcessModelTransaction(ProcessModelInfo<ModelClass> modelInfo) {
-        super(modelInfo.getInfo(), modelInfo.mReceiver);
+        super(modelInfo.getInfo(), modelInfo.mTransactionListener);
         mModelInfo = modelInfo;
     }
 
