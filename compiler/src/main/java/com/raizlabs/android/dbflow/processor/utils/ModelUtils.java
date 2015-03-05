@@ -1,14 +1,14 @@
 package com.raizlabs.android.dbflow.processor.utils;
 
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.SQLiteType;
-import com.raizlabs.android.dbflow.sql.StatementMap;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.SQLiteType;
+import com.raizlabs.android.dbflow.sql.StatementMap;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -112,7 +112,8 @@ public class ModelUtils {
 
     public static void writeLoadFromCursorDefinitionField(JavaWriter javaWriter, ProcessorManager processorManager, String columnFieldType, String columnFieldName, String columnName,
                                                           String foreignColumnName, String containerKeyName,
-                                                          Element modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer) throws IOException {
+                                                          Element modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer,
+                                                          boolean isNullable) throws IOException {
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isModelContainerDefinition);
         if (isFieldModelContainer) {
             queryBuilder.append(".").append(columnFieldName);
@@ -137,21 +138,36 @@ public class ModelUtils {
         }
 
         javaWriter.emitStatement(getColumnIndex(columnName));
-        javaWriter.beginControlFlow("if (%1s != -1) ", "index" + columnName);
+        String index = "index" + columnName;
+        javaWriter.beginControlFlow("if (%1s != -1) ", index);
 
         String cursorStatment = ModelUtils.getCursorStatement(newFieldType, columnName);
+        AdapterQueryBuilder nullableQueryBuilder = new AdapterQueryBuilder(queryBuilder.getQuery());
         if (hasTypeConverter && !isModelContainerDefinition) {
             queryBuilder.appendTypeConverter(columnFieldType, columnFieldType, true);
+            nullableQueryBuilder.appendTypeConverter(columnFieldType, columnFieldType, true);
         }
 
         queryBuilder.append(cursorStatment);
+        nullableQueryBuilder.append("null");
+
         if (hasTypeConverter && !isModelContainerDefinition) {
             queryBuilder.append("))");
+            nullableQueryBuilder.append("))");
         } else if (isModelContainerDefinition || isFieldModelContainer) {
             queryBuilder.append(")");
+            nullableQueryBuilder.append(")");
         }
 
+        if (isNullable) {
+            javaWriter.beginControlFlow("if (cursor.isNull(%1s)) ", index);
+            javaWriter.emitStatement(nullableQueryBuilder.getQuery());
+            javaWriter.nextControlFlow(" else ");
+        }
         javaWriter.emitStatement(queryBuilder.getQuery());
+        if (isNullable) {
+            javaWriter.endControlFlow();
+        }
         javaWriter.endControlFlow();
     }
 
