@@ -86,6 +86,48 @@ public class ContentUtils {
     }
 
     /**
+     * Inserts the list of model into the {@link ContentResolver}. Binds all of the models to {@link ContentValues}
+     * and runs the {@link ContentResolver#bulkInsert(Uri, ContentValues[])} method. Note: if any of these use
+     * autoincrementing primary keys the ROWID will not be properly updated from this method. If you care
+     * use {@link #insert(ContentResolver, Uri, Model)} instead.
+     *
+     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
+     * @param bulkInsertUri   The URI to bulk insert with
+     * @param table           The table to insert into
+     * @param models          The models to insert.
+     * @param <TableClass>    The class that implements {@link Model}
+     * @return The count of the rows affected by the insert.
+     */
+    public static <TableClass extends Model> int bulkInsert(ContentResolver contentResolver, Uri bulkInsertUri, Class<TableClass> table, List<TableClass> models) {
+        ContentValues[] contentValues = new ContentValues[models == null ? 0 : models.size()];
+        ModelAdapter<TableClass> adapter = FlowManager.getModelAdapter(table);
+
+        if (models != null) {
+            for (int i = 0; i < contentValues.length; i++) {
+                contentValues[i] = new ContentValues();
+                adapter.bindToContentValues(contentValues[i], models.get(i));
+            }
+        }
+        return contentResolver.bulkInsert(bulkInsertUri, contentValues);
+    }
+
+    /**
+     * Inserts the list of model into the {@link ContentResolver}. Binds all of the models to {@link ContentValues}
+     * and runs the {@link ContentResolver#bulkInsert(Uri, ContentValues[])} method. Note: if any of these use
+     * autoincrementing primary keys the ROWID will not be properly updated from this method. If you care
+     * use {@link #insert(Uri, Model)} instead.
+     *
+     * @param bulkInsertUri The URI to bulk insert with
+     * @param table         The table to insert into
+     * @param models        The models to insert.
+     * @param <TableClass>  The class that implements {@link Model}
+     * @return The count of the rows affected by the insert.
+     */
+    public static <TableClass extends Model> int bulkInsert(Uri bulkInsertUri, Class<TableClass> table, List<TableClass> models) {
+        return bulkInsert(FlowManager.getContext().getContentResolver(), bulkInsertUri, table, models);
+    }
+
+    /**
      * Updates the model through the {@link android.content.ContentResolver}. Uses the updateUri to
      * resolve the reference and the model to convert its data in {@link android.content.ContentValues}
      *
