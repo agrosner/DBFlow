@@ -2,16 +2,11 @@ package com.raizlabs.android.dbflow.processor.handler;
 
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Database;
-import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
-import com.raizlabs.android.dbflow.processor.writer.FlowManagerHolderWriter;
-import com.squareup.javawriter.JavaWriter;
 
-import java.io.IOException;
 import java.util.Set;
 
-import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 
@@ -46,16 +41,7 @@ public class DatabaseHandler extends BaseContainerHandler<Database> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        try {
-
-            DatabaseWriter managerWriter = new DatabaseWriter(processorManager, element);
-            JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                    .createSourceFile(managerWriter.getSourceFileName()).openWriter());
-            managerWriter.write(javaWriter);
-            javaWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        DatabaseWriter managerWriter = new DatabaseWriter(processorManager, element);
+        processorManager.addFlowManagerWriter(managerWriter);
     }
 }

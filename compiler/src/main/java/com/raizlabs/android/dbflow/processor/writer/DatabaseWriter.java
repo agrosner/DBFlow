@@ -65,8 +65,6 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         insertConflict = database.insertConflict();
         updateConflict = database.updateConflict();
-
-        manager.addFlowManagerWriter(this);
     }
 
     @Override

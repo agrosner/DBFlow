@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
@@ -153,7 +154,7 @@ public class ProcessorManager implements Handler {
             mTableDefinitions.put(tableDefinition.databaseName, tableDefinitionMap);
         }
         Map<String, TableDefinition> tableNameMap = mTableNameDefinitionMap.get(tableDefinition.databaseName);
-        if(tableNameMap == null) {
+        if (tableNameMap == null) {
             tableNameMap = Maps.newHashMap();
             mTableNameDefinitionMap.put(tableDefinition.databaseName, tableNameMap);
         }
@@ -267,6 +268,17 @@ public class ProcessorManager implements Handler {
         for (ContentProviderDefinition contentProviderDefinition : contentProviderDefinitions) {
             if (validator.validate(processorManager, contentProviderDefinition)) {
                 WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager);
+            }
+        }
+        List<DatabaseWriter> databaseWriters = getManagerWriters();
+        for(DatabaseWriter databaseWriter: databaseWriters) {
+            try {
+                JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
+                        .createSourceFile(databaseWriter.getSourceFileName()).openWriter());
+                databaseWriter.write(javaWriter);
+                javaWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
