@@ -88,17 +88,25 @@ public class CreationQueryWriter implements FlowWriter {
                 if (!isModelView) {
 
                     Map<Integer, List<ColumnDefinition>> uniqueGroups = tableDefinition.mColumnUniqueMap;
-                    if(!uniqueGroups.isEmpty()) {
+                    if (!uniqueGroups.isEmpty()) {
                         Set<Integer> groupSet = uniqueGroups.keySet();
-                        for(Integer group: groupSet) {
+                        for (Integer group : groupSet) {
                             List<ColumnDefinition> columnDefinitions = uniqueGroups.get(group);
 
                             // take first one we find
                             ConflictAction conflictAction = ConflictAction.FAIL;
+                            boolean hasGroup = false;
+                            if (tableDefinition.mUniqueGroupMap.containsKey(group)) {
+                                conflictAction = tableDefinition.mUniqueGroupMap.get(group).onUniqueConflict();
+                                hasGroup = true;
+                            }
                             List<String> columnNames = Lists.newArrayList();
-                            for(ColumnDefinition columnDefinition: columnDefinitions) {
+                            for (ColumnDefinition columnDefinition : columnDefinitions) {
                                 columnNames.add(columnDefinition.columnName);
-                                if(!columnDefinition.onUniqueConflict.equals(ConflictAction.FAIL)) {
+
+                                // without group found on table annotation, we take the first column we find.
+                                if (!columnDefinition.onUniqueConflict.equals(ConflictAction.FAIL)
+                                        && !hasGroup) {
                                     conflictAction = columnDefinition.onUniqueConflict;
                                 }
                             }

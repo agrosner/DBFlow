@@ -42,4 +42,10 @@ public @interface Table {
      */
     boolean allFields() default false;
 
+    /**
+     * @return Declares a set of UNIQUE columns with the corresponding {@link ConflictAction}. A {@link Column}
+     * will point to this group using {@link Column#uniqueGroups()}
+     */
+    UniqueGroup[] uniqueColumnGroups() default {};
+
 }

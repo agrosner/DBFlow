@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
@@ -75,6 +76,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public Map<Integer, List<ColumnDefinition>> mColumnUniqueMap = Maps.newHashMap();
 
+    public Map<Integer, UniqueGroup> mUniqueGroupMap = Maps.newHashMap();
+
     public TableDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
         setDefinitionClassName(DBFLOW_TABLE_TAG);
@@ -102,6 +105,14 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         foreignKeyDefinitions = new ArrayList<>();
 
         createColumnDefinitions((TypeElement) element);
+
+        UniqueGroup[] groups = table.uniqueColumnGroups();
+        for (UniqueGroup uniqueGroup : groups) {
+            if (mUniqueGroupMap.containsKey(uniqueGroup.groupNumber())) {
+                manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber(), tableName);
+            }
+            mUniqueGroupMap.put(uniqueGroup.groupNumber(), uniqueGroup);
+        }
 
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
                 Classes.LOAD_FROM_CURSOR_LISTENER, (TypeElement) element);
@@ -164,15 +175,15 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                         hasAutoIncrement = true;
                     }
 
-                    if(!columnDefinition.uniqueGroups.isEmpty()) {
+                    if (!columnDefinition.uniqueGroups.isEmpty()) {
                         List<Integer> groups = columnDefinition.uniqueGroups;
-                        for(int group: groups) {
+                        for (int group : groups) {
                             List<ColumnDefinition> groupList = mColumnUniqueMap.get(group);
-                            if(groupList == null) {
+                            if (groupList == null) {
                                 groupList = new ArrayList<>();
                                 mColumnUniqueMap.put(group, groupList);
                             }
-                            if(!groupList.contains(columnDefinition)) {
+                            if (!groupList.contains(columnDefinition)) {
                                 groupList.add(columnDefinition);
                             }
                         }
