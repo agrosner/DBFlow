@@ -215,21 +215,27 @@ new Select()
 
 #### Group By
 
+```java
 new Select().from(table).where()
   .groupBy(new QueryBuilder()
     .appendQuotedArray(Customer$Table.CUSTOMER_ID, Customer$Table.CUSTOMER_NAME))
   .queryList();
+```
 
 #### HAVING
 
+```java
 new Select().from(table).where()
   .groupBy(new QueryBuilder().appendQuotedArray(Customer$Table.CUSTOMER_ID, Customer$Table.CUSTOMER_NAME))
   .having(Condition.column(Customer$Table.CUSTOMER_ID).greaterThan(2))
   .queryList();
+```
 
 #### LIMIT + OFFSET
 
+```java
 new Select().from(table).where()
   .limit(3)
   .offset(2)
   .queryList();
+```
