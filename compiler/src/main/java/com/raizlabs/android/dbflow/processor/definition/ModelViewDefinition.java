@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
-import com.raizlabs.android.dbflow.processor.handler.FlowManagerHandler;
+import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
@@ -146,7 +146,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return \"%1s\"", query);
             }
-        }, "String" , "getCreationQuery", FlowManagerHandler.METHOD_MODIFIERS);
+        }, "String" , "getCreationQuery", DatabaseHandler.METHOD_MODIFIERS);
 
         javaWriter.emitEmptyLine();
         javaWriter.emitAnnotation(Override.class);
@@ -155,7 +155,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
             public void write(JavaWriter javaWriter) throws IOException {
                 javaWriter.emitStatement("return \"%1s\"", name);
             }
-        }, "String" , "getViewName", FlowManagerHandler.METHOD_MODIFIERS);
+        }, "String" , "getViewName", DatabaseHandler.METHOD_MODIFIERS);
 
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override

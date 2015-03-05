@@ -50,4 +50,16 @@ public @interface Database {
      * replace the corrupted DB
      */
     boolean backupEnabled() default false;
+
+    /**
+     * @return Global default insert conflict that can be applied to any table when it leaves
+     * its {@link ConflictAction} as NONE.
+     */
+    ConflictAction insertConflict() default ConflictAction.NONE;
+
+    /**
+     * @return Global update conflict that can be applied to any table when it leaves its
+     * {@link ConflictAction} as NONE
+     */
+    ConflictAction updateConflict() default ConflictAction.NONE;
 }

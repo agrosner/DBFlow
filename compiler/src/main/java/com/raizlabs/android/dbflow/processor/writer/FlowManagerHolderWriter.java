@@ -3,10 +3,9 @@ package com.raizlabs.android.dbflow.processor.writer;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
-import com.raizlabs.android.dbflow.processor.handler.FlowManagerHandler;
+import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Modifier;
@@ -42,7 +41,7 @@ public class FlowManagerHolderWriter implements FlowWriter {
         staticFlowManager.beginInitializer(true);
 
         for (TypeConverterDefinition typeConverterDefinition: processorManager.getTypeConverters()) {
-            staticFlowManager.emitStatement(FlowManagerHandler.TYPE_CONVERTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(typeConverterDefinition.getModelClassQualifiedName()),
+            staticFlowManager.emitStatement(DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(typeConverterDefinition.getModelClassQualifiedName()),
                     typeConverterDefinition.getQualifiedName());
         }
 

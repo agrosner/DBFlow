@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.writer.CreationQueryWriter;
+import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
@@ -89,10 +90,24 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
         }
-        insertConflictActionName = table.insertConflict().equals(ConflictAction.NONE) ? ""
-                : table.insertConflict().name();
-        updateConflicationActionName = table.updateConflict().equals(ConflictAction.NONE) ? ""
-                : table.insertConflict().name();
+
+        DatabaseWriter databaseWriter = manager.getDatabaseWriter(databaseName);
+
+        // globular default
+        ConflictAction insertConflict = table.insertConflict();
+        if(insertConflict.equals(ConflictAction.NONE) && !databaseWriter.insertConflict.equals(ConflictAction.NONE)) {
+            insertConflict = databaseWriter.insertConflict;
+        }
+
+        ConflictAction updateConflict = table.updateConflict();
+        if(updateConflict.equals(ConflictAction.NONE) && !databaseWriter.updateConflict.equals(ConflictAction.NONE)) {
+            updateConflict = databaseWriter.updateConflict;
+        }
+
+        insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
+                : insertConflict.name();
+        updateConflicationActionName = updateConflict.equals(ConflictAction.NONE) ? ""
+                : updateConflict.name();
 
         allFields = table.allFields();
 

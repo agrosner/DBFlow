@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
@@ -15,7 +16,10 @@ import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
 import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
+import com.raizlabs.android.dbflow.processor.writer.FlowManagerHolderWriter;
+import com.squareup.javawriter.JavaWriter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,7 +59,7 @@ public class ProcessorManager implements Handler {
 
     private Map<String, Map<Integer, List<MigrationDefinition>>> mMigrations = Maps.newHashMap();
 
-    private List<DatabaseWriter> mManagerWriters = Lists.newArrayList();
+    private Map<String, DatabaseWriter> mManagerWriters = Maps.newHashMap();
 
     private List<BaseContainerHandler> mHandlers = new ArrayList<>();
 
@@ -100,11 +104,15 @@ public class ProcessorManager implements Handler {
     }
 
     public void addFlowManagerWriter(DatabaseWriter databaseWriter) {
-        mManagerWriters.add(databaseWriter);
+        mManagerWriters.put(databaseWriter.databaseName, databaseWriter);
     }
 
     public List<DatabaseWriter> getManagerWriters() {
-        return mManagerWriters;
+        return new ArrayList<>(mManagerWriters.values());
+    }
+
+    public DatabaseWriter getDatabaseWriter(String databaseName) {
+        return mManagerWriters.get(databaseName);
     }
 
     public void addTypeConverterDefinition(TypeConverterDefinition definition) {
@@ -259,6 +267,18 @@ public class ProcessorManager implements Handler {
         for (ContentProviderDefinition contentProviderDefinition : contentProviderDefinitions) {
             if (validator.validate(processorManager, contentProviderDefinition)) {
                 WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager);
+            }
+        }
+
+        if (roundEnvironment.processingOver()) {
+            try {
+                JavaWriter staticFlowManager = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
+                        .createSourceFile(Classes.FLOW_MANAGER_PACKAGE + "." + Classes.DATABASE_HOLDER_STATIC_CLASS_NAME).openWriter());
+                new FlowManagerHolderWriter(processorManager).write(staticFlowManager);
+
+                staticFlowManager.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
