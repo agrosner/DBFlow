@@ -83,10 +83,13 @@ public class DBFlowProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        ArrayList<Element> elements = new ArrayList<Element>(roundEnv.getElementsAnnotatedWith(Database.class));
-        if(elements.size() > 0) {
-            Database database = elements.get(0).getAnnotation(Database.class);
-            DEFAULT_DB_NAME = database.name();
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Database.class);
+        for(Element element: elements) {
+            Database database = element.getAnnotation(Database.class);
+            if(database != null) {
+                DEFAULT_DB_NAME = database.name();
+                break;
+            }
         }
         manager.handle(manager, roundEnv);
 
