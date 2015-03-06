@@ -30,18 +30,6 @@ public class BoxedValueTest extends FlowTestCase {
         assertCannotSaveModel();
     }
 
-    public void testBoxedValues_shortFieldNotNull() {
-        testObject.shortFieldNotNull = null;
-        assertCannotSaveModel();
-    }
-
-    public void testBoxedValues_shortField() {
-        testObject.shortField = null;
-        assertCanSaveModel();
-        loadModel();
-        assertNull(testObject.shortField);
-    }
-
     public void testBoxedValues_integerFieldNotNull() {
         testObject.integerFieldNotNull = null;
         assertCannotSaveModel();
@@ -52,42 +40,6 @@ public class BoxedValueTest extends FlowTestCase {
         assertCanSaveModel();
         loadModel();
         assertNull(testObject.integerField);
-    }
-
-    public void testBoxedValues_longFieldNotNull() {
-        testObject.longFieldNotNull = null;
-        assertCannotSaveModel();
-    }
-
-    public void testBoxedValues_longField() {
-        testObject.longField = null;
-        assertCanSaveModel();
-        loadModel();
-        assertNull(testObject.longField);
-    }
-
-    public void testBoxedValues_floatFieldNotNull() {
-        testObject.floatFieldNotNull = null;
-        assertCannotSaveModel();
-    }
-
-    public void testBoxedValues_floatField() {
-        testObject.floatField = null;
-        assertCanSaveModel();
-        loadModel();
-        assertNull(testObject.floatField);
-    }
-
-    public void testBoxedValues_doubleFieldNotNull() {
-        testObject.doubleFieldNotNull = null;
-        assertCannotSaveModel();
-    }
-
-    public void testBoxedValues_doubleField() {
-        testObject.doubleField = null;
-        assertCanSaveModel();
-        loadModel();
-        assertNull(testObject.doubleField);
     }
 
     public void testBoxedValues_stringFieldNotNull() {
