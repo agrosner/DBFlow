@@ -25,29 +25,15 @@ What sets this library apart:
 
 ## Changelog
 
-#### 1.6.2
+#### 1.7.0
 
-Fixes a ```StackOverflowError``` when using ```BaseCacheableModel```
-
-#### 1.6.1
-
-1. #106 Empty model list will cause a crash in ProcessModelInfo
-2. #101 Fixes issue where removeAll(Collection) crashes in certain scenarios where the list is a subclass with generic parameters. Now
-will explicitly fail with ClassCastException if of wrong type.
-3. #86 Now can force notifying content observer changes across different processes
-
-#### 1.6.0
-
-1. Adds annotation processing for creating ```ContentProvider``` access classes
-2. Generates ContentProviders for you
-3. Decent amount of features including connecting ```Model``` classes to a ContentProvider so you don't need to write ```ContentValues```.
-4. Based on [schematic](https://github.com/SimonVT/schematic)
-5. Adds and condenses some adapter code generation as well as adds support for methods needed for them.
-6. Fixes all tests so they can run successfully without clearing data.
-7. Added usage docs for this new major feature!
-8. #95 where a ```JSONObject.NULL``` was not recognized as a proper ```null```.
-9. Added support for non-autoincrementing primary keys as model cache key. Allows for single ```int``` or ```long``` ```PRIMARY_KEY``` field to be a caching id. 
-10. Fixes an issue where a method in ```count()``` for non-SELECT statements was called in pre-honeycomb devices anyways. Now it uses a raw query statement for compatibility.
+1. Added unique columns support by using ```@UniqueGroup``` for columns to enable multiple different groups of columns #117 
+2. Fixes an issue where autoincrement update methods do not pass in the id of the object, possibly touching other rows unintentionally
+3. Added global configurable defaults for ```insertConfict()``` and ```updateConflict()```in a ```@Database``` for any table that does not define a ```ConflictAction``` #104 
+4. Added ```bulkInsert``` support to the ```@ContentProvider``` and corresponding method in ```ContentUtils``` #108 
+5. Added Kotlin support! just change the ```generatedClassSeparator()``` for a ```@Database``` to Kotlin compatible. #90 
+6. Added usage guide for databases
+7. Adds better null loading, as in it prevents loading null values into the object when it's not null. #128 
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
