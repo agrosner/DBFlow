@@ -117,7 +117,9 @@ Use the ```ColumnType.FOREIGN_KEY``` to enable **one-to-one** relationships. For
 
 ### Foreign Key Container
 
-We strongly prefer you use a ```ForeignKeyContainer``` and ```saveForeignKeyModel() = false``` for maximum performance gain:
+We strongly prefer you use a ```ForeignKeyContainer``` and ```saveForeignKeyModel() = false``` for maximum performance gain.
+
+```saveForeignKeyModel()``` if true, whenever the current table is saved, the foreign key object is saved. For maximum performance gain and situations where we are saving many items with same reference, this becomes inefficient over time. Setting this to false results in you having to manage it yourself.
 
 ```java
 
