@@ -176,3 +176,37 @@ public class TestModel extends BaseModel {
 
 ```
 
+## Advanced Table Features
+
+
+### Unique Groups
+
+In Sqlite you can define any number of columns as having a "unique" relationship, meaning the combination of one or more rows must be unique accross the whole table. 
+
+```SQL
+
+UNIQUE('name', 'number') ON CONFLICT FAIL, UNIQUE('name', 'address') ON CONFLICT ROLLBACK
+
+```
+
+To make use: 
+
+```java
+
+@Table(databaseName = AppDatabase.NAME,
+  uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.FAIL),
+                        @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.ROLLBACK)
+public class UniqueModel extends BaseModel {
+
+  @Column(columnType = Column.PRIMARY_KEY, uniqueGroups = {1,2})
+  String name;
+  
+  @Column(uniqueGroups = 1)
+  String number;
+  
+  @Column(uniqueGroups = 2)
+  String address;
+
+}
+
+```
