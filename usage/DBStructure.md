@@ -75,7 +75,7 @@ A limitations on using ```Model```:
 This is an example of a ```Model``` class with a primary key (at least one is required) and another field.
 
 ```java
-@Table
+@Table(databaseName = AppDatabase.NAME)
 public class TestModel extends BaseModel {
 
     // All tables must have a least one primary key
@@ -110,7 +110,7 @@ Given a standard ```Model```:
 
 ```java
 
-@Table
+@Table(databaseName = AppDatabase.NAME)
 public class AModel extends BaseModel {
 
     @Column(columnType = Column.PRIMARY_KEY)
@@ -135,7 +135,8 @@ We can create  ```VIEW``` based off of it as such:
 
 ```java
 
-@ModelView(query = "SELECT time from AModel where time > 0")
+@ModelView(query = "SELECT time from AModel where time > 0",
+  databaseName = AppDatabase.NAME)
 public class AModelView extends BaseModelView<AModel> {
 
     @Column
@@ -199,7 +200,7 @@ Following from our previous sample, the preferred method of retrieval is through
 
 ```java
 
-@Table
+@Table(databaseName = AppDatabase.NAME)
 public class TestModel extends BaseModel {
 
     // All tables must have a least one primary key
