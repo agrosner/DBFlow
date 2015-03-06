@@ -15,8 +15,6 @@ import java.io.IOException;
 public class MigrationDefinition extends BaseDefinition implements FlowWriter {
 
 
-    public static final String DBFLOW_MIGRATION_CONTAINER_TAG = "$Migrations";
-
     public String databaseName;
 
     public Integer version;

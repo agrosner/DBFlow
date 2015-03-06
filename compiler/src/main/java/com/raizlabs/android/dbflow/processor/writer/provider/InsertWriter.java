@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
-import com.raizlabs.android.dbflow.processor.definition.NotifyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.model.builder.SqlQueryBuilder;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
@@ -12,8 +11,6 @@ import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 
@@ -30,6 +27,13 @@ public class InsertWriter implements FlowWriter {
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
+        writeMethod(javaWriter, false);
+        writeMethod(javaWriter, true);
+    }
+
+    protected void writeMethod(JavaWriter javaWriter, final boolean isBulk) {
+        String returnType = isBulk ? "int" : "Uri";
+        String methodName = isBulk ? "bulkInsert": "insert";
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                     @Override
                     public void write(JavaWriter javaWriter) throws IOException {
@@ -48,10 +52,14 @@ public class InsertWriter implements FlowWriter {
 
                                     javaWriter.emitStatement(queryBuilder.getQuery());
 
-                                    new NotifyWriter(tableEndpointDefinition, uriDefinition,
-                                            Notify.Method.INSERT).write(javaWriter);
+                                    if(!isBulk) {
+                                        new NotifyWriter(tableEndpointDefinition, uriDefinition,
+                                                Notify.Method.INSERT).write(javaWriter);
 
-                                    javaWriter.emitStatement("return ContentUris.withAppendedId(uri, id)");
+                                        javaWriter.emitStatement("return ContentUris.withAppendedId(uri, id)");
+                                    } else {
+                                        javaWriter.emitStatement("return id > 0 ? 1 : 0");
+                                    }
                                     javaWriter.endControlFlow();
                                 }
                             }
@@ -64,7 +72,7 @@ public class InsertWriter implements FlowWriter {
 
                         javaWriter.endControlFlow();
                     }
-                }, "Uri", "insert", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
+                }, returnType, methodName, Sets.newHashSet(isBulk ? Modifier.PROTECTED : Modifier.PUBLIC, Modifier.FINAL),
                 "Uri", "uri", "ContentValues", "values");
     }
 }

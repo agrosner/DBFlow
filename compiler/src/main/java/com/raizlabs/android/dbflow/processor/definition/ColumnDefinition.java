@@ -88,14 +88,14 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
-        if(column != null) {
+        if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
             this.saveModelForeignKey = column.saveForeignKeyModel();
             length = column.length();
             unique = column.unique();
-            if(unique) {
+            if (unique) {
                 int[] groups = column.uniqueGroups();
-                for(int group: groups) {
+                for (int group : groups) {
                     uniqueGroups.add(group);
                 }
             }
@@ -142,7 +142,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
         }
 
-        if(column != null) {
+        if (column != null) {
             columnType = column.columnType();
         } else {
             columnType = Column.NORMAL;
@@ -160,7 +160,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             hasTypeConverter = true;
         }
 
-        if("java.lang.Boolean".equals(modelType.getQualifiedName().toString())) {
+        if ("java.lang.Boolean".equals(modelType.getQualifiedName().toString())) {
             isBoolean = true;
         }
 
@@ -219,7 +219,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 String modelContainerName = ModelUtils.getVariable(true) + columnFieldName;
                 javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.getValue(\"%1s\"), %1s.class)", modelContainerName,
                         ModelUtils.getVariable(true), ModelUtils.getVariable(true), columnFieldName, columnFieldType);
-                if(saveModelForeignKey) {
+                if (saveModelForeignKey) {
                     javaWriter.emitStatement("%1s.save(false)", modelContainerName);
                 }
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
@@ -244,14 +244,14 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             } else {
                 String modelStatement = ModelUtils.getModelStatement(columnFieldName);
                 javaWriter.beginControlFlow("if (%1s != null)", modelStatement);
-                if(saveModelForeignKey) {
+                if (saveModelForeignKey) {
                     javaWriter.emitStatement("%1s.save(false)", modelStatement);
                 }
 
                 List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     TypeMirror castedClass = ModelUtils.getTypeMirrorFromAnnotation(foreignKeyReference);
-                    ModelUtils. writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(),
+                    ModelUtils.writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(),
                             foreignKeyReference.columnName(),
                             columnName, castedClass.toString(),
                             foreignKeyReference.foreignColumnName(), foreignKeyReference.foreignColumnName(),
@@ -325,7 +325,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         return !columnFieldIsPrimitive && !notNull;
     }
 
-    public void writeLoadFromCursorDefinition(JavaWriter javaWriter, boolean isModelContainerDefinition) throws IOException {
+    public void writeLoadFromCursorDefinition(BaseTableDefinition tableDefinition, JavaWriter javaWriter, boolean isModelContainerDefinition) throws IOException {
         if (columnType == Column.FOREIGN_KEY) {
             //TODO: This is wrong, should be using condition query builder
             javaWriter.emitEmptyLine();
@@ -336,7 +336,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
                 MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder()
-                        .appendForeignKeyReferences(columnFieldType + TableDefinition.DBFLOW_TABLE_TAG, columnName, foreignKeyReferences);
+                        .appendForeignKeyReferences(columnFieldType + tableDefinition.databaseWriter.classSeparator + TableDefinition.DBFLOW_TABLE_TAG, columnName, foreignKeyReferences);
 
                 String rawConditionStatement = String.format("new Select().from(%1s).where().%1s.querySingle()",
                         ModelUtils.getFieldClass(columnFieldType), conditionQueryBuilder);

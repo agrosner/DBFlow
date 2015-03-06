@@ -18,7 +18,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
 
     List<ModelClass> mModels = new ArrayList<ModelClass>();
 
-    TransactionListener<List<ModelClass>> mReceiver;
+    TransactionListener<List<ModelClass>> mTransactionListener;
 
     DBTransactionInfo mInfo;
 
@@ -107,7 +107,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
      * @return This instance.
      */
     public ProcessModelInfo<ModelClass> result(TransactionListener<List<ModelClass>> transactionListener) {
-        mReceiver = transactionListener;
+        mTransactionListener = transactionListener;
         return this;
     }
 

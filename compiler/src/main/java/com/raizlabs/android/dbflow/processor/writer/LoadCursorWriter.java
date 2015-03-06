@@ -64,7 +64,7 @@ public class LoadCursorWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
 
                 for (ColumnDefinition columnDefinition : baseTableDefinition.getColumnDefinitions()) {
-                    columnDefinition.writeLoadFromCursorDefinition(javaWriter, isModelContainerDefinition);
+                    columnDefinition.writeLoadFromCursorDefinition(baseTableDefinition, javaWriter, isModelContainerDefinition);
                 }
 
                 if (implementsLoadFromCursorListener && !isModelContainerDefinition) {

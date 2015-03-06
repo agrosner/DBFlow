@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.writer.CreationQueryWriter;
+import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
@@ -38,9 +39,9 @@ import javax.lang.model.element.VariableElement;
  */
 public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
-    public static final String DBFLOW_TABLE_TAG = "$Table";
+    public static final String DBFLOW_TABLE_TAG = "Table";
 
-    public static final String DBFLOW_TABLE_ADAPTER = "$Adapter";
+    public static final String DBFLOW_TABLE_ADAPTER = "Adapter";
 
     public String tableName;
 
@@ -80,8 +81,6 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public TableDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
-        setDefinitionClassName(DBFLOW_TABLE_TAG);
-        this.adapterName = getModelClassName() + DBFLOW_TABLE_ADAPTER;
 
         Table table = element.getAnnotation(Table.class);
         this.tableName = table.value();
@@ -89,10 +88,31 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
         }
-        insertConflictActionName = table.insertConflict().equals(ConflictAction.NONE) ? ""
-                : table.insertConflict().name();
-        updateConflicationActionName = table.updateConflict().equals(ConflictAction.NONE) ? ""
-                : table.insertConflict().name();
+
+        databaseWriter = manager.getDatabaseWriter(databaseName);
+        if (databaseWriter == null) {
+            manager.logError("Databasewriter was null for : " + tableName);
+        }
+
+        setDefinitionClassName(databaseWriter.classSeparator + DBFLOW_TABLE_TAG);
+        this.adapterName = getModelClassName() + databaseWriter.classSeparator + DBFLOW_TABLE_ADAPTER;
+
+
+        // globular default
+        ConflictAction insertConflict = table.insertConflict();
+        if (insertConflict.equals(ConflictAction.NONE) && !databaseWriter.insertConflict.equals(ConflictAction.NONE)) {
+            insertConflict = databaseWriter.insertConflict;
+        }
+
+        ConflictAction updateConflict = table.updateConflict();
+        if (updateConflict.equals(ConflictAction.NONE) && !databaseWriter.updateConflict.equals(ConflictAction.NONE)) {
+            updateConflict = databaseWriter.updateConflict;
+        }
+
+        insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
+                : insertConflict.name();
+        updateConflicationActionName = updateConflict.equals(ConflictAction.NONE) ? ""
+                : updateConflict.name();
 
         allFields = table.allFields();
 
