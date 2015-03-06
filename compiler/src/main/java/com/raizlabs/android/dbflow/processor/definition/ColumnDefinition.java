@@ -82,6 +82,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public boolean isBoolean = false;
 
+    public boolean columnFieldIsPrimitive = false;
+
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         super(element, processorManager);
 
@@ -115,7 +117,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             containerKeyName = columnName;
         }
 
-        if (element.asType().getKind().isPrimitive()) {
+        this.columnFieldIsPrimitive = element.asType().getKind().isPrimitive();
+        if (columnFieldIsPrimitive) {
             this.modelType = processorManager.getTypeUtils().boxedClass((PrimitiveType) element.asType());
         } else {
             boolean isAModelContainer = false;
@@ -311,6 +314,17 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         }
     }
 
+    /**
+     * A field is nullable if it is not declared to be notNull and if it is a non-primitive type.
+     * Nullable primitive types will simply load null values using the standard cursor methods and
+     * receive the default value for that field type.
+     *
+     * @return {@code true} if the field is nullable, {@code false} otherwise.
+     */
+    private boolean isNullable() {
+        return !columnFieldIsPrimitive && !notNull;
+    }
+
     public void writeLoadFromCursorDefinition(BaseTableDefinition tableDefinition, JavaWriter javaWriter, boolean isModelContainerDefinition) throws IOException {
         if (columnType == Column.FOREIGN_KEY) {
             //TODO: This is wrong, should be using condition query builder
@@ -371,7 +385,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                         ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, ModelUtils.getClassFromAnnotation(foreignKeyReference),
                                 columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(),
-                                foreignKeyReference.columnName(), element, false, isModelContainerDefinition, isModelContainer);
+                                foreignKeyReference.columnName(), element, false, isModelContainerDefinition, isModelContainer, isNullable());
                     }
                 }
             }
@@ -387,7 +401,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, getType, columnFieldName,
-                    columnName, "", containerKeyName, modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer);
+                    columnName, "", containerKeyName, modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer, isNullable());
         }
     }
 

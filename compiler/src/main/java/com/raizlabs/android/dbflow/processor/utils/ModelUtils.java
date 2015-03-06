@@ -1,14 +1,14 @@
 package com.raizlabs.android.dbflow.processor.utils;
 
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.SQLiteType;
-import com.raizlabs.android.dbflow.sql.StatementMap;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.SQLiteType;
+import com.raizlabs.android.dbflow.sql.StatementMap;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -112,19 +112,8 @@ public class ModelUtils {
 
     public static void writeLoadFromCursorDefinitionField(JavaWriter javaWriter, ProcessorManager processorManager, String columnFieldType, String columnFieldName, String columnName,
                                                           String foreignColumnName, String containerKeyName,
-                                                          Element modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer) throws IOException {
-        AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isModelContainerDefinition);
-        if (isFieldModelContainer) {
-            queryBuilder.append(".").append(columnFieldName);
-        }
-        if (isModelContainerDefinition) {
-            queryBuilder.appendPut(containerKeyName);
-        } else if (isFieldModelContainer) {
-            queryBuilder.appendPut(foreignColumnName);
-        } else {
-            queryBuilder.append(".").append(columnFieldName).appendSpaceSeparated("=");
-        }
-
+                                                          Element modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer,
+                                                          boolean isNullable) throws IOException {
         // TODO: find a way to convert a type properly
         String newFieldType = null;
         if (hasTypeConverter) {
@@ -137,22 +126,52 @@ public class ModelUtils {
         }
 
         javaWriter.emitStatement(getColumnIndex(columnName));
-        javaWriter.beginControlFlow("if (%1s != -1) ", "index" + columnName);
+        String index = "index" + columnName;
+        javaWriter.beginControlFlow("if (%1s != -1) ", index);
 
+        if (isNullable) {
+            javaWriter.beginControlFlow("if (cursor.isNull(%1s)) ", index);
+            emitColumnAssignment(javaWriter, columnFieldType, columnFieldName, foreignColumnName,
+                    containerKeyName, "null", hasTypeConverter, isModelContainerDefinition, isFieldModelContainer);
+            javaWriter.nextControlFlow(" else ");
+        }
         String cursorStatment = ModelUtils.getCursorStatement(newFieldType, columnName);
+        emitColumnAssignment(javaWriter, columnFieldType, columnFieldName, foreignColumnName,
+                containerKeyName, cursorStatment, hasTypeConverter, isModelContainerDefinition, isFieldModelContainer);
+        if (isNullable) {
+            javaWriter.endControlFlow();
+        }
+        javaWriter.endControlFlow();
+    }
+
+    private static void emitColumnAssignment(JavaWriter javaWriter, String columnFieldType, String columnFieldName,
+                                             String foreignColumnName, String containerKeyName, String valueStatement,
+                                             boolean hasTypeConverter, boolean isModelContainerDefinition,
+                                             boolean isFieldModelContainer) throws IOException {
+        AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isModelContainerDefinition);
+        if (isFieldModelContainer) {
+            queryBuilder.append(".").append(columnFieldName);
+        }
+        if (isModelContainerDefinition) {
+            queryBuilder.appendPut(containerKeyName);
+        } else if (isFieldModelContainer) {
+            queryBuilder.appendPut(foreignColumnName);
+        } else {
+            queryBuilder.append(".").append(columnFieldName).appendSpaceSeparated("=");
+        }
         if (hasTypeConverter && !isModelContainerDefinition) {
             queryBuilder.appendTypeConverter(columnFieldType, columnFieldType, true);
         }
 
-        queryBuilder.append(cursorStatment);
+        queryBuilder.append(valueStatement);
+
         if (hasTypeConverter && !isModelContainerDefinition) {
             queryBuilder.append("))");
         } else if (isModelContainerDefinition || isFieldModelContainer) {
             queryBuilder.append(")");
         }
 
-        javaWriter.emitStatement(queryBuilder.getQuery());
-        javaWriter.endControlFlow();
+        javaWriter.emitStatement(queryBuilder.toString());
     }
 
     public static String getContainerValueStatement(String columnFieldName) {

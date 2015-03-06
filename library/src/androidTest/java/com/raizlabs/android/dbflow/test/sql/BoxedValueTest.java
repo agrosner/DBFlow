@@ -3,7 +3,11 @@ package com.raizlabs.android.dbflow.test.sql;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
 
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Description: Test to ensure that passing null to non-null fields does not cause a NPE and that it
@@ -11,16 +15,69 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
  */
 public class BoxedValueTest extends FlowTestCase {
 
-    public void testBoxedValues() {
-        BoxedModel boxedModel = new BoxedModel();
-        boxedModel.id = null;
-        boxedModel.rblNumber = null;
+    private static final AtomicLong SEQUENCE_ID = new AtomicLong();
+    private BoxedModel testObject;
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        testObject = new BoxedModel();
+        testObject.id = SEQUENCE_ID.getAndIncrement();
+    }
+
+    public void testBoxedValues_nullId() {
+        testObject.id = null;
+        assertCannotSaveModel();
+    }
+
+    public void testBoxedValues_integerFieldNotNull() {
+        testObject.integerFieldNotNull = null;
+        assertCannotSaveModel();
+    }
+
+    public void testBoxedValues_integerField() {
+        testObject.integerField = null;
+        assertCanSaveModel();
+        loadModel();
+        assertNull(testObject.integerField);
+    }
+
+    public void testBoxedValues_stringFieldNotNull() {
+        testObject.stringFieldNotNull = null;
+        assertCannotSaveModel();
+    }
+
+    public void testBoxedValues_stringField() {
+        testObject.stringField = null;
+        assertCanSaveModel();
+        loadModel();
+        assertNull(testObject.stringField);
+    }
+
+    private void loadModel() {
+        testObject = new Select()
+                .from(BoxedModel.class)
+                .where(Condition.column(BoxedModel$Table.ID).eq(testObject.id))
+                .querySingle();
+    }
+
+    private void assertCannotSaveModel() {
         try {
-            boxedModel.save(false);
+            testObject.save(false);
+            fail("Was able to save model");
         } catch (SQLiteException s) {
             // not null should fail
             assertTrue(s instanceof SQLiteConstraintException);
         }
     }
+
+    private void assertCanSaveModel() {
+        try {
+            testObject.save(false);
+        } catch (SQLiteException s) {
+            s.printStackTrace(System.err);
+            fail("Was unable to save model: " + s.getMessage());
+        }
+    }
+
 }
