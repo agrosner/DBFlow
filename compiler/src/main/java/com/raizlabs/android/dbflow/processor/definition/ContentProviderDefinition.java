@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator;
+import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.InsertWriter;
@@ -29,7 +30,7 @@ import javax.lang.model.element.TypeElement;
  */
 public class ContentProviderDefinition extends BaseDefinition {
 
-    static final String DEFINITION_NAME = "$Provider";
+    static final String DEFINITION_NAME = "Provider";
 
     static final String DATABASE_FIELD = "database";
 
@@ -47,13 +48,14 @@ public class ContentProviderDefinition extends BaseDefinition {
 
     public ContentProviderDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
-        setDefinitionClassName(DEFINITION_NAME);
 
         ContentProvider provider = element.getAnnotation(ContentProvider.class);
         databaseName = provider.databaseName();
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
         }
+        DatabaseWriter databaseWriter = manager.getDatabaseWriter(databaseName);
+        setDefinitionClassName(databaseWriter.classSeparator + DEFINITION_NAME);
 
         authority = provider.authority();
 
@@ -62,13 +64,13 @@ public class ContentProviderDefinition extends BaseDefinition {
         for (Element innerElement : elements) {
             if (innerElement.getAnnotation(TableEndpoint.class) != null) {
                 TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, manager);
-                if(validator.validate(processorManager, endpointDefinition)) {
+                if (validator.validate(processorManager, endpointDefinition)) {
                     endpointDefinitions.add(endpointDefinition);
                 }
             }
         }
 
-        mWriters = new FlowWriter[] {
+        mWriters = new FlowWriter[]{
                 new QueryWriter(this, manager),
                 new InsertWriter(this),
                 new DeleteWriter(this, manager),
@@ -166,13 +168,9 @@ public class ContentProviderDefinition extends BaseDefinition {
             }
         }, "String", "getType", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "Uri", "uri");
 
-        for(FlowWriter writer: mWriters) {
+        for (FlowWriter writer : mWriters) {
             writer.write(javaWriter);
         }
-
-
-
-
 
 
     }

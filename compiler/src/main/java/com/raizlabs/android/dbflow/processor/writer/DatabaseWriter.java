@@ -45,6 +45,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     public ConflictAction updateConflict;
 
+    public String classSeparator;
+
     public DatabaseWriter(ProcessorManager manager, Element element) {
         super(element, manager);
         packageName = Classes.FLOW_MANAGER_PACKAGE;
@@ -58,13 +60,16 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         consistencyChecksEnabled = database.consistencyCheckEnabled();
         backupEnabled = database.backupEnabled();
 
-        definitionClassName = databaseName + "$Database";
+        classSeparator = database.generatedClassSeparator();
+
+        definitionClassName = databaseName + classSeparator + "Database";
 
         databaseVersion = database.version();
         foreignKeysSupported = database.foreignKeysSupported();
 
         insertConflict = database.insertConflict();
         updateConflict = database.updateConflict();
+
     }
 
     @Override
