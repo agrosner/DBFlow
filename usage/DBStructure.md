@@ -178,6 +178,10 @@ public class TestModel extends BaseModel {
 
 ## Advanced Table Features
 
+### All Fields as Columns
+
+As other libraries do, you can set ```@Table(allFields = true)``` to turn on the ability to use all public/package private, non-final, and non-static fields as ```@Column```. You still are required to provide a primary key column field.
+
 
 ### Unique Groups
 
