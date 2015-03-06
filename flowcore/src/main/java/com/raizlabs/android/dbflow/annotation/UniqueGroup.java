@@ -20,5 +20,5 @@ public @interface UniqueGroup {
     /**
      * @return The conflict action that this group takes.
      */
-    ConflictAction onUniqueConflict() default ConflictAction.FAIL;
+    ConflictAction uniqueConflict() default ConflictAction.FAIL;
 }

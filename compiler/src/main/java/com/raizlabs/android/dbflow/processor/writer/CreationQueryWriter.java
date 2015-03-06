@@ -97,7 +97,7 @@ public class CreationQueryWriter implements FlowWriter {
                             ConflictAction conflictAction = ConflictAction.FAIL;
                             boolean hasGroup = false;
                             if (tableDefinition.mUniqueGroupMap.containsKey(group)) {
-                                conflictAction = tableDefinition.mUniqueGroupMap.get(group).onUniqueConflict();
+                                conflictAction = tableDefinition.mUniqueGroupMap.get(group).uniqueConflict();
                                 hasGroup = true;
                             }
                             List<String> columnNames = Lists.newArrayList();

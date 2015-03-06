@@ -11,8 +11,8 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description:
  */
 @Table(databaseName = TestDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, onUniqueConflict = ConflictAction.ROLLBACK),
-        @UniqueGroup(groupNumber = 2, onUniqueConflict = ConflictAction.REPLACE)})
+        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.ROLLBACK),
+        @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.REPLACE)})
 public class UniqueModel extends BaseModel {
 
     @Column(columnType = Column.PRIMARY_KEY_AUTO_INCREMENT)
