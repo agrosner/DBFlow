@@ -9,15 +9,13 @@ import java.lang.annotation.Target;
  * Author: andrewgrosner
  * Description: Creates a new database to use in the application.
  * <p>
- *     If we specify one DB, then all models do not need to specify a DB. As soon as we specify two, then each
- *     model needs to define what DB it points to.
+ * If we specify one DB, then all models do not need to specify a DB. As soon as we specify two, then each
+ * model needs to define what DB it points to.
  * </p>
- *
  * <p>
- *     Models will specify which DB it belongs to,
- *     but they currently can only belong to one DB.
+ * Models will specify which DB it belongs to,
+ * but they currently can only belong to one DB.
  * </p>
- *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
@@ -50,4 +48,22 @@ public @interface Database {
      * replace the corrupted DB
      */
     boolean backupEnabled() default false;
+
+    /**
+     * @return Global default insert conflict that can be applied to any table when it leaves
+     * its {@link ConflictAction} as NONE.
+     */
+    ConflictAction insertConflict() default ConflictAction.NONE;
+
+    /**
+     * @return Global update conflict that can be applied to any table when it leaves its
+     * {@link ConflictAction} as NONE
+     */
+    ConflictAction updateConflict() default ConflictAction.NONE;
+
+    /**
+     * @return Marks all generated classes within this database with this character. For example
+     * "TestTable" becomes "TestTable$Table" for a "$" separator.
+     */
+    String generatedClassSeparator() default "$";
 }

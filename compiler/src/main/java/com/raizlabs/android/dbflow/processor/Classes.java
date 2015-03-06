@@ -59,7 +59,7 @@ public class Classes {
 
     public static final String FLOW_MANAGER_PACKAGE = "com.raizlabs.android.dbflow.config";
 
-    public static final String DATABASE_HOLDER_STATIC_CLASS_NAME = "Database$Holder";
+    public static final String DATABASE_HOLDER_STATIC_CLASS_NAME = "GeneratedDatabaseHolder";
 
     public static final String BASE_DATABASE_DEFINITION = "BaseDatabaseDefinition";
 

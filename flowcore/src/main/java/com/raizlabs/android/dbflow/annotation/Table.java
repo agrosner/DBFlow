@@ -36,10 +36,16 @@ public @interface Table {
     ConflictAction insertConflict() default ConflictAction.NONE;
 
     /**
-     * @return When true, all fields of the reference class are considered as {@link com.raizlabs.android.dbflow.annotation.Column} .
+     * @return When true, all public, package-private , non-static, and non-final fields of the reference class are considered as {@link com.raizlabs.android.dbflow.annotation.Column} .
      * The only required annotated field becomes The {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY}
      * or {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}.
      */
     boolean allFields() default false;
+
+    /**
+     * @return Declares a set of UNIQUE columns with the corresponding {@link ConflictAction}. A {@link Column}
+     * will point to this group using {@link Column#uniqueGroups()}
+     */
+    UniqueGroup[] uniqueColumnGroups() default {};
 
 }

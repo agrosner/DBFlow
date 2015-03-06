@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public class ModelContainerDefinition extends BaseDefinition {
 
-    public static final String DBFLOW_MODEL_CONTAINER_TAG = "$Container";
+    public static final String DBFLOW_MODEL_CONTAINER_TAG = "Container";
 
     private FlowWriter[] mMethodWriters;
 
@@ -24,10 +24,9 @@ public class ModelContainerDefinition extends BaseDefinition {
 
     public ModelContainerDefinition(TypeElement classElement, ProcessorManager manager) {
         super(classElement, manager);
-        setDefinitionClassName(DBFLOW_MODEL_CONTAINER_TAG);
-
         tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()), classElement);
 
+        setDefinitionClassName(tableDefinition.databaseWriter.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
         mMethodWriters = new FlowWriter[]{
                 new SQLiteStatementWriter(tableDefinition, true, tableDefinition.implementsSqlStatementListener,
@@ -87,7 +86,7 @@ public class ModelContainerDefinition extends BaseDefinition {
         }, "Class<?>", "getClassForColumn", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "String", "columnName");
 
         InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassQualifiedName());
-        InternalAdapterHelper.writeGetTableName(javaWriter, elementClassName + TableDefinition.DBFLOW_TABLE_TAG);
+        InternalAdapterHelper.writeGetTableName(javaWriter, elementClassName + tableDefinition.databaseWriter.classSeparator + TableDefinition.DBFLOW_TABLE_TAG);
 
 
 
