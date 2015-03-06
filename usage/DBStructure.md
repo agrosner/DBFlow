@@ -167,7 +167,9 @@ Use the ```ColumnType.FOREIGN_KEY``` to enable **one-to-one** relationships. For
 
 ### Foreign Key Container
 
-We strongly prefer you use a ```ForeignKeyContainer``` and ```saveForeignKeyModel() = false``` for maximum performance gain:
+We strongly prefer you use a ```ForeignKeyContainer``` and ```saveForeignKeyModel() = false``` for maximum performance gain.
+
+```saveForeignKeyModel()``` if true, whenever the current table is saved, the foreign key object is saved. For maximum performance gain and situations where we are saving many items with same reference, this becomes inefficient over time. Setting this to false results in you having to manage it yourself.
 
 ```java
 
@@ -220,6 +222,45 @@ public class TestModel extends BaseModel {
        }
        return testManyModels;
     }
+}
+
+```
+
+## Advanced Table Features
+
+### All Fields as Columns
+
+As other libraries do, you can set ```@Table(allFields = true)``` to turn on the ability to use all public/package private, non-final, and non-static fields as ```@Column```. You still are required to provide a primary key column field.
+
+
+### Unique Groups
+
+In Sqlite you can define any number of columns as having a "unique" relationship, meaning the combination of one or more rows must be unique accross the whole table.
+
+```SQL
+
+UNIQUE('name', 'number') ON CONFLICT FAIL, UNIQUE('name', 'address') ON CONFLICT ROLLBACK
+
+```
+
+To make use:
+
+```java
+
+@Table(databaseName = AppDatabase.NAME,
+  uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.FAIL),
+                        @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.ROLLBACK)
+public class UniqueModel extends BaseModel {
+
+  @Column(columnType = Column.PRIMARY_KEY, uniqueGroups = {1,2})
+  String name;
+
+  @Column(uniqueGroups = 1)
+  String number;
+
+  @Column(uniqueGroups = 2)
+  String address;
+
 }
 
 ```
