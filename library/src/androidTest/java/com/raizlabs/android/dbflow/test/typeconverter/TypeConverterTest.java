@@ -74,4 +74,25 @@ public class TypeConverterTest extends FlowTestCase {
 
     }
 
+    /**
+     * Nullable database columns need to be allowed to receive null values.
+     */
+    public void testConvertersNullValues() {
+        new Delete().from(TestType.class).where().query();
+
+        TestType testType = new TestType();
+        testType.name = "Name";
+        testType.save(false);
+
+        TestType retrieved = Select.byId(TestType.class, "Name");
+        assertNotNull(retrieved);
+
+        assertNull(retrieved.aBoolean);
+        assertNull(retrieved.calendar);
+        assertNull(retrieved.date);
+        assertNull(retrieved.sqlDate);
+        assertNull(retrieved.json);
+        assertNull(retrieved.location);
+    }
+
 }
