@@ -31,11 +31,11 @@ public class ExistenceWriter implements FlowWriter {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 if(tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).hasAutoIncrement) {
-                    String access =  ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnName,
-                            long.class.getSimpleName(), ((TableDefinition) tableDefinition).autoIncrementDefinition.columnName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
+                    String access =  ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldName,
+                            long.class.getSimpleName(), ((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
                             isModelContainer, false, false, ((TableDefinition) tableDefinition).autoIncrementDefinition.hasTypeConverter);
-                    String accessNoCast =  ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnName,
-                            null, ((TableDefinition) tableDefinition).autoIncrementDefinition.columnName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
+                    String accessNoCast =  ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldName,
+                            null, ((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
                             isModelContainer, false, false, ((TableDefinition) tableDefinition).autoIncrementDefinition.hasTypeConverter);
                     javaWriter.emitStatement("return %1s%1s > 0",
                             ((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldIsPrimitive ? "" : (accessNoCast + "!=null && "),
