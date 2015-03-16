@@ -249,7 +249,7 @@ To make use:
 
 @Table(databaseName = AppDatabase.NAME,
   uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.FAIL),
-                        @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.ROLLBACK)
+                        @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.ROLLBACK))
 public class UniqueModel extends BaseModel {
 
   @Column(columnType = Column.PRIMARY_KEY, uniqueGroups = {1,2})
