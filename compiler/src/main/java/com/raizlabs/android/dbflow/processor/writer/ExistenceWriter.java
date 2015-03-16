@@ -31,9 +31,15 @@ public class ExistenceWriter implements FlowWriter {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 if(tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).hasAutoIncrement) {
-                    javaWriter.emitStatement("return %1s > 0", ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnName,
+                    String access =  ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnName,
                             long.class.getSimpleName(), ((TableDefinition) tableDefinition).autoIncrementDefinition.columnName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
-                            isModelContainer, false, false, ((TableDefinition) tableDefinition).autoIncrementDefinition.hasTypeConverter));
+                            isModelContainer, false, false, ((TableDefinition) tableDefinition).autoIncrementDefinition.hasTypeConverter);
+                    String accessNoCast =  ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnName,
+                            null, ((TableDefinition) tableDefinition).autoIncrementDefinition.columnName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
+                            isModelContainer, false, false, ((TableDefinition) tableDefinition).autoIncrementDefinition.hasTypeConverter);
+                    javaWriter.emitStatement("return %1s%1s > 0",
+                            ((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldIsPrimitive ? "" : (accessNoCast + "!=null && "),
+                            access);
                 } else {
                     javaWriter.emitStatement("return new Select().from(%1s).where(getPrimaryModelWhere(%1s)).hasData()",
                             ModelUtils.getFieldClass(tableDefinition.getModelClassName()), ModelUtils.getVariable(isModelContainer));

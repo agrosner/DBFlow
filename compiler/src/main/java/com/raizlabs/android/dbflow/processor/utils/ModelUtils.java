@@ -87,7 +87,11 @@ public class ModelUtils {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
 
         if (!requiresTypeConverter) {
-            contentValue.appendCast(castedClass);
+            if(castedClass != null) {
+                contentValue.appendCast(castedClass);
+            } else {
+                contentValue.append("(");
+            }
         }
         contentValue.appendVariable(isContainer).append(".");
         if (isContainer) {
