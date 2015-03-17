@@ -75,11 +75,12 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     }
 
     /**
-     * Constructs this class with a SELECT * on the manager and {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
      *
-     * @param conditionQueryBuilder
-     * @param <ModelClass>
-     * @return
+     * A helper method to construct this class with a SELECT(columns) with the specified WHERE {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     *
+     * @param conditionQueryBuilder The WHERE conditions for this statement
+     * @param <ModelClass>          The class that implements {@link Model}
+     * @return A WHERE with the specified conditions and columns
      */
     public static <ModelClass extends Model> Where<ModelClass> with(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
                                                                     String... columns) {
