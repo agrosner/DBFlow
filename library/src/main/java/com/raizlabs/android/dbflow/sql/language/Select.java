@@ -42,7 +42,7 @@ public class Select implements Query {
      * The method name we wish to execute
      */
     private String mMethodName;
-g
+
     /**
      * The column name passed into the method name
      */
