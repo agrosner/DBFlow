@@ -24,7 +24,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
  * Description: Defines the SQL WHERE statement of the query.
  */
 public class Where<ModelClass extends Model> implements Query, ModelQueriable<ModelClass> {
