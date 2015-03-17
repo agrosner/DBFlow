@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.test.structure;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI;
 
 /**
  * Description:

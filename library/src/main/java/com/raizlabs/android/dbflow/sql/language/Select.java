@@ -1,15 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import android.text.TextUtils;
-
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
-import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 
 import java.util.List;
 
@@ -99,12 +95,13 @@ public class Select implements Query {
 
     /**
      * Retrieves the count of the {@link ModelClass} table based on the specified WHERE conditions.
-     * @param tableClass The table to select count from
-     * @param conditions The list of conditions to select the count of models from
+     *
+     * @param tableClass   The table to select count from
+     * @param conditions   The list of conditions to select the count of models from
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return The count of how many rows exist within the table based on the conditions passed.
      */
-    public static <ModelClass extends Model> long count(Class<ModelClass> tableClass, Condition...conditions) {
+    public static <ModelClass extends Model> long count(Class<ModelClass> tableClass, Condition... conditions) {
         return new Select().count().from(tableClass).where(conditions).count();
     }
 
@@ -160,7 +157,7 @@ public class Select implements Query {
     }
 
     /**
-     * appends {@link #COUNT} to the query
+     * appends COUNT to the query
      *
      * @return
      */

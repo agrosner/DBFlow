@@ -2,12 +2,15 @@ package com.raizlabs.android.dbflow.sql;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowTableList;
+import com.raizlabs.android.dbflow.sql.language.From;
+import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
 
 /**
  * Description: An interface for query objects to enable you to query from the database in a structured way.
+ * Examples of such statements are: {@link From}, {@link Where}, {@link StringQuery}
  */
 public interface ModelQueriable<ModelClass extends Model> extends Queriable {
 

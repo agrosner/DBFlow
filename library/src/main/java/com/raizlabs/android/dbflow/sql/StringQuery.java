@@ -10,8 +10,8 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
- * Description: Provides a very basic query mechanism for strings. It runs a modification query and will only run
+ * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL query string
+ * code where this library does not provide. It only runs a
  * {@link android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])}.
  */
 public class StringQuery<ModelClass extends Model> implements Query, ModelQueriable<ModelClass> {
@@ -65,12 +65,12 @@ public class StringQuery<ModelClass extends Model> implements Query, ModelQueria
 
     @Override
     public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<ModelClass>(false, this);
+        return new FlowCursorList<>(false, this);
     }
 
     @Override
     public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<ModelClass>(this);
+        return new FlowTableList<>(this);
     }
 
     @Override

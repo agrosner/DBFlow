@@ -39,7 +39,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
 
     @Override
     public void migrate(SQLiteDatabase database) {
-        getIndex().enable();
+        database.execSQL(getIndex().getQuery());
     }
 
     @Override
