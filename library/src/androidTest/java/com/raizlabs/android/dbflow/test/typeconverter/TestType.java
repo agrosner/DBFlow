@@ -21,6 +21,9 @@ import java.util.Date;
 public class TestType extends TestModel1 {
 
     @Column
+    boolean nativeBoolean;
+
+    @Column
     Boolean aBoolean;
 
     @Column
