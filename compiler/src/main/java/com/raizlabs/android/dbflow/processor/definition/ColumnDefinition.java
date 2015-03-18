@@ -92,12 +92,9 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
             this.saveModelForeignKey = column.saveForeignKeyModel();
             length = column.length();
-            unique = column.unique();
-            if (unique) {
-                int[] groups = column.uniqueGroups();
-                for (int group : groups) {
-                    uniqueGroups.add(group);
-                }
+            int[] groups = column.uniqueGroups();
+            for (int group : groups) {
+                uniqueGroups.add(group);
             }
             onUniqueConflict = column.onUniqueConflict();
             notNull = column.notNull();

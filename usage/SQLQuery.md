@@ -89,6 +89,12 @@ new Select().from(SomeTable.class).where(conditions).querySingle();
 new Select().from(SomeTable.class).where(conditions).queryTableList();
 new Select().from(SomeTable.class).where(conditions).queryCursorList();
 
+// SELECT methods
+new Select().distinct().from(table).queryList();
+new Select().all().from(table).queryList();
+new Select().avg(SomeTable$Table.SALARY).from(SomeTable.class).queryList();
+
+
 // Transact a query on the DBTransactionQueue
 new Select().from(SomeTable.class).where(conditions)
   .transactList(new TransactionListenerAdapter<List<SomeTable>>() {

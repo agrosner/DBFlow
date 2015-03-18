@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.test.structure;
+package com.raizlabs.android.dbflow.test.structure.autoincrement;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
@@ -16,10 +16,10 @@ public class TestModelAI extends BaseModel {
 
     @ContainerKey("_id")
     @Column(columnType = Column.PRIMARY_KEY_AUTO_INCREMENT)
-    long id;
+    public long id;
 
     @Column
-    String name;
+    public String name;
 
     @Override
     public boolean equals(Object o) {
