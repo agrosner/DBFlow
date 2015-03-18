@@ -1,12 +1,10 @@
 package com.raizlabs.android.dbflow.test.typeconverter;
 
 import android.location.Location;
-
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
-
 import org.json.JSONObject;
 
 import java.util.Calendar;
