@@ -5,6 +5,8 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import java.util.Arrays;
+
 /**
  * Author: andrewgrosner
  * Description: Test our {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} and
@@ -60,9 +62,40 @@ public class BuilderTest extends FlowTestCase {
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, in);
         assertEquals("`name` IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
 
+        in = Condition.column(ConditionModel$Table.NAME).in(Arrays.asList("Jason", "Ryan", "Michael"));
+        conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, in);
+        assertEquals("`name` IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
+
+        in = Condition.column(ConditionModel$Table.NAME).in(Arrays.asList("Single"));
+        conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, in);
+        assertEquals("`name` IN ('Single')", conditionQueryBuilder.getQuery().trim());
+
         Condition.In notIn = Condition.column(ConditionModel$Table.NAME).notIn("Jason", "Ryan", "Michael");
         conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
         assertEquals("`name` NOT IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
+
+        notIn = Condition.column(ConditionModel$Table.NAME).notIn(Arrays.asList("Jason", "Ryan", "Michael"));
+        conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
+        assertEquals("`name` NOT IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
+
+        notIn = Condition.column(ConditionModel$Table.NAME).notIn(Arrays.asList("Single"));
+        conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
+        assertEquals("`name` NOT IN ('Single')", conditionQueryBuilder.getQuery().trim());
+
+        try {
+            Condition.column(ConditionModel$Table.NAME).in(Arrays.asList());
+            fail("Condition.in with empty iterable should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            /**/
+        }
+
+        try {
+            Condition.column(ConditionModel$Table.NAME).notIn(Arrays.asList());
+            fail("Condition.notIn with empty iterable should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            /**/
+        }
+
     }
 
 }

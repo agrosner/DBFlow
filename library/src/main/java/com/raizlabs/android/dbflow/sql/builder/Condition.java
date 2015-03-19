@@ -6,7 +6,11 @@ import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
+import java.lang.IllegalArgumentException;
+import java.lang.Iterable;
+import java.lang.Object;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -499,6 +503,26 @@ public class Condition {
     }
 
     /**
+     * Turns this condition into a SQL IN operation.
+     *
+     * @param values The values in the IN query. Required and size>0.
+     * @return In operator
+     */
+    public In in(Iterable<?> values) {
+        final Iterator<?> it = values.iterator();
+        if ( !it.hasNext() ) {
+            throw new IllegalArgumentException("At least on value is required");
+        } else {
+            final In in = new In(this, it.next(), true);
+            while ( it.hasNext() ) {
+                in.and(it.next());
+            }
+            return in;
+        }
+    }
+
+
+    /**
      * Turns this condition into a SQL NOT IN operation.
      *
      * @param firstArgument The first value in the NOT IN query as one is required.
@@ -507,6 +531,25 @@ public class Condition {
      */
     public In notIn(Object firstArgument, Object...arguments) {
         return new In(this, firstArgument, false, arguments);
+    }
+
+    /**
+     * Turns this condition into a SQL NOT IN operation.
+     *
+     * @param values values The values in the NOT IN query. Required and size>0
+     * @return Not In operator
+     */
+    public In notIn(Iterable<?> values) {
+        final Iterator<?> it = values.iterator();
+        if ( !it.hasNext() ) {
+            throw new IllegalArgumentException("At least on value is required");
+        } else {
+            final In in = new In(this, it.next(), false);
+            while ( it.hasNext() ) {
+                in.and(it.next());
+            }
+            return in;
+        }
     }
 
     /**
