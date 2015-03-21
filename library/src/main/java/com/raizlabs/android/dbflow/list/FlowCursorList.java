@@ -1,9 +1,6 @@
 package com.raizlabs.android.dbflow.list;
 
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.os.Handler;
-import android.os.Looper;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
@@ -35,8 +32,6 @@ public class FlowCursorList<ModelClass extends Model> {
 
     private ModelQueriable<ModelClass> mQueriable;
 
-    private CursorObserver mObserver;
-
     private int mCacheSize;
 
     /**
@@ -62,7 +57,6 @@ public class FlowCursorList<ModelClass extends Model> {
         mCursor = mQueriable.query();
         mTable = modelQueriable.getTable();
         this.cacheModels = cacheModels;
-        mCursor.registerContentObserver(mObserver = new CursorObserver());
         setCacheModels(cacheModels);
     }
 
@@ -218,10 +212,17 @@ public class FlowCursorList<ModelClass extends Model> {
      * Closes the cursor backed by this list
      */
     public void close() {
-        mCursor.unregisterContentObserver(mObserver);
         mCursor.close();
-        mObserver = null;
         mCursor = null;
+    }
+
+    /**
+     * @return The cursor backing this list.
+     * @throws IllegalStateException when the cursor backing this list is closed.
+     */
+    public Cursor getCursor() {
+        throwIfCursorClosed();
+        return mCursor;
     }
 
     public Class<ModelClass> getTable() {
@@ -234,22 +235,4 @@ public class FlowCursorList<ModelClass extends Model> {
         }
     }
 
-    class CursorObserver extends ContentObserver {
-
-        CursorObserver() {
-            super(new Handler(Looper.getMainLooper()));
-        }
-
-        @Override
-        public boolean deliverSelfNotifications() {
-            return true;
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            if (mCursor != null && !mCursor.isClosed()) {
-                refresh();
-            }
-        }
-    }
 }
