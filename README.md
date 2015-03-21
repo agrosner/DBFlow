@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.7.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.7.2-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -31,6 +31,10 @@ If you wish to have your application featured here, please file an [issue](https
 2. Anonymous 2: An application that will have over 1 million active installs
 
 ## Changelog
+
+#### 1.7.2
+
+1. Removes internal `ContentObserver` for `FlowCursorList`. Call `refresh()` when data becomes stale. This does not break any backwards compatibility as once a single refresh was called, the observer never reregistered anyways.
 
 #### 1.7.1
 
@@ -120,8 +124,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.7.1'
-    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.7.1"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.7.2'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.7.2"
   }
 
 ```
@@ -133,9 +137,9 @@ or by standard Gradle use (without linking sources support):
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.7.1'
-    compile "com.raizlabs.android:DBFlow-Core:1.7.1"
-    compile "com.raizlabs.android:DBFlow:1.7.1"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.7.2'
+    compile "com.raizlabs.android:DBFlow-Core:1.7.2"
+    compile "com.raizlabs.android:DBFlow:1.7.2"
   }
 
 ```
