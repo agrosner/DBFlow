@@ -54,7 +54,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     private TransactionListener<List<ModelClass>> mInternalTransactionListener = new TransactionListenerAdapter<List<ModelClass>>() {
         @Override
         public void onResultReceived(List<ModelClass> modelClasses) {
-            mCursorList.refresh();
+            refresh();
 
             if (mTransactionListener != null) {
                 mTransactionListener.onResultReceived(modelClasses);
@@ -172,6 +172,13 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     public FlowCursorList<ModelClass> getCursorList() {
         return mCursorList;
+    }
+
+    /**
+     * Refreshes the content backing this list.
+     */
+    public void refresh() {
+        mCursorList.refresh();
     }
 
     /**
