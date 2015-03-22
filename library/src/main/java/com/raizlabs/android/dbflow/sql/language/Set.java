@@ -66,7 +66,9 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return This instance.
      */
     public Set<ModelClass> conditionValues(ContentValues contentValues) {
-        for(Map.Entry<String, Object> entry : contentValues.valueSet()) {
+        java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
+
+        for(Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
             mConditionQueryBuilder.putCondition(Condition.column(key).is(contentValues.get(key)));
         }
