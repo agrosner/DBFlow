@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.IntDef;
 
-import com.raizlabs.android.dbflow.SQiteCompatibilityUtils;
+import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -342,7 +342,7 @@ public class SqlUtils {
             SQLiteDatabase db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             adapter.bindToContentValues(contentValues, model);
-            exists = (SQiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
+            exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
                     adapter.getPrimaryModelWhere(model).getQuery(), null,
                     ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
             if (!exists) {

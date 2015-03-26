@@ -10,7 +10,7 @@ import android.os.Build;
 /**
  * Description: Provides some backwards compatibility with database operations in Android.
  */
-public class SQiteCompatibilityUtils {
+public class SQLiteCompatibilityUtils {
 
     /**
      * Performs an {@link android.database.sqlite.SQLiteStatement#executeUpdateDelete()} with support for
