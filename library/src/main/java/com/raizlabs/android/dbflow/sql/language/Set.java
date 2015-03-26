@@ -43,7 +43,9 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return This instance.
      */
     public Set<ModelClass> conditionQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        mConditionQueryBuilder = conditionQueryBuilder;
+        if(conditionQueryBuilder != null) {
+            mConditionQueryBuilder = conditionQueryBuilder;
+        }
         return this;
     }
 
