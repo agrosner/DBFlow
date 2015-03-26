@@ -29,6 +29,7 @@ If you wish to have your application featured here, please file an [issue](https
 
 1. Anonymous 1: An application that has over 1.5 million active installs
 2. Anonymous 2: An application that will have over 1 million active installs
+3. [University of Oslo DHIS2 Android SDK](https://github.com/dhis2/dhis2-android-sdk)
 
 ## Changelog
 
