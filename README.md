@@ -23,6 +23,14 @@ What sets this library apart:
   7. Rich interface classes that enable powerful flexibility.
   8. ```ContentProvider``` generation using annotations
 
+## Applications That Use DBFlow
+
+If you wish to have your application featured here, please file an [issue](https://github.com/Raizlabs/DBFlow/issues).
+
+1. Anonymous 1: An application that has over 1.5 million active installs
+2. Anonymous 2: An application that will have over 1 million active installs
+3. [University of Oslo DHIS2 Android SDK](https://github.com/dhis2/dhis2-android-sdk)
+
 ## Changelog
 
 #### 1.7.2
@@ -74,6 +82,12 @@ For more detailed usage, check out these sections:
 [Type Converters](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
 
 [Triggers, Indexes, and More](https://github.com/Raizlabs/DBFlow/blob/master/usage/TriggersIndexesAndMore.md)
+
+### Screencasts
+
+Listed here are tutorial screen casts for DBFlow. If more are created, they may go into the usage docs.
+
+1. [DFlow-Installing](https://www.youtube.com/watch?v=UveI8_wfEoU) by @tsuharesu
 
 
 ## Including in your project
@@ -358,3 +372,5 @@ public class TestModelView extends BaseModelView<TestModel2> {
 [intrications](https://github.com/intrications)
 
 [mcumings](https://github.com/mcumings)
+
+[ktzouno](https://github.com/ktzouno)
