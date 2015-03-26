@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
-import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
+import com.raizlabs.android.dbflow.SQiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
@@ -137,7 +137,7 @@ public class ModelContainerUtils {
             SQLiteDatabase db = FlowManager.getDatabaseForTable(modelClassModelAdapter.getModelClass()).getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             modelClassContainerAdapter.bindToContentValues(contentValues, modelContainer);
-            exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelClassModelAdapter.getTableName(),
+            exists = (SQiteCompatibilityUtils.updateWithOnConflict(db, modelClassModelAdapter.getTableName(),
                     contentValues, modelClassContainerAdapter.getPrimaryModelWhere(modelContainer).getQuery(), null,
                     ConflictAction.getSQLiteDatabaseAlgorithmInt(modelClassModelAdapter.getUpdateOnConflictAction())) != 0);
             if (!exists) {
