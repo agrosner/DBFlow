@@ -17,6 +17,13 @@ import java.util.Date;
 */
 @Table(databaseName = TestDatabase.NAME)
 public class TestType extends TestModel1 {
+
+    @Column
+    boolean nativeBoolean;
+
+    @Column
+    Boolean aBoolean;
+
     @Column
     Calendar calendar;
 
