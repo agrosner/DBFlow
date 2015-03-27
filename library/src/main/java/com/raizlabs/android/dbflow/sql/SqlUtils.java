@@ -17,6 +17,7 @@ import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
+import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
@@ -285,7 +286,8 @@ public class SqlUtils {
                 notifyModelChanged(modelAdapter.getModelClass(), action);
             }
         } else {
-            TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
+            TransactionManager.getInstance().addTransaction(
+                    new SaveModelTransaction<>(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
         }
     }
 

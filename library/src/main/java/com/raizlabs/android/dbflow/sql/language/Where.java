@@ -12,6 +12,8 @@ import com.raizlabs.android.dbflow.list.FlowTableList;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.SelectSingleModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -72,19 +74,6 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
         mManager = FlowManager.getDatabaseForTable(mWhereBase.getTable());
         mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
         mHaving = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
-    }
-
-    /**
-     *
-     * A helper method to construct this class with a SELECT(columns) with the specified WHERE {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     *
-     * @param conditionQueryBuilder The WHERE conditions for this statement
-     * @param <ModelClass>          The class that implements {@link Model}
-     * @return A WHERE with the specified conditions and columns
-     */
-    public static <ModelClass extends Model> Where<ModelClass> with(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
-                                                                    String... columns) {
-        return new Select(columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
     }
 
     /**
@@ -378,7 +367,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      */
     public void transactList(TransactionManager transactionManager, TransactionListener<List<ModelClass>> listTransactionListener) {
         checkSelect("transact");
-        transactionManager.fetchFromTable(this, listTransactionListener);
+        transactionManager.addTransaction(new SelectListTransaction<>(this, listTransactionListener));
     }
 
     /**
@@ -400,17 +389,17 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      */
     public void transactSingleModel(TransactionManager transactionManager, TransactionListener<ModelClass> transactionListener) {
         checkSelect("transact");
-        transactionManager.fetchModel(this, transactionListener);
+        transactionManager.addTransaction(new SelectSingleModelTransaction<>(this, transactionListener));
     }
 
     @Override
     public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<ModelClass>(false, this);
+        return new FlowCursorList<>(false, this);
     }
 
     @Override
     public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<ModelClass>(this);
+        return new FlowTableList<>(this);
     }
 
     /**
