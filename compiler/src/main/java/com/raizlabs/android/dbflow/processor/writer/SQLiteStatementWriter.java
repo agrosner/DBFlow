@@ -48,7 +48,7 @@ public class SQLiteStatementWriter implements FlowWriter {
                 AtomicInteger columnCounter = new AtomicInteger(1);
                 for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
                     ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
-                    if(columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
+                    if(!columnDefinition.isPrimaryKeyAutoIncrement) {
                         columnDefinition.writeSaveDefinition(javaWriter, isModelContainer, false, columnCounter);
                     }
 

@@ -4,7 +4,10 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -47,7 +50,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public boolean hasTypeConverter = false;
 
-    public int columnType;
+    public boolean isPrimaryKey = false;
+
+    public boolean isPrimaryKeyAutoIncrement = false;
+
+    public boolean isForeignKey = false;
 
     public Column column;
 
@@ -88,11 +95,31 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
+
+        ForeignKey foreignKey = element.getAnnotation(ForeignKey.class);
+        if (foreignKey != null) {
+            isForeignKey = true;
+        }
+
+        PrimaryKey primaryKey = element.getAnnotation(PrimaryKey.class);
+        if (primaryKey != null) {
+            if(primaryKey.autoincrement()) {
+                isPrimaryKeyAutoIncrement = true;
+            } else {
+                isPrimaryKey = true;
+            }
+        }
+
+        Unique uniqueColumn = element.getAnnotation(Unique.class);
+        if(uniqueColumn != null && uniqueColumn.unique()) {
+            unique = true;
+        }
+
         if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
-            this.saveModelForeignKey = column.saveForeignKeyModel();
+            this.saveModelForeignKey = foreignKey == null || foreignKey.saveForeignKeyModel();
             length = column.length();
-            int[] groups = column.uniqueGroups();
+            int[] groups = uniqueColumn == null ? new int[0] : uniqueColumn.uniqueGroups();
             for (int group : groups) {
                 uniqueGroups.add(group);
             }
@@ -139,14 +166,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
         }
 
-        if (column != null) {
-            columnType = column.columnType();
-        } else {
-            columnType = Column.NORMAL;
-        }
-
-        if (columnType == Column.FOREIGN_KEY) {
-            foreignKeyReferences = column.references();
+        if (isForeignKey) {
+            foreignKeyReferences = foreignKey.references();
         }
 
         isModel = ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), Classes.MODEL, modelType);
@@ -204,7 +225,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
     }
 
     public void writeSaveDefinition(JavaWriter javaWriter, boolean isModelContainerDefinition, boolean isContentValues, AtomicInteger columnCount) throws IOException {
-        if (columnType == Column.FOREIGN_KEY && isModel) {
+        if (isForeignKey && isModel) {
 
             if (isModelContainer) {
                 javaWriter.emitSingleLineComment("Begin Saving Model Container To DB");
@@ -323,7 +344,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
     }
 
     public void writeLoadFromCursorDefinition(BaseTableDefinition tableDefinition, JavaWriter javaWriter, boolean isModelContainerDefinition) throws IOException {
-        if (columnType == Column.FOREIGN_KEY) {
+        if (isForeignKey) {
             //TODO: This is wrong, should be using condition query builder
             javaWriter.emitEmptyLine();
             javaWriter.emitSingleLineComment("Begin Loading %1s Model Foreign Key", columnFieldName);

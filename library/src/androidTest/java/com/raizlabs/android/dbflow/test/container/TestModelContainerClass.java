@@ -1,24 +1,22 @@
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
-/**
-* Author: andrewgrosner
-* Contributors: { }
-* Description:
-*/
 @Table(value = "TestModelContainer", databaseName = TestDatabase.NAME)
 @ModelContainer
 public class TestModelContainerClass extends TestModel1 {
 
-    @Column(columnType = Column.PRIMARY_KEY)
+    @Column
+    @PrimaryKey
     String party_type;
 
     @Column
@@ -31,10 +29,11 @@ public class TestModelContainerClass extends TestModel1 {
     @Column
     boolean isHappy;
 
-    @Column(columnType = Column.FOREIGN_KEY,
-            references = {@ForeignKeyReference(columnName = "testName", columnType = String.class, foreignColumnName = "name")},
-            onDelete = ForeignKeyAction.CASCADE,
-            onUpdate = ForeignKeyAction.CASCADE
-    )
+    @Column(onDelete = ForeignKeyAction.CASCADE,
+            onUpdate = ForeignKeyAction.CASCADE)
+    @ForeignKey(references =
+            {@ForeignKeyReference(columnName = "testName",
+                    columnType = String.class,
+                    foreignColumnName = "name")})
     ParentModel testModel;
 }
