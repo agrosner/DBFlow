@@ -4,7 +4,7 @@ import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowTableList;
+import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -158,8 +158,8 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
     }
 
     @Override
-    public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<ModelClass>(this);
+    public FlowQueryList<ModelClass> queryTableList() {
+        return new FlowQueryList<ModelClass>(this);
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 * Description:
 */
 @Table(value = "TestModelContainer", databaseName = TestDatabase.NAME)
-@ContainerAdapter
+@ModelContainer
 public class TestModelContainerClass extends TestModel1 {
 
     @Column(columnType = Column.PRIMARY_KEY)

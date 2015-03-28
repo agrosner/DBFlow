@@ -25,25 +25,25 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     @Override
     public void save() {
         TransactionManager.getInstance()
-                .addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(mModel)));
+                .addTransaction(new SaveModelTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void delete() {
         TransactionManager.getInstance()
-                .addTransaction(new DeleteModelListTransaction<>(ProcessModelInfo.withModels(mModel)));
+                .addTransaction(new DeleteModelListTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void update() {
         TransactionManager.getInstance()
-                .addTransaction(new UpdateModelListTransaction<>(ProcessModelInfo.withModels(mModel)));
+                .addTransaction(new UpdateModelListTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void insert() {
         TransactionManager.getInstance()
-                .addTransaction(new InsertModelTransaction<>());
+                .addTransaction(new InsertModelTransaction<>(getProcessModelInfoInternal()));
     }
 
     private ProcessModelInfo<ModelClass> getProcessModelInfoInternal() {

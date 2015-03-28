@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
  * Description:
  */
 @Table(value = "OtherModel")
-@ContainerAdapter
+@ModelContainer
 public class OtherModel extends BaseModel {
 
     @Column(columnType = Column.PRIMARY_KEY)

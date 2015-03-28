@@ -23,7 +23,6 @@ import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
@@ -42,7 +41,7 @@ import java.util.ListIterator;
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
-public class FlowTableList<ModelClass extends Model> extends ContentObserver implements List<ModelClass> {
+public class FlowQueryList<ModelClass extends Model> extends ContentObserver implements List<ModelClass> {
 
     /**
      * We use high priority to assume that this list is used in some visual aspect.
@@ -77,12 +76,12 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      * @param table      The table to load into this list.
      * @param conditions The set of conditions to use when querying the DB.
      */
-    public FlowTableList(Class<ModelClass> table, Condition... conditions) {
+    public FlowQueryList(Class<ModelClass> table, Condition... conditions) {
         super(null);
         mCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
-                return FlowTableList.this.getBackingCache(getCacheSize());
+                return FlowQueryList.this.getBackingCache(getCacheSize());
             }
         };
     }
@@ -92,12 +91,12 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      *
      * @param modelQueriable The object that can query from a database.
      */
-    public FlowTableList(ModelQueriable<ModelClass> modelQueriable) {
+    public FlowQueryList(ModelQueriable<ModelClass> modelQueriable) {
         super(null);
         mCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
-                return FlowTableList.this.getBackingCache(getCacheSize());
+                return FlowQueryList.this.getBackingCache(getCacheSize());
             }
         };
     }
@@ -540,26 +539,6 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     public <T> T[] toArray(T[] array) {
         List<ModelClass> tableList = mCursorList.getAll();
         return tableList.toArray(array);
-    }
-
-    /**
-     * Gets a {@link ModelClass} based on a list of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
-     *
-     * @param conditions The list of conditions to retrieve a model from
-     * @return A model from this table based on the conditions passed.
-     */
-    public ModelClass get(Condition... conditions) {
-        return new Select().from(mCursorList.getTable()).where(conditions).querySingle();
-    }
-
-    /**
-     * Returns a list of {@link ModelClass} based on the list of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
-     *
-     * @param conditions The list of conditions to retrieve a model from
-     * @return
-     */
-    public List<ModelClass> getAll(Condition... conditions) {
-        return new Select().from(mCursorList.getTable()).where(conditions).queryList();
     }
 
 }

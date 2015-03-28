@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.test.structure;
 
 import android.location.Location;
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 * Description:
 */
 @Table(databaseName = TestDatabase.NAME)
-@ContainerAdapter
+@ModelContainer
 public class TestPrimaryWhere extends TestModel1{
     @Column(columnType = Column.PRIMARY_KEY)
     Location location;

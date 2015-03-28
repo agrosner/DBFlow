@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
@@ -47,6 +48,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     public String classSeparator;
 
+    String sqliteOpenHelperClass;
+
     public DatabaseWriter(ProcessorManager manager, Element element) {
         super(element, manager);
         packageName = Classes.FLOW_MANAGER_PACKAGE;
@@ -56,6 +59,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
         }
+
+        sqliteOpenHelperClass = ProcessorUtils.getOpenHelperClass(database);
 
         consistencyChecksEnabled = database.consistencyCheckEnabled();
         backupEnabled = database.backupEnabled();
@@ -150,6 +155,16 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
     }
 
     private void writeGetters(JavaWriter javaWriter) throws IOException {
+
+        // create helper
+        if(!Void.class.getCanonicalName().equals(sqliteOpenHelperClass)) {
+            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                @Override
+                public void write(JavaWriter javaWriter) throws IOException {
+                    javaWriter.emitStatement("return new %1s(this, mInternalHelperListener)", sqliteOpenHelperClass);
+                }
+            }, "FlowSQLiteOpenHelper", "createHelper", DatabaseHandler.METHOD_MODIFIERS);
+        }
 
         // Get Model Container
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {

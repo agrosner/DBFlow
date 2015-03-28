@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowTableList;
+import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
@@ -398,8 +398,8 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     }
 
     @Override
-    public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<>(this);
+    public FlowQueryList<ModelClass> queryTableList() {
+        return new FlowQueryList<>(this);
     }
 
     /**

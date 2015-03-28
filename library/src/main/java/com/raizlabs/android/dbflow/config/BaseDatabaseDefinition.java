@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -90,10 +91,10 @@ public abstract class BaseDatabaseDefinition {
     }
 
     /**
-     * @param table The table that has a {@link com.raizlabs.android.dbflow.annotation.ContainerAdapter} annotation.
+     * @param table The table that has a {@link ModelContainer} annotation.
      * @return the associated {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter} within this
      * database for the specified table. These are used for {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
-     * and require {@link com.raizlabs.android.dbflow.structure.Model} to add the {@link com.raizlabs.android.dbflow.annotation.ContainerAdapter}.
+     * and require {@link com.raizlabs.android.dbflow.structure.Model} to add the {@link ModelContainer}.
      */
     public ContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
         return mModelContainerAdapters.get(table);
@@ -131,9 +132,13 @@ public abstract class BaseDatabaseDefinition {
 
     FlowSQLiteOpenHelper getHelper() {
         if (mHelper == null) {
-            mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
+            mHelper = createHelper();
         }
         return mHelper;
+    }
+
+    protected FlowSQLiteOpenHelper createHelper() {
+        return new FlowSQLiteOpenHelper(this, mInternalHelperListener);
     }
 
     public SQLiteDatabase getWritableDatabase() {
@@ -214,7 +219,7 @@ public abstract class BaseDatabaseDefinition {
         getHelper().backupDB();
     }
 
-    private final DatabaseHelperListener mInternalHelperListener = new DatabaseHelperListener() {
+    protected final DatabaseHelperListener mInternalHelperListener = new DatabaseHelperListener() {
         @Override
         public void onOpen(SQLiteDatabase database) {
             if (mHelperListener != null) {

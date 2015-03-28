@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.test.structure;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 * Description:
 */
 @Table(databaseName = TestDatabase.NAME)
-@ContainerAdapter
+@ModelContainer
 public class TestModel2 extends TestModel1 {
     @Column(name = "model_order")
     int order;
