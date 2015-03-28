@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
 
 /**
  * Description: The base implementation of {@link com.raizlabs.android.dbflow.structure.Model} using the
@@ -79,6 +80,13 @@ public abstract class BaseModel implements Model {
     @Override
     public boolean exists() {
         return mModelAdapter.exists(this);
+    }
+
+    /**
+     * @return An async instance of this model where all transactions are on the {@link DBTransactionQueue}
+     */
+    public AsyncModel<BaseModel> async() {
+        return new AsyncModel<>(this);
     }
 
     public ModelAdapter getModelAdapter() {
