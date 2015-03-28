@@ -16,7 +16,7 @@ public class MapModelTest extends FlowTestCase {
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("name", "test");
         MapModel<TestModel1> model1MapModel = new MapModel<TestModel1>(dataMap,TestModel1.class);
-        model1MapModel.save(false);
+        model1MapModel.save();
 
         assertTrue(model1MapModel.exists());
         assertNotNull(model1MapModel.toModel());
@@ -29,7 +29,7 @@ public class MapModelTest extends FlowTestCase {
         otherDataMap.put("testModel", dataMap);
 
         MapModel<TestModelContainerClass> testModelContainerClassMapModel = new MapModel<TestModelContainerClass>(otherDataMap, TestModelContainerClass.class);
-        testModelContainerClassMapModel.save(false);
+        testModelContainerClassMapModel.save();
 
         assertTrue(testModelContainerClassMapModel.exists());
         assertNotNull(testModelContainerClassMapModel.toModel());

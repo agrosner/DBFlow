@@ -122,23 +122,23 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     @Override
-    public void save(boolean async) {
-        mContainerAdapter.save(async, this);
+    public void save() {
+        mContainerAdapter.save(this);
     }
 
     @Override
-    public void delete(boolean async) {
-        mContainerAdapter.delete(async, this);
+    public void delete() {
+        mContainerAdapter.delete(this);
     }
 
     @Override
-    public void update(boolean async) {
-        mContainerAdapter.update(async, this);
+    public void update() {
+        mContainerAdapter.update(this);
     }
 
     @Override
-    public void insert(boolean async) {
-        mContainerAdapter.insert(async, this);
+    public void insert() {
+        mContainerAdapter.insert(this);
     }
 
     @Override

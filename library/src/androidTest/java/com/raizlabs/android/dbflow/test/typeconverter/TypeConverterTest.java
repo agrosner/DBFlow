@@ -53,9 +53,12 @@ public class TypeConverterTest extends FlowTestCase {
         location.setLongitude(40.5);
         testType.location = location;
 
-        testType.save(false);
+        testType.save();
 
-        TestType retrieved = Select.byId(TestType.class, "Name");
+        TestType retrieved = new Select().from(TestType.class)
+                .where(Condition.column(TestType$Table.NAME).is("Name"))
+                .querySingle();
+
         assertNotNull(retrieved);
 
         assertNotNull(retrieved.calendar);
@@ -84,9 +87,12 @@ public class TypeConverterTest extends FlowTestCase {
 
         TestType testType = new TestType();
         testType.name = "Name";
-        testType.save(false);
+        testType.save();
 
-        TestType retrieved = Select.byId(TestType.class, "Name");
+        TestType retrieved = new Select().from(TestType.class)
+                .where(Condition.column(TestType$Table.NAME).is("Name"))
+                .querySingle();
+
         assertNotNull(retrieved);
 
         assertNull(retrieved.aBoolean);
@@ -106,7 +112,7 @@ public class TypeConverterTest extends FlowTestCase {
 
         TestType testType = new TestType();
         testType.name = "Name";
-        testType.save(false);
+        testType.save();
 
         /*
          * NOTE: We don't want to engage the type converter here since we are attempting to test
@@ -119,7 +125,9 @@ public class TypeConverterTest extends FlowTestCase {
                 .where(Condition.column(TestType$Table.NAME).eq(testType.name))
                 .queryClose();
 
-        TestType retrieved = Select.byId(TestType.class, "Name");
+        TestType retrieved = new Select().from(TestType.class)
+                .where(Condition.column(TestType$Table.NAME).is("Name"))
+                .querySingle();
         assertNotNull(retrieved);
 
         assertFalse(retrieved.nativeBoolean);

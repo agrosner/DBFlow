@@ -43,52 +43,42 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @see #save(boolean, Model)
-     */
-    @Deprecated
-    public synchronized void save(boolean async, ModelClass model, int saveMode) {
-        SqlUtils.sync(async, model, this, saveMode);
-    }
-
-    /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to save/insert/update
      */
     @Override
-    public synchronized void save(boolean async, ModelClass model) {
-        SqlUtils.save(async, model, this, this);
+    public synchronized void save(ModelClass model) {
+        SqlUtils.save(model, this, this);
     }
 
     /**
      * Inserts the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to insert.
      */
-    public synchronized void insert(boolean async, ModelClass model) {
-        SqlUtils.insert(async, model, this, this);
+    @Override
+    public synchronized void insert(ModelClass model) {
+        SqlUtils.insert(model, this, this);
     }
 
     /**
      * Updates the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to update.
      */
-    public synchronized void update(boolean async, ModelClass model) {
-        SqlUtils.update(async, model, this, this);
+    @Override
+    public synchronized void update(ModelClass model) {
+        SqlUtils.update(model, this, this);
     }
 
     /**
      * Deletes the model from the DB
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to delete
      */
-    public void delete(boolean async, ModelClass model) {
-        SqlUtils.delete(model, this, async);
+    public void delete(ModelClass model) {
+        SqlUtils.delete(model, this);
     }
 
     /**

@@ -4,7 +4,6 @@ import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 
 import java.util.HashMap;
@@ -33,7 +32,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
     @SuppressWarnings("unchecked")
     public static <CacheClass extends BaseCacheableModel> ModelCache<CacheClass, ?> getCache(Class<CacheClass> table) {
         ModelCache<CacheClass, ?> cache = mCacheMap.get(table);
-        if(cache == null) {
+        if (cache == null) {
             FlowManager.getModelAdapter(table).newInstance();
             cache = mCacheMap.get(table);
         }
@@ -78,37 +77,29 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
     }
 
     @Override
-    public void save(boolean async) {
-        super.save(async);
-        if (!async) {
-            addToCache();
-        }
+    public void save() {
+        super.save();
+        addToCache();
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void delete(boolean async) {
+    public void delete() {
         long id = getModelAdapter().getCachingId(this);
-        super.delete(async);
-        if (!async) {
-            mCache.removeModel(id);
-        }
+        super.delete();
+        mCache.removeModel(id);
     }
 
     @Override
-    public void update(boolean async) {
-        super.update(async);
-        if (!async) {
-            addToCache();
-        }
+    public void update() {
+        super.update();
+        addToCache();
     }
 
     @Override
-    public void insert(boolean async) {
-        super.insert(async);
-        if (!async) {
-            addToCache();
-        }
+    public void insert() {
+        super.insert();
+        addToCache();
     }
 
     @Override

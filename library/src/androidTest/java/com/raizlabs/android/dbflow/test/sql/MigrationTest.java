@@ -89,7 +89,7 @@ public class MigrationTest extends AndroidTestCase {
     public void testSqlFile() {
         MigrationModel migrationModel = new MigrationModel();
         migrationModel.name = "test";
-        migrationModel.save(false);
+        migrationModel.save();
         Cursor cursor = new Select().from(MigrationModel.class).query();
         assertTrue(cursor.moveToFirst());
 

@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.test.ProviderTestCase2;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -60,30 +61,30 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
 
         ContentProviderModel contentProviderModel = new ContentProviderModel();
         contentProviderModel.notes = "Test";
-        contentProviderModel.insert(false);
+        contentProviderModel.insert();
         assertTrue(contentProviderModel.exists());
 
         contentProviderModel.notes = "NewTest";
-        contentProviderModel.update(false);
+        contentProviderModel.update();
         contentProviderModel.load();
         assertEquals("NewTest", contentProviderModel.notes);
 
         NoteModel noteModel = new NoteModel();
         noteModel.note = "Test";
         noteModel.contentProviderModel = contentProviderModel;
-        noteModel.insert(false);
+        noteModel.insert();
 
         noteModel.note = "NewTest";
-        noteModel.update(false);
+        noteModel.update();
         noteModel.load();
         assertEquals("NewTest", noteModel.note);
 
         assertTrue(noteModel.exists());
 
-        noteModel.delete(false);
+        noteModel.delete();
         assertTrue(!noteModel.exists());
 
-        contentProviderModel.delete(false);
+        contentProviderModel.delete();
         assertTrue(!contentProviderModel.exists());
 
         Delete.tables(NoteModel.class, ContentProviderModel.class);
@@ -94,15 +95,16 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
 
         TestSyncableModel testSyncableModel = new TestSyncableModel();
         testSyncableModel.name = "Name";
-        testSyncableModel.save(false);
+        testSyncableModel.save();
 
         assertTrue(testSyncableModel.exists());
 
         testSyncableModel.name = "TestName";
-        testSyncableModel.update(false);
+        testSyncableModel.update();
         assertEquals(testSyncableModel.name, "TestName");
 
-        testSyncableModel = Select.byId(TestSyncableModel.class, testSyncableModel.id);
+        testSyncableModel = new Select().from(TestSyncableModel.class)
+                    .where(Condition.column(TestSyncableModel$Table.ID).is(testSyncableModel.id)).querySingle();
 
         TestSyncableModel fromContentProvider = new TestSyncableModel();
         fromContentProvider.id = testSyncableModel.id;
@@ -111,7 +113,7 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
         assertEquals(fromContentProvider.name, testSyncableModel.name);
         assertEquals(fromContentProvider.id, testSyncableModel.id);
 
-        testSyncableModel.delete(false);
+        testSyncableModel.delete();
         assertFalse(testSyncableModel.exists());
 
         Delete.table(TestSyncableModel.class);

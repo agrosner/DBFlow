@@ -75,13 +75,15 @@ public class UpdateTest extends FlowTestCase {
         TestUpdateModel testUpdateModel = new TestUpdateModel();
         testUpdateModel.name = "Test";
         testUpdateModel.value = "oldvalue";
-        testUpdateModel.save(false);
+        testUpdateModel.save();
 
-        assertNotNull(Select.byId(TestUpdateModel.class, "Test"));
+        assertNotNull(new Select().from(TestUpdateModel.class).where(Condition.column(TestUpdateModel$Table.NAME).is("Test")));
 
         new Update().table(TestUpdateModel.class).set(Condition.column("value").is("newvalue")).where().count();
 
-        TestUpdateModel newUpdateModel = Select.byId(TestUpdateModel.class, "Test");
+        TestUpdateModel newUpdateModel = new Select().from(TestUpdateModel.class)
+                .where(Condition.column(TestUpdateModel$Table.NAME).is("Test"))
+                .querySingle();
         assertEquals("newvalue", newUpdateModel.value);
 
     }

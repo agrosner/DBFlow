@@ -46,16 +46,17 @@ public class TriggerTest extends FlowTestCase {
         TestUpdateModel model = new TestUpdateModel();
         model.name = "Test";
         model.value = "NotFired";
-        model.save(false);
+        model.save();
 
         trigger.enable();
 
         ConditionModel conditionModel = new ConditionModel();
         conditionModel.name = "Test";
         conditionModel.fraction = 0.6d;
-        conditionModel.insert(false);
+        conditionModel.insert();
 
-        model = Select.byId(TestUpdateModel.class, "Test");
+        model = new Select().from(TestUpdateModel.class)
+                .where(Condition.column(TestUpdateModel$Table.NAME).is("Test")).querySingle();
         assertEquals(model.value, "Fired");
 
         trigger.disable();

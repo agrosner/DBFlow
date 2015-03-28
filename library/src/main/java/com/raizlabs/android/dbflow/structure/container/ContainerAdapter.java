@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 
-import static com.raizlabs.android.dbflow.sql.SqlUtils.*;
-
 /**
  * Description: The base class that generated {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter} implement
  * to provide the necessary interactions.
@@ -16,55 +14,39 @@ public abstract class ContainerAdapter<ModelClass extends Model> implements Inte
     /**
      * Saves the container to the DB.
      *
-     * @param async          Whether it is immediate or on {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     * @param modelContainer The container to read data from into {@link android.content.ContentValues}
-     * @param saveMode       The {@link SaveMode}
-     */
-    @Deprecated
-    public void save(boolean async, ModelContainer<ModelClass, ?> modelContainer, int saveMode) {
-        ModelContainerUtils.sync(async, modelContainer, this, saveMode);
-    }
-
-    /**
-     * Saves the container to the DB.
-     *
-     * @param async          Whether it is immediate or on {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param modelContainer The container to read data from into {@link android.content.ContentValues}
      */
     @Override
-    public void save(boolean async, ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.save(async, modelContainer, this, modelContainer.getModelAdapter());
+    public void save(ModelContainer<ModelClass, ?> modelContainer) {
+        SqlUtils.save(modelContainer, this, modelContainer.getModelAdapter());
     }
 
     /**
      * Inserts the specified model into the DB.
      *
-     * @param async          Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param modelContainer The model container to insert.
      */
-    public void insert(boolean async, ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.insert(async, modelContainer, this, modelContainer.getModelAdapter());
+    public void insert(ModelContainer<ModelClass, ?> modelContainer) {
+        SqlUtils.insert(modelContainer, this, modelContainer.getModelAdapter());
     }
 
     /**
      * Updates the specified model into the DB.
      *
-     * @param async          Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param modelContainer The model to update.
      */
-    public void update(boolean async, ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.update(async, modelContainer, this, modelContainer.getModelAdapter());
+    public void update(ModelContainer<ModelClass, ?> modelContainer) {
+        SqlUtils.update(modelContainer, this, modelContainer.getModelAdapter());
     }
 
     /**
      * Deletes the specified container using the primary key values contained in it.
      *
-     * @param async          Whether it is immediate or on {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param modelContainer The container to delete.
      */
     @Override
-    public void delete(boolean async, ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.delete(modelContainer, this, async);
+    public void delete(ModelContainer<ModelClass, ?> modelContainer) {
+        SqlUtils.delete(modelContainer, this);
     }
 
     /**

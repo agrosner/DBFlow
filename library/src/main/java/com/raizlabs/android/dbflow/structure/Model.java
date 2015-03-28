@@ -7,31 +7,23 @@ public interface Model {
 
     /**
      * Saves the object in the DB.
-     *
-     * @param async If we want this to happen on the {@link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}
      */
-    public void save(boolean async);
+    public void save();
 
     /**
      * Deletes the object in the DB
-     *
-     * @param async If we want this to happen on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      */
-    public void delete(boolean async);
+    public void delete();
 
     /**
      * Updates an object in the DB
-     *
-     * @param async If we want this to happen on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      */
-    public void update(boolean async);
+    public void update();
 
     /**
      * Inserts the object into the DB
-     *
-     * @param async
      */
-    public void insert(boolean async);
+    public void insert();
 
     /**
      * Returns whether this Model exists or not

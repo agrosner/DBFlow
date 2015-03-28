@@ -15,12 +15,12 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 public abstract class BaseProviderModel<TableClass extends BaseProviderModel> extends BaseModel implements ModelProvider<TableClass> {
 
     @Override
-    public void delete(boolean async) {
+    public void delete() {
         ContentUtils.delete(getDeleteUri(), this);
     }
 
     @Override
-    public void save(boolean async) {
+    public void save() {
         int count = ContentUtils.update(getUpdateUri(), this);
         if (count == 0) {
             ContentUtils.insert(getInsertUri(), this);
@@ -28,12 +28,12 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
     }
 
     @Override
-    public void update(boolean async) {
+    public void update() {
         ContentUtils.update(getUpdateUri(), this);
     }
 
     @Override
-    public void insert(boolean async) {
+    public void insert() {
         ContentUtils.insert(getInsertUri(), this);
     }
 

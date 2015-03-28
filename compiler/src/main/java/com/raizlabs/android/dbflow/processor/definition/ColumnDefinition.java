@@ -217,7 +217,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.getValue(\"%1s\"), %1s.class)", modelContainerName,
                         ModelUtils.getVariable(true), ModelUtils.getVariable(true), columnFieldName, columnFieldType);
                 if (saveModelForeignKey) {
-                    javaWriter.emitStatement("%1s.save(false)", modelContainerName);
+                    javaWriter.emitStatement("%1s.save()", modelContainerName);
                 }
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
@@ -242,7 +242,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 String modelStatement = ModelUtils.getModelStatement(columnFieldName);
                 javaWriter.beginControlFlow("if (%1s != null)", modelStatement);
                 if (saveModelForeignKey) {
-                    javaWriter.emitStatement("%1s.save(false)", modelStatement);
+                    javaWriter.emitStatement("%1s.save()", modelStatement);
                 }
 
                 List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();

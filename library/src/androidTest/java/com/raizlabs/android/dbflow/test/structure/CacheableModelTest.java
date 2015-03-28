@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test.structure;
 
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
@@ -21,15 +22,17 @@ public class CacheableModelTest extends FlowTestCase {
         for (int i = 0; i < 100; i++) {
             model.name = "Test";
             model.id = 0;
-            model.save(false);
+            model.save();
 
             long id = model.id;
             CacheableModel cacheableModel = modelCache.get(id);
             assertNotNull(cacheableModel);
 
-            assertEquals(Select.byId(CacheableModel.class, id), cacheableModel);
+            assertEquals(new Select().from(CacheableModel.class).
+                    where(Condition.column(CacheableModel$Table.NAME).is(id))
+                    .querySingle(), cacheableModel);
 
-            model.delete(false);
+            model.delete();
             assertNull(modelCache.get(id));
         }
 
@@ -44,15 +47,17 @@ public class CacheableModelTest extends FlowTestCase {
         ModelCache<CacheableModel2, ?> modelCache = BaseCacheableModel.getCache((Class<CacheableModel2>) model.getClass());
         for (int i = 0; i < 100; i++) {
             model.id = i;
-            model.save(false);
+            model.save();
 
             long id = model.id;
             CacheableModel2 cacheableModel = modelCache.get(id);
             assertNotNull(cacheableModel);
 
-            assertEquals(Select.byId(CacheableModel2.class, id), cacheableModel);
+            assertEquals(new Select().from(CacheableModel2.class)
+                    .where(Condition.column(CacheableModel$Table.NAME).is(id))
+                    .querySingle(), cacheableModel);
 
-            model.delete(false);
+            model.delete();
             assertNull(modelCache.get(id));
         }
 

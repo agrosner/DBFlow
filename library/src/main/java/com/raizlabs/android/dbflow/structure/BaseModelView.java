@@ -9,22 +9,22 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 public abstract class BaseModelView<ModelClass extends Model> implements Model {
 
     @Override
-    public void save(boolean async) {
+    public void save() {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not saveable");
     }
 
     @Override
-    public void delete(boolean async) {
+    public void delete() {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not deleteable");
     }
 
     @Override
-    public void update(boolean async) {
+    public void update() {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not updateable");
     }
 
     @Override
-    public void insert(boolean async) {
+    public void insert() {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not insertable");
     }
 

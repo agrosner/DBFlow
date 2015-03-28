@@ -240,10 +240,6 @@ public class ModelUtils {
 
     }
 
-    public static String getUtils(boolean isModelContainer) {
-        return isModelContainer ? Classes.MODEL_CONTAINER_UTILS : Classes.SQL_UTILS;
-    }
-
     public static void writeColumnIndexCheckers(JavaWriter javaWriter, ForeignKeyReference[] foreignKeyReferences) throws IOException {
 
         for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
