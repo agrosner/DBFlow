@@ -19,7 +19,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelpe
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -87,7 +87,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
-     * Constructs an instance of this list with the specfied {@link com.raizlabs.android.dbflow.sql.ModelQueriable} object.
+     * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
      *
      * @param modelQueriable The object that can query from a database.
      */

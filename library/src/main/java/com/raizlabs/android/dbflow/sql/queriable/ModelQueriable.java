@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.sql;
+package com.raizlabs.android.dbflow.sql.queriable;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
@@ -40,4 +40,9 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
      * and more.
      */
     public FlowQueryList<ModelClass> queryTableList();
+
+    /**
+     * @return an async version of this query to run.
+     */
+    public AsyncQuery<ModelClass> async();
 }

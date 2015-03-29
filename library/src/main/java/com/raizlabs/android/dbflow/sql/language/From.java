@@ -5,18 +5,19 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
  * Description: The SQL FROM query wrapper that must have a {@link com.raizlabs.android.dbflow.sql.Query} base.
  */
 public class From<ModelClass extends Model> implements WhereBase<ModelClass>, ModelQueriable<ModelClass> {
@@ -262,5 +263,10 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      */
     public Query getQueryBuilderBase() {
         return mQueryBuilderBase;
+    }
+
+    @Override
+    public AsyncQuery<ModelClass> async() {
+        return new AsyncQuery<>(this, TransactionManager.getInstance());
     }
 }

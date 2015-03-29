@@ -1,10 +1,13 @@
-package com.raizlabs.android.dbflow.sql;
+package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -76,5 +79,10 @@ public class StringQuery<ModelClass extends Model> implements Query, ModelQueria
     @Override
     public Class<ModelClass> getTable() {
         return mTable;
+    }
+
+    @Override
+    public AsyncQuery<ModelClass> async() {
+        return new AsyncQuery<>(this, TransactionManager.getInstance());
     }
 }

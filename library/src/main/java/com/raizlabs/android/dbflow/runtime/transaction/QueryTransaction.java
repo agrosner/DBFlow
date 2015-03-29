@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.Queriable;
+import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**

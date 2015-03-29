@@ -9,13 +9,9 @@ import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectSingleModelTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
+import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -328,70 +324,6 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
         return SqlUtils.querySingle(mWhereBase.getTable(), getQuery());
     }
 
-    /**
-     * Will run this query on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} with the shared
-     * {@link com.raizlabs.android.dbflow.runtime.TransactionManager}
-     *
-     * @param transactionInfo The information on how to prioritize the transaction
-     */
-    public void transact(DBTransactionInfo transactionInfo) {
-        transact(transactionInfo, TransactionManager.getInstance());
-    }
-
-    /**
-     * Will run this query on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     *
-     * @param transactionInfo    The information on how to prioritize the transaction
-     * @param transactionManager The transaction manager to add the query to
-     */
-    public void transact(DBTransactionInfo transactionInfo, TransactionManager transactionManager) {
-        transactionManager.addTransaction(new QueryTransaction<ModelClass>(transactionInfo, this));
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return a list of
-     * {@link ModelClass} on the UI thread with the shared {@link com.raizlabs.android.dbflow.runtime.TransactionManager}.
-     *
-     * @param listTransactionListener The result of this transaction
-     */
-    public void transactList(TransactionListener<List<ModelClass>> listTransactionListener) {
-        transactList(TransactionManager.getInstance(), listTransactionListener);
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return a list of
-     * {@link ModelClass} on the UI thread.
-     *
-     * @param transactionManager      The transaction manager to add the query to
-     * @param listTransactionListener The result of this transaction
-     */
-    public void transactList(TransactionManager transactionManager, TransactionListener<List<ModelClass>> listTransactionListener) {
-        checkSelect("transact");
-        transactionManager.addTransaction(new SelectListTransaction<>(this, listTransactionListener));
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return
-     * a single item on the UI thread with the shared {@link com.raizlabs.android.dbflow.runtime.TransactionManager}.
-     *
-     * @param transactionListener The result of this transaction
-     */
-    public void transactSingleModel(TransactionListener<ModelClass> transactionListener) {
-        transactSingleModel(TransactionManager.getInstance(), transactionListener);
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return
-     * a single item on the UI thread.
-     *
-     * @param transactionManager  The transaction manager to add the query to
-     * @param transactionListener The result of this transaction
-     */
-    public void transactSingleModel(TransactionManager transactionManager, TransactionListener<ModelClass> transactionListener) {
-        checkSelect("transact");
-        transactionManager.addTransaction(new SelectSingleModelTransaction<>(this, transactionListener));
-    }
-
     @Override
     public FlowCursorList<ModelClass> queryCursorList() {
         return new FlowCursorList<>(false, this);
@@ -400,6 +332,11 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     @Override
     public FlowQueryList<ModelClass> queryTableList() {
         return new FlowQueryList<>(this);
+    }
+
+    @Override
+    public AsyncQuery<ModelClass> async() {
+        return new AsyncQuery<>(this, TransactionManager.getInstance());
     }
 
     /**

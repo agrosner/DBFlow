@@ -7,28 +7,12 @@ import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.InsertTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectSingleModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.runtime.transaction.UpdateTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
-import com.raizlabs.android.dbflow.sql.Queriable;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.Insert;
-import com.raizlabs.android.dbflow.sql.language.Where;
+import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Description: This class manages batch database interactions. It is useful for retrieving, updating, saving,
@@ -157,7 +141,7 @@ public class TransactionManager {
      * Adds an arbitrary statement to be processed on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} in the background.
      *
      * @param transactionInfo The information on how we should approach this request.
-     * @param queriable       The {@link com.raizlabs.android.dbflow.sql.Queriable} statement that we wish to execute. The query base should not be a select as this
+     * @param queriable       The {@link Queriable} statement that we wish to execute. The query base should not be a select as this
      *                        does not return any results.
      */
     public void transactQuery(DBTransactionInfo transactionInfo, Queriable queriable) {
@@ -168,7 +152,7 @@ public class TransactionManager {
      * Adds an arbitrary statement to be processed on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} in the background.
      *
      * @param transactionInfo           The information on how we should approach this request.
-     * @param queriable                 The {@link com.raizlabs.android.dbflow.sql.Queriable} statement that we wish to execute.
+     * @param queriable                 The {@link Queriable} statement that we wish to execute.
      * @param cursorTransactionListener The cursor from the DB that we can process
      */
     public void transactQuery(DBTransactionInfo transactionInfo, Queriable queriable, TransactionListener<Cursor> cursorTransactionListener) {

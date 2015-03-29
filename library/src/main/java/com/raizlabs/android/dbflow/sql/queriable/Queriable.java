@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.sql;
+package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
 

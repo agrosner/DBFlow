@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Select;
