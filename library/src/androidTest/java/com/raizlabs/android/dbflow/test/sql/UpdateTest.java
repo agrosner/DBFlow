@@ -21,7 +21,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 public class UpdateTest extends FlowTestCase {
 
     public void testUpdateStatement() {
-        Update update = new Update();
+        Update update = new Update<>(TestModel1.class);
 
         // Verify update prefix
 
@@ -31,7 +31,7 @@ public class UpdateTest extends FlowTestCase {
         assertUpdateSuffix("FAIL", update.orFail());
         assertUpdateSuffix("IGNORE", update.orIgnore());
 
-        From<TestModel1> from = new Update().table(TestModel1.class);
+        Update<TestModel1> from = new Update<>(TestModel1.class);
 
         assertEquals("UPDATE `TestModel1`", from.getQuery().trim());
 
@@ -41,14 +41,14 @@ public class UpdateTest extends FlowTestCase {
         assertEquals("UPDATE `TestModel1` SET `name`='newvalue' WHERE `name`='oldvalue'", where.getQuery().trim());
         where.query();
 
-        String query = new Update().table(BoxedModel.class).set(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD).is(BoxedModel$Table.INTEGERFIELD + " + 1")).getQuery();
+        String query = new Update<>(BoxedModel.class).set(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD).is(BoxedModel$Table.INTEGERFIELD + " + 1")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `integerField`=integerField + 1", query.trim());
 
 
-        query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.INTEGERFIELD).concatenateToColumn(1)).getQuery();
+        query = new Update<>(BoxedModel.class).set(Condition.column(BoxedModel$Table.INTEGERFIELD).concatenateToColumn(1)).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `integerField`=`integerField` + 1", query.trim());
 
-        query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
+        query = new Update<>(BoxedModel.class).set(Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
 
         Uri uri = TestContentProvider.NoteModel.withOpenId(1, true);
@@ -58,9 +58,8 @@ public class UpdateTest extends FlowTestCase {
         contentValues.put(NoteModel$Table.ID, 1);
         contentValues.put(NoteModel$Table.CONTENTPROVIDERMODEL_PROVIDERMODEL, 1);
 
-        query = new Update()
+        query = new Update<>(FlowManager.getTableClassForName("content", "NoteModel"))
                 .conflictAction(ConflictAction.ABORT)
-                .table(FlowManager.getTableClassForName("content", "NoteModel"))
                 .set().conditionValues(contentValues)
                 .where("name = ?", "test")
                 .and(Condition.column("id").is(Long.valueOf(uri.getPathSegments().get(1))))
@@ -79,7 +78,7 @@ public class UpdateTest extends FlowTestCase {
 
         assertNotNull(new Select().from(TestUpdateModel.class).where(Condition.column(TestUpdateModel$Table.NAME).is("Test")));
 
-        new Update().table(TestUpdateModel.class).set(Condition.column("value").is("newvalue")).where().count();
+        new Update<>(TestUpdateModel.class).set(Condition.column("value").is("newvalue")).where().count();
 
         TestUpdateModel newUpdateModel = new Select().from(TestUpdateModel.class)
                 .where(Condition.column(TestUpdateModel$Table.NAME).is("Test"))
@@ -89,7 +88,7 @@ public class UpdateTest extends FlowTestCase {
     }
 
     protected void assertUpdateSuffix(String suffix, Update update) {
-        assertEquals("UPDATE OR " + suffix, update.getQuery().trim());
+        assertTrue(update.getQuery().trim().startsWith("UPDATE OR " + suffix));
     }
 
 }

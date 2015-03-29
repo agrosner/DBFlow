@@ -92,7 +92,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      * @return an empty {@link Where} statement
      */
     public Where<ModelClass> where() {
-        return new Where<ModelClass>(this);
+        return new Where<>(this);
     }
 
     /**
@@ -155,12 +155,12 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
 
     @Override
     public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<ModelClass>(false, this);
+        return new FlowCursorList<>(false, this);
     }
 
     @Override
     public FlowQueryList<ModelClass> queryTableList() {
-        return new FlowQueryList<ModelClass>(this);
+        return new FlowQueryList<>(this);
     }
 
     /**
@@ -170,49 +170,6 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      */
     public long count() {
         return where().count();
-    }
-
-    /**
-     * Begins a SET piece of the SQL query
-     *
-     * @param conditions The array of conditions that define this SET statement
-     * @return A SET query piece of this statement
-     */
-    public Set<ModelClass> set(Condition... conditions) {
-        return set().conditions(conditions);
-    }
-
-    /**
-     * Begins a SET query
-     *
-     * @return A SET query piece of this statement
-     */
-    public Set<ModelClass> set() {
-        if (!(mQueryBuilderBase instanceof Update)) {
-            throw new IllegalStateException("Cannot use set() without an UPDATE as the base");
-        }
-        return new Set<ModelClass>(this, mTable);
-    }
-
-    /**
-     * Begins a SET piece of this query with a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} as its conditions.
-     *
-     * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
-     * @return A SET query piece of this statement
-     */
-    public Set<ModelClass> set(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        return set().conditionQuery(conditionQueryBuilder);
-    }
-
-    /**
-     * Begins a SET piece of this query with a string clause with args
-     *
-     * @param setClause The clause to use as a string clause.
-     * @param args      The arguments to append that will get properly type-converted.
-     * @return A SET query piece of this statement.
-     */
-    public Set<ModelClass> set(String setClause, Object... args) {
-        return set().conditionClause(setClause, args);
     }
 
     /**

@@ -119,8 +119,7 @@ public class TypeConverterTest extends FlowTestCase {
          * the read behavior of pre-existing null database values and not the write behavior of
          * the type converter.
          */
-        new Update()
-                .table(TestType.class)
+        new Update<>(TestType.class)
                 .set(TestType$Table.NATIVEBOOLEAN + " = null")
                 .where(Condition.column(TestType$Table.NAME).eq(testType.name))
                 .queryClose();

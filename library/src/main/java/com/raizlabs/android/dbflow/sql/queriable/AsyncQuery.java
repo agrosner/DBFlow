@@ -2,9 +2,11 @@ package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.SelectSingleModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
@@ -29,6 +31,13 @@ public class AsyncQuery<ModelClass extends Model> {
     public AsyncQuery(ModelQueriable<ModelClass> queriable, TransactionManager transactionManager) {
         this.mModelQueriable = queriable;
         this.mTransactionManager = transactionManager;
+    }
+
+    /**
+     * Runs the specified query in the background.
+     */
+    public void execute() {
+        mTransactionManager.addTransaction(new QueryTransaction<>(DBTransactionInfo.create(), mModelQueriable));
     }
 
     /**
@@ -62,11 +71,7 @@ public class AsyncQuery<ModelClass extends Model> {
      * @param transactionListener Listens for transaction events.
      */
     public void query(TransactionListener<Cursor> transactionListener) {
-        mTransactionManager.addTransaction(new BaseResultTransaction<Cursor>(transactionListener) {
-            @Override
-            public Cursor onExecute() {
-                return mModelQueriable.query();
-            }
-        });
+        mTransactionManager.addTransaction(
+                new QueryTransaction<>(DBTransactionInfo.create(), mModelQueriable, transactionListener));
     }
 }

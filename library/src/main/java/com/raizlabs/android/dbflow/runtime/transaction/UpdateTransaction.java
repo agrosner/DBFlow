@@ -21,7 +21,7 @@ public class UpdateTransaction<ModelClass extends Model> extends QueryTransactio
      */
     public UpdateTransaction(DBTransactionInfo dbTransactionInfo,
                              ConditionQueryBuilder<ModelClass> whereConditionBuilder, Condition... conditions) {
-        super(dbTransactionInfo, new Update().table(whereConditionBuilder.getTableClass()).set(conditions).where(whereConditionBuilder), null);
+        super(dbTransactionInfo, new Update<>(whereConditionBuilder.getTableClass()).set(conditions).where(whereConditionBuilder), null);
     }
 
     /**
@@ -33,7 +33,7 @@ public class UpdateTransaction<ModelClass extends Model> extends QueryTransactio
      */
     public UpdateTransaction(DBTransactionInfo dbTransactionInfo,
                              ConditionQueryBuilder<ModelClass> whereConditionBuilder, ConditionQueryBuilder<ModelClass> setConditionBuilder) {
-        super(dbTransactionInfo, new Update().table(whereConditionBuilder.getTableClass())
+        super(dbTransactionInfo, new Update<>(whereConditionBuilder.getTableClass())
                 .set(setConditionBuilder).where(whereConditionBuilder));
     }
 }
