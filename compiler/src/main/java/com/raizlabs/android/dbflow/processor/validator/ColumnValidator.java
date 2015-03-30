@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.processor.validator;
 
-import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
@@ -27,6 +26,17 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                 processorManager.logError("Foreign Key for field %1s is missing it's references.", columnDefinition.columnFieldName);
             }
 
+            if (columnDefinition.column.name().length() > 0) {
+                success = false;
+                processorManager.logError("Foreign Key cannot specify the column() field. " +
+                        "Use a @ForeignKeyReference(columnName = {NAME} instead");
+            }
+
+        } else if (!columnDefinition.isForeignKey && !columnDefinition.isPrimaryKey && !columnDefinition.isPrimaryKeyAutoIncrement) {
+            if (columnDefinition.foreignKeyReferences != null) {
+                processorManager.logError("A non-foreign key field %1s defines references.", columnDefinition.columnFieldName);
+                success = false;
+            }
         } else if (columnDefinition.isPrimaryKey || columnDefinition.isPrimaryKeyAutoIncrement) {
             if (autoIncrementingPrimaryKey != null && columnDefinition.isPrimaryKey) {
                 processorManager.logError("You cannot mix and match autoincrementing and composite primary keys.");
