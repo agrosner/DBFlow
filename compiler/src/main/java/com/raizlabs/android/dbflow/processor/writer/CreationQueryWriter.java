@@ -152,7 +152,7 @@ public class CreationQueryWriter implements FlowWriter {
                         }
 
                         foreignKeyQueryBuilder.appendQuotedArray(columns)
-                                .append(")").appendSpaceSeparated("REFERENCES %1s")
+                                .append(")").appendSpaceSeparated("REFERENCES `%1s`")
                                 .append("(").appendQuotedArray(foreignColumns).append(")").appendSpace()
                                 .append("ON UPDATE")
                                 .appendSpaceSeparated(foreignKeyField.column.onUpdate().name().replace("_", " "))
