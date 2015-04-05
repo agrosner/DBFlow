@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.7.2-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.8.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -32,6 +32,11 @@ If you wish to have your application featured here, please file an [issue](https
 3. [University of Oslo DHIS2 Android SDK](https://github.com/dhis2/dhis2-android-sdk)
 
 ## Changelog
+
+#### 1.8.0
+1. Fixes bug where foreign key reference table is not quoted
+2. Added validation to prevent specifying `name()` for a `Column.FOREIGN_KEY`
+3. Added a `$ViewTable` static constant fields for `ModelView` so incase the view column is different from model for easy reference.
 
 #### 1.7.2
 
