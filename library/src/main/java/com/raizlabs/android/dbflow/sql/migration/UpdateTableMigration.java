@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.sql.migration;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -20,14 +20,17 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * The table to update
      */
     private final Class<ModelClass> mTable;
+
     /**
      * The query to use
      */
     private QueryBuilder mQuery;
+
     /**
      * Builds the conditions for the WHERE part of our query
      */
     private ConditionQueryBuilder<ModelClass> mWhereConditionQueryBuilder;
+
     /**
      * The conditions to use to set fields in the update query
      */
@@ -36,8 +39,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     /**
      * Creates an update migration.
      *
-     * @param table            The table to update
-     * @param migrationVersion The version of the db to update at.
+     * @param table The table to update
      */
     public UpdateTableMigration(Class<ModelClass> table) {
         mTable = table;
@@ -48,7 +50,6 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * that this is called.
      *
      * @param conditions The condition to append
-     * @return
      */
     public UpdateTableMigration<ModelClass> set(Condition... conditions) {
         if (mSetConditionQueryBuilder == null) {
@@ -71,12 +72,19 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     @SuppressWarnings("unchecked")
     @Override
     public void onPreMigrate() {
-        mQuery = new QueryBuilder(new Update().table(mTable).set(mSetConditionQueryBuilder).where(mWhereConditionQueryBuilder).getQuery());
+
+    }
+
+    private String generateQuery() {
+        mQuery = new QueryBuilder(new Update().table(mTable)
+                .set(mSetConditionQueryBuilder)
+                .where(mWhereConditionQueryBuilder).getQuery());
+        return mQuery.getQuery();
     }
 
     @Override
     public void migrate(SQLiteDatabase database) {
-        database.execSQL(mQuery.getQuery());
+        database.execSQL(generateQuery());
     }
 
     @Override
@@ -84,10 +92,11 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         // make fields eligible for GC
         mQuery = null;
         mSetConditionQueryBuilder = null;
+        mWhereConditionQueryBuilder = null;
     }
 
     @Override
     public String getQuery() {
-        return mQuery.getQuery();
+        return generateQuery();
     }
 }

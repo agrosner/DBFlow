@@ -34,6 +34,8 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     private static final String DBFLOW_MODEL_VIEW_TAG = "View";
 
+    private static final String TABLE_VIEW_TAG = "ViewTable";
+
     final boolean implementsLoadFromCursorListener;
 
     public String databaseName;
@@ -46,6 +48,8 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     private FlowWriter[] mMethodWriters;
 
+    private String viewTableName;
+
     public ModelViewDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
 
@@ -57,6 +61,8 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
         }
 
         databaseWriter = manager.getDatabaseWriter(databaseName);
+        this.viewTableName = getModelClassName() + databaseWriter.classSeparator + TABLE_VIEW_TAG;
+
         setDefinitionClassName(databaseWriter.classSeparator + DBFLOW_MODEL_VIEW_TAG);
 
 
@@ -122,7 +128,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     @Override
     public String getTableSourceClassName() {
-        return modelReferenceClass + databaseWriter.classSeparator + TableDefinition.DBFLOW_TABLE_TAG;
+        return name + databaseWriter.classSeparator + TABLE_VIEW_TAG;
     }
 
     @Override
@@ -136,6 +142,21 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
     @Override
     protected String getExtendsClass() {
         return String.format("%1s<%1s,%1s>", Classes.MODEL_VIEW_ADAPTER, modelReferenceClass, getModelClassName());
+    }
+
+    public void writeViewTable() throws IOException {
+        JavaWriter javaWriter = new JavaWriter(manager.getProcessingEnvironment().getFiler()
+                .createSourceFile(packageName + "." + viewTableName).openWriter());
+        javaWriter.emitPackage(packageName);
+        javaWriter.beginType(viewTableName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        javaWriter.emitEmptyLine();
+        javaWriter.emitField("String", "VIEW_NAME", Sets.newHashSet(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL), "\"" + name + "\"");
+        javaWriter.emitEmptyLine();
+        for (ColumnDefinition columnDefinition : columnDefinitions) {
+            columnDefinition.write(javaWriter);
+        }
+        javaWriter.endType();
+        javaWriter.close();
     }
 
     @Override

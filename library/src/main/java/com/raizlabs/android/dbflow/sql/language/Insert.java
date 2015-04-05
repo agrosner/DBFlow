@@ -123,11 +123,12 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     }
 
     public Insert<ModelClass> columnValues(ContentValues contentValues) {
-        java.util.Set<String> keys = contentValues.keySet();
+        java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
         int count = 0;
         String[] columns = new String[contentValues.size()];
         Object[] values = new Object[contentValues.size()];
-        for(String key: keys) {
+        for(Map.Entry<String, Object> entry : entries) {
+            String key = entry.getKey();
             columns[count] = key;
             values[count] = contentValues.get(key);
         }

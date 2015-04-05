@@ -28,6 +28,12 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                 processorManager.logError("Foreign Key for field %1s is missing it's references.", columnDefinition.columnFieldName);
             }
 
+            if(columnDefinition.column.name().length() > 0) {
+                success = false;
+                processorManager.logError("Foreign Key cannot specify the column() field. " +
+                        "Use a @ForeignKeyReference(columnName = {NAME} instead");
+            }
+
         } else if (columnType == Column.NORMAL) {
             if (columnDefinition.foreignKeyReferences != null) {
                 processorManager.logError("A non-foreign key field %1s defines references.", columnDefinition.columnFieldName);

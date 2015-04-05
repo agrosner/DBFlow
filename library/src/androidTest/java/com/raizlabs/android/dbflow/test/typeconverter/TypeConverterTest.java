@@ -2,8 +2,10 @@ package com.raizlabs.android.dbflow.test.typeconverter;
 
 import android.location.Location;
 
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import org.json.JSONException;
@@ -72,6 +74,55 @@ public class TypeConverterTest extends FlowTestCase {
         assertTrue(retrieved.location.getLongitude() == location.getLongitude());
         assertTrue(retrieved.location.getLatitude() == location.getLatitude());
 
+    }
+
+    /**
+     * Nullable database columns need to be allowed to receive null values.
+     */
+    public void testConvertersNullValues() {
+        new Delete().from(TestType.class).where().query();
+
+        TestType testType = new TestType();
+        testType.name = "Name";
+        testType.save(false);
+
+        TestType retrieved = Select.byId(TestType.class, "Name");
+        assertNotNull(retrieved);
+
+        assertNull(retrieved.aBoolean);
+        assertNull(retrieved.calendar);
+        assertNull(retrieved.date);
+        assertNull(retrieved.sqlDate);
+        assertNull(retrieved.json);
+        assertNull(retrieved.location);
+    }
+
+    /**
+     * Type converters that autobox to native types need to have their behavior checked
+     * when null values are present in the database.
+     */
+    public void testConvertersNullDatabaseConversionValues() {
+        new Delete().from(TestType.class).where().query();
+
+        TestType testType = new TestType();
+        testType.name = "Name";
+        testType.save(false);
+
+        /*
+         * NOTE: We don't want to engage the type converter here since we are attempting to test
+         * the read behavior of pre-existing null database values and not the write behavior of
+         * the type converter.
+         */
+        new Update()
+                .table(TestType.class)
+                .set(TestType$Table.NATIVEBOOLEAN + " = null")
+                .where(Condition.column(TestType$Table.NAME).eq(testType.name))
+                .queryClose();
+
+        TestType retrieved = Select.byId(TestType.class, "Name");
+        assertNotNull(retrieved);
+
+        assertFalse(retrieved.nativeBoolean);
     }
 
 }

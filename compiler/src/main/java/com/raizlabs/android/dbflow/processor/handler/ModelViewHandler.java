@@ -5,6 +5,8 @@ import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 
+import java.io.IOException;
+
 import javax.lang.model.element.Element;
 
 /**
@@ -19,6 +21,11 @@ public class ModelViewHandler extends BaseContainerHandler<ModelView> {
         processorManager.addModelViewDefinition(modelViewDefinition);
 
         WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
+        try {
+            modelViewDefinition.writeViewTable();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

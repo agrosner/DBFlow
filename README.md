@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.7.2-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.8.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -33,25 +33,10 @@ If you wish to have your application featured here, please file an [issue](https
 
 ## Changelog
 
-#### 1.7.2
-
-1. Removes internal `ContentObserver` for `FlowCursorList`. Call `refresh()` when data becomes stale. This does not break any backwards compatibility as once a single refresh was called, the observer never reregistered anyways.
-
-#### 1.7.1
-
-1. Fixes issue where an `IndexMigration` recursively called the database rather than use the method database.
-2. Fixes issue where non-unique columns with specified `uniqueGroups` did not create the groups
-3. Fixes issue where `Long` or `Integer` primary keys caused a `NullPointerException`
-
-#### 1.7.0
-
-1. Added unique columns support by using ```@UniqueGroup``` for columns to enable multiple different groups of columns #117 
-2. Fixes an issue where autoincrement update methods do not pass in the id of the object, possibly touching other rows unintentionally
-3. Added global configurable defaults for ```insertConfict()``` and ```updateConflict()```in a ```@Database``` for any table that does not define a ```ConflictAction``` #104 
-4. Added ```bulkInsert``` support to the ```@ContentProvider``` and corresponding method in ```ContentUtils``` #108 
-5. Added Kotlin support! just change the ```generatedClassSeparator()``` for a ```@Database``` to Kotlin compatible. #90 
-6. Added usage guide for databases
-7. Adds better null loading, as in it prevents loading null values into the object when it's not null. #128 
+#### 1.8.0
+1. Fixes bug where foreign key reference table is not quoted
+2. Added validation to prevent specifying `name()` for a `Column.FOREIGN_KEY`
+3. Added a `$ViewTable` static constant fields for `ModelView` so incase the view column is different from model for easy reference.
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
@@ -125,8 +110,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.7.2'
-    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.7.2"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.8.0'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.8.0"
   }
 
 ```
@@ -138,9 +123,9 @@ or by standard Gradle use (without linking sources support):
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.7.2'
-    compile "com.raizlabs.android:DBFlow-Core:1.7.2"
-    compile "com.raizlabs.android:DBFlow:1.7.2"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.8.0'
+    compile "com.raizlabs.android:DBFlow-Core:1.8.0"
+    compile "com.raizlabs.android:DBFlow:1.8.0"
   }
 
 ```

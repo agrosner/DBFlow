@@ -11,6 +11,8 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
+import java.util.Map;
+
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
@@ -43,7 +45,9 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return This instance.
      */
     public Set<ModelClass> conditionQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        mConditionQueryBuilder = conditionQueryBuilder;
+        if(conditionQueryBuilder != null) {
+            mConditionQueryBuilder = conditionQueryBuilder;
+        }
         return this;
     }
 
@@ -64,8 +68,10 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return This instance.
      */
     public Set<ModelClass> conditionValues(ContentValues contentValues) {
-        java.util.Set<String> contentKeys = contentValues.keySet();
-        for(String key: contentKeys) {
+        java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
+
+        for(Map.Entry<String, Object> entry : entries) {
+            String key = entry.getKey();
             mConditionQueryBuilder.putCondition(Condition.column(key).is(contentValues.get(key)));
         }
         return this;
