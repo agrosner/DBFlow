@@ -130,8 +130,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.raizlabs.griddle'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.7.2'
-    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.7.2"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.8.0'
+    mod "com.raizlabs.android:{DBFlow-Core, DBFlow}:1.8.0"
   }
 
 ```
@@ -143,9 +143,9 @@ or by standard Gradle use (without linking sources support):
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.7.2'
-    compile "com.raizlabs.android:DBFlow-Core:1.7.2"
-    compile "com.raizlabs.android:DBFlow:1.7.2"
+    apt 'com.raizlabs.android:DBFlow-Compiler:1.8.0'
+    compile "com.raizlabs.android:DBFlow-Core:1.8.0"
+    compile "com.raizlabs.android:DBFlow:1.8.0"
   }
 
 ```
