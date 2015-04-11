@@ -46,7 +46,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @see #save(boolean, Model)
      */
     @Deprecated
-    public synchronized void save(boolean async, ModelClass model, int saveMode) {
+    public void save(boolean async, ModelClass model, int saveMode) {
         SqlUtils.sync(async, model, this, saveMode);
     }
 
@@ -57,7 +57,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param model The model to save/insert/update
      */
     @Override
-    public synchronized void save(boolean async, ModelClass model) {
+    public void save(boolean async, ModelClass model) {
         SqlUtils.save(async, model, this, this);
     }
 
@@ -67,7 +67,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to insert.
      */
-    public synchronized void insert(boolean async, ModelClass model) {
+    public void insert(boolean async, ModelClass model) {
         SqlUtils.insert(async, model, this, this);
     }
 
@@ -77,7 +77,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to update.
      */
-    public synchronized void update(boolean async, ModelClass model) {
+    public void update(boolean async, ModelClass model) {
         SqlUtils.update(async, model, this, this);
     }
 
