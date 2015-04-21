@@ -1,5 +1,5 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134) 
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.8.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
@@ -7,13 +7,13 @@ DBFlow
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
-The library eliminates the need for writing most SQL statements, writing ``ContentValues`` for every table, converting cursors into models, and so much more. 
+The library eliminates the need for writing most SQL statements, writing ``ContentValues`` for every table, converting cursors into models, and so much more.
 
-Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your complex problem and not be hindered by repetitive code writing. 
+Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your complex problem and not be hindered by repetitive code writing.
 
-This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility. 
+This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility.
 
-What sets this library apart: 
+What sets this library apart:
   1. **Every** feature has been unit tested to ensure functionality.
   2. Built on maximum performance using **annotation processing**, lazy-loading, and speed-tests [here](https://github.com/Raizlabs/AndroidDatabaseLibraryComparison)
   3. Powerful and fluid SQL-wrapping statements
@@ -91,7 +91,7 @@ Add the maven repo url to your root build.gradle in the ```buildscript{}``` and 
       classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
     }
   }
-  
+
   allprojects {
     repositories {
         maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
@@ -101,7 +101,7 @@ Add the maven repo url to your root build.gradle in the ```buildscript{}``` and 
 
 ```
 
-Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) to enable Annotation Processing and the 
+Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) to enable Annotation Processing and the
 [Griddle](https://github.com/Raizlabs/Griddle) plugin to simplify your build.gradle and link sources:
 
 ```groovy
@@ -139,7 +139,7 @@ Not supported as google is no longer supporting it.
 
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
   1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
-  2. If its a feature, bugfix, or anything please only change code to what you specify. 
+  2. If its a feature, bugfix, or anything please only change code to what you specify.
    **DO NOT** do this: Ex: Title "Fixes Crash Related to Bug" includes other files that were changed without explanation or doesn't relate to the bug you fixed. Or another example is a non-descriptive title "Fixes Stuff".
   3. Pull requests must be made against ```develop``` branch.
   4. Have fun!
@@ -147,7 +147,7 @@ I welcome and encourage all pull requests. It usually will take me within 24-48 
 ## Configuration
 
 We need to configure the ```FlowManager``` properly. Instead of passing in a ```Context``` wherever it is used,
-we hold onto the ```Application``` context instead and reference it. 
+we hold onto the ```Application``` context instead and reference it.
 
 You will need to extend the ```Application``` class for proper configuration:
 
@@ -161,11 +161,6 @@ public class ExampleApplication extends Application {
         FlowManager.init(this);
     }
 
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        FlowManager.destroy();
-    }
 }
 
 ```
