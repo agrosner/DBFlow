@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
@@ -31,12 +32,13 @@ public class ExistenceWriter implements FlowWriter {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
                 if(tableDefinition instanceof TableDefinition && ((TableDefinition) tableDefinition).hasAutoIncrement) {
-                    String access =  ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldName,
-                            long.class.getSimpleName(), ((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
-                            isModelContainer, false, false, ((TableDefinition) tableDefinition).autoIncrementDefinition.hasTypeConverter);
-                    String accessNoCast =  ModelUtils.getAccessStatement(((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldName,
-                            null, ((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldName, ((TableDefinition) tableDefinition).autoIncrementDefinition.containerKeyName,
-                            isModelContainer, false, false, ((TableDefinition) tableDefinition).autoIncrementDefinition.hasTypeConverter);
+                    ColumnDefinition autoincrement = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+                    String access =  ModelUtils.getAccessStatement(autoincrement.columnFieldName,
+                            long.class.getSimpleName(), autoincrement.columnFieldName, autoincrement.containerKeyName,
+                            isModelContainer, false, false, autoincrement.hasTypeConverter, autoincrement.isBlob);
+                    String accessNoCast =  ModelUtils.getAccessStatement(autoincrement.columnFieldName,
+                            null, autoincrement.columnFieldName, autoincrement.containerKeyName,
+                            isModelContainer, false, false, autoincrement.hasTypeConverter, autoincrement.isBlob);
                     javaWriter.emitStatement("return %1s%1s > 0",
                             ((TableDefinition) tableDefinition).autoIncrementDefinition.columnFieldIsPrimitive ? "" : (accessNoCast + "!=null && "),
                             access);

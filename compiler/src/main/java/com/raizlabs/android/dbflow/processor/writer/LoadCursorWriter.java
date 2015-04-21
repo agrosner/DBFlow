@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
+import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
@@ -35,6 +36,7 @@ public class LoadCursorWriter implements FlowWriter {
             put(short.class.getName(), "getShort");
             put(Short.class.getName(), "getShort");
             put(String.class.getName(), "getString");
+            put(Blob.class.getName(), "getBlob");
         }
     };
 

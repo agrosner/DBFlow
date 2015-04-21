@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -81,6 +82,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
     public String defaultValue;
 
     public boolean isBoolean = false;
+
+    public boolean isBlob = false;
 
     public boolean columnFieldIsPrimitive = false;
 
@@ -166,8 +169,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             hasTypeConverter = !SQLiteType.containsClass(columnFieldType);
         }
 
-    }
+        if(columnFieldType.equals(Blob.class.getName())) {
+            isBlob = true;
+        }
 
+    }
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
@@ -252,7 +258,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                             foreignKeyReference.columnName(),
                             columnName, castedClass.toString(),
                             foreignKeyReference.foreignColumnName(), foreignKeyReference.foreignColumnName(),
-                            false, isModelContainer, true, false, columnFieldType, castedClass.getKind().isPrimitive());
+                            false, isModelContainer, true, false,
+                             columnFieldType, castedClass.getKind().isPrimitive(), false);
 
                     AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
                     if (isContentValues) {
@@ -305,7 +312,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
             ModelUtils.writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(), columnName, columnName,
                     newFieldType, columnFieldName, containerKeyName, isModelContainerDefinition, isModelContainer,
-                    false, hasTypeConverter, getType, isPrimitive);
+                    false, hasTypeConverter, getType, isPrimitive, isBlob);
 
             columnCount.incrementAndGet();
         }
@@ -382,7 +389,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                         ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, ModelUtils.getClassFromAnnotation(foreignKeyReference),
                                 columnFieldName, foreignKeyReference.columnName(), foreignKeyReference.foreignColumnName(),
-                                foreignKeyReference.columnName(), element, false, isModelContainerDefinition, isModelContainer, isNullable());
+                                foreignKeyReference.columnName(), element, false, isModelContainerDefinition,
+                                                                      isModelContainer, isNullable(), false);
                     }
                 }
             }
@@ -398,7 +406,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, getType, columnFieldName,
-                    columnName, "", containerKeyName, modelType, hasTypeConverter, isModelContainerDefinition, this.isModelContainer, isNullable());
+                    columnName, "", containerKeyName, modelType, hasTypeConverter,
+                  isModelContainerDefinition, this.isModelContainer, isNullable(), isBlob);
         }
     }
 
