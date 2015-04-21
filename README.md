@@ -146,6 +146,11 @@ I welcome and encourage all pull requests. It usually will take me within 24-48 
 
 ## Configuration
 
+Due to this library using a custom maven repo, to speed up build times when using this library,
+you should run in `--offline` mode except for when updating dependencies. To enable
+this setting in Android Studio, ensure its checked in:
+`Preferences->Build,Executor,Deployment->Build Tools->Gradle->Offline Work` 
+
 We need to configure the ```FlowManager``` properly. Instead of passing in a ```Context``` wherever it is used,
 we hold onto the ```Application``` context instead and reference it.
 
