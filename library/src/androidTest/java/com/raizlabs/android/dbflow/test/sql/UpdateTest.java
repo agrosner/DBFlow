@@ -67,8 +67,26 @@ public class UpdateTest extends FlowTestCase {
                 .and(Condition.column("isOpen").is(Boolean.valueOf(uri.getPathSegments().get(2))))
                 .getQuery();
 
-        assertEquals("UPDATE OR ABORT `NoteModel` SET `id`=1 , `providerModel`=1 , " +
-                "`note`='Test' WHERE name = 'test' AND `id`=1 AND `isOpen`=1", query.trim());
+        String trimmed = query.trim().replaceFirst("UPDATE OR ABORT `NoteModel` SET ", "");
+        trimmed = trimmed.replace("WHERE name = 'test' AND `id`=1 AND `isOpen`=1", "");
+        trimmed = trimmed.replace("SET", "").trim();
+        String[] values = trimmed.split(",");
+        assertEquals(3, values.length);
+
+        boolean found;
+        for(String value: values) {
+            if(value.trim().equals("`id`=1")) {
+                found = true;
+            } else if(value.trim().equals("`providerModel`=1")) {
+                found = true;
+            } else if(value.trim().equals("`note`='Test'")) {
+                found = true;
+            } else {
+                found = false;
+            }
+
+            assertTrue(found);
+        }
     }
 
     public void testUpdateEffect() {
