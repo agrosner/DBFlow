@@ -40,7 +40,7 @@ public class DBFlowProcessor extends AbstractProcessor {
      */
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        Set<String> supportedTypes = new LinkedHashSet<String>();
+        Set<String> supportedTypes = new LinkedHashSet<>();
         supportedTypes.add(Table.class.getName());
         supportedTypes.add(Column.class.getName());
         supportedTypes.add(TypeConverter.class.getName());

@@ -12,14 +12,14 @@ public interface DatabaseHelperListener {
      *
      * @param database The database that is opened
      */
-    public void onOpen(SQLiteDatabase database);
+    void onOpen(SQLiteDatabase database);
 
     /**
      * Called when the DB is created
      *
      * @param database The database that is created
      */
-    public void onCreate(SQLiteDatabase database);
+    void onCreate(SQLiteDatabase database);
 
     /**
      * Called when the DB is upgraded.
@@ -28,7 +28,7 @@ public interface DatabaseHelperListener {
      * @param oldVersion The previous DB version
      * @param newVersion The new DB version
      */
-    public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion);
+    void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion);
 
 
 }

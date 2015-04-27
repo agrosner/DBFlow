@@ -40,7 +40,7 @@ public class TypeConverterTest extends FlowTestCase {
         java.sql.Date date1 = new java.sql.Date(testTime);
         testType.sqlDate = date1;
 
-        JSONObject jsonObject = null;
+        JSONObject jsonObject;
         try {
             jsonObject = new JSONObject("{ name: test, happy: true }");
             testType.json = jsonObject;

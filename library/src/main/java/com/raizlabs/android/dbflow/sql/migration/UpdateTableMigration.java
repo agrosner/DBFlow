@@ -53,7 +53,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      */
     public UpdateTableMigration<ModelClass> set(Condition... conditions) {
         if (mSetConditionQueryBuilder == null) {
-            mSetConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
+            mSetConditionQueryBuilder = new ConditionQueryBuilder<>(mTable);
         }
 
         mSetConditionQueryBuilder.putConditions(conditions);
@@ -62,7 +62,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
 
     public UpdateTableMigration<ModelClass> where(Condition... conditions) {
         if (mWhereConditionQueryBuilder == null) {
-            mWhereConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
+            mWhereConditionQueryBuilder = new ConditionQueryBuilder<>(mTable);
         }
 
         mWhereConditionQueryBuilder.putConditions(conditions);

@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public interface WhereBase<ModelClass extends Model> extends Query {
 
-    public Class<ModelClass> getTable();
+    Class<ModelClass> getTable();
 
-    public Query getQueryBuilderBase();
+    Query getQueryBuilderBase();
 }

@@ -71,7 +71,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     }
 
     public JSONModel<ModelClass> getJsonModel(int index) {
-        return new JSONModel<ModelClass>(getJSONObject(index), mTable);
+        return new JSONModel<>(getJSONObject(index), mTable);
     }
 
     /**
@@ -85,7 +85,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public void save(boolean async) {
         if (mJsonArray != null && mJsonArray.length() > 0) {
             int length = mJsonArray.length();
-            JSONModel<ModelClass> jsonModel = new JSONModel<ModelClass>(mTable);
+            JSONModel<ModelClass> jsonModel = new JSONModel<>(mTable);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
@@ -101,7 +101,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public void delete(boolean async) {
         if (mJsonArray != null && mJsonArray.length() > 0) {
             int length = mJsonArray.length();
-            JSONModel<ModelClass> jsonModel = new JSONModel<ModelClass>(mTable);
+            JSONModel<ModelClass> jsonModel = new JSONModel<>(mTable);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
@@ -117,7 +117,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public void update(boolean async) {
         if (mJsonArray != null && mJsonArray.length() > 0) {
             int length = mJsonArray.length();
-            JSONModel<ModelClass> jsonModel = new JSONModel<ModelClass>(mTable);
+            JSONModel<ModelClass> jsonModel = new JSONModel<>(mTable);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
@@ -133,7 +133,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public void insert(boolean async) {
         if (mJsonArray != null && mJsonArray.length() > 0) {
             int length = mJsonArray.length();
-            JSONModel<ModelClass> jsonModel = new JSONModel<ModelClass>(mTable);
+            JSONModel<ModelClass> jsonModel = new JSONModel<>(mTable);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
@@ -160,7 +160,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public boolean exists(int index) {
         boolean exists = false;
         try {
-            exists = new JSONModel<ModelClass>(mJsonArray.getJSONObject(index), mTable).exists();
+            exists = new JSONModel<>(mJsonArray.getJSONObject(index), mTable).exists();
         } catch (JSONException e) {
             FlowLog.logError(e);
         }

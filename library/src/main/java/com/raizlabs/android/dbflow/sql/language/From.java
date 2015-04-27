@@ -39,7 +39,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
     /**
      * Enables the SQL JOIN statement
      */
-    private List<Join> mJoins = new ArrayList<Join>();
+    private List<Join> mJoins = new ArrayList<>();
 
     /**
      * The SQL from statement constructed.
@@ -71,7 +71,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      * @return The join contained in this FROM statement
      */
     public <JoinType extends Model> Join<JoinType, ModelClass> join(Class<JoinType> table, Join.JoinType joinType) {
-        Join<JoinType, ModelClass> join = new Join<JoinType, ModelClass>(this, table, joinType);
+        Join<JoinType, ModelClass> join = new Join<>(this, table, joinType);
         mJoins.add(join);
         return join;
     }
@@ -91,7 +91,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      * @return an empty {@link Where} statement
      */
     public Where<ModelClass> where() {
-        return new Where<ModelClass>(this);
+        return new Where<>(this);
     }
 
     /**
@@ -154,12 +154,12 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
 
     @Override
     public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<ModelClass>(false, this);
+        return new FlowCursorList<>(false, this);
     }
 
     @Override
     public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<ModelClass>(this);
+        return new FlowTableList<>(this);
     }
 
     /**
@@ -190,7 +190,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
         if (!(mQueryBuilderBase instanceof Update)) {
             throw new IllegalStateException("Cannot use set() without an UPDATE as the base");
         }
-        return new Set<ModelClass>(this, mTable);
+        return new Set<>(this, mTable);
     }
 
     /**

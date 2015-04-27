@@ -2,8 +2,6 @@ package com.raizlabs.android.dbflow.structure.listener;
 
 import android.content.ContentValues;
 
-import com.raizlabs.android.dbflow.structure.Model;
-
 /**
  * Description: Called after the declared {@link android.content.ContentValues} are binded. It enables
  * us to listen and add custom behavior to the {@link android.content.ContentValues}. These must be
@@ -18,5 +16,5 @@ public interface ContentValuesListener {
      *
      * @param contentValues The content values to
      */
-    public void onBindToContentValues(ContentValues contentValues);
+    void onBindToContentValues(ContentValues contentValues);
 }

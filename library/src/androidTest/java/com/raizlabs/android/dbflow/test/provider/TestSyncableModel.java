@@ -5,7 +5,6 @@ import android.net.Uri;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.provider.BaseSyncableProviderModel;
-import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
  * Description:

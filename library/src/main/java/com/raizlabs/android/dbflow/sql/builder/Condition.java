@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -180,9 +181,7 @@ public class Condition {
         private In(Condition condition, Object firstArgument, boolean isIn, Object... arguments) {
             super(condition.columnName());
             mArguments.add(firstArgument);
-            for (Object argument : arguments) {
-                mArguments.add(argument);
-            }
+            Collections.addAll(mArguments, arguments);
             mOperation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
         }
 

@@ -26,7 +26,7 @@ public class TransactionManagerRuntime {
 
     static ArrayList<TransactionManager> getManagers() {
         if (managers == null) {
-            managers = new ArrayList<TransactionManager>();
+            managers = new ArrayList<>();
         }
         return managers;
     }

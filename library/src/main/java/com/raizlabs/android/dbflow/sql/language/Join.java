@@ -15,7 +15,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     /**
      * The specific type of JOIN that is used.
      */
-    public static enum JoinType {
+    public enum JoinType {
 
         LEFT,
 
@@ -95,7 +95,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @return The FROM that this JOIN came from
      */
     public From<FromClass> on(Condition... onConditions) {
-        mOn = new ConditionQueryBuilder<ModelClass>(mTable, onConditions);
+        mOn = new ConditionQueryBuilder<>(mTable, onConditions);
         return mFrom;
     }
 

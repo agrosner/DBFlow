@@ -17,7 +17,7 @@ public class BuilderTest extends FlowTestCase {
      */
     public void testConditions() {
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder
-                = new ConditionQueryBuilder<ConditionModel>(ConditionModel.class);
+                = new ConditionQueryBuilder<>(ConditionModel.class);
         conditionQueryBuilder.putConditions(
                 Condition.column("number").is(5L),
                 Condition.column("bytes").is(5),

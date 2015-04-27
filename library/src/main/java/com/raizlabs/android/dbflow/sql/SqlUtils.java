@@ -51,7 +51,6 @@ public class SqlUtils {
     @Deprecated
     int SAVE_MODE_DEFAULT = 0;
 
-    ;
     /**
      * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
      * operation as updating only without checking for it to exist. This is when we know the data exists.
@@ -60,6 +59,7 @@ public class SqlUtils {
     @SaveMode
     @Deprecated
     int SAVE_MODE_UPDATE = 1;
+
     /**
      * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
      * operation as inserting only without checking for it to exist. This is for when we know the data is new.
@@ -81,7 +81,8 @@ public class SqlUtils {
      * @return a list of {@link ModelClass}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql, String... args) {
+    public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql,
+                                                                        String... args) {
         BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = null;
@@ -94,7 +95,8 @@ public class SqlUtils {
         return list;
     }
 
-    private static <CacheableClass extends BaseCacheableModel> List<CacheableClass> convertToCacheableList(Class<CacheableClass> modelClass, Cursor cursor) {
+    private static <CacheableClass extends BaseCacheableModel> List<CacheableClass> convertToCacheableList(
+            Class<CacheableClass> modelClass, Cursor cursor) {
         final List<CacheableClass> entities = new ArrayList<>();
         ModelAdapter<CacheableClass> instanceAdapter = FlowManager.getModelAdapter(modelClass);
         if (instanceAdapter != null) {
@@ -127,7 +129,7 @@ public class SqlUtils {
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
-        final List<ModelClass> entities = new ArrayList<ModelClass>();
+        final List<ModelClass> entities = new ArrayList<>();
         InstanceAdapter modelAdapter = FlowManager.getModelAdapter(table);
 
         if (modelAdapter == null) {
@@ -159,13 +161,15 @@ public class SqlUtils {
      * @return A model transformed from the {@link android.database.Cursor}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table, Cursor cursor) {
+    public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table,
+                                                                       Cursor cursor) {
         ModelClass model = null;
         if (dontMoveToFirst || cursor.moveToFirst()) {
             InstanceAdapter modelAdapter = FlowManager.getModelAdapter(table);
             if (modelAdapter == null) {
                 if (BaseModelView.class.isAssignableFrom(table)) {
-                    modelAdapter = FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table);
+                    modelAdapter = FlowManager.getModelViewAdapter(
+                            (Class<? extends BaseModelView<? extends Model>>) table);
                 }
             }
 
@@ -188,7 +192,8 @@ public class SqlUtils {
      * @return A model transformed from the {@link android.database.Cursor}
      */
     @SuppressWarnings("unchecked")
-    public static <CacheableClass extends BaseCacheableModel> CacheableClass convertToCacheableModel(boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
+    public static <CacheableClass extends BaseCacheableModel> CacheableClass convertToCacheableModel(
+            boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
         CacheableClass model = null;
         if (dontMoveToFirst || cursor.moveToFirst()) {
             ModelAdapter<CacheableClass> modelAdapter = FlowManager.getModelAdapter(table);
@@ -219,11 +224,13 @@ public class SqlUtils {
      * @return a single {@link ModelClass}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql, String... args) {
+    public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql,
+                                                                    String... args) {
         Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
         ModelClass retModel = null;
         if (BaseCacheableModel.class.isAssignableFrom(modelClass)) {
-            retModel = (ModelClass) convertToCacheableModel(false, (Class<? extends BaseCacheableModel>) modelClass, cursor);
+            retModel = (ModelClass) convertToCacheableModel(false, (Class<? extends BaseCacheableModel>) modelClass,
+                                                            cursor);
         } else {
             retModel = convertToModel(false, modelClass, cursor);
         }
@@ -255,7 +262,8 @@ public class SqlUtils {
      * @see #save(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.RetrievalAdapter, com.raizlabs.android.dbflow.structure.ModelAdapter)
      */
     @Deprecated
-    public static <ModelClass extends Model> void sync(boolean async, ModelClass model, ModelAdapter<ModelClass> modelAdapter, @SaveMode int mode) {
+    public static <ModelClass extends Model> void sync(boolean async, ModelClass model,
+                                                       ModelAdapter<ModelClass> modelAdapter, @SaveMode int mode) {
         if (!async) {
 
             if (model == null) {
@@ -285,7 +293,8 @@ public class SqlUtils {
                 notifyModelChanged(modelAdapter.getModelClass(), action);
             }
         } else {
-            TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
+            TransactionManager.getInstance().save(
+                    ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
         }
     }
 
@@ -320,7 +329,8 @@ public class SqlUtils {
                 notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.SAVE);
             }
         } else {
-            TransactionManager.getInstance().save(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
+            TransactionManager.getInstance().save(
+                    ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
         }
     }
 
@@ -343,8 +353,11 @@ public class SqlUtils {
             ContentValues contentValues = new ContentValues();
             adapter.bindToContentValues(contentValues, model);
             exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
-                    adapter.getPrimaryModelWhere(model).getQuery(), null,
-                    ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
+                                                                    adapter.getPrimaryModelWhere(model).getQuery(),
+                                                                    null,
+                                                                    ConflictAction.getSQLiteDatabaseAlgorithmInt(
+                                                                            modelAdapter.getUpdateOnConflictAction())) !=
+                      0);
             if (!exists) {
                 // insert
                 insert(false, model, adapter, modelAdapter);
@@ -352,7 +365,8 @@ public class SqlUtils {
                 notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.UPDATE);
             }
         } else {
-            TransactionManager.getInstance().update(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
+            TransactionManager.getInstance().update(
+                    ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave()));
         }
         return exists;
     }
@@ -377,7 +391,8 @@ public class SqlUtils {
                 notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT);
             }
         } else {
-            TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
+            TransactionManager.getInstance().addTransaction(new InsertModelTransaction<>(
+                    ProcessModelInfo.withModels(model).info(DBTransactionInfo.createSave())));
         }
     }
 
@@ -392,13 +407,15 @@ public class SqlUtils {
     public static <TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void delete(final TableClass model, AdapterClass modelAdapter, boolean async) {
         if (!async) {
-            new Delete().from((Class<TableClass>) modelAdapter.getModelClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
+            new Delete().from((Class<TableClass>) modelAdapter.getModelClass()).where(
+                    modelAdapter.getPrimaryModelWhere(model)).query();
             modelAdapter.updateAutoIncrement(model, 0);
             if (FlowContentObserver.shouldNotify()) {
                 notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.DELETE);
             }
         } else {
-            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(ProcessModelInfo.withModels(model).fetch()));
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteModelListTransaction<>(ProcessModelInfo.withModels(model).fetch()));
         }
     }
 

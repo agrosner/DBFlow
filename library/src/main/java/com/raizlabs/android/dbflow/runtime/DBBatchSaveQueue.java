@@ -55,7 +55,7 @@ public class DBBatchSaveQueue extends Thread {
     private DBBatchSaveQueue() {
         super("DBBatchSaveQueue");
 
-        mModels = new ArrayList<Model>();
+        mModels = new ArrayList<>();
     }
 
     /**
@@ -114,7 +114,7 @@ public class DBBatchSaveQueue extends Thread {
         while (true) {
             final ArrayList<Model> tmpModels;
             synchronized (mModels) {
-                tmpModels = new ArrayList<Model>(mModels);
+                tmpModels = new ArrayList<>(mModels);
                 mModels.clear();
             }
             if (tmpModels.size() > 0) {

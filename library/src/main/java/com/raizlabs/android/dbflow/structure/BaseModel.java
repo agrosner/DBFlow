@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 
 /**
  * Description: The base implementation of {@link com.raizlabs.android.dbflow.structure.Model} using the

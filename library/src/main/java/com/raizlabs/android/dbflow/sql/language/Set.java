@@ -24,7 +24,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
 
     Set(Query update, Class<ModelClass> table) {
         mUpdate = update;
-        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(table).setSeparator(",");
+        mConditionQueryBuilder = new ConditionQueryBuilder<>(table).setSeparator(",");
     }
 
     /**
@@ -104,7 +104,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return The where piece of this query.
      */
     public Where<ModelClass> where() {
-        return new Where<ModelClass>(this);
+        return new Where<>(this);
     }
 
     /**

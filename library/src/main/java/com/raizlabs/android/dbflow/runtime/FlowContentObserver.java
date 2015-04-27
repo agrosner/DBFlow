@@ -46,12 +46,12 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Listeners for model changes.
      */
-    private List<ModelChangeListener> mModelChangeListeners;
+    private final List<ModelChangeListener> mModelChangeListeners;
 
 
     public FlowContentObserver() {
         super(null);
-        mModelChangeListeners = new ArrayList<ModelChangeListener>();
+        mModelChangeListeners = new ArrayList<>();
     }
 
     /**
@@ -125,31 +125,31 @@ public class FlowContentObserver extends ContentObserver {
         /**
          * Called when the model has changed. This is only called in versions below {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
          */
-        public void onModelChanged();
+        void onModelChanged();
 
         /**
          * Called when the model has been saved. This is only available to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
          */
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-        public void onModelSaved();
+        void onModelSaved();
 
         /**
          * Called when model has been deleted. This is only available to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
          */
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-        public void onModelDeleted();
+        void onModelDeleted();
 
         /**
          * Called when the model has been inserted. This is only available to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
          */
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-        public void onModelInserted();
+        void onModelInserted();
 
         /**
          * Called when the model has been updated. This is only available to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
          */
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-        public void onModelUpdated();
+        void onModelUpdated();
     }
 
     /**

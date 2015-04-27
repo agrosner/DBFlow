@@ -268,8 +268,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO ")
                         .appendQuoted(tableName).appendSpace().append("(");
 
-                List<String> columnNames = new ArrayList<String>();
-                List<String> bindings = new ArrayList<String>();
+                List<String> columnNames = new ArrayList<>();
+                List<String> bindings = new ArrayList<>();
                 for (int i = 0; i < getColumnDefinitions().size(); i++) {
                     ColumnDefinition columnDefinition = getColumnDefinitions().get(i);
 

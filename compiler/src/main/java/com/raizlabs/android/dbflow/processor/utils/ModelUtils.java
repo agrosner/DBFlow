@@ -30,7 +30,7 @@ public class ModelUtils {
     }
 
     public static String getStaticMember(String classname, String fieldName) {
-        return new StringBuilder(classname).append(".").append(fieldName.toUpperCase()).toString();
+        return classname + "." + fieldName.toUpperCase();
     }
 
     public static void writeContentValueStatement(JavaWriter javaWriter, boolean isContentValues,

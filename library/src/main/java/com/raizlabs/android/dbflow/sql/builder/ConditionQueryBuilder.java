@@ -455,7 +455,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         }
 
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder =
-                new ConditionQueryBuilder<ModelClass>(mModelAdapter.getModelClass());
+                new ConditionQueryBuilder<>(mModelAdapter.getModelClass());
         for (int i = 0; i < values.length; i++) {
             conditionQueryBuilder.putCondition(mParams.get(i).columnName(), values[i]);
         }

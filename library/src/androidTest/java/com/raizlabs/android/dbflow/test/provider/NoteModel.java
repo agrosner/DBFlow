@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.provider.BaseProviderModel;
-import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
  * Description:

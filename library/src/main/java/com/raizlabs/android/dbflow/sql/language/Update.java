@@ -68,7 +68,7 @@ public class Update implements Query {
      * @return The FROM part of this query, used in calling a {@link com.raizlabs.android.dbflow.sql.language.Set}
      */
     public <ModelClass extends Model> From<ModelClass> table(Class<ModelClass> table) {
-        return new From<ModelClass>(this, table);
+        return new From<>(this, table);
     }
 
     @Override

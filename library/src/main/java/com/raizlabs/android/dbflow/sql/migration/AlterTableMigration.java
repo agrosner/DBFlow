@@ -105,7 +105,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      */
     public AlterTableMigration<ModelClass> addColumn(Class columnType, String columnName) {
         if (mColumnDefinitions == null) {
-            mColumnDefinitions = new ArrayList<QueryBuilder>();
+            mColumnDefinitions = new ArrayList<>();
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
@@ -129,7 +129,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      */
     public List<String> getColumnDefinitions() {
         String sql = new QueryBuilder(mQuery.getQuery()).appendQuoted(FlowManager.getTableName(mTable)).toString();
-        List<String> columnDefinitions = new ArrayList<String>();
+        List<String> columnDefinitions = new ArrayList<>();
 
         if (mColumnDefinitions != null) {
             for (QueryBuilder columnDefinition : mColumnDefinitions) {

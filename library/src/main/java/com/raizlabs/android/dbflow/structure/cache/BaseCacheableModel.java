@@ -4,7 +4,6 @@ import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 
 import java.util.HashMap;

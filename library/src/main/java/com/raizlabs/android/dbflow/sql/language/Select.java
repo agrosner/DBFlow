@@ -113,7 +113,7 @@ public class Select implements Query {
      * @return the From part of this query
      */
     public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
-        return new From<ModelClass>(this, table);
+        return new From<>(this, table);
     }
 
     /**

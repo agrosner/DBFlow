@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class ProcessModelInfo<ModelClass extends Model> {
 
-    List<ModelClass> mModels = new ArrayList<ModelClass>();
+    List<ModelClass> mModels = new ArrayList<>();
 
     TransactionListener<List<ModelClass>> mTransactionListener;
 

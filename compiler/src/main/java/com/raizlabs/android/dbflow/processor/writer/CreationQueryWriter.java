@@ -50,7 +50,7 @@ public class CreationQueryWriter implements FlowWriter {
                 TableCreationQueryBuilder tableCreationQuery = new TableCreationQueryBuilder();
                 tableCreationQuery.appendCreateTableIfNotExists(tableDefinition.tableName);
 
-                ArrayList<QueryBuilder> mColumnDefinitions = new ArrayList<QueryBuilder>();
+                ArrayList<QueryBuilder> mColumnDefinitions = new ArrayList<>();
                 List<String> foreignColumnClasses = Lists.newArrayList();
                 for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
 

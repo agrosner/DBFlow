@@ -70,8 +70,8 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     public Where(WhereBase<ModelClass> whereBase) {
         mWhereBase = whereBase;
         mManager = FlowManager.getDatabaseForTable(mWhereBase.getTable());
-        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
-        mHaving = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
+        mConditionQueryBuilder = new ConditionQueryBuilder<>(mWhereBase.getTable());
+        mHaving = new ConditionQueryBuilder<>(mWhereBase.getTable());
     }
 
     /**
@@ -405,12 +405,12 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
 
     @Override
     public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<ModelClass>(false, this);
+        return new FlowCursorList<>(false, this);
     }
 
     @Override
     public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<ModelClass>(this);
+        return new FlowTableList<>(this);
     }
 
     /**

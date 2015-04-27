@@ -1,11 +1,8 @@
 package com.raizlabs.android.dbflow.structure.container;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
-import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -76,7 +73,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
 
     @Override
     public void save(boolean async) {
-        mModelAdapter.save(async, toModel(), SqlUtils.SAVE_MODE_DEFAULT);
+        mModelAdapter.save(async, toModel());
     }
 
     @Override

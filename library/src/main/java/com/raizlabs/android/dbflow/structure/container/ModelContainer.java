@@ -16,24 +16,24 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      *
      * @return The model from this json.
      */
-    public ModelClass toModel();
+    ModelClass toModel();
 
     /**
      * @return The underlying data object that this container uses to imitate a model.
      */
-    public DataClass getData();
+    DataClass getData();
 
     /**
      * Changes the underlying data. This method should also invalidate the {@link ModelClass} in this container.
      *
      * @param data The data to back this object.
      */
-    public void setData(DataClass data);
+    void setData(DataClass data);
 
     /**
      * @return New instance of underlying data for parsing
      */
-    public DataClass newDataInstance();
+    DataClass newDataInstance();
 
     /**
      * @param inValue     The data to construct a new instance from
@@ -41,13 +41,13 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      * @return new instance of this container with a different Model class when we have
      * children who are {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
+    BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
 
     /**
      * @param columnName The name of the column
      * @return the value with the specified key
      */
-    public Object getValue(String columnName);
+    Object getValue(String columnName);
 
     /**
      * Puts the value with the specified key and value to the object
@@ -55,15 +55,15 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      * @param columnName The name of the column
      * @param value      The value of the item in Model form.
      */
-    public void put(String columnName, Object value);
+    void put(String columnName, Object value);
 
     /**
      * @return The associated model adapter from the table for this {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
      */
-    public ModelAdapter<ModelClass> getModelAdapter();
+    ModelAdapter<ModelClass> getModelAdapter();
 
     /**
      * @return the table that's associated with this container
      */
-    public Class<ModelClass> getTable();
+    Class<ModelClass> getTable();
 }

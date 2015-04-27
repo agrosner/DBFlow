@@ -31,7 +31,7 @@ public class DBTransactionQueue extends Thread {
     public DBTransactionQueue(String name) {
         super(name);
 
-        mQueue = new PriorityBlockingQueue<BaseTransaction>();
+        mQueue = new PriorityBlockingQueue<>();
     }
 
     @SuppressWarnings("unchecked")

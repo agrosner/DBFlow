@@ -10,5 +10,5 @@ public interface InstanceAdapter<TableClass extends Model, ModelClass extends Mo
      * @return A new model using its default constructor. This is why default is required so that
      * we don't use reflection to create objects = faster.
      */
-    public ModelClass newInstance();
+    ModelClass newInstance();
 }

@@ -17,27 +17,27 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
     /**
      * @return a list of model converted items
      */
-    public List<ModelClass> queryList();
+    List<ModelClass> queryList();
 
     /**
      * @return Single model, the first of potentially many results
      */
-    public ModelClass querySingle();
+    ModelClass querySingle();
 
     /**
      * @return the table that this query comes from.
      */
-    public Class<ModelClass> getTable();
+    Class<ModelClass> getTable();
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
      * cache models dynamically by setting {@link com.raizlabs.android.dbflow.list.FlowCursorList#setCacheModels(boolean)} to true.
      */
-    public FlowCursorList<ModelClass> queryCursorList();
+    FlowCursorList<ModelClass> queryCursorList();
 
     /**
      * @return A cursor-backed {@link java.util.List} that handles conversion, retrieval, caching, content changes,
      * and more.
      */
-    public FlowTableList<ModelClass> queryTableList();
+    FlowTableList<ModelClass> queryTableList();
 }

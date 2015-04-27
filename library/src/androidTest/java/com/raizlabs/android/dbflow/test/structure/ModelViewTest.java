@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.test.structure;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
@@ -32,7 +31,7 @@ public class ModelViewTest extends FlowTestCase {
     }
 
     public void testModelViewCursorList() {
-        FlowCursorList<TestModelView> list = new FlowCursorList<TestModelView>(true, TestModelView.class);
+        FlowCursorList<TestModelView> list = new FlowCursorList<>(true, TestModelView.class);
         assertNotNull(list.getItem(0));
     }
 

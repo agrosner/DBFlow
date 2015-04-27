@@ -76,17 +76,9 @@ public class UpdateTest extends FlowTestCase {
         String[] values = trimmed.split(",");
         assertEquals(3, values.length);
 
-        boolean found;
         for (String value : values) {
-            if (value.trim().equals("`id`=1")) {
-                found = true;
-            } else if (value.trim().equals("`providerModel`=1")) {
-                found = true;
-            } else {
-                found = value.trim().equals("`note`='Test'");
-            }
-
-            assertTrue(found);
+            assertTrue(value.trim().equals("`id`=1") || value.trim().equals("`providerModel`=1") ||
+                       value.trim().equals("`note`='Test'"));
         }
     }
 

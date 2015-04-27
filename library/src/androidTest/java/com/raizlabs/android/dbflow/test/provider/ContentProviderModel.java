@@ -6,10 +6,8 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
-import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.provider.BaseProviderModel;
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
-import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
  * Description:
