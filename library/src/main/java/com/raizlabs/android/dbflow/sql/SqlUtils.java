@@ -138,13 +138,16 @@ public class SqlUtils {
             }
         }
         if (modelAdapter != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    Model model = modelAdapter.newInstance();
-                    modelAdapter.loadFromCursor(cursor, model);
-                    entities.add((ModelClass) model);
+            // Ensure that we aren't iterating over this cursor concurrently from different threads
+            synchronized (cursor) {
+                if (cursor.moveToFirst()) {
+                    do {
+                        Model model = modelAdapter.newInstance();
+                        modelAdapter.loadFromCursor(cursor, model);
+                        entities.add((ModelClass) model);
+                    }
+                    while (cursor.moveToNext());
                 }
-                while (cursor.moveToNext());
             }
         }
 
