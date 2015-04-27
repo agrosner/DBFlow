@@ -11,10 +11,40 @@ We have this relationship:
 
 ```
 
-Queen (1...many)-> Ants
+Colony (1..1) -> Queen (1...many)-> Ants
+
 
 ```
 
+## Setting Up DBFlow
+
+To initialize DBFlow, open databases, and begin migrations and creations, place
+this code in a custom `Application` class:
+
+```java
+
+public class ExampleApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FlowManager.init(this);
+    }
+
+}
+
+```
+
+Lastly, add the definition to the manifest (with the name that you chose for your custom application):
+
+```xml
+
+<application
+  android:name="{packageName}.ExampleApplication"
+  ...>
+</application>
+
+```
 
 ## Defining our database
 

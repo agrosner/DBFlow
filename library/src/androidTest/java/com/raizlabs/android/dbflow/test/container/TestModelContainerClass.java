@@ -10,10 +10,8 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
 /**
-* Author: andrewgrosner
-* Contributors: { }
-* Description:
-*/
+ * Tests to ensure model containers
+ */
 @Table(value = "TestModelContainer", databaseName = TestDatabase.NAME)
 @ContainerAdapter
 public class TestModelContainerClass extends TestModel1 {
