@@ -113,4 +113,19 @@ public class JsonModelTest extends FlowTestCase {
         }
     }
 
+    public void testNullForeignKey() throws JSONException {
+
+        Delete.tables(TestModelContainerClass.class, ParentModel.class);
+
+        JSONObject jsonObject = new JSONObject("{" +
+                                               "name: test," +
+                                               "party_type: club," +
+                                               "count1: 10," +
+                                               "isHappy: true," +
+                                               "party_name: null" +
+                                               "}");
+        JSONModel<TestModelContainerClass> jsonModel = new JSONModel<>(jsonObject, TestModelContainerClass.class);
+        jsonModel.save(false);
+    }
+
 }
