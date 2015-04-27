@@ -7,19 +7,18 @@ DBFlow
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
-The library eliminates the need for writing most SQL statements, writing ``ContentValues`` for every table, converting cursors into models, and so much more.
+The library is built on speed, performance, and approachability. It not only eliminates most boiler-plate code for dealing with databases, but also provides a powerful and simple API to manage interactions.
 
-Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on your complex problem and not be hindered by repetitive code writing.
-
-This library is based on [Active Android](https://github.com/pardom/ActiveAndroid), [Schematic](https://github.com/SimonVT/schematic), [Ollie](https://github.com/pardom/ollie/), and [Sprinkles](https://github.com/emilsjolander/sprinkles), but takes the **best** of each while offering much more functionality and extensibility.
+Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on writing
+amazing apps.
 
 What sets this library apart:
-  1. **Every** feature has been unit tested to ensure functionality.
+  1. Many, many unit tests on nearly __every__ feature.
   2. Built on maximum performance using **annotation processing**, lazy-loading, and speed-tests [here](https://github.com/Raizlabs/AndroidDatabaseLibraryComparison)
   3. Powerful and fluid SQL-wrapping statements
   4. Triggers, Views, Indexes, and many more SQLite features.
-  5. Baked-in support for **multiple** databases seamlessly
-  6. ```ModelContainer``` classes that enable direct to database parsing for data such as JSON
+  5. Seamless multi-database support.
+  6. Direct-to-database parsing for data such as JSON
   7. Rich interface classes that enable powerful flexibility.
   8. ```ContentProvider``` generation using annotations
 
@@ -149,7 +148,7 @@ I welcome and encourage all pull requests. It usually will take me within 24-48 
 Due to this library using a custom maven repo, to speed up build times when using this library,
 you should run in `--offline` mode except for when updating dependencies. To enable
 this setting in Android Studio, ensure its checked in:
-`Preferences->Build,Executor,Deployment->Build Tools->Gradle->Offline Work` 
+`Preferences->Build,Executor,Deployment->Build Tools->Gradle->Offline Work`
 
 We need to configure the ```FlowManager``` properly. Instead of passing in a ```Context``` wherever it is used,
 we hold onto the ```Application``` context instead and reference it.

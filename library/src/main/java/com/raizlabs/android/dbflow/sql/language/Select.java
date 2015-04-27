@@ -139,7 +139,7 @@ public class Select implements Query {
     /**
      * Helper method to pick the correct qualifier for a SELECT query
      *
-     * @param qualifierInt Can be {@link #ALL}, {@link #NONE}, {@link #DISTINCT}, or {@link #COUNT}
+     * @param qualifierInt Can be {@link #ALL}, {@link #NONE}, {@link #DISTINCT}, or {@link #METHOD}
      * @return
      */
     public Select selectQualifier(int qualifierInt) {
