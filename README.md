@@ -112,6 +112,11 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 
 For `GSON` and `RetroFit` compatibility check out [#121](https://github.com/Raizlabs/DBFlow/issues/121).
 
+Due to this library using a custom maven repo, to speed up build times when using this library,
+you should run in `--offline` mode except for when updating dependencies. To enable
+this setting in Android Studio, ensure the option is checked in:
+`Preferences->Build,Executor,Deployment->Build Tools->Gradle->Offline Work`
+
 ## Pull Requests
 
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
