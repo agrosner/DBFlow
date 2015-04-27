@@ -41,14 +41,17 @@ public class UpdateTest extends FlowTestCase {
         assertEquals("UPDATE `TestModel1` SET `name`='newvalue' WHERE `name`='oldvalue'", where.getQuery().trim());
         where.query();
 
-        String query = new Update().table(BoxedModel.class).set(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD).is(BoxedModel$Table.INTEGERFIELD + " + 1")).getQuery();
+        String query = new Update().table(BoxedModel.class).set(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD).is(
+                BoxedModel$Table.INTEGERFIELD + " + 1")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `integerField`=integerField + 1", query.trim());
 
 
-        query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.INTEGERFIELD).concatenateToColumn(1)).getQuery();
+        query = new Update().table(BoxedModel.class).set(
+                Condition.column(BoxedModel$Table.INTEGERFIELD).concatenateToColumn(1)).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `integerField`=`integerField` + 1", query.trim());
 
-        query = new Update().table(BoxedModel.class).set(Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
+        query = new Update().table(BoxedModel.class).set(
+                Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
 
         Uri uri = TestContentProvider.NoteModel.withOpenId(1, true);
@@ -74,15 +77,13 @@ public class UpdateTest extends FlowTestCase {
         assertEquals(3, values.length);
 
         boolean found;
-        for(String value: values) {
-            if(value.trim().equals("`id`=1")) {
+        for (String value : values) {
+            if (value.trim().equals("`id`=1")) {
                 found = true;
-            } else if(value.trim().equals("`providerModel`=1")) {
-                found = true;
-            } else if(value.trim().equals("`note`='Test'")) {
+            } else if (value.trim().equals("`providerModel`=1")) {
                 found = true;
             } else {
-                found = false;
+                found = value.trim().equals("`note`='Test'");
             }
 
             assertTrue(found);
