@@ -47,13 +47,19 @@ For more detailed usage, check out these sections:
 
 [Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md)
 
-[Content Provider Generation](https://github.com/Raizlabs/DBFlow/blob/master/usage/ContentProviderGenerators.md)
+[Creating Tables and Database Structure](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
+
+[SQL Statements Using the Wrapper Classes](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLQuery.md)
 
 [Conditions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md)
 
-[Creating Tables and Database Structure](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
+[Transactions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Transactions.md)
+
+[Type Converters](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
 
 [Powerful Model Caching](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelCaching.md)
+
+[Content Provider Generation](https://github.com/Raizlabs/DBFlow/blob/master/usage/ContentProviderGenerators.md)
 
 [Migrations](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migrations.md)
 
@@ -61,13 +67,7 @@ For more detailed usage, check out these sections:
 
 [Observing Models](https://github.com/Raizlabs/DBFlow/blob/master/usage/ObservableModels.md)
 
-[SQL Statements Using the Wrapper Classes](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLQuery.md)
-
 [Tables as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
-
-[Transactions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Transactions.md)
-
-[Type Converters](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
 
 [Triggers, Indexes, and More](https://github.com/Raizlabs/DBFlow/blob/master/usage/TriggersIndexesAndMore.md)
 

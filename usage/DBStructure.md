@@ -230,7 +230,7 @@ public class TestModel extends BaseModel {
 
 ### All Fields as Columns
 
-As other libraries do, you can set ```@Table(allFields = true)``` to turn on the ability to use all public/package private, non-final, and non-static fields as ```@Column```. You still are required to provide a primary key column field.
+As other libraries do, you can set ```@Table(allFields = true)``` to turn on the ability to use all public/package private, non-final, and non-static fields as ```@Column```. You still are required to provide a primary key `@Column` field.
 
 
 ### Unique Groups
