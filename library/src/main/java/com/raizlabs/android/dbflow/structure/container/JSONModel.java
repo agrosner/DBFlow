@@ -76,8 +76,12 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     public void load(Object... primaryKeys) {
         setData(new JSONObject());
         Cursor cursor = new Select().from(mModelAdapter.getModelClass())
-                .where(FlowManager.getPrimaryWhereQuery(getTable()).replaceEmptyParams(primaryKeys)).query();
-        mContainerAdapter.loadFromCursor(cursor, this);
+                .where(FlowManager.getPrimaryWhereQuery(getTable()).replaceEmptyParams(primaryKeys)).limit(1).query();
+        
+        if(cursor != null && cursor.moveToFirst()) {
+            mContainerAdapter.loadFromCursor(cursor, this);
+            cursor.close();
+        }
     }
 
 }
