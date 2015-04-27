@@ -47,7 +47,7 @@ For more detailed usage, check out these sections:
 
 [Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md)
 
-[Creating Tables and Database Structure](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
+[Tables and Database Properties](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
 
 [SQL Statements Using the Wrapper Classes](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLQuery.md)
 
