@@ -11,10 +11,17 @@ public class Blob {
         this.blob = blob;
     }
 
+    /**
+     * Sets the underlying blob data.
+     * @param blob The set of bytes to use.
+     */
     public void setBlob(byte[] blob) {
         this.blob = blob;
     }
 
+    /**
+     * @return The blob data.
+     */
     public byte[] getBlob() {
         return blob;
     }
