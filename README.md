@@ -108,6 +108,10 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 
 ```
 
+### Gotchas/Compatibility
+
+For `GSON` and `RetroFit` compatibility check out [#121](https://github.com/Raizlabs/DBFlow/issues/121).
+
 ## Pull Requests
 
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
