@@ -100,20 +100,23 @@ public class SqlUtils {
         final List<CacheableClass> entities = new ArrayList<>();
         ModelAdapter<CacheableClass> instanceAdapter = FlowManager.getModelAdapter(modelClass);
         if (instanceAdapter != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    long id = cursor.getLong(cursor.getColumnIndex(instanceAdapter.getCachingColumnName()));
+            synchronized (cursor) {
+                // Ensure that we aren't iterating over this cursor concurrently from different threads
+                if (cursor.moveToFirst()) {
+                    do {
+                        long id = cursor.getLong(cursor.getColumnIndex(instanceAdapter.getCachingColumnName()));
 
-                    // if it exists in cache no matter the query we will use that one
-                    CacheableClass cacheable = BaseCacheableModel.getCache(modelClass).get(id);
-                    if (cacheable != null) {
-                        entities.add(cacheable);
-                    } else {
-                        cacheable = instanceAdapter.newInstance();
-                        instanceAdapter.loadFromCursor(cursor, cacheable);
-                        entities.add(cacheable);
-                    }
-                } while (cursor.moveToNext());
+                        // if it exists in cache no matter the query we will use that one
+                        CacheableClass cacheable = BaseCacheableModel.getCache(modelClass).get(id);
+                        if (cacheable != null) {
+                            entities.add(cacheable);
+                        } else {
+                            cacheable = instanceAdapter.newInstance();
+                            instanceAdapter.loadFromCursor(cursor, cacheable);
+                            entities.add(cacheable);
+                        }
+                    } while (cursor.moveToNext());
+                }
             }
         }
         return entities;
@@ -138,13 +141,16 @@ public class SqlUtils {
             }
         }
         if (modelAdapter != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    Model model = modelAdapter.newInstance();
-                    modelAdapter.loadFromCursor(cursor, model);
-                    entities.add((ModelClass) model);
+            // Ensure that we aren't iterating over this cursor concurrently from different threads
+            synchronized (cursor) {
+                if (cursor.moveToFirst()) {
+                    do {
+                        Model model = modelAdapter.newInstance();
+                        modelAdapter.loadFromCursor(cursor, model);
+                        entities.add((ModelClass) model);
+                    }
+                    while (cursor.moveToNext());
                 }
-                while (cursor.moveToNext());
             }
         }
 
