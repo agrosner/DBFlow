@@ -34,10 +34,8 @@ If you wish to have your application featured here, please file an [issue](https
 
 ## Changelog
 
-#### 1.8.0
-1. Fixes bug where foreign key reference table is not quoted
-2. Added validation to prevent specifying `name()` for a `Column.FOREIGN_KEY`
-3. Added a `$ViewTable` static constant fields for `ModelView` so incase the view column is different from model for easy reference.
+#### 1.9.0
+
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
