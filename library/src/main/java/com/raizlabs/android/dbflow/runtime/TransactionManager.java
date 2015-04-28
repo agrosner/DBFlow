@@ -21,6 +21,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransact
 import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
 import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Queriable;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Insert;
@@ -121,6 +122,24 @@ public class TransactionManager {
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
+        }
+    }
+
+    /**
+     * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
+     *
+     * @param table
+     * @param runnable
+     */
+    public static void transact(Class<? extends Model> table, Runnable runnable) {
+        SQLiteDatabase database = FlowManager.getDatabaseForTable(table).getWritableDatabase();
+        database.beginTransaction();
+        try {
+            runnable.run();
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+            SqlUtils.notifyModelChanged(table, null);
         }
     }
 

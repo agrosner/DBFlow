@@ -415,7 +415,10 @@ public class SqlUtils {
      * @param table  The table of the model
      */
     public static void notifyModelChanged(Class<? extends Model> table, BaseModel.Action action) {
-        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action), null, true);
+        SQLiteDatabase db = FlowManager.getDatabaseForTable(table).getWritableDatabase();
+        if (!db.inTransaction()) {
+            FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action), null, true);
+        }
     }
 
     /**
