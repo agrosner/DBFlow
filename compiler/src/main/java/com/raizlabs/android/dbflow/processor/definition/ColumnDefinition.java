@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.model.builder.MockConditionQueryBuilder;
 import com.raizlabs.android.dbflow.processor.model.writer.ColumnAccessModel;
 import com.raizlabs.android.dbflow.processor.model.writer.ContentValueModel;
+import com.raizlabs.android.dbflow.processor.model.writer.ForeignKeyContainerModel;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
@@ -29,7 +30,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
-import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 /**
@@ -224,78 +224,41 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
             if (isModelContainerDefinition) {
-                String modelContainerName = ModelUtils.getVariable(true) + columnFieldName;
+                javaWriter.emitSingleLineComment("Model Container Definition");
+            }
+
+            String modelDefinition = isModelContainerDefinition ? (ModelUtils.getVariable(true) + columnFieldName)
+                    : ModelUtils.getModelStatement(columnFieldName);
+            if (isModelContainerDefinition) {
                 javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.getValue(\"%1s\"), %1s.class)",
-                                         modelContainerName,
-                                         ModelUtils.getVariable(true), ModelUtils.getVariable(true), columnFieldName,
+                                         modelDefinition,
+                                         ModelUtils.getVariable(true), ModelUtils.getVariable(true),
+                                         columnFieldName,
                                          columnFieldType);
-                if (saveModelForeignKey) {
-                    javaWriter.emitStatement("%1s.save(false)", modelContainerName);
-                }
-                for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                    AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
-
-                    AdapterQueryBuilder ifBuilder = new AdapterQueryBuilder()
-                            .append(modelContainerName).append(".").appendGetValue(foreignKeyReference.foreignColumnName());
-                    javaWriter.beginControlFlow("if (%1s != null) ", ifBuilder.getQuery());
-                    if (!isContentValues) {
-                        adapterQueryBuilder.appendBindSQLiteStatement(columnCount.intValue(),
-                                                                      ModelUtils.getClassFromAnnotation(
-                                                                              foreignKeyReference));
-                    } else {
-                        adapterQueryBuilder.appendContentValues().appendPut(foreignKeyReference.columnName());
-                    }
-                    adapterQueryBuilder
-                            .appendCast(ModelUtils.getClassFromAnnotation(foreignKeyReference))
-                            .append(modelContainerName)
-                            .append(".")
-                            .appendGetValue(foreignKeyReference.foreignColumnName())
-                            .append("))");
-                    javaWriter.emitStatement(adapterQueryBuilder.getQuery());
-
-                    javaWriter.nextControlFlow("else");
-                    AdapterQueryBuilder elseNull = new AdapterQueryBuilder();
-                    if (isContentValues) {
-                        elseNull.appendContentValues();
-                        elseNull.append(".putNull").appendParenthesisEnclosed(
-                                "\"" + foreignKeyReference.columnName() + "\"");
-                    } else {
-                        elseNull.append("statement.");
-                        elseNull.append("bindNull").appendParenthesisEnclosed(columnCount);
-                    }
-                    javaWriter.emitStatement(elseNull.getQuery());
-                    javaWriter.endControlFlow();
-
-                    columnCount.incrementAndGet();
-                }
-
             } else {
-                String modelStatement = ModelUtils.getModelStatement(columnFieldName);
-                javaWriter.beginControlFlow("if (%1s != null)", modelStatement);
-                if (saveModelForeignKey) {
-                    javaWriter.emitStatement("%1s.save(false)", modelStatement);
+                javaWriter.beginControlFlow("if (%1s != null)", modelDefinition);
+            }
+            if (saveModelForeignKey) {
+                javaWriter.emitStatement("%1s.save(false)", modelDefinition);
+            }
+            List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();
+            for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                ColumnAccessModel columnAccessModel = new ColumnAccessModel(this, foreignKeyReference,
+                                                                            isModelContainer);
+                ForeignKeyContainerModel foreignKeyContainerModel = new ForeignKeyContainerModel(columnAccessModel,
+                                                                                                 isContentValues);
+                foreignKeyContainerModel.setModelContainerName(modelDefinition);
+                foreignKeyContainerModel.setIndex(columnCount.intValue());
+                foreignKeyContainerModel.setIsModelContainerDefinition(isModelContainerDefinition);
+                foreignKeyContainerModel.setPutValue(foreignKeyReference.columnName());
+                foreignKeyContainerModel.write(javaWriter);
+                if (!isModelContainerDefinition) {
+                    elseNullPuts.add(foreignKeyContainerModel.getNullStatement());
                 }
+                columnCount.incrementAndGet();
+            }
 
-                List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();
-                for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                    ColumnAccessModel columnAccessModel = new ColumnAccessModel(this, foreignKeyReference, isModelContainer);
-                    ContentValueModel contentValueModel = new ContentValueModel(columnAccessModel, isContentValues);
-                    contentValueModel.setIndex(columnCount.intValue());
-                    contentValueModel.setPutValue(foreignKeyReference.columnName());
-                    contentValueModel.write(javaWriter);
-
-                    AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
-                    if (isContentValues) {
-                        adapterQueryBuilder.appendContentValues();
-                        adapterQueryBuilder.append(".putNull").appendParenthesisEnclosed(
-                                "\"" + foreignKeyReference.columnName() + "\"");
-                    } else {
-                        adapterQueryBuilder.append("statement.");
-                        adapterQueryBuilder.append("bindNull").appendParenthesisEnclosed(columnCount);
-                    }
-                    elseNullPuts.add(adapterQueryBuilder);
-                    columnCount.incrementAndGet();
-                }
+            if (!isModelContainerDefinition) {
                 javaWriter.nextControlFlow("else");
                 for (AdapterQueryBuilder queryBuilder : elseNullPuts) {
                     javaWriter.emitStatement(queryBuilder.getQuery());
@@ -303,9 +266,15 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 javaWriter.endControlFlow();
             }
 
-            javaWriter.emitSingleLineComment("End");
-            javaWriter.emitEmptyLine();
         } else {
+
+            String getType = columnFieldType;
+            boolean isPrimitive = element.asType().getKind().isPrimitive();
+            // Type converters can never be primitive except boolean
+            if (isPrimitive) {
+                getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
+            }
+
             ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerDefinition);
             ContentValueModel contentValueModel = new ContentValueModel(columnAccessModel, isContentValues);
             contentValueModel.setPutValue(columnName);

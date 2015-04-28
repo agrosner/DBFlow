@@ -20,6 +20,8 @@ public class ColumnAccessModel implements Query {
 
     String localColumnName;
 
+    String foreignKeyLocalColumnName;
+
     String foreignColumnName;
 
     String containerKeyName;
@@ -80,6 +82,7 @@ public class ColumnAccessModel implements Query {
                              boolean isWritingForContainers) {
         this.isWritingForContainers = isWritingForContainers;
         localColumnName = columnDefinition.columnName;
+        foreignKeyLocalColumnName = foreignKeyReference.columnName();
         foreignColumnName = foreignKeyReference.foreignColumnName();
         containerKeyName = foreignKeyReference.foreignColumnName();
         isForeignKeyField = true;

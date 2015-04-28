@@ -33,57 +33,6 @@ public class ModelUtils {
         return classname + "." + fieldName.toUpperCase();
     }
 
-    public static void writeContentValueStatement(JavaWriter javaWriter, boolean isContentValues,
-                                                  int index, String putValue, String localColumnName,
-                                                  String castedClass, String foreignColumnName,
-                                                  String containerKeyName,
-                                                  boolean isContainer, boolean isModelContainer,
-                                                  boolean isForeignKey,
-                                                  boolean requiresTypeConverter, String databaseTypeName,
-                                                  boolean isColumnPrimitive, boolean isBlob) throws IOException {
-        AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
-
-        boolean nullCheck = !isContentValues;
-        if (nullCheck) {
-            String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
-            if (statement == null) {
-                throw new IOException(String.format("Writing insert statement failed for: %1s. A type converter" +
-                                                    "must be defined for this type, or if this field is a Model, must be a foreign key definition.",
-                                                    castedClass));
-            }
-            nullCheck = (statement.equals("String") || statement.equals("Blob") || !isColumnPrimitive);
-        } else {
-            contentValue.appendContentValues();
-            contentValue.appendPut(putValue);
-        }
-        String accessStatement = getAccessStatement(localColumnName, castedClass,
-                                                    foreignColumnName, containerKeyName, isContainer, isModelContainer,
-                                                    isForeignKey, requiresTypeConverter, isBlob);
-        // if statements of this type, we need to check for null :(
-        if (nullCheck) {
-            javaWriter.beginControlFlow("if (%1s != null) ", accessStatement);
-        }
-
-        if (!isContentValues) {
-            contentValue.appendBindSQLiteStatement(index, castedClass);
-        }
-
-        if (requiresTypeConverter) {
-            contentValue.appendTypeConverter(castedClass, databaseTypeName, false);
-        }
-        String query = contentValue.append(accessStatement).append(")").append(
-                requiresTypeConverter ? "))" : "").getQuery();
-
-
-        javaWriter.emitStatement(query);
-
-        if (nullCheck) {
-            javaWriter.nextControlFlow("else");
-            javaWriter.emitStatement("statement.bindNull(%1s)", index);
-            javaWriter.endControlFlow();
-        }
-    }
-
     public static String getAccessStatement(String localColumnName,
                                             String castedClass, String foreignColumnName, String containerKeyName,
                                             boolean isContainer, boolean isModelContainer, boolean isForeignKey,

@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public class ContentValueModel implements FlowWriter {
 
-    private final ColumnAccessModel accessModel;
+    protected final ColumnAccessModel accessModel;
 
     private int index;
 
@@ -38,6 +38,14 @@ public class ContentValueModel implements FlowWriter {
 
     public void setDatabaseTypeName(String databaseTypeName) {
         this.databaseTypeName = databaseTypeName;
+    }
+
+    public boolean isContentValues() {
+        return isContentValues;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     @Override
