@@ -30,8 +30,8 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
 
             if(columnDefinition.column.name().length() > 0) {
                 success = false;
-                processorManager.logError("Foreign Key cannot specify the column() field. " +
-                        "Use a @ForeignKeyReference(columnName = {NAME} instead");
+                processorManager.logError("Foreign Key %1s cannot specify the column() field. " +
+                        "Use a @ForeignKeyReference(columnName = {NAME} instead", columnDefinition.columnFieldName);
             }
 
         } else if (columnType == Column.NORMAL) {
