@@ -11,6 +11,8 @@ import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.model.builder.MockConditionQueryBuilder;
+import com.raizlabs.android.dbflow.processor.model.writer.ColumnAccessModel;
+import com.raizlabs.android.dbflow.processor.model.writer.ContentValueModel;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
@@ -276,14 +278,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 List<AdapterQueryBuilder> elseNullPuts = new ArrayList<>();
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                    TypeMirror castedClass = ModelUtils.getTypeMirrorFromAnnotation(foreignKeyReference);
-                    ModelUtils.writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(),
-                                                          foreignKeyReference.columnName(),
-                                                          columnName, castedClass.toString(),
-                                                          foreignKeyReference.foreignColumnName(),
-                                                          foreignKeyReference.foreignColumnName(),
-                                                          false, isModelContainer, true, false,
-                                                          columnFieldType, castedClass.getKind().isPrimitive(), false);
+                    ColumnAccessModel columnAccessModel = new ColumnAccessModel(this, foreignKeyReference, isModelContainer);
+                    ContentValueModel contentValueModel = new ContentValueModel(columnAccessModel, isContentValues);
+                    contentValueModel.setIndex(columnCount.intValue());
+                    contentValueModel.setPutValue(foreignKeyReference.columnName());
+                    contentValueModel.write(javaWriter);
 
                     AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
                     if (isContentValues) {
@@ -307,41 +306,12 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             javaWriter.emitSingleLineComment("End");
             javaWriter.emitEmptyLine();
         } else {
-            // Normal field
-            String newFieldType = null;
-
-            // convert field type for what type converter reports
-            if (hasTypeConverter) {
-                TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(modelType);
-                if (typeConverterDefinition == null) {
-                    manager.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                                                       String.format("No Type Converter found for %1s", modelType));
-                } else {
-                    newFieldType = typeConverterDefinition.getDbElement().asType().toString();
-                }
-            } else {
-                newFieldType = columnFieldType;
-            }
-
-            String getType = columnFieldType;
-            boolean isPrimitive = element.asType().getKind().isPrimitive();
-            // Type converters can never be primitive except boolean
-            if (isPrimitive) {
-                getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
-            }
-
-            if (isModelContainerDefinition) {
-                if (element.asType().getKind().isPrimitive() && !hasTypeConverter) {
-                    newFieldType = manager.getTypeUtils().boxedClass(
-                            (PrimitiveType) element.asType()).asType().toString();
-                }
-            }
-
-            ModelUtils.writeContentValueStatement(javaWriter, isContentValues, columnCount.intValue(), columnName,
-                                                  columnName,
-                                                  newFieldType, columnFieldName, containerKeyName,
-                                                  isModelContainerDefinition, isModelContainer,
-                                                  false, hasTypeConverter, getType, isPrimitive, isBlob);
+            ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerDefinition);
+            ContentValueModel contentValueModel = new ContentValueModel(columnAccessModel, isContentValues);
+            contentValueModel.setPutValue(columnName);
+            contentValueModel.setIndex(columnCount.intValue());
+            contentValueModel.setDatabaseTypeName(getType);
+            contentValueModel.write(javaWriter);
 
             columnCount.incrementAndGet();
         }
