@@ -104,7 +104,8 @@ public class ColumnAccessModel implements Query {
         columnFieldName = columnDefinition.columnFieldName;
         columnFieldType = columnDefinition.columnFieldType;
         foreignKeyLocalColumnName = foreignKeyReference.columnName();
-        referencedColumnFieldName = foreignKeyReference.foreignColumnName();
+        referencedColumnFieldName = columnDefinition.isModel ? foreignKeyReference.foreignColumnName()
+                : columnDefinition.columnFieldName;
         containerKeyName = foreignKeyReference.foreignColumnName();
         isForeignKeyField = true;
         requiresTypeConverter = false;

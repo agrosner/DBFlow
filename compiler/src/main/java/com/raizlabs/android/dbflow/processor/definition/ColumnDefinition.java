@@ -330,7 +330,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 javaWriter.endControlFlow();
 
             } else {
-                javaWriter.emitSingleLineComment("Writing for container adapter load from cursor");
+                if(isModelContainerAdapter) {
+                    javaWriter.emitSingleLineComment("Writing for container adapter load from cursor for containers");
+                } else {
+                    javaWriter.emitSingleLineComment("Writing normal adapter load from cursor for containers");
+                }
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
                 }
