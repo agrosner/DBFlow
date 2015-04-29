@@ -332,15 +332,15 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             } else {
                 if (isModelContainerAdapter) {
                     javaWriter.emitSingleLineComment("Writing for container adapter load from cursor");
+                    for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                        javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
+                    }
+                    ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
                     String modelContainerName = ModelUtils.getVariable(true) + columnFieldName;
                     javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.newDataInstance(), %1s.class)",
                                              modelContainerName, ModelUtils.getVariable(true),
                                              ModelUtils.getVariable(true),
                                              columnFieldType);
-                    for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                        javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
-                    }
-                    ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
 
                     for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                         ColumnAccessModel columnAccessModel = new ColumnAccessModel(this, foreignKeyReference);
@@ -351,9 +351,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                         loadFromCursorModel.write(javaWriter);
 
                     }
-                    javaWriter.endControlFlow();
+
                     javaWriter.emitStatement("%1s.put(\"%1s\",%1s.getData())", ModelUtils.getVariable(true),
                                              columnFieldName, modelContainerName);
+                    javaWriter.endControlFlow();
+
                 } else {
 
                     // instantiate model container
