@@ -48,23 +48,9 @@ public class LoadFromCursorModel implements FlowWriter {
                     .append(")");
             javaWriter.emitStatement(adapterQueryBuilder.getQuery());
         } else {
-
-            javaWriter.emitStatement(ModelUtils.getColumnIndex(accessModel.foreignKeyLocalColumnName));
-            String index = "index" + accessModel.foreignKeyLocalColumnName;
-            javaWriter.beginControlFlow("if (%1s != -1) ", index);
-
-            if (isNullable) {
-                javaWriter.beginControlFlow("if (cursor.isNull(%1s)) ", index);
-                emitColumnAssignment(javaWriter, "null");
-                javaWriter.nextControlFlow(" else ");
-            }
             String cursorStatment = ModelUtils.getCursorStatement(accessModel.castedClass,
                                                                   accessModel.foreignKeyLocalColumnName);
             emitColumnAssignment(javaWriter, cursorStatment);
-            if (isNullable) {
-                javaWriter.endControlFlow();
-            }
-            javaWriter.endControlFlow();
         }
     }
 

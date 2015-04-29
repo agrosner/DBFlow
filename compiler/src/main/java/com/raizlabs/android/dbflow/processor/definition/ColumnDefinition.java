@@ -297,7 +297,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
      * @return {@code true} if the field is nullable, {@code false} otherwise.
      */
     private boolean isNullable() {
-        return !columnFieldIsPrimitive && !notNull;
+        return !columnFieldIsPrimitive && !notNull || isModel || fieldIsModelContainer;
     }
 
     public void writeLoadFromCursorDefinition(BaseTableDefinition tableDefinition, JavaWriter javaWriter,
@@ -330,54 +330,51 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 javaWriter.endControlFlow();
 
             } else {
+                javaWriter.emitSingleLineComment("Writing for container adapter load from cursor");
+                for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                    javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
+                }
+                ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
+
+                String modelContainerName = "";
                 if (isModelContainerAdapter) {
-                    javaWriter.emitSingleLineComment("Writing for container adapter load from cursor");
-                    for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                        javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
-                    }
-                    ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
-                    String modelContainerName = ModelUtils.getVariable(true) + columnFieldName;
-                    javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.newDataInstance(), %1s.class)",
-                                             modelContainerName, ModelUtils.getVariable(true),
-                                             ModelUtils.getVariable(true),
-                                             columnFieldType);
+                    modelContainerName = ModelUtils.getVariable(isModelContainerAdapter) + columnFieldName;
+                    javaWriter.emitStatement(
+                            "ModelContainer %1s = %1s.getInstance(%1s.newDataInstance(), %1s.class)",
+                            modelContainerName, ModelUtils.getVariable(true),
+                            ModelUtils.getVariable(true),
+                            columnFieldType);
+                } else if (fieldIsModelContainer) {
+                    AdapterQueryBuilder containerBuilder =
+                            new AdapterQueryBuilder().appendVariable(isModelContainerAdapter)
+                                    .append(".").append(columnFieldName)
+                                    .appendSpaceSeparated("=")
+                                    .append("new ").append(columnFieldActualType)
+                                    .appendParenthesisEnclosed(ModelUtils.getFieldClass(columnFieldType));
+                    javaWriter.emitStatement(containerBuilder.getQuery());
+                }
 
-                    for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                        ColumnAccessModel columnAccessModel = new ColumnAccessModel(this, foreignKeyReference);
-                        LoadFromCursorModel loadFromCursorModel = new LoadFromCursorModel(columnAccessModel);
-                        loadFromCursorModel.setIsNullable(isNullable());
-                        loadFromCursorModel.setModelContainerName(modelContainerName);
-                        loadFromCursorModel.setIsModelContainerAdapter(isModelContainerAdapter);
-                        loadFromCursorModel.write(javaWriter);
+                for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
+                    ColumnAccessModel columnAccessModel = new ColumnAccessModel(this, foreignKeyReference);
+                    LoadFromCursorModel loadFromCursorModel = new LoadFromCursorModel(columnAccessModel);
+                    loadFromCursorModel.setIsNullable(isNullable());
+                    loadFromCursorModel.setModelContainerName(modelContainerName);
+                    loadFromCursorModel.setIsModelContainerAdapter(isModelContainerAdapter);
+                    loadFromCursorModel.write(javaWriter);
 
-                    }
+                }
 
+                if (isModelContainerAdapter) {
                     javaWriter.emitStatement("%1s.put(\"%1s\",%1s.getData())", ModelUtils.getVariable(true),
                                              columnFieldName, modelContainerName);
-                    javaWriter.endControlFlow();
+                    javaWriter.nextControlFlow("else");
 
-                } else {
-
-                    // instantiate model container
-                    if (fieldIsModelContainer) {
-                        AdapterQueryBuilder containerBuilder =
-                                new AdapterQueryBuilder().appendVariable(isModelContainerAdapter)
-                                        .append(".").append(columnFieldName)
-                                        .appendSpaceSeparated("=")
-                                        .append("new ").append(columnFieldActualType)
-                                        .appendParenthesisEnclosed(ModelUtils.getFieldClass(columnFieldType));
-                        javaWriter.emitStatement(containerBuilder.getQuery());
-                    }
-
-                    for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-
-                        ColumnAccessModel columnAccessModel = new ColumnAccessModel(this, foreignKeyReference);
-                        LoadFromCursorModel loadFromCursorModel = new LoadFromCursorModel(columnAccessModel);
-                        loadFromCursorModel.setIsNullable(isNullable());
-                        loadFromCursorModel.write(javaWriter);
-
-                    }
+                    javaWriter.emitStatement("%1s.put(\"%1s\", null)", ModelUtils.getVariable(true),
+                                             columnFieldName);
                 }
+
+                javaWriter.endControlFlow();
+
             }
 
             javaWriter.emitSingleLineComment("End");
