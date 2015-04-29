@@ -3,7 +3,9 @@ package com.raizlabs.android.dbflow.test.provider;
 import android.net.Uri;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.provider.BaseProviderModel;
 
@@ -14,12 +16,13 @@ import com.raizlabs.android.dbflow.structure.provider.BaseProviderModel;
 public class NoteModel extends BaseProviderModel<NoteModel> {
 
 
-    @Column(columnType = Column.PRIMARY_KEY_AUTO_INCREMENT)
+    @Column
+    @PrimaryKey(autoincrement = true)
     long id;
 
-    @Column(columnType = Column.FOREIGN_KEY,
-            references = {@ForeignKeyReference(columnName = "providerModel",
-                    columnType = long.class, foreignColumnName = "id")})
+    @Column
+    @ForeignKey(references = {@ForeignKeyReference(columnName = "providerModel",
+            columnType = long.class, foreignColumnName = "id")})
     ContentProviderModel contentProviderModel;
 
     @Column

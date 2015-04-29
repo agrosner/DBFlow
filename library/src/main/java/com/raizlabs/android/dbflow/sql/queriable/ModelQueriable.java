@@ -1,7 +1,7 @@
-package com.raizlabs.android.dbflow.sql;
+package com.raizlabs.android.dbflow.sql.queriable;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowTableList;
+import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -39,5 +39,10 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
      * @return A cursor-backed {@link java.util.List} that handles conversion, retrieval, caching, content changes,
      * and more.
      */
-    FlowTableList<ModelClass> queryTableList();
+    FlowQueryList<ModelClass> queryTableList();
+
+    /**
+     * @return an async version of this query to run.
+     */
+    AsyncQuery<ModelClass> async();
 }

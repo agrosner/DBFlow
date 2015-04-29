@@ -25,16 +25,16 @@ public class ComplexModelTest extends FlowTestCase {
 
         complexModel.mapModel = mapModel;
 
-        complexModel.save(false);
+        complexModel.save();
 
 
         assertTrue(complexModel.exists());
 
-        complexModel.delete(false);
+        complexModel.delete();
         assertTrue(!complexModel.exists());
 
-        jsonModel.delete(false);
-        mapModel.delete(false);
+        jsonModel.delete();
+        mapModel.delete();
 
         assertTrue(!jsonModel.exists());
         assertTrue(!mapModel.exists());

@@ -76,7 +76,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     }
 
     private String generateQuery() {
-        mQuery = new QueryBuilder(new Update().table(mTable)
+        mQuery = new QueryBuilder(new Update<>(mTable)
                 .set(mSetConditionQueryBuilder)
                 .where(mWhereConditionQueryBuilder).getQuery());
         return mQuery.getQuery();

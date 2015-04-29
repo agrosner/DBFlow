@@ -58,54 +58,6 @@ public class Select implements Query {
     }
 
     /**
-     * Selects a model by id
-     *
-     * @param tableClass   The table to select from
-     * @param ids          The ids to use
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
-     * @return
-     */
-    public static <ModelClass extends Model> ModelClass byId(Class<ModelClass> tableClass, Object... ids) {
-        ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(tableClass);
-        return withCondition(primaryQuery.replaceEmptyParams(ids));
-    }
-
-    /**
-     * Selects a single model object with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     *
-     * @param conditionQueryBuilder The where query we will use
-     * @param <ModelClass>          The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
-     * @return the first model from the database cursor.
-     */
-    public static <ModelClass extends Model> ModelClass withCondition(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String... columns) {
-        return Where.with(conditionQueryBuilder, columns).querySingle();
-    }
-
-    /**
-     * Selects all models from the table based on a set of {@link com.raizlabs.android.dbflow.sql.builder.Condition}.
-     *
-     * @param tableClass   The table to select the list from
-     * @param conditions   The list of conditions to select the list of models from
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
-     * @return the list of every row in the table
-     */
-    public static <ModelClass extends Model> List<ModelClass> all(Class<ModelClass> tableClass, Condition... conditions) {
-        return new Select().from(tableClass).where(conditions).queryList();
-    }
-
-    /**
-     * Retrieves the count of the {@link ModelClass} table based on the specified WHERE conditions.
-     *
-     * @param tableClass   The table to select count from
-     * @param conditions   The list of conditions to select the count of models from
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
-     * @return The count of how many rows exist within the table based on the conditions passed.
-     */
-    public static <ModelClass extends Model> long count(Class<ModelClass> tableClass, Condition... conditions) {
-        return new Select().count().from(tableClass).where(conditions).count();
-    }
-
-    /**
      * Passes this statement to the {@link From}
      *
      * @param table        The model table to run this query on
@@ -114,17 +66,6 @@ public class Select implements Query {
      */
     public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
         return new From<>(this, table);
-    }
-
-    /**
-     * Selects a list of model objects with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     *
-     * @param conditionQueryBuilder The where query we will use
-     * @param <ModelClass>          The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
-     * @return the list of models from the database cursor.
-     */
-    public static <ModelClass extends Model> List<ModelClass> all(ConditionQueryBuilder<ModelClass> conditionQueryBuilder, String... columns) {
-        return Where.with(conditionQueryBuilder, columns).queryList();
     }
 
     /**

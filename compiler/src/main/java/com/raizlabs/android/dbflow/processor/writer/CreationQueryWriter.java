@@ -55,7 +55,7 @@ public class CreationQueryWriter implements FlowWriter {
                 for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
 
                     TableCreationQueryBuilder queryBuilder = new TableCreationQueryBuilder();
-                    if (columnDefinition.columnType == Column.FOREIGN_KEY) {
+                    if (columnDefinition.isForeignKey) {
                         queryBuilder.appendSpace().appendForeignKeys(columnDefinition.foreignKeyReferences);
                     } else {
 
@@ -122,7 +122,7 @@ public class CreationQueryWriter implements FlowWriter {
                     int count = 0;
                     int index = 0;
                     for (ColumnDefinition field : tableDefinition.primaryColumnDefinitions) {
-                        if (field.columnType == Column.PRIMARY_KEY) {
+                        if (field.isPrimaryKey) {
                             count++;
                             primaryKeyQueryBuilder.appendQuoted(field.columnName);
                             if (index < tableDefinition.primaryColumnDefinitions.size() - 1) {

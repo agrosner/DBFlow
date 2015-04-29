@@ -17,6 +17,6 @@ public class InsertModelTransaction<ModelClass extends Model> extends ProcessMod
 
     @Override
     public void processModel(ModelClass model) {
-        model.insert(false);
+        model.insert();
     }
 }

@@ -29,7 +29,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
             mQuery.append(")");
         }
 
-        if (column.columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
+        if (column.isPrimaryKeyAutoIncrement) {
             append(" PRIMARY KEY AUTOINCREMENT");
         }
 

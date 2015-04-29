@@ -20,48 +20,32 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
     String getTableName();
 
     /**
-     * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
-     *
-     * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     * @param model    The model to save/insert/update
-     * @param saveMode The {@link com.raizlabs.android.dbflow.sql.SqlUtils} save mode. Can be {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_DEFAULT},
-     *                 {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, or {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
-     */
-    @Deprecated
-    void save(boolean async, ModelClass model, int saveMode);
-
-    /**
      * Saves the specified model to the DB.
      *
-     * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model    The model to save/insert/update
      */
-    void save(boolean async, ModelClass model);
-
+    void save(ModelClass model);
 
     /**
      * Inserts the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to insert.
      */
-    void insert(boolean async, ModelClass model);
+    void insert(ModelClass model);
 
     /**
      * Updates the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to update.
      */
-    void update(boolean async, ModelClass model);
+    void update(ModelClass model);
 
     /**
      * Deletes the model from the DB
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to delete
      */
-    void delete(boolean async, ModelClass model);
+    void delete(ModelClass model);
 
     /**
      * Binds a {@link ModelClass} to the specified db statement

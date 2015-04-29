@@ -20,7 +20,7 @@ public class SaveModelTransaction<ModelClass extends Model> extends ProcessModel
 
     @Override
     public void processModel(ModelClass model) {
-        model.save(false);
+        model.save();
     }
 
 }

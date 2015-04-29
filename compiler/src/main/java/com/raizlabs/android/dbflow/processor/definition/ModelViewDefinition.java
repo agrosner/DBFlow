@@ -110,7 +110,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
                 columnDefinitions.add(columnDefinition);
 
-                if (columnDefinition.columnType == Column.PRIMARY_KEY || columnDefinition.columnType == Column.FOREIGN_KEY) {
+                if (columnDefinition.isPrimaryKey || columnDefinition.isForeignKey || columnDefinition.isPrimaryKeyAutoIncrement) {
                     manager.getMessager().printMessage(Diagnostic.Kind.ERROR, "ModelViews cannot have primary or foreign keys");
                 }
             }

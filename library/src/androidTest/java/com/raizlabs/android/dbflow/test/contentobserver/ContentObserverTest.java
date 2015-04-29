@@ -51,10 +51,10 @@ public class ContentObserverTest extends FlowTestCase {
         TestModel1 testModel1 = new TestModel1();
         testModel1.name = "Name";
 
-        testModel1.insert(false);
-        testModel1.update(false);
-        testModel1.save(false);
-        testModel1.delete(false);
+        testModel1.insert();
+        testModel1.update();
+        testModel1.save();
+        testModel1.delete();
 
         flowContentObserver.removeModelChangeListener(modelChangeListener);
 

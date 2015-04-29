@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
 
 /**
  * Description: The base implementation of {@link com.raizlabs.android.dbflow.structure.Model} using the
@@ -16,22 +17,22 @@ public abstract class BaseModel implements Model {
     public enum Action {
 
         /**
-         * The model called {@link #save(boolean)}
+         * The model called {@link Model#save()}
          */
         SAVE,
 
         /**
-         * The model called {@link #insert(boolean)}
+         * The model called {@link Model#insert()}
          */
         INSERT,
 
         /**
-         * The model called {@link #update(boolean)}
+         * The model called {@link Model#update()}
          */
         UPDATE,
 
         /**
-         * The model called {@link #delete(boolean)}
+         * The model called {@link Model#delete()}
          */
         DELETE,
 
@@ -49,37 +50,43 @@ public abstract class BaseModel implements Model {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void save(boolean async) {
-        mModelAdapter.save(async, this);
+    public void save() {
+        mModelAdapter.save(this);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void delete(boolean async) {
-        mModelAdapter.delete(async, this);
+    public void delete() {
+        mModelAdapter.delete(this);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void update(boolean async) {
-        mModelAdapter.update(async, this);
+    public void update() {
+        mModelAdapter.update(this);
     }
 
     /**
      * Directly tries to insert this item into the DB without updating.
      *
-     * @param async If we want this to happen on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void insert(boolean async) {
-        mModelAdapter.insert(async, this);
+    public void insert() {
+        mModelAdapter.insert(this);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean exists() {
         return mModelAdapter.exists(this);
+    }
+
+    /**
+     * @return An async instance of this model where all transactions are on the {@link DBTransactionQueue}
+     */
+    public AsyncModel<BaseModel> async() {
+        return new AsyncModel<>(this);
     }
 
     public ModelAdapter getModelAdapter() {

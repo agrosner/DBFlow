@@ -12,6 +12,6 @@ public class DefaultModelTest extends FlowTestCase {
         Delete.table(DefaultModel.class);
         DefaultModel defaultModel = new DefaultModel();
         defaultModel.name = "Test";
-        defaultModel.save(false);
+        defaultModel.save();
     }
 }

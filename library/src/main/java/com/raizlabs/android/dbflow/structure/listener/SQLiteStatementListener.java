@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteStatement;
 
 /**
  * Description: Marks a {@link com.raizlabs.android.dbflow.structure.Model} as suscribing to
- * the {@link android.database.sqlite.SQLiteStatement} that is used to {@link com.raizlabs.android.dbflow.structure.Model#insert(boolean)}
+ * the {@link android.database.sqlite.SQLiteStatement} that is used to {@link Model#insert()}
  * a model into the DB.
  */
 public interface SQLiteStatementListener {

@@ -63,7 +63,7 @@ public class BoxedValueTest extends FlowTestCase {
 
     private void assertCannotSaveModel() {
         try {
-            testObject.save(false);
+            testObject.save();
             fail("Was able to save model");
         } catch (SQLiteException s) {
             // not null should fail
@@ -73,7 +73,7 @@ public class BoxedValueTest extends FlowTestCase {
 
     private void assertCanSaveModel() {
         try {
-            testObject.save(false);
+            testObject.save();
         } catch (SQLiteException s) {
             s.printStackTrace(System.err);
             fail("Was unable to save model: " + s.getMessage());

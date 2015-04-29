@@ -18,7 +18,7 @@ public class TriggerTest extends FlowTestCase {
 
 
     public void testTriggerLanguage() {
-        Where<TestModel1> logic = new Update().table(TestModel1.class)
+        Where<TestModel1> logic = new Update<>(TestModel1.class)
                 .set(Condition.column(TestModel1$Table.NAME).is("Jason"))
                 .where(Condition.column(TestModel1$Table.NAME).is("Jason2"));
         String trigger = new Trigger<ConditionModel>("MyTrigger")
@@ -40,22 +40,23 @@ public class TriggerTest extends FlowTestCase {
         Delete.tables(TestUpdateModel.class, ConditionModel.class);
 
         CompletedTrigger<ConditionModel> trigger = new Trigger<ConditionModel>("TestTrigger")
-                    .after().insert(ConditionModel.class).begin(new Update().table(TestUpdateModel.class)
+                    .after().insert(ConditionModel.class).begin(new Update<>(TestUpdateModel.class)
                         .set(Condition.column(TestUpdateModel$Table.VALUE).is("Fired")));
 
         TestUpdateModel model = new TestUpdateModel();
         model.name = "Test";
         model.value = "NotFired";
-        model.save(false);
+        model.save();
 
         trigger.enable();
 
         ConditionModel conditionModel = new ConditionModel();
         conditionModel.name = "Test";
         conditionModel.fraction = 0.6d;
-        conditionModel.insert(false);
+        conditionModel.insert();
 
-        model = Select.byId(TestUpdateModel.class, "Test");
+        model = new Select().from(TestUpdateModel.class)
+                .where(Condition.column(TestUpdateModel$Table.NAME).is("Test")).querySingle();
         assertEquals(model.value, "Fired");
 
         trigger.disable();

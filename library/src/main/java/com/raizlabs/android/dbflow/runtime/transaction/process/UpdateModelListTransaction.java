@@ -19,6 +19,6 @@ public class UpdateModelListTransaction<ModelClass extends Model> extends Proces
 
     @Override
     public void processModel(ModelClass model) {
-        model.update(false);
+        model.update();
     }
 }

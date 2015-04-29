@@ -18,14 +18,14 @@ public class ModelViewTest extends FlowTestCase {
         TestModel2 testModel2 = new TestModel2();
         testModel2.order = 6;
         testModel2.name = "View";
-        testModel2.save(false);
+        testModel2.save();
 
         testModel2 = new TestModel2();
         testModel2.order = 5;
         testModel2.name = "View2";
-        testModel2.save(false);
+        testModel2.save();
 
-        List<TestModelView> testModelViews = Select.all(TestModelView.class);
+        List<TestModelView> testModelViews = new Select().from(TestModelView.class).queryList();
         assertTrue(!testModelViews.isEmpty());
         assertTrue(testModelViews.size() == 1);
     }

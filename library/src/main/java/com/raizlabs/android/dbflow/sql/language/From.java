@@ -4,19 +4,20 @@ import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowTableList;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
+import com.raizlabs.android.dbflow.list.FlowQueryList;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
  * Description: The SQL FROM query wrapper that must have a {@link com.raizlabs.android.dbflow.sql.Query} base.
  */
 public class From<ModelClass extends Model> implements WhereBase<ModelClass>, ModelQueriable<ModelClass> {
@@ -158,8 +159,8 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
     }
 
     @Override
-    public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<>(this);
+    public FlowQueryList<ModelClass> queryTableList() {
+        return new FlowQueryList<>(this);
     }
 
     /**
@@ -169,49 +170,6 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      */
     public long count() {
         return where().count();
-    }
-
-    /**
-     * Begins a SET piece of the SQL query
-     *
-     * @param conditions The array of conditions that define this SET statement
-     * @return A SET query piece of this statement
-     */
-    public Set<ModelClass> set(Condition... conditions) {
-        return set().conditions(conditions);
-    }
-
-    /**
-     * Begins a SET query
-     *
-     * @return A SET query piece of this statement
-     */
-    public Set<ModelClass> set() {
-        if (!(mQueryBuilderBase instanceof Update)) {
-            throw new IllegalStateException("Cannot use set() without an UPDATE as the base");
-        }
-        return new Set<>(this, mTable);
-    }
-
-    /**
-     * Begins a SET piece of this query with a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} as its conditions.
-     *
-     * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
-     * @return A SET query piece of this statement
-     */
-    public Set<ModelClass> set(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        return set().conditionQuery(conditionQueryBuilder);
-    }
-
-    /**
-     * Begins a SET piece of this query with a string clause with args
-     *
-     * @param setClause The clause to use as a string clause.
-     * @param args      The arguments to append that will get properly type-converted.
-     * @return A SET query piece of this statement.
-     */
-    public Set<ModelClass> set(String setClause, Object... args) {
-        return set().conditionClause(setClause, args);
     }
 
     /**
@@ -262,5 +220,10 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      */
     public Query getQueryBuilderBase() {
         return mQueryBuilderBase;
+    }
+
+    @Override
+    public AsyncQuery<ModelClass> async() {
+        return new AsyncQuery<>(this, TransactionManager.getInstance());
     }
 }

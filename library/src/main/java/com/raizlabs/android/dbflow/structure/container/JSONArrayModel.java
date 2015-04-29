@@ -82,14 +82,14 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     }
 
     @Override
-    public void save(boolean async) {
+    public void save() {
         if (mJsonArray != null && mJsonArray.length() > 0) {
             int length = mJsonArray.length();
             JSONModel<ModelClass> jsonModel = new JSONModel<>(mTable);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
-                    jsonModel.save(async);
+                    jsonModel.save();
                 } catch (JSONException e) {
                     FlowLog.logError(e);
                 }
@@ -98,14 +98,14 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     }
 
     @Override
-    public void delete(boolean async) {
+    public void delete() {
         if (mJsonArray != null && mJsonArray.length() > 0) {
             int length = mJsonArray.length();
             JSONModel<ModelClass> jsonModel = new JSONModel<>(mTable);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
-                    jsonModel.delete(async);
+                    jsonModel.delete();
                 } catch (JSONException e) {
                     FlowLog.logError(e);
                 }
@@ -114,14 +114,14 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     }
 
     @Override
-    public void update(boolean async) {
+    public void update() {
         if (mJsonArray != null && mJsonArray.length() > 0) {
             int length = mJsonArray.length();
             JSONModel<ModelClass> jsonModel = new JSONModel<>(mTable);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
-                    jsonModel.update(async);
+                    jsonModel.update();
                 } catch (JSONException e) {
                     FlowLog.logError(e);
                 }
@@ -130,14 +130,14 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     }
 
     @Override
-    public void insert(boolean async) {
+    public void insert() {
         if (mJsonArray != null && mJsonArray.length() > 0) {
             int length = mJsonArray.length();
             JSONModel<ModelClass> jsonModel = new JSONModel<>(mTable);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.mData = mJsonArray.getJSONObject(i);
-                    jsonModel.insert(async);
+                    jsonModel.insert();
                 } catch (JSONException e) {
                     FlowLog.logError(e);
                 }

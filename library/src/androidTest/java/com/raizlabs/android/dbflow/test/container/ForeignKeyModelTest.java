@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test.container;
 
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
@@ -17,10 +18,10 @@ public class ForeignKeyModelTest extends FlowTestCase {
         ForeignInteractionModel foreignInteractionModel = new ForeignInteractionModel();
         ParentModel parentModel = new ParentModel();
         parentModel.name = "Test";
-        parentModel.save(false);
+        parentModel.save();
         foreignInteractionModel.setTestModel1(parentModel);
         foreignInteractionModel.name = "Test2";
-        foreignInteractionModel.save(false);
+        foreignInteractionModel.save();
 
 
         assertTrue(foreignInteractionModel.exists());
@@ -28,7 +29,8 @@ public class ForeignKeyModelTest extends FlowTestCase {
         assertTrue(foreignInteractionModel.testModel1.exists());
 
 
-        foreignInteractionModel = Select.byId(ForeignInteractionModel.class, "Test2");
+        foreignInteractionModel = new Select().from(ForeignInteractionModel.class)
+                .where(Condition.column(ForeignInteractionModel$Table.NAME).is("Test2")).querySingle();
         assertNotNull(foreignInteractionModel);
         assertNotNull(foreignInteractionModel.testModel1);
         TestModel1 testModel11 = foreignInteractionModel.getTestModel1();

@@ -5,7 +5,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowTableList;
+import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
@@ -24,36 +24,36 @@ public class ListTest extends FlowTestCase {
 
         List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 100);
 
-        FlowTableList<ListModel> flowTableList = new FlowTableList<>(ListModel.class);
+        FlowQueryList<ListModel> flowQueryList = new FlowQueryList<>(ListModel.class);
 
-        assertTrue(flowTableList.size() == 100);
+        assertTrue(flowQueryList.size() == 100);
 
-        assertTrue(flowTableList.containsAll(testModel1s));
+        assertTrue(flowQueryList.containsAll(testModel1s));
 
-        ListModel model1 = flowTableList.remove(0);
+        ListModel model1 = flowQueryList.remove(0);
 
-        assertTrue(flowTableList.size() == 99);
+        assertTrue(flowQueryList.size() == 99);
 
-        assertTrue(flowTableList.add(model1));
+        assertTrue(flowQueryList.add(model1));
 
-        assertTrue(flowTableList.size() == 100);
+        assertTrue(flowQueryList.size() == 100);
 
-        flowTableList.set(model1);
+        flowQueryList.set(model1);
 
-        flowTableList.clear();
+        flowQueryList.clear();
 
-        assertTrue(flowTableList.size() == 0);
+        assertTrue(flowQueryList.size() == 0);
     }
 
     public void testTableListEmpty() {
         Delete.table(ListModel.class);
 
-        FlowTableList<ListModel> flowTableList = new FlowTableList<>(ListModel.class);
+        FlowQueryList<ListModel> flowQueryList = new FlowQueryList<>(ListModel.class);
         ListModel listModel = new ListModel();
         listModel.name = "Test";
-        flowTableList.add(listModel);
+        flowQueryList.add(listModel);
 
-        assertTrue(flowTableList.size() == 1);
+        assertTrue(flowQueryList.size() == 1);
 
         Delete.table(ListModel.class);
     }

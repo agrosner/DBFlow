@@ -50,11 +50,11 @@ public class SelectTest extends FlowTestCase {
 
         TestModel1 testModel1 = new TestModel1();
         testModel1.name = "Test";
-        testModel1.save(false);
+        testModel1.save();
 
         TestModel3 testModel2 = new TestModel3();
         testModel2.name = "Test";
-        testModel2.save(false);
+        testModel2.save();
 
         From<TestModel1> baseFrom = new Select().from(TestModel1.class);
         baseFrom.join(TestModel3.class, Join.JoinType.CROSS).on(Condition.column("TestModel1.name").is("TestModel3.name"));

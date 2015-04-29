@@ -23,7 +23,7 @@ public class JsonModelTest extends FlowTestCase {
                     "name: testModel" +
                     "}");
             JSONModel<ParentModel> testJsonModel1 = new JSONModel<>(jsonObject, ParentModel.class);
-            testJsonModel1.save(false);
+            testJsonModel1.save();
 
             assertTrue(testJsonModel1.exists());
             assertNotNull(testJsonModel1.toModel());
@@ -40,14 +40,14 @@ public class JsonModelTest extends FlowTestCase {
                     "}");
 
             JSONModel<TestModelContainerClass> testJsonModel = new JSONModel<>(jsonObject, TestModelContainerClass.class);
-            testJsonModel.save(false);
+            testJsonModel.save();
 
             assertTrue(testJsonModel.exists());
             assertNotNull(testJsonModel.toModel());
             assertNotNull(testJsonModel.toModel().testModel);
 
-            testJsonModel.delete(false);
-            testJsonModel1.delete(false);
+            testJsonModel.delete();
+            testJsonModel1.delete();
             assertFalse(testJsonModel1.exists());
             assertFalse(testJsonModel.exists());
         } catch (JSONException e) {
@@ -84,15 +84,15 @@ public class JsonModelTest extends FlowTestCase {
                     "}");
             jsonArrayModel.addJSONObject(jsonObject);
 
-            jsonArrayModel.insert(false);
-            jsonArrayModel.update(false);
-            jsonArrayModel.save(false);
+            jsonArrayModel.insert();
+            jsonArrayModel.update();
+            jsonArrayModel.save();
 
             for (int i = 0; i < jsonArrayModel.length(); i++) {
                 assertTrue(jsonArrayModel.exists(i));
             }
 
-            jsonArrayModel.delete(false);
+            jsonArrayModel.delete();
 
             for (int i = 0; i < jsonArrayModel.length(); i++) {
                 assertFalse(jsonArrayModel.exists(i));

@@ -154,7 +154,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         // single primary key checking for a long or int valued column
         if (getPrimaryColumnDefinitions().size() == 1) {
             ColumnDefinition columnDefinition = getColumnDefinitions().get(0);
-            if (columnDefinition.columnType == Column.PRIMARY_KEY) {
+            if (columnDefinition.isPrimaryKey) {
                 if (!columnDefinition.hasTypeConverter) {
                     hasCachingId = int.class.getCanonicalName().equals(columnDefinition.columnFieldType)
                             || long.class.getCanonicalName().equals(columnDefinition.columnFieldType);
@@ -186,11 +186,11 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
                     mColumnMap.put(columnDefinition.columnName, columnDefinition);
-                    if (columnDefinition.columnType == Column.PRIMARY_KEY) {
+                    if (columnDefinition.isPrimaryKey) {
                         primaryColumnDefinitions.add(columnDefinition);
-                    } else if (columnDefinition.columnType == Column.FOREIGN_KEY) {
+                    } else if (columnDefinition.isForeignKey) {
                         foreignKeyDefinitions.add(columnDefinition);
-                    } else if (columnDefinition.columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
+                    } else if (columnDefinition.isPrimaryKeyAutoIncrement) {
                         autoIncrementDefinition = columnDefinition;
                         hasAutoIncrement = true;
                     }
@@ -273,12 +273,12 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 for (int i = 0; i < getColumnDefinitions().size(); i++) {
                     ColumnDefinition columnDefinition = getColumnDefinitions().get(i);
 
-                    if (columnDefinition.columnType == Column.FOREIGN_KEY) {
+                    if (columnDefinition.isForeignKey) {
                         for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
                             columnNames.add(reference.columnName());
                             bindings.add("?");
                         }
-                    } else if (columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
+                    } else if (!columnDefinition.isPrimaryKeyAutoIncrement) {
                         columnNames.add(columnDefinition.columnName.toUpperCase());
                         bindings.add("?");
                     }

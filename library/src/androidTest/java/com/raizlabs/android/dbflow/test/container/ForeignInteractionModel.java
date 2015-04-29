@@ -2,13 +2,13 @@ package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
-import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,17 +20,16 @@ import java.util.Map;
 @Table(databaseName = TestDatabase.NAME)
 public class ForeignInteractionModel extends TestModel1 {
 
-    @Column(columnType = Column.FOREIGN_KEY,
-            references =
-                    {@ForeignKeyReference(columnName = "testmodel_id",
-                            foreignColumnName = "name",
-                            columnType = String.class),
-                    @ForeignKeyReference(columnName = "testmodel_type",
-                            foreignColumnName = "type",
-                            columnType = String.class)},
-            onDelete = ForeignKeyAction.CASCADE,
-            onUpdate = ForeignKeyAction.CASCADE,
-            saveForeignKeyModel = false)
+    @Column(onDelete = ForeignKeyAction.CASCADE,
+            onUpdate = ForeignKeyAction.CASCADE)
+    @ForeignKey(references =
+                        {@ForeignKeyReference(columnName = "testmodel_id",
+                                              foreignColumnName = "name",
+                                              columnType = String.class),
+                                @ForeignKeyReference(columnName = "testmodel_type",
+                                                     foreignColumnName = "type",
+                                                     columnType = String.class)},
+                saveForeignKeyModel = false)
     ForeignKeyContainer<ParentModel> testModel1;
 
     public TestModel1 getTestModel1() {

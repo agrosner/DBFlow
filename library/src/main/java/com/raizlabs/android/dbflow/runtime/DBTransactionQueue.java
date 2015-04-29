@@ -10,8 +10,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Created by andrewgrosner
- * Date: 12/11/13
- * Contributors:
  * Description: will handle concurrent requests to the DB based on priority
  */
 public class DBTransactionQueue extends Thread {
@@ -23,14 +21,16 @@ public class DBTransactionQueue extends Thread {
 
     private boolean mQuit = false;
 
+    private TransactionManager mManager;
+
     /**
      * Creates a queue with the specified name to ID it.
      *
      * @param name
      */
-    public DBTransactionQueue(String name) {
+    public DBTransactionQueue(String name, TransactionManager transactionManager) {
         super(name);
-
+        mManager = transactionManager;
         mQueue = new PriorityBlockingQueue<>();
     }
 
@@ -42,7 +42,9 @@ public class DBTransactionQueue extends Thread {
         BaseTransaction transaction;
         while (true) {
             try {
-                transaction = mQueue.take();
+                synchronized (mQueue) {
+                    transaction = mQueue.take();
+                }
             } catch (InterruptedException e) {
                 if (mQuit) {
                     synchronized (mQueue) {
@@ -56,16 +58,14 @@ public class DBTransactionQueue extends Thread {
             try {
                 // If the transaction is ready
                 if (transaction.onReady()) {
-                    if (FlowLog.isEnabled(FlowLog.Level.I)) {
-                        FlowLog.log(FlowLog.Level.I, "Size is " + mQueue.size() + " executing " + transaction.getName());
-                    }
+
                     // Retrieve the result of the transaction
                     final Object result = transaction.onExecute();
                     final BaseTransaction finalTransaction = transaction;
 
                     // Run the result on the FG
                     if (transaction.hasResult(result)) {
-                        TransactionManager.getInstance().processOnRequestHandler(new Runnable() {
+                        mManager.processOnRequestHandler(new Runnable() {
                             @Override
                             public void run() {
                                 finalTransaction.onPostExecute(result);
@@ -92,8 +92,10 @@ public class DBTransactionQueue extends Thread {
      * @param runnable
      */
     public void cancel(BaseTransaction runnable) {
-        if (mQueue.contains(runnable)) {
-            mQueue.remove(runnable);
+        synchronized (mQueue) {
+            if (mQueue.contains(runnable)) {
+                mQueue.remove(runnable);
+            }
         }
     }
 

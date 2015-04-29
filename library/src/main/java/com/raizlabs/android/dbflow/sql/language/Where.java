@@ -8,12 +8,10 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowTableList;
-import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
+import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -72,19 +70,6 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
         mManager = FlowManager.getDatabaseForTable(mWhereBase.getTable());
         mConditionQueryBuilder = new ConditionQueryBuilder<>(mWhereBase.getTable());
         mHaving = new ConditionQueryBuilder<>(mWhereBase.getTable());
-    }
-
-    /**
-     *
-     * A helper method to construct this class with a SELECT(columns) with the specified WHERE {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     *
-     * @param conditionQueryBuilder The WHERE conditions for this statement
-     * @param <ModelClass>          The class that implements {@link Model}
-     * @return A WHERE with the specified conditions and columns
-     */
-    public static <ModelClass extends Model> Where<ModelClass> with(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
-                                                                    String... columns) {
-        return new Select(columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
     }
 
     /**
@@ -339,78 +324,19 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
         return SqlUtils.querySingle(mWhereBase.getTable(), getQuery());
     }
 
-    /**
-     * Will run this query on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} with the shared
-     * {@link com.raizlabs.android.dbflow.runtime.TransactionManager}
-     *
-     * @param transactionInfo The information on how to prioritize the transaction
-     */
-    public void transact(DBTransactionInfo transactionInfo) {
-        transact(transactionInfo, TransactionManager.getInstance());
-    }
-
-    /**
-     * Will run this query on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     *
-     * @param transactionInfo    The information on how to prioritize the transaction
-     * @param transactionManager The transaction manager to add the query to
-     */
-    public void transact(DBTransactionInfo transactionInfo, TransactionManager transactionManager) {
-        transactionManager.addTransaction(new QueryTransaction<ModelClass>(transactionInfo, this));
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return a list of
-     * {@link ModelClass} on the UI thread with the shared {@link com.raizlabs.android.dbflow.runtime.TransactionManager}.
-     *
-     * @param listTransactionListener The result of this transaction
-     */
-    public void transactList(TransactionListener<List<ModelClass>> listTransactionListener) {
-        transactList(TransactionManager.getInstance(), listTransactionListener);
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return a list of
-     * {@link ModelClass} on the UI thread.
-     *
-     * @param transactionManager      The transaction manager to add the query to
-     * @param listTransactionListener The result of this transaction
-     */
-    public void transactList(TransactionManager transactionManager, TransactionListener<List<ModelClass>> listTransactionListener) {
-        checkSelect("transact");
-        transactionManager.fetchFromTable(this, listTransactionListener);
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return
-     * a single item on the UI thread with the shared {@link com.raizlabs.android.dbflow.runtime.TransactionManager}.
-     *
-     * @param transactionListener The result of this transaction
-     */
-    public void transactSingleModel(TransactionListener<ModelClass> transactionListener) {
-        transactSingleModel(TransactionManager.getInstance(), transactionListener);
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return
-     * a single item on the UI thread.
-     *
-     * @param transactionManager  The transaction manager to add the query to
-     * @param transactionListener The result of this transaction
-     */
-    public void transactSingleModel(TransactionManager transactionManager, TransactionListener<ModelClass> transactionListener) {
-        checkSelect("transact");
-        transactionManager.fetchModel(this, transactionListener);
-    }
-
     @Override
     public FlowCursorList<ModelClass> queryCursorList() {
         return new FlowCursorList<>(false, this);
     }
 
     @Override
-    public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<>(this);
+    public FlowQueryList<ModelClass> queryTableList() {
+        return new FlowQueryList<>(this);
+    }
+
+    @Override
+    public AsyncQuery<ModelClass> async() {
+        return new AsyncQuery<>(this, TransactionManager.getInstance());
     }
 
     /**

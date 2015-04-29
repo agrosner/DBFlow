@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.handler.*;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -44,7 +43,7 @@ public class DBFlowProcessor extends AbstractProcessor {
         supportedTypes.add(Table.class.getName());
         supportedTypes.add(Column.class.getName());
         supportedTypes.add(TypeConverter.class.getName());
-        supportedTypes.add(ContainerAdapter.class.getName());
+        supportedTypes.add(ModelContainer.class.getName());
         supportedTypes.add(ModelView.class.getName());
         supportedTypes.add(Migration.class.getName());
         supportedTypes.add(ContentProvider.class.getName());

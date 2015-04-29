@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
@@ -43,52 +44,43 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @see #save(boolean, Model)
-     */
-    @Deprecated
-    public void save(boolean async, ModelClass model, int saveMode) {
-        SqlUtils.sync(async, model, this, saveMode);
-    }
-
-    /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to save/insert/update
      */
     @Override
-    public void save(boolean async, ModelClass model) {
-        SqlUtils.save(async, model, this, this);
+    public void save(ModelClass model) {
+        SqlUtils.save(model, this, this);
     }
 
     /**
      * Inserts the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to insert.
      */
-    public void insert(boolean async, ModelClass model) {
-        SqlUtils.insert(async, model, this, this);
+    @Override
+    public void insert(ModelClass model) {
+        SqlUtils.insert(model, this, this);
     }
 
     /**
      * Updates the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to update.
      */
-    public void update(boolean async, ModelClass model) {
-        SqlUtils.update(async, model, this, this);
+    @Override
+    public void update(ModelClass model) {
+        SqlUtils.update(model, this, this);
     }
 
     /**
      * Deletes the model from the DB
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to delete
      */
-    public void delete(boolean async, ModelClass model) {
-        SqlUtils.delete(model, this, async);
+    @Override
+    public void delete(ModelClass model) {
+        SqlUtils.delete(model, this);
     }
 
     /**
@@ -104,7 +96,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * @return The value for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     @Override
@@ -114,7 +106,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @return The autoincrement column name for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * @return The autoincrement column name for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     public String getAutoIncrementingColumnName() {

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
@@ -11,7 +12,8 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 @Table(databaseName = TestDatabase.NAME)
 public class BoxedModel extends TestModel1 {
 
-    @Column(columnType = Column.PRIMARY_KEY, notNull = true)
+    @Column(notNull = true)
+    @PrimaryKey
     Long id = 1L;
 
     @Column(notNull = true)
