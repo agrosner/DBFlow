@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.processor.model.writer;
 
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -31,12 +30,11 @@ public class ForeignKeyContainerModel extends ContentValueModel {
     public void write(JavaWriter javaWriter) throws IOException {
         if(!isModelContainerDefinition) {
             super.write(javaWriter);
-
         } else {
             AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
 
             AdapterQueryBuilder ifBuilder = new AdapterQueryBuilder()
-                    .append(modelContainerName).append(".").appendGetValue(accessModel.foreignColumnName);
+                    .append(modelContainerName).append(".").appendGetValue(accessModel.referencedColumnFieldName);
             javaWriter.beginControlFlow("if (%1s != null) ", ifBuilder.getQuery());
             if (!isContentValues()) {
                 adapterQueryBuilder.appendBindSQLiteStatement(getIndex(), accessModel.castedClass);
@@ -47,7 +45,7 @@ public class ForeignKeyContainerModel extends ContentValueModel {
                     .appendCast(accessModel.castedClass)
                     .append(modelContainerName)
                     .append(".")
-                    .appendGetValue(accessModel.foreignColumnName)
+                    .appendGetValue(accessModel.referencedColumnFieldName)
                     .append("))");
             javaWriter.emitStatement(adapterQueryBuilder.getQuery());
 

@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.Query;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -18,17 +19,32 @@ import javax.tools.Diagnostic;
  */
 public class ColumnAccessModel implements Query {
 
-    String localColumnName;
+    String columnName;
 
     String foreignKeyLocalColumnName;
 
-    String foreignColumnName;
+    String referencedColumnFieldName;
+
+    /**
+     * Always the name of the field we're referencing.
+     */
+    String columnFieldName;
 
     String containerKeyName;
 
-    boolean isContainerFieldDefinition;
+    /**
+     * Always the type of the {@link Element} from {@link ColumnDefinition}
+     */
+    String columnFieldActualType;
 
-    boolean isWritingForContainers;
+    /**
+     * Completely erased type used in database ops
+     */
+    String columnFieldType;
+
+    boolean isModelContainerAdapter;
+
+    boolean fieldIsAModelContainer;
 
     boolean isForeignKeyField = false;
 
@@ -41,12 +57,15 @@ public class ColumnAccessModel implements Query {
     boolean isPrimitive;
 
     public ColumnAccessModel(ProcessorManager manager, ColumnDefinition columnDefinition,
-                             boolean isWritingForContainers) {
-        this.isWritingForContainers = columnDefinition.isModelContainer;
-        localColumnName = columnDefinition.columnName;
-        foreignColumnName = columnDefinition.columnFieldName;
+                             boolean isModelContainerAdapter) {
+        this.fieldIsAModelContainer = columnDefinition.fieldIsModelContainer;
+        columnName = columnDefinition.columnName;
+        columnFieldName = columnDefinition.columnFieldName;
+        columnFieldType = columnDefinition.columnFieldType;
+        columnFieldActualType = columnDefinition.columnFieldActualType;
+        referencedColumnFieldName = columnDefinition.columnFieldName;
         containerKeyName = columnDefinition.containerKeyName;
-        this.isContainerFieldDefinition = isWritingForContainers;
+        this.isModelContainerAdapter = isModelContainerAdapter;
         requiresTypeConverter = columnDefinition.hasTypeConverter;
 
         // Normal field
@@ -67,7 +86,7 @@ public class ColumnAccessModel implements Query {
             newFieldType = columnDefinition.columnFieldType;
         }
 
-        if (isWritingForContainers) {
+        if (isModelContainerAdapter) {
             if (columnDefinition.element.asType().getKind().isPrimitive() && !requiresTypeConverter) {
                 newFieldType = manager.getTypeUtils().boxedClass(
                         (PrimitiveType) columnDefinition.element.asType()).asType().toString();
@@ -78,12 +97,14 @@ public class ColumnAccessModel implements Query {
         isPrimitive = columnDefinition.element.asType().getKind().isPrimitive();
     }
 
-    public ColumnAccessModel(ColumnDefinition columnDefinition, ForeignKeyReference foreignKeyReference,
-                             boolean isWritingForContainers) {
-        this.isWritingForContainers = isWritingForContainers;
-        localColumnName = columnDefinition.columnName;
+    public ColumnAccessModel(ColumnDefinition columnDefinition, ForeignKeyReference foreignKeyReference) {
+        this.fieldIsAModelContainer = columnDefinition.fieldIsModelContainer;
+        columnName = columnDefinition.columnName;
+        columnFieldActualType = columnDefinition.columnFieldActualType;
+        columnFieldName = columnDefinition.columnFieldName;
+        columnFieldType = columnDefinition.columnFieldType;
         foreignKeyLocalColumnName = foreignKeyReference.columnName();
-        foreignColumnName = foreignKeyReference.foreignColumnName();
+        referencedColumnFieldName = foreignKeyReference.foreignColumnName();
         containerKeyName = foreignKeyReference.foreignColumnName();
         isForeignKeyField = true;
         requiresTypeConverter = false;
@@ -99,28 +120,24 @@ public class ColumnAccessModel implements Query {
 
         if (!requiresTypeConverter) {
             if (castedClass != null) {
-                if (!isABlob) {
-                    contentValue.appendCast(castedClass);
-                } else {
-                    contentValue.appendCast("byte[]");
-                }
+                contentValue.appendCast(isABlob ? "byte[]" : castedClass);
             } else {
                 contentValue.append("(");
             }
         }
-        contentValue.appendVariable(isContainerFieldDefinition).append(".");
-        if (isContainerFieldDefinition) {
+        contentValue.appendVariable(isModelContainerAdapter).append(".");
+        if (isModelContainerAdapter) {
             contentValue.appendGetValue(containerKeyName);
-        } else if (isWritingForContainers) {
-            contentValue.append(localColumnName)
+        } else if (fieldIsAModelContainer) {
+            contentValue.append(columnName)
                     .append(".")
-                    .appendGetValue(foreignColumnName);
+                    .appendGetValue(referencedColumnFieldName);
         } else {
             if (isForeignKeyField) {
-                contentValue.append(localColumnName)
+                contentValue.append(columnName)
                         .append(".");
             }
-            contentValue.append(foreignColumnName);
+            contentValue.append(referencedColumnFieldName);
         }
 
         if (isABlob) {

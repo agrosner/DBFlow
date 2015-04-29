@@ -217,10 +217,6 @@ public class ModelUtils {
     public static void writeColumnIndexCheckers(JavaWriter javaWriter,
                                                 ForeignKeyReference[] foreignKeyReferences) throws IOException {
 
-        for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-            javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
-        }
-
         QueryBuilder queryBuilder = new QueryBuilder("if ( ");
         for (int i = 0; i < foreignKeyReferences.length; i++) {
             ForeignKeyReference foreignKeyReference = foreignKeyReferences[i];

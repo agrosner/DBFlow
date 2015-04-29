@@ -24,6 +24,9 @@ public class ForeignInteractionModel extends TestModel1 {
             references =
                     {@ForeignKeyReference(columnName = "testmodel_id",
                             foreignColumnName = "name",
+                            columnType = String.class),
+                    @ForeignKeyReference(columnName = "testmodel_type",
+                            foreignColumnName = "type",
                             columnType = String.class)},
             onDelete = ForeignKeyAction.CASCADE,
             onUpdate = ForeignKeyAction.CASCADE,
@@ -37,7 +40,8 @@ public class ForeignInteractionModel extends TestModel1 {
     public void setTestModel1(ParentModel model1) {
         testModel1 = new ForeignKeyContainer<>(ParentModel.class);
         Map<String, Object> map = new HashMap<>();
-        map.put(TestModel1$Table.NAME, model1.name);
+        map.put(ParentModel$Table.NAME, model1.name);
+        map.put(ParentModel$Table.TYPE, model1.type);
         testModel1.setData(map);
     }
 }

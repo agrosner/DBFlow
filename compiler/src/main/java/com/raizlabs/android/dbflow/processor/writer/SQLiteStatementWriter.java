@@ -20,15 +20,15 @@ public class SQLiteStatementWriter implements FlowWriter {
 
     private TableDefinition tableDefinition;
 
-    private boolean isModelContainer;
+    private boolean isModelContainerAdapter;
 
     private final boolean implementsSqlStatementListener;
     private final boolean implementsContentValuesListener;
 
-    public SQLiteStatementWriter(TableDefinition tableDefinition, boolean isModelContainer,
+    public SQLiteStatementWriter(TableDefinition tableDefinition, boolean isModelContainerAdapter,
                                  boolean implementsSqlStatementListener, boolean implementsContentValuesListener) {
         this.tableDefinition = tableDefinition;
-        this.isModelContainer = isModelContainer;
+        this.isModelContainerAdapter = isModelContainerAdapter;
         this.implementsSqlStatementListener = implementsSqlStatementListener;
         this.implementsContentValuesListener = implementsContentValuesListener;
     }
@@ -38,9 +38,9 @@ public class SQLiteStatementWriter implements FlowWriter {
         final String[] args = new String[4];
         args[0] = Classes.SQLITE_STATEMENT;
         args[1] = "statement";
-        args[2] = isModelContainer ? "ModelContainer<" + tableDefinition.getModelClassName() + ", ?>"
+        args[2] = isModelContainerAdapter ? "ModelContainer<" + tableDefinition.getModelClassName() + ", ?>"
                 : tableDefinition.getModelClassName();
-        args[3] = ModelUtils.getVariable(isModelContainer);
+        args[3] = ModelUtils.getVariable(isModelContainerAdapter);
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
@@ -49,7 +49,7 @@ public class SQLiteStatementWriter implements FlowWriter {
                 for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
                     ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
                     if(columnDefinition.columnType != Column.PRIMARY_KEY_AUTO_INCREMENT) {
-                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainer, false, columnCounter);
+                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainerAdapter, false, columnCounter);
                     }
 
                     if(implementsSqlStatementListener) {
@@ -69,7 +69,7 @@ public class SQLiteStatementWriter implements FlowWriter {
                 AtomicInteger columnCounter = new AtomicInteger(1);
                 for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
                     ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
-                    columnDefinition.writeSaveDefinition(javaWriter, isModelContainer, true, columnCounter);
+                    columnDefinition.writeSaveDefinition(javaWriter, isModelContainerAdapter, true, columnCounter);
 
                     if(implementsContentValuesListener) {
                         javaWriter.emitStatement("%1s.onBindToContentValues(%1s)", args[3], args[1]);
