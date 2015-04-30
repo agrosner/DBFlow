@@ -21,6 +21,10 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
             processorManager.logError("Field %1s cannot have a null column name", columnDefinition.columnFieldName);
         }
 
+        if(columnDefinition.columnFieldIsPrimitive) {
+
+        }
+
         if (columnDefinition.isForeignKey) {
             ForeignKeyReference[] references = columnDefinition.foreignKeyReferences;
             if (references == null || references.length == 0) {

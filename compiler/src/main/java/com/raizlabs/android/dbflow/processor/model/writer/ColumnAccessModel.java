@@ -127,6 +127,7 @@ public class ColumnAccessModel implements Query {
         castedClass = castClass.toString();
         isABlob = false;
         isPrimitive = castClass.getKind().isPrimitive();
+        columnFieldBoxedType = columnFieldActualType;
     }
 
     public String getQueryNoCast() {

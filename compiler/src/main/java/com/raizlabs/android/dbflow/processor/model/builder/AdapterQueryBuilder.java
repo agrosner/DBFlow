@@ -56,7 +56,10 @@ public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
     }
 
     public AdapterQueryBuilder appendTypeConverter(String fieldReturnType, String convertClass, boolean isLoading) {
-        return appendCast(fieldReturnType).append("FlowManager.getTypeConverterForClass(")
+        if(fieldReturnType != null) {
+            appendCast(fieldReturnType);
+        }
+        return append("FlowManager.getTypeConverterForClass(")
                 .append(ModelUtils.getFieldClass(convertClass)).append(")")
                 .append(isLoading ? ".getModelValue(" : ".getDBValue(");
     }

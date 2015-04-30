@@ -52,41 +52,69 @@ public class ContentValueModel implements FlowWriter {
     public void write(JavaWriter javaWriter) throws IOException {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
 
-        boolean nullCheck = !isContentValues;
-        if (nullCheck) {
+        boolean nullCheck;
+        if(!isContentValues) {
             String statement = StatementMap.getStatement(SQLiteType.get(accessModel.castedClass));
             if (statement == null) {
                 throw new IOException(String.format("Writing insert statement failed for: %1s. A type converter" +
                                                     "must be defined for this type, or if this field is a Model, must be a foreign key definition.",
                                                     accessModel.castedClass));
             }
-            nullCheck = (statement.equals("String") || statement.equals("Blob") || !accessModel.isPrimitive);
+            javaWriter.emitSingleLineComment("Column Boxed Type:" + accessModel.columnFieldBoxedType);
+            nullCheck = (statement.equals("String") || statement.equals("Blob") ||
+                                 accessModel.columnFieldBoxedType.equals(Boolean.class.getName())
+                                 || !accessModel.isPrimitive || accessModel.isModelContainerAdapter);
         } else {
-            contentValue.appendContentValues();
-            contentValue.appendPut(putValue);
+            nullCheck = accessModel.columnFieldBoxedType.equals(Boolean.class.getName()) ||
+                        !accessModel.isPrimitive || accessModel.isModelContainerAdapter;
         }
         String accessStatement = accessModel.getQuery();
         // if statements of this type, we need to check for null :(
+        boolean separateVariableForNullCheck = accessModel.requiresTypeConverter || accessModel.isModelContainerAdapter;
         if (nullCheck) {
-            javaWriter.beginControlFlow("if (%1s != null) ", accessStatement);
+            if(separateVariableForNullCheck) {
+                AdapterQueryBuilder nullQueryBuilder = new AdapterQueryBuilder()
+                        .append("Object model%1s = ");
+                if(accessModel.requiresTypeConverter) {
+                    nullQueryBuilder.appendTypeConverter(null, databaseTypeName, false);
+                }
+                nullQueryBuilder.append(accessStatement);
+                if(accessModel.requiresTypeConverter) {
+                    nullQueryBuilder.append(")");
+                }
+                javaWriter.emitStatement(nullQueryBuilder.getQuery(), accessModel.columnFieldName);
+            }
+            javaWriter.beginControlFlow("if (%1s != null) ", separateVariableForNullCheck
+                    ? ("model" + accessModel.columnFieldName) : accessStatement);
         }
 
         if (!isContentValues) {
             contentValue.appendBindSQLiteStatement(index, accessModel.castedClass);
+        } else {
+            contentValue.appendContentValues();
+            contentValue.appendPut(putValue);
         }
 
-        if (accessModel.requiresTypeConverter) {
-            contentValue.appendTypeConverter(accessModel.castedClass, databaseTypeName, false);
+        if(separateVariableForNullCheck) {
+            javaWriter.emitSingleLineComment("Appending null check variable");
+            contentValue.appendCast(accessModel.castedClass)
+                        .append(("model" + accessModel.columnFieldName));
+        } else {
+            contentValue.append(accessStatement);
         }
-        String query = contentValue.append(accessStatement).append(")").append(
-                accessModel.requiresTypeConverter ? "))" : "").getQuery();
+        String query = contentValue.append(")").append(
+                separateVariableForNullCheck ? ")" : "").getQuery();
 
 
         javaWriter.emitStatement(query);
 
         if (nullCheck) {
             javaWriter.nextControlFlow("else");
-            javaWriter.emitStatement("statement.bindNull(%1s)", index);
+            if(!isContentValues) {
+                javaWriter.emitStatement("statement.bindNull(%1s)", index);
+            } else {
+                javaWriter.emitStatement("contentValues.putNull(\"%1s\")", putValue);
+            }
             javaWriter.endControlFlow();
         }
     }
