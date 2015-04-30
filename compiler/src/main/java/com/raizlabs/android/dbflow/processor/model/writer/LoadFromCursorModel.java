@@ -37,12 +37,29 @@ public class LoadFromCursorModel implements FlowWriter {
         this.modelContainerName = modelContainerName;
     }
 
+    public void writeSingleField(JavaWriter javaWriter) throws IOException {
+
+        javaWriter.emitStatement(ModelUtils.getColumnIndex(accessModel.foreignKeyLocalColumnName));
+        String index = "index" + accessModel.foreignKeyLocalColumnName;
+        javaWriter.beginControlFlow("if (%1s != -1) ", index);
+        if(isNullable) {
+            javaWriter.beginControlFlow("if (cursor.isNull(%1s))", index);
+            emitColumnAssignment(javaWriter, "null");
+            javaWriter.nextControlFlow("else");
+            write(javaWriter);
+            javaWriter.endControlFlow();
+        } else {
+            write(javaWriter);
+        }
+        javaWriter.endControlFlow();
+    }
+
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         if(isModelContainerAdapter) {
             AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
             adapterQueryBuilder.append(modelContainerName)
-                    .appendPut(accessModel.referencedColumnFieldName)
+                    .appendPut(accessModel.getReferencedColumnFieldName())
                     .append(ModelUtils.getCursorStatement(
                             accessModel.castedClass, accessModel.foreignKeyLocalColumnName))
                     .append(")");
@@ -65,12 +82,15 @@ public class LoadFromCursorModel implements FlowWriter {
         if (isContainerFieldDefinition) {
             queryBuilder.appendPut(accessModel.containerKeyName);
         } else if (isWritingForContainers) {
-            queryBuilder.appendPut(accessModel.referencedColumnFieldName);
+            queryBuilder.appendPut(accessModel.getReferencedColumnFieldName());
         } else {
-            queryBuilder.append(".").append(accessModel.referencedColumnFieldName).appendSpaceSeparated("=");
+            queryBuilder.append(".").append(accessModel.getSetterReferenceColumnFieldName());
+            if(!accessModel.isPrivate) {
+                queryBuilder.appendSpaceSeparated("=");
+            }
         }
         if (accessModel.requiresTypeConverter && !isContainerFieldDefinition) {
-            queryBuilder.appendTypeConverter(accessModel.castedClass, accessModel.castedClass, true);
+            queryBuilder.appendTypeConverter(accessModel.columnFieldBoxedType, accessModel.columnFieldBoxedType, true);
         } else if (accessModel.isABlob) {
             queryBuilder.append(String.format("new %1s(", Blob.class.getName()));
         }
@@ -80,6 +100,10 @@ public class LoadFromCursorModel implements FlowWriter {
         if (accessModel.requiresTypeConverter && !isContainerFieldDefinition) {
             queryBuilder.append("))");
         } else if (isContainerFieldDefinition || isWritingForContainers || accessModel.isABlob) {
+            queryBuilder.append(")");
+        }
+
+        if(accessModel.isPrivate) {
             queryBuilder.append(")");
         }
 

@@ -101,10 +101,13 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public boolean columnFieldIsPrimitive = false;
 
+    public boolean isPrivate = false;
+
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
+        isPrivate = element.getModifiers().contains(Modifier.PRIVATE);
 
         PrimaryKey primaryKey = element.getAnnotation(PrimaryKey.class);
         if (primaryKey != null) {
@@ -412,16 +415,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             javaWriter.emitEmptyLine();
 
         } else {
-            String getType = columnFieldType;
-            // Type converters can never be primitive except boolean
-            if (element.asType().getKind().isPrimitive()) {
-                getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
-            }
-
-            ModelUtils.writeLoadFromCursorDefinitionField(javaWriter, manager, getType, columnFieldName,
-                                                          columnName, "", containerKeyName, modelType, hasTypeConverter,
-                                                          isModelContainerAdapter, this.fieldIsModelContainer,
-                                                          isNullable(), isBlob);
+            ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
+            LoadFromCursorModel loadFromCursorModel = new LoadFromCursorModel(columnAccessModel);
+            loadFromCursorModel.setModelContainerName(columnName);
+            loadFromCursorModel.setIsNullable(isNullable());
+            loadFromCursorModel.writeSingleField(javaWriter);
         }
     }
 

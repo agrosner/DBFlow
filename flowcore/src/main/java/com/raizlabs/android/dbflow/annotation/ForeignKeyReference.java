@@ -29,4 +29,10 @@ public @interface ForeignKeyReference {
      * @return The column name in the referenced table
      */
     String foreignColumnName();
+
+    /**
+     * @return True here if the referenced field is private. It must have a getter with the same name available such
+     * that a field "name" has "getName()".
+     */
+    boolean fieldIsPrivate() default false;
 }
