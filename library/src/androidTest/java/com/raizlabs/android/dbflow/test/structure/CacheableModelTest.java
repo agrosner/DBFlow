@@ -21,15 +21,15 @@ public class CacheableModelTest extends FlowTestCase {
         ModelCache<CacheableModel, ?> modelCache = BaseCacheableModel.getCache((Class<CacheableModel>) model.getClass());
         for (int i = 0; i < 100; i++) {
             model.name = "Test";
-            model.id = 0;
             model.save();
+            assertTrue(model.exists());
 
             long id = model.id;
             CacheableModel cacheableModel = modelCache.get(id);
             assertNotNull(cacheableModel);
 
             assertEquals(new Select().from(CacheableModel.class).
-                    where(Condition.column(CacheableModel$Table.NAME).is(id))
+                    where(Condition.column(CacheableModel$Table.ID).is(id))
                     .querySingle(), cacheableModel);
 
             model.delete();

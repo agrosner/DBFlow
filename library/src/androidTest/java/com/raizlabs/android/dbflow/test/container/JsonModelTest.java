@@ -20,8 +20,9 @@ public class JsonModelTest extends FlowTestCase {
 
         try {
             JSONObject jsonObject = new JSONObject("{" +
-                    "name: testModel" +
-                    "}");
+                                                   "name: testModel," +
+                                                   "type: typeModel" +
+                                                   "}");
             JSONModel<ParentModel> testJsonModel1 = new JSONModel<>(jsonObject, ParentModel.class);
             testJsonModel1.save();
 
@@ -29,17 +30,18 @@ public class JsonModelTest extends FlowTestCase {
             assertNotNull(testJsonModel1.toModel());
 
             jsonObject = new JSONObject("{" +
-                    "name: test," +
-                    "party_type: club," +
-                    "count1: 10," +
-                    "isHappy: true," +
-                    "testModel: {" +
-                    "name: testModel" +
-                    "}, " +
-                    "party_name: null" +
-                    "}");
+                                        "name: test," +
+                                        "party_type: club," +
+                                        "count1: 10," +
+                                        "isHappy: true," +
+                                        "testModel: {" +
+                                        "name: testModel" +
+                                        "}, " +
+                                        "party_name: null" +
+                                        "}");
 
-            JSONModel<TestModelContainerClass> testJsonModel = new JSONModel<>(jsonObject, TestModelContainerClass.class);
+            JSONModel<TestModelContainerClass> testJsonModel = new JSONModel<>(jsonObject,
+                                                                               TestModelContainerClass.class);
             testJsonModel.save();
 
             assertTrue(testJsonModel.exists());
@@ -63,25 +65,29 @@ public class JsonModelTest extends FlowTestCase {
 
         try {
             JSONObject jsonObject = new JSONObject("{" +
-                    "name: testModel" +
-                    "}");
+                                                   "name: testModel," +
+                                                   "type: typeModel" +
+                                                   "}");
             JSONArrayModel<ParentModel> jsonArrayModel = new JSONArrayModel<>(ParentModel.class);
             jsonArrayModel.addJSONObject(jsonObject);
 
             jsonObject = new JSONObject("{" +
-                    "name: testModel1" +
-                    "}");
+                                        "name: testModel1," +
+                                        "type: typeModel1" +
+                                        "}");
 
             jsonArrayModel.addJSONObject(jsonObject);
 
             jsonObject = new JSONObject("{" +
-                    "name: testModel2" +
-                    "}");
+                                        "name: testModel2," +
+                                        "type: typeModel2" +
+                                        "}");
             jsonArrayModel.addJSONObject(jsonObject);
 
             jsonObject = new JSONObject("{" +
-                    "name: testModel3" +
-                    "}");
+                                        "name: testModel3," +
+                                        "type: typeModel3" +
+                                        "}");
             jsonArrayModel.addJSONObject(jsonObject);
 
             jsonArrayModel.insert();
