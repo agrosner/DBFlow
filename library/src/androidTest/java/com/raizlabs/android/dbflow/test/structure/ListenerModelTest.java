@@ -37,6 +37,11 @@ public class ListenerModelTest extends FlowTestCase {
                     public void onBindToContentValues(ContentValues contentValues) {
                         called[2] = true;
                     }
+
+                    @Override
+                    public void onBindToInsertValues(ContentValues contentValues) {
+                        called[2] = true;
+                    }
                 });
         listenerModel.registerLoadFromCursorListener(new LoadFromCursorListener() {
             @Override

@@ -62,6 +62,12 @@ public class SQLiteStatementWriter implements FlowWriter {
 
         args[0] = Classes.CONTENT_VALUES;
         args[1] = "contentValues";
+        writeContentValues(false, javaWriter, args);
+        writeContentValues(true, javaWriter, args);
+    }
+
+    private void writeContentValues(final boolean isInsert, JavaWriter javaWriter, final String[] args) {
+
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
@@ -69,14 +75,19 @@ public class SQLiteStatementWriter implements FlowWriter {
                 AtomicInteger columnCounter = new AtomicInteger(1);
                 for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
                     ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
-                    columnDefinition.writeSaveDefinition(javaWriter, isModelContainerAdapter, true, columnCounter);
-
-                    if(implementsContentValuesListener) {
+                    if((isInsert && !columnDefinition.isPrimaryKeyAutoIncrement) || !isInsert) {
+                        columnDefinition.writeSaveDefinition(javaWriter, isModelContainerAdapter, true, columnCounter);
+                    }
+                }
+                if(implementsContentValuesListener) {
+                    if(!isInsert) {
                         javaWriter.emitStatement("%1s.onBindToContentValues(%1s)", args[3], args[1]);
+                    } else {
+                        javaWriter.emitStatement("%1s.onBindToInsertValues(%1s)", args[3], args[1]);
                     }
                 }
                 javaWriter.emitEmptyLine();
             }
-        }, "void", "bindToContentValues", Sets.newHashSet(Modifier.PUBLIC), args);
+        }, "void", isInsert ? "bindToInsertValues" : "bindToContentValues", Sets.newHashSet(Modifier.PUBLIC), args);
     }
 }

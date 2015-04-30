@@ -3,6 +3,8 @@ package com.raizlabs.android.dbflow.structure;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
 
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+
 /**
  * Description: Used for our internal Adapter classes such as generated {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
  * or {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter}
@@ -22,7 +24,7 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
     /**
      * Saves the specified model to the DB.
      *
-     * @param model    The model to save/insert/update
+     * @param model The model to save/insert/update
      */
     void save(ModelClass model);
 
@@ -61,6 +63,15 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      * @param model         The model values to put on the contentvalues
      */
     void bindToContentValues(ContentValues contentValues, ModelClass model);
+
+    /**
+     * Binds a {@link ModelClass} to the specified db statement, leaving out the {@link PrimaryKey#autoincrement()}
+     * column.
+     *
+     * @param contentValues The content values to fill.
+     * @param model         The model values to put on the content values.
+     */
+    void bindToInsertValues(ContentValues contentValues, ModelClass model);
 
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then

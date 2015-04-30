@@ -53,7 +53,7 @@ public class WhereQueryWriter implements FlowWriter {
                             ColumnDefinition autoIncrementDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
                             if (autoIncrementDefinition != null) {
                                 conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), autoIncrementDefinition.columnName),
-                                        ModelUtils.getAccessStatement(autoIncrementDefinition.columnName, autoIncrementDefinition.columnFieldType,
+                                        ModelUtils.getAccessStatement(autoIncrementDefinition.columnName, null,
                                                 autoIncrementDefinition.columnFieldName, autoIncrementDefinition.containerKeyName,
                                                 isModelContainer, false, false, autoIncrementDefinition.hasTypeConverter, autoIncrementDefinition.isBlob));
                             }
