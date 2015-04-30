@@ -125,7 +125,7 @@ public class JsonModelTest extends FlowTestCase {
                                                "party_name: null" +
                                                "}");
         JSONModel<TestModelContainerClass> jsonModel = new JSONModel<>(jsonObject, TestModelContainerClass.class);
-        jsonModel.save(false);
+        jsonModel.save();
     }
 
 }

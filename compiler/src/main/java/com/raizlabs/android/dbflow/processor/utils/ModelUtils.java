@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.utils;
 
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.Classes;
@@ -178,6 +179,18 @@ public class ModelUtils {
         if (annotation != null) {
             try {
                 annotation.columnType();
+            } catch (MirroredTypeException mte) {
+                clazz = mte.getTypeMirror().toString();
+            }
+        }
+        return clazz;
+    }
+
+    public static String getClassFromAnnotation(ForeignKey annotation) {
+        String clazz = null;
+        if (annotation != null) {
+            try {
+                annotation.tableClass();
             } catch (MirroredTypeException mte) {
                 clazz = mte.getTypeMirror().toString();
             }

@@ -16,7 +16,7 @@ public class BlobModelTest extends FlowTestCase {
 
         BlobModel blobModel = new BlobModel();
         blobModel.blob = new Blob(TEST_BLOB.getBytes());
-        blobModel.save(false);
+        blobModel.save();
 
         assertTrue(blobModel.exists());
 

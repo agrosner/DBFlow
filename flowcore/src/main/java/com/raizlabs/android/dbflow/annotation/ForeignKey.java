@@ -27,4 +27,10 @@ public @interface ForeignKey {
      * as foreign key fields.
      */
     boolean saveForeignKeyModel() default true;
+
+    /**
+     * @return an optional table class that this reference points to. It's only used if the field
+     * is NOT a Model class.
+     */
+    Class<?> tableClass() default Void.class;
 }

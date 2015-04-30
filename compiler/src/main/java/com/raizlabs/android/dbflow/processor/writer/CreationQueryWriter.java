@@ -159,7 +159,7 @@ public class CreationQueryWriter implements FlowWriter {
                                 .append("ON DELETE")
                                 .appendSpaceSeparated(foreignKeyField.column.onDelete().name().replace("_", " "));
 
-                        foreignColumnClasses.add("FlowManager.getTableName(" + ModelUtils.getFieldClass(foreignKeyField.columnFieldType) + ")");
+                        foreignColumnClasses.add("FlowManager.getTableName(" + ModelUtils.getFieldClass(foreignKeyField.foreignKeyTableClassName) + ")");
 
                         mColumnDefinitions.add(foreignKeyQueryBuilder);
                     }

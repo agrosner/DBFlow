@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Description:
  */
-@ContainerAdapter
+@ModelContainer
 @Table(databaseName = TestDatabase.NAME)
 public class ForeignInteractionModel extends TestModel1 {
 
