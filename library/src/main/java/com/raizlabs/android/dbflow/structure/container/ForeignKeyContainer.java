@@ -56,11 +56,15 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
         getData().put(columnName, value);
     }
 
-    @Override
-    public ModelClass toModel() {
+    /**
+     * Attemps to load the model from the DB using a {@link Select} query.
+     *
+     * @return the result of running a primary where query on the contained data.
+     */
+    public ModelClass load() {
         if (mModel == null && mData != null) {
             mModel = new Select().from(mModelAdapter.getModelClass())
-                    .where(mContainerAdapter.getPrimaryModelWhere(this)).querySingle();
+                    .where(mContainerAdapter.getPrimaryModelWhere(this)).limit(1).querySingle();
         }
         return mModel;
     }
@@ -73,22 +77,22 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
 
     @Override
     public void save() {
-        throw new InvalidMethodCallException("Cannot call save() on a foreign key container. Call toModel() instead");
+        throw new InvalidMethodCallException("Cannot call save() on a foreign key container. Call load() instead");
     }
 
     @Override
     public void delete() {
-        throw new InvalidMethodCallException("Cannot call delete() on a foreign key container. Call toModel() instead");
+        throw new InvalidMethodCallException("Cannot call delete() on a foreign key container. Call load() instead");
     }
 
     @Override
     public void update() {
-        throw new InvalidMethodCallException("Cannot call update() on a foreign key container. Call toModel() instead");
+        throw new InvalidMethodCallException("Cannot call update() on a foreign key container. Call load() instead");
     }
 
     @Override
     public void insert() {
-        throw new InvalidMethodCallException("Cannot call insert() on a foreign key container. Call toModel() instead");
+        throw new InvalidMethodCallException("Cannot call insert() on a foreign key container. Call load() instead");
     }
 
     private static class InvalidMethodCallException extends RuntimeException {

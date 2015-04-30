@@ -42,7 +42,7 @@ public class WhereQueryWriter implements FlowWriter {
                             for (int i = 0; i < primaryColumnSize; i++) {
                                 ColumnDefinition columnDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
                                 conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), columnDefinition.columnName),
-                                        ModelUtils.getAccessStatement(columnDefinition.columnName, columnDefinition.columnFieldType,
+                                        ModelUtils.getAccessStatement(columnDefinition.columnName, null,
                                                 columnDefinition.columnFieldName, columnDefinition.containerKeyName,
                                                   isModelContainer, false, false, columnDefinition.hasTypeConverter, columnDefinition.isBlob));
                                 if (i < tableDefinition.getPrimaryColumnDefinitions().size() - 1) {

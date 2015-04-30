@@ -26,4 +26,11 @@ public class AIContainerForeign extends AutoIncrementContainer {
             @ForeignKeyReference(columnType = Long.class, columnName = "ai_container_id_container",
                                  foreignColumnName = "id")})
     ForeignKeyContainer<AutoIncrementContainer> container;
+
+    public void setContainer(AutoIncrementContainer autoIncrementContainer) {
+        container = new ForeignKeyContainer<>(AutoIncrementContainer.class);
+        container.put(AutoIncrementContainer$Table.A_ID, autoIncrementContainer.a_id);
+        container.put(AutoIncrementContainer$Table.NAME, autoIncrementContainer.name);
+        container.put(AutoIncrementContainer$Table.ID, autoIncrementContainer.id);
+    }
 }

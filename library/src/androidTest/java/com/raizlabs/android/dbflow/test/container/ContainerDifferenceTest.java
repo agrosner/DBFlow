@@ -33,12 +33,12 @@ public class ContainerDifferenceTest extends FlowTestCase {
         assertTrue(foreignModel.exists());
         autoIncrementContainer.foreignModel = foreignModel;
 
-        ForeignKeyContainer<AutoIncrementContainer> foreignKeyContainer = new ForeignKeyContainer<>(AutoIncrementContainer.class);
-        foreignKeyContainer.put(AutoIncrementContainer$Table.NAME, "container");
-        foreignKeyContainer.put(AutoIncrementContainer$Table.A_ID, 54);
+        AutoIncrementContainer foreignKeyContainer = new AutoIncrementContainer();
+        foreignKeyContainer.name =  "container";
+        foreignKeyContainer.a_id = 54;
         foreignKeyContainer.save();
         assertTrue(foreignKeyContainer.exists());
-        autoIncrementContainer.container = foreignKeyContainer;
+        autoIncrementContainer.setContainer(foreignKeyContainer);
 
         foreignKeyContainer.save();
         assertTrue(foreignKeyContainer.exists());
