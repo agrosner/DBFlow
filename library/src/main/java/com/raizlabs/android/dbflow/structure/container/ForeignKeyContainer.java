@@ -73,21 +73,28 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
 
     @Override
     public void save() {
-        mModelAdapter.save(toModel());
+        throw new InvalidMethodCallException("Cannot call save() on a foreign key container. Call toModel() instead");
     }
 
     @Override
     public void delete() {
-        mModelAdapter.delete(toModel());
+        throw new InvalidMethodCallException("Cannot call delete() on a foreign key container. Call toModel() instead");
     }
 
     @Override
     public void update() {
-        mModelAdapter.update(toModel());
+        throw new InvalidMethodCallException("Cannot call update() on a foreign key container. Call toModel() instead");
     }
 
     @Override
     public void insert() {
-        mModelAdapter.insert(toModel());
+        throw new InvalidMethodCallException("Cannot call insert() on a foreign key container. Call toModel() instead");
+    }
+
+    private static class InvalidMethodCallException extends RuntimeException {
+
+        public InvalidMethodCallException(String detailMessage) {
+            super(detailMessage);
+        }
     }
 }

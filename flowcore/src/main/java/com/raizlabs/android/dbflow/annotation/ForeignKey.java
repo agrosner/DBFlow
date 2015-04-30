@@ -18,7 +18,7 @@ public @interface ForeignKey {
      *
      * @return the set of references
      */
-    ForeignKeyReference[] references() default {};
+    ForeignKeyReference[] references();
 
     /**
      * @return When this column is a {@link ForeignKey} and a Model, returning true with save the model
