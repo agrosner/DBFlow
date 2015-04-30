@@ -107,7 +107,7 @@ public class Update<ModelClass extends Model> implements Query {
         if (mConflictAction != null && !mConflictAction.equals(ConflictAction.NONE)) {
             queryBuilder.append("OR").appendSpaceSeparated(mConflictAction.name());
         }
-        queryBuilder.append(FlowManager.getTableName(mTable)).appendSpace();
+        queryBuilder.appendQuoted(FlowManager.getTableName(mTable)).appendSpace();
         return queryBuilder.getQuery();
     }
 }

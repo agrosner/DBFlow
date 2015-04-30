@@ -37,20 +37,20 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
             }
 
             if (references != null && references.length > 1 &&
-                (!columnDefinition.isModel || !columnDefinition.fieldIsModelContainer)) {
+                (!columnDefinition.isModel && !columnDefinition.fieldIsModelContainer)) {
                 success = false;
+                processorManager.logError("IsModel:" + columnDefinition.isModel + " isModelContainer:" + columnDefinition.fieldIsModelContainer);
                 processorManager.logError("Foreign key %1s cannot specify more than 1 reference for a non-model field.",
                                           columnDefinition.columnFieldName);
             }
 
-        } else if (!columnDefinition.isForeignKey && !columnDefinition.isPrimaryKey &&
-                   !columnDefinition.isPrimaryKeyAutoIncrement) {
+        } else if (!columnDefinition.isPrimaryKey && !columnDefinition.isPrimaryKeyAutoIncrement) {
             if (columnDefinition.foreignKeyReferences != null) {
                 processorManager.logError("A non-foreign key field %1s defines references.",
                                           columnDefinition.columnFieldName);
                 success = false;
             }
-        } else if (columnDefinition.isPrimaryKey || columnDefinition.isPrimaryKeyAutoIncrement) {
+        } else {
             if (autoIncrementingPrimaryKey != null && columnDefinition.isPrimaryKey) {
                 processorManager.logError("You cannot mix and match autoincrementing and composite primary keys.");
                 success = false;

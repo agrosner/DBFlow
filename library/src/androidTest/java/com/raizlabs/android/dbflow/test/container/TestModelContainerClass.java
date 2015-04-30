@@ -37,6 +37,9 @@ public class TestModelContainerClass extends TestModel1 {
     @ForeignKey(references =
             {@ForeignKeyReference(columnName = "testName",
                     columnType = String.class,
-                    foreignColumnName = "name")})
+                    foreignColumnName = "name"),
+            @ForeignKeyReference(columnName = "testType",
+                    columnType = String.class,
+                    foreignColumnName = "type")})
     ParentModel testModel;
 }

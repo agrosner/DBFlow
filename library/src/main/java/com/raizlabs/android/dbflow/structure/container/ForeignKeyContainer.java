@@ -67,7 +67,8 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
 
     @Override
     public boolean exists() {
-        return mModelAdapter.exists(toModel());
+        ModelClass model = toModel();
+        return model != null && mModelAdapter.exists(model);
     }
 
     @Override

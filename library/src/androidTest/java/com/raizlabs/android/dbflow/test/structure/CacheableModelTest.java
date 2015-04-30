@@ -54,7 +54,7 @@ public class CacheableModelTest extends FlowTestCase {
             assertNotNull(cacheableModel);
 
             assertEquals(new Select().from(CacheableModel2.class)
-                    .where(Condition.column(CacheableModel$Table.NAME).is(id))
+                    .where(Condition.column(CacheableModel2$Table.ID).is(id))
                     .querySingle(), cacheableModel);
 
             model.delete();
