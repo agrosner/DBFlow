@@ -60,6 +60,11 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     private String mOffset;
 
     /**
+     * Marks this WHERE as only using the EXIST keyword.
+     */
+    private boolean isExistWhere;
+
+    /**
      * Constructs this class with the specified {@link com.raizlabs.android.dbflow.config.FlowManager}
      * and {@link From} chunk
      *
@@ -243,8 +248,76 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
         return this;
     }
 
-    public <SubQueryClass extends Model> Select subQuery() {
-        return new Select();
+    /**
+     * Sets this statement to only specify that it EXISTS
+     *
+     * @return
+     */
+    public Where<ModelClass> exists() {
+        this.isExistWhere = true;
+        return this;
+    }
+
+    /**
+     * Begins a standard subquery as a SELECT with the specified columns.
+     *
+     * @param columns The aliases for the columns to use.
+     * @return A new subquery select
+     */
+    public Select subQuery(ColumnAlias... columns) {
+        return new Select(this, null, columns);
+    }
+
+    /**
+     * Begins a standard subquery as a SELECT with the specified columns.
+     *
+     * @param columns The column names to select with.
+     * @return A new subquery select.
+     */
+    public Select subQuery(String... columns) {
+        return new Select(this, null, columns);
+    }
+
+    /**
+     * Begins a standard subquery as an IN (SELECT... with the specified columns.
+     *
+     * @param columns The aliases for the columns to use.
+     * @return A new IN subquery.
+     */
+    public Select in(ColumnAlias... columns) {
+        return new Select(this, Condition.Operation.IN, columns);
+    }
+
+    /**
+     * Begins a standard subquery as an IN (SELECT... with the specified columns.
+     *
+     * @param columns The column names to select with.
+     * @return A new IN subquery.
+     */
+    public Select in(String... columns) {
+        return new Select(this, Condition.Operation.IN, columns);
+    }
+
+    /**
+     * Begins a standard subquery as an {operation} (SELECT... with the specified columns.
+     *
+     * @param operation The operation to begin the subquery with.
+     * @param columns   The column names to select with.
+     * @return A new subquery.
+     */
+    public Select subQueryOperation(String operation, String... columns) {
+        return new Select(this, operation, columns);
+    }
+
+    /**
+     * Begins a standard subquery as an {operation} (SELECT... with the specified columns.
+     *
+     * @param operation The operation to begin the subquery with.
+     * @param columns   The column aliases to use.
+     * @return A new subquery.
+     */
+    public Select subQueryOperation(String operation, ColumnAlias... columns) {
+        return new Select(this, operation, columns);
     }
 
     /**
@@ -271,12 +344,16 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
         }
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery);
 
-        queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
-                .appendQualifier("GROUP BY", mGroupBy)
-                .appendQualifier("HAVING", mHaving.getQuery())
-                .appendQualifier("ORDER BY", mOrderBy)
-                .appendQualifier("LIMIT", mLimit)
-                .appendQualifier("OFFSET", mOffset);
+        queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery());
+        if (isExistWhere) {
+            queryBuilder.appendSpaceSeparated("EXISTS");
+        } else {
+            queryBuilder.appendQualifier("GROUP BY", mGroupBy)
+                    .appendQualifier("HAVING", mHaving.getQuery())
+                    .appendQualifier("ORDER BY", mOrderBy)
+                    .appendQualifier("LIMIT", mLimit)
+                    .appendQualifier("OFFSET", mOffset);
+        }
         // need to close up parenthesis of subquery.
         if (isSubQuery) {
             queryBuilder.append(")");
