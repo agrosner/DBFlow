@@ -20,7 +20,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      */
     ModelAdapter<ModelClass> mModelAdapter;
 
-    ContainerAdapter<ModelClass> mContainerAdapter;
+    ModelContainerAdapter<ModelClass> mModelContainerAdapter;
 
     /**
      * The data thats stored in the container
@@ -29,8 +29,8 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     public BaseModelContainer(Class<ModelClass> table) {
         mModelAdapter = FlowManager.getModelAdapter(table);
-        mContainerAdapter = FlowManager.getContainerAdapter(table);
-        if (mContainerAdapter == null) {
+        mModelContainerAdapter = FlowManager.getContainerAdapter(table);
+        if (mModelContainerAdapter == null) {
             throw new InvalidDBConfiguration("The table" + FlowManager.getTableName(table) + " did not specify the ContainerAdapter" +
                     "annotation. Please add and rebuild");
         }
@@ -44,7 +44,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     @Override
     public ModelClass toModel() {
         if (mModel == null && mData != null) {
-            mModel = mContainerAdapter.toModel(this);
+            mModel = mModelContainerAdapter.toModel(this);
         }
 
         return mModel;
@@ -78,9 +78,9 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @SuppressWarnings("unchecked")
     protected Object getModelValue(Object inValue, String columnName) {
-        ContainerAdapter<? extends Model> containerAdapter = FlowManager.getContainerAdapter(getTable());
-        Class<? extends Model> columnClass = (Class<? extends Model>) containerAdapter.getClassForColumn(columnName);
-        ContainerAdapter<? extends Model> columnAdapter = FlowManager.getContainerAdapter(columnClass);
+        ModelContainerAdapter<? extends Model> modelContainerAdapter = FlowManager.getContainerAdapter(getTable());
+        Class<? extends Model> columnClass = (Class<? extends Model>) modelContainerAdapter.getClassForColumn(columnName);
+        ModelContainerAdapter<? extends Model> columnAdapter = FlowManager.getContainerAdapter(columnClass);
         if (columnAdapter != null) {
             inValue = columnAdapter.toModel(getInstance(inValue, columnClass));
         } else {
@@ -123,26 +123,26 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public void save() {
-        mContainerAdapter.save(this);
+        mModelContainerAdapter.save(this);
     }
 
     @Override
     public void delete() {
-        mContainerAdapter.delete(this);
+        mModelContainerAdapter.delete(this);
     }
 
     @Override
     public void update() {
-        mContainerAdapter.update(this);
+        mModelContainerAdapter.update(this);
     }
 
     @Override
     public void insert() {
-        mContainerAdapter.insert(this);
+        mModelContainerAdapter.insert(this);
     }
 
     @Override
     public boolean exists() {
-        return mContainerAdapter.exists(this);
+        return mModelContainerAdapter.exists(this);
     }
 }

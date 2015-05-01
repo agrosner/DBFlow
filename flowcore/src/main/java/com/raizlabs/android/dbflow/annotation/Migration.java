@@ -23,6 +23,6 @@ public @interface Migration {
      * @return Specify the database name that this migration belongs to. By default it will reference the main Db if only
      * one DB is specified.
      */
-    String databaseName() default "";
+    String databaseName();
 
 }

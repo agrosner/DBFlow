@@ -25,6 +25,8 @@ public class Classes {
 
     public static final String MODEL_ADAPTER = STRUCTURE + "ModelAdapter";
 
+    public static final String QUERY_MODEL_ADAPTER = STRUCTURE + "QueryModelAdapter";
+
     public static final String MODEL_CONTAINER = CONTAINER + "ModelContainer";
 
     public static final String MODEL = STRUCTURE + "Model";
@@ -47,7 +49,7 @@ public class Classes {
 
     public static final String UPDATE = SQL + "language.Update";
 
-    public static final String CONTAINER_ADAPTER = CONTAINER + "ContainerAdapter";
+    public static final String CONTAINER_ADAPTER = CONTAINER + "ModelContainerAdapter";
 
     public static final String MODEL_CONTAINER_UTILS = CONTAINER + "ModelContainerUtils";
 

@@ -79,7 +79,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
                 .where(FlowManager.getPrimaryWhereQuery(getTable()).replaceEmptyParams(primaryKeys)).limit(1).query();
 
         if(cursor != null && cursor.moveToFirst()) {
-            mContainerAdapter.loadFromCursor(cursor, this);
+            mModelContainerAdapter.loadFromCursor(cursor, this);
             cursor.close();
         }
     }

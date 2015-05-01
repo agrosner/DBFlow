@@ -14,7 +14,7 @@ import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
  * Description:
  */
 @TableEndpoint(value = ContentProviderModel.NAME, contentProviderName = "ContentDatabase")
-@Table(databaseName = ContentDatabase.NAME, value = ContentProviderModel.NAME)
+@Table(databaseName = ContentDatabase.NAME, tableName = ContentProviderModel.NAME)
 public class ContentProviderModel extends BaseProviderModel<ContentProviderModel> {
 
     public static final String NAME = "ContentProviderModel";

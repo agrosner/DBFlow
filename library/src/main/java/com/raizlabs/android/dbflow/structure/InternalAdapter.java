@@ -4,10 +4,11 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 
 /**
  * Description: Used for our internal Adapter classes such as generated {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
- * or {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter}
+ * or {@link ModelContainerAdapter}
  */
 public interface InternalAdapter<TableClass extends Model, ModelClass extends Model> {
 

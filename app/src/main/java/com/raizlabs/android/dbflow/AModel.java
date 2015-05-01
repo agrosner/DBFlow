@@ -13,7 +13,7 @@ import java.util.Date;
 /**
  * Description:
  */
-@Table
+@Table(databaseName = AppDatabase.NAME)
 @ModelContainer
 public class AModel extends BaseModel {
 

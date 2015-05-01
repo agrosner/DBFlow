@@ -22,16 +22,16 @@ public class DatabaseHandler extends BaseContainerHandler<Database> {
     public static final Set<Modifier> METHOD_MODIFIERS = Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL);
     public static final Set<Modifier> METHOD_MODIFIERS_STATIC = Sets.newHashSet(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
 
-    public static final String MODEL_FIELD_NAME = "mModels";
-    public static final String MODEL_ADAPTER_MAP_FIELD_NAME = "mModelAdapters";
-    public static final String MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME = "mModelContainerAdapters";
-    public static final String TYPE_CONVERTER_MAP_FIELD_NAME = "mTypeConverters";
-    public static final String MODEL_VIEW_FIELD_NAME = "mModelViews";
-    public static final String MIGRATION_FIELD_NAME = "mMigrationMap";
+    public static final String MODEL_FIELD_NAME = "models";
+    public static final String MODEL_ADAPTER_MAP_FIELD_NAME = "modelAdapters";
+    public static final String MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME = "modelContainerAdapters";
+    public static final String TYPE_CONVERTER_MAP_FIELD_NAME = "typeConverters";
+    public static final String MODEL_VIEW_FIELD_NAME = "modelViews";
+    public static final String MIGRATION_FIELD_NAME = "migrationMap";
 
-    public static final String MODEL_VIEW_ADAPTER_MAP_FIELD_NAME = "mModelViewAdapterMap";
+    public static final String MODEL_VIEW_ADAPTER_MAP_FIELD_NAME = "modelViewAdapterMap";
 
-    public static final String MODEL_NAME_MAP = "mModelTableNames";
+    public static final String MODEL_NAME_MAP = "modelTableNames";
 
     @Override
     protected Class<Database> getAnnotationClass() {

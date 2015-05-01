@@ -16,14 +16,14 @@ import java.lang.annotation.Target;
 public @interface Table {
 
     /**
-     * @return Specifies a different name for the table
+     * @return Specifies a different name for the table than the name of the Model class.
      */
-    String value() default "";
+    String tableName() default "";
 
     /**
      * @return Specify the database name that this table belongs to. By default it will reference the main Db.
      */
-    String databaseName() default "";
+    String databaseName();
 
     /**
      * @return Specify the general conflict algorithm used by this table when updating records.

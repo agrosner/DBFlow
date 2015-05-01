@@ -56,15 +56,11 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
         ModelView modelView = element.getAnnotation(ModelView.class);
         this.query = modelView.query();
         this.databaseName = modelView.databaseName();
-        if (databaseName == null || databaseName.isEmpty()) {
-            databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
-        }
 
         databaseWriter = manager.getDatabaseWriter(databaseName);
         this.viewTableName = getModelClassName() + databaseWriter.classSeparator + TABLE_VIEW_TAG;
 
         setDefinitionClassName(databaseWriter.classSeparator + DBFLOW_MODEL_VIEW_TAG);
-
 
         this.name = modelView.name();
         if (name == null || name.isEmpty()) {

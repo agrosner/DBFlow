@@ -6,10 +6,10 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 
 /**
- * Description: The base class that generated {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter} implement
+ * Description: The base class that generated {@link ModelContainerAdapter} implement
  * to provide the necessary interactions.
  */
-public abstract class ContainerAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>>, RetrievalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
+public abstract class ModelContainerAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>>, RetrievalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
 
     /**
      * Saves the container to the DB.

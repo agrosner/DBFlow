@@ -8,13 +8,11 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.Classes;
-import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.writer.CreationQueryWriter;
-import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
@@ -83,11 +81,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         super(element, manager);
 
         Table table = element.getAnnotation(Table.class);
-        this.tableName = table.value();
+        this.tableName = table.tableName();
         databaseName = table.databaseName();
-        if (databaseName == null || databaseName.isEmpty()) {
-            databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
-        }
 
         databaseWriter = manager.getDatabaseWriter(databaseName);
         if (databaseWriter == null) {
@@ -135,7 +130,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         }
 
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                Classes.LOAD_FROM_CURSOR_LISTENER, (TypeElement) element);
+                                                                          Classes.LOAD_FROM_CURSOR_LISTENER,
+                                                                          (TypeElement) element);
 
         implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
                 Classes.CONTENT_VALUES_LISTENER, (TypeElement) element);

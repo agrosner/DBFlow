@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
+import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.builder.MockConditionQueryBuilder;
 import com.raizlabs.android.dbflow.processor.model.writer.ColumnAccessModel;
@@ -50,15 +51,16 @@ public class WhereQueryWriter implements FlowWriter {
                                     conditionQueryBuilder.append(",");
                                 }
                             }
-                        } else if (!(tableDefinition instanceof ModelViewDefinition)) {
+                        } else if (!(tableDefinition instanceof ModelViewDefinition) && !(tableDefinition instanceof QueryModelDefinition)) {
                             ColumnDefinition autoIncrementDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
                             ColumnAccessModel accessModel = new ColumnAccessModel(tableDefinition.getManager(), autoIncrementDefinition,
                                                                                   isModelContainerAdapter);
                             if (autoIncrementDefinition != null) {
                                 conditionQueryBuilder
-                                        .appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(),
-                                                                                        autoIncrementDefinition.columnName),
-                                                                          accessModel.getQueryNoCast());
+                                        .appendMockCondition(
+                                                ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(),
+                                                                           autoIncrementDefinition.columnName),
+                                                accessModel.getQueryNoCast());
                             }
                         }
                         conditionQueryBuilder.appendEndCreation();
@@ -70,7 +72,8 @@ public class WhereQueryWriter implements FlowWriter {
                 ModelUtils.getVariable(isModelContainerAdapter));
 
         // Don't write empty statement for Model Container
-        if (!isModelContainerAdapter && !(tableDefinition instanceof ModelViewDefinition)) {
+        if (!isModelContainerAdapter && !(tableDefinition instanceof ModelViewDefinition)
+            && !(tableDefinition instanceof QueryModelDefinition)) {
             final TableDefinition definition = ((TableDefinition) tableDefinition);
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                 @Override

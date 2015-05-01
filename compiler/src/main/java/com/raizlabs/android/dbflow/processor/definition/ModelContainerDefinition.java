@@ -58,19 +58,19 @@ public class ModelContainerDefinition extends BaseDefinition {
 
     @Override
     protected String getExtendsClass() {
-        return "ContainerAdapter<" + elementClassName + ">";
+        return "ModelContainerAdapter<" + elementClassName + ">";
     }
 
     @Override
     public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
 
-        javaWriter.emitField("Map<String, Class<?>>", "mColumnMap", Sets.newHashSet(Modifier.PRIVATE, Modifier.FINAL), "new HashMap<>()");
+        javaWriter.emitField("Map<String, Class<?>>", "columnMap", Sets.newHashSet(Modifier.PRIVATE, Modifier.FINAL), "new HashMap<>()");
         javaWriter.emitEmptyLine();
 
         javaWriter.beginConstructor(Sets.newHashSet(Modifier.PUBLIC));
 
         for(ColumnDefinition columnDefinition: tableDefinition.columnDefinitions) {
-            javaWriter.emitStatement("%1s.put(\"%1s\", %1s.class)", "mColumnMap", columnDefinition.columnName, columnDefinition.columnFieldType);
+            javaWriter.emitStatement("%1s.put(\"%1s\", %1s.class)", "columnMap", columnDefinition.columnName, columnDefinition.columnFieldType);
         }
 
         javaWriter.endConstructor();
@@ -80,7 +80,7 @@ public class ModelContainerDefinition extends BaseDefinition {
         WriterUtils.emitMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s.get(%1s)", "mColumnMap", "columnName");
+                javaWriter.emitStatement("return %1s.get(%1s)", "columnMap", "columnName");
             }
         }, "Class<?>", "getClassForColumn", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "String", "columnName");
 
