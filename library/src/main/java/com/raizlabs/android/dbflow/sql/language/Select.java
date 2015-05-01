@@ -59,6 +59,20 @@ public class Select implements Query {
     }
 
     /**
+     * Creates this instance with the specified column aliases
+     *
+     * @param columns A set of column aliases that we use in our query.
+     */
+    public Select(ColumnAlias... columns) {
+        this.rawColumns = new String[columns == null ? 0 : columns.length];
+        if (columns != null) {
+            for (int i = 0; i < this.rawColumns.length; i++) {
+                this.rawColumns[i] = columns[i].getQuery();
+            }
+        }
+    }
+
+    /**
      * Attach columns you don't want to quote such as AVG(`Salary`)
      *
      * @param rawColumns The column names that are unquoted.
@@ -170,11 +184,11 @@ public class Select implements Query {
         boolean hasColumns = (columns != null && columns.length > 0);
         boolean hasRawColumns = (rawColumns != null && rawColumns.length > 0);
         if (hasColumns || hasRawColumns) {
-            if(hasColumns) {
+            if (hasColumns) {
                 queryBuilder.appendQuotedArray(columns);
             }
-            if(hasRawColumns) {
-                if(hasColumns) {
+            if (hasRawColumns) {
+                if (hasColumns) {
                     queryBuilder.append(", ");
                 }
                 queryBuilder.appendArray(rawColumns);
