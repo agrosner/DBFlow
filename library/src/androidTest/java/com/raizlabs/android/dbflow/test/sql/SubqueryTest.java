@@ -22,5 +22,20 @@ public class SubqueryTest extends FlowTestCase {
         assertEquals(
                 "SELECT * FROM `BoxedModel` WHERE EXISTS (SELECT * FROM `BoxedModel` WHERE `integerField`=integerFieldNotNull)",
                 query.trim());
+
+        query = new Select()
+                .from(BoxedModel.class)
+                .where(Condition.column(BoxedModel$Table.INTEGERFIELD)
+                               .operation(Condition.Operation.GREATER_THAN)
+                               .subQuery(
+                                       new Select().avg(BoxedModel$Table.INTEGERFIELD).from(BoxedModel.class)
+                                               .where(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD)
+                                                              .eq("BoxedModel." + BoxedModel$Table.INTEGERFIELD))))
+                .getQuery();
+
+        assertEquals(
+                "SELECT * FROM `BoxedModel` WHERE `integerField`>" +
+                    "(SELECT AVG(`integerField`)  FROM `BoxedModel` WHERE `integerField`=BoxedModel.integerField)",
+                query.trim());
     }
 }
