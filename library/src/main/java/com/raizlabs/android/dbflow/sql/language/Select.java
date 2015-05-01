@@ -50,13 +50,27 @@ public class Select implements Query {
     private String mColumnName;
 
     /**
+     * The operator used when this is a subquery.
+     */
+    private String outerQueryOperator;
+
+    private Where baseWhere;
+
+    /**
+     * Empty constructor since other constructors have different vargs.
+     */
+    public Select() {
+        columns = null;
+    }
+
+    /**
      * Creates this instance with the specified columns from the specified {@link com.raizlabs.android.dbflow.config.FlowManager}
      *
      * @param columns Quoted column names.
      */
     public Select(String... columns) {
         this.columns = new ColumnAlias[columns == null ? 0 : columns.length];
-        if(columns != null) {
+        if (columns != null) {
             for (int i = 0; i < this.columns.length; i++) {
                 this.columns[i] = ColumnAlias.column(columns[i]);
             }
@@ -73,7 +87,31 @@ public class Select implements Query {
     }
 
     /**
-     * Attach columns you don't want to quote such as AVG(`Salary`)
+     * Constructs a SELECT as part of a subquery.
+     *
+     * @param baseWhere The base WHERE clause where it comes from. This is appended before this query.
+     * @param operator  The operator to use to append the outer query to this inner SELECT.
+     */
+    Select(Where baseWhere, String operator, ColumnAlias...columns) {
+        this(columns);
+        this.baseWhere = baseWhere;
+        this.outerQueryOperator = operator;
+    }
+
+    /**
+     * Constructs a SELECT as part of a subquery.
+     *
+     * @param baseWhere The base WHERE clause where it comes from. This is appended before this query.
+     * @param operator  The operator to use to append the outer query to this inner SELECT.
+     */
+    Select(Where baseWhere, String operator, String...columns) {
+        this(columns);
+        this.baseWhere = baseWhere;
+        this.outerQueryOperator = operator;
+    }
+
+    /**
+     * Attach columns you don't want to quote or have custom string.
      *
      * @param rawColumns The column names that are unquoted.
      * @return This instance.
@@ -165,9 +203,22 @@ public class Select implements Query {
         return method("SUM", columnName);
     }
 
+    boolean isASubQuery() {
+        return baseWhere != null;
+    }
+
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder();
+
+        // sub query needs parenthesis
+        if (isASubQuery()) {
+            queryBuilder.append(baseWhere.getQuery());
+            if (outerQueryOperator != null) {
+                queryBuilder.appendSpaceSeparated(outerQueryOperator);
+            }
+            queryBuilder.append("(");
+        }
         queryBuilder.append("SELECT").appendSpace();
 
         if (mSelectQualifier != NONE) {

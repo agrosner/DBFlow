@@ -10,13 +10,13 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
-import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -183,7 +183,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @param columns The columns to groupby
      * @return
      */
-    public Where<ModelClass> groupBy(String...columns) {
+    public Where<ModelClass> groupBy(String... columns) {
         mGroupBy = new QueryBuilder().appendArray(columns).getQuery();
         return this;
     }
@@ -243,6 +243,10 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
         return this;
     }
 
+    public <SubQueryClass extends Model> Select subQuery() {
+        return new Select();
+    }
+
     /**
      * Executes a SQL statement that retrieves the count of results in the DB.
      *
@@ -261,6 +265,10 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     @Override
     public String getQuery() {
         String fromQuery = mWhereBase.getQuery();
+        boolean isSubQuery = false;
+        if (mWhereBase.getQueryBuilderBase() instanceof Select) {
+            isSubQuery = ((Select) mWhereBase.getQueryBuilderBase()).isASubQuery();
+        }
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery);
 
         queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
@@ -269,6 +277,10 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
                 .appendQualifier("ORDER BY", mOrderBy)
                 .appendQualifier("LIMIT", mLimit)
                 .appendQualifier("OFFSET", mOffset);
+        // need to close up parenthesis of subquery.
+        if (isSubQuery) {
+            queryBuilder.append(")");
+        }
 
         // Don't wast time building the string
         // unless we're going to log it.
