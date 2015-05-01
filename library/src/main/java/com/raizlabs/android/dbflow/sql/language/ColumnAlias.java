@@ -48,4 +48,9 @@ public class ColumnAlias implements Query {
         }
         return queryBuilder.getQuery();
     }
+
+    @Override
+    public String toString() {
+        return getQuery();
+    }
 }
