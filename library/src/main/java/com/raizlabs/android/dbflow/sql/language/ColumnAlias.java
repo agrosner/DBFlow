@@ -12,15 +12,23 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 public class ColumnAlias implements Query {
 
     /**
-     * @param columnName The name of the column that will use an alias in a query.
+     * @param columnName The name of the column that might have an alias in a query.
      * @return A new instance.
      */
     public static ColumnAlias column(String columnName) {
         return new ColumnAlias(columnName);
     }
 
-    private final String columnName;
+    /**
+     * @param columnName The name of the column that we use that we don't append as quoted.
+     * @return A new instance.
+     */
+    public static ColumnAlias columnRaw(String columnName) {
+        return new ColumnAlias(columnName).shouldQuoteColumnName(false);
+    }
 
+    private final String columnName;
+    private boolean shouldQuote = true;
     private String asName;
 
     private ColumnAlias(String columnName) {
@@ -38,10 +46,23 @@ public class ColumnAlias implements Query {
         return this;
     }
 
+    /**
+     * @param shouldQuote if false, ticks won't be appended to column names.
+     * @return This instance.
+     */
+    public ColumnAlias shouldQuoteColumnName(boolean shouldQuote) {
+        this.shouldQuote = shouldQuote;
+        return this;
+    }
+
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder();
-        queryBuilder.appendQuoted(columnName);
+        if(shouldQuote) {
+            queryBuilder.appendQuoted(columnName);
+        } else {
+            queryBuilder.append(columnName);
+        }
         if (!TextUtils.isEmpty(asName)) {
             queryBuilder.appendSpaceSeparated("AS")
                     .appendQuoted(asName);

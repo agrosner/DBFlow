@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -21,27 +22,27 @@ public class Condition {
     /**
      * The operation such as "=", "<", and more
      */
-    protected String mOperation = "";
+    protected String operation = "";
 
     /**
      * The value of the column we care about
      */
-    protected Object mValue;
+    protected Object value;
 
     /**
      * The column name
      */
-    protected String mColumn;
+    protected ColumnAlias columnAlias;
 
     /**
      * A custom SQL statement after the value of the Condition
      */
-    protected String mPostArgument;
+    protected String postArg;
 
     /**
      * An optional separator to use when chaining these together
      */
-    protected String mSeparator;
+    protected String separator;
 
     /**
      * If it is a raw condition, we will not attempt to escape or convert the values.
@@ -49,20 +50,15 @@ public class Condition {
     protected boolean isRaw = false;
 
     /**
-     * If true, columns should be quoted.
-     */
-    private boolean shouldQuoteColumn = true;
-
-    /**
      * Creates a new instance
      *
-     * @param columnName The name of the column in the DB
+     * @param columnAlias The name of the column in the DB
      */
-    private Condition(String columnName) {
-        if (columnName == null) {
-            throw new IllegalArgumentException("Column " + columnName + " cannot be null");
+    private Condition(ColumnAlias columnAlias) {
+        if (columnAlias == null) {
+            throw new IllegalArgumentException("Column cannot be null");
         }
-        mColumn = columnName;
+        this.columnAlias = columnAlias;
     }
 
     /**
@@ -79,16 +75,11 @@ public class Condition {
     }
 
     public static Condition column(String columnName) {
-        return new Condition(columnName);
+        return new Condition(ColumnAlias.column(columnName));
     }
 
     public static Condition exists() {
-        return new Condition("EXISTS ").shouldQuoteColumn(false);
-    }
-
-    private Condition shouldQuoteColumn(boolean shouldQuote) {
-        this.shouldQuoteColumn = shouldQuote;
-        return this;
+        return new Condition(ColumnAlias.columnRaw("EXISTS "));
     }
 
     /**
@@ -100,7 +91,7 @@ public class Condition {
      * @return This condition
      */
     public Condition is(Object value) {
-        mOperation = Operation.EQUALS;
+        operation = Operation.EQUALS;
         return value(value);
     }
 
@@ -123,7 +114,7 @@ public class Condition {
      * @return This condition
      */
     public Condition isNot(Object value) {
-        mOperation = Operation.NOT_EQUALS;
+        operation = Operation.NOT_EQUALS;
         return value(value);
     }
 
@@ -138,7 +129,7 @@ public class Condition {
      * @return This condition
      */
     public Condition like(String likeRegex) {
-        mOperation = String.format(" %1s ", Operation.LIKE);
+        operation = String.format(" %1s ", Operation.LIKE);
         return value(likeRegex);
     }
 
@@ -153,7 +144,7 @@ public class Condition {
      * @return This condition
      */
     public Condition glob(String globRegex) {
-        mOperation = String.format(" %1s ", Operation.GLOB);
+        operation = String.format(" %1s ", Operation.GLOB);
         return value(globRegex);
     }
 
@@ -164,7 +155,7 @@ public class Condition {
      * @return This condition
      */
     public Condition value(Object value) {
-        mValue = value;
+        this.value = value;
         return this;
     }
 
@@ -175,7 +166,7 @@ public class Condition {
      * @return This condition
      */
     public Condition greaterThan(Object value) {
-        mOperation = Operation.GREATER_THAN;
+        operation = Operation.GREATER_THAN;
         return value(value);
     }
 
@@ -186,7 +177,7 @@ public class Condition {
      * @return This condition
      */
     public Condition lessThan(Object value) {
-        mOperation = Operation.LESS_THAN;
+        operation = Operation.LESS_THAN;
         return value(value);
     }
 
@@ -197,19 +188,19 @@ public class Condition {
      * @return This condition
      */
     public Condition operation(String operation) {
-        mOperation = operation;
+        this.operation = operation;
         return this;
     }
 
     /**
      * Makes this condition a subquery.
      *
-     * @param select The select statement to use.
+     * @param where The WHERE statement to use.
      * @return This condition.
      */
     public Condition subQuery(Where where) {
         isRaw = true;
-        mValue = String.format("(%1s)", where.getQuery().trim());
+        value = String.format("(%1s)", where.getQuery().trim());
         return this;
     }
 
@@ -220,7 +211,7 @@ public class Condition {
      * @return This condition.
      */
     public Condition collate(String collation) {
-        mPostArgument = "COLLATE " + collation;
+        postArg = "COLLATE " + collation;
         return this;
     }
 
@@ -232,7 +223,7 @@ public class Condition {
      */
     public Condition collate(Collate collation) {
         if (collation.equals(Collate.NONE)) {
-            mPostArgument = null;
+            postArg = null;
         } else {
             collate(collation.name());
         }
@@ -247,7 +238,7 @@ public class Condition {
      * @return
      */
     public Condition postfix(String postfix) {
-        mPostArgument = postfix;
+        postArg = postfix;
         return this;
     }
 
@@ -257,7 +248,7 @@ public class Condition {
      * @return
      */
     public Condition isNull() {
-        mOperation = String.format(" %1s ", Operation.IS_NULL);
+        operation = String.format(" %1s ", Operation.IS_NULL);
         return this;
     }
 
@@ -267,7 +258,7 @@ public class Condition {
      * @return
      */
     public Condition isNotNull() {
-        mOperation = String.format(" %1s ", Operation.IS_NOT_NULL);
+        operation = String.format(" %1s ", Operation.IS_NOT_NULL);
         return this;
     }
 
@@ -278,7 +269,7 @@ public class Condition {
      * @return This instance
      */
     public Condition separator(String separator) {
-        mSeparator = separator;
+        this.separator = separator;
         return this;
     }
 
@@ -291,7 +282,7 @@ public class Condition {
      */
     @SuppressWarnings("unchecked")
     public Condition concatenateToColumn(Object value) {
-        mOperation = new QueryBuilder(Operation.EQUALS).appendQuoted(mColumn).toString();
+        operation = new QueryBuilder(Operation.EQUALS).append(columnName()).toString();
         if (value != null && !isRaw) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
@@ -299,14 +290,14 @@ public class Condition {
             }
         }
         if (value instanceof String) {
-            mOperation = String.format("%1s %1s ", mOperation, Operation.CONCATENATE);
+            operation = String.format("%1s %1s ", operation, Operation.CONCATENATE);
         } else if (value instanceof Number) {
-            mOperation = String.format("%1s %1s ", mOperation, Operation.PLUS);
+            operation = String.format("%1s %1s ", operation, Operation.PLUS);
         } else {
             throw new IllegalArgumentException(
                     String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
         }
-        mValue = value;
+        this.value = value;
         return this;
     }
 
@@ -346,39 +337,39 @@ public class Condition {
      * @return the operator such as "<", "<", or "="
      */
     public String operation() {
-        return mOperation;
+        return operation;
     }
 
     /**
      * @return the value of the argument
      */
     public Object value() {
-        return mValue;
+        return value;
     }
 
     /**
      * @return the column name
      */
     public String columnName() {
-        return mColumn;
+        return columnAlias.getQuery();
     }
 
     /**
      * @return An optional post argument for this condition
      */
     public String postArgument() {
-        return mPostArgument;
+        return postArg;
     }
 
     public String separator() {
-        return mSeparator;
+        return separator;
     }
 
     /**
      * @return true if has a separator defined for this condition.
      */
     public boolean hasSeparator() {
-        return mSeparator != null && (mSeparator.length() > 0);
+        return separator != null && (separator.length() > 0);
     }
 
     /**
@@ -388,12 +379,7 @@ public class Condition {
      */
     public <ModelClass extends Model> void appendConditionToQuery(
             ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        if (shouldQuoteColumn) {
-            conditionQueryBuilder.appendQuoted(columnName());
-        } else {
-            conditionQueryBuilder.append(columnName());
-        }
-        conditionQueryBuilder.append(operation());
+        conditionQueryBuilder.append(columnName()).append(operation());
 
         // Do not use value for these operators, we do not want to convert the value to a string.
         if (!Operation.IS_NOT_NULL.equals(operation().trim()) && !Operation.IS_NULL.equals(operation().trim())) {
@@ -411,17 +397,19 @@ public class Condition {
      * @param queryBuilder
      */
     public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-        if (shouldQuoteColumn) {
-            queryBuilder.appendQuoted(columnName());
-        } else {
-            queryBuilder.append(columnName());
-        }
-
+        queryBuilder.append(columnName());
         queryBuilder.append(operation())
                 .append(value());
         if (postArgument() != null) {
             queryBuilder.appendSpace().append(postArgument());
         }
+    }
+
+    /**
+     * @return internal alias used for subclasses.
+     */
+    private ColumnAlias columnAlias() {
+        return columnAlias;
     }
 
     /**
@@ -535,10 +523,10 @@ public class Condition {
          * @param value     The value of the first argument of the BETWEEN clause
          */
         private Between(Condition condition, Object value) {
-            super(condition.columnName());
-            this.mOperation = String.format(" %1s ", Operation.BETWEEN);
-            this.mValue = value;
-            this.mPostArgument = condition.postArgument();
+            super(condition.columnAlias());
+            this.operation = String.format(" %1s ", Operation.BETWEEN);
+            this.value = value;
+            this.postArg = condition.postArgument();
         }
 
         public Between and(Object secondValue) {
@@ -553,7 +541,7 @@ public class Condition {
         @Override
         public <ModelClass extends Model> void appendConditionToQuery(
                 ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-            conditionQueryBuilder.appendQuoted(columnName()).append(operation())
+            conditionQueryBuilder.append(columnName()).append(operation())
                     .append(conditionQueryBuilder.convertValueToString(value()))
                     .appendSpaceSeparated("AND")
                     .append(conditionQueryBuilder.convertValueToString(secondValue()))
@@ -562,7 +550,7 @@ public class Condition {
 
         @Override
         public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-            queryBuilder.appendQuoted(columnName()).append(operation())
+            queryBuilder.append(columnName()).append(operation())
                     .append((value()))
                     .appendSpaceSeparated(Operation.AND)
                     .append(secondValue())
@@ -587,10 +575,10 @@ public class Condition {
          *                      statement or a {@link com.raizlabs.android.dbflow.sql.builder.Condition.Operation#NOT_IN}
          */
         private In(Condition condition, Object firstArgument, boolean isIn, Object... arguments) {
-            super(condition.columnName());
+            super(condition.columnAlias());
             mArguments.add(firstArgument);
             Collections.addAll(mArguments, arguments);
-            mOperation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
+            operation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
         }
 
         /**
@@ -608,14 +596,14 @@ public class Condition {
         @Override
         public <ModelClass extends Model> void appendConditionToQuery(
                 ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-            conditionQueryBuilder.appendQuoted(columnName()).append(operation())
+            conditionQueryBuilder.append(columnName()).append(operation())
                     .append("(").appendArgumentList(mArguments).append(")");
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-            queryBuilder.appendQuoted(columnName()).append(operation())
+            queryBuilder.append(columnName()).append(operation())
                     .append("(").appendList(mArguments).append(")");
         }
     }
