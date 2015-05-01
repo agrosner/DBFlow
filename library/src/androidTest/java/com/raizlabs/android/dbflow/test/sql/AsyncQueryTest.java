@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.structure.AsyncModel;
+import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
@@ -18,7 +19,7 @@ import com.raizlabs.android.dbflow.test.utils.OneShotLock;
 public class AsyncQueryTest extends FlowTestCase {
 
     public void testAsyncQuery() {
-        final TestModel1 testModel1 = new TestModel1();
+        TestModel1 testModel1 = new TestModel1();
         testModel1.name = "Async";
         testModel1.save();
 
@@ -43,8 +44,8 @@ public class AsyncQueryTest extends FlowTestCase {
 
         testModel1.async().withListener(new AsyncModel.OnModelChangedListener() {
             @Override
-            public void onModelChanged() {
-                assertFalse(testModel1.exists());
+            public void onModelChanged(Model model) {
+                assertFalse(model.exists());
             }
         }).delete();
 

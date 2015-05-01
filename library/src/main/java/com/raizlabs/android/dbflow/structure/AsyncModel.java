@@ -25,7 +25,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
         /**
          * Called when the change finishes on the {@link DBTransactionQueue}. This method is called on the UI thread.
          */
-        void onModelChanged();
+        void onModelChanged(Model model);
     }
 
     private ModelClass model;
@@ -89,7 +89,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
         @Override
         public void onResultReceived(List<ModelClass> result) {
             if (onModelChangedListener != null) {
-                onModelChangedListener.onModelChanged();
+                onModelChangedListener.onModelChanged(model);
             }
         }
 
