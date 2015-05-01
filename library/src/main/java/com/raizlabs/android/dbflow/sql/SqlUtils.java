@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
-import android.support.annotation.IntDef;
 
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -14,8 +13,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-import com.raizlabs.android.dbflow.structure.BaseModelView;
-import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -90,19 +87,13 @@ public class SqlUtils {
      *
      * @param table        The model class that we convert the cursor data into.
      * @param cursor       The cursor from the DB
-     * @param <ModelClass>
-     * @return
+     * @param <ModelClass> The class that implements {@link Model}
+     * @return An non-null {@link List}
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
         final List<ModelClass> entities = new ArrayList<>();
-        InstanceAdapter modelAdapter = FlowManager.getModelAdapter(table);
-
-        if (modelAdapter == null) {
-            if (BaseModelView.class.isAssignableFrom(table)) {
-                modelAdapter = FlowManager.getModelViewAdapter((Class<? extends BaseModelView<? extends Model>>) table);
-            }
-        }
+        InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
         if (modelAdapter != null) {
             // Ensure that we aren't iterating over this cursor concurrently from different threads
             synchronized (cursor) {
@@ -134,16 +125,7 @@ public class SqlUtils {
                                                                        Cursor cursor) {
         ModelClass model = null;
         if (dontMoveToFirst || cursor.moveToFirst()) {
-            InstanceAdapter modelAdapter = FlowManager.getModelAdapter(table);
-            if (modelAdapter == null) {
-                if (BaseModelView.class.isAssignableFrom(table)) {
-                    modelAdapter = FlowManager.getModelViewAdapter(
-                            (Class<? extends BaseModelView<? extends Model>>) table);
-                } else if(BaseQueryModel.class.isAssignableFrom(table)) {
-                    modelAdapter = FlowManager.getQueryModelAdapter(
-                            (Class<? extends BaseQueryModel>) table);
-                }
-            }
+            InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
 
             if (modelAdapter != null) {
                 model = (ModelClass) modelAdapter.newInstance();
@@ -272,8 +254,10 @@ public class SqlUtils {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
-                adapter.getPrimaryModelWhere(model).getQuery(), null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0);
+                                                                adapter.getPrimaryModelWhere(model).getQuery(), null,
+                                                                ConflictAction.getSQLiteDatabaseAlgorithmInt(
+                                                                        modelAdapter.getUpdateOnConflictAction())) !=
+                  0);
         if (!exists) {
             // insert
             insert(model, adapter, modelAdapter);
@@ -310,7 +294,8 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void delete(final TableClass model, AdapterClass modelAdapter) {
-        new Delete().from((Class<TableClass>) modelAdapter.getModelClass()).where(modelAdapter.getPrimaryModelWhere(model)).query();
+        new Delete().from((Class<TableClass>) modelAdapter.getModelClass()).where(
+                modelAdapter.getPrimaryModelWhere(model)).query();
         modelAdapter.updateAutoIncrement(model, 0);
         if (FlowContentObserver.shouldNotify()) {
             notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.DELETE);

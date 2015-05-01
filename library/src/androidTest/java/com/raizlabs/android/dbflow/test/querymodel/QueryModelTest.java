@@ -4,8 +4,10 @@ import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,10 +33,11 @@ public class QueryModelTest extends FlowTestCase {
         salaryModel.department = "Developer";
         salaryModel.save();
 
-        TestQueryModel testQueryModel = new Select(SalaryModel$Table.DEPARTMENT)
+        Where<SalaryModel> selectQuery = new Select(SalaryModel$Table.DEPARTMENT)
                 .rawColumns("`SALARY` as average_salary", "`name` as newName")
-                .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT)
-                .queryCustomSingle(TestQueryModel.class);
+                .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT);
+
+        TestQueryModel testQueryModel = selectQuery.queryCustomSingle(TestQueryModel.class);
 
         assertTrue(testQueryModel.average_salary > 0);
 
@@ -42,6 +45,13 @@ public class QueryModelTest extends FlowTestCase {
 
         assertNotNull(testQueryModel.department);
         assertEquals(testQueryModel.department, "Developer");
+
+        List<TestQueryModel> testQueryModels = selectQuery.queryCustomList(TestQueryModel.class);
+        assertTrue(!testQueryModels.isEmpty());
+
+        TestQueryModel model = testQueryModels.get(0);
+        assertEquals(model, testQueryModel);
+
 
         Delete.tables(SalaryModel.class);
     }

@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
+import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -182,6 +183,27 @@ public class FlowManager {
      */
     public static synchronized void destroy() {
         context = null;
+    }
+
+    /**
+     * @param modelClass The class that implements {@link Model} to find an adapter for.
+     * @return The adapter associated with the class. If its not a {@link ModelAdapter},
+     * it checks both the {@link ModelViewAdapter} and {@link QueryModelAdapter}.
+     */
+    @SuppressWarnings("unchecked")
+    public static InstanceAdapter getInstanceAdapter(Class<? extends Model> modelClass) {
+        InstanceAdapter internalAdapter = getModelAdapter(modelClass);
+        if (internalAdapter == null) {
+            if (BaseModelView.class.isAssignableFrom(modelClass)) {
+                internalAdapter = FlowManager.getModelViewAdapter(
+                        (Class<? extends BaseModelView<? extends Model>>) modelClass);
+            } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
+                internalAdapter = FlowManager.getQueryModelAdapter(
+                        (Class<? extends BaseQueryModel>) modelClass);
+            }
+        }
+
+        return internalAdapter;
     }
 
     /**
