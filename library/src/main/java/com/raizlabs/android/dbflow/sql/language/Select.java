@@ -32,7 +32,7 @@ public class Select implements Query {
     /**
      * Specifies the column names to select from
      */
-    private final String[] columns;
+    private final ColumnAlias[] columns;
 
     /**
      * Specifies column names to select from that don't get quoted.
@@ -55,7 +55,12 @@ public class Select implements Query {
      * @param columns Quoted column names.
      */
     public Select(String... columns) {
-        this.columns = columns;
+        this.columns = new ColumnAlias[columns == null ? 0 : columns.length];
+        if(columns != null) {
+            for (int i = 0; i < this.columns.length; i++) {
+                this.columns[i] = ColumnAlias.column(columns[i]);
+            }
+        }
     }
 
     /**
@@ -64,12 +69,7 @@ public class Select implements Query {
      * @param columns A set of column aliases that we use in our query.
      */
     public Select(ColumnAlias... columns) {
-        this.rawColumns = new String[columns == null ? 0 : columns.length];
-        if (columns != null) {
-            for (int i = 0; i < this.rawColumns.length; i++) {
-                this.rawColumns[i] = columns[i].getQuery();
-            }
-        }
+        this.columns = columns;
     }
 
     /**
