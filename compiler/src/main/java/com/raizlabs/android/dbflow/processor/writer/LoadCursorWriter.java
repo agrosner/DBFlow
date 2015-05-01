@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -66,18 +67,26 @@ public class LoadCursorWriter implements FlowWriter {
             public void write(JavaWriter javaWriter) throws IOException {
 
                 for (ColumnDefinition columnDefinition : baseTableDefinition.getColumnDefinitions()) {
-                    columnDefinition.writeLoadFromCursorDefinition(baseTableDefinition, javaWriter, isModelContainerDefinition);
+                    columnDefinition.writeLoadFromCursorDefinition(baseTableDefinition, javaWriter,
+                                                                   isModelContainerDefinition);
                 }
 
+                // don't use methods here as they result in undefined behavior.
+                if (baseTableDefinition instanceof TableDefinition && !isModelContainerDefinition) {
+                    for (OneToManyDefinition oneToManyDefinition : ((TableDefinition) baseTableDefinition).oneToManyDefinitions) {
+                        oneToManyDefinition.writeLoad(javaWriter);
+                    }
+                }
                 if (implementsLoadFromCursorListener && !isModelContainerDefinition) {
-                    javaWriter.emitStatement("%1s.onLoadFromCursor(%1s)", ModelUtils.getVariable(isModelContainerDefinition),
-                            params[1]);
+                    javaWriter.emitStatement("%1s.onLoadFromCursor(%1s)",
+                                             ModelUtils.getVariable(isModelContainerDefinition),
+                                             params[1]);
                 }
 
             }
         }, "void", "loadFromCursor", Sets.newHashSet(Modifier.PUBLIC), params);
 
-        if(baseTableDefinition instanceof TableDefinition) {
+        if (baseTableDefinition instanceof TableDefinition) {
 
             final TableDefinition tableDefinition = ((TableDefinition) baseTableDefinition);
 
@@ -114,7 +123,8 @@ public class LoadCursorWriter implements FlowWriter {
                         public void write(JavaWriter javaWriter) throws IOException {
                             ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(0);
 
-                            javaWriter.emitStatement("return %1s.%1s", tableDefinition.getTableSourceClassName(), columnDefinition.columnName.toUpperCase());
+                            javaWriter.emitStatement("return %1s.%1s", tableDefinition.getTableSourceClassName(),
+                                                     columnDefinition.columnName.toUpperCase());
                         }
                     }, "String", "getCachingColumnName", Sets.newHashSet(Modifier.PUBLIC));
                 }
@@ -180,7 +190,8 @@ public class LoadCursorWriter implements FlowWriter {
                         public void write(JavaWriter javaWriter) throws IOException {
                             ColumnDefinition columnDefinition = tableDefinition.autoIncrementDefinition;
 
-                            javaWriter.emitStatement("return %1s.%1s", tableDefinition.getTableSourceClassName(), columnDefinition.columnName.toUpperCase());
+                            javaWriter.emitStatement("return %1s.%1s", tableDefinition.getTableSourceClassName(),
+                                                     columnDefinition.columnName.toUpperCase());
                         }
                     }, "String", "getAutoIncrementingColumnName", Sets.newHashSet(Modifier.PUBLIC));
                 }

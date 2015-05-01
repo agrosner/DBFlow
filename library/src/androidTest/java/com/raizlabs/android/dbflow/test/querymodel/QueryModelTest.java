@@ -31,12 +31,10 @@ public class QueryModelTest extends FlowTestCase {
         salaryModel.department = "Developer";
         salaryModel.save();
 
-        Cursor cursor = new Select(SalaryModel$Table.DEPARTMENT)
+        TestQueryModel testQueryModel = new Select(SalaryModel$Table.DEPARTMENT)
                 .rawColumns("`SALARY` as average_salary", "`name` as newName")
-                .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT).query();
-
-        TestQueryModel testQueryModel = new TestQueryModel();
-        testQueryModel.loadFromCursor(cursor);
+                .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT)
+                .queryCustomSingle(TestQueryModel.class);
 
         assertTrue(testQueryModel.average_salary > 0);
 

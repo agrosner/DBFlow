@@ -17,6 +17,7 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<ModelClass extends Model> implements Query, ModelQueriable<ModelClass> {
+public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements Query, ModelQueriable<ModelClass> {
 
     /**
      * The first chunk of the SQL statement before this query.
@@ -71,6 +72,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @param whereBase The FROM or SET statement chunk
      */
     public Where(WhereBase<ModelClass> whereBase) {
+        super(whereBase.getTable());
         mWhereBase = whereBase;
         mManager = FlowManager.getDatabaseForTable(mWhereBase.getTable());
         mConditionQueryBuilder = new ConditionQueryBuilder<>(mWhereBase.getTable());
@@ -328,7 +330,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     @Override
     public List<ModelClass> queryList() {
         checkSelect("query");
-        return SqlUtils.queryList(mWhereBase.getTable(), getQuery());
+        return super.queryList();
     }
 
     protected void checkSelect(String methodName) {
@@ -345,22 +347,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     @Override
     public ModelClass querySingle() {
         checkSelect("query");
-        return SqlUtils.querySingle(mWhereBase.getTable(), getQuery());
-    }
-
-    @Override
-    public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<>(false, this);
-    }
-
-    @Override
-    public FlowQueryList<ModelClass> queryTableList() {
-        return new FlowQueryList<>(this);
-    }
-
-    @Override
-    public AsyncQuery<ModelClass> async() {
-        return new AsyncQuery<>(this, TransactionManager.getInstance());
+        return super.querySingle();
     }
 
     /**
@@ -371,15 +358,5 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     public boolean hasData() {
         checkSelect("query");
         return SqlUtils.hasData(mWhereBase.getTable(), getQuery());
-    }
-
-    @Override
-    public Class<ModelClass> getTable() {
-        return mWhereBase.getTable();
-    }
-
-    @Override
-    public String toString() {
-        return getQuery();
     }
 }

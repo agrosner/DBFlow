@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -17,14 +18,12 @@ import java.util.List;
  * code where this library does not provide. It only runs a
  * {@link android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])}.
  */
-public class StringQuery<ModelClass extends Model> implements Query, ModelQueriable<ModelClass> {
+public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements Query, ModelQueriable<ModelClass> {
 
     /**
      * The full SQLite query to use
      */
     private final String mQuery;
-
-    private final Class<ModelClass> mTable;
 
     /**
      * Creates an instance of this class
@@ -34,8 +33,8 @@ public class StringQuery<ModelClass extends Model> implements Query, ModelQueria
      *              this must be done with {@link android.database.sqlite.SQLiteDatabase#execSQL(String)}
      */
     public StringQuery(Class<ModelClass> table, String sql) {
+        super(table);
         mQuery = sql;
-        mTable = table;
     }
 
     @Override
@@ -45,44 +44,7 @@ public class StringQuery<ModelClass extends Model> implements Query, ModelQueria
 
     @Override
     public Cursor query() {
-        return FlowManager.getDatabaseForTable(mTable).getWritableDatabase().rawQuery(mQuery, null);
+        return FlowManager.getDatabaseForTable(getTable()).getWritableDatabase().rawQuery(mQuery, null);
     }
 
-    @Override
-    public void queryClose() {
-        Cursor query = query();
-        if (query != null) {
-            query.close();
-        }
-    }
-
-    @Override
-    public List<ModelClass> queryList() {
-        return SqlUtils.queryList(mTable, mQuery);
-    }
-
-    @Override
-    public ModelClass querySingle() {
-        return SqlUtils.querySingle(mTable, mQuery);
-    }
-
-    @Override
-    public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<>(false, this);
-    }
-
-    @Override
-    public FlowQueryList<ModelClass> queryTableList() {
-        return new FlowQueryList<>(this);
-    }
-
-    @Override
-    public Class<ModelClass> getTable() {
-        return mTable;
-    }
-
-    @Override
-    public AsyncQuery<ModelClass> async() {
-        return new AsyncQuery<>(this, TransactionManager.getInstance());
-    }
 }

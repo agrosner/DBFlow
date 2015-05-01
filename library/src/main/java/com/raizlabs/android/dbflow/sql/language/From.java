@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Description: The SQL FROM query wrapper that must have a {@link com.raizlabs.android.dbflow.sql.Query} base.
  */
-public class From<ModelClass extends Model> implements WhereBase<ModelClass>, ModelQueriable<ModelClass> {
+public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements WhereBase<ModelClass>, ModelQueriable<ModelClass> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!
@@ -49,6 +49,7 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
      * @param table     The table this corresponds to
      */
     public From(Query querybase, Class<ModelClass> table) {
+        super(table);
         mQueryBuilderBase = querybase;
         mTable = table;
     }
@@ -209,11 +210,6 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
         return queryBuilder.getQuery();
     }
 
-    @Override
-    public Class<ModelClass> getTable() {
-        return mTable;
-    }
-
     /**
      * @return The base query, usually a {@link com.raizlabs.android.dbflow.sql.language.Delete}.
      * {@link com.raizlabs.android.dbflow.sql.language.Select}, or {@link com.raizlabs.android.dbflow.sql.language.Update}
@@ -222,8 +218,4 @@ public class From<ModelClass extends Model> implements WhereBase<ModelClass>, Mo
         return mQueryBuilderBase;
     }
 
-    @Override
-    public AsyncQuery<ModelClass> async() {
-        return new AsyncQuery<>(this, TransactionManager.getInstance());
-    }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
+import com.raizlabs.android.dbflow.processor.writer.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
@@ -40,7 +41,7 @@ public class ModelContainerDefinition extends BaseDefinition {
                 new ExistenceWriter(tableDefinition, true),
                 new WhereQueryWriter(tableDefinition, true),
                 new ToModelWriter(tableDefinition, true),
-                new LoadCursorWriter(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener),
+                new LoadCursorWriter(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener)
         };
     }
 

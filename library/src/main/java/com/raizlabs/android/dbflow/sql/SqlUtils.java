@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
+import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -30,39 +31,6 @@ import java.util.List;
  * methods away from the {@link com.raizlabs.android.dbflow.structure.Model} class and let any class use these.
  */
 public class SqlUtils {
-
-    @Deprecated
-    public
-    @IntDef
-    @interface SaveMode {
-    }
-
-    /**
-     * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
-     * operation as checking to see if the model exists before saving.
-     */
-    public static final
-    @SaveMode
-    @Deprecated
-    int SAVE_MODE_DEFAULT = 0;
-
-    /**
-     * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
-     * operation as updating only without checking for it to exist. This is when we know the data exists.
-     */
-    public static final
-    @SaveMode
-    @Deprecated
-    int SAVE_MODE_UPDATE = 1;
-
-    /**
-     * This marks the {@link #sync(boolean, com.raizlabs.android.dbflow.structure.Model, com.raizlabs.android.dbflow.structure.ModelAdapter, int)}
-     * operation as inserting only without checking for it to exist. This is for when we know the data is new.
-     */
-    public static final
-    @SaveMode
-    @Deprecated
-    int SAVE_MODE_INSERT = 2;
 
     /**
      * Queries the DB for a {@link android.database.Cursor} and converts it into a list.
@@ -171,6 +139,9 @@ public class SqlUtils {
                 if (BaseModelView.class.isAssignableFrom(table)) {
                     modelAdapter = FlowManager.getModelViewAdapter(
                             (Class<? extends BaseModelView<? extends Model>>) table);
+                } else if(BaseQueryModel.class.isAssignableFrom(table)) {
+                    modelAdapter = FlowManager.getQueryModelAdapter(
+                            (Class<? extends BaseQueryModel>) table);
                 }
             }
 

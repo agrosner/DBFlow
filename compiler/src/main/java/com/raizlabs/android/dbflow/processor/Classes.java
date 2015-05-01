@@ -23,6 +23,10 @@ public class Classes {
 
     public static final String LISTENER = STRUCTURE + "listener.";
 
+    public static final String RUNTIME = BASE_PACKAGE + "runtime.";
+
+    public static final String TRANSACTION = RUNTIME + "transaction.";
+
     public static final String MODEL_ADAPTER = STRUCTURE + "ModelAdapter";
 
     public static final String QUERY_MODEL_ADAPTER = STRUCTURE + "QueryModelAdapter";
@@ -53,11 +57,11 @@ public class Classes {
 
     public static final String MODEL_CONTAINER_UTILS = CONTAINER + "ModelContainerUtils";
 
-    public static final String TRANSACTION_MANAGER = BASE_PACKAGE + "runtime.TransactionManager";
+    public static final String TRANSACTION_MANAGER = RUNTIME + "TransactionManager";
 
-    public static final String PROCESS_MODEL_INFO = BASE_PACKAGE + "runtime.transaction.process.ProcessModelInfo";
+    public static final String PROCESS_MODEL_INFO = TRANSACTION + "process.ProcessModelInfo";
 
-    public static final String DBTRANSACTION_INFO = BASE_PACKAGE + "runtime.DBTransactionInfo";
+    public static final String DBTRANSACTION_INFO = RUNTIME + "DBTransactionInfo";
 
     public static final String FLOW_MANAGER_PACKAGE = "com.raizlabs.android.dbflow.config";
 
@@ -102,5 +106,7 @@ public class Classes {
     public static final String BASE_CONTENT_PROVIDER = BASE_PACKAGE + "runtime.BaseContentProvider";
 
     public static final String CONTENT_URIS = "android.content.ContentUris";
+
+    public static final String DELETE_MODEL_LIST_TRANSACTION = TRANSACTION + "process.DeleteModelListTransaction";
 
 }

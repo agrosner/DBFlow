@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.Classes;
@@ -12,7 +13,9 @@ import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
+import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
 import com.raizlabs.android.dbflow.processor.writer.CreationQueryWriter;
+import com.raizlabs.android.dbflow.processor.writer.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
@@ -76,6 +79,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
     public Map<Integer, List<ColumnDefinition>> mColumnUniqueMap = Maps.newHashMap();
 
     public Map<Integer, UniqueGroup> mUniqueGroupMap = Maps.newHashMap();
+
+    public List<OneToManyDefinition> oneToManyDefinitions = new ArrayList<>();
 
     public TableDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
@@ -145,6 +150,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
                 new WhereQueryWriter(this, false),
                 new CreationQueryWriter(manager, this),
+                new DeleteWriter(this, false)
         };
 
         // single primary key checking for a long or int valued column
@@ -166,19 +172,20 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
     }
 
     @Override
-    protected void createColumnDefinitions(TypeElement element) {
-        List<? extends Element> variableElements = manager.getElements().getAllMembers(element);
+    protected void createColumnDefinitions(TypeElement typeElement) {
+        List<? extends Element> elements = manager.getElements().getAllMembers(typeElement);
         ColumnValidator columnValidator = new ColumnValidator();
-        for (Element variableElement : variableElements) {
+        OneToManyValidator oneToManyValidator = new OneToManyValidator();
+        for (Element element : elements) {
 
             // no private static or final fields
-            boolean isValidColumn = allFields && (variableElement.getKind().isField() &&
-                    !variableElement.getModifiers().contains(Modifier.STATIC) &&
-                    !variableElement.getModifiers().contains(Modifier.PRIVATE) &&
-                    !variableElement.getModifiers().contains(Modifier.FINAL));
+            boolean isValidColumn = allFields && (element.getKind().isField() &&
+                    !element.getModifiers().contains(Modifier.STATIC) &&
+                    !element.getModifiers().contains(Modifier.PRIVATE) &&
+                    !element.getModifiers().contains(Modifier.FINAL));
 
-            if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
+            if (element.getAnnotation(Column.class) != null || isValidColumn) {
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) element);
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
                     mColumnMap.put(columnDefinition.columnName, columnDefinition);
@@ -204,6 +211,11 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                             }
                         }
                     }
+                }
+            } else if(element.getAnnotation(OneToMany.class) != null) {
+                OneToManyDefinition oneToManyDefinition = new OneToManyDefinition(element, manager);
+                if(oneToManyValidator.validate(manager, oneToManyDefinition)) {
+                    oneToManyDefinitions.add(oneToManyDefinition);
                 }
             }
         }
