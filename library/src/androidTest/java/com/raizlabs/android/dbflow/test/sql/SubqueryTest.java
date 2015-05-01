@@ -14,15 +14,13 @@ public class SubqueryTest extends FlowTestCase {
 
         String query = new Select()
                 .from(BoxedModel.class)
-                .where().exists()
-                .subQuery()
-                .from(BoxedModel.class)
-                .where(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD)
-                               .eq(BoxedModel$Table.INTEGERFIELDNOTNULL))
-                .getQuery();
+                .where().exists(new Select().from(BoxedModel.class)
+                                        .where(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD)
+                                                       .eq(BoxedModel$Table.INTEGERFIELDNOTNULL)))
+                                        .getQuery();
 
         assertEquals(
-                "SELECT * FROM BoxedModel WHERE EXISTS (SELECT * FROM BoxedModel WHERE integerField = integerFieldNotNull",
+                "SELECT * FROM `BoxedModel` WHERE EXISTS (SELECT * FROM `BoxedModel` WHERE `integerField`=integerFieldNotNull)",
                 query.trim());
     }
 }

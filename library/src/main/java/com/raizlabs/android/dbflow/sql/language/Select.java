@@ -50,13 +50,6 @@ public class Select implements Query {
     private String mColumnName;
 
     /**
-     * The operator used when this is a subquery.
-     */
-    private String outerQueryOperator;
-
-    private Where baseWhere;
-
-    /**
      * Empty constructor since other constructors have different vargs.
      */
     public Select() {
@@ -84,30 +77,6 @@ public class Select implements Query {
      */
     public Select(ColumnAlias... columns) {
         this.columns = columns;
-    }
-
-    /**
-     * Constructs a SELECT as part of a subquery.
-     *
-     * @param baseWhere The base WHERE clause where it comes from. This is appended before this query.
-     * @param operator  The operator to use to append the outer query to this inner SELECT.
-     */
-    Select(Where baseWhere, String operator, ColumnAlias...columns) {
-        this(columns);
-        this.baseWhere = baseWhere;
-        this.outerQueryOperator = operator;
-    }
-
-    /**
-     * Constructs a SELECT as part of a subquery.
-     *
-     * @param baseWhere The base WHERE clause where it comes from. This is appended before this query.
-     * @param operator  The operator to use to append the outer query to this inner SELECT.
-     */
-    Select(Where baseWhere, String operator, String...columns) {
-        this(columns);
-        this.baseWhere = baseWhere;
-        this.outerQueryOperator = operator;
     }
 
     /**
@@ -203,23 +172,14 @@ public class Select implements Query {
         return method("SUM", columnName);
     }
 
-    boolean isASubQuery() {
-        return baseWhere != null;
+    @Override
+    public String toString() {
+        return getQuery();
     }
 
     @Override
     public String getQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder();
-
-        // sub query needs parenthesis
-        if (isASubQuery()) {
-            queryBuilder.append(baseWhere.getQuery());
-            if (outerQueryOperator != null) {
-                queryBuilder.appendSpaceSeparated(outerQueryOperator);
-            }
-            queryBuilder.append("(");
-        }
-        queryBuilder.append("SELECT").appendSpace();
+        QueryBuilder queryBuilder = new QueryBuilder("SELECT ");
 
         if (mSelectQualifier != NONE) {
             if (mSelectQualifier == DISTINCT) {
@@ -236,7 +196,7 @@ public class Select implements Query {
         boolean hasRawColumns = (rawColumns != null && rawColumns.length > 0);
         if (hasColumns || hasRawColumns) {
             if (hasColumns) {
-                queryBuilder.appendQuotedArray(columns);
+                queryBuilder.appendArray(columns);
             }
             if (hasRawColumns) {
                 if (hasColumns) {

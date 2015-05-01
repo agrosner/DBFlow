@@ -104,7 +104,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      */
     public ConditionQueryBuilder(Class<ModelClass> table, Condition... conditions) {
         mModelAdapter = FlowManager.getModelAdapter(table);
-        putConditions(conditions);
+        addConditions(conditions);
     }
 
     /**
@@ -300,10 +300,10 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param conditions The array of conditions to add to the mapping.
      * @return This instance
      */
-    public ConditionQueryBuilder<ModelClass> putConditions(Condition... conditions) {
+    public ConditionQueryBuilder<ModelClass> addConditions(Condition... conditions) {
         if (conditions.length > 0) {
             for (Condition condition : conditions) {
-                putCondition(condition);
+                addCondition(condition);
             }
             isChanged = true;
         }
@@ -319,8 +319,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param value      The value of the column we are looking for
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> putCondition(String columnName, Object value) {
-        return putCondition(columnName, Condition.Operation.EQUALS, value);
+    public ConditionQueryBuilder<ModelClass> addCondition(String columnName, Object value) {
+        return addCondition(columnName, Condition.Operation.EQUALS, value);
     }
 
     /**
@@ -332,12 +332,12 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param value      The value of the column we are looking for
      * @return
      */
-    public ConditionQueryBuilder<ModelClass> putCondition(String columnName, String operator, Object value) {
+    public ConditionQueryBuilder<ModelClass> addCondition(String columnName, String operator, Object value) {
         if (useEmptyParams && !Condition.Operation.EMPTY_PARAM.equals(value)) {
             throw new IllegalStateException("The " + ConditionQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return putCondition(Condition.column(columnName).operation(operator).value(value));
+        return addCondition(Condition.column(columnName).operation(operator).value(value));
 
     }
 
@@ -348,7 +348,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param condition The condition to append
      * @return This instance
      */
-    public ConditionQueryBuilder<ModelClass> putCondition(Condition condition) {
+    public ConditionQueryBuilder<ModelClass> addCondition(Condition condition) {
         mParams.add(condition);
         isChanged = true;
         return this;
@@ -361,26 +361,9 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @param params The list of conditions
      * @return This instance
      */
-    public ConditionQueryBuilder<ModelClass> putConditions(List<Condition> params) {
+    public ConditionQueryBuilder<ModelClass> addConditions(List<Condition> params) {
         if (params != null && !params.isEmpty()) {
             mParams.addAll(params);
-            isChanged = true;
-        }
-        return this;
-    }
-
-    /**
-     * Appends all the parameters from the specified map. The keys are ignored and now just take the values.
-     * This is for backportability.
-     *
-     * @param params
-     * @return
-     * @deprecated {@link #putConditions(java.util.List)}
-     */
-    @Deprecated
-    public ConditionQueryBuilder<ModelClass> putConditionMap(Map<String, Condition> params) {
-        if (params != null && !params.isEmpty()) {
-            mParams.addAll(params.values());
             isChanged = true;
         }
         return this;
@@ -394,7 +377,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      */
     public ConditionQueryBuilder<ModelClass> emptyCondition(String columnName) {
         useEmptyParams = true;
-        return putCondition(columnName, Condition.Operation.EMPTY_PARAM);
+        return addCondition(columnName, Condition.Operation.EMPTY_PARAM);
     }
 
     /**
@@ -457,7 +440,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder =
                 new ConditionQueryBuilder<>(mModelAdapter.getModelClass());
         for (int i = 0; i < values.length; i++) {
-            conditionQueryBuilder.putCondition(mParams.get(i).columnName(), values[i]);
+            conditionQueryBuilder.addCondition(mParams.get(i).columnName(), values[i]);
         }
 
         return conditionQueryBuilder;
@@ -485,7 +468,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      */
     public ConditionQueryBuilder<ModelClass> or(Condition condition) {
         setPreviousSeparator(Condition.Operation.OR);
-        putCondition(condition);
+        addCondition(condition);
         return this;
     }
 
@@ -497,7 +480,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      */
     public ConditionQueryBuilder<ModelClass> and(Condition condition) {
         setPreviousSeparator(Condition.Operation.AND);
-        putCondition(condition);
+        addCondition(condition);
         return this;
     }
 

@@ -110,7 +110,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> and(String columnName, Object value) {
-        mConditionQueryBuilder.putCondition(columnName, value);
+        mConditionQueryBuilder.addCondition(columnName, value);
         return this;
     }
 
@@ -123,7 +123,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> and(String columnName, String operator, Object value) {
-        mConditionQueryBuilder.putCondition(columnName, operator, value);
+        mConditionQueryBuilder.addCondition(columnName, operator, value);
         return this;
     }
 
@@ -156,7 +156,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> andThese(List<Condition> conditions) {
-        mConditionQueryBuilder.putConditions(conditions);
+        mConditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
@@ -167,7 +167,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> andThese(Condition... conditions) {
-        mConditionQueryBuilder.putConditions(conditions);
+        mConditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
@@ -200,7 +200,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> having(Condition... conditions) {
-        mHaving.putConditions(conditions);
+        mHaving.addConditions(conditions);
         return this;
     }
 
@@ -253,71 +253,9 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      *
      * @return
      */
-    public Where<ModelClass> exists() {
-        this.isExistWhere = true;
+    public Where<ModelClass> exists(Where where) {
+        mConditionQueryBuilder.addCondition(Condition.exists().subQuery(where));
         return this;
-    }
-
-    /**
-     * Begins a standard subquery as a SELECT with the specified columns.
-     *
-     * @param columns The aliases for the columns to use.
-     * @return A new subquery select
-     */
-    public Select subQuery(ColumnAlias... columns) {
-        return new Select(this, null, columns);
-    }
-
-    /**
-     * Begins a standard subquery as a SELECT with the specified columns.
-     *
-     * @param columns The column names to select with.
-     * @return A new subquery select.
-     */
-    public Select subQuery(String... columns) {
-        return new Select(this, null, columns);
-    }
-
-    /**
-     * Begins a standard subquery as an IN (SELECT... with the specified columns.
-     *
-     * @param columns The aliases for the columns to use.
-     * @return A new IN subquery.
-     */
-    public Select in(ColumnAlias... columns) {
-        return new Select(this, Condition.Operation.IN, columns);
-    }
-
-    /**
-     * Begins a standard subquery as an IN (SELECT... with the specified columns.
-     *
-     * @param columns The column names to select with.
-     * @return A new IN subquery.
-     */
-    public Select in(String... columns) {
-        return new Select(this, Condition.Operation.IN, columns);
-    }
-
-    /**
-     * Begins a standard subquery as an {operation} (SELECT... with the specified columns.
-     *
-     * @param operation The operation to begin the subquery with.
-     * @param columns   The column names to select with.
-     * @return A new subquery.
-     */
-    public Select subQueryOperation(String operation, String... columns) {
-        return new Select(this, operation, columns);
-    }
-
-    /**
-     * Begins a standard subquery as an {operation} (SELECT... with the specified columns.
-     *
-     * @param operation The operation to begin the subquery with.
-     * @param columns   The column aliases to use.
-     * @return A new subquery.
-     */
-    public Select subQueryOperation(String operation, ColumnAlias... columns) {
-        return new Select(this, operation, columns);
     }
 
     /**
@@ -338,26 +276,13 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     @Override
     public String getQuery() {
         String fromQuery = mWhereBase.getQuery();
-        boolean isSubQuery = false;
-        if (mWhereBase.getQueryBuilderBase() instanceof Select) {
-            isSubQuery = ((Select) mWhereBase.getQueryBuilderBase()).isASubQuery();
-        }
-        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery);
-
-        queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery());
-        if (isExistWhere) {
-            queryBuilder.appendSpaceSeparated("EXISTS");
-        } else {
-            queryBuilder.appendQualifier("GROUP BY", mGroupBy)
-                    .appendQualifier("HAVING", mHaving.getQuery())
-                    .appendQualifier("ORDER BY", mOrderBy)
-                    .appendQualifier("LIMIT", mLimit)
-                    .appendQualifier("OFFSET", mOffset);
-        }
-        // need to close up parenthesis of subquery.
-        if (isSubQuery) {
-            queryBuilder.append(")");
-        }
+        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery)
+                .appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
+                .appendQualifier("GROUP BY", mGroupBy)
+                .appendQualifier("HAVING", mHaving.getQuery())
+                .appendQualifier("ORDER BY", mOrderBy)
+                .appendQualifier("LIMIT", mLimit)
+                .appendQualifier("OFFSET", mOffset);
 
         // Don't wast time building the string
         // unless we're going to log it.

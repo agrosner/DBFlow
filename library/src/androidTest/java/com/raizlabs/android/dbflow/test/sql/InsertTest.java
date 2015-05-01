@@ -18,7 +18,7 @@ public class InsertTest extends FlowTestCase {
 
         Delete.table(InsertModel.class);
 
-        Insert<InsertModel> insert = new Insert<>(InsertModel.class).orFail()
+        Insert<InsertModel> insert = Insert.into(InsertModel.class).orFail()
                 .columns(InsertModel$Table.NAME, InsertModel$Table.VALUE).values("Test", "Test1");
 
         assertEquals("INSERT OR FAIL INTO `InsertModel`(`name`, `value`) VALUES('Test','Test1')", insert.getQuery());
@@ -30,7 +30,7 @@ public class InsertTest extends FlowTestCase {
         assertNotNull(model);
 
 
-        insert = new Insert<>(InsertModel.class).orAbort()
+        insert = Insert.into(InsertModel.class).orAbort()
                 .values("Test2", "Test3");
         assertEquals("INSERT OR ABORT INTO `InsertModel` VALUES('Test2','Test3')", insert.getQuery());
 
