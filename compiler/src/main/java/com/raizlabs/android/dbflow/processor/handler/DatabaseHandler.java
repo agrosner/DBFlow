@@ -25,6 +25,7 @@ public class DatabaseHandler extends BaseContainerHandler<Database> {
     public static final String MODEL_FIELD_NAME = "models";
     public static final String MODEL_ADAPTER_MAP_FIELD_NAME = "modelAdapters";
     public static final String MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME = "modelContainerAdapters";
+    public static final String QUERY_MODEL_ADAPTER_MAP_FIELD_NAME = "queryModelAdapterMap";
     public static final String TYPE_CONVERTER_MAP_FIELD_NAME = "typeConverters";
     public static final String MODEL_VIEW_FIELD_NAME = "modelViews";
     public static final String MIGRATION_FIELD_NAME = "migrationMap";

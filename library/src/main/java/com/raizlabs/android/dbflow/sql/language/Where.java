@@ -178,6 +178,17 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     }
 
     /**
+     * Defines a SQL GROUP BY statement without the GROUP BY.
+     *
+     * @param columns The columns to groupby
+     * @return
+     */
+    public Where<ModelClass> groupBy(String...columns) {
+        mGroupBy = new QueryBuilder().appendArray(columns).getQuery();
+        return this;
+    }
+
+    /**
      * Defines a SQL HAVING statement without the HAVING.
      *
      * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}

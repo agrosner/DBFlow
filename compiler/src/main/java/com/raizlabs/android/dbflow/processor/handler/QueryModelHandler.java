@@ -24,6 +24,8 @@ public class QueryModelHandler extends BaseContainerHandler<QueryModel> {
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         QueryModelDefinition queryModelDefinition = new QueryModelDefinition(element, processorManager);
 
+        processorManager.addQueryModelDefinition(queryModelDefinition);
+
         WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
 
         try {

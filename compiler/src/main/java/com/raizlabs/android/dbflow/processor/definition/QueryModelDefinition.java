@@ -56,6 +56,8 @@ public class QueryModelDefinition extends BaseTableDefinition {
         allFields = queryModel.allFields();
         adapterName = getModelClassName() + databaseWriter.classSeparator + DBFLOW_TABLE_ADAPTER;
 
+        processorManager.addModelToDatabase(getQualifiedModelClassName(), databaseName);
+
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
                                                                           Classes.LOAD_FROM_CURSOR_LISTENER,
                                                                           (TypeElement) element);
@@ -121,9 +123,13 @@ public class QueryModelDefinition extends BaseTableDefinition {
         return packageName + "." + getModelClassName();
     }
 
+    public String getQualifiedAdapterName() {
+        return packageName + "." + adapterName;
+    }
+
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
         JavaWriter javaWriter = new JavaWriter(
-                processingEnvironment.getFiler().createSourceFile(packageName + "." + adapterName).openWriter());
+                processingEnvironment.getFiler().createSourceFile(getQualifiedAdapterName()).openWriter());
 
         javaWriter.emitPackage(packageName);
         javaWriter.emitImports(Classes.QUERY_MODEL_ADAPTER,

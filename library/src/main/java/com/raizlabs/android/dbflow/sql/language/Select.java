@@ -1,13 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
-
-import java.util.List;
 
 /**
  * Description: A SQL SELECT statement generator. It generates the SELECT part of the statement.
@@ -37,7 +32,13 @@ public class Select implements Query {
     /**
      * Specifies the column names to select from
      */
-    private final String[] mColumns;
+    private final String[] columns;
+
+    /**
+     * Specifies column names to select from that don't get quoted.
+     */
+    private String[] rawColumns;
+
     /**
      * The method name we wish to execute
      */
@@ -51,10 +52,21 @@ public class Select implements Query {
     /**
      * Creates this instance with the specified columns from the specified {@link com.raizlabs.android.dbflow.config.FlowManager}
      *
-     * @param columns
+     * @param columns Quoted column names.
      */
     public Select(String... columns) {
-        mColumns = columns;
+        this.columns = columns;
+    }
+
+    /**
+     * Attach columns you don't want to quote such as AVG(`Salary`)
+     *
+     * @param rawColumns The column names that are unquoted.
+     * @return This instance.
+     */
+    public Select rawColumns(String... rawColumns) {
+        this.rawColumns = rawColumns;
+        return this;
     }
 
     /**
@@ -155,8 +167,18 @@ public class Select implements Query {
             queryBuilder.appendSpace();
         }
 
-        if (mColumns != null && mColumns.length > 0) {
-            queryBuilder.appendQuotedArray(mColumns);
+        boolean hasColumns = (columns != null && columns.length > 0);
+        boolean hasRawColumns = (rawColumns != null && rawColumns.length > 0);
+        if (hasColumns || hasRawColumns) {
+            if(hasColumns) {
+                queryBuilder.appendQuotedArray(columns);
+            }
+            if(hasRawColumns) {
+                if(hasColumns) {
+                    queryBuilder.append(", ");
+                }
+                queryBuilder.appendArray(rawColumns);
+            }
         } else if (mSelectQualifier != METHOD) {
             queryBuilder.append("*");
         }

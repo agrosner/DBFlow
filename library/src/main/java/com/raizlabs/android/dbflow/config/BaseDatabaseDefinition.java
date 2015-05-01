@@ -5,11 +5,14 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
+import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
+import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
+import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 
 import java.util.ArrayList;
@@ -38,15 +41,17 @@ public abstract class BaseDatabaseDefinition {
 
     final Map<Class<? extends BaseModelView>, ModelViewAdapter> modelViewAdapterMap = new HashMap<>();
 
+    final Map<Class<? extends BaseQueryModel>, QueryModelAdapter> queryModelAdapterMap = new HashMap<>();
+
     /**
      * The helper that manages database changes and initialization
      */
-    private FlowSQLiteOpenHelper mHelper;
+    private FlowSQLiteOpenHelper flowSQLiteOpenHelper;
 
     /**
      * Allows for the app to listen for database changes.
      */
-    private DatabaseHelperListener mHelperListener;
+    private DatabaseHelperListener helperListener;
 
     /**
      * Used when resetting the DB
@@ -124,6 +129,21 @@ public abstract class BaseDatabaseDefinition {
     }
 
     /**
+     * @return The list of {@link QueryModelAdapter}. Internal method for creating query models in the DB.
+     */
+    List<QueryModelAdapter> getModelQueryAdapters() {
+        return new ArrayList<>(queryModelAdapterMap.values());
+    }
+
+    /**
+     * @param queryModel The {@link QueryModel} class
+     * @return The adapter that corresponds to the specified class.
+     */
+    QueryModelAdapter getQueryModelAdapterForQueryClass(Class<? extends BaseQueryModel> queryModel) {
+        return queryModelAdapterMap.get(queryModel);
+    }
+
+    /**
      * @return The map of migrations to DB version
      */
     Map<Integer, List<Migration>> getMigrations() {
@@ -131,10 +151,10 @@ public abstract class BaseDatabaseDefinition {
     }
 
     FlowSQLiteOpenHelper getHelper() {
-        if (mHelper == null) {
-            mHelper = createHelper();
+        if (flowSQLiteOpenHelper == null) {
+            flowSQLiteOpenHelper = createHelper();
         }
-        return mHelper;
+        return flowSQLiteOpenHelper;
     }
 
     protected FlowSQLiteOpenHelper createHelper() {
@@ -151,7 +171,7 @@ public abstract class BaseDatabaseDefinition {
      * @param databaseHelperListener Listens for DB changes
      */
     public void setHelperListener(DatabaseHelperListener databaseHelperListener) {
-        mHelperListener = databaseHelperListener;
+        helperListener = databaseHelperListener;
     }
 
     /**
@@ -195,7 +215,7 @@ public abstract class BaseDatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(getDatabaseFileName());
-            mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
+            flowSQLiteOpenHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
             isResetting = false;
         }
     }
@@ -222,22 +242,22 @@ public abstract class BaseDatabaseDefinition {
     protected final DatabaseHelperListener mInternalHelperListener = new DatabaseHelperListener() {
         @Override
         public void onOpen(SQLiteDatabase database) {
-            if (mHelperListener != null) {
-                mHelperListener.onOpen(database);
+            if (helperListener != null) {
+                helperListener.onOpen(database);
             }
         }
 
         @Override
         public void onCreate(SQLiteDatabase database) {
-            if (mHelperListener != null) {
-                mHelperListener.onCreate(database);
+            if (helperListener != null) {
+                helperListener.onCreate(database);
             }
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-            if (mHelperListener != null) {
-                mHelperListener.onUpgrade(database, oldVersion, newVersion);
+            if (helperListener != null) {
+                helperListener.onUpgrade(database, oldVersion, newVersion);
             }
         }
     };

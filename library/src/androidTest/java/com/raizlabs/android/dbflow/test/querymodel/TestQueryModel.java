@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 public class TestQueryModel extends BaseQueryModel {
 
     @Column
-    long count;
+    String newName;
 
     @Column
     long average_salary;
