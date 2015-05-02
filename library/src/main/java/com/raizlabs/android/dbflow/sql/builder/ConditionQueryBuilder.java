@@ -10,10 +10,8 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Author: andrewgrosner
  * Description: Constructs a condition statement for a specific {@link com.raizlabs.android.dbflow.structure.Model} class.
  * This enables easy combining of conditions for SQL statements and will handle converting the model value for each column into
  * the correct database-valued-string.
@@ -24,7 +22,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * If we call {@link #append(String, Object...)}, then the string will persist through calls to {@link #getQuery()}
      * and adding params.
      */
-    private String mWhereRaw;
+    private String whereRaw;
 
     /**
      * Returns a string containing the tokens converted into DBValues joined by delimiters.
@@ -147,7 +145,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
                 }
             }
 
-            mWhereRaw = toAppend;
+            whereRaw = toAppend;
             return super.append(toAppend);
         } else {
             return this;
@@ -203,8 +201,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         if (isChanged || mQuery.length() == 0) {
             isChanged = false;
             mQuery = new StringBuilder();
-            if(mWhereRaw != null) {
-                mQuery.append(mWhereRaw);
+            if(whereRaw != null) {
+                mQuery.append(whereRaw);
             }
 
             int count = 0;
@@ -493,8 +491,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         if (mParams.size() > 0) {
             // set previous to use OR separator
             mParams.get(mParams.size() - 1).separator(separator);
-        } else if (mWhereRaw != null && mWhereRaw.length() > 0) {
-            mWhereRaw = new QueryBuilder<>(mWhereRaw).appendSpaceSeparated(separator).getQuery();
+        } else if (whereRaw != null && whereRaw.length() > 0) {
+            whereRaw = new QueryBuilder<>(whereRaw).appendSpaceSeparated(separator).getQuery();
         }
     }
 

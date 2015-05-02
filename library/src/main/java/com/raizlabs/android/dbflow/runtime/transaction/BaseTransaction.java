@@ -4,7 +4,6 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 
 /**
- * Created by andrewgrosner
  * Description: The basic request object that's placed on the DBRequestQueue for processing.
  * The {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} uses a priority queue that will process
  * this class based on the priority assigned to it.

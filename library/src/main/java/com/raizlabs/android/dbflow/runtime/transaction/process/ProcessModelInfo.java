@@ -16,13 +16,10 @@ import java.util.List;
  */
 public class ProcessModelInfo<ModelClass extends Model> {
 
-    List<ModelClass> mModels = new ArrayList<>();
-
-    TransactionListener<List<ModelClass>> mTransactionListener;
-
-    DBTransactionInfo mInfo;
-
-    Class<ModelClass> mTable;
+    List<ModelClass> models = new ArrayList<>();
+    TransactionListener<List<ModelClass>> transactionListener;
+    DBTransactionInfo transactionInfo;
+    Class<ModelClass> table;
 
     /**
      * Required to construct this information with Models
@@ -64,13 +61,13 @@ public class ProcessModelInfo<ModelClass extends Model> {
      */
     @SuppressWarnings("unchecked")
     public ProcessModelInfo<ModelClass> models(ModelClass... models) {
-        mModels.addAll(Arrays.asList(models));
+        this.models.addAll(Arrays.asList(models));
         if (models.length > 0) {
             Class modelClass = models[0].getClass();
             if (ModelContainer.class.isAssignableFrom(modelClass)) {
-                mTable = ((ModelContainer) models[0]).getTable();
+                table = ((ModelContainer) models[0]).getTable();
             } else {
-                mTable = (Class<ModelClass>) modelClass;
+                table = (Class<ModelClass>) modelClass;
             }
         }
         return this;
@@ -84,15 +81,15 @@ public class ProcessModelInfo<ModelClass extends Model> {
      */
     @SuppressWarnings("unchecked")
     public ProcessModelInfo<ModelClass> models(Collection<ModelClass> models) {
-        mModels.addAll(models);
+        this.models.addAll(models);
         if (models != null && models.size() > 0) {
             ArrayList<ModelClass> modelList = new ArrayList<>(models);
             Class modelClass = modelList.get(0).getClass();
 
             if (ModelContainer.class.isAssignableFrom(modelClass)) {
-                mTable = ((ModelContainer) modelList.get(0)).getTable();
+                table = ((ModelContainer) modelList.get(0)).getTable();
             } else {
-                mTable = (Class<ModelClass>) modelClass;
+                table = (Class<ModelClass>) modelClass;
             }
         }
         return this;
@@ -107,7 +104,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
      * @return This instance.
      */
     public ProcessModelInfo<ModelClass> result(TransactionListener<List<ModelClass>> transactionListener) {
-        mTransactionListener = transactionListener;
+        this.transactionListener = transactionListener;
         return this;
     }
 
@@ -127,22 +124,22 @@ public class ProcessModelInfo<ModelClass extends Model> {
      * @return This instance.
      */
     public ProcessModelInfo<ModelClass> info(DBTransactionInfo dbTransactionInfo) {
-        mInfo = dbTransactionInfo;
+        transactionInfo = dbTransactionInfo;
         return this;
     }
 
     public DBTransactionInfo getInfo() {
-        if (mInfo == null) {
-            mInfo = DBTransactionInfo.create();
+        if (transactionInfo == null) {
+            transactionInfo = DBTransactionInfo.create();
         }
-        return mInfo;
+        return transactionInfo;
     }
 
     /**
      * @return True if there are models in this class
      */
     public boolean hasData() {
-        return !mModels.isEmpty();
+        return !models.isEmpty();
     }
 
     /**
@@ -154,12 +151,12 @@ public class ProcessModelInfo<ModelClass extends Model> {
     public void processModels(ProcessModel<ModelClass> processModel) {
 
         // ignore empty list.
-        if(!mModels.isEmpty()) {
-            Class<? extends Model> processClass = mTable;
-            if (ModelContainer.class.isAssignableFrom(processClass) && !mModels.isEmpty()) {
-                processClass = ((ModelContainer<ModelClass, ?>) mModels.get(0)).getTable();
+        if (!models.isEmpty()) {
+            Class<? extends Model> processClass = table;
+            if (ModelContainer.class.isAssignableFrom(processClass) && !models.isEmpty()) {
+                processClass = ((ModelContainer<ModelClass, ?>) models.get(0)).getTable();
             }
-            ProcessModelHelper.process(processClass, mModels, processModel);
+            ProcessModelHelper.process(processClass, models, processModel);
         }
     }
 }

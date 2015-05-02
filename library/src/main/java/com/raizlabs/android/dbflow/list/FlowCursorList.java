@@ -6,10 +6,10 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
@@ -17,22 +17,16 @@ import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
  * Description: A non-modifiable, cursor-backed list that you can use in {@link android.widget.ListView} or other data sources.
  */
 public class FlowCursorList<ModelClass extends Model> {
 
-    private Cursor mCursor;
-
-    private Class<ModelClass> mTable;
-
-    private ModelCache<ModelClass, ?> mModelCache;
-
+    private Cursor cursor;
+    private Class<ModelClass> table;
+    private ModelCache<ModelClass, ?> modelCache;
     private boolean cacheModels;
-
-    private ModelQueriable<ModelClass> mQueriable;
-
-    private int mCacheSize;
+    private ModelQueriable<ModelClass> modelQueriable;
+    private int cacheSize;
 
     /**
      * Constructs an instance of this list with a specified cache size.
@@ -53,9 +47,9 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param modelQueriable The SQL where query to use when doing a query.
      */
     public FlowCursorList(boolean cacheModels, ModelQueriable<ModelClass> modelQueriable) {
-        mQueriable = modelQueriable;
-        mCursor = mQueriable.query();
-        mTable = modelQueriable.getTable();
+        this.modelQueriable = modelQueriable;
+        cursor = this.modelQueriable.query();
+        table = modelQueriable.getTable();
         this.cacheModels = cacheModels;
         setCacheModels(cacheModels);
     }
@@ -93,9 +87,9 @@ public class FlowCursorList<ModelClass extends Model> {
     public void setCacheModels(boolean cacheModels) {
         if (cacheModels) {
             throwIfCursorClosed();
-            setCacheModels(true, mCursor.getCount());
+            setCacheModels(true, cursor.getCount());
         } else {
-            setCacheModels(false, mCursor.getCount());
+            setCacheModels(false, cursor.getCount());
         }
     }
 
@@ -111,13 +105,13 @@ public class FlowCursorList<ModelClass extends Model> {
             clearCache();
         } else {
             throwIfCursorClosed();
-            mCacheSize = cacheSize;
-            mModelCache = getBackingCache();
+            this.cacheSize = cacheSize;
+            modelCache = getBackingCache();
         }
     }
 
     protected ModelCache<ModelClass, ?> getBackingCache() {
-        return new ModelLruCache<>(mCacheSize);
+        return new ModelLruCache<>(cacheSize);
     }
 
     /**
@@ -125,7 +119,7 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public void clearCache() {
         if (cacheModels) {
-            mModelCache.clear();
+            modelCache.clear();
         }
     }
 
@@ -133,12 +127,12 @@ public class FlowCursorList<ModelClass extends Model> {
      * Refreshes the data backing this list, and destroys the Model cache.
      */
     public synchronized void refresh() {
-        mCursor.close();
-        mCursor = mQueriable.query();
+        cursor.close();
+        cursor = modelQueriable.query();
 
         if (cacheModels) {
-            mModelCache.clear();
-            mModelCache = getBackingCache();
+            modelCache.clear();
+            modelCache = getBackingCache();
         }
     }
 
@@ -154,13 +148,13 @@ public class FlowCursorList<ModelClass extends Model> {
 
         ModelClass model = null;
         if (cacheModels) {
-            model = mModelCache.get(position);
-            if (model == null && mCursor.moveToPosition((int) position)) {
-                model = SqlUtils.convertToModel(true, mTable, mCursor);
-                mModelCache.addModel(position, model);
+            model = modelCache.get(position);
+            if (model == null && cursor.moveToPosition((int) position)) {
+                model = SqlUtils.convertToModel(true, table, cursor);
+                modelCache.addModel(position, model);
             }
-        } else if (mCursor.moveToPosition((int) position)) {
-            model = SqlUtils.convertToModel(true, mTable, mCursor);
+        } else if (cursor.moveToPosition((int) position)) {
+            model = SqlUtils.convertToModel(true, table, cursor);
         }
         return model;
     }
@@ -189,7 +183,7 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public List<ModelClass> getAll() {
         throwIfCursorClosed();
-        return SqlUtils.convertToList(mTable, mCursor);
+        return SqlUtils.convertToList(table, cursor);
     }
 
     /**
@@ -205,15 +199,15 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public int getCount() {
         throwIfCursorClosed();
-        return mCursor != null ? mCursor.getCount() : 0;
+        return cursor != null ? cursor.getCount() : 0;
     }
 
     /**
      * Closes the cursor backed by this list
      */
     public void close() {
-        mCursor.close();
-        mCursor = null;
+        cursor.close();
+        cursor = null;
     }
 
     /**
@@ -222,15 +216,15 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public Cursor getCursor() {
         throwIfCursorClosed();
-        return mCursor;
+        return cursor;
     }
 
     public Class<ModelClass> getTable() {
-        return mTable;
+        return table;
     }
 
     private void throwIfCursorClosed() {
-        if (mCursor == null || mCursor.isClosed()) {
+        if (cursor == null || cursor.isClosed()) {
             throw new IllegalStateException("Cursor has been closed for FlowCursorList");
         }
     }

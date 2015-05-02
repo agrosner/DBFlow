@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class SelectListTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> {
 
-    private ModelQueriable<ModelClass> mModelQueriable;
+    private ModelQueriable<ModelClass> modelQueriable;
 
     /**
      * Creates an instance of this class
@@ -36,7 +36,7 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
      */
     public SelectListTransaction(ModelQueriable<ModelClass> modelQueriable, TransactionListener<List<ModelClass>> transactionListener) {
         super(DBTransactionInfo.createFetch(), transactionListener);
-        mModelQueriable = modelQueriable;
+        this.modelQueriable = modelQueriable;
     }
 
     /**
@@ -65,12 +65,12 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
 
     @Override
     public boolean onReady() {
-        return mModelQueriable != null;
+        return modelQueriable != null;
     }
 
     @Override
     public List<ModelClass> onExecute() {
-        return mModelQueriable.queryList();
+        return modelQueriable.queryList();
     }
 
 }

@@ -21,6 +21,11 @@ import java.util.Collection;
 public class TransactionManager {
 
     /**
+     * Runs all of the UI threaded requests
+     */
+    protected Handler requestHandler = new Handler(Looper.getMainLooper());
+
+    /**
      * The shared database manager instance
      */
     private static TransactionManager manager;
@@ -28,26 +33,25 @@ public class TransactionManager {
      * Whether this manager has its own {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      */
     private final boolean hasOwnQueue;
-    /**
-     * Runs all of the UI threaded requests
-     */
-    protected Handler mRequestHandler = new Handler(Looper.getMainLooper());
+
     /**
      * The queue where we asynchronously perform database requests
      */
-    private DBTransactionQueue mQueue;
+    private DBTransactionQueue transactionQueue;
+
     /**
      * The name of the associated {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      */
-    private String mName;
+    private String name;
 
     /**
      * Creates the DatabaseManager while starting its own request queue
      *
-     * @param name
+     * @param name           The name to associate the running thread for transactions.
+     * @param createNewQueue if true, we will create a new queue thread. Warning these can be expensive.
      */
     public TransactionManager(String name, boolean createNewQueue) {
-        mName = name;
+        this.name = name;
         hasOwnQueue = createNewQueue;
         TransactionManagerRuntime.getManagers().add(this);
         checkQueue();
@@ -60,14 +64,14 @@ public class TransactionManager {
     }
 
     DBTransactionQueue getQueue() {
-        if (mQueue == null) {
+        if (transactionQueue == null) {
             if (hasOwnQueue) {
-                mQueue = new DBTransactionQueue(mName, this);
+                transactionQueue = new DBTransactionQueue(name, this);
             } else {
-                mQueue = TransactionManager.getInstance().mQueue;
+                transactionQueue = TransactionManager.getInstance().transactionQueue;
             }
         }
-        return mQueue;
+        return transactionQueue;
     }
 
     /**
@@ -116,7 +120,7 @@ public class TransactionManager {
      * Destroys the running queue
      */
     void disposeQueue() {
-        mQueue = null;
+        transactionQueue = null;
     }
 
     /**
@@ -125,7 +129,7 @@ public class TransactionManager {
      * @param runnable
      */
     public synchronized void processOnRequestHandler(Runnable runnable) {
-        mRequestHandler.post(runnable);
+        requestHandler.post(runnable);
     }
 
     /**
@@ -134,7 +138,7 @@ public class TransactionManager {
      * @param runnable
      */
     public synchronized void processOnRequestHandler(long delay, Runnable runnable) {
-        mRequestHandler.postDelayed(runnable, delay);
+        requestHandler.postDelayed(runnable, delay);
     }
 
     /**
@@ -155,7 +159,8 @@ public class TransactionManager {
      * @param queriable                 The {@link Queriable} statement that we wish to execute.
      * @param cursorTransactionListener The cursor from the DB that we can process
      */
-    public void transactQuery(DBTransactionInfo transactionInfo, Queriable queriable, TransactionListener<Cursor> cursorTransactionListener) {
+    public void transactQuery(DBTransactionInfo transactionInfo, Queriable queriable,
+                              TransactionListener<Cursor> cursorTransactionListener) {
         addTransaction(new QueryTransaction(transactionInfo, queriable, cursorTransactionListener));
     }
 

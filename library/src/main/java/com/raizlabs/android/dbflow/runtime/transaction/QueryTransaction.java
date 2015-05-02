@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class QueryTransaction<ModelClass extends Model> extends BaseResultTransaction<Cursor> {
 
-    private Queriable mQueriable;
+    private Queriable queriable;
 
     /**
      * Constructs a new instance that will simply run a query as a transaction.
@@ -34,17 +34,17 @@ public class QueryTransaction<ModelClass extends Model> extends BaseResultTransa
      */
     public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable queriable, TransactionListener<Cursor> cursorTransactionListener) {
         super(dbTransactionInfo, cursorTransactionListener);
-        mQueriable = queriable;
+        this.queriable = queriable;
     }
 
     @Override
     public boolean onReady() {
-        return mQueriable != null;
+        return queriable != null;
     }
 
     @Override
     public Cursor onExecute() {
-        return mQueriable.query();
+        return queriable.query();
     }
 
     @Override

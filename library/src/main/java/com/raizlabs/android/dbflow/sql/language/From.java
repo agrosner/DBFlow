@@ -5,12 +5,10 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -25,22 +23,22 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     /**
      * The base such as {@link Delete}, {@link Select} and more!
      */
-    private Query mQueryBuilderBase;
+    private Query queryBase;
 
     /**
      * The table that this statement gets from
      */
-    private Class<ModelClass> mTable;
+    private Class<ModelClass> table;
 
     /**
      * An alias for the table
      */
-    private String mAlias;
+    private String tableAlias;
 
     /**
      * Enables the SQL JOIN statement
      */
-    private List<Join> mJoins = new ArrayList<>();
+    private List<Join> joins = new ArrayList<>();
 
     /**
      * The SQL from statement constructed.
@@ -50,8 +48,8 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      */
     public From(Query querybase, Class<ModelClass> table) {
         super(table);
-        mQueryBuilderBase = querybase;
-        mTable = table;
+        queryBase = querybase;
+        this.table = table;
     }
 
     /**
@@ -61,7 +59,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @return This FROM statement
      */
     public From<ModelClass> as(String alias) {
-        mAlias = alias;
+        tableAlias = alias;
         return this;
     }
 
@@ -74,7 +72,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      */
     public <JoinType extends Model> Join<JoinType, ModelClass> join(Class<JoinType> table, Join.JoinType joinType) {
         Join<JoinType, ModelClass> join = new Join<>(this, table, joinType);
-        mJoins.add(join);
+        joins.add(join);
         return join;
     }
 
@@ -191,16 +189,16 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(mQueryBuilderBase.getQuery());
-        if (!(mQueryBuilderBase instanceof Update)) {
+                .append(queryBase.getQuery());
+        if (!(queryBase instanceof Update)) {
             queryBuilder.append("FROM ");
         }
 
-        queryBuilder.appendQuoted(FlowManager.getTableName(mTable));
+        queryBuilder.appendQuoted(FlowManager.getTableName(table));
 
-        if (mQueryBuilderBase instanceof Select) {
-            queryBuilder.appendSpace().appendQualifier("AS", mAlias);
-            for (Join join : mJoins) {
+        if (queryBase instanceof Select) {
+            queryBuilder.appendSpace().appendQualifier("AS", tableAlias);
+            for (Join join : joins) {
                 queryBuilder.append(join.getQuery());
             }
         } else {
@@ -215,7 +213,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * {@link com.raizlabs.android.dbflow.sql.language.Select}, or {@link com.raizlabs.android.dbflow.sql.language.Update}
      */
     public Query getQueryBuilderBase() {
-        return mQueryBuilderBase;
+        return queryBase;
     }
 
 }

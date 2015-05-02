@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.runtime.transaction.process;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
  * Description: Updates all of the {@link ModelClass} in one transaction.
  */
 public class UpdateModelListTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {

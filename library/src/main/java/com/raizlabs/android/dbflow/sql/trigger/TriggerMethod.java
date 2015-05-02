@@ -13,30 +13,24 @@ import com.raizlabs.android.dbflow.structure.Model;
 public class TriggerMethod<ModelClass extends Model> implements Query {
 
     public static final String DELETE = "DELETE";
-
     public static final String INSERT = "INSERT";
-
     public static final String UPDATE = "UPDATE";
 
     final Trigger trigger;
-
     private ColumnAlias[] columns;
-
     private final String methodName;
 
     /**
      * The table we're operating on.
      */
-    Class<ModelClass> mOnTable;
-
+    Class<ModelClass> onTable;
     boolean forEachRow = false;
-
-    private Condition mWhenCondition;
+    private Condition whenCondition;
 
     TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, String... columns) {
         this.trigger = trigger;
         this.methodName = methodName;
-        mOnTable = onTable;
+        this.onTable = onTable;
         if (columns != null && columns.length > 0) {
             if (!methodName.equals(UPDATE)) {
                 throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
@@ -51,7 +45,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
     TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, ColumnAlias... columns) {
         this.trigger = trigger;
         this.methodName = methodName;
-        mOnTable = onTable;
+        this.onTable = onTable;
         if (columns != null && columns.length > 0) {
             if (!methodName.equals(UPDATE)) {
                 throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
@@ -72,7 +66,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
      * @return
      */
     public TriggerMethod<ModelClass> when(Condition condition) {
-        mWhenCondition = condition;
+        whenCondition = condition;
         return this;
     }
 
@@ -97,15 +91,15 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
             queryBuilder.appendSpaceSeparated("OF")
                     .appendArray(columns);
         }
-        queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(mOnTable));
+        queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(onTable));
 
         if (forEachRow) {
             queryBuilder.appendSpaceSeparated("FOR EACH ROW");
         }
 
-        if (mWhenCondition != null) {
+        if (whenCondition != null) {
             queryBuilder.append(" WHEN ");
-            mWhenCondition.appendConditionToRawQuery(queryBuilder);
+            whenCondition.appendConditionToRawQuery(queryBuilder);
             queryBuilder.appendSpace();
         }
 

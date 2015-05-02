@@ -3,15 +3,9 @@ package com.raizlabs.android.dbflow.sql.queriable;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
-
-import java.util.List;
 
 /**
  * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL query string
@@ -23,7 +17,7 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
     /**
      * The full SQLite query to use
      */
-    private final String mQuery;
+    private final String query;
 
     /**
      * Creates an instance of this class
@@ -34,17 +28,17 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
      */
     public StringQuery(Class<ModelClass> table, String sql) {
         super(table);
-        mQuery = sql;
+        query = sql;
     }
 
     @Override
     public String getQuery() {
-        return mQuery;
+        return query;
     }
 
     @Override
     public Cursor query() {
-        return FlowManager.getDatabaseForTable(getTable()).getWritableDatabase().rawQuery(mQuery, null);
+        return FlowManager.getDatabaseForTable(getTable()).getWritableDatabase().rawQuery(query, null);
     }
 
 }

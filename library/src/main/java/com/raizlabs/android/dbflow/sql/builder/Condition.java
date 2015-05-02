@@ -13,11 +13,42 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The class that contains a column name, operator, and value. The operator can be any Sqlite conditional
+ * Description: The class that contains a column name, operator, and value. The operator can be any Sqlite conditional
  * operator. The value is the {@link com.raizlabs.android.dbflow.structure.Model} value of the column and WILL be
  * converted into the database value when we run the query.
  */
 public class Condition {
+
+    /**
+     * Creates a new instance with a raw condition query. The values will not be converted into
+     * SQL-safe value. Ex: itemOrder =itemOrder + 1. If not raw, this becomes itemOrder ='itemOrder + 1'
+     *
+     * @param columnName
+     * @return This raw condition
+     */
+    public static Condition columnRaw(String columnName) {
+        Condition condition = column(columnName);
+        condition.isRaw = true;
+        return condition;
+    }
+
+    public static Condition column(String columnName) {
+        return new Condition(ColumnAlias.column(columnName));
+    }
+
+    public static Condition exists() {
+        return new Condition(ColumnAlias.columnRaw("EXISTS "));
+    }
+
+    /**
+     * Constructs instance with the specified {@link ColumnAlias} to enable or disable back ticks on the name.
+     *
+     * @param columnAlias The alias to use.
+     * @return A new {@link Condition}
+     */
+    public static Condition column(ColumnAlias columnAlias) {
+        return new Condition(columnAlias);
+    }
 
     /**
      * The operation such as "=", "<", and more
@@ -59,37 +90,6 @@ public class Condition {
             throw new IllegalArgumentException("Column cannot be null");
         }
         this.columnAlias = columnAlias;
-    }
-
-    /**
-     * Creates a new instance with a raw condition query. The values will not be converted into
-     * SQL-safe value. Ex: itemOrder =itemOrder + 1. If not raw, this becomes itemOrder ='itemOrder + 1'
-     *
-     * @param columnName
-     * @return This raw condition
-     */
-    public static Condition columnRaw(String columnName) {
-        Condition condition = column(columnName);
-        condition.isRaw = true;
-        return condition;
-    }
-
-    public static Condition column(String columnName) {
-        return new Condition(ColumnAlias.column(columnName));
-    }
-
-    public static Condition exists() {
-        return new Condition(ColumnAlias.columnRaw("EXISTS "));
-    }
-
-    /**
-     * Constructs instance with the specified {@link ColumnAlias} to enable or disable back ticks on the name.
-     *
-     * @param columnAlias The alias to use.
-     * @return A new {@link Condition}
-     */
-    public static Condition column(ColumnAlias columnAlias) {
-        return new Condition(columnAlias);
     }
 
     /**

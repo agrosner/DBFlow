@@ -11,7 +11,7 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
     /**
      * The callback to be executed when the transaction completes
      */
-    private TransactionListener<ResultClass> mTransactionListener;
+    private TransactionListener<ResultClass> transactionListener;
 
     /**
      * Constructs this transaction with the default {@link com.raizlabs.android.dbflow.runtime.DBTransactionInfo}
@@ -30,23 +30,23 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
      */
     public BaseResultTransaction(DBTransactionInfo dbTransactionInfo, TransactionListener<ResultClass> transactionListener) {
         super(dbTransactionInfo);
-        this.mTransactionListener = transactionListener;
+        this.transactionListener = transactionListener;
     }
 
     @Override
     public boolean hasResult(ResultClass result) {
-        return mTransactionListener != null && mTransactionListener.hasResult(this, result);
+        return transactionListener != null && transactionListener.hasResult(this, result);
     }
 
     @Override
     public void onPostExecute(ResultClass modelClasses) {
-        if (mTransactionListener != null) {
-            mTransactionListener.onResultReceived(modelClasses);
+        if (transactionListener != null) {
+            transactionListener.onResultReceived(modelClasses);
         }
     }
 
     @Override
     public boolean onReady() {
-        return mTransactionListener != null && mTransactionListener.onReady(this);
+        return transactionListener != null && transactionListener.onReady(this);
     }
 }

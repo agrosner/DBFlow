@@ -19,10 +19,10 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelpe
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
-import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * Author: andrewgrosner
  * Description: Operates very similiar to a {@link java.util.List} except its backed by a table cursor. All of
  * the {@link java.util.List} modifications default to the main thread, but it can be set to
  * run on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. Register a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener}
@@ -51,16 +50,16 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     /**
      * Holds the table cursor
      */
-    private FlowCursorList<ModelClass> mCursorList;
+    private FlowCursorList<ModelClass> internalCursorList;
 
-    private TransactionListener<List<ModelClass>> mTransactionListener;
-    private TransactionListener<List<ModelClass>> mInternalTransactionListener = new TransactionListenerAdapter<List<ModelClass>>() {
+    private TransactionListener<List<ModelClass>> transactionListener;
+    private TransactionListener<List<ModelClass>> internalTransactionListener = new TransactionListenerAdapter<List<ModelClass>>() {
         @Override
         public void onResultReceived(List<ModelClass> modelClasses) {
             refresh();
 
-            if (mTransactionListener != null) {
-                mTransactionListener.onResultReceived(modelClasses);
+            if (transactionListener != null) {
+                transactionListener.onResultReceived(modelClasses);
             }
         }
     };
@@ -78,7 +77,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      */
     public FlowQueryList(Class<ModelClass> table, Condition... conditions) {
         super(null);
-        mCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
+        internalCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
                 return FlowQueryList.this.getBackingCache(getCacheSize());
@@ -93,7 +92,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      */
     public FlowQueryList(ModelQueriable<ModelClass> modelQueriable) {
         super(null);
-        mCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable) {
+        internalCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
                 return FlowQueryList.this.getBackingCache(getCacheSize());
@@ -124,7 +123,8 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      * Registers the list for model change events
      */
     public void registerForContentChanges(Context context) {
-        context.getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(mCursorList.getTable(), null), true, this);
+        context.getContentResolver().registerContentObserver(
+                SqlUtils.getNotificationUri(internalCursorList.getTable(), null), true, this);
     }
 
     /**
@@ -136,22 +136,22 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
 
     @Override
     public void onChange(boolean selfChange) {
-        mCursorList.refresh();
+        internalCursorList.refresh();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onChange(boolean selfChange, Uri uri) {
-        mCursorList.refresh();
+        internalCursorList.refresh();
     }
 
     /**
-     * Register for callbacks when data is changed on this list.
+     * Register for callbacks when data is changed asynchronous on this list.
      *
-     * @param transactionListener
+     * @param transactionListener Provides callbacks when the data changes async.
      */
-    public void setModificationReceiver(TransactionListener<List<ModelClass>> transactionListener) {
-        mTransactionListener = transactionListener;
+    public void setTransactionListener(TransactionListener<List<ModelClass>> transactionListener) {
+        this.transactionListener = transactionListener;
     }
 
     /**
@@ -167,21 +167,21 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      * @return a mutable list that does not reflect changes on the underlying DB.
      */
     public List<ModelClass> getCopy() {
-        return mCursorList.getAll();
+        return internalCursorList.getAll();
     }
 
     /**
      * @return The {@link com.raizlabs.android.dbflow.list.FlowCursorList} that backs this table list.
      */
     public FlowCursorList<ModelClass> getCursorList() {
-        return mCursorList;
+        return internalCursorList;
     }
 
     /**
      * Refreshes the content backing this list.
      */
     public void refresh() {
-        mCursorList.refresh();
+        internalCursorList.refresh();
     }
 
     /**
@@ -204,7 +204,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      */
     @SafeVarargs
     protected final ProcessModelInfo<ModelClass> getProcessModelInfo(ModelClass... modelClasses) {
-        return ProcessModelInfo.withModels(modelClasses).result(mInternalTransactionListener).info(MODIFICATION_INFO);
+        return ProcessModelInfo.withModels(modelClasses).result(internalTransactionListener).info(MODIFICATION_INFO);
     }
 
     /**
@@ -215,7 +215,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      * @return The shared info for this table.
      */
     protected final ProcessModelInfo<ModelClass> getProcessModelInfo(Collection<ModelClass> modelCollection) {
-        return ProcessModelInfo.withModels(modelCollection).result(mInternalTransactionListener).info(MODIFICATION_INFO);
+        return ProcessModelInfo.withModels(modelCollection).result(internalTransactionListener).info(MODIFICATION_INFO);
     }
 
     /**
@@ -230,7 +230,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
             TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(getProcessModelInfo(model)));
         } else {
             model.save();
-            mInternalTransactionListener.onResultReceived(Arrays.asList(model));
+            internalTransactionListener.onResultReceived(Arrays.asList(model));
         }
         return true;
     }
@@ -260,15 +260,16 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
         // cast to normal collection, we do not want subclasses of this table saved
         final Collection<ModelClass> tmpCollection = (Collection<ModelClass>) collection;
         if (transact) {
-            TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(getProcessModelInfo(tmpCollection)));
+            TransactionManager.getInstance().addTransaction(
+                    new SaveModelTransaction<>(getProcessModelInfo(tmpCollection)));
         } else {
-            ProcessModelHelper.process(mCursorList.getTable(), tmpCollection, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), tmpCollection, new ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
                     model.save();
                 }
             });
-            mInternalTransactionListener.onResultReceived((List<ModelClass>) tmpCollection);
+            internalTransactionListener.onResultReceived((List<ModelClass>) tmpCollection);
         }
         return true;
     }
@@ -279,11 +280,12 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     @Override
     public void clear() {
         if (transact) {
-            TransactionManager.getInstance().addTransaction(new DeleteTransaction<>(MODIFICATION_INFO, mCursorList.getTable()));
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteTransaction<>(MODIFICATION_INFO, internalCursorList.getTable()));
         } else {
-            Delete.table(mCursorList.getTable());
+            Delete.table(internalCursorList.getTable());
         }
-        mInternalTransactionListener.onResultReceived(null);
+        internalTransactionListener.onResultReceived(null);
     }
 
     /**
@@ -296,7 +298,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     @Override
     public boolean contains(Object object) {
         boolean contains = false;
-        if (mCursorList.getTable().isAssignableFrom(object.getClass())) {
+        if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             ModelClass model = ((ModelClass) object);
             contains = model.exists();
         }
@@ -334,17 +336,18 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      */
     @Override
     public ModelClass get(int row) {
-        return mCursorList.getItem(row);
+        return internalCursorList.getItem(row);
     }
 
     @Override
     public int indexOf(Object object) {
-        throw new UnsupportedOperationException("We cannot determine which index in the table this item exists at efficiently");
+        throw new UnsupportedOperationException(
+                "We cannot determine which index in the table this item exists at efficiently");
     }
 
     @Override
     public boolean isEmpty() {
-        return mCursorList.isEmpty();
+        return internalCursorList.isEmpty();
     }
 
     /**
@@ -354,13 +357,14 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     @NonNull
     @Override
     public Iterator<ModelClass> iterator() {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.iterator();
     }
 
     @Override
     public int lastIndexOf(Object object) {
-        throw new UnsupportedOperationException("We cannot determine which index in the table this item exists at efficiently");
+        throw new UnsupportedOperationException(
+                "We cannot determine which index in the table this item exists at efficiently");
     }
 
     /**
@@ -370,7 +374,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     @NonNull
     @Override
     public ListIterator<ModelClass> listIterator() {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.listIterator();
     }
 
@@ -382,7 +386,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     @NonNull
     @Override
     public ListIterator<ModelClass> listIterator(int location) {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.listIterator(location);
     }
 
@@ -395,12 +399,13 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      */
     @Override
     public ModelClass remove(int location) {
-        ModelClass model = mCursorList.getItem(location);
+        ModelClass model = internalCursorList.getItem(location);
         if (transact) {
-            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(getProcessModelInfo(model)));
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteModelListTransaction<>(getProcessModelInfo(model)));
         } else {
             model.delete();
-            mInternalTransactionListener.onResultReceived(Arrays.asList(model));
+            internalTransactionListener.onResultReceived(Arrays.asList(model));
         }
         return model;
     }
@@ -418,13 +423,14 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
         boolean removed = false;
 
         // if its a ModelClass
-        if (mCursorList.getTable().isAssignableFrom(object.getClass())) {
+        if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             ModelClass model = ((ModelClass) object);
             if (transact) {
-                TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(getProcessModelInfo(model)));
+                TransactionManager.getInstance().addTransaction(
+                        new DeleteModelListTransaction<>(getProcessModelInfo(model)));
             } else {
                 model.delete();
-                mInternalTransactionListener.onResultReceived(Arrays.asList(model));
+                internalTransactionListener.onResultReceived(Arrays.asList(model));
             }
             removed = true;
         }
@@ -446,15 +452,16 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
         // if its a ModelClass
         Collection<ModelClass> modelCollection = (Collection<ModelClass>) collection;
         if (transact) {
-            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(getProcessModelInfo(modelCollection)));
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteModelListTransaction<>(getProcessModelInfo(modelCollection)));
         } else {
-            ProcessModelHelper.process(mCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
                     model.delete();
                 }
             });
-            mInternalTransactionListener.onResultReceived((List<ModelClass>) modelCollection);
+            internalTransactionListener.onResultReceived((List<ModelClass>) modelCollection);
 
         }
 
@@ -470,18 +477,19 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      */
     @Override
     public boolean retainAll(@NonNull Collection<?> collection) {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         tableList.removeAll(collection);
         if (transact) {
-            TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(getProcessModelInfo(tableList)));
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteModelListTransaction<>(getProcessModelInfo(tableList)));
         } else {
-            ProcessModelHelper.process(mCursorList.getTable(), tableList, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), tableList, new ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
                     model.delete();
                 }
             });
-            mInternalTransactionListener.onResultReceived(tableList);
+            internalTransactionListener.onResultReceived(tableList);
         }
         return true;
     }
@@ -507,37 +515,38 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
      */
     public ModelClass set(ModelClass object) {
         if (transact) {
-            TransactionManager.getInstance().addTransaction(new UpdateModelListTransaction<>(getProcessModelInfo(object)));
+            TransactionManager.getInstance().addTransaction(
+                    new UpdateModelListTransaction<>(getProcessModelInfo(object)));
         } else {
             object.update();
-            mInternalTransactionListener.onResultReceived(Arrays.asList(object));
+            internalTransactionListener.onResultReceived(Arrays.asList(object));
         }
         return object;
     }
 
     @Override
     public int size() {
-        return mCursorList.getCount();
+        return internalCursorList.getCount();
     }
 
     @NonNull
     @Override
     public List<ModelClass> subList(int start, int end) {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.subList(start, end);
     }
 
     @NonNull
     @Override
     public Object[] toArray() {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.toArray();
     }
 
     @NonNull
     @Override
     public <T> T[] toArray(T[] array) {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.toArray(array);
     }
 

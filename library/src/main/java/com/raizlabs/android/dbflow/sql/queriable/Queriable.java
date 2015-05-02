@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.sql.language.Set;
 /**
  * Description: The most basic interface that some of the classes such as {@link Insert}, {@link ModelQueriable},
  * {@link Set}, and more implement for convenience.
- * {@link }
  */
 public interface Queriable {
 

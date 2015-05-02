@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: andrewgrosner
  * Description: Listens for {@link com.raizlabs.android.dbflow.structure.Model} changes. Register for specific
  * tables with {@link #addModelChangeListener(com.raizlabs.android.dbflow.runtime.FlowContentObserver.ModelChangeListener)}.
  * Provides ability to register and deregister listeners for when data is inserted, deleted, updated, and saved if the device is

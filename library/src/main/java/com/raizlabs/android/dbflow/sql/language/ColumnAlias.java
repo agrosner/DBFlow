@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
  */
 public class ColumnAlias implements Query {
 
-
     /**
      * @param columnName The name of the column that might have an alias in a query.
      * @return A new instance.

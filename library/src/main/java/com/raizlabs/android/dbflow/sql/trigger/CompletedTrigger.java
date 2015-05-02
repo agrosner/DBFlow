@@ -15,23 +15,23 @@ public class CompletedTrigger<ModelClass extends Model> implements Query {
     /**
      * The first pieces of this TRIGGER statement
      */
-    private TriggerMethod<ModelClass> mTriggerMethod;
+    private TriggerMethod<ModelClass> triggerMethod;
 
     /**
      * The query to run between the BEGIN and END of this statement
      */
-    private Query mTriggerLogicQuery;
+    private Query triggerLogicQuery;
 
     CompletedTrigger(TriggerMethod<ModelClass> triggerMethod, Query triggerLogicQuery) {
-        mTriggerMethod = triggerMethod;
-        mTriggerLogicQuery = triggerLogicQuery;
+        this.triggerMethod = triggerMethod;
+        this.triggerLogicQuery = triggerLogicQuery;
     }
 
     @Override
     public String getQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder(mTriggerMethod.getQuery());
+        QueryBuilder queryBuilder = new QueryBuilder(triggerMethod.getQuery());
         queryBuilder.append("\nBEGIN")
-                .append("\n").append(mTriggerLogicQuery.getQuery()).append(";")
+                .append("\n").append(triggerLogicQuery.getQuery()).append(";")
                 .append("\nEND");
         return queryBuilder.getQuery();
     }
@@ -41,7 +41,7 @@ public class CompletedTrigger<ModelClass extends Model> implements Query {
      * Turns on this trigger
      */
     public void enable() {
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTriggerMethod.mOnTable);
+        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(triggerMethod.onTable);
         databaseDefinition.getWritableDatabase().execSQL(getQuery());
     }
 
@@ -49,6 +49,6 @@ public class CompletedTrigger<ModelClass extends Model> implements Query {
      * Disables this trigger
      */
     public void disable() {
-        SqlUtils.dropTrigger(mTriggerMethod.mOnTable, mTriggerMethod.trigger.triggerName);
+        SqlUtils.dropTrigger(triggerMethod.onTable, triggerMethod.trigger.triggerName);
     }
 }

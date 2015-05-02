@@ -9,7 +9,7 @@ import android.util.Log;
 public class FlowLog {
 
     public static final String TAG = FlowLog.class.getSimpleName();
-    private static Level sLevel = Level.E;
+    private static Level level = Level.E;
 
     /**
      * Sets the minimum level that we wish to print out log statements with.
@@ -18,7 +18,7 @@ public class FlowLog {
      * @param level
      */
     public static void setMinimumLoggingLevel(Level level) {
-        sLevel = level;
+        FlowLog.level = level;
     }
 
     /**
@@ -64,7 +64,7 @@ public class FlowLog {
      * @return
      */
     public static boolean isEnabled(Level level) {
-        return level.ordinal() >= sLevel.ordinal();
+        return level.ordinal() >= FlowLog.level.ordinal();
     }
 
     /**

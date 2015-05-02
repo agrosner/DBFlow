@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class SelectSingleModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
 
-    private ModelQueriable<ModelClass> mModelQueriable;
+    private ModelQueriable<ModelClass> modelQueriable;
 
     /**
      * Creates an instance of this class
@@ -34,7 +34,7 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
      */
     public SelectSingleModelTransaction(ModelQueriable<ModelClass> modelQueriable, TransactionListener<ModelClass> transactionListener) {
         super(DBTransactionInfo.createFetch(), transactionListener);
-        mModelQueriable = modelQueriable;
+        this.modelQueriable = modelQueriable;
     }
 
     /**
@@ -51,6 +51,6 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
 
     @Override
     public ModelClass onExecute() {
-        return mModelQueriable.querySingle();
+        return modelQueriable.querySingle();
     }
 }

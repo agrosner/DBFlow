@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.runtime.transaction.process;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
  * Description: Saves all of the {@link ModelClass} into the DB in one transaction.
  */
 public class SaveModelTransaction<ModelClass extends Model> extends ProcessModelTransaction<ModelClass> {
