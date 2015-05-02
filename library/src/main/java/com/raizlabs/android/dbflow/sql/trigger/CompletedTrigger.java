@@ -49,6 +49,6 @@ public class CompletedTrigger<ModelClass extends Model> implements Query {
      * Disables this trigger
      */
     public void disable() {
-        SqlUtils.dropTrigger(mTriggerMethod.mOnTable, mTriggerMethod.mTrigger.mTriggerName);
+        SqlUtils.dropTrigger(mTriggerMethod.mOnTable, mTriggerMethod.trigger.triggerName);
     }
 }

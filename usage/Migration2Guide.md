@@ -12,7 +12,8 @@ In this guide we break up each kind of breaking changes into sections:
   1. Models
   2. Queries
   3. Generated Code
-  4. Notable removal of deprecated methods and classes
+  4. Transaction Manager
+  5. Notable removal of deprecated methods and classes
 
 
 ## New Features
@@ -20,7 +21,8 @@ In this guide we break up each kind of breaking changes into sections:
 This release comes with some _very_ notable features such as:
   1. Subquery support
   2. Better Column name and alias support
-  3. One-To-Many support
+  3. One-To-Many annotation support
   4. Better caching support with other column types
   5. Non-table Models, providing support for non-uniform or standard queries
-  6. 
+  6. Custom SQLite Open Helpers
+  7.
