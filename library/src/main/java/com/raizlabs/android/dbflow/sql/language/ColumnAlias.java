@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 
 /**
  * Description: Represents a column name as an alias to its original name. EX: SELECT `money` AS `myMoney`. However
@@ -11,12 +12,24 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
  */
 public class ColumnAlias implements Query {
 
+
     /**
      * @param columnName The name of the column that might have an alias in a query.
      * @return A new instance.
      */
     public static ColumnAlias column(String columnName) {
         return new ColumnAlias(columnName);
+    }
+
+    /**
+     * Returns a `tableName`.`columnName` handy for {@link Condition}
+     *
+     * @param tableName  The name of table to reference.
+     * @param columnName The column name to reference.
+     * @return A new instance.
+     */
+    public static ColumnAlias columnWithTable(String tableName, String columnName) {
+        return columnRaw("`" + tableName + "`.`" + columnName + "`");
     }
 
     /**
@@ -58,7 +71,7 @@ public class ColumnAlias implements Query {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder();
-        if(shouldQuote) {
+        if (shouldQuote) {
             queryBuilder.appendQuoted(columnName);
         } else {
             queryBuilder.append(columnName);

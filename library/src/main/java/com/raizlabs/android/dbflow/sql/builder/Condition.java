@@ -83,6 +83,16 @@ public class Condition {
     }
 
     /**
+     * Constructs instance with the specified {@link ColumnAlias} to enable or disable back ticks on the name.
+     *
+     * @param columnAlias The alias to use.
+     * @return A new {@link Condition}
+     */
+    public static Condition column(ColumnAlias columnAlias) {
+        return new Condition(columnAlias);
+    }
+
+    /**
      * Assigns the operation to "="
      *
      * @param value The value of the column from the {@link com.raizlabs.android.dbflow.structure.Model} Note

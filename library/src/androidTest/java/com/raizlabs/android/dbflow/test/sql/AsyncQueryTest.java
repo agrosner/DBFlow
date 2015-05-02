@@ -11,7 +11,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
-import com.raizlabs.android.dbflow.test.utils.OneShotLock;
 
 /**
  * Description:
