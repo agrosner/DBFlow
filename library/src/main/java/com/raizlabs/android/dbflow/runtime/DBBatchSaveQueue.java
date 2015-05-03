@@ -3,11 +3,14 @@ package com.raizlabs.android.dbflow.runtime;
 import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by andrewgrosner
@@ -48,6 +51,7 @@ public class DBBatchSaveQueue extends Thread {
     private boolean mQuit = false;
 
     private DBTransactionInfo mSaveQueueInfo = DBTransactionInfo.create("Batch Saving Models");
+    private TransactionListener mListener;
 
     /**
      * Creates a new instance of this class to batch save {@link com.raizlabs.android.dbflow.structure.Model} classes.
@@ -90,10 +94,16 @@ public class DBBatchSaveQueue extends Thread {
 
     /**
      * Change the priority of the queue, add a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} for when saving is done
+     *
      * @param mSaveQueueInfo
      */
     public void setSaveQueueInfo(DBTransactionInfo mSaveQueueInfo) {
         this.mSaveQueueInfo = mSaveQueueInfo;
+    }
+
+    public void setTransactionListener(TransactionListener listener) {
+
+        mListener = listener;
     }
 
     /**
@@ -120,7 +130,9 @@ public class DBBatchSaveQueue extends Thread {
             if (tmpModels.size() > 0) {
                 //onExecute this on the DBManager thread
                 TransactionManager.getInstance().save(
-                        ProcessModelInfo.withModels(tmpModels).info(mSaveQueueInfo));
+                        ProcessModelInfo.withModels(tmpModels)
+                                .result(getListener())
+                                .info(mSaveQueueInfo));
             }
 
             try {
@@ -202,6 +214,33 @@ public class DBBatchSaveQueue extends Thread {
      */
     public void quit() {
         mQuit = true;
+    }
+
+
+    /**
+     * @return Transaction listener or an empty one.
+     */
+    private TransactionListener<List<Model>> getListener() {
+        if (mListener == null){
+            mListener = new TransactionListener() {
+                @Override
+                public void onResultReceived(Object result) {
+
+                }
+
+                @Override
+                public boolean onReady(BaseTransaction transaction) {
+                    return false;
+                }
+
+                @Override
+                public boolean hasResult(BaseTransaction transaction, Object result) {
+                    return false;
+                }
+            };
+        }
+
+        return mListener;
     }
 }
 
