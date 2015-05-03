@@ -157,13 +157,9 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         if (getPrimaryColumnDefinitions().size() == 1) {
             ColumnDefinition columnDefinition = getColumnDefinitions().get(0);
             if (columnDefinition.isPrimaryKey) {
-                if (!columnDefinition.hasTypeConverter) {
-                    hasCachingId = int.class.getCanonicalName().equals(columnDefinition.columnFieldType)
-                            || long.class.getCanonicalName().equals(columnDefinition.columnFieldType);
-                }
+                hasCachingId = !columnDefinition.hasTypeConverter;
             }
         }
-
     }
 
     @Override

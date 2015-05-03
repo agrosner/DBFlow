@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
+import com.raizlabs.android.dbflow.processor.model.writer.ColumnAccessModel;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
@@ -103,7 +104,9 @@ public class LoadCursorWriter implements FlowWriter {
                                 .append(ModelUtils.getVariable(isModelContainerDefinition));
 
                         if (!isModelContainerDefinition) {
-                            queryBuilder.append(".").append(columnDefinition.columnFieldName);
+                            ColumnAccessModel columnAccessModel = new ColumnAccessModel(baseTableDefinition.getManager(),
+                                                                                        columnDefinition, isModelContainerDefinition);
+                            queryBuilder.append(".").append(columnAccessModel.getReferencedColumnFieldName());
                         } else {
                             String containerKeyName = columnDefinition.columnFieldName;
                             if (columnDefinition.containerKeyName != null) {
