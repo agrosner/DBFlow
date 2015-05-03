@@ -21,14 +21,14 @@ public class TriggerTest extends FlowTestCase {
         Where<TestModel1> logic = new Update<>(TestModel1.class)
                 .set(Condition.column(TestModel1$Table.NAME).is("Jason"))
                 .where(Condition.column(TestModel1$Table.NAME).is("Jason2"));
-        String trigger = new Trigger<ConditionModel>("MyTrigger")
+        String trigger = Trigger.create("MyTrigger")
                 .after().insert(ConditionModel.class).begin(logic).getQuery();
         assertEquals("CREATE TRIGGER IF NOT EXISTS MyTrigger  AFTER INSERT ON ConditionModel " +
                 "\nBEGIN" +
                     "\n" + logic.getQuery() +";" +
                 "\nEND", trigger.trim());
 
-        trigger = new Trigger<ConditionModel>("MyTrigger2")
+        trigger = Trigger.create("MyTrigger2")
                 .before().update(ConditionModel.class, ConditionModel$Table.NAME).begin(logic).getQuery();
         assertEquals("CREATE TRIGGER IF NOT EXISTS MyTrigger2  BEFORE UPDATE OF name ON ConditionModel " +
                 "\nBEGIN" +
@@ -39,7 +39,7 @@ public class TriggerTest extends FlowTestCase {
     public void testTriggerFunctions() {
         Delete.tables(TestUpdateModel.class, ConditionModel.class);
 
-        CompletedTrigger<ConditionModel> trigger = new Trigger<ConditionModel>("TestTrigger")
+        CompletedTrigger<ConditionModel> trigger = Trigger.create("TestTrigger")
                     .after().insert(ConditionModel.class).begin(new Update<>(TestUpdateModel.class)
                         .set(Condition.column(TestUpdateModel$Table.VALUE).is("Fired")));
 

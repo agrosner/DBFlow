@@ -100,7 +100,6 @@ public class LoadCursorWriter implements FlowWriter {
                         ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(0);
                         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder()
                                 .append("return ")
-                                .appendCast("long")
                                 .append(ModelUtils.getVariable(isModelContainerDefinition));
 
                         if (!isModelContainerDefinition) {
@@ -113,9 +112,9 @@ public class LoadCursorWriter implements FlowWriter {
                             queryBuilder.append(".").appendGetValue(containerKeyName);
                         }
 
-                        javaWriter.emitStatement(queryBuilder.append(")").getQuery());
+                        javaWriter.emitStatement(queryBuilder.getQuery());
                     }
-                }, "long", "getCachingId", Sets.newHashSet(Modifier.PUBLIC), params2);
+                }, "Object", "getCachingId", Sets.newHashSet(Modifier.PUBLIC), params2);
 
                 if (!isModelContainerDefinition) {
                     WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {

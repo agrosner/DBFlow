@@ -85,7 +85,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
     @Override
     @SuppressWarnings("unchecked")
     public void delete() {
-        long id = getModelAdapter().getCachingId(this);
+        Object id = getModelAdapter().getCachingId(this);
         super.delete();
         mCache.removeModel(id);
     }

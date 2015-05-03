@@ -39,7 +39,7 @@ public class Trigger implements Query {
      * @param triggerName The name of the trigger to use.
      * @return A new trigger.
      */
-    Trigger create(String triggerName) {
+    public static Trigger create(String triggerName) {
         return new Trigger(triggerName);
     }
 
@@ -49,7 +49,7 @@ public class Trigger implements Query {
      *
      * @param triggerName What we should call this trigger
      */
-    Trigger(String triggerName) {
+    private Trigger(String triggerName) {
         this.triggerName = triggerName;
     }
 
