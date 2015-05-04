@@ -6,6 +6,7 @@ import android.net.Uri;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.sql.language.Where;
@@ -52,6 +53,13 @@ public class UpdateTest extends FlowTestCase {
         query = new Update<>(BoxedModel.class).set(
                 Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
+
+        query = new Update<>(BoxedModel.class).set(
+                Condition.column(ColumnAlias.column(BoxedModel$Table.NAME)).eq("Test"))
+                .where(Condition.columnRaw(BoxedModel$Table.NAME)
+                               .eq(ColumnAlias.columnWithTable(BoxedModel$Table.TABLE_NAME, BoxedModel$Table.NAME)))
+                .getQuery();
+        assertEquals("UPDATE `BoxedModel` SET `name`='Test' WHERE `name`=`BoxedModel`.`name`", query.trim());
 
         Uri uri = TestContentProvider.NoteModel.withOpenId(1, true);
 

@@ -167,11 +167,121 @@ To run a subquery, simply:
 ```java
 List<SomeTable> list = new Select()
                         .from(SomeTable.class)
-                        .where(Condition.column(SomeTable$Table.COLUMN).operation(Operation.GREATER_THAN)
-                          .subquery(new Select()
+                        .where(Condition.column(SomeTable$Table.COLUMN)
+                          .greaterThan(new Select()
                                     .from(SomeTable.class)
                                     .where(Condition.columnRaw(SomeTable$Table.ANOTHER_COLUMN)
                                                        .eq(SomeTable$Table.ANOTHER_COLUMN_2)))
                         .queryList();
 
 ```
+
+By passing a `Where` object into any of the `Condition` methods, the SQL language
+knows that it's a subquery and appends it appropriately.
+
+### Better Column name and alias support!
+
+Welcome to `ColumnAlias`! It's a handy class that enables you to wrap logic in specifying
+column names with:
+  1. Proper table appending. I.e.: `MyTable`.`columnName`
+
+  ```SQL
+
+  SELECT * FROM `SomeTable`
+  WHERE `SomeTable`.`column`='test'
+
+  ```
+
+  ```java
+
+  new Select().from(SomeTable.class)
+    .where(Condition.column(ColumnAlias.columnWithTable(SomeTable$Table.TABLE_NAME, SomeTable$Table.COLUMN).eq("test")));
+
+  ```
+
+  2. Using the `AS` operator:
+
+  ```SQL
+
+  SELECT `name` AS `newName`
+  ...
+
+  ```
+
+  ```java
+
+  new Select(ColumnAlias.column(SomeTable$Table.NAME).as("newName"))
+
+  ```
+
+  Its available in all `Select`, `Condition`, `Index`, and `Trigger` classes for
+  specifying column names.
+
+### One-to-Many annotation support
+
+The `OneToMany` annotation is used in instances where you have a relationship to
+manage yourself. For example
+
+```java
+
+@Table(databaseName = TestDatabase.NAME)
+public class OneToManyModel extends BaseModel {
+
+    @Column
+    @PrimaryKey
+    String name;
+
+    List<TestModel2> orders;
+
+    public List<TestModel2> getOrders() {
+        if (orders == null) {
+            orders = new Select().from(TestModel2.class)
+                    .where(Condition.column(TestModel2$Table.MODEL_ORDER).greaterThan(3))
+                    .queryList();
+        }
+        return orders;
+    }
+
+}
+
+```
+
+In this scenario we want the `Model` to load the relationship on load from the
+database. Also, when we destroy this parent, we want to corresponding children to get destroyed
+as well. Instead of either forgetting to do so and ultimately "orphaning" the children,
+or having to manage the code of doing it yourself, which can lead to errors, let the
+`@OneToMany` handle it for you!
+
+```java
+
+@Table(databaseName = TestDatabase.NAME)
+public class OneToManyModel extends BaseModel {
+
+    @Column
+    @PrimaryKey
+    String name;
+
+    List<TestModel2> orders;
+
+    @OneToMany(methods = {OneToMany.Method.ALL})
+    public List<TestModel2> getOrders() {
+        if (orders == null) {
+            orders = new Select().from(TestModel2.class)
+                    .where(Condition.column(TestModel2$Table.MODEL_ORDER).greaterThan(3))
+                    .queryList();
+        }
+        return orders;
+    }
+
+}
+
+```
+
+_Note: the method must be getFieldName for fieldName, otherwise you can specify
+the `variableName()` to connect the method to the variable_.
+
+There are a few options this library supports:
+  1. `LOAD`: loads the relationship out of the database. (this is the default)
+  2. `DELETE`: deletes all of the related models when this model is deleted.
+  3. `SAVE`: save all of the models returned from the `OneToMany`
+  4. `ALL`: shorthand to support all kinds.

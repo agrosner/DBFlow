@@ -14,13 +14,31 @@ import java.util.List;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface OneToMany {
+
     /**
      * The method to apply the OneToMany to.
      */
     enum Method {
+
+        /**
+         * Load this relationship when the parent model loads from the database. This is called before the OnLoadFromCursor
+         * method, but after other columns load.
+         */
         LOAD,
+
+        /**
+         * Inserts code to delete the results returned from the List relationship when the parent model is deleted.
+         */
         DELETE,
+
+        /**
+         * Inserts code to save the list of models when the parent model is saved.
+         */
         SAVE,
+
+        /**
+         * Shorthand to support all options.
+         */
         ALL
     }
 
