@@ -25,20 +25,6 @@ public @interface Column {
     int length() default -1;
 
     /**
-     * Marks this field as not null and will throw an exception if it is.
-     *
-     * @return if field cannot be null.
-     */
-    boolean notNull() default false;
-
-    /**
-     * Defines how to handle conflicts for not null column
-     *
-     * @return a {@link com.raizlabs.android.dbflow.annotation.ConflictAction} enum
-     */
-    ConflictAction onNullConflict() default ConflictAction.FAIL;
-
-    /**
      * @return Marks the field as having a specified collation to use in it's creation.
      */
     String collate() default "";
@@ -48,28 +34,4 @@ public @interface Column {
      */
     String defaultValue() default "";
 
-    /**
-     * Defines how to handle conflicts for a unique column
-     *
-     * @return a {@link com.raizlabs.android.dbflow.annotation.ConflictAction} enum
-     */
-    ConflictAction onUniqueConflict() default ConflictAction.FAIL;
-
-    /**
-     * Defines {@link ForeignKeyAction} action to be performed
-     * on delete of referenced record. Defaults to {@link ForeignKeyAction#NO_ACTION}. Used only when
-     * columnType is {@link ForeignKey}.
-     *
-     * @return {@link ForeignKeyAction}
-     */
-    ForeignKeyAction onDelete() default ForeignKeyAction.NO_ACTION;
-
-    /**
-     * Defines {@link ForeignKeyAction} action to be performed
-     * on update of referenced record. Defaults to {@link ForeignKeyAction#NO_ACTION}. Used only when
-     * columnType is {@link ForeignKey}.
-     *
-     * @return {@link ForeignKeyAction}
-     */
-    ForeignKeyAction onUpdate() default ForeignKeyAction.NO_ACTION;
 }

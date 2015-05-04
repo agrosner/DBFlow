@@ -32,9 +32,11 @@ public class TestModelContainerClass extends TestModel1 {
     @Column
     boolean isHappy;
 
-    @Column(onDelete = ForeignKeyAction.CASCADE,
-            onUpdate = ForeignKeyAction.CASCADE)
-    @ForeignKey(references =
+    @Column
+    @ForeignKey(
+            onDelete = ForeignKeyAction.CASCADE,
+            onUpdate = ForeignKeyAction.CASCADE,
+            references =
             {@ForeignKeyReference(columnName = "testName",
                     columnType = String.class,
                     foreignColumnName = "name"),

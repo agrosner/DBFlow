@@ -33,4 +33,22 @@ public @interface ForeignKey {
      * is NOT a Model class.
      */
     Class<?> tableClass() default Void.class;
+
+    /**
+     * Defines {@link ForeignKeyAction} action to be performed
+     * on delete of referenced record. Defaults to {@link ForeignKeyAction#NO_ACTION}. Used only when
+     * columnType is {@link ForeignKey}.
+     *
+     * @return {@link ForeignKeyAction}
+     */
+    ForeignKeyAction onDelete() default ForeignKeyAction.NO_ACTION;
+
+    /**
+     * Defines {@link ForeignKeyAction} action to be performed
+     * on update of referenced record. Defaults to {@link ForeignKeyAction#NO_ACTION}. Used only when
+     * columnType is {@link ForeignKey}.
+     *
+     * @return {@link ForeignKeyAction}
+     */
+    ForeignKeyAction onUpdate() default ForeignKeyAction.NO_ACTION;
 }

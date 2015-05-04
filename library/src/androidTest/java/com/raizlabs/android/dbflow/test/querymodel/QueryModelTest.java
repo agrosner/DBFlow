@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.test.querymodel;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Where;
@@ -33,9 +34,10 @@ public class QueryModelTest extends FlowTestCase {
         salaryModel.department = "Developer";
         salaryModel.save();
 
-        Where<SalaryModel> selectQuery = new Select(SalaryModel$Table.DEPARTMENT)
-                .rawColumns("`SALARY` as average_salary", "`name` as newName")
-                .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT);
+        Where<SalaryModel> selectQuery = new Select(ColumnAlias.column(SalaryModel$Table.DEPARTMENT),
+                                                    ColumnAlias.column(SalaryModel$Table.SALARY).as("average_salary"),
+                                                    ColumnAlias.column(SalaryModel$Table.NAME).as("newName"))
+                                            .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT);
 
         TestQueryModel testQueryModel = selectQuery.queryCustomSingle(TestQueryModel.class);
 

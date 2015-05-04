@@ -19,7 +19,7 @@ public @interface QueryModel {
     String databaseName();
 
     /**
-     * @return If true, all accessible, non-static, and non-final fields are treated as columns.
+     * @return If true, all accessible, non-static, and non-final fields are treated as valid fields.
      * @see Table#allFields()
      */
     boolean allFields() default false;

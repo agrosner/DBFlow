@@ -44,6 +44,20 @@ This allows you to update a `RecyclerView.Adapter` or something else when the
 transaction completes. The new `OnModelChangedListener` provides a simplified callback
 on the UI thread when the transaction completes.
 
+
+#### Annotations
+
+To simplify the `@Column` annotation, we broke apart the primary key, foreign key,
+not null, and unique groups into their own separate annotations. Originally, it made sense
+to put it all in one annotation, but as features were added, it became apparent the
+annotation allowed you to use it in unintended ways.
+
+So these annotations (and their corresponding methods moved into):
+  1. `@PrimaryKey`
+  2. `@ForeignKey`
+  3. `@Unique`
+  4. `@NotNull`
+
 ### Queries
 
 #### FlowTableList -> FlowQueryList
@@ -251,6 +265,12 @@ database. Also, when we destroy this parent, we want to corresponding children t
 as well. Instead of either forgetting to do so and ultimately "orphaning" the children,
 or having to manage the code of doing it yourself, which can lead to errors, let the
 `@OneToMany` handle it for you!
+The annotation comes with these restrictions:
+  1. The method must follow this pattern: `getFieldName` for `fieldName`, otherwise you can specify
+ `variableName()` to connect the method to the variable.
+  2. The method must be accessible to the annotation processor, so either `public`
+  or package private.
+  3. The method must return a `List` of `Model` and the variable must be of the same type.
 
 ```java
 
@@ -277,11 +297,72 @@ public class OneToManyModel extends BaseModel {
 
 ```
 
-_Note: the method must be getFieldName for fieldName, otherwise you can specify
-the `variableName()` to connect the method to the variable_.
+
 
 There are a few options this library supports:
   1. `LOAD`: loads the relationship out of the database. (this is the default)
   2. `DELETE`: deletes all of the related models when this model is deleted.
   3. `SAVE`: save all of the models returned from the `OneToMany`
   4. `ALL`: shorthand to support all kinds.
+
+### Better Caching Support
+
+Previously with `ModelCache` and `CacheableModel` items, you could only use an
+`int` or `long` primary key / primary key auto-increment. With this update,
+all primary key types are supported as long as:
+  1. Doesn't require a `TypeConverter`
+  2. One, single primary key
+
+### Non-Table Models and better support for non-uniform table queries
+
+In `2.0.0`, you can now create `Model` classes that do not pertain to a specific
+table, but still generating `Cursor` loading methods!
+Just:
+  1. Use the `QueryModel` annotation
+  2. extend `BaseQueryModel`
+  3. Specify only `@Column`
+
+
+```java
+
+@QueryModel(databaseName = TestDatabase.NAME)
+public class TestQueryModel extends BaseQueryModel {
+...
+}
+
+```
+
+To use non-uniform queries (with this example):
+
+```java
+
+List<TestQueryModel> list = new Select(ColumnAlias.column(SalaryModel$Table.DEPARTMENT),
+                                                    ColumnAlias.column(SalaryModel$Table.SALARY).as("average_salary"),
+                                                    ColumnAlias.column(SalaryModel$Table.NAME).as("newName"))
+                                            .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT).queryCustomList(TestQueryModel.class);
+
+```
+
+### Custom FlowSQLiteOpenHelper
+
+In better to support other systems such as SQLCipher, I have opened up support
+for extending the `FlowSQLiteOpenHelper`. The support is very basic and must:
+
+  1. Contain a Constructor with these parameters exactly: `BaseDatabaseDefinition`, `DatabaseHelperListener`
+  2. Be `public`
+
+To use it, specify in your `@Database` class:
+
+```java
+
+
+@Database(name = HelperDatabase.NAME, version = HelperDatabase.VERSION,
+          sqlHelperClass = CustomOpenHelper.class)
+public class HelperDatabase {
+
+    public static final String NAME = "Helper";
+
+    public static final int VERSION = 1;
+}
+
+```

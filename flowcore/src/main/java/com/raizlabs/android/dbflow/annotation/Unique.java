@@ -23,4 +23,11 @@ public @interface Unique {
      * it will generate a UNIQUE() column statement.
      */
     int[] uniqueGroups() default {};
+
+    /**
+     * Defines how to handle conflicts for a unique column
+     *
+     * @return a {@link com.raizlabs.android.dbflow.annotation.ConflictAction} enum
+     */
+    ConflictAction onUniqueConflict() default ConflictAction.FAIL;
 }

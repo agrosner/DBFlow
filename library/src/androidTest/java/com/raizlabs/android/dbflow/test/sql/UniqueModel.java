@@ -13,20 +13,20 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description:
  */
 @Table(databaseName = TestDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.ROLLBACK),
-                @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.REPLACE)})
+       uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.ROLLBACK),
+               @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.REPLACE)})
 public class UniqueModel extends BaseModel {
 
     @Column
     @PrimaryKey(autoincrement = true)
     long id;
 
-    @Column(onUniqueConflict = ConflictAction.REPLACE)
-    @Unique(uniqueGroups = 1)
+    @Column
+    @Unique(uniqueGroups = 1, onUniqueConflict = ConflictAction.REPLACE)
     String uniqueName;
 
-    @Column(onUniqueConflict = ConflictAction.ROLLBACK)
-    @Unique(uniqueGroups = 2)
+    @Column
+    @Unique(uniqueGroups = 2, onUniqueConflict = ConflictAction.ROLLBACK)
     String anotherUnique;
 
     @Column

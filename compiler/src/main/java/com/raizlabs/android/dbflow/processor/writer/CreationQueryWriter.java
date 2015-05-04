@@ -155,9 +155,9 @@ public class CreationQueryWriter implements FlowWriter {
                                 .append(")").appendSpaceSeparated("REFERENCES `%1s`")
                                 .append("(").appendQuotedArray(foreignColumns).append(")").appendSpace()
                                 .append("ON UPDATE")
-                                .appendSpaceSeparated(foreignKeyField.column.onUpdate().name().replace("_", " "))
+                                .appendSpaceSeparated(foreignKeyField.onUpdateConflict.name().replace("_", " "))
                                 .append("ON DELETE")
-                                .appendSpaceSeparated(foreignKeyField.column.onDelete().name().replace("_", " "));
+                                .appendSpaceSeparated(foreignKeyField.onDeleteConflict.name().replace("_", " "));
 
                         foreignColumnClasses.add("FlowManager.getTableName(" + ModelUtils.getFieldClass(foreignKeyField.foreignKeyTableClassName) + ")");
 

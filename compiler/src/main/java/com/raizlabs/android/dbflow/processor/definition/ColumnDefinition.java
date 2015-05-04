@@ -5,7 +5,9 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.data.Blob;
@@ -91,6 +93,10 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public ConflictAction onUniqueConflict;
 
+    public ForeignKeyAction onDeleteConflict;
+
+    public ForeignKeyAction onUpdateConflict;
+
     public String collate;
 
     public String defaultValue;
@@ -119,20 +125,24 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         }
 
         Unique uniqueColumn = element.getAnnotation(Unique.class);
-        if (uniqueColumn != null && uniqueColumn.unique()) {
-            unique = true;
+        if (uniqueColumn != null) {
+            unique = uniqueColumn.unique();
+            onUniqueConflict = uniqueColumn.onUniqueConflict();
+            int[] groups = uniqueColumn.uniqueGroups();
+            for (int group : groups) {
+                uniqueGroups.add(group);
+            }
+        }
+
+        NotNull notNullAnno = element.getAnnotation(NotNull.class);
+        if(notNullAnno != null) {
+            notNull = true;
+            onNullConflict = notNullAnno.onNullConflict();
         }
 
         if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
             length = column.length();
-            int[] groups = uniqueColumn == null ? new int[0] : uniqueColumn.uniqueGroups();
-            for (int group : groups) {
-                uniqueGroups.add(group);
-            }
-            onUniqueConflict = column.onUniqueConflict();
-            notNull = column.notNull();
-            onNullConflict = column.onNullConflict();
             collate = column.collate();
             defaultValue = column.defaultValue();
         } else {
@@ -184,6 +194,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 foreignKeyTableClassName = columnFieldType;
             }
             foreignKeyReferences = foreignKey.references();
+            onDeleteConflict = foreignKey.onDelete();
+            onUpdateConflict = foreignKey.onUpdate();
         }
 
         isModel = ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), Classes.MODEL, modelType);
