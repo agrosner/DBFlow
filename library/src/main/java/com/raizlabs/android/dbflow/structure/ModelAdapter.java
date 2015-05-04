@@ -13,7 +13,8 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model>
+        implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
 
     private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
 
@@ -101,8 +102,10 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      */
     @Override
     public long getAutoIncrementingId(ModelClass model) {
-        throw new InvalidDBConfiguration(String.format("This method may have been called in error. The model class %1s must contain" +
-                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)", getModelClass()));
+        throw new InvalidDBConfiguration(
+                String.format("This method may have been called in error. The model class %1s must contain" +
+                              "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                              getModelClass()));
     }
 
     /**
@@ -110,8 +113,10 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     public String getAutoIncrementingColumnName() {
-        throw new InvalidDBConfiguration(String.format("This method may have been called in error. The model class %1s must contain" +
-                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)", getModelClass()));
+        throw new InvalidDBConfiguration(
+                String.format("This method may have been called in error. The model class %1s must contain" +
+                              "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                              getModelClass()));
     }
 
     /**
@@ -129,6 +134,16 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      */
     public String getCachingColumnName() {
         return getAutoIncrementingColumnName();
+    }
+
+    /**
+     * @param cursor      The cursor to retrieve data from.
+     * @param columnIndex The column index to retrieve data from.
+     * @return The cache id value from the {@link Cursor}. This is generated since not all
+     * columns have the same value.
+     */
+    public Object getCachingIdFromCursorIndex(Cursor cursor, int columnIndex) {
+        return cursor.getLong(columnIndex);
     }
 
     /**

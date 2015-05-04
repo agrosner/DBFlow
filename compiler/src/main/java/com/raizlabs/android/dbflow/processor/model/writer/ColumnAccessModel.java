@@ -195,4 +195,8 @@ public class ColumnAccessModel implements Query {
     public String getSetterReferenceColumnFieldName() {
         return  isPrivate ? getPrivateSetterMethodName() : referencedColumnFieldName;
     }
+
+    public String getCastedClass() {
+        return castedClass;
+    }
 }

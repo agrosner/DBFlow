@@ -153,7 +153,8 @@ public class SqlUtils {
             ModelAdapter<CacheableClass> modelAdapter = FlowManager.getModelAdapter(table);
 
             if (modelAdapter != null) {
-                long id = cursor.getLong(cursor.getColumnIndex(modelAdapter.getCachingColumnName()));
+                Object id = modelAdapter.getCachingIdFromCursorIndex(cursor,
+                        cursor.getColumnIndex(modelAdapter.getCachingColumnName()));
                 model = BaseCacheableModel.getCache(table).get(id);
                 if (model == null) {
                     model = modelAdapter.newInstance();
