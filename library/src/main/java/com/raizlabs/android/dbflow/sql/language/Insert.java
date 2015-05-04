@@ -141,6 +141,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
             String key = entry.getKey();
             columns[count] = key;
             values[count] = contentValues.get(key);
+            count++;
         }
 
         return columns(columns).values(values);
