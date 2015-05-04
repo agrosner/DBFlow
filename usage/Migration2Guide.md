@@ -58,6 +58,9 @@ So these annotations (and their corresponding methods moved into):
   3. `@Unique`
   4. `@NotNull`
 
+_Note: all the method names are the same from what was previously in `Model`,
+so just copy and paste into new annotation!_.
+
 ### Queries
 
 #### FlowTableList -> FlowQueryList
