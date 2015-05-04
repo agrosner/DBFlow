@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.test.structure;
+package com.raizlabs.android.dbflow.test.structure.caching;
 
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -62,5 +62,32 @@ public class CacheableModelTest extends FlowTestCase {
         }
 
         Delete.table(CacheableModel2.class);
+    }
+
+    public void testCacheableModel3() {
+        Delete.table(CacheableModel3.class);
+
+        CacheableModel3 cacheableModel3 = new CacheableModel3();
+
+        ModelCache<CacheableModel3, ?> modelCache = BaseCacheableModel.getCache(CacheableModel3.class);
+        for(int i = 0; i < 20; i++) {
+            cacheableModel3.number = i;
+            cacheableModel3.cache_id = "model" + i;
+            cacheableModel3.save();
+
+            String id = cacheableModel3.cache_id;
+            CacheableModel3 cacheableModel = modelCache.get(id);
+            assertNotNull(cacheableModel);
+
+            assertEquals(new Select().from(CacheableModel3.class)
+                                 .where(Condition.column(CacheableModel3$Table.CACHE_ID).is(id))
+                                 .querySingle(), cacheableModel);
+
+            cacheableModel3.delete();
+            assertNull(modelCache.get(id));
+        }
+
+        Delete.table(CacheableModel3.class);
+
     }
 }

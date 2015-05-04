@@ -136,8 +136,8 @@ public class Trigger implements Query {
 
     @Override
     public String getQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder("CREATE TRIGGER IF NOT EXISTS")
-                .appendSpaceSeparated(triggerName)
+        QueryBuilder queryBuilder = new QueryBuilder("CREATE TRIGGER IF NOT EXISTS ")
+                .appendQuoted(triggerName).appendSpace()
                 .appendOptional(" " + beforeOrAfter + " ");
 
         return queryBuilder.getQuery();

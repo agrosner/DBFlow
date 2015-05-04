@@ -23,14 +23,14 @@ public class TriggerTest extends FlowTestCase {
                 .where(Condition.column(TestModel1$Table.NAME).is("Jason2"));
         String trigger = Trigger.create("MyTrigger")
                 .after().insert(ConditionModel.class).begin(logic).getQuery();
-        assertEquals("CREATE TRIGGER IF NOT EXISTS MyTrigger  AFTER INSERT ON ConditionModel " +
+        assertEquals("CREATE TRIGGER IF NOT EXISTS `MyTrigger`  AFTER INSERT ON `ConditionModel` " +
                 "\nBEGIN" +
                     "\n" + logic.getQuery() +";" +
                 "\nEND", trigger.trim());
 
         trigger = Trigger.create("MyTrigger2")
                 .before().update(ConditionModel.class, ConditionModel$Table.NAME).begin(logic).getQuery();
-        assertEquals("CREATE TRIGGER IF NOT EXISTS MyTrigger2  BEFORE UPDATE OF name ON ConditionModel " +
+        assertEquals("CREATE TRIGGER IF NOT EXISTS `MyTrigger2`  BEFORE UPDATE OF `name` ON `ConditionModel` " +
                 "\nBEGIN" +
                 "\n" + logic.getQuery() + ";" +
                 "\nEND", trigger.trim());

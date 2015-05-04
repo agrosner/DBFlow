@@ -31,7 +31,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
         this.trigger = trigger;
         this.methodName = methodName;
         this.onTable = onTable;
-        if (columns != null && columns.length > 0) {
+        if (columns != null && columns.length > 0 && columns[0] != null) {
             if (!methodName.equals(UPDATE)) {
                 throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
             }
@@ -46,7 +46,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
         this.trigger = trigger;
         this.methodName = methodName;
         this.onTable = onTable;
-        if (columns != null && columns.length > 0) {
+        if (columns != null && columns.length > 0 && columns[0] != null) {
             if (!methodName.equals(UPDATE)) {
                 throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
             }
@@ -91,7 +91,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
             queryBuilder.appendSpaceSeparated("OF")
                     .appendArray(columns);
         }
-        queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(onTable));
+        queryBuilder.appendSpaceSeparated("ON").appendQuoted(FlowManager.getTableName(onTable));
 
         if (forEachRow) {
             queryBuilder.appendSpaceSeparated("FOR EACH ROW");
