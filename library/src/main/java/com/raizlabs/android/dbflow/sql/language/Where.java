@@ -190,6 +190,17 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param columns The columns to groupby
      * @return
      */
+    public Where<ModelClass> groupBy(ColumnAlias... columns) {
+        mGroupBy = new QueryBuilder().appendArray(columns).getQuery();
+        return this;
+    }
+
+    /**
+     * Defines a SQL GROUP BY statement without the GROUP BY.
+     *
+     * @param columns The columns to groupby
+     * @return
+     */
     public Where<ModelClass> groupBy(String... columns) {
         mGroupBy = new QueryBuilder().appendArray(columns).getQuery();
         return this;

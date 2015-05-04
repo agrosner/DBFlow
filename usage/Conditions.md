@@ -6,6 +6,8 @@
 
 name = 'Test'
 
+name = `SomeTable`.`Test`
+
 name LIKE '%Test%'
 
 name != 'Test'
@@ -19,7 +21,7 @@ name IN('Test','Test2','TestN')
 ### How to use ```Condition```
 
 The ```Condition``` class can specify:
-  1. **columnName**: the name of the column in the database. It is strongly recommended to use the 
+  1. **columnName**: the name of the column in the database. It is strongly recommended to use the
   column name from the generated ```$Table``` class for a ```Model``` as this will save you defining constant strings for the column names.
   2. **operator**: The valid SQL operator. Not "space separated" such that specifying ```operator("=")``` yields ```columnName=value```.
   3. **value**: The value of the data as represented by the ```Model```. This value will be converted into its database value when appending itself to a ```ConditionQueryBuilder```.
@@ -31,6 +33,8 @@ From our previous examples using this class:
 ```java
 
 Condition.column(MyTable$Table.NAME).is("Test")
+
+Condition.column(ColumnAlias.columnTable(SomeTable$Table.TABLE_NAME, SomeTable$Table.TEST))
 
 Condition.column(MyTable$Table.NAME).like("%Test%")
 
@@ -51,7 +55,7 @@ How to use:
 
 ```java
 
-ConditionQueryBuilder<MyTable> queryBuilder = new ConditionQueryBuilder<MyTable>(MyTable.class, 
+ConditionQueryBuilder<MyTable> queryBuilder = new ConditionQueryBuilder<MyTable>(MyTable.class,
     Condition.column(MyTable$NAME).is("test"))
     .or(Condition.column(MyTable$NAME).is("test2"))
     .and(Condition.column(MyTable$NUMBER).between(5).and(6));

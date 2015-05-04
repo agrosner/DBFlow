@@ -62,8 +62,8 @@ TransactionManager.getInstance().addTransaction(new SelectListTransaction<>(
   new Select()
   .from(DeviceObject.class)
   .where(
-      Condition.column(DeviceObject$Table.NAME).eq("Samsung-Galaxy-S5"),
-      Condition.column(DeviceObject$Table.CARRIER).eq("T-Mobile"))),
+      Condition.column(Ant$Table.TYPE).eq("worker"),
+      Condition.column(Ant$Table.ISMALE).eq(false))),
   transactionListener);
 
 ```
@@ -72,7 +72,7 @@ There are many kinds of queries that are supported in DBFlow including:
   1. SELECT
   2. UPDATE
   3. DELETE
-  4. JOIN (limited)
+  4. JOIN
 
 ### SELECT Statements and Retrieval Methods
 
@@ -109,12 +109,6 @@ TransactionManager.getInstance().addTransaction(
     public void onResultReceived(List<SomeTable> someObjectList) {
       // retrieved here
 });
-
-// selects all based on these conditions, returns list
-Select.all(SomeTable.class, conditions);
-
-// Selects a single model by id
-Select.byId(SomeTable.class, primaryKey);
 
 // Selects Count of Rows for the SELECT statment
 long count = new Select().count(SomeTable.class).where(conditions).count();
@@ -231,9 +225,11 @@ For example we have a table named ```Customer``` and another named ```Reservatio
 
 ```java
 
-List<Customer> customers = new Select()
+// use the different QueryModel (instead of Table) if the result cannot be applied to existing Model classes.
+List<CustomTable> customers = new Select()
   .from(Customer.class).as("C")
   .join(Reservations.class, JoinType.INNER).as("R")
-    .on(Condition.column("C." + Customer$Table.CUSTOMER_ID).eq("R." + Reservations$Table.CUSTOMER_ID)).queryList();
+    .on(Condition.column(ColumnAlias.columnTable("C", Customer$Table.CUSTOMER_ID)
+      .eq(ColumnAlias.columnTable("R", Reservations$Table.CUSTOMER_ID)).queryCustomList(CustomTable.class);
 
 ```

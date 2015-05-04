@@ -96,26 +96,12 @@ There are two concepts to learn about retrieval: **fetching** vs. **selecting**.
 
   // Just get all items from the table
   // You can even use Select and Where statements instead
-  TransactionManager.getInstance().fetchAllFromTable(TestModel.class, new TransactionListenerAdapter<TestModel.class>() {
+  TransactionManager.getInstance().addTransaction(new SelectListTransaction<>(new TransactionListenerAdapter<TestModel.class>() {
      @Override
     public void onResultReceived(List<TestModel> testModels) {
         // on the UI thread, do something here
     }
-  }, condition1, condition2,..);
-
-```
-
-### Get a model by Id
-
-The ```TransactionManager``` will do a lookup for the ```Model``` primary where query and let you look it up by passing in the ids of the object. They must be in the order of declaration:
-
-```java
-
-// retrieve immediatelty
-TestModel testModel = Select.byId(TestModel.class, TestModel$Table.NAME);
-
-// Fetching so we do not block UI
-TransactionManager.getInstance().fetchModelById(TestModel.class, transactionListener, TestModel$Table.NAME);
+  }, TestModel.class, condition1, condition2,..);
 
 ```
 

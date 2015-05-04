@@ -5,6 +5,7 @@ import android.database.DatabaseUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -241,14 +242,18 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             }
         }
 
-        if(value instanceof Where) {
-            stringVal = String.format("(%1s)", ((Where) value).getQuery().trim());
-        } else if (value instanceof Number) {
+        if (value instanceof Number) {
             stringVal = String.valueOf(value);
         } else {
-            stringVal = String.valueOf(value);
-            if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
-                stringVal = DatabaseUtils.sqlEscapeString(stringVal);
+            if(value instanceof Where) {
+                stringVal = String.format("(%1s)", ((Where) value).getQuery().trim());
+            } else if(value instanceof ColumnAlias) {
+                stringVal = ((ColumnAlias) value).getQuery();
+            } else {
+                stringVal = String.valueOf(value);
+                if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
+                    stringVal = DatabaseUtils.sqlEscapeString(stringVal);
+                }
             }
         }
 

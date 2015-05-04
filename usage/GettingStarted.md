@@ -101,7 +101,8 @@ The basic definition we can use is:
 @Table(databaseName = ColonyDatabase.NAME)
 public class Queen extends BaseModel {
 
-  @Column(columnType = Column.PRIMARY_KEY_AUTOINCREMENT)
+  @Column
+  @PrimaryKey(autoincrement = true)
   long id;
 
   @Column
@@ -119,7 +120,8 @@ So we have a queen ant definition, and now we need to define a `Colony` for the 
 @Table(databaseName = ColonyDatabase.NAME)
 public class Colony extends BaseModel {
 
-  @Column(columnType = Column.PRIMARY_KEY_AUTOINCREMENT)
+  @Column
+  @PrimaryKey(autoincrement = true)
   long id;
 
   @Column
@@ -146,7 +148,8 @@ public class Queen extends BaseModel {
 
   //...previous code here
 
-  @Column(columnType = Column.FOREIGN_KEY,
+  @Column
+  @ForeignKey(
     references = {@ForeignKeyReference(columnName = "colony_id",
                     columnType = Long.class,
                     foreignColumnName = "id")},
@@ -175,7 +178,8 @@ serve her!
 @Table(databaseName = ColonyDatabase.NAME)
 public class Ant extends BaseModel {
 
-  @Column(columnType = Column.PRIMARY_KEY_AUTOINCREMENT)
+  @Column
+  @PrimaryKey(autoincrement = true)
   long id;
 
   @Column
@@ -184,7 +188,8 @@ public class Ant extends BaseModel {
   @Column
   boolean isMale;
 
-  @Column(columnType = Column.FOREIGN_KEY,
+  @Column
+  @ForeignKey(
     references = {@ForeignKeyReference(columnName = "queen_id",
                     columnType = Long.class,
                     foreignColumnName = "id")},
@@ -214,6 +219,7 @@ public class Queen extends BaseModel {
 
   private List<Ant> ants;
 
+  @OneToMany(methods = {OneToMany.Method.ALL})
   public List<Ant> getMyAnts() {
     if(ants == null) {
       ants = new Select()
@@ -230,24 +236,4 @@ public class Queen extends BaseModel {
 This generates a `$Container` adapter class that's not usually generated to cut
 down on generated code.
 
-If you wish to not lazy-load the relationship, you can load up the relationship
-on load from `Cursor`:
-
-```java
-
-@ContainerAdapter
-@Table(databaseName = ColonyDatabase.NAME)
-public class Queen extends BaseModel implements LoadFromCursorListener {
-
-
-  @Override
-  public void onLoadFromCursor(Cursor cursor) {
-    getMyAnts();
-  }
-
-}
-
-```
-
-__DBFlow knows that your `Model` implements the interface and will automatically
-call `onLoadFromCursor()` on your `Model`!__
+If you wish to lazy-load the relationship, just leave out the `@OneToMany` annotation.

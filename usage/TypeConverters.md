@@ -19,7 +19,7 @@ Here is the implementation of ```LocationConverter```, converting Locations into
 
     @Override
     public String getDBValue(Location model) {
-        return String.valueOf(model.getLatitude()) + "," + model.getLongitude();
+        return model == null ? null : String.valueOf(model.getLatitude()) + "," + model.getLongitude();
     }
 
     @Override

@@ -44,14 +44,9 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     }
 
     @Override
-    public void onPreMigrate() {
-        query = new QueryBuilder().append("ALTER").appendSpaceSeparated("TABLE");
-    }
-
-    @Override
     public final void migrate(SQLiteDatabase database) {
         // "ALTER TABLE "
-        String sql = query.getQuery();
+        String sql = new QueryBuilder().append("ALTER").appendSpaceSeparated("TABLE").getQuery();
         String tableName = FlowManager.getTableName(table);
 
         // "{oldName}  RENAME TO {newName}"
