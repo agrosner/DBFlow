@@ -46,7 +46,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     @Override
     public final void migrate(SQLiteDatabase database) {
         // "ALTER TABLE "
-        String sql = new QueryBuilder().append("ALTER").appendSpaceSeparated("TABLE").getQuery();
+        String sql = getAlterTableQueryBuilder().getQuery();
         String tableName = FlowManager.getTableName(table);
 
         // "{oldName}  RENAME TO {newName}"
@@ -114,7 +114,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return The query that renames the table.
      */
     public String getRenameQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder(query.getQuery()).appendQuoted(oldTableName)
+        QueryBuilder queryBuilder = new QueryBuilder(getAlterTableQueryBuilder().getQuery()).appendQuoted(oldTableName)
                 .append(renameQuery).appendQuoted(FlowManager.getTableName(table));
         return queryBuilder.getQuery();
     }
@@ -123,16 +123,24 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return A List of column definitions that add column to a table in the DB.
      */
     public List<String> getColumnDefinitions() {
-        String sql = new QueryBuilder(query.getQuery()).appendQuoted(FlowManager.getTableName(table)).toString();
+        String sql = new QueryBuilder(getAlterTableQueryBuilder()).appendQuoted(FlowManager.getTableName(table)).toString();
         List<String> columnDefinitions = new ArrayList<>();
 
         if (this.columnDefinitions != null) {
             for (QueryBuilder columnDefinition : this.columnDefinitions) {
-                QueryBuilder queryBuilder = new QueryBuilder(sql).appendSpaceSeparated("ADD COLUMN").append(columnDefinition.getQuery());
+                QueryBuilder queryBuilder = new QueryBuilder(sql).appendSpaceSeparated("ADD COLUMN").append(
+                        columnDefinition.getQuery());
                 columnDefinitions.add(queryBuilder.getQuery());
             }
         }
 
         return columnDefinitions;
+    }
+
+    public QueryBuilder getAlterTableQueryBuilder() {
+        if (query == null) {
+            query = new QueryBuilder().append("ALTER").appendSpaceSeparated("TABLE");
+        }
+        return query;
     }
 }
