@@ -1,6 +1,6 @@
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.8.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-2.0.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 DBFlow
 ======
@@ -34,8 +34,10 @@ If you wish to have your application featured here, please file an [issue](https
 
 ## Changelog
 
-#### 1.9.0
+#### 2.0.0
 
+1. Massive, massive changes to the library.
+2. For all changes, check out the migration guide [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migration2Guide.md)
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
@@ -99,9 +101,9 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:1.8.0'
-    compile "com.raizlabs.android:DBFlow-Core:1.8.0"
-    compile "com.raizlabs.android:DBFlow:1.8.0"
+    apt 'com.raizlabs.android:DBFlow-Compiler:2.0.0'
+    compile "com.raizlabs.android:DBFlow-Core:2.0.0"
+    compile "com.raizlabs.android:DBFlow:2.0.0"
   }
 
 ```
