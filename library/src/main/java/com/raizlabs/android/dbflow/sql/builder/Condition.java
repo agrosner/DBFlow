@@ -203,18 +203,6 @@ public class Condition {
     }
 
     /**
-     * Makes this condition a subquery.
-     *
-     * @param where The WHERE statement to use.
-     * @return This condition.
-     */
-    public Condition subQuery(Where where) {
-        isRaw = true;
-        value = String.format("(%1s)", where.getQuery().trim());
-        return this;
-    }
-
-    /**
      * Adds a COLLATE to the end of this condition
      *
      * @param collation The SQLite collate function

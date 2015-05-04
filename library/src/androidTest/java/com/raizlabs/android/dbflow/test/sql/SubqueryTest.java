@@ -26,9 +26,7 @@ public class SubqueryTest extends FlowTestCase {
         query = new Select()
                 .from(BoxedModel.class)
                 .where(Condition.column(BoxedModel$Table.INTEGERFIELD)
-                               .operation(Condition.Operation.GREATER_THAN)
-                               .subQuery(
-                                       new Select().avg(BoxedModel$Table.INTEGERFIELD).from(BoxedModel.class)
+                                .greaterThan(new Select().avg(BoxedModel$Table.INTEGERFIELD).from(BoxedModel.class)
                                                .where(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD)
                                                               .eq("BoxedModel." + BoxedModel$Table.INTEGERFIELD))))
                 .getQuery();

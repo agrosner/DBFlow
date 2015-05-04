@@ -46,7 +46,7 @@ on the UI thread when the transaction completes.
 
 ### Queries
 
-#### FlowTableList
+#### FlowTableList -> FlowQueryList
 
 The `FlowTableList` is renamed to `FlowQueryList`, since it's used for not only for tables,
 but also queries.
@@ -156,3 +156,22 @@ This release comes with some _very_ notable features such as:
   4. Better caching support with other column types
   5. Non-table Models, providing support for non-uniform or standard queries
   6. Custom SQLite Open Helpers
+
+
+### Subquery Support
+
+Subqueries are here!
+
+To run a subquery, simply:
+
+```java
+List<SomeTable> list = new Select()
+                        .from(SomeTable.class)
+                        .where(Condition.column(SomeTable$Table.COLUMN).operation(Operation.GREATER_THAN)
+                          .subquery(new Select()
+                                    .from(SomeTable.class)
+                                    .where(Condition.columnRaw(SomeTable$Table.ANOTHER_COLUMN)
+                                                       .eq(SomeTable$Table.ANOTHER_COLUMN_2)))
+                        .queryList();
+
+```

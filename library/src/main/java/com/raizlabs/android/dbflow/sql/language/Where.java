@@ -256,7 +256,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> exists(Where where) {
-        mConditionQueryBuilder.addCondition(Condition.exists().subQuery(where));
+        mConditionQueryBuilder.addCondition(Condition.exists().operation("").value(where));
         return this;
     }
 
