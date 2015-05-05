@@ -96,6 +96,32 @@ public class TestModel extends BaseModel {
 
 As other libraries do, you can set ```@Table(allFields = true)``` to turn on the ability to use all public/package private, non-final, and non-static fields as ```@Column```. You still are required to provide a primary key `@Column` field.
 
+### Private Columns
+
+If you wish to use private fields, simply specify a getter and setter that follow
+the format of: `name` -> `getName()` + `setName(columnFieldType)`
+
+```java
+
+@Table(databaseName = TestDatabase.NAME)
+public class PrivateModelTest extends BaseModel {
+
+    @Column
+    @PrimaryKey
+    private String name;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+```
+
 ### Unique Groups
 
 In Sqlite you can define any number of columns as having a "unique" relationship, meaning the combination of one or more rows must be unique across the whole table.
