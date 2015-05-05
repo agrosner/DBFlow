@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure.cache;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
@@ -11,9 +12,8 @@ import java.util.Map;
 
 /**
  * Description: Provides a handy way to cache models in memory for even faster data retrieval. Note:
- * this class must utilize an {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
- * or describe a {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY} that returns an id using
- * the {@link com.raizlabs.android.dbflow.annotation.Table}
+ * this class must utilize an {@link PrimaryKey#autoincrement()}
+ * or describe a {@link PrimaryKey} that returns an id using the {@link com.raizlabs.android.dbflow.annotation.Table}
  * primary key. The corresponding {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
  * describes how to retrieve the Id field so that is why its required.
  */
@@ -46,7 +46,8 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
      * @param table      The cacheable model to use
      * @param modelCache The cache to store.
      */
-    static void putCache(Class<? extends BaseCacheableModel> table, ModelCache<? extends BaseCacheableModel, ?> modelCache) {
+    static void putCache(Class<? extends BaseCacheableModel> table,
+                         ModelCache<? extends BaseCacheableModel, ?> modelCache) {
         mCacheMap.put(table, modelCache);
     }
 

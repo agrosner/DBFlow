@@ -92,25 +92,72 @@ To define one:
 
 ```java
 
-    @TableEndpoint(ContentProviderModel.ENDPOINT)
-    public static class ContentProviderModel {
+@TableEndpoint(ContentProviderModel.ENDPOINT)
+public static class ContentProviderModel {
 
-        public static final String ENDPOINT = "ContentProviderModel";
+    public static final String ENDPOINT = "ContentProviderModel";
 
-        private static Uri buildUri(String... paths) {
-            Uri.Builder builder = Uri.parse(BASE_CONTENT_URI + AUTHORITY).buildUpon();
-            for (String path : paths) {
-                builder.appendPath(path);
-            }
-            return builder.build();
+    private static Uri buildUri(String... paths) {
+        Uri.Builder builder = Uri.parse(BASE_CONTENT_URI + AUTHORITY).buildUpon();
+        for (String path : paths) {
+            builder.appendPath(path);
         }
-
-        @ContentUri(path = ContentProviderModel.ENDPOINT,
-                type = ContentUri.ContentType.VND_MULTIPLE + ENDPOINT)
-        public static Uri CONTENT_URI = buildUri(ENDPOINT);
-
+        return builder.build();
     }
 
+    @ContentUri(path = ContentProviderModel.ENDPOINT,
+            type = ContentUri.ContentType.VND_MULTIPLE + ENDPOINT)
+    public static Uri CONTENT_URI = buildUri(ENDPOINT);
+
+}
+
+
+```
+
+or via the table it belongs to
+
+```java
+
+
+@TableEndpoint(name = ContentProviderModel.NAME, contentProviderName = "ContentDatabase")
+@Table(databaseName = ContentDatabase.NAME, tableName = ContentProviderModel.NAME)
+public class ContentProviderModel extends BaseProviderModel<ContentProviderModel> {
+
+    public static final String NAME = "ContentProviderModel";
+
+    @ContentUri(path = NAME, type = ContentUri.ContentType.VND_MULTIPLE + NAME)
+    public static final Uri CONTENT_URI = ContentUtils.buildUri(ContentDatabase.AUTHORITY);
+
+    @Column
+    @PrimaryKey(autoincrement = true)
+    long id;
+
+    @Column
+    String notes;
+
+    @Column
+    String title;
+
+    @Override
+    public Uri getDeleteUri() {
+        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+    }
+
+    @Override
+    public Uri getInsertUri() {
+        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+    }
+
+    @Override
+    public Uri getUpdateUri() {
+        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+    }
+
+    @Override
+    public Uri getQueryUri() {
+        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+    }
+}
 
 ```
 

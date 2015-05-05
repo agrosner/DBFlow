@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.Date;
 /**
  * Description:
  */
+@TableEndpoint(name = "AModel")
 @Table(databaseName = AppDatabase.NAME)
 @ModelContainer
 public class AModel extends BaseModel {
