@@ -2,12 +2,12 @@ package com.raizlabs.android.dbflow.list;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
@@ -19,7 +19,6 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelpe
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -40,7 +39,7 @@ import java.util.ListIterator;
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
-public class FlowQueryList<ModelClass extends Model> extends ContentObserver implements List<ModelClass> {
+public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver implements List<ModelClass> {
 
     /**
      * We use high priority to assume that this list is used in some visual aspect.
@@ -120,29 +119,35 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
-     * Registers the list for model change events
+     * Registers the list for model change events. Internally this refreshes the underlying {@link FlowCursorList}. Call
+     * {@link #beginTransaction()} to bunch up calls to model changes and then {@link #endTransactionAndNotify()} to dispatch
+     * and refresh this list when completed.
      */
     public void registerForContentChanges(Context context) {
-        context.getContentResolver().registerContentObserver(
-                SqlUtils.getNotificationUri(internalCursorList.getTable(), null), true, this);
+        super.registerForContentChanges(context, internalCursorList.getTable());
     }
 
-    /**
-     * Unregisters this list for model change events
-     */
-    public void unregisterForContentChanges(Context context) {
-        context.getContentResolver().unregisterContentObserver(this);
+    @Override
+    public void registerForContentChanges(Context context, Class<? extends Model> table) {
+        throw new RuntimeException(
+                "This method is not to be used in the FlowQueryList. call registerForContentChanges(Context) instead");
     }
 
     @Override
     public void onChange(boolean selfChange) {
-        internalCursorList.refresh();
+        super.onChange(selfChange);
+        if (!isInTransaction) {
+            internalCursorList.refresh();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onChange(boolean selfChange, Uri uri) {
-        internalCursorList.refresh();
+        super.onChange(selfChange, uri);
+        if (!isInTransaction) {
+            internalCursorList.refresh();
+        }
     }
 
     /**
@@ -351,7 +356,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
-     * @return An iterator from {@link #getAll(com.raizlabs.android.dbflow.sql.builder.Condition...)}.
+     * @return An iterator from {@link FlowCursorList#getAll()}.
      * Be careful as this method will convert all data under this table into a list of {@link ModelClass} in the UI thread.
      */
     @NonNull
@@ -368,7 +373,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
-     * @return A list iterator from the {@link #getAll(com.raizlabs.android.dbflow.sql.builder.Condition...)}.
+     * @return A list iterator from the {@link FlowCursorList#getAll()}.
      * Be careful as this method will convert all data under this table into a list of {@link ModelClass} in the UI thread.
      */
     @NonNull
@@ -380,7 +385,7 @@ public class FlowQueryList<ModelClass extends Model> extends ContentObserver imp
 
     /**
      * @param location The index to start the iterator.
-     * @return A list iterator from the {@link #getAll(com.raizlabs.android.dbflow.sql.builder.Condition...)}.
+     * @return A list iterator from the {@link FlowCursorList#getAll()}.
      * Be careful as this method will convert all data under this table into a list of {@link ModelClass} in the UI thread.
      */
     @NonNull

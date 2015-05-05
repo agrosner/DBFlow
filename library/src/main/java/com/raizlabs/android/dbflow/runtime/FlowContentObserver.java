@@ -71,7 +71,7 @@ public class FlowContentObserver extends ContentObserver {
 
     private final List<Uri> notificationUris = new ArrayList<>();
 
-    private boolean isInTransaction = false;
+    protected boolean isInTransaction = false;
     private boolean notifyAllUris = false;
 
     public FlowContentObserver() {
@@ -109,14 +109,13 @@ public class FlowContentObserver extends ContentObserver {
         if (isInTransaction) {
             isInTransaction = false;
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 onChange(true);
             } else {
                 for (Uri uri : notificationUris) {
                     onChange(true, uri);
                 }
             }
-            notificationUris.clear();
         }
     }
 
