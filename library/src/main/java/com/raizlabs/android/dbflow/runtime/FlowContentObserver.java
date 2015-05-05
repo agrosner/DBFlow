@@ -114,8 +114,11 @@ public class FlowContentObserver extends ContentObserver {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 onChange(true);
             } else {
-                for (Uri uri : notificationUris) {
-                    onChange(true, uri);
+                synchronized (notificationUris) {
+                    for (Uri uri : notificationUris) {
+                        onChange(true, uri);
+                    }
+                    notificationUris.clear();
                 }
             }
         }
@@ -187,9 +190,11 @@ public class FlowContentObserver extends ContentObserver {
             if (!notifyAllUris) {
                 uri = SqlUtils.getNotificationUri(table, BaseModel.Action.CHANGE);
             }
-            if (!notificationUris.contains(uri)) {
-                // add and keep track of unique notification uris for when transaction completes.
-                notificationUris.add(uri);
+            synchronized (notificationUris) {
+                if (!notificationUris.contains(uri)) {
+                    // add and keep track of unique notification uris for when transaction completes.
+                    notificationUris.add(uri);
+                }
             }
         }
     }
