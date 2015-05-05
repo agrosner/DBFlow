@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -68,8 +69,55 @@ public class FlowContentObserver extends ContentObserver {
 
     private final Map<String, Class<? extends Model>> registeredTables = new HashMap<>();
 
+    private final List<Uri> notificationUris = new ArrayList<>();
+
+    private boolean isInTransaction = false;
+    private boolean notifyAllUris = false;
+
     public FlowContentObserver() {
         super(null);
+    }
+
+    public FlowContentObserver(Handler handler) {
+        super(handler);
+    }
+
+    /**
+     * If true, this class will get specific when it needs to, such as using all {@link BaseModel.Action} qualifiers.
+     * If false, it only uses the {@link BaseModel.Action#CHANGE} action in callbacks.
+     *
+     * @param notifyAllUris
+     */
+    public void setNotifyAllUris(boolean notifyAllUris) {
+        this.notifyAllUris = notifyAllUris;
+    }
+
+    /**
+     * Starts a transaction where when it is finished, this class will receive a notification of the changes
+     */
+    public void beginTransaction() {
+        if (!isInTransaction) {
+            isInTransaction = true;
+        }
+    }
+
+    /**
+     * Ends the transaction where it finishes, and will call {@link #onChange(boolean, Uri)} for Jelly Bean and up for
+     * every URI called (if set), or {@link #onChange(boolean)} once for lower than Jelly bean.
+     */
+    public void endTransactionAndNotify() {
+        if (isInTransaction) {
+            isInTransaction = false;
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                onChange(true);
+            } else {
+                for (Uri uri : notificationUris) {
+                    onChange(true, uri);
+                }
+            }
+            notificationUris.clear();
+        }
     }
 
     /**
@@ -98,7 +146,7 @@ public class FlowContentObserver extends ContentObserver {
         if (!OBSERVER_LIST.contains(this)) {
             OBSERVER_LIST.add(this);
         }
-        if(!registeredTables.containsValue(table)) {
+        if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table);
         }
     }
@@ -123,11 +171,24 @@ public class FlowContentObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange, Uri uri) {
         String fragment = uri.getFragment();
-        String tableName = uri.getEncodedSchemeSpecificPart().replace("//","");
-        BaseModel.Action action = BaseModel.Action.valueOf(fragment);
-        if (action != null) {
-            for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
-                modelChangeListener.onModelStateChanged(registeredTables.get(tableName), action);
+        String tableName = uri.getEncodedSchemeSpecificPart().replace("//", "");
+        Class<? extends Model> table = registeredTables.get(tableName);
+        if (!isInTransaction) {
+
+            BaseModel.Action action = BaseModel.Action.valueOf(fragment);
+            if (action != null) {
+                for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
+                    modelChangeListener.onModelStateChanged(table, action);
+                }
+            }
+        } else {
+            // convert this uri to a CHANGE op if we don't care about individual changes.
+            if (!notifyAllUris) {
+                uri = SqlUtils.getNotificationUri(table, BaseModel.Action.CHANGE);
+            }
+            if (!notificationUris.contains(uri)) {
+                // add and keep track of unique notification uris for when transaction completes.
+                notificationUris.add(uri);
             }
         }
     }
