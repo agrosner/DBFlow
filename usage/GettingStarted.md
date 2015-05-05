@@ -92,7 +92,7 @@ To properly define a table we must:
   2. Point the database to the correct database, in this case `ColonyDatabase`
   3. Define at least one primary key
   4. The class and all of its database columns must be package private or `public`
-  so the generated `$Adapter` class can access it.
+  so the generated `$Adapter` class can access it. Note: Columns may be private with getter and setters specified.
 
 The basic definition we can use is:
 
