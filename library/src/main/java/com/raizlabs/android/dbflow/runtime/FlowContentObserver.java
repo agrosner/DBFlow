@@ -95,7 +95,8 @@ public class FlowContentObserver extends ContentObserver {
     }
 
     /**
-     * Starts a transaction where when it is finished, this class will receive a notification of the changes
+     * Starts a transaction where when it is finished, this class will receive a notification of all of the changes by
+     * calling {@link #endTransactionAndNotify()}. Note it may lead to unexpected behavior if called from different threads.
      */
     public void beginTransaction() {
         if (!isInTransaction) {
