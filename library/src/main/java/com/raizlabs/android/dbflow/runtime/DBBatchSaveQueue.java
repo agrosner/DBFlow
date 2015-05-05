@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime;
 import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -53,6 +54,9 @@ public class DBBatchSaveQueue extends Thread {
 
     private DBTransactionInfo saveQueueInfo = DBTransactionInfo.create("Batch Saving Models");
 
+    private TransactionListener mListener;
+
+
     /**
      * Creates a new instance of this class to batch save {@link com.raizlabs.android.dbflow.structure.Model} classes.
      */
@@ -101,6 +105,11 @@ public class DBBatchSaveQueue extends Thread {
         this.saveQueueInfo = mSaveQueueInfo;
     }
 
+
+    public void setTransactionListener(TransactionListener listener) {
+        mListener = listener;
+    }
+
     /**
      * Sets how long, in millis that this queue will check for leftover {@link com.raizlabs.android.dbflow.structure.Model} that have not been saved yet.
      * The default is {@link #sMODEL_SAVE_CHECK_TIME}
@@ -126,8 +135,10 @@ public class DBBatchSaveQueue extends Thread {
                 //onExecute this on the DBManager thread
                 TransactionManager.getInstance()
                         .addTransaction(new SaveModelTransaction<>(ProcessModelInfo
-                                                                           .withModels(tmpModels)
-                                                                           .info(saveQueueInfo)));
+                                .withModels(tmpModels)
+                                .result(mListener)
+                                .info(saveQueueInfo)))
+                ;
             }
 
             try {
