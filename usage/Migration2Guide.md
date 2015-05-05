@@ -169,10 +169,11 @@ The list follows:
 This release comes with some _very_ notable features such as:
   1. Subquery support
   2. Better Column name and alias support
-  3. One-To-Many annotation support
-  4. Better caching support with other column types
-  5. Non-table Models, providing support for non-uniform or standard queries
-  6. Custom SQLite Open Helpers
+  3. Private columns support
+  4. One-To-Many annotation support
+  5. Better caching support with other column types
+  6. Non-table Models, providing support for non-uniform or standard queries
+  7. Custom SQLite Open Helpers
 
 
 ### Subquery Support
@@ -233,6 +234,35 @@ column names with:
 
   Its available in all `Select`, `Condition`, `Index`, and `Trigger` classes for
   specifying column names.
+
+### Private Column Support
+
+Now in this release, you can specify private `@Column` fields. Simply specify
+a getter and setter for the field:
+
+```java
+
+@Table(databaseName = TestDatabase.NAME)
+public class PrivateModelTest extends BaseModel {
+
+    @Column
+    @PrimaryKey
+    private String name;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+
+```
+
+And the `$Adapter` classes know to use the corresponding methods!
 
 ### One-to-Many annotation support
 
