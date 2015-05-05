@@ -207,12 +207,12 @@ ant is male or female.
 We use a `ForeignKeyContainer` in this instance, since we can have thousands of ants.
 For performance reasons this will "lazy-load" the relationship of the `Queen` and only
 run the query on the DB for the `Queen` when we call `toModel()`. Consequently, we must add
-the `@ContainerAdapter` annotation to the `Queen` class and establish the 1-to-many
+the `@ModelContainer` annotation to the `Queen` class and establish the 1-to-many
  relationship by lazy-loading the ants:
 
 ```java
 
-@ContainerAdapter
+@ModelContainer
 @Table(databaseName = ColonyDatabase.NAME)
 public class Queen extends BaseModel {
   //...
