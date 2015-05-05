@@ -14,7 +14,6 @@ import java.util.Date;
 /**
  * Description:
  */
-@TableEndpoint(name = "AModel")
 @Table(databaseName = AppDatabase.NAME)
 @ModelContainer
 public class AModel extends BaseModel {

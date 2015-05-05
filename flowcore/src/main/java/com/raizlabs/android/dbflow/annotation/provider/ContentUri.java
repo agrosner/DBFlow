@@ -15,7 +15,7 @@ public @interface ContentUri {
     /**
      * Provides some handy constants for defining a {@link #type()}
      */
-    public static class ContentType {
+    class ContentType {
 
         public static final String VND_MULTIPLE = "vnd.android.cursor.dir/";
 
@@ -25,7 +25,7 @@ public @interface ContentUri {
     /**
      * Defines the path segment that we use when we specify "#" in the path.
      */
-    public @interface PathSegment {
+    @interface PathSegment {
 
         /**
          * @return The number segment this corresponds to.
