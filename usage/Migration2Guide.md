@@ -6,15 +6,25 @@ to 2.x from 1.8.1 and previous.
 _Please note there many breaking changes in this version_. That said, the new version
 brings much more consistency, bug fixes, and a few notable new features.
 
-## Breaking Changes
+**New Features**: This release comes with some _very_ notable features such as:
+  1. Subquery support
+  2. Better Column name and alias support
+  3. Private columns support
+  4. One-To-Many annotation support
+  5. Better caching support with other column types
+  6. Non-table Models, providing support for non-uniform or standard queries
+  7. Custom SQLite Open Helpers
+  8. Content Observer improvements.
 
-In this guide we break up each kind of breaking changes into sections:
+
+**Breaking Changes**: In this guide we break up each kind of major breaking changes into sections:
   1. Models
   2. Queries
   3. Transaction Manager
   4. Notable removal of deprecated methods and classes
   5. Generated Code
 
+## Breaking Changes
 
 ### Models
 
@@ -165,16 +175,6 @@ The list follows:
 
 
 ## New Features
-
-This release comes with some _very_ notable features such as:
-  1. Subquery support
-  2. Better Column name and alias support
-  3. Private columns support
-  4. One-To-Many annotation support
-  5. Better caching support with other column types
-  6. Non-table Models, providing support for non-uniform or standard queries
-  7. Custom SQLite Open Helpers
-
 
 ### Subquery Support
 
@@ -399,3 +399,39 @@ public class HelperDatabase {
 }
 
 ```
+
+### Content Observer Improvements
+
+In this release, we add the ability to transact `Model` changes and notify the
+`FlowContentObserver` once the transactions are done.
+
+Example:
+
+
+```java
+
+flowContentObserver.beginTransaction();
+
+someModel.save();
+// More modifications on a table for what the Flow Content Observer is registered.
+
+
+// collects all unique URI and calls onChange here
+flowContentObserver.endTransactionAndNotify();
+
+```
+
+Instead of notifying changes to the `OnModelChangeListener`s registered on the observer
+for every single modification, this allows us to only care when we're done.
+
+It also provides two options:
+  1. All unique URIs such as if `Model` was saved, inserted, updated, or deleted.
+  (Only appears on JellyBean and up)
+  2. All unique URIs for a single table that the observer is registered for. This
+  returns one `onChange()` with `CHANGED` as the action. For devices lower than JellyBean,
+  only one `onChange()` is ever called.
+
+Now the `FlowQueryList` extends `FlowContentObserver` and gets _all_ the benefits and
+functionality from the `FlowContentObserver` such as transactions, notifications,
+`OnModelChangeListener`, and more! It also means the list becomes self-refreshing
+when `Model` on a table changes.

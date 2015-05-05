@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction.process;
 
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
+import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -14,14 +15,18 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
 
     protected ProcessModelInfo<ModelClass> processModelInfo;
 
+    private final FlowContentObserver contentObserver;
+
     /**
      * Constructs this transaction with a single model enabled.
      *
-     * @param modelInfo Holds information about this process request
+     * @param modelInfo       Holds information about this process request
+     * @param contentObserver The optional {@link FlowContentObserver} to wrap the process in a transaction.
      */
-    public ProcessModelTransaction(ProcessModelInfo<ModelClass> modelInfo) {
+    public ProcessModelTransaction(ProcessModelInfo<ModelClass> modelInfo, FlowContentObserver contentObserver) {
         super(modelInfo.getInfo(), modelInfo.transactionListener);
         processModelInfo = modelInfo;
+        this.contentObserver = contentObserver;
     }
 
     @Override
@@ -32,8 +37,15 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
     @SuppressWarnings("unchecked")
     @Override
     public List<ModelClass> onExecute() {
+        if (contentObserver != null) {
+            contentObserver.beginTransaction();
+        }
         processModelInfo.processModels(this);
-        return processModelInfo.models;
+        List<ModelClass> models = processModelInfo.models;
+        if (contentObserver != null) {
+            contentObserver.endTransactionAndNotify();
+        }
+        return models;
     }
 
     /**

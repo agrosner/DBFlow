@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * Description: Listens for {@link com.raizlabs.android.dbflow.structure.Model} changes. Register for specific
- * tables with {@link #addModelChangeListener(com.raizlabs.android.dbflow.runtime.FlowContentObserver.OnModelStateChangedListener)}.
+ * tables with {@link #addModelChangeListener(FlowContentObserver.OnModelStateChangedListener)}.
  * Provides ability to register and deregister listeners for when data is inserted, deleted, updated, and saved if the device is
  * above {@link android.os.Build.VERSION_CODES#JELLY_BEAN}. If below it will only provide one callback.
  */
@@ -47,7 +47,7 @@ public class FlowContentObserver extends ContentObserver {
     }
 
     /**
-     * Provides default implementation of the {@link com.raizlabs.android.dbflow.runtime.FlowContentObserver.OnModelStateChangedListener}
+     * Provides default implementation of the {@link FlowContentObserver.OnModelStateChangedListener}
      * enabling you to only have to implement a small subset of methods.
      */
     public interface OnModelStateChangedListener {
@@ -56,7 +56,9 @@ public class FlowContentObserver extends ContentObserver {
          * Notifies that the state of a {@link com.raizlabs.android.dbflow.structure.Model}
          * has changed for the table this is registered for.
          *
-         * @param action The action on the model. for versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1} ,
+         * @param table  The table that this change occurred on. This is ONLY available on {@link Build.VERSION_CODES#JELLY_BEAN}
+         *               and up.
+         * @param action The action on the model. for versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN} ,
          *               the {@link com.raizlabs.android.dbflow.structure.BaseModel.Action#CHANGE} will always be called for any action.
          */
         void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action);
