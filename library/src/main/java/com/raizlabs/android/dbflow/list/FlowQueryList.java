@@ -112,7 +112,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     /**
      * Called when the count for the underlying cache is needed.
      *
-     * @return 50 as default. Override for different.
+     * @return 50 as default. Override for different. Note: some {@link ModelCache} do not respect the size of the cache.
      */
     public int getCacheSize() {
         return 50;
