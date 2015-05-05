@@ -4,9 +4,6 @@
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-2.0.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
-DBFlow
-======
-
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
 The library is built on speed, performance, and approachability. It not only eliminates most boiler-plate code for dealing with databases, but also provides a powerful and simple API to manage interactions.
