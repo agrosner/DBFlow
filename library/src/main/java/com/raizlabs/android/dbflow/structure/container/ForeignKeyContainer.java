@@ -62,17 +62,17 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
      * @return the result of running a primary where query on the contained data.
      */
     public ModelClass load() {
-        if (mModel == null && mData != null) {
-            mModel = new Select().from(mModelAdapter.getModelClass())
-                    .where(mModelContainerAdapter.getPrimaryModelWhere(this)).limit(1).querySingle();
+        if (model == null && data != null) {
+            model = new Select().from(modelAdapter.getModelClass())
+                    .where(modelContainerAdapter.getPrimaryModelWhere(this)).limit(1).querySingle();
         }
-        return mModel;
+        return model;
     }
 
     @Override
     public boolean exists() {
         ModelClass model = toModel();
-        return model != null && mModelAdapter.exists(model);
+        return model != null && modelAdapter.exists(model);
     }
 
     @Override

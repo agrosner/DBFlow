@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.test.contentobserver;
 
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
@@ -17,36 +19,33 @@ public class ContentObserverTest extends FlowTestCase {
         flowContentObserver.registerForContentChanges(getContext(), TestModel1.class);
 
         final Boolean[] methodcalled = {false, false, false, false};
-        FlowContentObserver.ModelChangeListener modelChangeListener = new FlowContentObserver.ModelChangeListener() {
+
+        FlowContentObserver.OnModelStateChangedListener onModelStateChangedListener = new FlowContentObserver.OnModelStateChangedListener() {
             @Override
-            public void onModelChanged() {
-                for (int i = 0; i < methodcalled.length; i++) {
-                    methodcalled[i] = true;
+            public void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action) {
+                switch (action) {
+                    case CHANGE:
+                        for (int i = 0; i < methodcalled.length; i++) {
+                            methodcalled[i] = true;
+                        }
+                        break;
+                    case SAVE:
+                        methodcalled[0] = true;
+                        break;
+                    case DELETE:
+                        methodcalled[1] = true;
+                        break;
+                    case INSERT:
+                        methodcalled[2] = true;
+                        break;
+                    case UPDATE:
+                        methodcalled[3] = true;
+                        break;
                 }
-            }
-
-            @Override
-            public void onModelSaved() {
-                methodcalled[0] = true;
-            }
-
-            @Override
-            public void onModelDeleted() {
-                methodcalled[1] = true;
-            }
-
-            @Override
-            public void onModelInserted() {
-                methodcalled[2] = true;
-            }
-
-            @Override
-            public void onModelUpdated() {
-                methodcalled[3] = true;
             }
         };
 
-        flowContentObserver.addModelChangeListener(modelChangeListener);
+        flowContentObserver.addModelChangeListener(onModelStateChangedListener);
 
         TestModel1 testModel1 = new TestModel1();
         testModel1.name = "Name";
@@ -56,7 +55,7 @@ public class ContentObserverTest extends FlowTestCase {
         testModel1.save();
         testModel1.delete();
 
-        flowContentObserver.removeModelChangeListener(modelChangeListener);
+        flowContentObserver.removeModelChangeListener(onModelStateChangedListener);
 
         // saved
         assertTrue(methodcalled[0]);

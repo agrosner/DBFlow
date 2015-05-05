@@ -6,22 +6,25 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Build;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Description: Listens for {@link com.raizlabs.android.dbflow.structure.Model} changes. Register for specific
- * tables with {@link #addModelChangeListener(com.raizlabs.android.dbflow.runtime.FlowContentObserver.ModelChangeListener)}.
+ * tables with {@link #addModelChangeListener(com.raizlabs.android.dbflow.runtime.FlowContentObserver.OnModelStateChangedListener)}.
  * Provides ability to register and deregister listeners for when data is inserted, deleted, updated, and saved if the device is
  * above {@link android.os.Build.VERSION_CODES#JELLY_BEAN}. If below it will only provide one callback.
  */
 public class FlowContentObserver extends ContentObserver {
 
-    private static List<FlowContentObserver> mObserverList = new ArrayList<>();
+    private static final List<FlowContentObserver> OBSERVER_LIST = new ArrayList<>();
 
     private static boolean forceNotify = false;
 
@@ -31,7 +34,7 @@ public class FlowContentObserver extends ContentObserver {
      * for efficiency purposes.
      */
     public static boolean shouldNotify() {
-        return forceNotify || !mObserverList.isEmpty();
+        return forceNotify || !OBSERVER_LIST.isEmpty();
     }
 
     /**
@@ -43,14 +46,30 @@ public class FlowContentObserver extends ContentObserver {
     }
 
     /**
+     * Provides default implementation of the {@link com.raizlabs.android.dbflow.runtime.FlowContentObserver.OnModelStateChangedListener}
+     * enabling you to only have to implement a small subset of methods.
+     */
+    public interface OnModelStateChangedListener {
+
+        /**
+         * Notifies that the state of a {@link com.raizlabs.android.dbflow.structure.Model}
+         * has changed for the table this is registered for.
+         *
+         * @param action The action on the model. for versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1} ,
+         *               the {@link com.raizlabs.android.dbflow.structure.BaseModel.Action#CHANGE} will always be called for any action.
+         */
+        void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action);
+    }
+
+    /**
      * Listeners for model changes.
      */
-    private final List<ModelChangeListener> mModelChangeListeners;
+    private final List<OnModelStateChangedListener> modelChangeListeners = new ArrayList<>();
 
+    private final Map<String, Class<? extends Model>> registeredTables = new HashMap<>();
 
     public FlowContentObserver() {
         super(null);
-        mModelChangeListeners = new ArrayList<>();
     }
 
     /**
@@ -58,8 +77,8 @@ public class FlowContentObserver extends ContentObserver {
      *
      * @param modelChangeListener
      */
-    public void addModelChangeListener(ModelChangeListener modelChangeListener) {
-        mModelChangeListeners.add(modelChangeListener);
+    public void addModelChangeListener(OnModelStateChangedListener modelChangeListener) {
+        modelChangeListeners.add(modelChangeListener);
     }
 
     /**
@@ -67,8 +86,8 @@ public class FlowContentObserver extends ContentObserver {
      *
      * @param modelChangeListener
      */
-    public void removeModelChangeListener(ModelChangeListener modelChangeListener) {
-        mModelChangeListeners.remove(modelChangeListener);
+    public void removeModelChangeListener(OnModelStateChangedListener modelChangeListener) {
+        modelChangeListeners.remove(modelChangeListener);
     }
 
     /**
@@ -76,7 +95,12 @@ public class FlowContentObserver extends ContentObserver {
      */
     public void registerForContentChanges(Context context, Class<? extends Model> table) {
         context.getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
-        mObserverList.add(this);
+        if (!OBSERVER_LIST.contains(this)) {
+            OBSERVER_LIST.add(this);
+        }
+        if(!registeredTables.containsValue(table)) {
+            registeredTables.put(FlowManager.getTableName(table), table);
+        }
     }
 
     /**
@@ -84,13 +108,14 @@ public class FlowContentObserver extends ContentObserver {
      */
     public void unregisterForContentChanges(Context context) {
         context.getContentResolver().unregisterContentObserver(this);
-        mObserverList.remove(this);
+        OBSERVER_LIST.remove(this);
+        registeredTables.clear();
     }
 
     @Override
     public void onChange(boolean selfChange) {
-        for (ModelChangeListener modelChangeListener : mModelChangeListeners) {
-            modelChangeListener.onModelChanged();
+        for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
+            modelChangeListener.onModelStateChanged(null, BaseModel.Action.CHANGE);
         }
     }
 
@@ -98,99 +123,13 @@ public class FlowContentObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange, Uri uri) {
         String fragment = uri.getFragment();
+        String tableName = uri.getEncodedSchemeSpecificPart().replace("//","");
         BaseModel.Action action = BaseModel.Action.valueOf(fragment);
         if (action != null) {
-            for (ModelChangeListener modelChangeListener : mModelChangeListeners) {
-                if (action.equals(BaseModel.Action.DELETE)) {
-                    modelChangeListener.onModelDeleted();
-                } else if (action.equals(BaseModel.Action.INSERT)) {
-                    modelChangeListener.onModelInserted();
-                } else if (action.equals(BaseModel.Action.UPDATE)) {
-                    modelChangeListener.onModelUpdated();
-                } else if (action.equals(BaseModel.Action.SAVE)) {
-                    modelChangeListener.onModelSaved();
-                }
+            for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
+                modelChangeListener.onModelStateChanged(registeredTables.get(tableName), action);
             }
         }
     }
 
-    /**
-     * Callback for when models are saved, deleted, inserted, or updated. Note: the methods will only work
-     * for devices {@link android.os.Build.VERSION_CODES#JELLY_BEAN} or up. Otherwise the singular method,
-     * {@link #onModelChanged()} will be called.
-     */
-    public interface ModelChangeListener {
-
-        /**
-         * Called when the model has changed. This is only called in versions below {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
-         */
-        void onModelChanged();
-
-        /**
-         * Called when the model has been saved. This is only available to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
-         */
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-        void onModelSaved();
-
-        /**
-         * Called when model has been deleted. This is only available to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
-         */
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-        void onModelDeleted();
-
-        /**
-         * Called when the model has been inserted. This is only available to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
-         */
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-        void onModelInserted();
-
-        /**
-         * Called when the model has been updated. This is only available to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1}.
-         */
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-        void onModelUpdated();
-    }
-
-    /**
-     * Provides default implementation of the {@link com.raizlabs.android.dbflow.runtime.FlowContentObserver.ModelChangeListener}
-     * enabling you to only have to implement a small subset of methods.
-     */
-    public static class ModelChangeListenerAdapter implements ModelChangeListener {
-
-        @Override
-        public void onModelChanged() {
-            onModelStateChanged(BaseModel.Action.CHANGE);
-        }
-
-        @Override
-        public void onModelSaved() {
-            onModelStateChanged(BaseModel.Action.SAVE);
-        }
-
-        @Override
-        public void onModelDeleted() {
-            onModelStateChanged(BaseModel.Action.DELETE);
-        }
-
-        @Override
-        public void onModelInserted() {
-            onModelStateChanged(BaseModel.Action.INSERT);
-        }
-
-        @Override
-        public void onModelUpdated() {
-            onModelStateChanged(BaseModel.Action.UPDATE);
-        }
-
-        /**
-         * Called for all versions of devices, will strictly notify that the state of a {@link com.raizlabs.android.dbflow.structure.Model}
-         * has changed.
-         *
-         * @param action The action on the model. for versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1} ,
-         *               the {@link com.raizlabs.android.dbflow.structure.BaseModel.Action#CHANGE} will always be called for any action.
-         */
-        public void onModelStateChanged(BaseModel.Action action) {
-
-        }
-    }
 }

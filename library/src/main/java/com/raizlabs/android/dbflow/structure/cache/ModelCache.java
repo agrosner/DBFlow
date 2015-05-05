@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public abstract class ModelCache<ModelClass extends Model, CacheClass> {
 
-    private CacheClass mCache;
+    private CacheClass cache;
 
     /**
      * Constructs new instance with a cache
@@ -15,7 +15,7 @@ public abstract class ModelCache<ModelClass extends Model, CacheClass> {
      * @param cache The arbitrary underlying cache class.
      */
     public ModelCache(CacheClass cache) {
-        mCache = cache;
+        this.cache = cache;
     }
 
     /**
@@ -55,6 +55,6 @@ public abstract class ModelCache<ModelClass extends Model, CacheClass> {
      * @return The cache that's backing this cache.
      */
     public CacheClass getCache() {
-        return mCache;
+        return cache;
     }
 }

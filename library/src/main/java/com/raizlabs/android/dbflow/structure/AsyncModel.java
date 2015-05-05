@@ -29,7 +29,6 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     }
 
     private ModelClass model;
-
     private OnModelChangedListener onModelChangedListener;
 
     AsyncModel(ModelClass referenceModel) {

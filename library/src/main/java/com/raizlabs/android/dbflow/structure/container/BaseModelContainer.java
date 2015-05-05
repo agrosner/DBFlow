@@ -13,24 +13,24 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     /**
      * The {@link ModelClass} that the json corresponds to. Use {@link #toModel()} to retrieve this value.
      */
-    ModelClass mModel;
+    ModelClass model;
 
     /**
      * The {@link com.raizlabs.android.dbflow.structure.ModelAdapter} that is defined for this {@link org.json.JSONObject}
      */
-    ModelAdapter<ModelClass> mModelAdapter;
+    ModelAdapter<ModelClass> modelAdapter;
 
-    ModelContainerAdapter<ModelClass> mModelContainerAdapter;
+    ModelContainerAdapter<ModelClass> modelContainerAdapter;
 
     /**
      * The data thats stored in the container
      */
-    DataClass mData;
+    DataClass data;
 
     public BaseModelContainer(Class<ModelClass> table) {
-        mModelAdapter = FlowManager.getModelAdapter(table);
-        mModelContainerAdapter = FlowManager.getContainerAdapter(table);
-        if (mModelContainerAdapter == null) {
+        modelAdapter = FlowManager.getModelAdapter(table);
+        modelContainerAdapter = FlowManager.getContainerAdapter(table);
+        if (modelContainerAdapter == null) {
             throw new InvalidDBConfiguration("The table" + FlowManager.getTableName(table) + " did not specify the ContainerAdapter" +
                     "annotation. Please add and rebuild");
         }
@@ -38,16 +38,16 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     public BaseModelContainer(Class<ModelClass> table, DataClass data) {
         this(table);
-        mData = data;
+        this.data = data;
     }
 
     @Override
     public ModelClass toModel() {
-        if (mModel == null && mData != null) {
-            mModel = mModelContainerAdapter.toModel(this);
+        if (model == null && data != null) {
+            model = modelContainerAdapter.toModel(this);
         }
 
-        return mModel;
+        return model;
     }
 
     /**
@@ -57,7 +57,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      * @param model
      */
     public void setModel(ModelClass model) {
-        mModel = model;
+        this.model = model;
     }
 
     /**
@@ -91,7 +91,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public DataClass getData() {
-        return mData;
+        return data;
     }
 
     /**
@@ -101,8 +101,8 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      */
     @Override
     public void setData(DataClass data) {
-        mData = data;
-        mModel = null;
+        this.data = data;
+        model = null;
     }
 
     @Override
@@ -113,36 +113,36 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public ModelAdapter<ModelClass> getModelAdapter() {
-        return mModelAdapter;
+        return modelAdapter;
     }
 
     @Override
     public Class<ModelClass> getTable() {
-        return mModelAdapter.getModelClass();
+        return modelAdapter.getModelClass();
     }
 
     @Override
     public void save() {
-        mModelContainerAdapter.save(this);
+        modelContainerAdapter.save(this);
     }
 
     @Override
     public void delete() {
-        mModelContainerAdapter.delete(this);
+        modelContainerAdapter.delete(this);
     }
 
     @Override
     public void update() {
-        mModelContainerAdapter.update(this);
+        modelContainerAdapter.update(this);
     }
 
     @Override
     public void insert() {
-        mModelContainerAdapter.insert(this);
+        modelContainerAdapter.insert(this);
     }
 
     @Override
     public boolean exists() {
-        return mModelContainerAdapter.exists(this);
+        return modelContainerAdapter.exists(this);
     }
 }
