@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime;
 import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
@@ -10,6 +11,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Description: This queue will bulk save items added to it when it gets access to the DB. It should only exist as one entity.
@@ -53,7 +55,6 @@ public class DBBatchSaveQueue extends Thread {
     private boolean isQuitting = false;
 
     private DBTransactionInfo saveQueueInfo = DBTransactionInfo.create("Batch Saving Models");
-
     private TransactionListener mListener;
 
 
@@ -104,7 +105,6 @@ public class DBBatchSaveQueue extends Thread {
     public void setSaveQueueInfo(DBTransactionInfo mSaveQueueInfo) {
         this.saveQueueInfo = mSaveQueueInfo;
     }
-
 
     public void setTransactionListener(TransactionListener listener) {
         mListener = listener;
