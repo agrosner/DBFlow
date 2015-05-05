@@ -11,6 +11,11 @@ import java.util.Map;
  */
 public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelClass, Map<Object, ModelClass>> {
 
+    /**
+     * Constructs new instance with a {@link HashMap} with the specified capacity.
+     *
+     * @param capacity The capacity to use on the hashmap.
+     */
     public SimpleMapCache(int capacity) {
         super(new HashMap<Object, ModelClass>(capacity));
     }
