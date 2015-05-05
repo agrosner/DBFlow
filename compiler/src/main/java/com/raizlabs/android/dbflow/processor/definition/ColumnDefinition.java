@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Sets;
+import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
@@ -143,7 +144,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
             length = column.length();
-            collate = column.collate();
+            collate = column.collate().equals(Collate.NONE) ? "" : column.collate().name();
             defaultValue = column.defaultValue();
         } else {
             this.columnName = element.getSimpleName().toString();

@@ -27,7 +27,7 @@ public @interface Column {
     /**
      * @return Marks the field as having a specified collation to use in it's creation.
      */
-    String collate() default "";
+    Collate collate() default Collate.NONE;
 
     /**
      * @return Adds a default value for this column when saving
