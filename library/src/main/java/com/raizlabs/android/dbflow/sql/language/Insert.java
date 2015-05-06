@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -124,7 +125,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
         Object[] values = new Object[size];
 
         for (int i = 0; i < size; i++) {
-            Condition condition = conditionQueryBuilder.getConditions().get(i);
+            SQLCondition condition = conditionQueryBuilder.getConditions().get(i);
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }

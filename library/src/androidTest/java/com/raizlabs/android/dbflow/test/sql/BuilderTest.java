@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.sql;
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
@@ -63,6 +64,15 @@ public class BuilderTest extends FlowTestCase {
         Condition.In notIn = Condition.column(ConditionModel$Table.NAME).notIn("Jason", "Ryan", "Michael");
         conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
         assertEquals("`name` NOT IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
+    }
+
+    public void testCombinedOperations() {
+        Condition.CombinedCondition combinedCondition = Condition.CombinedCondition
+                .begin(Condition.CombinedCondition
+                               .begin(Condition.column(ColumnAlias.columnRaw("A"))).or(Condition.column(ColumnAlias.columnRaw("B"))))
+                .and(Condition.column(ColumnAlias.columnRaw("C")));
+        ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, combinedCondition);
+        assertEquals("((A OR B) AND C)", conditionQueryBuilder.getQuery());
     }
 
 }

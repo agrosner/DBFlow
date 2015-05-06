@@ -5,7 +5,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
-import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import java.util.List;
  * operator. The value is the {@link com.raizlabs.android.dbflow.structure.Model} value of the column and WILL be
  * converted into the database value when we run the query.
  */
-public class Condition {
+public class Condition extends BaseCondition {
 
     /**
      * Creates a new instance with a raw condition query. The values will not be converted into
@@ -51,45 +50,38 @@ public class Condition {
     }
 
     /**
-     * The operation such as "=", "<", and more
-     */
-    protected String operation = "";
-
-    /**
-     * The value of the column we care about
-     */
-    protected Object value;
-
-    /**
-     * The column name
-     */
-    protected ColumnAlias columnAlias;
-
-    /**
-     * A custom SQL statement after the value of the Condition
-     */
-    protected String postArg;
-
-    /**
-     * An optional separator to use when chaining these together
-     */
-    protected String separator;
-
-    /**
-     * If it is a raw condition, we will not attempt to escape or convert the values.
-     */
-    protected boolean isRaw = false;
-
-    /**
      * Creates a new instance
      *
      * @param columnAlias The name of the column in the DB
      */
     private Condition(ColumnAlias columnAlias) {
-        if (columnAlias == null) {
-            throw new IllegalArgumentException("Column cannot be null");
+        super(columnAlias);
+    }
+
+    @Override
+    public <ModelClass extends Model> void appendConditionToQuery(
+            ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+        conditionQueryBuilder.append(columnName()).append(operation());
+
+        // Do not use value for certain operators
+        // If is raw, we do not want to convert the value to a string.
+        if (isValueSet) {
+            conditionQueryBuilder.append(isRaw ? value() : conditionQueryBuilder.convertValueToString(value()));
         }
-        this.columnAlias = columnAlias;
+
+        if (postArgument() != null) {
+            conditionQueryBuilder.appendSpace().append(postArgument());
+        }
+    }
+
+    @Override
+    public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
+        queryBuilder.append(columnName());
+        queryBuilder.append(operation())
+                .append(value());
+        if (postArgument() != null) {
+            queryBuilder.appendSpace().append(postArgument());
+        }
     }
 
     /**
@@ -166,6 +158,7 @@ public class Condition {
      */
     public Condition value(Object value) {
         this.value = value;
+        isValueSet = true;
         return this;
     }
 
@@ -296,6 +289,7 @@ public class Condition {
                     String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
         }
         this.value = value;
+        isValueSet = true;
         return this;
     }
 
@@ -329,85 +323,6 @@ public class Condition {
      */
     public In notIn(Object firstArgument, Object... arguments) {
         return new In(this, firstArgument, false, arguments);
-    }
-
-    /**
-     * @return the operator such as "<", "<", or "="
-     */
-    public String operation() {
-        return operation;
-    }
-
-    /**
-     * @return the value of the argument
-     */
-    public Object value() {
-        return value;
-    }
-
-    /**
-     * @return the column name
-     */
-    public String columnName() {
-        return columnAlias.getQuery();
-    }
-
-    /**
-     * @return An optional post argument for this condition
-     */
-    public String postArgument() {
-        return postArg;
-    }
-
-    public String separator() {
-        return separator;
-    }
-
-    /**
-     * @return true if has a separator defined for this condition.
-     */
-    public boolean hasSeparator() {
-        return separator != null && (separator.length() > 0);
-    }
-
-    /**
-     * Appends the condition to the {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     *
-     * @param conditionQueryBuilder
-     */
-    public <ModelClass extends Model> void appendConditionToQuery(
-            ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        conditionQueryBuilder.append(columnName()).append(operation());
-
-        // Do not use value for these operators, we do not want to convert the value to a string.
-        if (!Operation.IS_NOT_NULL.equals(operation().trim()) && !Operation.IS_NULL.equals(operation().trim())) {
-            conditionQueryBuilder.append(isRaw ? value() : conditionQueryBuilder.convertValueToString(value()));
-        }
-
-        if (postArgument() != null) {
-            conditionQueryBuilder.appendSpace().append(postArgument());
-        }
-    }
-
-    /**
-     * Appends the condition to the {@link com.raizlabs.android.dbflow.sql.QueryBuilder} without converting values.
-     *
-     * @param queryBuilder
-     */
-    public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-        queryBuilder.append(columnName());
-        queryBuilder.append(operation())
-                .append(value());
-        if (postArgument() != null) {
-            queryBuilder.appendSpace().append(postArgument());
-        }
-    }
-
-    /**
-     * @return internal alias used for subclasses.
-     */
-    private ColumnAlias columnAlias() {
-        return columnAlias;
     }
 
     /**
@@ -510,9 +425,9 @@ public class Condition {
     /**
      * The SQL BETWEEN operator that contains two values instead of the normal 1.
      */
-    public static class Between extends Condition {
+    public static class Between extends BaseCondition {
 
-        private Object mSecondValue;
+        private Object secondValue;
 
         /**
          * Creates a new instance
@@ -521,19 +436,20 @@ public class Condition {
          * @param value     The value of the first argument of the BETWEEN clause
          */
         private Between(Condition condition, Object value) {
-            super(condition.columnAlias());
+            super(condition.columnAlias);
             this.operation = String.format(" %1s ", Operation.BETWEEN);
             this.value = value;
+            isValueSet = true;
             this.postArg = condition.postArgument();
         }
 
         public Between and(Object secondValue) {
-            mSecondValue = secondValue;
+            this.secondValue = secondValue;
             return this;
         }
 
         public Object secondValue() {
-            return mSecondValue;
+            return secondValue;
         }
 
         @Override
@@ -560,9 +476,9 @@ public class Condition {
      * The SQL IN and NOT IN operator that specifies a list of values to SELECT rows from.
      * EX: SELECT * FROM myTable WHERE columnName IN ('column1','column2','etc')
      */
-    public static class In extends Condition {
+    public static class In extends BaseCondition {
 
-        private List<Object> mArguments = new ArrayList<>();
+        private List<Object> inArguments = new ArrayList<>();
 
         /**
          * Creates a new instance
@@ -574,8 +490,8 @@ public class Condition {
          */
         private In(Condition condition, Object firstArgument, boolean isIn, Object... arguments) {
             super(condition.columnAlias());
-            mArguments.add(firstArgument);
-            Collections.addAll(mArguments, arguments);
+            inArguments.add(firstArgument);
+            Collections.addAll(inArguments, arguments);
             operation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
         }
 
@@ -587,7 +503,7 @@ public class Condition {
          * @return
          */
         public In and(Object argument) {
-            mArguments.add(argument);
+            inArguments.add(argument);
             return this;
         }
 
@@ -595,14 +511,101 @@ public class Condition {
         public <ModelClass extends Model> void appendConditionToQuery(
                 ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
             conditionQueryBuilder.append(columnName()).append(operation())
-                    .append("(").appendArgumentList(mArguments).append(")");
+                    .append("(").appendArgumentList(inArguments).append(")");
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append("(").appendList(mArguments).append(")");
+                    .append("(").appendList(inArguments).append(")");
+        }
+    }
+
+    /**
+     * Allows combining of {@link SQLCondition} into one condition.
+     */
+    public static class CombinedCondition extends BaseCondition {
+
+        /**
+         * Constructs a new instance of the combined condition.
+         *
+         * @return A new instance.
+         */
+        public static CombinedCondition begin(SQLCondition condition) {
+            return new CombinedCondition(condition);
+        }
+
+        private final List<SQLCondition> conditions = new ArrayList<>();
+
+        private CombinedCondition(SQLCondition condition) {
+            conditions.add(condition);
+        }
+
+        /**
+         * Appends the {@link SQLCondition} with an {@link Operation#OR}
+         *
+         * @param sqlCondition The condition to append.
+         * @return This instance.
+         */
+        public CombinedCondition or(SQLCondition sqlCondition) {
+            return operator(Operation.OR, sqlCondition);
+        }
+
+        /**
+         * Appends the {@link SQLCondition} with an {@link Operation#AND}
+         *
+         * @param sqlCondition The condition to append.
+         * @return This instance.
+         */
+        public CombinedCondition and(SQLCondition sqlCondition) {
+            return operator(Operation.AND, sqlCondition);
+        }
+
+        /**
+         * Appends the {@link SQLCondition} with the specified operator string.
+         *
+         * @param sqlCondition The condition to append.
+         * @return This instance.
+         */
+        public CombinedCondition operator(String operator, SQLCondition sqlCondition) {
+            setPreviousSeparator(operator);
+            conditions.add(sqlCondition);
+            return this;
+        }
+
+        @Override
+        public <ModelClass extends Model> void appendConditionToQuery(
+                ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+            conditionQueryBuilder.append("(");
+            for (SQLCondition condition : conditions) {
+                condition.appendConditionToQuery(conditionQueryBuilder);
+                if(condition.hasSeparator()) {
+                    conditionQueryBuilder.appendSpaceSeparated(condition.separator());
+                }
+            }
+            conditionQueryBuilder.append(")");
+        }
+
+        @Override
+        public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
+            queryBuilder.append("(");
+            for (SQLCondition condition : conditions) {
+                condition.appendConditionToRawQuery(queryBuilder);
+            }
+            queryBuilder.append(")");
+        }
+
+        /**
+         * Sets the last condition to use the separator specified
+         *
+         * @param separator AND, OR, etc.
+         */
+        private void setPreviousSeparator(String separator) {
+            if (conditions.size() > 0) {
+                // set previous to use OR separator
+                conditions.get(conditions.size() - 1).separator(separator);
+            }
         }
     }
 }

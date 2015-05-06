@@ -7,17 +7,13 @@ import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
+import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -25,7 +21,8 @@ import java.util.List;
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements Query, ModelQueriable<ModelClass> {
+public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelClass>
+        implements Query, ModelQueriable<ModelClass> {
 
     /**
      * The first chunk of the SQL statement before this query.
@@ -130,23 +127,23 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Adds a param to the WHERE clause with the custom {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * Adds a param to the WHERE clause with the custom {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      *
-     * @param condition The {@link com.raizlabs.android.dbflow.sql.builder.Condition} to use
+     * @param condition The {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition} to use
      * @return
      */
-    public Where<ModelClass> and(Condition condition) {
+    public Where<ModelClass> and(SQLCondition condition) {
         mConditionQueryBuilder.and(condition);
         return this;
     }
 
     /**
-     * Appends an OR with a Condition to the WHERE clause with the specified {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * Appends an OR with a Condition to the WHERE clause with the specified {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      *
      * @param condition
      * @return
      */
-    public Where<ModelClass> or(Condition condition) {
+    public Where<ModelClass> or(SQLCondition condition) {
         mConditionQueryBuilder.or(condition);
         return this;
     }
@@ -154,21 +151,21 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     /**
      * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to this builder.
      *
-     * @param conditions The list of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @param conditions The list of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      * @return
      */
-    public Where<ModelClass> andThese(List<Condition> conditions) {
+    public Where<ModelClass> andThese(List<SQLCondition> conditions) {
         mConditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to this builder.
+     * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition} to this builder.
      *
-     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      * @return
      */
-    public Where<ModelClass> andThese(Condition... conditions) {
+    public Where<ModelClass> andThese(SQLCondition... conditions) {
         mConditionQueryBuilder.addConditions(conditions);
         return this;
     }
@@ -209,10 +206,10 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     /**
      * Defines a SQL HAVING statement without the HAVING.
      *
-     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      * @return
      */
-    public Where<ModelClass> having(Condition... conditions) {
+    public Where<ModelClass> having(SQLCondition... conditions) {
         mHaving.addConditions(conditions);
         return this;
     }
