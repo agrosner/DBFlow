@@ -7,7 +7,7 @@ _Please note there many breaking changes in this version_. That said, the new ve
 brings much more consistency, bug fixes, and a few notable new features.
 
 **New Features**: This release comes with some _very_ notable features such as:
-  1. Subquery support
+  1. Subquery + Nested Condition support
   2. Better Column name and alias support
   3. Private columns support
   4. One-To-Many annotation support
@@ -72,6 +72,12 @@ _Note: all the method names are the same from what was previously in `Model`,
 so just copy and paste into new annotation!_.
 
 ### Queries
+
+#### Condition
+
+`Between`and `In` no longer subclass `Condition` (to narrow down methods we care about with each).
+These two and `Condition` now subclass `BaseCondition` which implements `SQLCondition`
+that provides us with the ability to nest `SQLCondition` using the `CombinedCondition` class.
 
 #### FlowTableList -> FlowQueryList
 
@@ -176,7 +182,7 @@ The list follows:
 
 ## New Features
 
-### Subquery Support
+### Subquery + Nested Conditions Support
 
 Subqueries are here!
 
@@ -196,6 +202,49 @@ List<SomeTable> list = new Select()
 
 By passing a `Where` object into any of the `Condition` methods, the SQL language
 knows that it's a subquery and appends it appropriately.
+
+Nested Conditions are here!
+
+To nest conditions simply use the `CombinedCondition` class:
+
+```java
+
+new Select().from(SomeTable.class)
+  .where(CombinedCondition
+    .begin(Condition.column(SomeTable$Table.COLUMN).eq(5))
+    .and(Condition.column(SomeTable$Table.ANOTHER_COLUMN).eq(6)))
+    .and(CombinedCondition.begin(SomeTable$Table.NESTED_COLUMN).eq("Test")));
+
+```
+
+The example produces the query:
+
+```SQL
+
+SELECT * FROM `SomeTable` WHERE (`column`=5 AND `another_column`=6) AND `nested_column`='Test'
+
+```
+
+Also you can nest a nested CombinedCondition!
+
+```java
+
+CombinedCondition
+  .begin(CombinedCondition
+    .begin(CombinedCondition
+      .begin(Condition.column("salary").greaterThan(15000))
+      .and(Condition.column("title").is("worker")))
+  .and(CombinedCondition.begin(Condition.column("fuss").is(false))));
+
+```
+
+Produces:
+
+```java
+
+((`salary`>15000 AND `title`='worker') AND (`fuss`=0))
+
+```
 
 ### Better Column name and alias support!
 
