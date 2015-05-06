@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime;
 import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
@@ -10,6 +11,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Description: This queue will bulk save items added to it when it gets access to the DB. It should only exist as one entity.
@@ -52,9 +54,11 @@ public class DBBatchSaveQueue extends Thread {
      */
     private boolean isQuitting = false;
 
+    private boolean purgeQueueWhenDone = true;
+
     private DBTransactionInfo saveQueueInfo = DBTransactionInfo.create("Batch Saving Models");
 
-    private TransactionListener mListener;
+    private TransactionListener<List<Model>> transactionListener;
 
     /**
      * Creates a new instance of this class to batch save {@link com.raizlabs.android.dbflow.structure.Model} classes.
@@ -104,8 +108,13 @@ public class DBBatchSaveQueue extends Thread {
         this.saveQueueInfo = mSaveQueueInfo;
     }
 
-    public void setTransactionListener(TransactionListener listener) {
-        mListener = listener;
+    /**
+     * Sets a listener to receive call backs as the save queue saves batches of models.
+     *
+     * @param listener The listener to call as it updates.
+     */
+    public void setTransactionListener(TransactionListener<List<Model>> listener) {
+        transactionListener = listener;
     }
 
     /**
@@ -118,6 +127,17 @@ public class DBBatchSaveQueue extends Thread {
         this.modelSaveCheckTime = time;
     }
 
+    /**
+     * If true, we will awaken the save queue from sleep when the internal {@link TransactionListener} realizes the count of {@link Model}
+     * is smaller than the {@link #modelSaveSize}. Default is true.
+     *
+     * @param purgeQueueWhenDone true to check every batch and if size < {@link #modelSaveSize} in the internal {@link TransactionListener}
+     */
+    public void setPurgeQueueWhenDone(boolean purgeQueueWhenDone) {
+        this.purgeQueueWhenDone = purgeQueueWhenDone;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         super.run();
@@ -133,9 +153,9 @@ public class DBBatchSaveQueue extends Thread {
                 //onExecute this on the DBManager thread
                 TransactionManager.getInstance()
                         .addTransaction(new SaveModelTransaction<>(ProcessModelInfo
-                                .withModels(tmpModels)
-                                .result(mListener)
-                                .info(saveQueueInfo)));
+                                                                           .withModels(tmpModels)
+                                                                           .result(internalListener)
+                                                                           .info(saveQueueInfo)));
             }
 
             try {
@@ -218,5 +238,41 @@ public class DBBatchSaveQueue extends Thread {
     public void quit() {
         isQuitting = true;
     }
+
+    private final TransactionListener<List<Model>> internalListener = new TransactionListener<List<Model>>() {
+        @Override
+        public void onResultReceived(List<Model> result) {
+            if (transactionListener != null) {
+                transactionListener.onResultReceived(result);
+            }
+
+            if (purgeQueueWhenDone) {
+                synchronized (models) {
+                    // interrupt the thread if we discover the model size is now smaller than the save size.
+                    if (models.size() < MODEL_SAVE_SIZE) {
+                        purgeQueue();
+                    }
+                }
+            }
+        }
+
+        @Override
+        public boolean onReady(BaseTransaction<List<Model>> transaction) {
+            if (transactionListener != null) {
+                // result ignored. Always will be ready.
+                transactionListener.onReady(transaction);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean hasResult(BaseTransaction<List<Model>> transaction, List<Model> result) {
+            if (transactionListener != null) {
+                // result ignored always will have a result when called.
+                transactionListener.hasResult(transaction, result);
+            }
+            return true;
+        }
+    };
 }
 
