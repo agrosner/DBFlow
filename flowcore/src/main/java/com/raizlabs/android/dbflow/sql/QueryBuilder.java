@@ -11,7 +11,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * This query is backed by a {@link java.lang.StringBuilder}
      */
-    protected StringBuilder mQuery = new StringBuilder();
+    protected StringBuilder query = new StringBuilder();
 
     /**
      * Constructs this item with an empty {@link java.lang.StringBuilder}
@@ -67,7 +67,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     public QueryClass append(Object object) {
-        mQuery.append(object);
+        query.append(object);
         return castThis();
     }
 
@@ -209,7 +209,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     @Override
     public String getQuery() {
-        return mQuery.toString();
+        return query.toString();
     }
 
     /**

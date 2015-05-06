@@ -184,7 +184,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                 @Override
                 public void write(JavaWriter javaWriter) throws IOException {
-                    javaWriter.emitStatement("return new %1s(this, mInternalHelperListener)", sqliteOpenHelperClass);
+                    javaWriter.emitStatement("return new %1s(this, internalHelperListener)", sqliteOpenHelperClass);
                 }
             }, "FlowSQLiteOpenHelper", "createHelper", DatabaseHandler.METHOD_MODIFIERS);
         }

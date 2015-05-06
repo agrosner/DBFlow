@@ -158,7 +158,7 @@ public abstract class BaseDatabaseDefinition {
     }
 
     protected FlowSQLiteOpenHelper createHelper() {
-        return new FlowSQLiteOpenHelper(this, mInternalHelperListener);
+        return new FlowSQLiteOpenHelper(this, internalHelperListener);
     }
 
     public SQLiteDatabase getWritableDatabase() {
@@ -215,7 +215,7 @@ public abstract class BaseDatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(getDatabaseFileName());
-            flowSQLiteOpenHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
+            flowSQLiteOpenHelper = new FlowSQLiteOpenHelper(this, internalHelperListener);
             isResetting = false;
         }
     }
@@ -239,7 +239,7 @@ public abstract class BaseDatabaseDefinition {
         getHelper().backupDB();
     }
 
-    protected final DatabaseHelperListener mInternalHelperListener = new DatabaseHelperListener() {
+    protected final DatabaseHelperListener internalHelperListener = new DatabaseHelperListener() {
         @Override
         public void onOpen(SQLiteDatabase database) {
             if (helperListener != null) {

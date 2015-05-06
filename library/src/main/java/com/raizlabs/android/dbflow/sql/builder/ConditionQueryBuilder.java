@@ -120,11 +120,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     @Override
     public String getQuery() {
         // Empty query, we will build it now with params, or if the query has changed.
-        if (isChanged || mQuery.length() == 0) {
+        if (isChanged || query.length() == 0) {
             isChanged = false;
-            mQuery = new StringBuilder();
+            query = new StringBuilder();
             if(whereRaw != null) {
-                mQuery.append(whereRaw);
+                query.append(whereRaw);
             }
 
             int count = 0;
@@ -143,7 +143,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             }
         }
 
-        return mQuery.toString();
+        return query.toString();
     }
 
     /**
