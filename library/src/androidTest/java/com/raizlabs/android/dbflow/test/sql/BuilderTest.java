@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.sql;
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
@@ -17,8 +18,8 @@ public class BuilderTest extends FlowTestCase {
      */
     public void testConditions() {
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder
-                = new ConditionQueryBuilder<ConditionModel>(ConditionModel.class);
-        conditionQueryBuilder.putConditions(
+                = new ConditionQueryBuilder<>(ConditionModel.class);
+        conditionQueryBuilder.addConditions(
                 Condition.column("number").is(5L),
                 Condition.column("bytes").is(5),
                 Condition.column("fraction").is(6.5d));
@@ -27,7 +28,7 @@ public class BuilderTest extends FlowTestCase {
 
 
         conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class)
-                .putCondition(Condition.column(ConditionModel$Table.NUMBER).between(5L).and(10L));
+                .addCondition(Condition.column(ConditionModel$Table.NUMBER).between(5L).and(10L));
         assertEquals("`number` BETWEEN 5 AND 10", conditionQueryBuilder.getQuery().trim());
     }
 
@@ -42,15 +43,15 @@ public class BuilderTest extends FlowTestCase {
 
     public void testChainingConditions() {
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class);
-        conditionQueryBuilder.putCondition(Condition.column(ConditionModel$Table.NAME).is("James").separator("OR"))
-                .putCondition(Condition.column(ConditionModel$Table.NUMBER).is(6).separator("AND"))
-                .putCondition(Condition.column(ConditionModel$Table.FRACTION).is(4.5d));
+        conditionQueryBuilder.addCondition(Condition.column(ConditionModel$Table.NAME).is("James").separator("OR"))
+                .addCondition(Condition.column(ConditionModel$Table.NUMBER).is(6).separator("AND"))
+                .addCondition(Condition.column(ConditionModel$Table.FRACTION).is(4.5d));
         assertEquals("`name`='James' OR `number`=6 AND `fraction`=4.5", conditionQueryBuilder.getQuery().trim());
     }
 
     public void testIsOperators() {
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class);
-        conditionQueryBuilder.putCondition(Condition.column(ConditionModel$Table.NAME).is("James"))
+        conditionQueryBuilder.addCondition(Condition.column(ConditionModel$Table.NAME).is("James"))
                 .or(Condition.column(ConditionModel$Table.FRACTION).isNotNull());
         assertEquals("`name`='James' OR `fraction` IS NOT NULL", conditionQueryBuilder.getQuery().trim());
     }
@@ -63,6 +64,15 @@ public class BuilderTest extends FlowTestCase {
         Condition.In notIn = Condition.column(ConditionModel$Table.NAME).notIn("Jason", "Ryan", "Michael");
         conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
         assertEquals("`name` NOT IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
+    }
+
+    public void testCombinedOperations() {
+        Condition.CombinedCondition combinedCondition = Condition.CombinedCondition
+                .begin(Condition.CombinedCondition
+                               .begin(Condition.column(ColumnAlias.columnRaw("A"))).or(Condition.column(ColumnAlias.columnRaw("B"))))
+                .and(Condition.column(ColumnAlias.columnRaw("C")));
+        ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, combinedCondition);
+        assertEquals("((A OR B) AND C)", conditionQueryBuilder.getQuery());
     }
 
 }

@@ -19,9 +19,7 @@ public abstract class BaseContainerHandler<AnnotationClass extends Annotation> i
         final Set<Element> annotatedElements = Sets.newHashSet(roundEnvironment.getElementsAnnotatedWith(getAnnotationClass()));
         processElements(processorManager, (Set<Element>) annotatedElements);
         if (annotatedElements.size() > 0) {
-            Iterator<? extends Element> iterator = annotatedElements.iterator();
-            while (iterator.hasNext()) {
-                Element element = iterator.next();
+            for (Element element : annotatedElements) {
                 onProcessElement(processorManager, element);
             }
         }

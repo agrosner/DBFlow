@@ -13,15 +13,15 @@ import java.util.Map;
 public class MapModelTest extends FlowTestCase {
 
     public void testMapModel() {
-        Map<String, Object> dataMap = new HashMap<String, Object>();
+        Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("name", "test");
         MapModel<TestModel1> model1MapModel = new MapModel<TestModel1>(dataMap,TestModel1.class);
-        model1MapModel.save(false);
+        model1MapModel.save();
 
         assertTrue(model1MapModel.exists());
         assertNotNull(model1MapModel.toModel());
 
-        Map<String, Object> otherDataMap = new HashMap<String, Object>();
+        Map<String, Object> otherDataMap = new HashMap<>();
         otherDataMap.put("name", "test");
         otherDataMap.put("party_type", "club");
         otherDataMap.put("count1", 10);
@@ -29,7 +29,7 @@ public class MapModelTest extends FlowTestCase {
         otherDataMap.put("testModel", dataMap);
 
         MapModel<TestModelContainerClass> testModelContainerClassMapModel = new MapModel<TestModelContainerClass>(otherDataMap, TestModelContainerClass.class);
-        testModelContainerClassMapModel.save(false);
+        testModelContainerClassMapModel.save();
 
         assertTrue(testModelContainerClassMapModel.exists());
         assertNotNull(testModelContainerClassMapModel.toModel());

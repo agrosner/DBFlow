@@ -4,34 +4,36 @@ In SQL with Android, writing SQL is not that _fun_, so to make it easy and usefu
 
 In the first section I describe how using the wrapper classes drastically simplify code writing.
 
-### Code-Wrapped Exmaple
+### Example
 
-For example, we want to find all devices from ```DeviceTable``` that are Samsung Galaxy S5 and from T-Mobile. Writing the SQL statement is easy enough:
+For example, we want to find all ants from ```Ant``` that are of type "worker" and are female. Writing the SQL statement is easy enough:
 
 ```sql
 
-SELECT * FROM DeviceTable where name = 'Samsung-Galaxy-S5' AND carrier = 'T-MOBILE';
+SELECT * FROM Ant where type = 'worker' AND isMale = 0;
 
 ```
 
-We want to write this in Android code, convert the statement into data that we can use in our application:
+We want to write this in Android code, convert the SQL data into useful information:
 
 ```java
 
 String[] args = new String[2];
-args[0] = "Samsung-Galaxy-S5";
-args[1] = "T-MOBILE";
-Cursor cursor = db.rawQuery("SELECT * FROM DeviceTable where name = ? AND carrier = ?", args);
-final List<DeviceObject> entities = new ArrayList<DeviceObject>();
-DeviceObject deviceObject;
+args[0] = "worker";
+args[1] = "0";
+Cursor cursor = db.rawQuery("SELECT * FROM Ant where type = ? AND isMale = ?", args);
+final List<Ant> ants = new ArrayList<Ant>();
+Ant ant;
 
 if (cursor.moveToFirst()) {
   do {
     // get each column and then set it on each
-    deviceObject = new DeviceObject();
-    deviceObject.setName(cursor.getString(cursor.getColumnIndex("name")));
-    deviceObject.setCarrier(cursor.getString(cursor.getColumnIndex("carrier"));
-    entities.add(deviceObject);
+    ant = new Ant();
+    ant.setId(cursor.getLong(cursor.getColumnIndex("id")));
+    ant.setType(cursor.getString(cursor.getColumnIndex("type")));
+    ant.setIsMale(cursor.getInt(cursor.getColumnIndex("isMale") == 1);
+    ant.setQueenId(cursor.getLong(cursor.getColumnIndex("queen_id")));
+    ants.add(ant);
   }
   while (cursor.moveToNext());
 }
@@ -44,36 +46,40 @@ What happens when:
   1. We add or remove columns
   2. Have to write more functions like this for other tables, queries, and other kinds of data?
 
-In short, we want this code to be maintainable, short, reusable, and expressive of what actually is happening. In this library, calling this statement becomes as easy as this (given you built your database and model correctly):
+In short, we want our code to be maintainable, short, reusable, and still remain expressive
+of what actually is happening. In this library, this query becomes very easy:
 
 ```java
 
 // main thread retrieval
-List<DeviceObject> devices = new Select().from(DeviceObject.class)
+List<Ant> devices = new Select().from(Ant.class)
   .where(
-      Condition.column(DeviceObject$Table.NAME).eq("Samsung-Galaxy-S5"),
-      Condition.column(DeviceObject$Table.CARRIER).eq("T-Mobile")).queryList();
+      Condition.column(Ant$Table.TYPE).eq("worker"),
+      Condition.column(Ant$Table.ISMALE).eq(false)).queryList();
 
 // Async Transaction Queue Retrieval (Recommended)
-new Select().from(DeviceObject.class)
+TransactionManager.getInstance().addTransaction(new SelectListTransaction<>(
+  new Select()
+  .from(DeviceObject.class)
   .where(
-      Condition.column(DeviceObject$Table.NAME).eq("Samsung-Galaxy-S5"),
-      Condition.column(DeviceObject$Table.CARRIER).eq("T-Mobile"))
-  .transactList(new TransactionListenerAdapter<List<DeviceObject>>() {
-    @Override
-    public void onResultReceived(List<DeviceObject> devices) {
-      // retrieved here
-    }
-
-  });
+      Condition.column(Ant$Table.TYPE).eq("worker"),
+      Condition.column(Ant$Table.ISMALE).eq(false))),
+  transactionListener);
 
 ```
 
+There are many kinds of queries that are supported in DBFlow including:
+  1. SELECT
+  2. UPDATE
+  3. DELETE
+  4. JOIN
+
 ### SELECT Statements and Retrieval Methods
 
-A ```SELECT``` statement retrieves data from the database. This library provides you with a very flexible amount of ways to retrieve data from the database.
-
-To ```SELECT``` from the database:
+A `SELECT` statement retrieves data from the database. We retrieve data via
+  1. Normal `Select` on the main thread
+  2. Running a `Transaction` using the `TransactionManager` (recommended for large
+  queries).
 
 ```java
 
@@ -93,110 +99,22 @@ new Select().from(SomeTable.class).where(conditions).queryCursorList();
 new Select().distinct().from(table).queryList();
 new Select().all().from(table).queryList();
 new Select().avg(SomeTable$Table.SALARY).from(SomeTable.class).queryList();
-
+new Select().method(SomeTable$Table.SALARY, "MAX").from(SomeTable.class).queryList();
 
 // Transact a query on the DBTransactionQueue
-new Select().from(SomeTable.class).where(conditions)
-  .transactList(new TransactionListenerAdapter<List<SomeTable>>() {
+TransactionManager.getInstance().addTransaction(
+  new SelectListTransaction<>(new Select().from(SomeTable.class).where(conditions),
+  new TransactionListenerAdapter<List<SomeTable>>() {
     @Override
     public void onResultReceived(List<SomeTable> someObjectList) {
       // retrieved here
-    }
-
-  });
-
-new Select().from(SomeTable.class).where(conditions)
-  .transactSingleModel(new TransactionListenerAdapter<SomeTable>() {
-    @Override
-    public void onResultReceived(SomeTable someObject) {
-      // retrieved here
-    }
-
-  });
-
-// selects all based on these conditions, returns list
-Select.all(SomeTable.class, conditions);
-
-// Selects a single model by id
-Select.byId(SomeTable.class, primaryKey);
+});
 
 // Selects Count of Rows for the SELECT statment
-Select.count(SomeTable.class, conditions);
+long count = new Select().count(SomeTable.class).where(conditions).count();
 
-
-// Using the TransactionManager (there are more methods similiar to this one)
-TransactionManager.getInstance().fetchFromTable(SomeTable.class, transactionListener, conditions);
 
 ```
-
-### UPDATE statements
-
-There are two ways of updating data in the database:
-  1. Using the ```Update``` class
-  2. Calling ```update(async)``` for existing data and ```save(async)``` for unknown on a ```Model``` object
-
-In this section we will describe bulk updating data from the database.
-
-From our earlier example on retrieving device and carrier information, we want to update the table for the same query by setting the carrier to AT&T.
-
-Using native SQL:
-
-```SQL
-
-UPDATE DeviceObject SET carrier = 'AT&T' WHERE device = 'Samsung-Galaxy-S5' AND carrier = 'T-MOBILE`;
-
-```
-
-Using DBFlow:
-
-```java
-
-// Native SQL wrapper
-new Update().table(DeviceObject.class).set(Condition.column(DeviceObject$Table.CARRIER).is("AT&T"))
-  .where(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
-  .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).query();
-
-// TransactionManager (more methods similar to this one)
-TransactionManager.getInstance().update(ProcessModelInfo.withModels(models));
-
-```
-
-### DELETE statements
-
-```java
-
-// Delete a whole table
-Delete.table(MyTable.class, conditions);
-
-// Delete multiple instantly
-Delete.tables(MyTable1.class, MyTable2.class);
-
-// Delete using query
-new Delete()
-  .from(MyTable.class)
-  .where(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
-    .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).query();
-
-```
-
-### JOIN statements
-
-```JOIN``` statements are great for combining many-to-many relationships.
-
-For example we have a table named ```Customer``` and another named ```Reservations```.
-
-```java
-
-List<Customer> customers = new Select()
-  .from(Customer.class).as("C")
-  .join(Reservations.class, JoinType.INNER).as("R")
-    .on(Condition.column("C." + Customer$Table.CUSTOMER_ID).eq("R." + Reservations$Table.CUSTOMER_ID)).queryList();
-
-```
-
-### Advanced Usages
-
-Here are some advance usages of the SQL wrapper classes.
 
 #### Order By
 
@@ -244,4 +162,74 @@ new Select().from(table).where()
   .limit(3)
   .offset(2)
   .queryList();
+```
+
+### UPDATE statements
+
+There are two ways of updating data in the database:
+  1. Using the ```Update``` class
+  2. Running a `Transaction` using the `TransactionManager` (recommended for thread-safety,
+  however seeing changes are async).
+
+In this section we will describe bulk updating data from the database.
+
+From our earlier example on ants, we want to change all of our current male "worker" ants
+into "other" ants because they became lazy and do not work anymore.
+
+Using native SQL:
+
+```sql
+
+UPDATE Ant SET type = 'other' WHERE male = 1 AND type = 'worker';
+
+```
+
+Using DBFlow:
+
+```java
+
+// Native SQL wrapper
+Update<Ant> update = new Update().table(Ant.class).set(Condition.column(Ant$Table.TYPE).eq("other"))
+  .where(Condition.column(Ant$Table.TYPE).is("worker"))
+  .and(Condition.column(Ant$Table.ISMALE).is(true));
+update.queryClose();
+
+// TransactionManager (more methods similar to this one)
+TransactionManager.getInstance().addTransaction(new UpdateTransaction<>(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI), update);
+
+```
+
+### DELETE statements
+
+```java
+
+// Delete a whole table
+Delete.table(MyTable.class, conditions);
+
+// Delete multiple instantly
+Delete.tables(MyTable1.class, MyTable2.class);
+
+// Delete using query
+new Delete()
+  .from(MyTable.class)
+  .where(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
+    .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).query();
+
+```
+
+### JOIN statements
+
+```JOIN``` statements are great for combining many-to-many relationships.
+
+For example we have a table named ```Customer``` and another named ```Reservations```.
+
+```java
+
+// use the different QueryModel (instead of Table) if the result cannot be applied to existing Model classes.
+List<CustomTable> customers = new Select()
+  .from(Customer.class).as("C")
+  .join(Reservations.class, JoinType.INNER).as("R")
+    .on(Condition.column(ColumnAlias.columnTable("C", Customer$Table.CUSTOMER_ID)
+      .eq(ColumnAlias.columnTable("R", Reservations$Table.CUSTOMER_ID)).queryCustomList(CustomTable.class);
+
 ```

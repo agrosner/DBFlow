@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -12,47 +13,45 @@ import com.raizlabs.android.dbflow.structure.Model;
 public class TriggerMethod<ModelClass extends Model> implements Query {
 
     public static final String DELETE = "DELETE";
-
     public static final String INSERT = "INSERT";
-
     public static final String UPDATE = "UPDATE";
 
-    final Trigger<ModelClass> mTrigger;
-
-    private String[] mColumns;
-
-    private final String mMethodName;
+    final Trigger trigger;
+    private ColumnAlias[] columns;
+    private final String methodName;
 
     /**
      * The table we're operating on.
      */
-    Class<ModelClass> mOnTable;
-
+    Class<ModelClass> onTable;
     boolean forEachRow = false;
+    private Condition whenCondition;
 
-    private Condition mWhenCondition;
-
-    TriggerMethod(Trigger<ModelClass> trigger, String methodName, Class<ModelClass> onTable, String... columns) {
-        mTrigger = trigger;
-        mMethodName = methodName;
-        mOnTable = onTable;
-        if(columns != null && columns.length > 0) {
-            of(columns);
+    TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, String... columns) {
+        this.trigger = trigger;
+        this.methodName = methodName;
+        this.onTable = onTable;
+        if (columns != null && columns.length > 0 && columns[0] != null) {
+            if (!methodName.equals(UPDATE)) {
+                throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
+            }
+            this.columns = new ColumnAlias[columns.length];
+            for (int i = 0; i < this.columns.length; i++) {
+                this.columns[i] = ColumnAlias.column(columns[i]);
+            }
         }
     }
 
-    /**
-     * Used on a UPDATE OF
-     *
-     * @param columns
-     * @return
-     */
-    public TriggerMethod<ModelClass> of(String... columns) {
-        if (!mMethodName.equals(UPDATE)) {
-            throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
+    TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, ColumnAlias... columns) {
+        this.trigger = trigger;
+        this.methodName = methodName;
+        this.onTable = onTable;
+        if (columns != null && columns.length > 0 && columns[0] != null) {
+            if (!methodName.equals(UPDATE)) {
+                throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
+            }
+            this.columns = columns;
         }
-        mColumns = columns;
-        return this;
     }
 
     public TriggerMethod<ModelClass> forEachRow() {
@@ -62,11 +61,12 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
 
     /**
      * Appends a WHEN condition after the ON tableName and before BEGIN...END
+     *
      * @param condition The condition for the trigger
      * @return
      */
     public TriggerMethod<ModelClass> when(Condition condition) {
-        mWhenCondition = condition;
+        whenCondition = condition;
         return this;
     }
 
@@ -85,21 +85,21 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder
-                = new QueryBuilder(mTrigger.getQuery())
-                .append(mMethodName);
-        if (mColumns != null && mColumns.length > 0) {
+                = new QueryBuilder(trigger.getQuery())
+                .append(methodName);
+        if (columns != null && columns.length > 0) {
             queryBuilder.appendSpaceSeparated("OF")
-                    .appendArray(mColumns);
+                    .appendArray(columns);
         }
-        queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(mOnTable));
+        queryBuilder.appendSpaceSeparated("ON").appendQuoted(FlowManager.getTableName(onTable));
 
         if (forEachRow) {
             queryBuilder.appendSpaceSeparated("FOR EACH ROW");
         }
 
-        if (mWhenCondition != null) {
+        if (whenCondition != null) {
             queryBuilder.append(" WHEN ");
-            mWhenCondition.appendConditionToRawQuery(queryBuilder);
+            whenCondition.appendConditionToRawQuery(queryBuilder);
             queryBuilder.appendSpace();
         }
 

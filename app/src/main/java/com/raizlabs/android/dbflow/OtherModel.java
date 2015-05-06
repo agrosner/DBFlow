@@ -1,23 +1,28 @@
 package com.raizlabs.android.dbflow;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
  * Description:
  */
-@Table(value = "OtherModel")
-@ContainerAdapter
+@Table(tableName = "OtherModel", databaseName = AppDatabase.NAME)
+@ModelContainer
 public class OtherModel extends BaseModel {
 
-    @Column(columnType = Column.PRIMARY_KEY)
+    @Column
+    @PrimaryKey
     String name;
 
-    @Column(columnType = Column.FOREIGN_KEY,
-    references = {@ForeignKeyReference(columnType = String.class,
-    columnName = "json", foreignColumnName = "name")})
+    @Column
+    @ForeignKey(references =
+            {@ForeignKeyReference(columnType = String.class,
+                    columnName = "json",
+                    foreignColumnName = "name")})
     SecondModel candy;
 }

@@ -1,11 +1,7 @@
 package com.raizlabs.android.dbflow.structure.container;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
-import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,37 +56,49 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
         getData().put(columnName, value);
     }
 
-    @Override
-    public ModelClass toModel() {
-        if (mModel == null && mData != null) {
-            mModel = new Select().from(mModelAdapter.getModelClass())
-                    .where(mContainerAdapter.getPrimaryModelWhere(this)).querySingle();
+    /**
+     * Attemps to load the model from the DB using a {@link Select} query.
+     *
+     * @return the result of running a primary where query on the contained data.
+     */
+    public ModelClass load() {
+        if (model == null && data != null) {
+            model = new Select().from(modelAdapter.getModelClass())
+                    .where(modelContainerAdapter.getPrimaryModelWhere(this)).limit(1).querySingle();
         }
-        return mModel;
+        return model;
     }
 
     @Override
     public boolean exists() {
-        return mModelAdapter.exists(toModel());
+        ModelClass model = toModel();
+        return model != null && modelAdapter.exists(model);
     }
 
     @Override
-    public void save(boolean async) {
-        mModelAdapter.save(async, toModel(), SqlUtils.SAVE_MODE_DEFAULT);
+    public void save() {
+        throw new InvalidMethodCallException("Cannot call save() on a foreign key container. Call load() instead");
     }
 
     @Override
-    public void delete(boolean async) {
-        mModelAdapter.delete(async, toModel());
+    public void delete() {
+        throw new InvalidMethodCallException("Cannot call delete() on a foreign key container. Call load() instead");
     }
 
     @Override
-    public void update(boolean async) {
-        mModelAdapter.update(async, toModel());
+    public void update() {
+        throw new InvalidMethodCallException("Cannot call update() on a foreign key container. Call load() instead");
     }
 
     @Override
-    public void insert(boolean async) {
-        mModelAdapter.insert(async, toModel());
+    public void insert() {
+        throw new InvalidMethodCallException("Cannot call insert() on a foreign key container. Call load() instead");
+    }
+
+    private static class InvalidMethodCallException extends RuntimeException {
+
+        public InvalidMethodCallException(String detailMessage) {
+            super(detailMessage);
+        }
     }
 }

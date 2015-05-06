@@ -7,20 +7,31 @@ import android.database.DatabaseUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
+import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * Description: The SQLite INSERT command
  */
 public class Insert<ModelClass extends Model> implements Query, Queriable {
+
+    /**
+     * Begins the INSERT statement of the query.
+     *
+     * @param table        The table to use.
+     * @param <ModelClass> The class that implements {@link Model}
+     * @return A new INSERT statement.
+     */
+    public static <ModelClass extends Model> Insert<ModelClass> into(Class<ModelClass> table) {
+        return new Insert<>(table);
+    }
 
     /**
      * The table class that this INSERT points to
@@ -52,7 +63,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      *
      * @param table The table to insert into
      */
-    public Insert(Class<ModelClass> table) {
+    private Insert(Class<ModelClass> table) {
         mTable = table;
         mManager = FlowManager.getDatabaseForTable(table);
     }
@@ -114,7 +125,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
         Object[] values = new Object[size];
 
         for (int i = 0; i < size; i++) {
-            Condition condition = conditionQueryBuilder.getConditions().get(i);
+            SQLCondition condition = conditionQueryBuilder.getConditions().get(i);
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }
@@ -127,10 +138,11 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
         int count = 0;
         String[] columns = new String[contentValues.size()];
         Object[] values = new Object[contentValues.size()];
-        for(Map.Entry<String, Object> entry : entries) {
+        for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
             columns[count] = key;
             values[count] = contentValues.get(key);
+            count++;
         }
 
         return columns(columns).values(values);
@@ -219,10 +231,10 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
 
         if (mColumns != null && mValues != null && mColumns.length != mValues.length) {
             throw new IllegalStateException("The Insert of " + FlowManager.getTableName(mTable) + " when specifying" +
-                    "columns needs to have the same amount of values and columns");
+                                            "columns needs to have the same amount of values and columns");
         } else if (mValues == null) {
             throw new IllegalStateException("The insert of " + FlowManager.getTableName(mTable) + " should have" +
-                    "at least one value specified for the insert");
+                                            "at least one value specified for the insert");
         }
 
         queryBuilder.append(" VALUES(").appendModelArray(mValues).append(")");

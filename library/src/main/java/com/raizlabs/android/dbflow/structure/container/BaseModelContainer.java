@@ -13,24 +13,24 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     /**
      * The {@link ModelClass} that the json corresponds to. Use {@link #toModel()} to retrieve this value.
      */
-    ModelClass mModel;
+    ModelClass model;
 
     /**
      * The {@link com.raizlabs.android.dbflow.structure.ModelAdapter} that is defined for this {@link org.json.JSONObject}
      */
-    ModelAdapter<ModelClass> mModelAdapter;
+    ModelAdapter<ModelClass> modelAdapter;
 
-    ContainerAdapter<ModelClass> mContainerAdapter;
+    ModelContainerAdapter<ModelClass> modelContainerAdapter;
 
     /**
      * The data thats stored in the container
      */
-    DataClass mData;
+    DataClass data;
 
     public BaseModelContainer(Class<ModelClass> table) {
-        mModelAdapter = FlowManager.getModelAdapter(table);
-        mContainerAdapter = FlowManager.getContainerAdapter(table);
-        if (mContainerAdapter == null) {
+        modelAdapter = FlowManager.getModelAdapter(table);
+        modelContainerAdapter = FlowManager.getContainerAdapter(table);
+        if (modelContainerAdapter == null) {
             throw new InvalidDBConfiguration("The table" + FlowManager.getTableName(table) + " did not specify the ContainerAdapter" +
                     "annotation. Please add and rebuild");
         }
@@ -38,16 +38,16 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     public BaseModelContainer(Class<ModelClass> table, DataClass data) {
         this(table);
-        mData = data;
+        this.data = data;
     }
 
     @Override
     public ModelClass toModel() {
-        if (mModel == null && mData != null) {
-            mModel = mContainerAdapter.toModel(this);
+        if (model == null && data != null) {
+            model = modelContainerAdapter.toModel(this);
         }
 
-        return mModel;
+        return model;
     }
 
     /**
@@ -57,7 +57,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      * @param model
      */
     public void setModel(ModelClass model) {
-        mModel = model;
+        this.model = model;
     }
 
     /**
@@ -78,9 +78,9 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @SuppressWarnings("unchecked")
     protected Object getModelValue(Object inValue, String columnName) {
-        ContainerAdapter<? extends Model> containerAdapter = FlowManager.getContainerAdapter(getTable());
-        Class<? extends Model> columnClass = (Class<? extends Model>) containerAdapter.getClassForColumn(columnName);
-        ContainerAdapter<? extends Model> columnAdapter = FlowManager.getContainerAdapter(columnClass);
+        ModelContainerAdapter<? extends Model> modelContainerAdapter = FlowManager.getContainerAdapter(getTable());
+        Class<? extends Model> columnClass = (Class<? extends Model>) modelContainerAdapter.getClassForColumn(columnName);
+        ModelContainerAdapter<? extends Model> columnAdapter = FlowManager.getContainerAdapter(columnClass);
         if (columnAdapter != null) {
             inValue = columnAdapter.toModel(getInstance(inValue, columnClass));
         } else {
@@ -91,7 +91,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public DataClass getData() {
-        return mData;
+        return data;
     }
 
     /**
@@ -101,8 +101,8 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      */
     @Override
     public void setData(DataClass data) {
-        mData = data;
-        mModel = null;
+        this.data = data;
+        model = null;
     }
 
     @Override
@@ -113,36 +113,36 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public ModelAdapter<ModelClass> getModelAdapter() {
-        return mModelAdapter;
+        return modelAdapter;
     }
 
     @Override
     public Class<ModelClass> getTable() {
-        return mModelAdapter.getModelClass();
+        return modelAdapter.getModelClass();
     }
 
     @Override
-    public void save(boolean async) {
-        mContainerAdapter.save(async, this);
+    public void save() {
+        modelContainerAdapter.save(this);
     }
 
     @Override
-    public void delete(boolean async) {
-        mContainerAdapter.delete(async, this);
+    public void delete() {
+        modelContainerAdapter.delete(this);
     }
 
     @Override
-    public void update(boolean async) {
-        mContainerAdapter.update(async, this);
+    public void update() {
+        modelContainerAdapter.update(this);
     }
 
     @Override
-    public void insert(boolean async) {
-        mContainerAdapter.insert(async, this);
+    public void insert() {
+        modelContainerAdapter.insert(this);
     }
 
     @Override
     public boolean exists() {
-        return mContainerAdapter.exists(this);
+        return modelContainerAdapter.exists(this);
     }
 }

@@ -13,19 +13,19 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass> {
 
-    private final String mIndexName;
+    private final String indexName;
 
-    private final WhereBase<ModelClass> mWhereBase;
+    private final WhereBase<ModelClass> whereBase;
 
     /**
      * Creates the INDEXED BY part of the clause.
      *
-     * @param mIndexName The name of the index
+     * @param indexName The name of the index
      * @param whereBase  The base piece of this query
      */
-    IndexedBy(@NonNull String mIndexName, WhereBase<ModelClass> whereBase) {
-        this.mIndexName = mIndexName;
-        this.mWhereBase = whereBase;
+    IndexedBy(@NonNull String indexName, WhereBase<ModelClass> whereBase) {
+        this.indexName = indexName;
+        this.whereBase = whereBase;
     }
 
     /**
@@ -62,18 +62,18 @@ public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass
 
     @Override
     public Class<ModelClass> getTable() {
-        return mWhereBase.getTable();
+        return whereBase.getTable();
     }
 
     @Override
     public Query getQueryBuilderBase() {
-        return mWhereBase.getQueryBuilderBase();
+        return whereBase.getQueryBuilderBase();
     }
 
     @Override
     public String getQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder(mWhereBase.getQuery())
-                .append("INDEXED BY ").appendQuoted(mIndexName).appendSpace();
+        QueryBuilder queryBuilder = new QueryBuilder(whereBase.getQuery())
+                .append("INDEXED BY ").appendQuoted(indexName).appendSpace();
         return queryBuilder.getQuery();
     }
 }

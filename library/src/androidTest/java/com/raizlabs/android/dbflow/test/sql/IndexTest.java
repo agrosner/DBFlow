@@ -28,12 +28,12 @@ public class IndexTest extends FlowTestCase {
         IndexModel indexModel = new IndexModel();
         indexModel.name = "Index";
         indexModel.salary = 30000;
-        indexModel.save(false);
+        indexModel.save();
 
         indexModel = new IndexModel();
         indexModel.name = "Index2";
         indexModel.salary = 15000;
-        indexModel.save(false);
+        indexModel.save();
 
         List<IndexModel> list = new Select().from(IndexModel.class)
                 .indexedBy(modelIndex.getIndexName())

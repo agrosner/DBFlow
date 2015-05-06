@@ -12,5 +12,5 @@ public interface ProcessModel<ModelClass extends Model> {
      *
      * @param model The model to process
      */
-    public void processModel(ModelClass model);
+    void processModel(ModelClass model);
 }

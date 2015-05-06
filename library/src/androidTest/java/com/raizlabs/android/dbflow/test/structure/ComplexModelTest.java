@@ -14,27 +14,27 @@ public class ComplexModelTest extends FlowTestCase {
 
         complexModel.name = "Test";
 
-        JSONModel<TestModel1> jsonModel = new JSONModel<TestModel1>(TestModel1.class);
+        JSONModel<TestModel1> jsonModel = new JSONModel<>(TestModel1.class);
         jsonModel.put(TestModel1$Table.NAME, "Test");
 
         complexModel.testModel1 = jsonModel;
 
-        MapModel<TestModel2> mapModel = new MapModel<TestModel2>(TestModel2.class);
+        MapModel<TestModel2> mapModel = new MapModel<>(TestModel2.class);
         mapModel.put(TestModel2$Table.NAME, "Test1");
         mapModel.put(TestModel2$Table.MODEL_ORDER, 1);
 
         complexModel.mapModel = mapModel;
 
-        complexModel.save(false);
+        complexModel.save();
 
 
         assertTrue(complexModel.exists());
 
-        complexModel.delete(false);
+        complexModel.delete();
         assertTrue(!complexModel.exists());
 
-        jsonModel.delete(false);
-        mapModel.delete(false);
+        jsonModel.delete();
+        mapModel.delete();
 
         assertTrue(!jsonModel.exists());
         assertTrue(!mapModel.exists());

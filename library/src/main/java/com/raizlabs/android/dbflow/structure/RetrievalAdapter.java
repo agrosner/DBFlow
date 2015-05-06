@@ -16,14 +16,14 @@ public interface RetrievalAdapter<TableClass extends Model, ModelClass extends M
      * @param model  The model to assign cursor data to
      * @param cursor The cursor to load into the model
      */
-    public void loadFromCursor(Cursor cursor, ModelClass model);
+    void loadFromCursor(Cursor cursor, ModelClass model);
 
     /**
      * @param model The model to query values from
      * @return True if it exists as VIEW row in the database table
      */
-    public boolean exists(ModelClass model);
+    boolean exists(ModelClass model);
 
-    public ConditionQueryBuilder<TableClass> getPrimaryModelWhere(ModelClass model);
+    ConditionQueryBuilder<TableClass> getPrimaryModelWhere(ModelClass model);
 
 }

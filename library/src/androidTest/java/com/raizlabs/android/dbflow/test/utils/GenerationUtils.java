@@ -23,7 +23,7 @@ public class GenerationUtils {
         for(int i = 0; i < 100; i++) {
             testModel1 = FlowManager.getModelAdapter(testClass).newInstance();
             testModel1.name = UUID.randomUUID().toString();
-            testModel1.save(false);
+            testModel1.save();
             testModel1s.add(testModel1);
         }
 

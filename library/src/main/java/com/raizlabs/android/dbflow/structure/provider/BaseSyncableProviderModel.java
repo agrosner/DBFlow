@@ -13,31 +13,31 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableProviderModel> extends BaseModel implements ModelProvider<TableClass> {
 
     @Override
-    public void insert(boolean async) {
-        super.insert(async);
+    public void insert() {
+        super.insert();
         ContentUtils.insert(getInsertUri(), this);
     }
 
     @Override
-    public void save(boolean async) {
-        super.save(async);
+    public void save() {
+        super.save();
 
         if (exists()) {
-            update(async);
+            update();
         } else {
-            insert(async);
+            insert();
         }
     }
 
     @Override
-    public void delete(boolean async) {
-        super.delete(async);
+    public void delete() {
+        super.delete();
         ContentUtils.delete(getDeleteUri(), this);
     }
 
     @Override
-    public void update(boolean async) {
-        super.update(async);
+    public void update() {
+        super.update();
         ContentUtils.update(getUpdateUri(), this);
     }
 

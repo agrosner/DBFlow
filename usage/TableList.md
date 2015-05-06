@@ -1,16 +1,16 @@
-# Tables as Lists
+# Queries as Lists
 
 
-In this library, we enable easy list and adapter-based operations using ```FlowCursorList``` and ```FlowTableList```. Both 
-of these correspond (in order) to ```BaseAdapter``` and ```List<? extends Model>```.
+In this library, we enable easy list and adapter-based operations using ```FlowCursorList``` and `FlowQueryList`. Both
+of these correspond (in order) to `BaseAdapter` and `List<? extends Model>`.
 
 ## Cursor List
 
-A read-only cursor-backed object that provides caching of retrieved models used to display in a list. 
-It contains methods very similiar to ```BaseAdapter``` such as ```getCount()``` and ```getItem(position)```. 
+A read-only cursor-backed object that provides caching of retrieved models used to display in a list.
+It contains methods very similiar to `BaseAdapter` such as `getCount()` and `getItem(position)`.
 
 This class becomes useful when we have a very large dataset that we wish to display on screen without killing memory, or
-keep memory usage to a slim minimum by only loading items we need. This class is similar to ```CursorAdapter``` except it does
+keep memory usage to a slim minimum by only loading items we need. This class is similar to `CursorAdapter` except it does
 not extend any adapter class and provides a simple yet effective API for retrieving and converted data from the database with ease.
 
 ```java
@@ -19,9 +19,9 @@ not extend any adapter class and provides a simple yet effective API for retriev
     private FlowCursorList<TestModel1> mFlowCursorList;
 
     public TestModelAdapter() {
-  
+
     // retrieve and cache rows that have a name like pasta%
-      mFlowCursorList = new FlowCursorList<>(true, TestModel.class, 
+      mFlowCursorList = new FlowCursorList<>(true, TestModel.class,
         Condition.column(TestModel1$Table.NAME).like("pasta%"));
     }
 
@@ -50,11 +50,11 @@ not extend any adapter class and provides a simple yet effective API for retriev
 
 ## Table List
 
-A ```FlowTableList``` is java ```List``` implementation of managing a database table. 
-All modifications affect the table in real-time. 
-All modifications, by default, are immediate. 
-If you wish to not run these on the main thread, call ```flowTableList.setTransact(true)```. 
-Internally its backed by a ```FlowCursorList``` to include all of it's existing functionality. 
+A `FlowQueryList` is java `List` implementation of managing a database table.
+All modifications affect the table in real-time.
+All modifications, by default, are immediate.
+If you wish to not run these on the main thread, call `flowTableList.setTransact(true)`.
+Internally its backed by a `FlowCursorList` to include all of it's existing functionality.
 
 ```java
 

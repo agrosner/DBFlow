@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'android-apt'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 4
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionName = VERSION_NAME
         versionCode = VERSION_CODE
     }
@@ -28,7 +28,7 @@ android {
 
 dependencies {
     compile project("${dbflow_project_prefix}flowcore")
-    compile "com.android.support:support-annotations:21.0.0"
+    compile "com.android.support:support-annotations:22.0.0"
     androidTestApt project("${dbflow_project_prefix}compiler")
 }
 

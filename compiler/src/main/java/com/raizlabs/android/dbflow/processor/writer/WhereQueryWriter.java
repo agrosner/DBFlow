@@ -4,8 +4,10 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
+import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.builder.MockConditionQueryBuilder;
+import com.raizlabs.android.dbflow.processor.model.writer.ColumnAccessModel;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
@@ -22,11 +24,11 @@ import javax.lang.model.element.Modifier;
 public class WhereQueryWriter implements FlowWriter {
 
     private BaseTableDefinition tableDefinition;
-    private final boolean isModelContainer;
+    private final boolean isModelContainerAdapter;
 
-    public WhereQueryWriter(BaseTableDefinition tableDefinition, boolean isModelContainer) {
+    public WhereQueryWriter(BaseTableDefinition tableDefinition, boolean isModelContainerAdapter) {
         this.tableDefinition = tableDefinition;
-        this.isModelContainer = isModelContainer;
+        this.isModelContainerAdapter = isModelContainerAdapter;
     }
 
     @Override
@@ -41,19 +43,24 @@ public class WhereQueryWriter implements FlowWriter {
                         if (primaryColumnSize > 0) {
                             for (int i = 0; i < primaryColumnSize; i++) {
                                 ColumnDefinition columnDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
+                                ColumnAccessModel accessModel = new ColumnAccessModel(tableDefinition.getManager(), columnDefinition,
+                                                                                      isModelContainerAdapter);
                                 conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), columnDefinition.columnName),
-                                        ModelUtils.getAccessStatement(columnDefinition.columnName, columnDefinition.columnFieldType,
-                                                columnDefinition.columnFieldName, columnDefinition.containerKeyName, isModelContainer, false, false, columnDefinition.hasTypeConverter));
+                                        accessModel.getQueryNoCast());
                                 if (i < tableDefinition.getPrimaryColumnDefinitions().size() - 1) {
                                     conditionQueryBuilder.append(",");
                                 }
                             }
-                        } else if (!(tableDefinition instanceof ModelViewDefinition)) {
+                        } else if (!(tableDefinition instanceof ModelViewDefinition) && !(tableDefinition instanceof QueryModelDefinition)) {
                             ColumnDefinition autoIncrementDefinition = ((TableDefinition) tableDefinition).autoIncrementDefinition;
+                            ColumnAccessModel accessModel = new ColumnAccessModel(tableDefinition.getManager(), autoIncrementDefinition,
+                                                                                  isModelContainerAdapter);
                             if (autoIncrementDefinition != null) {
-                                conditionQueryBuilder.appendMockCondition(ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(), autoIncrementDefinition.columnName),
-                                        ModelUtils.getAccessStatement(autoIncrementDefinition.columnName, autoIncrementDefinition.columnFieldType,
-                                                autoIncrementDefinition.columnFieldName, autoIncrementDefinition.containerKeyName, isModelContainer, false, false, autoIncrementDefinition.hasTypeConverter));
+                                conditionQueryBuilder
+                                        .appendMockCondition(
+                                                ModelUtils.getStaticMember(tableDefinition.getTableSourceClassName(),
+                                                                           autoIncrementDefinition.columnName),
+                                                accessModel.getQueryNoCast());
                             }
                         }
                         conditionQueryBuilder.appendEndCreation();
@@ -61,11 +68,12 @@ public class WhereQueryWriter implements FlowWriter {
 
                     }
                 }, "ConditionQueryBuilder<" + tableDefinition.getModelClassName() + ">", "getPrimaryModelWhere", Sets.newHashSet(Modifier.PUBLIC),
-                ModelUtils.getParameter(isModelContainer, tableDefinition.getModelClassName()),
-                ModelUtils.getVariable(isModelContainer));
+                ModelUtils.getParameter(isModelContainerAdapter, tableDefinition.getModelClassName()),
+                ModelUtils.getVariable(isModelContainerAdapter));
 
         // Don't write empty statement for Model Container
-        if (!isModelContainer && !(tableDefinition instanceof ModelViewDefinition)) {
+        if (!isModelContainerAdapter && !(tableDefinition instanceof ModelViewDefinition)
+            && !(tableDefinition instanceof QueryModelDefinition)) {
             final TableDefinition definition = ((TableDefinition) tableDefinition);
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                 @Override

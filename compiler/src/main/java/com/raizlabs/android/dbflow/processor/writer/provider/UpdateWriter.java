@@ -47,7 +47,7 @@ public class UpdateWriter implements FlowWriter {
                                     javaWriter.emitStatement("ModelAdapter adapter = FlowManager.getModelAdapter(FlowManager.getTableClassForName(\"%1s\", \"%1s\"))", contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
 
                                     SqlQueryBuilder sqlQueryBuilder = new SqlQueryBuilder("final int count = (int) ")
-                                            .appendUpdate().appendUpdateConflictAction().appendTable(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName)
+                                            .appendUpdate(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName).appendUpdateConflictAction()
                                             .appendSet().appendWhere().appendPathSegments(manager, contentProviderDefinition.databaseName,
                                                     tableEndpointDefinition.tableName, uriDefinition.segments)
                                             .appendCount();

@@ -2,10 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
 
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-
 /**
- * Author: andrewgrosner
  * Description: The base class for a {@link ModelViewClass} adapter that defines how it interacts with the DB.
  */
 public abstract class ModelViewAdapter<ModelClass extends Model, ModelViewClass extends BaseModelView<ModelClass>>

@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test.structure;
 
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI;
@@ -14,14 +15,16 @@ public class ForeignKeyTest extends FlowTestCase {
     public void testForeignKey() {
         ForeignParentModel parentModel = new ForeignParentModel();
         parentModel.name = "Test";
-        parentModel.save(false);
+        parentModel.save();
 
         ForeignModel foreignModel = new ForeignModel();
         foreignModel.testModel1 = parentModel;
         foreignModel.name = "Test";
-        foreignModel.save(false);
+        foreignModel.save();
 
-        ForeignModel retrieved = Select.byId(ForeignModel.class, "Test");
+        ForeignModel retrieved = new Select().from(ForeignModel.class)
+                .where(Condition.column(ForeignModel$Table.NAME).is("Test"))
+                .querySingle();
         assertNotNull(retrieved);
         assertNotNull(retrieved.testModel1);
         assertEquals(retrieved.testModel1, foreignModel.testModel1);
@@ -31,14 +34,16 @@ public class ForeignKeyTest extends FlowTestCase {
 
         TestModelAI testModelAI = new TestModelAI();
         testModelAI.name = "TestAI";
-        testModelAI.save(false);
+        testModelAI.save();
 
         ForeignModel2 foreignModel2 = new ForeignModel2();
         foreignModel2.testModelAI = testModelAI;
         foreignModel2.name = "Test";
-        foreignModel2.save(false);
+        foreignModel2.save();
 
-        ForeignModel2 retrieved = Select.byId(ForeignModel2.class, "Test");
+        ForeignModel2 retrieved = new Select().from(ForeignModel2.class)
+                .where(Condition.column(ForeignModel2$Table.NAME).is("Test"))
+                .querySingle();
         assertNotNull(retrieved);
         assertNotNull(retrieved.testModelAI);
         assertEquals(retrieved.testModelAI, foreignModel2.testModelAI);

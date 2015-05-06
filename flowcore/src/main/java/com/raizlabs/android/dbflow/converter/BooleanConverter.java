@@ -6,7 +6,7 @@ package com.raizlabs.android.dbflow.converter;
 public class BooleanConverter extends TypeConverter<Integer, Boolean> {
     @Override
     public Integer getDBValue(Boolean model) {
-        return model == null ? 0 : model ? 1 : 0;
+        return model == null ? null : model ? 1 : 0;
     }
 
     @Override

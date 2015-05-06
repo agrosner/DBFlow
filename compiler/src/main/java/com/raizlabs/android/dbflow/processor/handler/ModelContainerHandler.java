@@ -1,12 +1,9 @@
 package com.raizlabs.android.dbflow.processor.handler;
 
-import com.raizlabs.android.dbflow.annotation.ContainerAdapter;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-import com.squareup.javawriter.JavaWriter;
-
-import java.io.IOException;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -16,11 +13,11 @@ import javax.lang.model.element.TypeElement;
  * adds them to the {@link com.raizlabs.android.dbflow.processor.model.ProcessorManager}, and writes the source
  * files for them.
  */
-public class ModelContainerHandler extends BaseContainerHandler<ContainerAdapter> {
+public class ModelContainerHandler extends BaseContainerHandler<ModelContainer> {
 
     @Override
-    protected Class<ContainerAdapter> getAnnotationClass() {
-        return ContainerAdapter.class;
+    protected Class<ModelContainer> getAnnotationClass() {
+        return ModelContainer.class;
     }
 
     @Override

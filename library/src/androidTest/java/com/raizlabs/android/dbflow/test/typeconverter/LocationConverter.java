@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.test.typeconverter;
 
 import android.location.Location;
+
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 
 /**
@@ -8,9 +9,10 @@ import com.raizlabs.android.dbflow.converter.TypeConverter;
  */
 @com.raizlabs.android.dbflow.annotation.TypeConverter
 public class LocationConverter extends TypeConverter<String, Location> {
+
     @Override
     public String getDBValue(Location model) {
-        return String.format("%1s,%1s", model.getLatitude(), model.getLongitude());
+        return model == null ? null : String.format("%1s,%1s", model.getLatitude(), model.getLongitude());
     }
 
     @Override

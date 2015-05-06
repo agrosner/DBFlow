@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
@@ -12,7 +13,8 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model>
+        implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
 
     private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
 
@@ -43,52 +45,43 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @see #save(boolean, Model)
-     */
-    @Deprecated
-    public synchronized void save(boolean async, ModelClass model, int saveMode) {
-        SqlUtils.sync(async, model, this, saveMode);
-    }
-
-    /**
      * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to save/insert/update
      */
     @Override
-    public synchronized void save(boolean async, ModelClass model) {
-        SqlUtils.save(async, model, this, this);
+    public void save(ModelClass model) {
+        SqlUtils.save(model, this, this);
     }
 
     /**
      * Inserts the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to insert.
      */
-    public synchronized void insert(boolean async, ModelClass model) {
-        SqlUtils.insert(async, model, this, this);
+    @Override
+    public void insert(ModelClass model) {
+        SqlUtils.insert(model, this, this);
     }
 
     /**
      * Updates the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to update.
      */
-    public synchronized void update(boolean async, ModelClass model) {
-        SqlUtils.update(async, model, this, this);
+    @Override
+    public void update(ModelClass model) {
+        SqlUtils.update(model, this, this);
     }
 
     /**
      * Deletes the model from the DB
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to delete
      */
-    public void delete(boolean async, ModelClass model) {
-        SqlUtils.delete(model, this, async);
+    @Override
+    public void delete(ModelClass model) {
+        SqlUtils.delete(model, this);
     }
 
     /**
@@ -104,22 +97,26 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
     }
 
     /**
-     * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * @return The value for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     @Override
     public long getAutoIncrementingId(ModelClass model) {
-        throw new InvalidDBConfiguration(String.format("This method may have been called in error. The model class %1s must contain" +
-                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)", getModelClass()));
+        throw new InvalidDBConfiguration(
+                String.format("This method may have been called in error. The model class %1s must contain" +
+                              "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                              getModelClass()));
     }
 
     /**
-     * @return The autoincrement column name for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * @return The autoincrement column name for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     public String getAutoIncrementingColumnName() {
-        throw new InvalidDBConfiguration(String.format("This method may have been called in error. The model class %1s must contain" +
-                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)", getModelClass()));
+        throw new InvalidDBConfiguration(
+                String.format("This method may have been called in error. The model class %1s must contain" +
+                              "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                              getModelClass()));
     }
 
     /**
@@ -127,7 +124,7 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      * @return The id that comes from the model. This is generated by subclasses of this adapter.
      */
     @Override
-    public long getCachingId(ModelClass model) {
+    public Object getCachingId(ModelClass model) {
         return getAutoIncrementingId(model);
     }
 
@@ -137,6 +134,16 @@ public abstract class ModelAdapter<ModelClass extends Model> implements Internal
      */
     public String getCachingColumnName() {
         return getAutoIncrementingColumnName();
+    }
+
+    /**
+     * @param cursor      The cursor to retrieve data from.
+     * @param columnIndex The column index to retrieve data from.
+     * @return The cache id value from the {@link Cursor}. This is generated since not all
+     * columns have the same value.
+     */
+    public Object getCachingIdFromCursorIndex(Cursor cursor, int columnIndex) {
+        return cursor.getLong(columnIndex);
     }
 
     /**

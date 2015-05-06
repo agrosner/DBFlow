@@ -12,18 +12,18 @@ import java.util.Map;
  */
 public abstract class DatabaseHolder {
 
-    static final Map<Class<? extends Model>, BaseDatabaseDefinition> mManagerMap = new HashMap<>();
+    static final Map<Class<? extends Model>, BaseDatabaseDefinition> managerMap = new HashMap<>();
 
-    static final Map<String, BaseDatabaseDefinition> mManagerNameMap = new HashMap<>();
+    static final Map<String, BaseDatabaseDefinition> managerNameMap = new HashMap<>();
 
-    protected static final Map<Class<?>, TypeConverter> mTypeConverters = new HashMap<>();
+    protected static final Map<Class<?>, TypeConverter> typeConverters = new HashMap<>();
 
     /**
      * @param clazz The model value class to get a {@link com.raizlabs.android.dbflow.converter.TypeConverter}
      * @return Type converter for the specified model value.
      */
     public TypeConverter getTypeConverterForClass(Class<?> clazz) {
-        return mTypeConverters.get(clazz);
+        return typeConverters.get(clazz);
     }
 
     /**
@@ -31,7 +31,7 @@ public abstract class DatabaseHolder {
      * @return The database that the table belongs in
      */
     public BaseDatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
-        return mManagerMap.get(table);
+        return managerMap.get(table);
     }
 
     /**
@@ -39,7 +39,7 @@ public abstract class DatabaseHolder {
      * @return The database that has the specified name
      */
     public BaseDatabaseDefinition getDatabase(String databaseName) {
-        return mManagerNameMap.get(databaseName);
+        return managerNameMap.get(databaseName);
     }
 
     /**
@@ -49,8 +49,8 @@ public abstract class DatabaseHolder {
      * @param baseDatabaseDefinition The database definition
      */
     void putDatabaseForTable(Class<? extends Model> table, BaseDatabaseDefinition baseDatabaseDefinition) {
-        mManagerMap.put(table, baseDatabaseDefinition);
-        mManagerNameMap.put(baseDatabaseDefinition.getDatabaseName(), baseDatabaseDefinition);
+        managerMap.put(table, baseDatabaseDefinition);
+        managerNameMap.put(baseDatabaseDefinition.getDatabaseName(), baseDatabaseDefinition);
     }
 
 }

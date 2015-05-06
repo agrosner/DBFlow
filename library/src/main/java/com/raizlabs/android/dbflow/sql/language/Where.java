@@ -7,18 +7,13 @@ import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowTableList;
-import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -26,7 +21,8 @@ import java.util.List;
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<ModelClass extends Model> implements Query, ModelQueriable<ModelClass> {
+public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelClass>
+        implements Query, ModelQueriable<ModelClass> {
 
     /**
      * The first chunk of the SQL statement before this query.
@@ -62,29 +58,22 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     private String mOffset;
 
     /**
+     * Marks this WHERE as only using the EXIST keyword.
+     */
+    private boolean isExistWhere;
+
+    /**
      * Constructs this class with the specified {@link com.raizlabs.android.dbflow.config.FlowManager}
      * and {@link From} chunk
      *
      * @param whereBase The FROM or SET statement chunk
      */
     public Where(WhereBase<ModelClass> whereBase) {
+        super(whereBase.getTable());
         mWhereBase = whereBase;
         mManager = FlowManager.getDatabaseForTable(mWhereBase.getTable());
-        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
-        mHaving = new ConditionQueryBuilder<ModelClass>(mWhereBase.getTable());
-    }
-
-    /**
-     *
-     * A helper method to construct this class with a SELECT(columns) with the specified WHERE {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     *
-     * @param conditionQueryBuilder The WHERE conditions for this statement
-     * @param <ModelClass>          The class that implements {@link Model}
-     * @return A WHERE with the specified conditions and columns
-     */
-    public static <ModelClass extends Model> Where<ModelClass> with(ConditionQueryBuilder<ModelClass> conditionQueryBuilder,
-                                                                    String... columns) {
-        return new Select(columns).from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder);
+        mConditionQueryBuilder = new ConditionQueryBuilder<>(mWhereBase.getTable());
+        mHaving = new ConditionQueryBuilder<>(mWhereBase.getTable());
     }
 
     /**
@@ -120,7 +109,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> and(String columnName, Object value) {
-        mConditionQueryBuilder.putCondition(columnName, value);
+        mConditionQueryBuilder.addCondition(columnName, value);
         return this;
     }
 
@@ -133,28 +122,28 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
      * @return
      */
     public Where<ModelClass> and(String columnName, String operator, Object value) {
-        mConditionQueryBuilder.putCondition(columnName, operator, value);
+        mConditionQueryBuilder.addCondition(columnName, operator, value);
         return this;
     }
 
     /**
-     * Adds a param to the WHERE clause with the custom {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * Adds a param to the WHERE clause with the custom {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      *
-     * @param condition The {@link com.raizlabs.android.dbflow.sql.builder.Condition} to use
+     * @param condition The {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition} to use
      * @return
      */
-    public Where<ModelClass> and(Condition condition) {
+    public Where<ModelClass> and(SQLCondition condition) {
         mConditionQueryBuilder.and(condition);
         return this;
     }
 
     /**
-     * Appends an OR with a Condition to the WHERE clause with the specified {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * Appends an OR with a Condition to the WHERE clause with the specified {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      *
      * @param condition
      * @return
      */
-    public Where<ModelClass> or(Condition condition) {
+    public Where<ModelClass> or(SQLCondition condition) {
         mConditionQueryBuilder.or(condition);
         return this;
     }
@@ -162,22 +151,22 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     /**
      * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to this builder.
      *
-     * @param conditions The list of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @param conditions The list of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      * @return
      */
-    public Where<ModelClass> andThese(List<Condition> conditions) {
-        mConditionQueryBuilder.putConditions(conditions);
+    public Where<ModelClass> andThese(List<SQLCondition> conditions) {
+        mConditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to this builder.
+     * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition} to this builder.
      *
-     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
      * @return
      */
-    public Where<ModelClass> andThese(Condition... conditions) {
-        mConditionQueryBuilder.putConditions(conditions);
+    public Where<ModelClass> andThese(SQLCondition... conditions) {
+        mConditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
@@ -193,13 +182,35 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     }
 
     /**
-     * Defines a SQL HAVING statement without the HAVING.
+     * Defines a SQL GROUP BY statement without the GROUP BY.
      *
-     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @param columns The columns to groupby
      * @return
      */
-    public Where<ModelClass> having(Condition... conditions) {
-        mHaving.putConditions(conditions);
+    public Where<ModelClass> groupBy(ColumnAlias... columns) {
+        mGroupBy = new QueryBuilder().appendArray(columns).getQuery();
+        return this;
+    }
+
+    /**
+     * Defines a SQL GROUP BY statement without the GROUP BY.
+     *
+     * @param columns The columns to groupby
+     * @return
+     */
+    public Where<ModelClass> groupBy(String... columns) {
+        mGroupBy = new QueryBuilder().appendArray(columns).getQuery();
+        return this;
+    }
+
+    /**
+     * Defines a SQL HAVING statement without the HAVING.
+     *
+     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
+     * @return
+     */
+    public Where<ModelClass> having(SQLCondition... conditions) {
+        mHaving.addConditions(conditions);
         return this;
     }
 
@@ -248,14 +259,23 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     }
 
     /**
+     * Sets this statement to only specify that it EXISTS
+     *
+     * @return
+     */
+    public Where<ModelClass> exists(Where where) {
+        mConditionQueryBuilder.addCondition(Condition.exists().operation("").value(where));
+        return this;
+    }
+
+    /**
      * Executes a SQL statement that retrieves the count of results in the DB.
      *
      * @return The number of rows this query returns
      */
     public long count() {
         long count;
-        if (((mWhereBase.getQueryBuilderBase() instanceof From) && (((From) mWhereBase.getQueryBuilderBase()).getQueryBuilderBase()) instanceof Update)
-                || mWhereBase.getQueryBuilderBase() instanceof Delete) {
+        if ((mWhereBase instanceof Set) || mWhereBase.getQueryBuilderBase() instanceof Delete) {
             count = SQLiteCompatibilityUtils.executeUpdateDelete(mManager.getWritableDatabase(), getQuery());
         } else {
             count = DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
@@ -266,9 +286,8 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     @Override
     public String getQuery() {
         String fromQuery = mWhereBase.getQuery();
-        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery);
-
-        queryBuilder.appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
+        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery)
+                .appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
                 .appendQualifier("GROUP BY", mGroupBy)
                 .appendQualifier("HAVING", mHaving.getQuery())
                 .appendQualifier("ORDER BY", mOrderBy)
@@ -319,7 +338,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     @Override
     public List<ModelClass> queryList() {
         checkSelect("query");
-        return SqlUtils.queryList(mWhereBase.getTable(), getQuery());
+        return super.queryList();
     }
 
     protected void checkSelect(String methodName) {
@@ -336,81 +355,7 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     @Override
     public ModelClass querySingle() {
         checkSelect("query");
-        return SqlUtils.querySingle(mWhereBase.getTable(), getQuery());
-    }
-
-    /**
-     * Will run this query on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} with the shared
-     * {@link com.raizlabs.android.dbflow.runtime.TransactionManager}
-     *
-     * @param transactionInfo The information on how to prioritize the transaction
-     */
-    public void transact(DBTransactionInfo transactionInfo) {
-        transact(transactionInfo, TransactionManager.getInstance());
-    }
-
-    /**
-     * Will run this query on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     *
-     * @param transactionInfo    The information on how to prioritize the transaction
-     * @param transactionManager The transaction manager to add the query to
-     */
-    public void transact(DBTransactionInfo transactionInfo, TransactionManager transactionManager) {
-        transactionManager.addTransaction(new QueryTransaction<ModelClass>(transactionInfo, this));
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return a list of
-     * {@link ModelClass} on the UI thread with the shared {@link com.raizlabs.android.dbflow.runtime.TransactionManager}.
-     *
-     * @param listTransactionListener The result of this transaction
-     */
-    public void transactList(TransactionListener<List<ModelClass>> listTransactionListener) {
-        transactList(TransactionManager.getInstance(), listTransactionListener);
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return a list of
-     * {@link ModelClass} on the UI thread.
-     *
-     * @param transactionManager      The transaction manager to add the query to
-     * @param listTransactionListener The result of this transaction
-     */
-    public void transactList(TransactionManager transactionManager, TransactionListener<List<ModelClass>> listTransactionListener) {
-        checkSelect("transact");
-        transactionManager.fetchFromTable(this, listTransactionListener);
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return
-     * a single item on the UI thread with the shared {@link com.raizlabs.android.dbflow.runtime.TransactionManager}.
-     *
-     * @param transactionListener The result of this transaction
-     */
-    public void transactSingleModel(TransactionListener<ModelClass> transactionListener) {
-        transactSingleModel(TransactionManager.getInstance(), transactionListener);
-    }
-
-    /**
-     * Puts this query onto the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and will return
-     * a single item on the UI thread.
-     *
-     * @param transactionManager  The transaction manager to add the query to
-     * @param transactionListener The result of this transaction
-     */
-    public void transactSingleModel(TransactionManager transactionManager, TransactionListener<ModelClass> transactionListener) {
-        checkSelect("transact");
-        transactionManager.fetchModel(this, transactionListener);
-    }
-
-    @Override
-    public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<ModelClass>(false, this);
-    }
-
-    @Override
-    public FlowTableList<ModelClass> queryTableList() {
-        return new FlowTableList<ModelClass>(this);
+        return super.querySingle();
     }
 
     /**
@@ -421,15 +366,5 @@ public class Where<ModelClass extends Model> implements Query, ModelQueriable<Mo
     public boolean hasData() {
         checkSelect("query");
         return SqlUtils.hasData(mWhereBase.getTable(), getQuery());
-    }
-
-    @Override
-    public Class<ModelClass> getTable() {
-        return mWhereBase.getTable();
-    }
-
-    @Override
-    public String toString() {
-        return getQuery();
     }
 }

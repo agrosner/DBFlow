@@ -18,32 +18,32 @@ public interface ModelProvider<TableClass extends Model> {
      * @param orderBy         The order by without the ORDER BY
      * @param columns         The list of columns to select. Leave blank for *
      */
-    public void load(ConditionQueryBuilder<TableClass> whereConditions,
-                     String orderBy, String... columns);
+    void load(ConditionQueryBuilder<TableClass> whereConditions,
+              String orderBy, String... columns);
 
     /**
      * Queries the {@link android.content.ContentResolver} of the app based on the primary keys of the object and populates
      * this object with the first row from the returned data.
      */
-    public void load();
+    void load();
 
     /**
      * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to delete a Model.
      */
-    public Uri getDeleteUri();
+    Uri getDeleteUri();
 
     /**
      * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to insert a Model.
      */
-    public Uri getInsertUri();
+    Uri getInsertUri();
 
     /**
      * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to update a Model.
      */
-    public Uri getUpdateUri();
+    Uri getUpdateUri();
 
     /**
      * @return The {@link android.net.Uri} that passes to a {@link android.content.ContentProvider} to query a Model.
      */
-    public Uri getQueryUri();
+    Uri getQueryUri();
 }

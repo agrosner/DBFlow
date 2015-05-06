@@ -4,12 +4,16 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
+import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
+import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
-import com.raizlabs.android.dbflow.structure.container.ContainerAdapter;
+import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
+import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,29 +27,31 @@ import java.util.Map;
  */
 public abstract class BaseDatabaseDefinition {
 
-    final Map<Integer, List<Migration>> mMigrationMap = new HashMap<>();
+    final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
 
-    final List<Class<? extends Model>> mModels = new ArrayList<>();
+    final List<Class<? extends Model>> models = new ArrayList<>();
 
-    final Map<Class<? extends Model>, ModelAdapter> mModelAdapters = new HashMap<>();
+    final Map<Class<? extends Model>, ModelAdapter> modelAdapters = new HashMap<>();
 
-    final Map<String, Class<? extends Model>> mModelTableNames = new HashMap<>();
+    final Map<String, Class<? extends Model>> modelTableNames = new HashMap<>();
 
-    final Map<Class<? extends Model>, ContainerAdapter> mModelContainerAdapters = new HashMap<>();
+    final Map<Class<? extends Model>, ModelContainerAdapter> modelContainerAdapters = new HashMap<>();
 
-    final List<Class<? extends BaseModelView>> mModelViews = new ArrayList<>();
+    final List<Class<? extends BaseModelView>> modelViews = new ArrayList<>();
 
-    final Map<Class<? extends BaseModelView>, ModelViewAdapter> mModelViewAdapterMap = new HashMap<>();
+    final Map<Class<? extends BaseModelView>, ModelViewAdapter> modelViewAdapterMap = new HashMap<>();
+
+    final Map<Class<? extends BaseQueryModel>, QueryModelAdapter> queryModelAdapterMap = new HashMap<>();
 
     /**
      * The helper that manages database changes and initialization
      */
-    private FlowSQLiteOpenHelper mHelper;
+    private FlowSQLiteOpenHelper flowSQLiteOpenHelper;
 
     /**
      * Allows for the app to listen for database changes.
      */
-    private DatabaseHelperListener mHelperListener;
+    private DatabaseHelperListener helperListener;
 
     /**
      * Used when resetting the DB
@@ -56,7 +62,7 @@ public abstract class BaseDatabaseDefinition {
      * @return a list of all model classes in this database.
      */
     List<Class<? extends Model>> getModelClasses() {
-        return mModels;
+        return models;
     }
 
     /**
@@ -65,7 +71,7 @@ public abstract class BaseDatabaseDefinition {
      * @return List of Model Adapters
      */
     List<ModelAdapter> getModelAdapters() {
-        return new ArrayList<>(mModelAdapters.values());
+        return new ArrayList<>(modelAdapters.values());
     }
 
     /**
@@ -77,7 +83,7 @@ public abstract class BaseDatabaseDefinition {
      * @return The ModelAdapter for the table.
      */
     ModelAdapter getModelAdapterForTable(Class<? extends Model> table) {
-        return mModelAdapters.get(table);
+        return modelAdapters.get(table);
     }
 
     /**
@@ -86,24 +92,24 @@ public abstract class BaseDatabaseDefinition {
      * If the Model is missing the {@link com.raizlabs.android.dbflow.annotation.Table} annotation, this will return null.
      */
     public Class<? extends Model> getModelClassForName(String tableName) {
-        return mModelTableNames.get(tableName);
+        return modelTableNames.get(tableName);
     }
 
     /**
-     * @param table The table that has a {@link com.raizlabs.android.dbflow.annotation.ContainerAdapter} annotation.
-     * @return the associated {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter} within this
+     * @param table The table that has a {@link ModelContainer} annotation.
+     * @return the associated {@link ModelContainerAdapter} within this
      * database for the specified table. These are used for {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
-     * and require {@link com.raizlabs.android.dbflow.structure.Model} to add the {@link com.raizlabs.android.dbflow.annotation.ContainerAdapter}.
+     * and require {@link com.raizlabs.android.dbflow.structure.Model} to add the {@link ModelContainer}.
      */
-    public ContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
-        return mModelContainerAdapters.get(table);
+    public ModelContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
+        return modelContainerAdapters.get(table);
     }
 
     /**
      * @return the {@link com.raizlabs.android.dbflow.structure.BaseModelView} list for this database.
      */
     List<Class<? extends BaseModelView>> getModelViews() {
-        return mModelViews;
+        return modelViews;
     }
 
     /**
@@ -111,7 +117,7 @@ public abstract class BaseDatabaseDefinition {
      * @return the associated {@link com.raizlabs.android.dbflow.structure.ModelViewAdapter} for the specified table.
      */
     ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
-        return mModelViewAdapterMap.get(table);
+        return modelViewAdapterMap.get(table);
     }
 
     /**
@@ -119,21 +125,40 @@ public abstract class BaseDatabaseDefinition {
      * creating model views in the DB.
      */
     List<ModelViewAdapter> getModelViewAdapters() {
-        return new ArrayList<>(mModelViewAdapterMap.values());
+        return new ArrayList<>(modelViewAdapterMap.values());
+    }
+
+    /**
+     * @return The list of {@link QueryModelAdapter}. Internal method for creating query models in the DB.
+     */
+    List<QueryModelAdapter> getModelQueryAdapters() {
+        return new ArrayList<>(queryModelAdapterMap.values());
+    }
+
+    /**
+     * @param queryModel The {@link QueryModel} class
+     * @return The adapter that corresponds to the specified class.
+     */
+    QueryModelAdapter getQueryModelAdapterForQueryClass(Class<? extends BaseQueryModel> queryModel) {
+        return queryModelAdapterMap.get(queryModel);
     }
 
     /**
      * @return The map of migrations to DB version
      */
     Map<Integer, List<Migration>> getMigrations() {
-        return mMigrationMap;
+        return migrationMap;
     }
 
     FlowSQLiteOpenHelper getHelper() {
-        if (mHelper == null) {
-            mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
+        if (flowSQLiteOpenHelper == null) {
+            flowSQLiteOpenHelper = createHelper();
         }
-        return mHelper;
+        return flowSQLiteOpenHelper;
+    }
+
+    protected FlowSQLiteOpenHelper createHelper() {
+        return new FlowSQLiteOpenHelper(this, internalHelperListener);
     }
 
     public SQLiteDatabase getWritableDatabase() {
@@ -146,7 +171,7 @@ public abstract class BaseDatabaseDefinition {
      * @param databaseHelperListener Listens for DB changes
      */
     public void setHelperListener(DatabaseHelperListener databaseHelperListener) {
-        mHelperListener = databaseHelperListener;
+        helperListener = databaseHelperListener;
     }
 
     /**
@@ -190,7 +215,7 @@ public abstract class BaseDatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(getDatabaseFileName());
-            mHelper = new FlowSQLiteOpenHelper(this, mInternalHelperListener);
+            flowSQLiteOpenHelper = new FlowSQLiteOpenHelper(this, internalHelperListener);
             isResetting = false;
         }
     }
@@ -214,25 +239,25 @@ public abstract class BaseDatabaseDefinition {
         getHelper().backupDB();
     }
 
-    private final DatabaseHelperListener mInternalHelperListener = new DatabaseHelperListener() {
+    protected final DatabaseHelperListener internalHelperListener = new DatabaseHelperListener() {
         @Override
         public void onOpen(SQLiteDatabase database) {
-            if (mHelperListener != null) {
-                mHelperListener.onOpen(database);
+            if (helperListener != null) {
+                helperListener.onOpen(database);
             }
         }
 
         @Override
         public void onCreate(SQLiteDatabase database) {
-            if (mHelperListener != null) {
-                mHelperListener.onCreate(database);
+            if (helperListener != null) {
+                helperListener.onCreate(database);
             }
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-            if (mHelperListener != null) {
-                mHelperListener.onUpgrade(database, oldVersion, newVersion);
+            if (helperListener != null) {
+                helperListener.onUpgrade(database, oldVersion, newVersion);
             }
         }
     };

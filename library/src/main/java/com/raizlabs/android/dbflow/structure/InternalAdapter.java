@@ -3,72 +3,61 @@ package com.raizlabs.android.dbflow.structure;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
 
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+
+import java.util.Objects;
+
 /**
  * Description: Used for our internal Adapter classes such as generated {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
- * or {@link com.raizlabs.android.dbflow.structure.container.ContainerAdapter}
+ * or {@link ModelContainerAdapter}
  */
 public interface InternalAdapter<TableClass extends Model, ModelClass extends Model> {
 
     /**
      * @return the model class this adapter corresponds to
      */
-    public abstract Class<TableClass> getModelClass();
+    Class<TableClass> getModelClass();
 
     /**
      * @return The table name of this adapter.
      */
-    public abstract String getTableName();
-
-    /**
-     * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
-     *
-     * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     * @param model    The model to save/insert/update
-     * @param saveMode The {@link com.raizlabs.android.dbflow.sql.SqlUtils} save mode. Can be {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_DEFAULT},
-     *                 {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_INSERT}, or {@link com.raizlabs.android.dbflow.sql.SqlUtils#SAVE_MODE_UPDATE}
-     */
-    @Deprecated
-    public void save(boolean async, ModelClass model, int saveMode);
+    String getTableName();
 
     /**
      * Saves the specified model to the DB.
      *
-     * @param async    Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
-     * @param model    The model to save/insert/update
+     * @param model The model to save/insert/update
      */
-    public void save(boolean async, ModelClass model);
-
+    void save(ModelClass model);
 
     /**
      * Inserts the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to insert.
      */
-    public void insert(boolean async, ModelClass model);
+    void insert(ModelClass model);
 
     /**
      * Updates the specified model into the DB.
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to update.
      */
-    public void update(boolean async, ModelClass model);
+    void update(ModelClass model);
 
     /**
      * Deletes the model from the DB
      *
-     * @param async Whether to put it on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
      * @param model The model to delete
      */
-    public void delete(boolean async, ModelClass model);
+    void delete(ModelClass model);
 
     /**
      * Binds a {@link ModelClass} to the specified db statement
      *
      * @param sqLiteStatement The statement to fill
      */
-    public abstract void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
+    void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
 
     /**
      * Binds a {@link ModelClass} to the specified db statement
@@ -76,7 +65,16 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      * @param contentValues The content values to fill.
      * @param model         The model values to put on the contentvalues
      */
-    public abstract void bindToContentValues(ContentValues contentValues, ModelClass model);
+    void bindToContentValues(ContentValues contentValues, ModelClass model);
+
+    /**
+     * Binds a {@link ModelClass} to the specified db statement, leaving out the {@link PrimaryKey#autoincrement()}
+     * column.
+     *
+     * @param contentValues The content values to fill.
+     * @param model         The model values to put on the content values.
+     */
+    void bindToInsertValues(ContentValues contentValues, ModelClass model);
 
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
@@ -85,17 +83,17 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      * @param model The model object to store the key
      * @param id    The key to store
      */
-    public void updateAutoIncrement(ModelClass model, long id);
+    void updateAutoIncrement(ModelClass model, long id);
 
     /**
      * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
-    public long getAutoIncrementingId(ModelClass model);
+    long getAutoIncrementingId(ModelClass model);
 
     /**
      * @param model The model to retrieve the caching id from.
      * @return The id that comes from the model. This is generated by subclasses of this adapter.
      */
-    public long getCachingId(ModelClass model);
+    Object getCachingId(ModelClass model);
 }

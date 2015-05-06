@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql;
 
+import com.raizlabs.android.dbflow.data.Blob;
+
 import java.util.HashMap;
 
 /**
@@ -34,6 +36,7 @@ public enum SQLiteType {
             put(Character.class.getName(), SQLiteType.TEXT);
             put(String.class.getName(), SQLiteType.TEXT);
             put(Byte[].class.getName(), SQLiteType.BLOB);
+            put(Blob.class.getName(), SQLiteType.BLOB);
         }
     };
 

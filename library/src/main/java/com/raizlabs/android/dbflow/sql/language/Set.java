@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.Queriable;
+import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
@@ -24,7 +24,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
 
     Set(Query update, Class<ModelClass> table) {
         mUpdate = update;
-        mConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(table).setSeparator(",");
+        mConditionQueryBuilder = new ConditionQueryBuilder<>(table).setSeparator(",");
     }
 
     /**
@@ -58,7 +58,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return This instance.
      */
     public Set<ModelClass> conditions(Condition... conditions) {
-        mConditionQueryBuilder.putConditions(conditions);
+        mConditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
@@ -72,7 +72,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
 
         for(Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
-            mConditionQueryBuilder.putCondition(Condition.column(key).is(contentValues.get(key)));
+            mConditionQueryBuilder.addCondition(Condition.column(key).is(contentValues.get(key)));
         }
         return this;
     }
@@ -104,7 +104,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return The where piece of this query.
      */
     public Where<ModelClass> where() {
-        return new Where<ModelClass>(this);
+        return new Where<>(this);
     }
 
     /**

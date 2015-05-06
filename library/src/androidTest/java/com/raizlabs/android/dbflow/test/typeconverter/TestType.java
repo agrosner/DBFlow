@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.test.typeconverter;
 
 import android.location.Location;
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
@@ -15,6 +16,7 @@ import java.util.Date;
 * Contributors: { }
 * Description:
 */
+@ModelContainer
 @Table(databaseName = TestDatabase.NAME)
 public class TestType extends TestModel1 {
 

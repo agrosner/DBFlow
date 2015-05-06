@@ -8,7 +8,8 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Description:
+ * Description: The base provider class that {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+ * extend when generated.
  */
 public abstract class BaseContentProvider extends ContentProvider {
 

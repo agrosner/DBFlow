@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.processor.validator;
 
-import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
@@ -21,38 +21,54 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
             processorManager.logError("Field %1s cannot have a null column name", columnDefinition.columnFieldName);
         }
 
-        int columnType = columnDefinition.columnType;
-        if (columnType == Column.FOREIGN_KEY) {
-            if (columnDefinition.foreignKeyReferences == null || columnDefinition.foreignKeyReferences.length == 0) {
+        if(columnDefinition.columnFieldIsPrimitive) {
+
+        }
+
+        if (columnDefinition.isForeignKey) {
+            ForeignKeyReference[] references = columnDefinition.foreignKeyReferences;
+            if (references == null || references.length == 0) {
                 success = false;
-                processorManager.logError("Foreign Key for field %1s is missing it's references.", columnDefinition.columnFieldName);
+                processorManager.logError("Foreign Key for field %1s is missing it's references.",
+                                          columnDefinition.columnFieldName);
             }
 
-            if(columnDefinition.column.name().length() > 0) {
+            if (columnDefinition.column.name().length() > 0) {
                 success = false;
-                processorManager.logError("Foreign Key cannot specify the column() field. " +
-                        "Use a @ForeignKeyReference(columnName = {NAME} instead");
+                processorManager.logError("Foreign Key %1s cannot specify the column() field. " +
+                                          "Use a @ForeignKeyReference(columnName = {NAME} instead",
+                                          columnDefinition.columnFieldName);
             }
 
-        } else if (columnType == Column.NORMAL) {
+            if (references != null && references.length > 1 &&
+                (!columnDefinition.isModel && !columnDefinition.fieldIsModelContainer)) {
+                success = false;
+                processorManager.logError("IsModel:" + columnDefinition.isModel + " isModelContainer:" + columnDefinition.fieldIsModelContainer);
+                processorManager.logError("Foreign key %1s cannot specify more than 1 reference for a non-model field.",
+                                          columnDefinition.columnFieldName);
+            }
+
+        } else if (!columnDefinition.isPrimaryKey && !columnDefinition.isPrimaryKeyAutoIncrement) {
             if (columnDefinition.foreignKeyReferences != null) {
-                processorManager.logError("A non-foreign key field %1s defines references.", columnDefinition.columnFieldName);
+                processorManager.logError("A non-foreign key field %1s defines references.",
+                                          columnDefinition.columnFieldName);
                 success = false;
             }
-        } else if (columnType == Column.PRIMARY_KEY || columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
-            if (autoIncrementingPrimaryKey != null && columnType == Column.PRIMARY_KEY) {
+        } else {
+            if (autoIncrementingPrimaryKey != null && columnDefinition.isPrimaryKey) {
                 processorManager.logError("You cannot mix and match autoincrementing and composite primary keys.");
                 success = false;
             }
             if (columnDefinition.foreignKeyReferences != null) {
-                processorManager.logError("A non-foreign key field %1s defines references.", columnDefinition.columnFieldName);
+                processorManager.logError("A non-foreign key field %1s defines references.",
+                                          columnDefinition.columnFieldName);
                 success = false;
             } else if (columnDefinition.isModel) {
                 processorManager.logError("Primary keys cannot be Model objects");
                 success = false;
             }
 
-            if (columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
+            if (columnDefinition.isPrimaryKeyAutoIncrement) {
                 if (autoIncrementingPrimaryKey == null) {
                     autoIncrementingPrimaryKey = columnDefinition;
                 } else if (!autoIncrementingPrimaryKey.equals(columnDefinition)) {
@@ -62,7 +78,7 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
             }
         }
 
-        if (columnType != Column.FOREIGN_KEY && (columnDefinition.isModel || columnDefinition.isModelContainer)) {
+        if (!columnDefinition.isForeignKey && (columnDefinition.isModel || columnDefinition.fieldIsModelContainer)) {
             processorManager.logError("A Model or ModelContainer field must be a Column.FOREIGN_KEY_REFERENCE");
         }
 

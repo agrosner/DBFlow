@@ -51,9 +51,6 @@ public class ContentProviderDefinition extends BaseDefinition {
 
         ContentProvider provider = element.getAnnotation(ContentProvider.class);
         databaseName = provider.databaseName();
-        if (databaseName == null || databaseName.isEmpty()) {
-            databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
-        }
         DatabaseWriter databaseWriter = manager.getDatabaseWriter(databaseName);
         setDefinitionClassName(databaseWriter.classSeparator + DEFINITION_NAME);
 

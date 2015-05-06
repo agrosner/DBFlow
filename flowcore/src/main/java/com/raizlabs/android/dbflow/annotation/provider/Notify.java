@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Notify {
 
-    public enum Method {
+    enum Method {
         INSERT,
         UPDATE,
         DELETE
