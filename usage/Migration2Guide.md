@@ -68,6 +68,38 @@ So these annotations (and their corresponding methods moved into):
   3. `@Unique`
   4. `@NotNull`
 
+Previously:
+
+```java
+
+@Column(columnType = Column.PRIMARY_KEY_AUTO_INCREMENT,
+  notNull = true)
+String column;
+
+@Column(columnType = Column.FOREIGN_KEY,
+          references = {@ForeignKeyReference(columnName = "addressBook", columnType = long.class, foreignColumnName = "id")},
+          saveForeignKeyModel = false)
+AddressBook addressBook;
+
+```
+
+Becomes:
+
+```java
+
+  @PrimaryKey
+  @NotNull
+  @Column
+  String column;
+
+  @ForeignKey(
+          references = {@ForeignKeyReference(columnName = "addressBook", columnType = long.class, foreignColumnName = "id")},
+          saveForeignKeyModel = false)
+  @Column
+  AddressBook addressBook;
+
+```
+
 _Note: all the method names are the same from what was previously in `Model`,
 so just copy and paste into new annotation!_.
 
