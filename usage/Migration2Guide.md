@@ -71,7 +71,38 @@ So these annotations (and their corresponding methods moved into):
 _Note: all the method names are the same from what was previously in `Model`,
 so just copy and paste into new annotation!_.
 
+`@Table` annotation's `value()` parameter now changes to more descriptive `tableName()`.
+
+`@ContainerAdapter` now changes to `@ModelContainer` for more descriptive name.
+
 ### Queries
+
+#### Static Methods
+
+Nearly all `static` `Select` methods have been removed in favor of using the
+SQL builder syntax.
+
+Previously:
+
+```java
+
+Select.all(MyTable.class);
+Select.byId(MyTable.class, "someColumnValue");
+
+```
+
+Becomes:
+
+```java
+
+new Select().from(MyTable.class).queryList();
+new Select().from(MyTable.class)
+  .where(Condition.column(MyTable$Table.COLUMN).is("someColumnValue"))
+  .queryList();
+
+```
+
+This was because it was confusing to have multiple ways of doing something.
 
 #### Condition
 
