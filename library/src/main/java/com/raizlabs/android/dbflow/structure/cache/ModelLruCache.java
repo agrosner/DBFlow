@@ -13,17 +13,28 @@ public class ModelLruCache<ModelClass extends Model> extends ModelCache<ModelCla
     }
 
     @Override
-    public void addModel(Long id, ModelClass model) {
-        synchronized (getCache()) {
-            getCache().put(id, model);
+    public void addModel(Object id, ModelClass model) {
+        if(id instanceof Number) {
+            synchronized (getCache()) {
+                Number number = ((Number) id);
+                getCache().put(number.longValue(), model);
+            }
+        } else {
+            throw new IllegalArgumentException("A ModelLruCache must use an id that can cast to" +
+                                               "a Number to convert it into a long");
         }
     }
 
     @Override
-    public ModelClass removeModel(Long id) {
-        ModelClass model = null;
-        synchronized (getCache()) {
-            model = getCache().remove(id);
+    public ModelClass removeModel(Object id) {
+        ModelClass model;
+        if(id instanceof Number) {
+            synchronized (getCache()) {
+                model = getCache().remove(((Number) id).longValue());
+            }
+        }  else {
+            throw new IllegalArgumentException("A ModelLruCache uses an id that can cast to" +
+                                               "a Number to convert it into a long");
         }
         return model;
     }
@@ -41,7 +52,12 @@ public class ModelLruCache<ModelClass extends Model> extends ModelCache<ModelCla
     }
 
     @Override
-    public ModelClass get(Long id) {
-        return id == null ? null : getCache().get(id);
+    public ModelClass get(Object id) {
+        if(id instanceof Number) {
+            return getCache().get(((Number) id).longValue());
+        } else {
+            throw new IllegalArgumentException("A ModelLruCache must use an id that can cast to" +
+                                               "a Number to convert it into a long");
+        }
     }
 }

@@ -58,22 +58,6 @@ public class ValueQueryBuilder extends QueryBuilder<ValueQueryBuilder> {
         return sb.toString();
     }
 
-    public ValueQueryBuilder() {
-    }
-
-    public ValueQueryBuilder(String string) {
-        super(string);
-    }
-
-    /**
-     * Appends a Table name to this query from the Model specified.
-     * @param table
-     * @return
-     */
-    public ValueQueryBuilder appendTableName(Class<? extends Model> table) {
-        return appendQuoted(FlowManager.getTableName(table));
-    }
-
     /**
      * Converts the given value into a String for the Database using a {@link com.raizlabs.android.dbflow.converter.TypeConverter}
      * if one exists.
@@ -101,6 +85,23 @@ public class ValueQueryBuilder extends QueryBuilder<ValueQueryBuilder> {
             }
         }
         return stringVal;
+    }
+
+    public ValueQueryBuilder() {
+    }
+
+    public ValueQueryBuilder(String string) {
+        super(string);
+    }
+
+    /**
+     * Appends a Table name to this query from the Model specified.
+     *
+     * @param table
+     * @return
+     */
+    public ValueQueryBuilder appendTableName(Class<? extends Model> table) {
+        return appendQuoted(FlowManager.getTableName(table));
     }
 
     /**

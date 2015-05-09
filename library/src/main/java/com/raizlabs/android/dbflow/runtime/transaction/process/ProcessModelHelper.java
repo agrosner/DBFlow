@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.Collection;
 
 /**
- * Author: andrewgrosner
  * Description: Provides a few helper methods for handling lists of models in a structured way.
  */
 public class ProcessModelHelper {
@@ -22,17 +21,19 @@ public class ProcessModelHelper {
      * @param processModel The callback to run custom handling of the model object
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void process(Class<? extends Model> modelClass, @NonNull final Collection<ModelClass> collection, final ProcessModel<ModelClass> processModel) {
+    public static <ModelClass extends Model> void process(Class<? extends Model> modelClass,
+                                                          @NonNull final Collection<ModelClass> collection,
+                                                          final ProcessModel<ModelClass> processModel) {
         if (!collection.isEmpty()) {
             TransactionManager.transact(FlowManager.getDatabaseForTable(modelClass).getWritableDatabase(),
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            for (ModelClass collectionModel : collection) {
-                                processModel.processModel(collectionModel);
-                            }
-                        }
-                    });
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                for (ModelClass collectionModel : collection) {
+                                                    processModel.processModel(collectionModel);
+                                                }
+                                            }
+                                        });
         }
     }
 
@@ -46,15 +47,16 @@ public class ProcessModelHelper {
      */
     @SafeVarargs
     public static <ModelClass extends Model> void process(Class<? extends Model> modelClass,
-                                                          final ProcessModel<ModelClass> processModel, final ModelClass... models) {
+                                                          final ProcessModel<ModelClass> processModel,
+                                                          final ModelClass... models) {
         TransactionManager.transact(FlowManager.getDatabaseForTable(modelClass).getWritableDatabase(),
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        for (ModelClass model : models) {
-                            processModel.processModel(model);
-                        }
-                    }
-                });
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            for (ModelClass model : models) {
+                                                processModel.processModel(model);
+                                            }
+                                        }
+                                    });
     }
 }

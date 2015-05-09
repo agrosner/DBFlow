@@ -13,7 +13,7 @@ public interface TransactionListener<ResultClass> {
      *
      * @param result The result that we will return
      */
-    public void onResultReceived(ResultClass result);
+    void onResultReceived(ResultClass result);
 
     /**
      * Called right before the {@link BaseTransaction#onExecute()} is called. Returning false will not
@@ -21,13 +21,13 @@ public interface TransactionListener<ResultClass> {
      *
      * @return true if the transaction is ready to be completed.
      */
-    public boolean onReady(BaseTransaction<ResultClass> transaction);
+    boolean onReady(BaseTransaction<ResultClass> transaction);
 
     /**
      * @param result The result that we will return
      * @return If true, the {@link #onResultReceived(Object)} method is called on the UI thread. If false,
      * we do not pass down a callback.
      */
-    public boolean hasResult(BaseTransaction<ResultClass> transaction, ResultClass result);
+    boolean hasResult(BaseTransaction<ResultClass> transaction, ResultClass result);
 
 }

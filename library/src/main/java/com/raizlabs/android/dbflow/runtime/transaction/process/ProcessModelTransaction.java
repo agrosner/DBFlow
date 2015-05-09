@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction.process;
 
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
+import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -9,30 +10,42 @@ import java.util.List;
  * Description: Provides a {@link ModelClass}-list backed implementation on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
  * and allows for specific method calling on a model.
  */
-public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> implements ProcessModel<ModelClass> {
+public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>>
+        implements ProcessModel<ModelClass> {
 
-    protected ProcessModelInfo<ModelClass> mModelInfo;
+    protected ProcessModelInfo<ModelClass> processModelInfo;
+
+    private final FlowContentObserver contentObserver;
 
     /**
      * Constructs this transaction with a single model enabled.
      *
-     * @param modelInfo Holds information about this process request
+     * @param modelInfo       Holds information about this process request
+     * @param contentObserver The optional {@link FlowContentObserver} to wrap the process in a transaction.
      */
-    public ProcessModelTransaction(ProcessModelInfo<ModelClass> modelInfo) {
-        super(modelInfo.getInfo(), modelInfo.mTransactionListener);
-        mModelInfo = modelInfo;
+    public ProcessModelTransaction(ProcessModelInfo<ModelClass> modelInfo, FlowContentObserver contentObserver) {
+        super(modelInfo.getInfo(), modelInfo.transactionListener);
+        processModelInfo = modelInfo;
+        this.contentObserver = contentObserver;
     }
 
     @Override
     public boolean onReady() {
-        return mModelInfo.hasData();
+        return processModelInfo.hasData();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<ModelClass> onExecute() {
-        mModelInfo.processModels(this);
-        return mModelInfo.mModels;
+        if (contentObserver != null) {
+            contentObserver.beginTransaction();
+        }
+        processModelInfo.processModels(this);
+        List<ModelClass> models = processModelInfo.models;
+        if (contentObserver != null) {
+            contentObserver.endTransactionAndNotify();
+        }
+        return models;
     }
 
     /**

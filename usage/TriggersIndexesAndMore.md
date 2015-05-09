@@ -4,20 +4,20 @@ This section contains more advance usage of SQLite. These features are very usef
 
 ## Triggers
 
-```Trigger``` are actions that are automatically performed before or after some action on the database. For example, we want to log changes for all updates to the name on the ```Friend``` table. 
+```Trigger``` are actions that are automatically performed before or after some action on the database. For example, we want to log changes for all updates to the name on the ```Friend``` table.
 
 ```java
 
-CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
+CompletedTrigger<Friend> trigger = Trigger.create("NameTrigger")
                                     .after().update(Friend.class, Friend$Table.NAME)
                                     .begin(
                                         new Insert<FriendLog>(FriendLog.class)
                                           .columns(FriendLog$Table.OLDNAME, FriendLog$Table.NEWNAME, FriendLog$Table.DATE)
                                           .values("old.Name", "new.Name", System.currentTimeMillis())
                                           };
- // starts a trigger                                         
+ // starts a trigger
  trigger.enable();
- 
+
  // stops a trigger
  trigger.disable();
 
@@ -25,14 +25,14 @@ CompletedTrigger<Friend> trigger = new Trigger<Friend>("NameTrigger")
 
 ## Indexes
 
-```Index``` are pointers to specific columns in a table that enable super-fast retrieval. The trade-off of using these is that the database 
+```Index``` are pointers to specific columns in a table that enable super-fast retrieval. The trade-off of using these is that the database
 size significantly increases, however if performance is more important, the tradeoff is worth it.
 
 ```java
 
-Index<Friend> index = new Index<Friend>("index_friendName")
+Index<Friend> index = new Index<>("index_friendName")
                       .on(Friend.class, Friend$Table.NAME);
-                      
+
 // begins an index
 index.enable();
 

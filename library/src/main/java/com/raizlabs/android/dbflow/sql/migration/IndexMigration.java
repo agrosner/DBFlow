@@ -14,39 +14,38 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
     /**
      * The table to index on
      */
-    private Class<ModelClass> mOnTable;
+    private Class<ModelClass> onTable;
 
     /**
      * The name of this index
      */
-    private String mName;
+    private String name;
 
     /**
      * The underlying index object.
      */
-    private Index<ModelClass> mIndex;
+    private Index<ModelClass> index;
 
-    public IndexMigration(@NonNull String name, @NonNull Class<ModelClass> mOnTable) {
-        this.mOnTable = mOnTable;
-        this.mName = name;
+    public IndexMigration(@NonNull String name, @NonNull Class<ModelClass> onTable) {
+        this.onTable = onTable;
+        this.name = name;
     }
 
     @Override
     public void onPreMigrate() {
-        super.onPreMigrate();
-        mIndex = getIndex();
+        index = getIndex();
     }
 
     @Override
-    public void migrate(SQLiteDatabase database) {
+    public final void migrate(SQLiteDatabase database) {
         database.execSQL(getIndex().getQuery());
     }
 
     @Override
     public void onPostMigrate() {
-        mOnTable = null;
-        mName = null;
-        mIndex = null;
+        onTable = null;
+        name = null;
+        index = null;
     }
 
     /**
@@ -74,10 +73,10 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      * @return The index object based on the contents of this migration.
      */
     public Index<ModelClass> getIndex() {
-        if(mIndex == null) {
-            mIndex = new Index<ModelClass>(mName).on(mOnTable);
+        if(index == null) {
+            index = new Index<ModelClass>(name).on(onTable);
         }
-        return mIndex;
+        return index;
     }
 
     /**

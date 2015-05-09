@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure.listener;
 
 import android.content.ContentValues;
 
+import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -12,11 +13,20 @@ import com.raizlabs.android.dbflow.structure.Model;
 public interface ContentValuesListener {
 
     /**
-     * Called during an {@link com.raizlabs.android.dbflow.structure.Model#update(boolean)} and at the end of
+     * Called during an {@link Model#update()} and at the end of
      * {@link com.raizlabs.android.dbflow.structure.ModelAdapter#bindToContentValues(android.content.ContentValues, com.raizlabs.android.dbflow.structure.Model)}
      * . It enables you to customly change the values as necessary during update to the database.
      *
-     * @param contentValues The content values to
+     * @param contentValues The content values to bind to for an update.
      */
-    public void onBindToContentValues(ContentValues contentValues);
+    void onBindToContentValues(ContentValues contentValues);
+
+    /**
+     * Called during an {@link Model#update()} and at the end of
+     * {@link com.raizlabs.android.dbflow.structure.ModelAdapter#bindToInsertValues(ContentValues, Model)}
+     * . It enables you to customly change the values as necessary during insert to the database for a {@link ContentProvider}.
+     *
+     * @param contentValues The content values to insert into DB for a {@link ContentProvider}
+     */
+    void onBindToInsertValues(ContentValues contentValues);
 }

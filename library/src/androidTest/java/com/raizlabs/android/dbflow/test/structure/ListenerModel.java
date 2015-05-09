@@ -38,6 +38,11 @@ public class ListenerModel extends TestModel1 implements LoadFromCursorListener,
     }
 
     @Override
+    public void onBindToInsertValues(ContentValues contentValues) {
+        contentValuesListener.onBindToInsertValues(contentValues);
+    }
+
+    @Override
     public void onLoadFromCursor(Cursor cursor) {
         loadFromCursorListener.onLoadFromCursor(cursor);
     }

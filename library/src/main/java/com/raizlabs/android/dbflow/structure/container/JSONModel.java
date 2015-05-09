@@ -1,10 +1,12 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.database.Cursor;
+
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +50,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     @Override
     public Object getValue(String columnName) {
         Object value = getData() != null ? getData().opt(columnName) : null;
-        if(JSONObject.NULL.equals(value)) {
+        if (JSONObject.NULL.equals(value)) {
             value = null;
         }
         return value;
@@ -69,13 +71,17 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     /**
      * Loads a model from the DB into the json stored in this class. It also will recreate the JSON stored in this object
      *
-     * @param primaryKeys The keys to reference
+     * @param primaryKeys The keys to reference (in order of the {@link ModelAdapter#getPrimaryModelWhere(Model)})
      */
     public void load(Object... primaryKeys) {
         setData(new JSONObject());
-        ConditionQueryBuilder<ModelClass> primaryQuery = FlowManager.getPrimaryWhereQuery(getTable());
-        load(new Select().from(mModelAdapter.getModelClass())
-                .where(primaryQuery.replaceEmptyParams(primaryKeys)).query());
+        Cursor cursor = new Select().from(modelAdapter.getModelClass())
+                .where(FlowManager.getPrimaryWhereQuery(getTable()).replaceEmptyParams(primaryKeys)).limit(1).query();
+
+        if(cursor != null && cursor.moveToFirst()) {
+            modelContainerAdapter.loadFromCursor(cursor, this);
+            cursor.close();
+        }
     }
 
 }

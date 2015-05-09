@@ -2,24 +2,26 @@ package com.raizlabs.android.dbflow.list;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
+import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModel;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelper;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
@@ -31,14 +33,13 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * Author: andrewgrosner
  * Description: Operates very similiar to a {@link java.util.List} except its backed by a table cursor. All of
  * the {@link java.util.List} modifications default to the main thread, but it can be set to
  * run on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. Register a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener}
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
-public class FlowTableList<ModelClass extends Model> extends ContentObserver implements List<ModelClass> {
+public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver implements List<ModelClass> {
 
     /**
      * We use high priority to assume that this list is used in some visual aspect.
@@ -48,16 +49,16 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     /**
      * Holds the table cursor
      */
-    private FlowCursorList<ModelClass> mCursorList;
+    private FlowCursorList<ModelClass> internalCursorList;
 
-    private TransactionListener<List<ModelClass>> mTransactionListener;
-    private TransactionListener<List<ModelClass>> mInternalTransactionListener = new TransactionListenerAdapter<List<ModelClass>>() {
+    private TransactionListener<List<ModelClass>> transactionListener;
+    private TransactionListener<List<ModelClass>> internalTransactionListener = new TransactionListenerAdapter<List<ModelClass>>() {
         @Override
         public void onResultReceived(List<ModelClass> modelClasses) {
             refresh();
 
-            if (mTransactionListener != null) {
-                mTransactionListener.onResultReceived(modelClasses);
+            if (transactionListener != null) {
+                transactionListener.onResultReceived(modelClasses);
             }
         }
     };
@@ -73,27 +74,27 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      * @param table      The table to load into this list.
      * @param conditions The set of conditions to use when querying the DB.
      */
-    public FlowTableList(Class<ModelClass> table, Condition... conditions) {
+    public FlowQueryList(Class<ModelClass> table, Condition... conditions) {
         super(null);
-        mCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
+        internalCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
-                return FlowTableList.this.getBackingCache(getCacheSize());
+                return FlowQueryList.this.getBackingCache(getCacheSize());
             }
         };
     }
 
     /**
-     * Constructs an instance of this list with the specfied {@link com.raizlabs.android.dbflow.sql.ModelQueriable} object.
+     * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
      *
      * @param modelQueriable The object that can query from a database.
      */
-    public FlowTableList(ModelQueriable<ModelClass> modelQueriable) {
+    public FlowQueryList(ModelQueriable<ModelClass> modelQueriable) {
         super(null);
-        mCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable) {
+        internalCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
-                return FlowTableList.this.getBackingCache(getCacheSize());
+                return FlowQueryList.this.getBackingCache(getCacheSize());
             }
         };
     }
@@ -111,44 +112,51 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     /**
      * Called when the count for the underlying cache is needed.
      *
-     * @return 50 as default. Override for different.
+     * @return 50 as default. Override for different. Note: some {@link ModelCache} do not respect the size of the cache.
      */
     public int getCacheSize() {
         return 50;
     }
 
     /**
-     * Registers the list for model change events
+     * Registers the list for model change events. Internally this refreshes the underlying {@link FlowCursorList}. Call
+     * {@link #beginTransaction()} to bunch up calls to model changes and then {@link #endTransactionAndNotify()} to dispatch
+     * and refresh this list when completed.
      */
     public void registerForContentChanges(Context context) {
-        context.getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(mCursorList.getTable(), null), true, this);
+        super.registerForContentChanges(context, internalCursorList.getTable());
     }
 
-    /**
-     * Unregisters this list for model change events
-     */
-    public void unregisterForContentChanges(Context context) {
-        context.getContentResolver().unregisterContentObserver(this);
+    @Override
+    public void registerForContentChanges(Context context, Class<? extends Model> table) {
+        throw new RuntimeException(
+                "This method is not to be used in the FlowQueryList. call registerForContentChanges(Context) instead");
     }
 
     @Override
     public void onChange(boolean selfChange) {
-        mCursorList.refresh();
+        super.onChange(selfChange);
+        if (!isInTransaction) {
+            internalCursorList.refresh();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onChange(boolean selfChange, Uri uri) {
-        mCursorList.refresh();
+        super.onChange(selfChange, uri);
+        if (!isInTransaction) {
+            internalCursorList.refresh();
+        }
     }
 
     /**
-     * Register for callbacks when data is changed on this list.
+     * Register for callbacks when data is changed asynchronous on this list.
      *
-     * @param transactionListener
+     * @param transactionListener Provides callbacks when the data changes async.
      */
-    public void setModificationReceiver(TransactionListener<List<ModelClass>> transactionListener) {
-        mTransactionListener = transactionListener;
+    public void setTransactionListener(TransactionListener<List<ModelClass>> transactionListener) {
+        this.transactionListener = transactionListener;
     }
 
     /**
@@ -164,21 +172,21 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      * @return a mutable list that does not reflect changes on the underlying DB.
      */
     public List<ModelClass> getCopy() {
-        return mCursorList.getAll();
+        return internalCursorList.getAll();
     }
 
     /**
      * @return The {@link com.raizlabs.android.dbflow.list.FlowCursorList} that backs this table list.
      */
     public FlowCursorList<ModelClass> getCursorList() {
-        return mCursorList;
+        return internalCursorList;
     }
 
     /**
      * Refreshes the content backing this list.
      */
     public void refresh() {
-        mCursorList.refresh();
+        internalCursorList.refresh();
     }
 
     /**
@@ -201,7 +209,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     @SafeVarargs
     protected final ProcessModelInfo<ModelClass> getProcessModelInfo(ModelClass... modelClasses) {
-        return ProcessModelInfo.withModels(modelClasses).result(mInternalTransactionListener).info(MODIFICATION_INFO);
+        return ProcessModelInfo.withModels(modelClasses).result(internalTransactionListener).info(MODIFICATION_INFO);
     }
 
     /**
@@ -212,7 +220,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      * @return The shared info for this table.
      */
     protected final ProcessModelInfo<ModelClass> getProcessModelInfo(Collection<ModelClass> modelCollection) {
-        return ProcessModelInfo.withModels(modelCollection).result(mInternalTransactionListener).info(MODIFICATION_INFO);
+        return ProcessModelInfo.withModels(modelCollection).result(internalTransactionListener).info(MODIFICATION_INFO);
     }
 
     /**
@@ -224,10 +232,10 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     @Override
     public boolean add(ModelClass model) {
         if (transact) {
-            TransactionManager.getInstance().save(getProcessModelInfo(model));
+            TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(getProcessModelInfo(model)));
         } else {
-            model.save(false);
-            mInternalTransactionListener.onResultReceived(Arrays.asList(model));
+            model.save();
+            internalTransactionListener.onResultReceived(Arrays.asList(model));
         }
         return true;
     }
@@ -257,15 +265,16 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         // cast to normal collection, we do not want subclasses of this table saved
         final Collection<ModelClass> tmpCollection = (Collection<ModelClass>) collection;
         if (transact) {
-            TransactionManager.getInstance().save(getProcessModelInfo(tmpCollection));
+            TransactionManager.getInstance().addTransaction(
+                    new SaveModelTransaction<>(getProcessModelInfo(tmpCollection)));
         } else {
-            ProcessModelHelper.process(mCursorList.getTable(), tmpCollection, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), tmpCollection, new ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
-                    model.save(false);
+                    model.save();
                 }
             });
-            mInternalTransactionListener.onResultReceived((List<ModelClass>) tmpCollection);
+            internalTransactionListener.onResultReceived((List<ModelClass>) tmpCollection);
         }
         return true;
     }
@@ -276,11 +285,12 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     @Override
     public void clear() {
         if (transact) {
-            TransactionManager.getInstance().delete(MODIFICATION_INFO, mCursorList.getTable());
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteTransaction<>(MODIFICATION_INFO, internalCursorList.getTable()));
         } else {
-            Delete.table(mCursorList.getTable());
+            Delete.table(internalCursorList.getTable());
         }
-        mInternalTransactionListener.onResultReceived(null);
+        internalTransactionListener.onResultReceived(null);
     }
 
     /**
@@ -293,7 +303,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     @Override
     public boolean contains(Object object) {
         boolean contains = false;
-        if (mCursorList.getTable().isAssignableFrom(object.getClass())) {
+        if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             ModelClass model = ((ModelClass) object);
             contains = model.exists();
         }
@@ -331,55 +341,57 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     @Override
     public ModelClass get(int row) {
-        return mCursorList.getItem(row);
+        return internalCursorList.getItem(row);
     }
 
     @Override
     public int indexOf(Object object) {
-        throw new UnsupportedOperationException("We cannot determine which index in the table this item exists at efficiently");
+        throw new UnsupportedOperationException(
+                "We cannot determine which index in the table this item exists at efficiently");
     }
 
     @Override
     public boolean isEmpty() {
-        return mCursorList.isEmpty();
+        return internalCursorList.isEmpty();
     }
 
     /**
-     * @return An iterator from {@link #getAll(com.raizlabs.android.dbflow.sql.builder.Condition...)}.
+     * @return An iterator from {@link FlowCursorList#getAll()}.
      * Be careful as this method will convert all data under this table into a list of {@link ModelClass} in the UI thread.
      */
     @NonNull
     @Override
     public Iterator<ModelClass> iterator() {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.iterator();
     }
 
     @Override
     public int lastIndexOf(Object object) {
-        throw new UnsupportedOperationException("We cannot determine which index in the table this item exists at efficiently");
+        throw new UnsupportedOperationException(
+                "We cannot determine which index in the table this item exists at efficiently");
     }
 
     /**
-     * @return A list iterator from the {@link #getAll(com.raizlabs.android.dbflow.sql.builder.Condition...)}.
+     * @return A list iterator from the {@link FlowCursorList#getAll()}.
      * Be careful as this method will convert all data under this table into a list of {@link ModelClass} in the UI thread.
      */
     @NonNull
     @Override
     public ListIterator<ModelClass> listIterator() {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.listIterator();
     }
 
     /**
      * @param location The index to start the iterator.
-     * @return A list iterator from the {@link #getAll(com.raizlabs.android.dbflow.sql.builder.Condition...)}.
+     * @return A list iterator from the {@link FlowCursorList#getAll()}.
      * Be careful as this method will convert all data under this table into a list of {@link ModelClass} in the UI thread.
      */
     @NonNull
     @Override
     public ListIterator<ModelClass> listIterator(int location) {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.listIterator(location);
     }
 
@@ -392,12 +404,13 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     @Override
     public ModelClass remove(int location) {
-        ModelClass model = mCursorList.getItem(location);
+        ModelClass model = internalCursorList.getItem(location);
         if (transact) {
-            TransactionManager.getInstance().delete(getProcessModelInfo(model));
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteModelListTransaction<>(getProcessModelInfo(model)));
         } else {
-            model.delete(false);
-            mInternalTransactionListener.onResultReceived(Arrays.asList(model));
+            model.delete();
+            internalTransactionListener.onResultReceived(Arrays.asList(model));
         }
         return model;
     }
@@ -415,13 +428,14 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         boolean removed = false;
 
         // if its a ModelClass
-        if (mCursorList.getTable().isAssignableFrom(object.getClass())) {
+        if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             ModelClass model = ((ModelClass) object);
             if (transact) {
-                TransactionManager.getInstance().delete(getProcessModelInfo(model));
+                TransactionManager.getInstance().addTransaction(
+                        new DeleteModelListTransaction<>(getProcessModelInfo(model)));
             } else {
-                model.delete(false);
-                mInternalTransactionListener.onResultReceived(Arrays.asList(model));
+                model.delete();
+                internalTransactionListener.onResultReceived(Arrays.asList(model));
             }
             removed = true;
         }
@@ -443,15 +457,16 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
         // if its a ModelClass
         Collection<ModelClass> modelCollection = (Collection<ModelClass>) collection;
         if (transact) {
-            TransactionManager.getInstance().delete(getProcessModelInfo(modelCollection));
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteModelListTransaction<>(getProcessModelInfo(modelCollection)));
         } else {
-            ProcessModelHelper.process(mCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
-                    model.delete(false);
+                    model.delete();
                 }
             });
-            mInternalTransactionListener.onResultReceived((List<ModelClass>) modelCollection);
+            internalTransactionListener.onResultReceived((List<ModelClass>) modelCollection);
 
         }
 
@@ -467,24 +482,25 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     @Override
     public boolean retainAll(@NonNull Collection<?> collection) {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         tableList.removeAll(collection);
         if (transact) {
-            TransactionManager.getInstance().delete(getProcessModelInfo(tableList));
+            TransactionManager.getInstance().addTransaction(
+                    new DeleteModelListTransaction<>(getProcessModelInfo(tableList)));
         } else {
-            ProcessModelHelper.process(mCursorList.getTable(), tableList, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), tableList, new ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
-                    model.delete(false);
+                    model.delete();
                 }
             });
-            mInternalTransactionListener.onResultReceived(tableList);
+            internalTransactionListener.onResultReceived(tableList);
         }
         return true;
     }
 
     /**
-     * Will not use the index, rather just call a {@link com.raizlabs.android.dbflow.structure.Model#update(boolean)}
+     * Will not use the index, rather just call a {@link Model#update()}
      *
      * @param location Not used.
      * @param object   The object to update
@@ -496,7 +512,7 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
     }
 
     /**
-     * Updates a Model {@link com.raizlabs.android.dbflow.structure.Model#update(boolean)} . If {@link #transact}
+     * Updates a Model {@link Model#update()} . If {@link #transact}
      * is true, this update happens in the BG, otherwise it happens immediately.
      *
      * @param object The object to update
@@ -504,81 +520,39 @@ public class FlowTableList<ModelClass extends Model> extends ContentObserver imp
      */
     public ModelClass set(ModelClass object) {
         if (transact) {
-            TransactionManager.getInstance().update(getProcessModelInfo(object));
+            TransactionManager.getInstance().addTransaction(
+                    new UpdateModelListTransaction<>(getProcessModelInfo(object)));
         } else {
-            object.update(false);
-            mInternalTransactionListener.onResultReceived(Arrays.asList(object));
+            object.update();
+            internalTransactionListener.onResultReceived(Arrays.asList(object));
         }
         return object;
     }
 
     @Override
     public int size() {
-        return mCursorList.getCount();
+        return internalCursorList.getCount();
     }
 
     @NonNull
     @Override
     public List<ModelClass> subList(int start, int end) {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.subList(start, end);
     }
 
     @NonNull
     @Override
     public Object[] toArray() {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.toArray();
     }
 
     @NonNull
     @Override
     public <T> T[] toArray(T[] array) {
-        List<ModelClass> tableList = mCursorList.getAll();
+        List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.toArray(array);
-    }
-
-    /**
-     * Gets a {@link ModelClass} based on a list of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
-     *
-     * @param conditions The list of conditions to retrieve a model from
-     * @return A model from this table based on the conditions passed.
-     */
-    public ModelClass get(Condition... conditions) {
-        return new Select().from(mCursorList.getTable()).where(conditions).querySingle();
-    }
-
-    /**
-     * Fetches a list of all items in this table based on current queries.
-     *
-     * @param transactionListener The callback that will receive the list.
-     */
-    public void fetchAll(TransactionListener<List<ModelClass>> transactionListener) {
-        mCursorList.fetchAll(transactionListener);
-    }
-
-    /**
-     * Removes all {@link ModelClass} from the table based on the {@link com.raizlabs.android.dbflow.sql.builder.Condition}
-     *
-     * @param conditions The list of conditions to delete models with
-     */
-    public void removeAll(Condition... conditions) {
-        if (transact) {
-            TransactionManager.getInstance().delete(getProcessModelInfo(getAll(conditions)));
-        } else {
-            Delete.table(mCursorList.getTable(), conditions);
-            mInternalTransactionListener.onResultReceived(null);
-        }
-    }
-
-    /**
-     * Returns a list of {@link ModelClass} based on the list of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
-     *
-     * @param conditions The list of conditions to retrieve a model from
-     * @return
-     */
-    public List<ModelClass> getAll(Condition... conditions) {
-        return new Select().from(mCursorList.getTable()).where(conditions).queryList();
     }
 
 }

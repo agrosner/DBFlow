@@ -23,8 +23,9 @@ public class SqlQueryBuilder extends QueryBuilder<SqlQueryBuilder> {
         return append("new Select(projection)");
     }
 
-    public SqlQueryBuilder appendUpdate() {
-        return append("new Update()");
+    public SqlQueryBuilder appendUpdate(String databaseName, String tableName) {
+        return append(String.format("new Update(FlowManager.getTableClassForName(\"%1s\", \"%1s\"))",
+                databaseName, tableName));
     }
 
     public SqlQueryBuilder appendDelete() {
@@ -41,10 +42,6 @@ public class SqlQueryBuilder extends QueryBuilder<SqlQueryBuilder> {
 
     public SqlQueryBuilder appendFromTable(String databaseName, String tableName) {
         return appendTable("from", databaseName, tableName);
-    }
-
-    public SqlQueryBuilder appendTable(String databaseName, String tableName) {
-        return appendTable("table", databaseName, tableName);
     }
 
     public SqlQueryBuilder appendUpdateConflictAction() {

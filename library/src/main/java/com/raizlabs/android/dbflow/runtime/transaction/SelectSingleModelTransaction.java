@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.ModelQueriable;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class SelectSingleModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
 
-    private ModelQueriable<ModelClass> mModelQueriable;
+    private ModelQueriable<ModelClass> modelQueriable;
 
     /**
      * Creates an instance of this class
@@ -34,7 +34,7 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
      */
     public SelectSingleModelTransaction(ModelQueriable<ModelClass> modelQueriable, TransactionListener<ModelClass> transactionListener) {
         super(DBTransactionInfo.createFetch(), transactionListener);
-        mModelQueriable = modelQueriable;
+        this.modelQueriable = modelQueriable;
     }
 
     /**
@@ -51,6 +51,6 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
 
     @Override
     public ModelClass onExecute() {
-        return mModelQueriable.querySingle();
+        return modelQueriable.querySingle();
     }
 }

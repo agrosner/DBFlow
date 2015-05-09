@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -18,12 +19,9 @@ import java.util.List;
  */
 public class Index<ModelClass extends Model> implements Query {
 
-    private final String mIndex;
-
-    private Class<ModelClass> mTable;
-
-    private List<String> mColumns;
-
+    private final String indexName;
+    private Class<ModelClass> table;
+    private List<ColumnAlias> columns;
     private boolean isUnique = false;
 
     /**
@@ -32,8 +30,8 @@ public class Index<ModelClass extends Model> implements Query {
      * @param indexName The name of this index.
      */
     public Index(@NonNull String indexName) {
-        mIndex = indexName;
-        mColumns = new ArrayList<>();
+        this.indexName = indexName;
+        columns = new ArrayList<>();
     }
 
     /**
@@ -55,8 +53,24 @@ public class Index<ModelClass extends Model> implements Query {
      * @return This instance.
      */
     public Index<ModelClass> on(@NonNull Class<ModelClass> table, String... columns) {
-        mTable = table;
+        this.table = table;
         for (String column : columns) {
+            and(column);
+        }
+        return this;
+    }
+
+    /**
+     * The table to execute this Index on.
+     *
+     * @param table   The table to execute index on.
+     * @param columns The columns to create an index for.
+     * @return This instance.
+     */
+    public Index<ModelClass> on(@NonNull Class<ModelClass> table, ColumnAlias firstAlias, ColumnAlias... columns) {
+        this.table = table;
+        and(firstAlias);
+        for (ColumnAlias column : columns) {
             and(column);
         }
         return this;
@@ -69,8 +83,22 @@ public class Index<ModelClass extends Model> implements Query {
      * @return This instance.
      */
     public Index<ModelClass> and(String columnName) {
-        if (!mColumns.contains(columnName)) {
-            mColumns.add(columnName);
+        ColumnAlias columnAlias = ColumnAlias.column(columnName);
+        if (!columns.contains(columnAlias)) {
+            columns.add(columnAlias);
+        }
+        return this;
+    }
+
+    /**
+     * Appends a column to this index list.
+     *
+     * @param columnName The name of the column. If already exists, this column will not be added
+     * @return This instance.
+     */
+    public Index<ModelClass> and(ColumnAlias columnName) {
+        if (!columns.contains(columnName)) {
+            columns.add(columnName);
         }
         return this;
     }
@@ -79,14 +107,14 @@ public class Index<ModelClass extends Model> implements Query {
      * @return The name of this index.
      */
     public String getIndexName() {
-        return mIndex;
+        return indexName;
     }
 
     /**
      * @return The table this INDEX belongs to.
      */
     public Class<ModelClass> getTable() {
-        return mTable;
+        return table;
     }
 
     /**
@@ -101,13 +129,13 @@ public class Index<ModelClass extends Model> implements Query {
      */
     public void enable() {
 
-        if (mTable == null) {
+        if (table == null) {
             throw new IllegalStateException("Please call on() to set a table to use this index on.");
-        } else if (mColumns == null || mColumns.isEmpty()) {
+        } else if (columns == null || columns.isEmpty()) {
             throw new IllegalStateException("There should be at least one column in this index");
         }
 
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(mTable);
+        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(table);
         databaseDefinition.getWritableDatabase().execSQL(getQuery());
     }
 
@@ -115,7 +143,7 @@ public class Index<ModelClass extends Model> implements Query {
      * Disables the TRIGGER
      */
     public void disable() {
-        SqlUtils.dropIndex(mTable, mIndex);
+        SqlUtils.dropIndex(table, indexName);
     }
 
     @Override
@@ -124,8 +152,8 @@ public class Index<ModelClass extends Model> implements Query {
         return new QueryBuilder("CREATE ")
                 .append(isUnique ? "UNIQUE " : "")
                 .append("INDEX IF NOT EXISTS ")
-                .appendQuoted(mIndex)
-                .append(" ON ").appendQuoted(FlowManager.getTableName(mTable))
-                .append("(").appendQuotedList(mColumns).append(")").getQuery();
+                .appendQuoted(indexName)
+                .append(" ON ").appendQuoted(FlowManager.getTableName(table))
+                .append("(").appendList(columns).append(")").getQuery();
     }
 }

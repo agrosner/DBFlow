@@ -11,17 +11,17 @@ public interface Migration {
     /**
      * Called before we migrate data. Instantiate migration data before releasing it in {@link #onPostMigrate()}
      */
-    public void onPreMigrate();
+    void onPreMigrate();
 
     /**
      * Perform your migrations here
      *
      * @param database The database to operate on
      */
-    public void migrate(SQLiteDatabase database);
+    void migrate(SQLiteDatabase database);
 
     /**
      * Called after the migration completes. Release migration data here.
      */
-    public void onPostMigrate();
+    void onPostMigrate();
 }

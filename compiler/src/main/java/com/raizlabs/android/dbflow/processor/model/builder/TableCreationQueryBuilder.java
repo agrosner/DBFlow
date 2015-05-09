@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.processor.model.builder;
 
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 
@@ -24,12 +23,12 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
      */
     public QueryBuilder appendColumn(ColumnDefinition column) {
         if (column.length> -1) {
-            mQuery.append("(");
-            mQuery.append(column.length);
-            mQuery.append(")");
+            query.append("(");
+            query.append(column.length);
+            query.append(")");
         }
 
-        if (column.columnType == Column.PRIMARY_KEY_AUTO_INCREMENT) {
+        if (column.isPrimaryKeyAutoIncrement) {
             append(" PRIMARY KEY AUTOINCREMENT");
         }
 
@@ -68,7 +67,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
 
     public void appendForeignKeys(ForeignKeyReference[] references) {
         QueryBuilder queryBuilder;
-        List<QueryBuilder> queryBuilders = new ArrayList<QueryBuilder>();
+        List<QueryBuilder> queryBuilders = new ArrayList<>();
         for (ForeignKeyReference foreignKeyReference : references) {
             queryBuilder = new QueryBuilder().appendQuoted(foreignKeyReference.columnName())
                     .appendSpace()

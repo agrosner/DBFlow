@@ -36,27 +36,27 @@ import java.util.Map;
  */
 public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
-    public final static String TEMP_DB_NAME = "temp-";
+    public static final String TEMP_DB_NAME = "temp-";
 
     /**
      * Location where the migration files should exist.
      */
-    public final static String MIGRATION_PATH = "migrations";
-    private DatabaseHelperListener mListener;
-    private BaseDatabaseDefinition mManager;
+    public static final String MIGRATION_PATH = "migrations";
 
-    private SQLiteOpenHelper mBackupDB;
+    private DatabaseHelperListener databaseHelperListener;
+    private BaseDatabaseDefinition databaseDefinition;
+    private SQLiteOpenHelper backupHelper;
 
     public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager, DatabaseHelperListener listener) {
         super(FlowManager.getContext(), flowManager.getDatabaseFileName(), null, flowManager.getDatabaseVersion());
-        mListener = listener;
-        mManager = flowManager;
+        databaseHelperListener = listener;
+        databaseDefinition = flowManager;
 
-        movePrepackagedDB(mManager.getDatabaseFileName(), mManager.getDatabaseFileName());
+        movePrepackagedDB(databaseDefinition.getDatabaseFileName(), databaseDefinition.getDatabaseFileName());
 
         if (flowManager.backupEnabled()) {
             // Temp database mirrors existing
-            mBackupDB = new SQLiteOpenHelper(FlowManager.getContext(), getTempDbFileName(),
+            backupHelper = new SQLiteOpenHelper(FlowManager.getContext(), getTempDbFileName(),
                     null, flowManager.getDatabaseVersion()) {
                 @Override
                 public void onOpen(SQLiteDatabase db) {
@@ -77,8 +77,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                     executeMigrations(db, oldVersion, newVersion);
                 }
             };
-            restoreDatabase(getTempDbFileName(), mManager.getDatabaseFileName());
-            mBackupDB.getWritableDatabase();
+            restoreDatabase(getTempDbFileName(), databaseDefinition.getDatabaseFileName());
+            backupHelper.getWritableDatabase();
         }
     }
 
@@ -86,7 +86,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * @return the temporary database file name for when we have backups enabled {@link BaseDatabaseDefinition#backupEnabled()}
      */
     private String getTempDbFileName() {
-        return TEMP_DB_NAME + mManager.getDatabaseName() + ".db";
+        return TEMP_DB_NAME + databaseDefinition.getDatabaseName() + ".db";
     }
 
     /**
@@ -105,11 +105,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             String rslt = prog.simpleQueryForString();
             if (!rslt.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases
-                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " + mManager.getDatabaseName() + " returned: " + rslt);
+                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " + databaseDefinition.getDatabaseName() + " returned: " + rslt);
 
                 integrityOk = false;
 
-                if (mManager.backupEnabled()) {
+                if (databaseDefinition.backupEnabled()) {
                     integrityOk = restoreBackUp();
                 }
             }
@@ -142,10 +142,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         // Try to copy database file
         try {
             // check existing and use that as backup
-            File existingDb = FlowManager.getContext().getDatabasePath(mManager.getDatabaseFileName());
+            File existingDb = FlowManager.getContext().getDatabasePath(databaseDefinition.getDatabaseFileName());
             InputStream inputStream;
             // if it exists and the integrity is ok
-            if (existingDb.exists() && (mManager.backupEnabled() && FlowManager.isDatabaseIntegrityOk(mBackupDB))) {
+            if (existingDb.exists() && (databaseDefinition.backupEnabled() && FlowManager.isDatabaseIntegrityOk(
+                    backupHelper))) {
                 inputStream = new FileInputStream(existingDb);
             } else {
                 inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
@@ -164,8 +165,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     public boolean restoreBackUp() {
         boolean success = true;
 
-        File db = FlowManager.getContext().getDatabasePath(TEMP_DB_NAME + mManager.getDatabaseName());
-        File corrupt = FlowManager.getContext().getDatabasePath(mManager.getDatabaseName());
+        File db = FlowManager.getContext().getDatabasePath(TEMP_DB_NAME + databaseDefinition.getDatabaseName());
+        File corrupt = FlowManager.getContext().getDatabasePath(databaseDefinition.getDatabaseName());
         if (corrupt.delete()) {
             try {
                 writeDB(corrupt, new FileInputStream(db));
@@ -212,7 +213,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         final File dbPath = FlowManager.getContext().getDatabasePath(databaseName);
 
         // If the database already exists, and is ok return
-        if (dbPath.exists() && (!mManager.areConsistencyChecksEnabled() || (mManager.areConsistencyChecksEnabled() && isDatabaseIntegrityOk()))) {
+        if (dbPath.exists() && (!databaseDefinition.areConsistencyChecksEnabled() || (databaseDefinition.areConsistencyChecksEnabled() && isDatabaseIntegrityOk()))) {
             return;
         }
 
@@ -225,7 +226,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             File existingDb = FlowManager.getContext().getDatabasePath(getTempDbFileName());
             InputStream inputStream;
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
-            if (existingDb.exists() && (!mManager.backupEnabled() || mManager.backupEnabled() && FlowManager.isDatabaseIntegrityOk(mBackupDB))) {
+            if (existingDb.exists() && (!databaseDefinition.backupEnabled() || databaseDefinition.backupEnabled() && FlowManager.isDatabaseIntegrityOk(
+                    backupHelper))) {
                 inputStream = new FileInputStream(existingDb);
             } else {
                 inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
@@ -242,8 +244,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * the highest priority ever. This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     public void backupDB() {
-        if (!mManager.backupEnabled() || !mManager.areConsistencyChecksEnabled()) {
-            throw new IllegalStateException("Backups are not enabled for : " + mManager.getDatabaseName() + ". Please consider adding " +
+        if (!databaseDefinition.backupEnabled() || !databaseDefinition.areConsistencyChecksEnabled()) {
+            throw new IllegalStateException("Backups are not enabled for : " + databaseDefinition.getDatabaseName() + ". Please consider adding " +
                     "both backupEnabled and consistency checks enabled to the Database annotation");
         }
         // highest priority ever!
@@ -253,7 +255,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
                 Context context = FlowManager.getContext();
                 File backup = context.getDatabasePath(getTempDbFileName());
-                File temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + mManager.getDatabaseFileName());
+                File temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + databaseDefinition.getDatabaseFileName());
 
                 // if exists we want to delete it before rename
                 if (temp.exists()) {
@@ -264,7 +266,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                 if (backup.exists()) {
                     backup.delete();
                 }
-                File existing = context.getDatabasePath(mManager.getDatabaseFileName());
+                File existing = context.getDatabasePath(databaseDefinition.getDatabaseFileName());
 
                 try {
                     backup.getParentFile().mkdirs();
@@ -288,13 +290,13 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * @param mListener
      */
     public void setDatabaseListener(DatabaseHelperListener mListener) {
-        this.mListener = mListener;
+        this.databaseHelperListener = mListener;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        if (mListener != null) {
-            mListener.onCreate(db);
+        if (databaseHelperListener != null) {
+            databaseHelperListener.onCreate(db);
         }
 
         checkForeignKeySupport(db);
@@ -304,8 +306,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (mListener != null) {
-            mListener.onUpgrade(db, oldVersion, newVersion);
+        if (databaseHelperListener != null) {
+            databaseHelperListener.onUpgrade(db, oldVersion, newVersion);
         }
 
         checkForeignKeySupport(db);
@@ -315,8 +317,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onOpen(SQLiteDatabase db) {
-        if (mListener != null) {
-            mListener.onOpen(db);
+        if (databaseHelperListener != null) {
+            databaseHelperListener.onOpen(db);
         }
 
         checkForeignKeySupport(db);
@@ -328,7 +330,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      * @param database
      */
     private void checkForeignKeySupport(SQLiteDatabase database) {
-        if (mManager.isForeignKeysSupported()) {
+        if (databaseDefinition.isForeignKeysSupported()) {
             database.execSQL("PRAGMA foreign_keys=ON;");
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.");
         }
@@ -345,13 +347,13 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             @Override
             public void run() {
 
-                List<ModelAdapter> modelAdapters = mManager.getModelAdapters();
+                List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
                 for (ModelAdapter modelAdapter : modelAdapters) {
                     database.execSQL(modelAdapter.getCreationQuery());
                 }
 
                 // create our model views
-                List<ModelViewAdapter> modelViews = mManager.getModelViewAdapters();
+                List<ModelViewAdapter> modelViews = databaseDefinition.getModelViewAdapters();
                 for (ModelViewAdapter modelView : modelViews) {
                     QueryBuilder queryBuilder = new QueryBuilder()
                             .append("CREATE VIEW")
@@ -372,7 +374,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         // will try migrations file or execute migrations from code
         try {
-            final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(MIGRATION_PATH + "/" + mManager.getDatabaseName()));
+            final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(
+                    MIGRATION_PATH + "/" + databaseDefinition.getDatabaseName()));
             Collections.sort(files, new NaturalOrderComparator());
 
             final Map<Integer, List<String>> migrationFileMap = new HashMap<>();
@@ -390,7 +393,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                 }
             }
 
-            final Map<Integer, List<Migration>> migrationMap = mManager.getMigrations();
+            final Map<Integer, List<Migration>> migrationMap = databaseDefinition.getMigrations();
 
             final int curVersion = oldVersion + 1;
 
@@ -441,7 +444,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     private void executeSqlScript(SQLiteDatabase db, String file) {
         try {
-            final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + mManager.getDatabaseName() + "/" + file);
+            final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + databaseDefinition.getDatabaseName() + "/" + file);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             String line;
 

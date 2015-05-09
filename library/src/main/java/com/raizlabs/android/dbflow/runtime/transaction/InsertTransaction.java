@@ -19,7 +19,7 @@ public class InsertTransaction<ModelClass extends Model> extends QueryTransactio
      * @param columnValues      The column and their corresponding values.
      */
     public InsertTransaction(DBTransactionInfo dbTransactionInfo, Class<ModelClass> insertTable, Condition... columnValues) {
-        super(dbTransactionInfo, new Insert<>(insertTable).columnValues(columnValues), null);
+        super(dbTransactionInfo, Insert.into(insertTable).columnValues(columnValues), null);
     }
 
     /**

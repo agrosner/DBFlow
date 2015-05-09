@@ -79,7 +79,7 @@ public class ContentUtils {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
 
         ContentValues contentValues = new ContentValues();
-        adapter.bindToContentValues(contentValues, model);
+        adapter.bindToInsertValues(contentValues, model);
         Uri uri = contentResolver.insert(insertUri, contentValues);
         adapter.updateAutoIncrement(model, Long.valueOf(uri.getPathSegments().get(uri.getPathSegments().size() - 1)));
         return uri;
@@ -105,7 +105,7 @@ public class ContentUtils {
         if (models != null) {
             for (int i = 0; i < contentValues.length; i++) {
                 contentValues[i] = new ContentValues();
-                adapter.bindToContentValues(contentValues[i], models.get(i));
+                adapter.bindToInsertValues(contentValues[i], models.get(i));
             }
         }
         return contentResolver.bulkInsert(bulkInsertUri, contentValues);

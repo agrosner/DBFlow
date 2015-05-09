@@ -4,12 +4,17 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Author: andrewgrosner
- * Description: The base
+ * Description: The base for a {@link Where} statement.
  */
 public interface WhereBase<ModelClass extends Model> extends Query {
 
-    public Class<ModelClass> getTable();
+    /**
+     * @return The table of this query.
+     */
+    Class<ModelClass> getTable();
 
-    public Query getQueryBuilderBase();
+    /**
+     * @return The base Query object.
+     */
+    Query getQueryBuilderBase();
 }

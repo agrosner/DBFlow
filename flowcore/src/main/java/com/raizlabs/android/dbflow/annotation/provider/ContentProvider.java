@@ -20,7 +20,7 @@ public @interface ContentProvider {
     /**
      * @return The name of the database this belongs to
      */
-    String databaseName() default "";
+    String databaseName();
 
     /**
      * @return The base content uri String to use for all paths

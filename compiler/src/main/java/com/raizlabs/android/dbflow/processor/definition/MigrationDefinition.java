@@ -26,10 +26,6 @@ public class MigrationDefinition extends BaseDefinition implements FlowWriter {
         Migration migration = typeElement.getAnnotation(Migration.class);
 
         this.databaseName = migration.databaseName();
-        if(databaseName == null || databaseName.isEmpty()) {
-            databaseName = DBFlowProcessor.DEFAULT_DB_NAME;
-        }
-
         version = migration.version();
     }
 

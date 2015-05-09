@@ -39,7 +39,7 @@ public class TableEndpointDefinition extends BaseDefinition {
 
         TableEndpoint endpoint = typeElement.getAnnotation(TableEndpoint.class);
 
-        tableName = endpoint.value();
+        tableName = endpoint.name();
 
         contentProviderName = endpoint.contentProviderName();
 

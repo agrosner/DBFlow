@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.processor.utils;
 
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -29,153 +31,7 @@ public class ModelUtils {
     }
 
     public static String getStaticMember(String classname, String fieldName) {
-        return new StringBuilder(classname).append(".").append(fieldName.toUpperCase()).toString();
-    }
-
-    public static void writeContentValueStatement(JavaWriter javaWriter, boolean isContentValues,
-                                                  int index, String putValue, String localColumnName,
-                                                  String castedClass, String foreignColumnName,
-                                                  String containerKeyName,
-                                                  boolean isContainer, boolean isModelContainer,
-                                                  boolean isForeignKey,
-                                                  boolean requiresTypeConverter, String databaseTypeName,
-                                                  boolean isColumnPrimitive) throws IOException {
-        AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
-
-        boolean nullCheck = !isContentValues;
-        if(nullCheck) {
-            String statement = StatementMap.getStatement(SQLiteType.get(castedClass));
-            if(statement == null) {
-                throw new IOException(String.format("Writing insert statement failed for: %1s. A type converter" +
-                        "must be defined for this type, or if this field is a Model, must be a foreign key definition.", castedClass));
-            }
-            nullCheck = (statement.equals("String") || statement.equals("Blob") || !isColumnPrimitive);
-        } else {
-            contentValue.appendContentValues();
-            contentValue.appendPut(putValue);
-        }
-        String accessStatement = getAccessStatement(localColumnName, castedClass,
-                foreignColumnName, containerKeyName, isContainer, isModelContainer, isForeignKey, requiresTypeConverter);
-        // if statements of this type, we need to check for null :(
-        if(nullCheck) {
-            javaWriter.beginControlFlow("if (%1s != null) ", accessStatement);
-        }
-
-        if(!isContentValues) {
-            contentValue.appendBindSQLiteStatement(index, castedClass);
-        }
-
-        if (requiresTypeConverter) {
-            contentValue.appendTypeConverter(castedClass, databaseTypeName, false);
-        }
-        String query = contentValue.append(accessStatement).append(")").append(requiresTypeConverter ? "))" : "").getQuery();
-
-
-
-        javaWriter.emitStatement(query);
-
-        if(nullCheck) {
-            javaWriter.nextControlFlow("else");
-            javaWriter.emitStatement("statement.bindNull(%1s)", index);
-            javaWriter.endControlFlow();
-        }
-    }
-
-    public static String getAccessStatement(String localColumnName,
-                                            String castedClass, String foreignColumnName, String containerKeyName,
-                                            boolean isContainer, boolean isModelContainer, boolean isForeignKey, boolean requiresTypeConverter) {
-        AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
-
-        if (!requiresTypeConverter) {
-            if(castedClass != null) {
-                contentValue.appendCast(castedClass);
-            } else {
-                contentValue.append("(");
-            }
-        }
-        contentValue.appendVariable(isContainer).append(".");
-        if (isContainer) {
-            contentValue.appendGetValue(containerKeyName);
-        } else if (isModelContainer) {
-            contentValue.append(localColumnName)
-                    .append(".")
-                    .appendGetValue(foreignColumnName);
-        } else {
-            if (isForeignKey) {
-                contentValue.append(localColumnName)
-                        .append(".");
-            }
-            contentValue.append(foreignColumnName);
-        }
-
-        if (!requiresTypeConverter) {
-            contentValue.append(")");
-        }
-        return contentValue.getQuery();
-    }
-
-    public static void writeLoadFromCursorDefinitionField(JavaWriter javaWriter, ProcessorManager processorManager, String columnFieldType, String columnFieldName, String columnName,
-                                                          String foreignColumnName, String containerKeyName,
-                                                          Element modelType, boolean hasTypeConverter, boolean isModelContainerDefinition, boolean isFieldModelContainer,
-                                                          boolean isNullable) throws IOException {
-        // TODO: find a way to convert a type properly
-        String newFieldType = null;
-        if (hasTypeConverter) {
-            TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition((TypeElement) modelType);
-            if (typeConverterDefinition != null) {
-                newFieldType = typeConverterDefinition.getDbElement().asType().toString();
-            }
-        } else {
-            newFieldType = columnFieldType;
-        }
-
-        javaWriter.emitStatement(getColumnIndex(columnName));
-        String index = "index" + columnName;
-        javaWriter.beginControlFlow("if (%1s != -1) ", index);
-
-        if (isNullable) {
-            javaWriter.beginControlFlow("if (cursor.isNull(%1s)) ", index);
-            emitColumnAssignment(javaWriter, columnFieldType, columnFieldName, foreignColumnName,
-                    containerKeyName, "null", hasTypeConverter, isModelContainerDefinition, isFieldModelContainer);
-            javaWriter.nextControlFlow(" else ");
-        }
-        String cursorStatment = ModelUtils.getCursorStatement(newFieldType, columnName);
-        emitColumnAssignment(javaWriter, columnFieldType, columnFieldName, foreignColumnName,
-                containerKeyName, cursorStatment, hasTypeConverter, isModelContainerDefinition, isFieldModelContainer);
-        if (isNullable) {
-            javaWriter.endControlFlow();
-        }
-        javaWriter.endControlFlow();
-    }
-
-    private static void emitColumnAssignment(JavaWriter javaWriter, String columnFieldType, String columnFieldName,
-                                             String foreignColumnName, String containerKeyName, String valueStatement,
-                                             boolean hasTypeConverter, boolean isModelContainerDefinition,
-                                             boolean isFieldModelContainer) throws IOException {
-        AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isModelContainerDefinition);
-        if (isFieldModelContainer) {
-            queryBuilder.append(".").append(columnFieldName);
-        }
-        if (isModelContainerDefinition) {
-            queryBuilder.appendPut(containerKeyName);
-        } else if (isFieldModelContainer) {
-            queryBuilder.appendPut(foreignColumnName);
-        } else {
-            queryBuilder.append(".").append(columnFieldName).appendSpaceSeparated("=");
-        }
-        if (hasTypeConverter && !isModelContainerDefinition) {
-            queryBuilder.appendTypeConverter(columnFieldType, columnFieldType, true);
-        }
-
-        queryBuilder.append(valueStatement);
-
-        if (hasTypeConverter && !isModelContainerDefinition) {
-            queryBuilder.append("))");
-        } else if (isModelContainerDefinition || isFieldModelContainer) {
-            queryBuilder.append(")");
-        }
-
-        javaWriter.emitStatement(queryBuilder.toString());
+        return classname + "." + fieldName.toUpperCase();
     }
 
     public static String getContainerValueStatement(String columnFieldName) {
@@ -215,6 +71,18 @@ public class ModelUtils {
         return clazz;
     }
 
+    public static String getClassFromAnnotation(ForeignKey annotation) {
+        String clazz = null;
+        if (annotation != null) {
+            try {
+                annotation.tableClass();
+            } catch (MirroredTypeException mte) {
+                clazz = mte.getTypeMirror().toString();
+            }
+        }
+        return clazz;
+    }
+
     public static TypeMirror getTypeMirrorFromAnnotation(ForeignKeyReference reference) {
         TypeMirror typeMirror = null;
         if (reference != null) {
@@ -244,11 +112,8 @@ public class ModelUtils {
         return isModelContainer ? Classes.MODEL_CONTAINER_UTILS : Classes.SQL_UTILS;
     }
 
-    public static void writeColumnIndexCheckers(JavaWriter javaWriter, ForeignKeyReference[] foreignKeyReferences) throws IOException {
-
-        for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-            javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
-        }
+    public static void writeColumnIndexCheckers(JavaWriter javaWriter,
+                                                ForeignKeyReference[] foreignKeyReferences) throws IOException {
 
         QueryBuilder queryBuilder = new QueryBuilder("if ( ");
         for (int i = 0; i < foreignKeyReferences.length; i++) {
@@ -260,7 +125,7 @@ public class ModelUtils {
                     .append(foreignKeyReference.columnName())
                     .append(")");
 
-            if(i < foreignKeyReferences.length - 1) {
+            if (i < foreignKeyReferences.length - 1) {
                 queryBuilder.appendSpaceSeparated("&&");
             }
         }

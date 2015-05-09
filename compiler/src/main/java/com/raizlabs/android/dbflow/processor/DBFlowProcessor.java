@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.handler.*;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -25,8 +24,6 @@ import javax.lang.model.element.TypeElement;
 @AutoService(Processor.class)
 public class DBFlowProcessor extends AbstractProcessor {
 
-    public static String DEFAULT_DB_NAME;
-
     private ProcessorManager manager;
 
     /**
@@ -40,15 +37,16 @@ public class DBFlowProcessor extends AbstractProcessor {
      */
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        Set<String> supportedTypes = new LinkedHashSet<String>();
+        Set<String> supportedTypes = new LinkedHashSet<>();
         supportedTypes.add(Table.class.getName());
         supportedTypes.add(Column.class.getName());
         supportedTypes.add(TypeConverter.class.getName());
-        supportedTypes.add(ContainerAdapter.class.getName());
+        supportedTypes.add(ModelContainer.class.getName());
         supportedTypes.add(ModelView.class.getName());
         supportedTypes.add(Migration.class.getName());
         supportedTypes.add(ContentProvider.class.getName());
         supportedTypes.add(TableEndpoint.class.getName());
+        supportedTypes.add(QueryModel.class.getName());
         return supportedTypes;
     }
 
@@ -74,6 +72,7 @@ public class DBFlowProcessor extends AbstractProcessor {
                 new TypeConverterHandler(),
                 new DatabaseHandler(),
                 new TableHandler(),
+                new QueryModelHandler(),
                 new ModelContainerHandler(),
                 new ModelViewHandler(),
                 new ContentProviderHandler(),
@@ -83,14 +82,6 @@ public class DBFlowProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Database.class);
-        for(Element element: elements) {
-            Database database = element.getAnnotation(Database.class);
-            if(database != null) {
-                DEFAULT_DB_NAME = database.name();
-                break;
-            }
-        }
         manager.handle(manager, roundEnv);
 
         // return true if we successfully processed the Annotation.

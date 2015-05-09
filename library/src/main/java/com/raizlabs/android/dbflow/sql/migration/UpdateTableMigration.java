@@ -19,22 +19,22 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     /**
      * The table to update
      */
-    private final Class<ModelClass> mTable;
+    private final Class<ModelClass> table;
 
     /**
      * The query to use
      */
-    private QueryBuilder mQuery;
+    private QueryBuilder query;
 
     /**
      * Builds the conditions for the WHERE part of our query
      */
-    private ConditionQueryBuilder<ModelClass> mWhereConditionQueryBuilder;
+    private ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder;
 
     /**
      * The conditions to use to set fields in the update query
      */
-    private ConditionQueryBuilder<ModelClass> mSetConditionQueryBuilder;
+    private ConditionQueryBuilder<ModelClass> setConditionQueryBuilder;
 
     /**
      * Creates an update migration.
@@ -42,7 +42,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * @param table The table to update
      */
     public UpdateTableMigration(Class<ModelClass> table) {
-        mTable = table;
+        this.table = table;
     }
 
     /**
@@ -52,47 +52,41 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * @param conditions The condition to append
      */
     public UpdateTableMigration<ModelClass> set(Condition... conditions) {
-        if (mSetConditionQueryBuilder == null) {
-            mSetConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
+        if (setConditionQueryBuilder == null) {
+            setConditionQueryBuilder = new ConditionQueryBuilder<>(table);
         }
 
-        mSetConditionQueryBuilder.putConditions(conditions);
+        setConditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
     public UpdateTableMigration<ModelClass> where(Condition... conditions) {
-        if (mWhereConditionQueryBuilder == null) {
-            mWhereConditionQueryBuilder = new ConditionQueryBuilder<ModelClass>(mTable);
+        if (whereConditionQueryBuilder == null) {
+            whereConditionQueryBuilder = new ConditionQueryBuilder<>(table);
         }
 
-        mWhereConditionQueryBuilder.putConditions(conditions);
+        whereConditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onPreMigrate() {
-
-    }
-
     private String generateQuery() {
-        mQuery = new QueryBuilder(new Update().table(mTable)
-                .set(mSetConditionQueryBuilder)
-                .where(mWhereConditionQueryBuilder).getQuery());
-        return mQuery.getQuery();
+        query = new QueryBuilder(new Update<>(table)
+                .set(setConditionQueryBuilder)
+                .where(whereConditionQueryBuilder).getQuery());
+        return query.getQuery();
     }
 
     @Override
-    public void migrate(SQLiteDatabase database) {
+    public final void migrate(SQLiteDatabase database) {
         database.execSQL(generateQuery());
     }
 
     @Override
     public void onPostMigrate() {
         // make fields eligible for GC
-        mQuery = null;
-        mSetConditionQueryBuilder = null;
-        mWhereConditionQueryBuilder = null;
+        query = null;
+        setConditionQueryBuilder = null;
+        whereConditionQueryBuilder = null;
     }
 
     @Override

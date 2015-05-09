@@ -4,10 +4,12 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
+import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -47,6 +49,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     public String classSeparator;
 
+    String sqliteOpenHelperClass;
+
     public DatabaseWriter(ProcessorManager manager, Element element) {
         super(element, manager);
         packageName = Classes.FLOW_MANAGER_PACKAGE;
@@ -56,6 +60,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
         }
+
+        sqliteOpenHelperClass = ProcessorUtils.getOpenHelperClass(database);
 
         consistencyChecksEnabled = database.consistencyCheckEnabled();
         backupEnabled = database.backupEnabled();
@@ -103,11 +109,18 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         javaWriter.emitSingleLineComment("Writing for: " + databaseName);
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
-            javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+            javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
+                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
-            javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+            javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
+                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+        }
+
+        for(QueryModelDefinition queryModelDefinition: manager.getQueryModelDefinitions(databaseName)) {
+            javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
+                                     ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()));
         }
 
         javaWriter.emitEmptyLine();
@@ -119,9 +132,11 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
             for (Integer version : versionSet) {
                 List<MigrationDefinition> migrationDefinitions = migrationDefinitionMap.get(version);
                 javaWriter.emitStatement("List<%1s> migrations%1s = new ArrayList<>()", Classes.MIGRATION, version);
-                javaWriter.emitStatement("%1s.put(%1s,%1s%1s)", DatabaseHandler.MIGRATION_FIELD_NAME, version, "migrations", version);
+                javaWriter.emitStatement("%1s.put(%1s,%1s%1s)", DatabaseHandler.MIGRATION_FIELD_NAME, version,
+                                         "migrations", version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {
-                    javaWriter.emitStatement("%1s%1s.add(new %1s())", "migrations", version, migrationDefinition.getSourceFileName());
+                    javaWriter.emitStatement("%1s%1s.add(new %1s())", "migrations", version,
+                                             migrationDefinition.getSourceFileName());
                 }
             }
         }
@@ -129,27 +144,50 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         javaWriter.emitEmptyLine();
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
-            javaWriter.emitStatement(DatabaseHandler.MODEL_FIELD_NAME + ".add(%1s)", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
-            javaWriter.emitStatement(DatabaseHandler.MODEL_NAME_MAP + ".put(\"%1s\", %1s)", tableDefinition.tableName, ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
-            javaWriter.emitStatement(DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
-                    tableDefinition.getQualifiedAdapterClassName());
+            javaWriter.emitStatement(DatabaseHandler.MODEL_FIELD_NAME + ".add(%1s)",
+                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+            javaWriter.emitStatement(DatabaseHandler.MODEL_NAME_MAP + ".put(\"%1s\", %1s)", tableDefinition.tableName,
+                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+            javaWriter.emitStatement(DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
+                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
+                                     tableDefinition.getQualifiedAdapterClassName());
         }
 
         for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(databaseName)) {
-            javaWriter.emitStatement(DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
-                    modelContainerDefinition.getSourceFileName());
+            javaWriter.emitStatement(DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
+                                     ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
+                                     modelContainerDefinition.getSourceFileName());
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
-            javaWriter.emitStatement(DatabaseHandler.MODEL_VIEW_FIELD_NAME + ".add(%1s)", ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+            javaWriter.emitStatement(DatabaseHandler.MODEL_VIEW_FIELD_NAME + ".add(%1s)",
+                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
             javaWriter.emitStatement(DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()), modelViewDefinition.getSourceFileName());
+                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()),
+                                     modelViewDefinition.getSourceFileName());
+        }
+
+        javaWriter.emitSingleLineComment("Writing Query Models");
+        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
+            javaWriter.emitStatement(DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
+                                     ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()),
+                                     queryModelDefinition.getQualifiedAdapterName());
         }
 
         javaWriter.endConstructor();
     }
 
     private void writeGetters(JavaWriter javaWriter) throws IOException {
+
+        // create helper
+        if (!Void.class.getCanonicalName().equals(sqliteOpenHelperClass)) {
+            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                @Override
+                public void write(JavaWriter javaWriter) throws IOException {
+                    javaWriter.emitStatement("return new %1s(this, internalHelperListener)", sqliteOpenHelperClass);
+                }
+            }, "FlowSQLiteOpenHelper", "createHelper", DatabaseHandler.METHOD_MODIFIERS);
+        }
 
         // Get Model Container
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {

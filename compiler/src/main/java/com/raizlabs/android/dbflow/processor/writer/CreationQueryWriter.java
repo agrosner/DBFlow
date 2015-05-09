@@ -50,12 +50,12 @@ public class CreationQueryWriter implements FlowWriter {
                 TableCreationQueryBuilder tableCreationQuery = new TableCreationQueryBuilder();
                 tableCreationQuery.appendCreateTableIfNotExists(tableDefinition.tableName);
 
-                ArrayList<QueryBuilder> mColumnDefinitions = new ArrayList<QueryBuilder>();
+                ArrayList<QueryBuilder> mColumnDefinitions = new ArrayList<>();
                 List<String> foreignColumnClasses = Lists.newArrayList();
                 for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
 
                     TableCreationQueryBuilder queryBuilder = new TableCreationQueryBuilder();
-                    if (columnDefinition.columnType == Column.FOREIGN_KEY) {
+                    if (columnDefinition.isForeignKey) {
                         queryBuilder.appendSpace().appendForeignKeys(columnDefinition.foreignKeyReferences);
                     } else {
 
@@ -122,7 +122,7 @@ public class CreationQueryWriter implements FlowWriter {
                     int count = 0;
                     int index = 0;
                     for (ColumnDefinition field : tableDefinition.primaryColumnDefinitions) {
-                        if (field.columnType == Column.PRIMARY_KEY) {
+                        if (field.isPrimaryKey) {
                             count++;
                             primaryKeyQueryBuilder.appendQuoted(field.columnName);
                             if (index < tableDefinition.primaryColumnDefinitions.size() - 1) {
@@ -155,11 +155,11 @@ public class CreationQueryWriter implements FlowWriter {
                                 .append(")").appendSpaceSeparated("REFERENCES `%1s`")
                                 .append("(").appendQuotedArray(foreignColumns).append(")").appendSpace()
                                 .append("ON UPDATE")
-                                .appendSpaceSeparated(foreignKeyField.column.onUpdate().name().replace("_", " "))
+                                .appendSpaceSeparated(foreignKeyField.onUpdateConflict.name().replace("_", " "))
                                 .append("ON DELETE")
-                                .appendSpaceSeparated(foreignKeyField.column.onDelete().name().replace("_", " "));
+                                .appendSpaceSeparated(foreignKeyField.onDeleteConflict.name().replace("_", " "));
 
-                        foreignColumnClasses.add("FlowManager.getTableName(" + ModelUtils.getFieldClass(foreignKeyField.columnFieldType) + ")");
+                        foreignColumnClasses.add("FlowManager.getTableName(" + ModelUtils.getFieldClass(foreignKeyField.foreignKeyTableClassName) + ")");
 
                         mColumnDefinitions.add(foreignKeyQueryBuilder);
                     }

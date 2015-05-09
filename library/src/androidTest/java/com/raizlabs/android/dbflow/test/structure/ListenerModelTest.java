@@ -37,6 +37,11 @@ public class ListenerModelTest extends FlowTestCase {
                     public void onBindToContentValues(ContentValues contentValues) {
                         called[2] = true;
                     }
+
+                    @Override
+                    public void onBindToInsertValues(ContentValues contentValues) {
+                        called[2] = true;
+                    }
                 });
         listenerModel.registerLoadFromCursorListener(new LoadFromCursorListener() {
             @Override
@@ -44,8 +49,8 @@ public class ListenerModelTest extends FlowTestCase {
                 called[0] = true;
             }
         });
-        listenerModel.insert(false);
-        listenerModel.update(false);
+        listenerModel.insert();
+        listenerModel.update();
 
         ModelAdapter<ListenerModel> modelModelAdapter = FlowManager.getModelAdapter(ListenerModel.class);
         Cursor cursor = new Select().from(ListenerModel.class).where(Condition.column(ListenerModel$Table.NAME).is("This is a test")).query();
@@ -54,7 +59,7 @@ public class ListenerModelTest extends FlowTestCase {
         assertTrue(cursor.moveToFirst());
         modelModelAdapter.loadFromCursor(cursor, listenerModel);
 
-        listenerModel.delete(false);
+        listenerModel.delete();
         cursor.close();
 
         for (boolean call : called) {
