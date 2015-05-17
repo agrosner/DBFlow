@@ -60,6 +60,9 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
         }
+        if (!WriterUtils.isValidJavaClassName(databaseName)) {
+            throw new Error("Database name [ " + databaseName + " ] is not valid. It must not be any of Java keywords and must pass [A-Za-z_$]+[a-zA-Z0-9_$]* regex.");
+        }
 
         sqliteOpenHelperClass = ProcessorUtils.getOpenHelperClass(database);
 
