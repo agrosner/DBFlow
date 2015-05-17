@@ -6,7 +6,10 @@ import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.lang.model.element.Modifier;
 
@@ -71,4 +74,29 @@ public class WriterUtils {
         return success;
     }
 
+    /**
+     * Checks if className is valid Java class name. It will check for Java keywords like abstract, assert, boolean etc.
+     * and it will check if className matches regex pattern [A-Za-z_$]+[a-zA-Z0-9_$]*
+     *
+     * @param className class name to validate without package name.
+     * @return {@code true} if parameter is a valid Java class name, {@code false} otherwise.
+     */
+    public static boolean isValidJavaClassName(final String className) {
+        final List<String> javaKeywords = Arrays.asList(
+                "abstract", "assert", "boolean", "break", "byte",
+                "case", "catch", "char", "class", "const",
+                "continue", "default", "do", "double", "else",
+                "enum", "extends", "false", "final", "finally",
+                "float", "for", "goto", "if", "implements",
+                "import", "instanceof", "int", "interface", "long",
+                "native", "new", "null", "package", "private",
+                "protected", "public", "return", "short", "static",
+                "strictfp", "super", "switch", "synchronized", "this",
+                "throw", "throws", "transient", "true", "try",
+                "void", "volatile", "while");
+
+        final Pattern javaClassNamePattern = Pattern.compile("[A-Za-z_$]+[a-zA-Z0-9_$]*");
+
+        return !javaKeywords.contains(className) && javaClassNamePattern.matcher(className).matches();
+    }
 }
