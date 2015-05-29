@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -110,7 +111,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @param conditions The array of conditions that define this WHERE statement
      * @return A where statement.
      */
-    public Where<ModelClass> where(Condition... conditions) {
+    public Where<ModelClass> where(SQLCondition... conditions) {
         return where().andThese(conditions);
     }
 
