@@ -47,7 +47,7 @@ Instead of writing these lines of code, making a utility method for it, or havin
 
 ```java
 
-TransactionManager.getInstance().addTransaction(new SaveModelListTransaction<>(ProcessModelInfo.withModels(models)));
+TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(parkings)));
 
 ```
 
