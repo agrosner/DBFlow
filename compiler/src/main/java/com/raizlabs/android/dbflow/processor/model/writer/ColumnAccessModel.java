@@ -76,7 +76,7 @@ public class ColumnAccessModel implements Query {
         containerKeyName = columnDefinition.containerKeyName;
         isPrivate = columnDefinition.isPrivate;
         setterName = columnDefinition.setterName;
-        getterName = columnDefinition.setterName;
+        getterName = columnDefinition.getterName;
 
         this.isModelContainerAdapter = isModelContainerAdapter;
         requiresTypeConverter = columnDefinition.hasTypeConverter;
@@ -132,6 +132,8 @@ public class ColumnAccessModel implements Query {
     public ColumnAccessModel(ColumnDefinition columnDefinition, ForeignKeyReference foreignKeyReference) {
         this.fieldIsAModelContainer = columnDefinition.fieldIsModelContainer;
         columnName = columnDefinition.columnName;
+        setterName = columnDefinition.setterName;
+        getterName = columnDefinition.getterName;
         columnFieldActualType = columnDefinition.columnFieldActualType;
         columnFieldName = columnDefinition.columnFieldName;
         columnFieldType = columnDefinition.columnFieldType;
@@ -196,26 +198,34 @@ public class ColumnAccessModel implements Query {
     }
 
     private String getPrivateGetterMethodName() {
-        if (getterName == null || getterName.length() > 0) {
+        if (getterName == null || getterName.length() == 0) {
             String newName =
                     referencedColumnFieldName.substring(0, 1)
                             .toUpperCase() +
                     (referencedColumnFieldName.length() > 1 ? referencedColumnFieldName.substring(1) : "");
             return "get" + newName + "()";
         } else {
-            return "get" + getterName + "()";
+            if(getterName.startsWith("get")) {
+                return getterName + "()";
+            } else {
+                return "get" + getterName + "()";
+            }
         }
     }
 
     private String getPrivateSetterMethodName() {
-        if (setterName == null || setterName.length() > 0) {
+        if (setterName == null || setterName.length() == 0) {
             String newName =
                     referencedColumnFieldName.substring(0, 1)
                             .toUpperCase() +
                     (referencedColumnFieldName.length() > 1 ? referencedColumnFieldName.substring(1) : "");
             return "set" + newName + "(";
         } else {
-            return "set" + setterName + "(";
+            if(setterName.startsWith("set")) {
+                return setterName + "(";
+            } else {
+                return "set" + setterName + "(";
+            }
         }
     }
 

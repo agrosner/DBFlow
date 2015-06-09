@@ -16,6 +16,8 @@ public class PrivateModelTest extends BaseModel {
     @PrimaryKey
     private String name;
 
+    @Column(getterName = "getThisName", setterName = "setThisName")
+    private String anotherName;
 
     public String getName() {
         return name;
@@ -24,4 +26,6 @@ public class PrivateModelTest extends BaseModel {
     public void setName(String name) {
         this.name = name;
     }
+
+
 }
