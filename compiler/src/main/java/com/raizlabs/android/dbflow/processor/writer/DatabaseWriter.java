@@ -27,11 +27,10 @@ import java.util.regex.Pattern;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 
-
 /**
- * Description: Writes {@link com.raizlabs.android.dbflow.annotation.Database} definitions, which contain {@link
- * com.raizlabs.android.dbflow.annotation.Table}, {@link com.raizlabs.android.dbflow.annotation.ModelView}, and {@link
- * com.raizlabs.android.dbflow.annotation.Migration}
+ * Description: Writes {@link com.raizlabs.android.dbflow.annotation.Database} definitions,
+ * which contain {@link com.raizlabs.android.dbflow.annotation.Table},
+ * {@link com.raizlabs.android.dbflow.annotation.ModelView}, and {@link com.raizlabs.android.dbflow.annotation.Migration}
  */
 public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
@@ -62,7 +61,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
         }
-        if (!isValidDatabaseName(databaseName)) {
+        if (isValidDatabaseName(databaseName)) {
             throw new Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
                     "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
         }
@@ -116,17 +115,17 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
-                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
-                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
         }
 
-        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
+        for(QueryModelDefinition queryModelDefinition: manager.getQueryModelDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
-                    ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()));
+                                     ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()));
         }
 
         javaWriter.emitEmptyLine();
@@ -139,10 +138,10 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
                 List<MigrationDefinition> migrationDefinitions = migrationDefinitionMap.get(version);
                 javaWriter.emitStatement("List<%1s> migrations%1s = new ArrayList<>()", Classes.MIGRATION, version);
                 javaWriter.emitStatement("%1s.put(%1s,%1s%1s)", DatabaseHandler.MIGRATION_FIELD_NAME, version,
-                        "migrations", version);
+                                         "migrations", version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {
                     javaWriter.emitStatement("%1s%1s.add(new %1s())", "migrations", version,
-                            migrationDefinition.getSourceFileName());
+                                             migrationDefinition.getSourceFileName());
                 }
             }
         }
@@ -151,33 +150,33 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
             javaWriter.emitStatement(DatabaseHandler.MODEL_FIELD_NAME + ".add(%1s)",
-                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
             javaWriter.emitStatement(DatabaseHandler.MODEL_NAME_MAP + ".put(\"%1s\", %1s)", tableDefinition.tableName,
-                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
             javaWriter.emitStatement(DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
-                    tableDefinition.getQualifiedAdapterClassName());
+                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
+                                     tableDefinition.getQualifiedAdapterClassName());
         }
 
         for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(databaseName)) {
             javaWriter.emitStatement(DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
-                    modelContainerDefinition.getSourceFileName());
+                                     ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
+                                     modelContainerDefinition.getSourceFileName());
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
             javaWriter.emitStatement(DatabaseHandler.MODEL_VIEW_FIELD_NAME + ".add(%1s)",
-                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
             javaWriter.emitStatement(DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()),
-                    modelViewDefinition.getSourceFileName());
+                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()),
+                                     modelViewDefinition.getSourceFileName());
         }
 
         javaWriter.emitSingleLineComment("Writing Query Models");
         for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
             javaWriter.emitStatement(DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()),
-                    queryModelDefinition.getQualifiedAdapterName());
+                                     ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()),
+                                     queryModelDefinition.getQualifiedAdapterName());
         }
 
         javaWriter.endConstructor();
