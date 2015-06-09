@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
@@ -96,8 +95,8 @@ public class CreationQueryWriter implements FlowWriter {
                             // take first one we find
                             ConflictAction conflictAction = ConflictAction.FAIL;
                             boolean hasGroup = false;
-                            if (tableDefinition.mUniqueGroupMap.containsKey(group)) {
-                                conflictAction = tableDefinition.mUniqueGroupMap.get(group).uniqueConflict();
+                            if (tableDefinition.uniqueGroupMap.containsKey(group)) {
+                                conflictAction = tableDefinition.uniqueGroupMap.get(group).uniqueConflict();
                                 hasGroup = true;
                             }
                             List<String> columnNames = Lists.newArrayList();

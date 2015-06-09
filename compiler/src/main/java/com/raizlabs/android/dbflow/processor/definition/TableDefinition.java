@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
@@ -26,6 +27,7 @@ import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,9 +80,11 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public Map<Integer, List<ColumnDefinition>> mColumnUniqueMap = Maps.newHashMap();
 
-    public Map<Integer, UniqueGroup> mUniqueGroupMap = Maps.newHashMap();
+    public Map<Integer, UniqueGroup> uniqueGroupMap = Maps.newHashMap();
 
     public List<OneToManyDefinition> oneToManyDefinitions = new ArrayList<>();
+
+    public Map<String, InheritedColumn> inheritedColumnMap = new HashMap<>();
 
     public TableDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
@@ -124,15 +128,23 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         primaryColumnDefinitions = new ArrayList<>();
         foreignKeyDefinitions = new ArrayList<>();
 
-        createColumnDefinitions((TypeElement) element);
-
         UniqueGroup[] groups = table.uniqueColumnGroups();
         for (UniqueGroup uniqueGroup : groups) {
-            if (mUniqueGroupMap.containsKey(uniqueGroup.groupNumber())) {
+            if (uniqueGroupMap.containsKey(uniqueGroup.groupNumber())) {
                 manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber(), tableName);
             }
-            mUniqueGroupMap.put(uniqueGroup.groupNumber(), uniqueGroup);
+            uniqueGroupMap.put(uniqueGroup.groupNumber(), uniqueGroup);
         }
+
+        InheritedColumn[] inheritedColumns = table.inheritedColumns();
+        for (InheritedColumn inheritedColumn: inheritedColumns) {
+            if (inheritedColumnMap.containsKey(inheritedColumn.fieldName())) {
+                manager.logError("A duplicate inherited column with name %1s was found for %1s", inheritedColumn.fieldName(), tableName);
+            }
+            inheritedColumnMap.put(inheritedColumn.fieldName(), inheritedColumn);
+        }
+
+        createColumnDefinitions((TypeElement) element);
 
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
                                                                           Classes.LOAD_FROM_CURSOR_LISTENER,
@@ -174,12 +186,17 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         OneToManyValidator oneToManyValidator = new OneToManyValidator();
         for (Element element : elements) {
 
-            // no private static or final fields
-            boolean isValidColumn = allFields && (element.getKind().isField() &&
+            // no private static or final fields for all columns, or any inherited columns here.
+            boolean isValidColumn = (allFields && (element.getKind().isField() &&
                     !element.getModifiers().contains(Modifier.STATIC) &&
                     !element.getModifiers().contains(Modifier.PRIVATE) &&
-                    !element.getModifiers().contains(Modifier.FINAL));
+                    !element.getModifiers().contains(Modifier.FINAL)));
+                    inheritedColumnMap.containsKey(element.getSimpleName().toString());
 
+            if(!inheritedColumnMap.isEmpty()) {
+                manager.logError("ElementName:" + element.getSimpleName()
+                        .toString());
+            }
             if (element.getAnnotation(Column.class) != null || isValidColumn) {
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) element);
                 if (columnValidator.validate(manager, columnDefinition)) {

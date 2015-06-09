@@ -27,5 +27,11 @@ public class PrivateModelTest extends BaseModel {
         this.name = name;
     }
 
+    public String getThisName() {
+        return anotherName;
+    }
 
+    public void setThisName(String thisName) {
+        this.anotherName = thisName;
+    }
 }
