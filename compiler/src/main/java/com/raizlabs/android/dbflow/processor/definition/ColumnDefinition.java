@@ -109,12 +109,18 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
     public boolean columnFieldIsPrimitive = false;
 
     public boolean isPrivate = false;
+    public String setterName;
+    public String getterName;
 
     public ColumnDefinition(ProcessorManager processorManager, VariableElement element) {
         super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
         isPrivate = element.getModifiers().contains(Modifier.PRIVATE);
+        if(isPrivate) {
+            setterName = column.setterName();
+            getterName = column.getterName();
+        }
 
         PrimaryKey primaryKey = element.getAnnotation(PrimaryKey.class);
         if (primaryKey != null) {

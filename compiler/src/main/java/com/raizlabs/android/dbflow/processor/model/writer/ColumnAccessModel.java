@@ -60,6 +60,10 @@ public class ColumnAccessModel implements Query {
 
     boolean isPrivate;
 
+    String setterName;
+
+    String getterName;
+
     public ColumnAccessModel(ProcessorManager manager, ColumnDefinition columnDefinition,
                              boolean isModelContainerAdapter) {
         this.fieldIsAModelContainer = columnDefinition.fieldIsModelContainer;
@@ -71,6 +75,8 @@ public class ColumnAccessModel implements Query {
         foreignKeyLocalColumnName = columnName;
         containerKeyName = columnDefinition.containerKeyName;
         isPrivate = columnDefinition.isPrivate;
+        setterName = columnDefinition.setterName;
+        getterName = columnDefinition.setterName;
 
         this.isModelContainerAdapter = isModelContainerAdapter;
         requiresTypeConverter = columnDefinition.hasTypeConverter;
@@ -83,28 +89,41 @@ public class ColumnAccessModel implements Query {
             TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(
                     columnDefinition.modelType);
             if (typeConverterDefinition == null) {
-                manager.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                                                   String.format("No Type Converter found for %1s",
-                                                                 columnDefinition.modelType));
+                manager.getMessager()
+                        .printMessage(Diagnostic.Kind.ERROR,
+                                      String.format("No Type Converter found for %1s",
+                                                    columnDefinition.modelType));
             } else {
-                newFieldType = typeConverterDefinition.getDbElement().asType().toString();
+                newFieldType = typeConverterDefinition.getDbElement()
+                        .asType()
+                        .toString();
             }
         } else {
             newFieldType = columnDefinition.columnFieldType;
         }
 
         if (isModelContainerAdapter) {
-            if (columnDefinition.element.asType().getKind().isPrimitive() && !requiresTypeConverter) {
-                newFieldType = manager.getTypeUtils().boxedClass(
-                        (PrimitiveType) columnDefinition.element.asType()).asType().toString();
+            if (columnDefinition.element.asType()
+                        .getKind()
+                        .isPrimitive() && !requiresTypeConverter) {
+                newFieldType = manager.getTypeUtils()
+                        .boxedClass(
+                                (PrimitiveType) columnDefinition.element.asType())
+                        .asType()
+                        .toString();
             }
         }
         castedClass = newFieldType;
         isABlob = columnDefinition.isBlob;
-        isPrimitive = columnDefinition.element.asType().getKind().isPrimitive();
+        isPrimitive = columnDefinition.element.asType()
+                .getKind()
+                .isPrimitive();
 
-        if(isPrimitive) {
-            columnFieldBoxedType = manager.getTypeUtils().boxedClass((PrimitiveType) columnDefinition.element.asType()).asType().toString();
+        if (isPrimitive) {
+            columnFieldBoxedType = manager.getTypeUtils()
+                    .boxedClass((PrimitiveType) columnDefinition.element.asType())
+                    .asType()
+                    .toString();
         } else {
             columnFieldBoxedType = columnFieldActualType;
         }
@@ -126,7 +145,8 @@ public class ColumnAccessModel implements Query {
         TypeMirror castClass = ModelUtils.getTypeMirrorFromAnnotation(foreignKeyReference);
         castedClass = castClass.toString();
         isABlob = false;
-        isPrimitive = castClass.getKind().isPrimitive();
+        isPrimitive = castClass.getKind()
+                .isPrimitive();
         columnFieldBoxedType = columnFieldActualType;
     }
 
@@ -149,7 +169,8 @@ public class ColumnAccessModel implements Query {
                 contentValue.append("(");
             }
         }
-        contentValue.appendVariable(isModelContainerAdapter).append(".");
+        contentValue.appendVariable(isModelContainerAdapter)
+                .append(".");
         if (isModelContainerAdapter) {
             contentValue.appendGetValue(containerKeyName);
         } else if (fieldIsAModelContainer) {
@@ -175,25 +196,35 @@ public class ColumnAccessModel implements Query {
     }
 
     private String getPrivateGetterMethodName() {
-        String newName =
-                referencedColumnFieldName.substring(0, 1).toUpperCase() +
-                (referencedColumnFieldName.length() > 1 ? referencedColumnFieldName.substring(1) : "");
-        return "get" + newName + "()";
+        if (getterName == null || getterName.length() > 0) {
+            String newName =
+                    referencedColumnFieldName.substring(0, 1)
+                            .toUpperCase() +
+                    (referencedColumnFieldName.length() > 1 ? referencedColumnFieldName.substring(1) : "");
+            return "get" + newName + "()";
+        } else {
+            return "get" + getterName + "()";
+        }
     }
 
     private String getPrivateSetterMethodName() {
-        String newName =
-                referencedColumnFieldName.substring(0, 1).toUpperCase() +
-                (referencedColumnFieldName.length() > 1 ? referencedColumnFieldName.substring(1) : "");
-        return "set" + newName + "(";
+        if (setterName == null || setterName.length() > 0) {
+            String newName =
+                    referencedColumnFieldName.substring(0, 1)
+                            .toUpperCase() +
+                    (referencedColumnFieldName.length() > 1 ? referencedColumnFieldName.substring(1) : "");
+            return "set" + newName + "(";
+        } else {
+            return "set" + setterName + "(";
+        }
     }
 
     public String getReferencedColumnFieldName() {
-        return  isPrivate ? getPrivateGetterMethodName() : referencedColumnFieldName;
+        return isPrivate ? getPrivateGetterMethodName() : referencedColumnFieldName;
     }
 
     public String getSetterReferenceColumnFieldName() {
-        return  isPrivate ? getPrivateSetterMethodName() : referencedColumnFieldName;
+        return isPrivate ? getPrivateSetterMethodName() : referencedColumnFieldName;
     }
 
     public String getCastedClass() {

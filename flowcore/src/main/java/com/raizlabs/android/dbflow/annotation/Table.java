@@ -54,4 +54,5 @@ public @interface Table {
      */
     InheritedColumn[] inheritedColumns() default {};
 
+
 }
