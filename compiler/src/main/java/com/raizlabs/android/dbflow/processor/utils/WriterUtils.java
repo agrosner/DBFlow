@@ -6,10 +6,7 @@ import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.lang.model.element.Modifier;
 
@@ -73,4 +70,5 @@ public class WriterUtils {
         }
         return success;
     }
+
 }
