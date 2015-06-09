@@ -40,6 +40,16 @@ public class Condition extends BaseCondition {
     }
 
     /**
+     * @param functionName The name of the function to call as the {@link Condition#column(ColumnAlias)}
+     * @param columnNames  The name of columns to use as parameters to the specified function.
+     * @return Creates a new instance with function name that quotes the specified columns.
+     * EX: date(`myColumn`)=1433872730 -> Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
+     */
+    public static Condition columnsWithFunction(String function, String...columnNames) {
+        return new Condition(ColumnAlias.columnsWithFunction(function, columnNames));
+    }
+
+    /**
      * Constructs instance with the specified {@link ColumnAlias} to enable or disable back ticks on the name.
      *
      * @param columnAlias The alias to use.
