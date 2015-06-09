@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     }
 
     private ModelClass model;
-    private OnModelChangedListener onModelChangedListener;
+    private WeakReference<OnModelChangedListener> onModelChangedListener;
 
     AsyncModel(ModelClass referenceModel) {
         model = referenceModel;
@@ -43,7 +44,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
      * @return This instance.
      */
     public AsyncModel<ModelClass> withListener(OnModelChangedListener onModelChangedListener) {
-        this.onModelChangedListener = onModelChangedListener;
+        this.onModelChangedListener = new WeakReference<>(onModelChangedListener);
         return this;
     }
 
@@ -51,28 +52,24 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     public void save() {
         TransactionManager.getInstance()
                 .addTransaction(new SaveModelTransaction<>(getProcessModelInfoInternal()));
-        onModelChangedListener = null;
     }
 
     @Override
     public void delete() {
         TransactionManager.getInstance()
                 .addTransaction(new DeleteModelListTransaction<>(getProcessModelInfoInternal()));
-        onModelChangedListener = null;
     }
 
     @Override
     public void update() {
         TransactionManager.getInstance()
                 .addTransaction(new UpdateModelListTransaction<>(getProcessModelInfoInternal()));
-        onModelChangedListener = null;
     }
 
     @Override
     public void insert() {
         TransactionManager.getInstance()
                 .addTransaction(new InsertModelTransaction<>(getProcessModelInfoInternal()));
-        onModelChangedListener = null;
     }
 
     private ProcessModelInfo<ModelClass> getProcessModelInfoInternal() {
@@ -87,8 +84,8 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     private final TransactionListener<List<ModelClass>> internalListener = new TransactionListener<List<ModelClass>>() {
         @Override
         public void onResultReceived(List<ModelClass> result) {
-            if (onModelChangedListener != null) {
-                onModelChangedListener.onModelChanged(model);
+            if (onModelChangedListener != null && onModelChangedListener.get() != null) {
+                onModelChangedListener.get().onModelChanged(model);
             }
         }
 
