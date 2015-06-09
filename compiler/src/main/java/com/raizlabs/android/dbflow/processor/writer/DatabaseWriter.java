@@ -5,26 +5,21 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
-import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
-import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
-import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
-import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
-import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.*;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.squareup.javawriter.JavaWriter;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
+import java.util.regex.Pattern;
 
 /**
  * Description: Writes {@link com.raizlabs.android.dbflow.annotation.Database} definitions,
@@ -60,8 +55,9 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
         }
-        if (!WriterUtils.isValidJavaClassName(databaseName)) {
-            throw new Error("Database name [ " + databaseName + " ] is not valid. It must not be any of Java keywords and must pass [A-Za-z_$]+[a-zA-Z0-9_$]* regex.");
+        if (!isValidDatabaseName(databaseName)) {
+            throw new Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
+                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
         }
 
         sqliteOpenHelperClass = ProcessorUtils.getOpenHelperClass(database);
@@ -234,5 +230,21 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     }
 
-
+    /**
+     * <p>Checks if databaseName is valid. It will check if databaseName matches regex pattern [A-Za-z_$]+[a-zA-Z0-9_$]*</p>
+     * Examples:
+     * <ul>
+     *     <li>database - valid</li>
+     *     <li>DbFlow1 - valid</li>
+     *     <li>database.db - invalid (contains a dot)</li>
+     *     <li>1database - invalid (starts with a number)</li>
+     * </ul>
+     *
+     * @param databaseName database name to validate.
+     * @return {@code true} if parameter is a valid database name, {@code false} otherwise.
+     */
+    private static boolean isValidDatabaseName(final String databaseName) {
+        final Pattern javaClassNamePattern = Pattern.compile("[A-Za-z_$]+[a-zA-Z0-9_$]*");
+        return javaClassNamePattern.matcher(databaseName).matches();
+    }
 }
