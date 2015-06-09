@@ -18,10 +18,12 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
 
         if (columnDefinition.columnName == null || columnDefinition.columnName.isEmpty()) {
             success = false;
-            processorManager.logError("Field %1s cannot have a null column name", columnDefinition.columnFieldName);
+            processorManager.logError("Field %1s cannot have a null column name for column: %1s and type: %1s",
+                                      columnDefinition.columnFieldName, columnDefinition.columnName,
+                                      columnDefinition.columnFieldType);
         }
 
-        if(columnDefinition.columnFieldIsPrimitive) {
+        if (columnDefinition.columnFieldIsPrimitive) {
 
         }
 
@@ -29,29 +31,35 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
             ForeignKeyReference[] references = columnDefinition.foreignKeyReferences;
             if (references == null || references.length == 0) {
                 success = false;
-                processorManager.logError("Foreign Key for field %1s is missing it's references.",
-                                          columnDefinition.columnFieldName);
+                processorManager.logError(
+                        "Foreign Key for field %1s is missing it's references. Column: %1s and type: %1s",
+                        columnDefinition.columnFieldName, columnDefinition.columnName,
+                        columnDefinition.columnFieldType);
             }
 
-            if (columnDefinition.column.name().length() > 0) {
+            if (columnDefinition.column.name()
+                        .length() > 0) {
                 success = false;
                 processorManager.logError("Foreign Key %1s cannot specify the column() field. " +
-                                          "Use a @ForeignKeyReference(columnName = {NAME} instead",
-                                          columnDefinition.columnFieldName);
+                                          "Use a @ForeignKeyReference(columnName = {NAME} instead. Column: %1s and type: %1s",
+                                          columnDefinition.columnFieldName, columnDefinition.columnName,
+                                          columnDefinition.columnFieldType);
             }
 
             if (references != null && references.length > 1 &&
                 (!columnDefinition.isModel && !columnDefinition.fieldIsModelContainer)) {
                 success = false;
-                processorManager.logError("IsModel:" + columnDefinition.isModel + " isModelContainer:" + columnDefinition.fieldIsModelContainer);
-                processorManager.logError("Foreign key %1s cannot specify more than 1 reference for a non-model field.",
-                                          columnDefinition.columnFieldName);
+                processorManager.logError(
+                        "Foreign key %1s cannot specify more than 1 reference for a non-model field. Column: %1s and type: %1s",
+                        columnDefinition.columnFieldName, columnDefinition.columnName,
+                        columnDefinition.columnFieldType);
             }
 
         } else if (!columnDefinition.isPrimaryKey && !columnDefinition.isPrimaryKeyAutoIncrement) {
             if (columnDefinition.foreignKeyReferences != null) {
-                processorManager.logError("A non-foreign key field %1s defines references.",
-                                          columnDefinition.columnFieldName);
+                processorManager.logError("A non-foreign key field %1s defines references. Column: %1s and type: %1s",
+                                          columnDefinition.columnFieldName, columnDefinition.columnName,
+                                          columnDefinition.columnFieldType);
                 success = false;
             }
         } else {
@@ -59,12 +67,10 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                 processorManager.logError("You cannot mix and match autoincrementing and composite primary keys.");
                 success = false;
             }
-            if (columnDefinition.foreignKeyReferences != null) {
-                processorManager.logError("A non-foreign key field %1s defines references.",
-                                          columnDefinition.columnFieldName);
-                success = false;
-            } else if (columnDefinition.isModel) {
-                processorManager.logError("Primary keys cannot be Model objects");
+
+            if (columnDefinition.isModel) {
+                processorManager.logError("Primary keys cannot be Model objects for Column: %1s and type: %1s",
+                                          columnDefinition.columnName, columnDefinition.columnFieldType);
                 success = false;
             }
 
@@ -72,14 +78,18 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                 if (autoIncrementingPrimaryKey == null) {
                     autoIncrementingPrimaryKey = columnDefinition;
                 } else if (!autoIncrementingPrimaryKey.equals(columnDefinition)) {
-                    processorManager.logError("Only one autoincrementing primary key is allowed on table");
+                    processorManager.logError(
+                            "Only one autoincrementing primary key is allowed on a table. Found Column: %1s and type: %1s",
+                            columnDefinition.columnName, columnDefinition.columnFieldType);
                     success = false;
                 }
             }
         }
 
         if (!columnDefinition.isForeignKey && (columnDefinition.isModel || columnDefinition.fieldIsModelContainer)) {
-            processorManager.logError("A Model or ModelContainer field must be a Column.FOREIGN_KEY_REFERENCE");
+            processorManager.logError(
+                    "A Model or ModelContainer field must be a @ForeignKeyReference. Found Column: %1s and type: %1s",
+                    columnDefinition.columnName, columnDefinition.columnFieldType);
         }
 
         return success;
