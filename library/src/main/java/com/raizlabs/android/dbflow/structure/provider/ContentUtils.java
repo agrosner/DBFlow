@@ -255,7 +255,10 @@ public class ContentUtils {
                                                                         ConditionQueryBuilder<TableClass> whereConditions,
                                                                         String orderBy, String... columns) {
         Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
-        return SqlUtils.convertToList(table, cursor);
+	    List<TableClass> list = SqlUtils.convertToList(table, cursor);
+	    cursor.close();
+
+        return list;
     }
 
     /**
