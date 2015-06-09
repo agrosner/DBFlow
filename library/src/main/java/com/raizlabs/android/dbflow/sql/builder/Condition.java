@@ -174,6 +174,17 @@ public class Condition extends BaseCondition {
     }
 
     /**
+     * Assigns operation to ">="
+     *
+     * @param value The value of the column in the DB
+     * @return This condition
+     */
+    public Condition greaterThanOrEq(Object value) {
+        operation = Operation.GREATER_THAN_OR_EQUALS;
+        return value(value);
+    }
+
+    /**
      * Assigns operation to "<"
      *
      * @param value The value of the column in the DB
@@ -181,6 +192,17 @@ public class Condition extends BaseCondition {
      */
     public Condition lessThan(Object value) {
         operation = Operation.LESS_THAN;
+        return value(value);
+    }
+
+    /**
+     * Assigns operation to "<="
+     *
+     * @param value The value of the column in the DB
+     * @return This condition
+     */
+    public Condition lessThanOrEq(Object value) {
+        operation = Operation.LESS_THAN_OR_EQUALS;
         return value(value);
     }
 
@@ -373,9 +395,19 @@ public class Condition extends BaseCondition {
         public static final String GREATER_THAN = ">";
 
         /**
+         * Greater than or equals to some value comparison
+         */
+        public static final String GREATER_THAN_OR_EQUALS = ">=";
+
+        /**
          * Less than some value comparison
          */
         public static final String LESS_THAN = "<";
+
+        /**
+         * Less than or equals to some value comparison
+         */
+        public static final String LESS_THAN_OR_EQUALS = "<=";
 
         /**
          * Between comparison. A simplification of X<Y AND Y<Z to Y BETWEEN X AND Z
