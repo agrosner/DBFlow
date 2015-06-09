@@ -34,4 +34,16 @@ public @interface Column {
      */
     String defaultValue() default "";
 
+    /**
+     * @return If private, by default this is get{Name}() for "name". To define a custom one, this method specifies the name
+     * of the method only, and not any specific params. So for "getAnotherName()" you would use "AnotherName" as the param.
+     */
+    String getterName() default "";
+
+    /**
+     * @return If private, by default this is set{Name}() for "name". To define a custom one, this method specifies the name
+     * of the method only, and not any specific params. So for "setAnotherName(String name)" you would use "AnotherName" as the param.
+     * The params must align exactly to an expected setter, otherwise a compile error ensues.
+     */
+    String setterName() default "";
 }

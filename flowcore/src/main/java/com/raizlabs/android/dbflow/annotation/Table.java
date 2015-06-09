@@ -48,4 +48,10 @@ public @interface Table {
      */
     UniqueGroup[] uniqueColumnGroups() default {};
 
+    /**
+     * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.
+     * Each must be accessible via: public, package private, protected, or via getter/setter private fields.
+     */
+    InheritedColumn[] inheritedColumns() default {};
+
 }
