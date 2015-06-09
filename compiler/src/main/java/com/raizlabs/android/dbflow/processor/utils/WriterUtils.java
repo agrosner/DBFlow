@@ -5,9 +5,13 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
-import javax.lang.model.element.Modifier;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.lang.model.element.Modifier;
 
 /**
  * Description: Provides some handy writing methods.
