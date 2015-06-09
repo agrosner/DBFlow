@@ -133,6 +133,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
         javaWriter.emitPackage(packageName);
         javaWriter.emitImports(Classes.QUERY_MODEL_ADAPTER,
+                               Classes.FLOW_MANAGER,
                                Classes.CURSOR
         );
         javaWriter.emitSingleLineComment("This table belongs to the %1s database", databaseName);
