@@ -4,8 +4,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -46,12 +46,12 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     }
 
     /**
-     * This will append a SET columnName = value to this migration. It will execute each of these in succession with the order
+     * This will append a condition to this migration. It will execute each of these in succession with the order
      * that this is called.
      *
-     * @param conditions The condition to append
+     * @param conditions The conditions to append
      */
-    public UpdateTableMigration<ModelClass> set(Condition... conditions) {
+    public UpdateTableMigration<ModelClass> set(SQLCondition... conditions) {
         if (setConditionQueryBuilder == null) {
             setConditionQueryBuilder = new ConditionQueryBuilder<>(table);
         }
@@ -60,7 +60,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         return this;
     }
 
-    public UpdateTableMigration<ModelClass> where(Condition... conditions) {
+    public UpdateTableMigration<ModelClass> where(SQLCondition... conditions) {
         if (whereConditionQueryBuilder == null) {
             whereConditionQueryBuilder = new ConditionQueryBuilder<>(table);
         }
