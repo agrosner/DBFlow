@@ -78,7 +78,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     public Map<String, ColumnDefinition> mColumnMap = Maps.newHashMap();
 
-    public Map<Integer, List<ColumnDefinition>> mColumnUniqueMap = Maps.newHashMap();
+    public Map<Integer, List<ColumnDefinition>> columnUniqueMap = Maps.newHashMap();
 
     public Map<Integer, UniqueGroup> uniqueGroupMap = Maps.newHashMap();
 
@@ -210,10 +210,10 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                     if (!columnDefinition.uniqueGroups.isEmpty()) {
                         List<Integer> groups = columnDefinition.uniqueGroups;
                         for (int group : groups) {
-                            List<ColumnDefinition> groupList = mColumnUniqueMap.get(group);
+                            List<ColumnDefinition> groupList = columnUniqueMap.get(group);
                             if (groupList == null) {
                                 groupList = new ArrayList<>();
-                                mColumnUniqueMap.put(group, groupList);
+                                columnUniqueMap.put(group, groupList);
                             }
                             if (!groupList.contains(columnDefinition)) {
                                 groupList.add(columnDefinition);

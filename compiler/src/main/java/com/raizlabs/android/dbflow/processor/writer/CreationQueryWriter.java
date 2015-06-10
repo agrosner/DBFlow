@@ -86,7 +86,7 @@ public class CreationQueryWriter implements FlowWriter {
                 // Views do not have primary keys
                 if (!isModelView) {
 
-                    Map<Integer, List<ColumnDefinition>> uniqueGroups = tableDefinition.mColumnUniqueMap;
+                    Map<Integer, List<ColumnDefinition>> uniqueGroups = tableDefinition.columnUniqueMap;
                     if (!uniqueGroups.isEmpty()) {
                         Set<Integer> groupSet = uniqueGroups.keySet();
                         for (Integer group : groupSet) {
