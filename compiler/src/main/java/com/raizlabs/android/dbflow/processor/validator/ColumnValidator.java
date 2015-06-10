@@ -23,8 +23,16 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                                       columnDefinition.columnFieldType);
         }
 
-        if (columnDefinition.columnFieldIsPrimitive) {
-
+        if (columnDefinition.isEnum) {
+            if (columnDefinition.isPrimaryKey) {
+                success = false;
+                processorManager.logError("Enums cannot be primary keys. Column: %1s and type: %1s", columnDefinition.columnName,
+                                          columnDefinition.columnFieldType);
+            } else if (columnDefinition.isForeignKey) {
+                success = false;
+                processorManager.logError("Enums cannot be foreign keys. Column: %1s and type: %1s", columnDefinition.columnName,
+                                          columnDefinition.columnFieldType);
+            }
         }
 
         if (columnDefinition.isForeignKey) {
