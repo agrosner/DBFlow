@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -59,6 +60,10 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         databaseName = database.name();
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
+        }
+        if (isValidDatabaseName(databaseName)) {
+            throw new Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
+                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
         }
 
         sqliteOpenHelperClass = ProcessorUtils.getOpenHelperClass(database);
@@ -231,5 +236,16 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     }
 
-
+    /**
+     * <p>Checks if databaseName is valid. It will check if databaseName matches regex pattern
+     * [A-Za-z_$]+[a-zA-Z0-9_$]*</p> Examples: <ul> <li>database - valid</li> <li>DbFlow1 - valid</li> <li>database.db -
+     * invalid (contains a dot)</li> <li>1database - invalid (starts with a number)</li> </ul>
+     *
+     * @param databaseName database name to validate.
+     * @return {@code true} if parameter is a valid database name, {@code false} otherwise.
+     */
+    private static boolean isValidDatabaseName(final String databaseName) {
+        final Pattern javaClassNamePattern = Pattern.compile("[A-Za-z_$]+[a-zA-Z0-9_$]*");
+        return javaClassNamePattern.matcher(databaseName).matches();
+    }
 }
