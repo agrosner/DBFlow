@@ -7,10 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Description: Holds onto {@link com.raizlabs.android.dbflow.annotation.ForeignKey} data so
- * the {@link com.raizlabs.android.dbflow.structure.Model} can lazy-load the foreign key data. Overrides
- * most {@link com.raizlabs.android.dbflow.structure.Model} methods to save the associated model data instead
- * of its actual underlying data, which in this case is just the primary keys. Any {@link com.raizlabs.android.dbflow.structure.Model}
+ * Description: Holds onto {@link com.raizlabs.android.dbflow.annotation.ForeignKey} data so the {@link
+ * com.raizlabs.android.dbflow.structure.Model} can lazy-load the foreign key data. Overrides most {@link
+ * com.raizlabs.android.dbflow.structure.Model} methods to save the associated model data instead of its actual
+ * underlying data, which in this case is just the primary keys. Any {@link com.raizlabs.android.dbflow.structure.Model}
  * method will force this object to load the referenced Model from the DB to interact with.
  */
 public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelContainer<ModelClass, Map<String, Object>> {
@@ -62,9 +62,8 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
      * @return the result of running a primary where query on the contained data.
      */
     public ModelClass load() {
-        if (model == null && data != null) {
-            model = new Select().from(modelAdapter.getModelClass())
-                    .where(modelContainerAdapter.getPrimaryModelWhere(this)).querySingle();
+        if(model == null && data != null) {
+            model = new Select().from(modelAdapter.getModelClass()).where(modelContainerAdapter.getPrimaryModelWhere(this)).querySingle();
         }
         return model;
     }

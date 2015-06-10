@@ -17,11 +17,11 @@ public class EnumModel extends BaseModel {
     public enum Difficulty {
         EASY,
         MEDIUM,
-        HARD;
+        HARD
     }
 
     @Column
-    @PrimaryKey
+    @PrimaryKey(autoincrement = true)
     long id;
 
     @Column
