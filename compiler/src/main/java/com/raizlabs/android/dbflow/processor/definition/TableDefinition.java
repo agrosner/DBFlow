@@ -193,10 +193,6 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                     !element.getModifiers().contains(Modifier.FINAL)));
                     inheritedColumnMap.containsKey(element.getSimpleName().toString());
 
-            if(!inheritedColumnMap.isEmpty()) {
-                manager.logError("ElementName:" + element.getSimpleName()
-                        .toString());
-            }
             if (element.getAnnotation(Column.class) != null || isValidColumn) {
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) element);
                 if (columnValidator.validate(manager, columnDefinition)) {

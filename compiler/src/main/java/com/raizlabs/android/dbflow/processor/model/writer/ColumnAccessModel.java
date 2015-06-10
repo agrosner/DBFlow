@@ -60,6 +60,8 @@ public class ColumnAccessModel implements Query {
 
     boolean isPrivate;
 
+    boolean isEnum;
+
     String setterName;
 
     String getterName;
@@ -80,12 +82,13 @@ public class ColumnAccessModel implements Query {
 
         this.isModelContainerAdapter = isModelContainerAdapter;
         requiresTypeConverter = columnDefinition.hasTypeConverter;
+        isEnum = columnDefinition.isEnum;
 
         // Normal field
         String newFieldType = null;
 
         // convert field type for what type converter reports
-        if (requiresTypeConverter) {
+        if (requiresTypeConverter && !isEnum) {
             TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(
                     columnDefinition.modelType);
             if (typeConverterDefinition == null) {
@@ -147,6 +150,7 @@ public class ColumnAccessModel implements Query {
         TypeMirror castClass = ModelUtils.getTypeMirrorFromAnnotation(foreignKeyReference);
         castedClass = castClass.toString();
         isABlob = false;
+        isEnum = false;
         isPrimitive = castClass.getKind()
                 .isPrimitive();
         columnFieldBoxedType = columnFieldActualType;

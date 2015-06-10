@@ -20,7 +20,6 @@ public class InheritorModel extends InheritedModel implements Model {
 
     private final ModelAdapter<InheritorModel> modelAdapter = FlowManager.getModelAdapter(InheritorModel.class);
 
-
     @Column
     @PrimaryKey
     String primary_key;

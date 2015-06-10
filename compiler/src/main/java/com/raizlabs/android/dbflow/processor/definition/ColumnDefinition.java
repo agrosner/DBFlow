@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -108,6 +109,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public boolean columnFieldIsPrimitive = false;
 
+    public boolean isEnum = false;
+
     public boolean isPrivate = false;
     public String setterName;
     public String getterName;
@@ -116,8 +119,9 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
-        isPrivate = element.getModifiers().contains(Modifier.PRIVATE);
-        if(isPrivate) {
+        isPrivate = element.getModifiers()
+                .contains(Modifier.PRIVATE);
+        if (isPrivate) {
             setterName = column.setterName();
             getterName = column.getterName();
         }
@@ -142,21 +146,30 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         }
 
         NotNull notNullAnno = element.getAnnotation(NotNull.class);
-        if(notNullAnno != null) {
+        if (notNullAnno != null) {
             notNull = true;
             onNullConflict = notNullAnno.onNullConflict();
         }
 
         if (column != null) {
-            this.columnName = column.name().equals("") ? element.getSimpleName().toString() : column.name();
+            this.columnName = column.name()
+                    .equals("") ? element.getSimpleName()
+                    .toString() : column.name();
             length = column.length();
-            collate = column.collate().equals(Collate.NONE) ? "" : column.collate().name();
+            collate = column.collate()
+                    .equals(Collate.NONE)
+                    ? ""
+                    : column.collate()
+                            .name();
             defaultValue = column.defaultValue();
         } else {
-            this.columnName = element.getSimpleName().toString();
+            this.columnName = element.getSimpleName()
+                    .toString();
         }
-        this.columnFieldName = element.getSimpleName().toString();
-        this.columnFieldType = element.asType().toString();
+        this.columnFieldName = element.getSimpleName()
+                .toString();
+        this.columnFieldType = element.asType()
+                .toString();
         this.columnFieldActualType = columnFieldType;
 
         ContainerKey containerKey = element.getAnnotation(ContainerKey.class);
@@ -166,17 +179,22 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             containerKeyName = columnName;
         }
 
-        this.columnFieldIsPrimitive = element.asType().getKind().isPrimitive();
+        this.columnFieldIsPrimitive = element.asType()
+                .getKind()
+                .isPrimitive();
         if (columnFieldIsPrimitive) {
-            this.modelType = processorManager.getTypeUtils().boxedClass((PrimitiveType) element.asType());
+            this.modelType = processorManager.getTypeUtils()
+                    .boxedClass((PrimitiveType) element.asType());
         } else {
             boolean isAModelContainer = false;
             DeclaredType declaredType = null;
             if (element.asType() instanceof DeclaredType) {
                 declaredType = (DeclaredType) element.asType();
-                isAModelContainer = !declaredType.getTypeArguments().isEmpty();
+                isAModelContainer = !declaredType.getTypeArguments()
+                        .isEmpty();
             } else if (element.asType() instanceof ArrayType) {
-                processorManager.getMessager().printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
+                processorManager.getMessager()
+                        .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
             }
 
             // TODO: not currently correctly supporting model containers as fields. Certainly is possible
@@ -184,11 +202,16 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 fieldIsModelContainer = true;
                 // TODO: hack for now
                 modelContainerType = columnFieldType;
-                this.modelType = (TypeElement) processorManager.getTypeUtils().asElement(
-                        declaredType.getTypeArguments().get(0));
-                columnFieldType = modelType.asType().toString();
+                this.modelType = (TypeElement) processorManager.getTypeUtils()
+                        .asElement(
+                                declaredType.getTypeArguments()
+                                        .get(0));
+                columnFieldType = modelType.asType()
+                        .toString();
             } else {
-                this.modelType = processorManager.getElements().getTypeElement(element.asType().toString());
+                this.modelType = processorManager.getElements()
+                        .getTypeElement(element.asType()
+                                                .toString());
             }
         }
 
@@ -226,6 +249,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             isBlob = true;
         }
 
+        isEnum = (modelType.getKind() == ElementKind.ENUM);
     }
 
     @Override
@@ -315,12 +339,16 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             }
 
         } else {
-
             String getType = columnFieldType;
-            boolean isPrimitive = element.asType().getKind().isPrimitive();
+            boolean isPrimitive = element.asType()
+                    .getKind()
+                    .isPrimitive();
             // Type converters can never be primitive except boolean
             if (isPrimitive) {
-                getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
+                getType = manager.getTypeUtils()
+                        .boxedClass((PrimitiveType) element.asType())
+                        .asType()
+                        .toString();
             }
 
             ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
@@ -329,7 +357,6 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             contentValueModel.setIndex(columnCount.intValue());
             contentValueModel.setDatabaseTypeName(getType);
             contentValueModel.write(javaWriter);
-
             columnCount.incrementAndGet();
         }
     }
@@ -368,7 +395,9 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                                                              conditionQueryBuilder);
 
                 AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder().appendVariable(false);
-                adapterQueryBuilder.append(".").append(columnFieldName).appendSpaceSeparated("=");
+                adapterQueryBuilder.append(".")
+                        .append(columnFieldName)
+                        .appendSpaceSeparated("=");
                 adapterQueryBuilder.append(rawConditionStatement);
                 javaWriter.emitStatement(adapterQueryBuilder.getQuery());
 
@@ -387,7 +416,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 String modelContainerName = "";
                 if (isModelContainerAdapter) {
-                    if(isModel) {
+                    if (isModel) {
                         modelContainerName = ModelUtils.getVariable(isModelContainerAdapter) + columnFieldName;
                         javaWriter.emitStatement(
                                 "ModelContainer %1s = %1s.getInstance(%1s.newDataInstance(), %1s.class)",
@@ -400,9 +429,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 } else if (fieldIsModelContainer) {
                     AdapterQueryBuilder containerBuilder =
                             new AdapterQueryBuilder().appendVariable(isModelContainerAdapter)
-                                    .append(".").append(columnFieldName)
+                                    .append(".")
+                                    .append(columnFieldName)
                                     .appendSpaceSeparated("=")
-                                    .append("new ").append(columnFieldActualType)
+                                    .append("new ")
+                                    .append(columnFieldActualType)
                                     .appendParenthesisEnclosed(ModelUtils.getFieldClass(columnFieldType));
                     javaWriter.emitStatement(containerBuilder.getQuery());
                 }
@@ -446,21 +477,31 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
         if (!isModel) {
             AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder("Object value");
-            adapterQueryBuilder.append(columnFieldName).appendSpaceSeparated("=")
-                    .appendVariable(true).append(".").appendGetValue(containerKeyName);
+            adapterQueryBuilder.append(columnFieldName)
+                    .appendSpaceSeparated("=")
+                    .appendVariable(true)
+                    .append(".")
+                    .appendGetValue(containerKeyName);
             javaWriter.emitStatement(adapterQueryBuilder.getQuery());
             javaWriter.beginControlFlow("if (value%1s != null) ", columnFieldName);
         }
 
 
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder();
-        queryBuilder.appendVariable(false).append(".").append(columnFieldName);
+        queryBuilder.appendVariable(false)
+                .append(".")
+                .append(columnFieldName);
         queryBuilder.appendSpaceSeparated("=");
 
         String getType = columnFieldType;
         // Type converters can never be primitive except boolean
-        if (element.asType().getKind().isPrimitive()) {
-            getType = manager.getTypeUtils().boxedClass((PrimitiveType) element.asType()).asType().toString();
+        if (element.asType()
+                .getKind()
+                .isPrimitive()) {
+            getType = manager.getTypeUtils()
+                    .boxedClass((PrimitiveType) element.asType())
+                    .asType()
+                    .toString();
         }
 
         queryBuilder.appendCast(fieldIsModelContainer ? modelContainerType : getType);
@@ -468,9 +509,14 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         if (isModel) {
             queryBuilder.appendVariable(true)
                     .append(".getInstance(");
-            queryBuilder.appendVariable(true).append(".").appendGetValue(containerKeyName);
-            queryBuilder.append(",").append(ModelUtils.getFieldClass(columnFieldType)).append(")").append(
-                    ".toModel())");
+            queryBuilder.appendVariable(true)
+                    .append(".")
+                    .appendGetValue(containerKeyName);
+            queryBuilder.append(",")
+                    .append(ModelUtils.getFieldClass(columnFieldType))
+                    .append(")")
+                    .append(
+                            ".toModel())");
         } else {
             queryBuilder.append(String.format("value%1s)", columnFieldName));
         }

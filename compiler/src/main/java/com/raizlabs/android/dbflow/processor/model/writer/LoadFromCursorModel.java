@@ -42,7 +42,7 @@ public class LoadFromCursorModel implements FlowWriter {
         javaWriter.emitStatement(ModelUtils.getColumnIndex(accessModel.foreignKeyLocalColumnName));
         String index = "index" + accessModel.foreignKeyLocalColumnName;
         javaWriter.beginControlFlow("if (%1s != -1) ", index);
-        if(isNullable) {
+        if (isNullable) {
             javaWriter.beginControlFlow("if (cursor.isNull(%1s))", index);
             emitColumnAssignment(javaWriter, "null");
             javaWriter.nextControlFlow("else");
@@ -56,7 +56,7 @@ public class LoadFromCursorModel implements FlowWriter {
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
-        if(isModelContainerAdapter) {
+        if (isModelContainerAdapter) {
             AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
             adapterQueryBuilder.append(modelContainerName)
                     .appendPut(accessModel.getReferencedColumnFieldName())
@@ -65,7 +65,11 @@ public class LoadFromCursorModel implements FlowWriter {
                     .append(")");
             javaWriter.emitStatement(adapterQueryBuilder.getQuery());
         } else {
-            String cursorStatment = ModelUtils.getCursorStatement(accessModel.castedClass,
+            String cursorStatementClass = accessModel.castedClass;
+            if (accessModel.isEnum) {
+                cursorStatementClass = String.class.getName();
+            }
+            String cursorStatment = ModelUtils.getCursorStatement(cursorStatementClass,
                                                                   accessModel.foreignKeyLocalColumnName);
             emitColumnAssignment(javaWriter, cursorStatment);
         }
@@ -77,33 +81,46 @@ public class LoadFromCursorModel implements FlowWriter {
         boolean isWritingForContainers = accessModel.fieldIsAModelContainer;
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isContainerFieldDefinition);
         if (isWritingForContainers) {
-            queryBuilder.append(".").append(accessModel.columnName);
+            queryBuilder.append(".")
+                    .append(accessModel.columnName);
         }
         if (isContainerFieldDefinition) {
             queryBuilder.appendPut(accessModel.containerKeyName);
         } else if (isWritingForContainers) {
             queryBuilder.appendPut(accessModel.getReferencedColumnFieldName());
         } else {
-            queryBuilder.append(".").append(accessModel.getSetterReferenceColumnFieldName());
-            if(!accessModel.isPrivate) {
+            queryBuilder.append(".")
+                    .append(accessModel.getSetterReferenceColumnFieldName());
+            if (!accessModel.isPrivate) {
                 queryBuilder.appendSpaceSeparated("=");
             }
         }
-        if (accessModel.requiresTypeConverter && !isContainerFieldDefinition) {
-            queryBuilder.appendTypeConverter(accessModel.columnFieldBoxedType, accessModel.columnFieldBoxedType, true);
-        } else if (accessModel.isABlob) {
-            queryBuilder.append(String.format("new %1s(", Blob.class.getName()));
+        if (accessModel.isEnum) {
+            // don't attempt to use valueOf on a null, will throw a NullPointerException
+            if (!valueStatement.equals("null")) {
+                queryBuilder.append(accessModel.castedClass)
+                        .append(".valueOf(");
+            }
+        } else {
+            if (accessModel.requiresTypeConverter && !isContainerFieldDefinition) {
+                queryBuilder.appendTypeConverter(accessModel.columnFieldBoxedType, accessModel.columnFieldBoxedType,
+                                                 true);
+            } else if (accessModel.isABlob) {
+                queryBuilder.append(String.format("new %1s(", Blob.class.getName()));
+            }
         }
 
         queryBuilder.append(valueStatement);
 
-        if (accessModel.requiresTypeConverter && !isContainerFieldDefinition) {
+        if (accessModel.requiresTypeConverter && !isContainerFieldDefinition && !accessModel.isEnum ||
+            (accessModel.isEnum && isContainerFieldDefinition && !valueStatement.equals("null"))) {
             queryBuilder.append("))");
-        } else if (isContainerFieldDefinition || isWritingForContainers || accessModel.isABlob) {
+        } else if (isContainerFieldDefinition || isWritingForContainers || accessModel.isABlob ||
+                   (accessModel.isEnum && !valueStatement.equals("null"))) {
             queryBuilder.append(")");
         }
 
-        if(accessModel.isPrivate) {
+        if (accessModel.isPrivate) {
             queryBuilder.append(")");
         }
 

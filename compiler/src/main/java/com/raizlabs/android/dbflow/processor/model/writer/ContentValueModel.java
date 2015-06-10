@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.model.writer;
 
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.sql.StatementMap;
 import com.squareup.javawriter.JavaWriter;
@@ -55,12 +56,14 @@ public class ContentValueModel implements FlowWriter {
         boolean nullCheck;
         if(!isContentValues) {
             String statement = StatementMap.getStatement(SQLiteType.get(accessModel.castedClass));
+            if(accessModel.isEnum) {
+                statement = StatementMap.getStatement(SQLiteType.TEXT);
+            }
             if (statement == null) {
-                throw new IOException(String.format("Writing insert statement failed for: %1s. A type converter" +
+                throw new RuntimeException(String.format("Writing insert statement failed for: %1s. A type converter" +
                                                     "must be defined for this type, or if this field is a Model, must be a foreign key definition.",
                                                     accessModel.castedClass));
             }
-            javaWriter.emitSingleLineComment("Column Boxed Type:" + accessModel.columnFieldBoxedType);
             nullCheck = (statement.equals("String") || statement.equals("Blob") ||
                                  accessModel.columnFieldBoxedType.equals(Boolean.class.getName())
                                  || !accessModel.isPrimitive || accessModel.isModelContainerAdapter);
@@ -75,11 +78,11 @@ public class ContentValueModel implements FlowWriter {
             if(separateVariableForNullCheck) {
                 AdapterQueryBuilder nullQueryBuilder = new AdapterQueryBuilder()
                         .append("Object model%1s = ");
-                if(accessModel.requiresTypeConverter) {
+                if(accessModel.requiresTypeConverter && !accessModel.isEnum) {
                     nullQueryBuilder.appendTypeConverter(null, databaseTypeName, false);
                 }
                 nullQueryBuilder.append(accessStatement);
-                if(accessModel.requiresTypeConverter) {
+                if(accessModel.requiresTypeConverter && !accessModel.isEnum) {
                     nullQueryBuilder.append(")");
                 }
                 javaWriter.emitStatement(nullQueryBuilder.getQuery(), accessModel.columnFieldName);
@@ -88,25 +91,35 @@ public class ContentValueModel implements FlowWriter {
                     ? ("model" + accessModel.columnFieldName) : accessStatement);
         }
 
+
         if (!isContentValues) {
-            contentValue.appendBindSQLiteStatement(index, accessModel.castedClass);
+            String bindTypeLookup = accessModel.castedClass;
+            // if enum we're treating it like a string
+            if(accessModel.isEnum) {
+                bindTypeLookup = String.class.getName();
+            }
+            contentValue.appendBindSQLiteStatement(index, bindTypeLookup);
         } else {
             contentValue.appendContentValues();
             contentValue.appendPut(putValue);
         }
 
         if(separateVariableForNullCheck) {
-            javaWriter.emitSingleLineComment("Appending null check variable");
             contentValue.appendCast(accessModel.castedClass)
                         .append(("model" + accessModel.columnFieldName));
         } else {
             contentValue.append(accessStatement);
         }
-        String query = contentValue.append(")").append(
+        QueryBuilder query = contentValue.append(")");
+
+        if (accessModel.isEnum) {
+            contentValue.append(".name()");
+        }
+        query.append(
                 separateVariableForNullCheck ? ")" : "").getQuery();
 
 
-        javaWriter.emitStatement(query);
+        javaWriter.emitStatement(query.getQuery());
 
         if (nullCheck) {
             javaWriter.nextControlFlow("else");

@@ -104,7 +104,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
     public long getAutoIncrementingId(ModelClass model) {
         throw new InvalidDBConfiguration(
                 String.format("This method may have been called in error. The model class %1s must contain" +
-                              "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                              "a single primary key (if used in a ModelCache, this method may be called)",
                               getModelClass()));
     }
 

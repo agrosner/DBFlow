@@ -61,7 +61,7 @@ public class CreationQueryWriter implements FlowWriter {
                         queryBuilder.appendQuoted(columnDefinition.columnName)
                                 .appendSpace();
 
-                        if (columnDefinition.hasTypeConverter) {
+                        if (columnDefinition.hasTypeConverter && !columnDefinition.isEnum) {
                             TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.modelType);
                             if (typeConverterDefinition != null) {
                                 queryBuilder.appendType(typeConverterDefinition.getDbElement().asType().toString());
@@ -71,7 +71,7 @@ public class CreationQueryWriter implements FlowWriter {
                             }
                         } else if (SQLiteType.containsClass(columnDefinition.columnFieldType)) {
                             queryBuilder.appendType(columnDefinition.columnFieldType);
-                        } else if (ProcessorUtils.isSubclassOf(columnDefinition.columnFieldType, Enum.class)) {
+                        } else if (columnDefinition.isEnum) {
                             queryBuilder.appendSQLiteType(SQLiteType.TEXT);
                         }
                     }
