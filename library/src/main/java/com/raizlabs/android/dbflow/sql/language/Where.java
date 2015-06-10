@@ -188,7 +188,8 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> groupBy(ColumnAlias... columns) {
-        mGroupBy = new QueryBuilder().appendArray(columns).getQuery();
+        mGroupBy = new QueryBuilder().appendArray(columns)
+                .getQuery();
         return this;
     }
 
@@ -199,7 +200,8 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> groupBy(String... columns) {
-        mGroupBy = new QueryBuilder().appendArray(columns).getQuery();
+        mGroupBy = new QueryBuilder().appendArray(columns)
+                .getQuery();
         return this;
     }
 
@@ -221,7 +223,10 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> orderBy(boolean ascending, String... columns) {
-        mOrderBy = new QueryBuilder().appendArray(columns).appendSpace().append(ascending ? "ASC" : "DESC").getQuery();
+        mOrderBy = new QueryBuilder().appendArray(columns)
+                .appendSpace()
+                .append(ascending ? "ASC" : "DESC")
+                .getQuery();
         return this;
     }
 
@@ -264,7 +269,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> exists(Where where) {
-        mConditionQueryBuilder.addCondition(Condition.exists().operation("").value(where));
+        mConditionQueryBuilder.addCondition(Condition.exists()
+                                                    .operation("")
+                                                    .value(where));
         return this;
     }
 
@@ -314,9 +321,11 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         Cursor cursor = null;
         String query = getQuery();
         if (mWhereBase.getQueryBuilderBase() instanceof Select) {
-            cursor = mManager.getWritableDatabase().rawQuery(query, null);
+            cursor = mManager.getWritableDatabase()
+                    .rawQuery(query, null);
         } else {
-            mManager.getWritableDatabase().execSQL(query);
+            mManager.getWritableDatabase()
+                    .execSQL(query);
         }
 
         return cursor;
@@ -348,13 +357,15 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Queries and returns only the first {@link ModelClass} result from the DB.
+     * Queries and returns only the first {@link ModelClass} result from the DB. Will enforce a limit of 1 item
+     * returned from the database.
      *
      * @return The first result of this query. Note: this query may return more than one from the DB.
      */
     @Override
     public ModelClass querySingle() {
         checkSelect("query");
+        limit(1);
         return super.querySingle();
     }
 

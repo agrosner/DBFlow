@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Description: Holds onto {@link com.raizlabs.android.dbflow.annotation.Column#FOREIGN_KEY} data so
+ * Description: Holds onto {@link com.raizlabs.android.dbflow.annotation.ForeignKey} data so
  * the {@link com.raizlabs.android.dbflow.structure.Model} can lazy-load the foreign key data. Overrides
  * most {@link com.raizlabs.android.dbflow.structure.Model} methods to save the associated model data instead
  * of its actual underlying data, which in this case is just the primary keys. Any {@link com.raizlabs.android.dbflow.structure.Model}
@@ -64,7 +64,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
     public ModelClass load() {
         if (model == null && data != null) {
             model = new Select().from(modelAdapter.getModelClass())
-                    .where(modelContainerAdapter.getPrimaryModelWhere(this)).limit(1).querySingle();
+                    .where(modelContainerAdapter.getPrimaryModelWhere(this)).querySingle();
         }
         return model;
     }
