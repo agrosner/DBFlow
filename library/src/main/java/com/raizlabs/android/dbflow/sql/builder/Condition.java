@@ -43,7 +43,7 @@ public class Condition extends BaseCondition {
      * @param function The name of the function to call as the {@link Condition#column(ColumnAlias)}
      * @param columnNames  The name of columns to use as parameters to the specified function.
      * @return Creates a new instance with function name that quotes the specified columns.
-     * EX: date(`myColumn`)=1433872730 -> Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
+     * EX: date(`myColumn`)=1433872730 -&gt; Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
      */
     public static Condition columnsWithFunction(String function, String...columnNames) {
         return new Condition(ColumnAlias.columnsWithFunction(function, columnNames));
@@ -53,7 +53,7 @@ public class Condition extends BaseCondition {
      * @param function The name of the function to call as the {@link Condition#column(ColumnAlias)}
      * @param columnAliases  The name of columns to use as parameters to the specified function.
      * @return Creates a new instance with function name that quotes the specified columns.
-     * EX: date(`myColumn`)=1433872730 -> Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
+     * EX: date(`myColumn`)=1433872730 -&gt; Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
      */
     public static Condition columnsWithFunction(String function, ColumnAlias...columnAliases) {
         return new Condition(ColumnAlias.columnsWithFunction(function, columnAliases));
@@ -183,7 +183,7 @@ public class Condition extends BaseCondition {
     }
 
     /**
-     * Assigns operation to ">"
+     * Assigns operation to "&gt;"
      *
      * @param value The value of the column in the DB
      * @return This condition
@@ -194,7 +194,7 @@ public class Condition extends BaseCondition {
     }
 
     /**
-     * Assigns operation to ">="
+     * Assigns operation to "&gt;="
      *
      * @param value The value of the column in the DB
      * @return This condition
@@ -205,7 +205,7 @@ public class Condition extends BaseCondition {
     }
 
     /**
-     * Assigns operation to "<"
+     * Assigns operation to "&lt;"
      *
      * @param value The value of the column in the DB
      * @return This condition
@@ -216,7 +216,7 @@ public class Condition extends BaseCondition {
     }
 
     /**
-     * Assigns operation to "<="
+     * Assigns operation to "&lt;="
      *
      * @param value The value of the column in the DB
      * @return This condition
@@ -430,7 +430,7 @@ public class Condition extends BaseCondition {
         public static final String LESS_THAN_OR_EQUALS = "<=";
 
         /**
-         * Between comparison. A simplification of X<Y AND Y<Z to Y BETWEEN X AND Z
+         * Between comparison. A simplification of X&lt;Y AND Y&lt;Z to Y BETWEEN X AND Z
          */
         public static final String BETWEEN = "BETWEEN";
 

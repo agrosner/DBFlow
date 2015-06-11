@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
 abstract class BaseCondition implements SQLCondition {
 
     /**
-     * The operation such as "=", "<", and more
+     * The operation such as "=", "&lt;", and more
      */
     protected String operation = "";
 
@@ -92,7 +92,7 @@ abstract class BaseCondition implements SQLCondition {
     }
 
     /**
-     * @return the operator such as "<", "<", or "="
+     * @return the operator such as "&lt;", "&gt;", or "="
      */
     public String operation() {
         return operation;

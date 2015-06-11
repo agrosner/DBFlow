@@ -32,7 +32,7 @@ public class Update<ModelClass extends Model> implements Query {
 
     /**
      * @return This instance.
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#ROLLBACK}
+     * @see ConflictAction#ROLLBACK
      */
     public Update orRollback() {
         return conflictAction(ConflictAction.ROLLBACK);
@@ -40,7 +40,7 @@ public class Update<ModelClass extends Model> implements Query {
 
     /**
      * @return This instance.
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#ABORT}
+     * @see ConflictAction#ABORT
      */
     public Update orAbort() {
         return conflictAction(ConflictAction.ABORT);
@@ -48,7 +48,7 @@ public class Update<ModelClass extends Model> implements Query {
 
     /**
      * @return This instance.
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#REPLACE}
+     * @see ConflictAction#REPLACE
      */
     public Update orReplace() {
         return conflictAction(ConflictAction.REPLACE);
@@ -56,7 +56,7 @@ public class Update<ModelClass extends Model> implements Query {
 
     /**
      * @return This instance.
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#FAIL}
+     * @see ConflictAction#FAIL
      */
     public Update orFail() {
         return conflictAction(ConflictAction.FAIL);
@@ -64,7 +64,7 @@ public class Update<ModelClass extends Model> implements Query {
 
     /**
      * @return This instance.
-     * @see {@link com.raizlabs.android.dbflow.annotation.ConflictAction#IGNORE}
+     * @see ConflictAction#IGNORE
      */
     public Update orIgnore() {
         return conflictAction(ConflictAction.IGNORE);

@@ -70,9 +70,7 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Returns the main queue.
-     *
-     * @return
+     * @return The main save queue.
      */
     public static DBBatchSaveQueue getSharedSaveQueue() {
         if (batchSaveQueue == null) {
@@ -102,10 +100,10 @@ public class DBBatchSaveQueue extends Thread {
     /**
      * Change the priority of the queue, add a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} for when saving is done
      *
-     * @param mSaveQueueInfo
+     * @param transactionInfo The information used for all batch save requests.
      */
-    public void setSaveQueueInfo(DBTransactionInfo mSaveQueueInfo) {
-        this.saveQueueInfo = mSaveQueueInfo;
+    public void setSaveQueueInfo(DBTransactionInfo transactionInfo) {
+        this.saveQueueInfo = transactionInfo;
     }
 
     /**
@@ -121,7 +119,7 @@ public class DBBatchSaveQueue extends Thread {
      * Sets how long, in millis that this queue will check for leftover {@link com.raizlabs.android.dbflow.structure.Model} that have not been saved yet.
      * The default is {@link #sMODEL_SAVE_CHECK_TIME}
      *
-     * @param time
+     * @param time The time, in millis that queue automatically checks for leftover {@link Model} in this queue.
      */
     public void setModelSaveCheckTime(long time) {
         this.modelSaveCheckTime = time;
@@ -131,7 +129,7 @@ public class DBBatchSaveQueue extends Thread {
      * If true, we will awaken the save queue from sleep when the internal {@link TransactionListener} realizes the count of {@link Model}
      * is smaller than the {@link #modelSaveSize}. Default is true.
      *
-     * @param purgeQueueWhenDone true to check every batch and if size < {@link #modelSaveSize} in the internal {@link TransactionListener}
+     * @param purgeQueueWhenDone true to check every batch and if size &lt; {@link #modelSaveSize} in the internal {@link TransactionListener}
      */
     public void setPurgeQueueWhenDone(boolean purgeQueueWhenDone) {
         this.purgeQueueWhenDone = purgeQueueWhenDone;
@@ -153,9 +151,9 @@ public class DBBatchSaveQueue extends Thread {
                 //onExecute this on the DBManager thread
                 TransactionManager.getInstance()
                         .addTransaction(new SaveModelTransaction<>(ProcessModelInfo
-                                                                           .withModels(tmpModels)
-                                                                           .result(internalListener)
-                                                                           .info(saveQueueInfo)));
+                                .withModels(tmpModels)
+                                .result(internalListener)
+                                .info(saveQueueInfo)));
             }
 
             try {

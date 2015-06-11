@@ -117,7 +117,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * Adds a param to the WHERE clause with a custom operator.
      *
      * @param columnName The name of column
-     * @param operator   The operator to use. Ex: "=", "<", etc.
+     * @param operator   The operator to use. Ex: "=", "&lt;", etc.
      * @param value      The value of the column
      * @return
      */
@@ -372,7 +372,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     /**
      * Returns whether the DB {@link android.database.Cursor} returns with a count of at least 1
      *
-     * @return if {@link android.database.Cursor}.count > 0
+     * @return if {@link android.database.Cursor}.count &lt; 0
      */
     public boolean hasData() {
         checkSelect("query");

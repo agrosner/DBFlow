@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
  * Description: The basic request object that's placed on the DBRequestQueue for processing.
  * The {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} uses a priority queue that will process
  * this class based on the priority assigned to it.
- * <p/>
+ * <p></p>
  * There are four main kinds of requests:
  * For requests that require UI or immediate retrieval, use PRIORITY_UI.
  * For requests that are displayed in the UI some point in the near future, use PRIORITY_HIGH.

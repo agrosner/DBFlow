@@ -321,7 +321,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Appends a condition to this map. It will take the value and see if a {@link com.raizlabs.android.dbflow.converter.TypeConverter}
+     * Appends a condition to this map. It will take the value and see if a {@link TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      * EX: columnName = value
      *
@@ -334,11 +334,11 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Appends a condition to this map. It will take the value and see if a {@link com.raizlabs.android.dbflow.converter.TypeConverter}
+     * Appends a condition to this map. It will take the value and see if a {@link TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
      * @param columnName The name of the column in the DB
-     * @param operator   The operator to use "=", "<", etc.
+     * @param operator   The operator to use "=", "&lt;", etc.
      * @param value      The value of the column we are looking for
      * @return
      */
@@ -352,7 +352,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Appends a condition to this map. It will take the value and see if a {@link com.raizlabs.android.dbflow.converter.TypeConverter}
+     * Appends a condition to this map. It will take the value and see if a {@link TypeConverter}
      * exists for the field. If so, we convert it to the database value. Also if the value is a string, we escape the string.
      *
      * @param condition The condition to append
@@ -366,7 +366,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
 
     /**
      * Appends all the parameters from the specified list
-     * <p/>
+     * <p></p>
      *
      * @param params The list of conditions
      * @return This instance
@@ -419,7 +419,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     /**
      * This will append all the primary key names with empty params from the underlying {@link com.raizlabs.android.dbflow.structure.ModelAdapter}.
      * Ex: name = ?, columnName = ?
-     * <p/>
+     * <p></p>
      * This method is deprecated, it is faulty because we append the {@link com.raizlabs.android.dbflow.structure.ModelAdapter} primary where
      * query for it without regard for if the query has already other data within it.
      *

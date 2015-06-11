@@ -79,7 +79,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
 
     /**
      * Call this to rename a table to a new name, such as changing either the {@link com.raizlabs.android.dbflow.structure.Model} class name
-     * or by changing the name through a {@link com.raizlabs.android.dbflow.structure.Table}
+     * or by changing the name through a {@link com.raizlabs.android.dbflow.annotation.Table}
      *
      * @param oldName The new name to call the table.
      * @return This instance

@@ -5,10 +5,9 @@ import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import java.util.UUID;
 
 /**
- * Created by andrewgrosner
- * Date: 2/2/14
- * Contributors:
- * Description: Holds information related to a {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction}
+ * Description: Describes a {@link BaseTransaction} request on the {@link DBTransactionQueue}. It provides
+ * information about it's priority and debug logging name. The priority it has determines the order
+ * it executes when the {@link DBTransactionQueue} is flooded with separate requests.
  */
 public class DBTransactionInfo {
 
@@ -22,8 +21,8 @@ public class DBTransactionInfo {
     /**
      * Creates with a name and default {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction#PRIORITY_NORMAL}
      *
-     * @param name
-     * @return
+     * @param name The name of the transaction, used in logging only.
+     * @return A new instance
      */
     public static DBTransactionInfo create(String name) {
         return create(name, BaseTransaction.PRIORITY_NORMAL);
@@ -34,7 +33,7 @@ public class DBTransactionInfo {
      *
      * @param name     Name of the request (for debugging)
      * @param priority The priority it should be run on from {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction}
-     * @return
+     * @return A new instance.
      */
     public static DBTransactionInfo create(String name, int priority) {
         DBTransactionInfo requestInfo = new DBTransactionInfo();
@@ -46,8 +45,8 @@ public class DBTransactionInfo {
     /**
      * Creates with a priority and name generated from {@link java.util.UUID#randomUUID()}
      *
-     * @param priority
-     * @return
+     * @param priority The priority it should be run on from {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction}
+     * @return A new instance.
      */
     public static DBTransactionInfo create(int priority) {
         DBTransactionInfo requestInfo = new DBTransactionInfo();
@@ -60,8 +59,7 @@ public class DBTransactionInfo {
      * Creates with a priority and name generated from {@link java.util.UUID#randomUUID()}
      * and {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction#PRIORITY_LOW}
      *
-     * @param priority
-     * @return
+     * @return A new instance.
      */
     public static DBTransactionInfo create() {
         DBTransactionInfo requestInfo = new DBTransactionInfo();
@@ -71,9 +69,8 @@ public class DBTransactionInfo {
     }
 
     /**
-     * Returns a prefilled, fetch request
-     *
-     * @return
+     * @return A prefilled, fetch request with {@link BaseTransaction#PRIORITY_UI} for almost immediate
+     * response time from the {@link DBTransactionQueue}.
      */
     public static DBTransactionInfo createFetch() {
         DBTransactionInfo requestInfo = new DBTransactionInfo();
@@ -83,10 +80,8 @@ public class DBTransactionInfo {
     }
 
     /**
-     * Returns a prefilled, save request. Default is {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction#PRIORITY_NORMAL}
+     * @return A pre-filled, save request. Default is {@link com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction#PRIORITY_NORMAL}
      * since we generally don't need to know right away that it has been saved.
-     *
-     * @return
      */
     public static DBTransactionInfo createSave() {
         DBTransactionInfo requestInfo = new DBTransactionInfo();

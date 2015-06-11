@@ -6,9 +6,11 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
+import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
@@ -23,8 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Author: andrewgrosner
- * Description: Holds information about the database and wraps some of the methods.
+ * Description: The main entry point into the generated database code. It uses reflection to look up
+ * and construct the generated database holder class used in defining the structure for all databases
+ * used in this application.
  */
 public class FlowManager {
 
@@ -63,20 +66,20 @@ public class FlowManager {
         BaseDatabaseDefinition databaseDefinition = getDatabase(databaseName);
         if (databaseDefinition == null) {
             throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
-                                                             "Did you forget to add the @Database?", databaseName));
+                    "Did you forget to add the @Database?", databaseName));
         }
         Class<? extends Model> modelClass = databaseDefinition.getModelClassForName(tableName);
         if (modelClass == null) {
             throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
-                                                             "Did you forget to add the @Table annotation and point it to %1s?",
-                                                             tableName, databaseName));
+                            "Did you forget to add the @Table annotation and point it to %1s?",
+                    tableName, databaseName));
         }
         return modelClass;
     }
 
     /**
      * @param table The table to lookup the database for.
-     * @returnthe corresponding {@link com.raizlabs.android.dbflow.config.BaseDatabaseDefinition} for the specified model
+     * @return the corresponding {@link com.raizlabs.android.dbflow.config.BaseDatabaseDefinition} for the specified model
      */
     public static BaseDatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
         getDatabaseHolder();
@@ -84,7 +87,7 @@ public class FlowManager {
         BaseDatabaseDefinition flowManager = mDatabaseHolder.getDatabaseForTable(table);
         if (flowManager == null) {
             throw new InvalidDBConfiguration("Table: " + table.getName() + " is not registered with a Database. " +
-                                             "Did you forget the @Table annotation?");
+                    "Did you forget the @Table annotation?");
         }
         return flowManager;
     }
@@ -99,7 +102,7 @@ public class FlowManager {
         BaseDatabaseDefinition database = mDatabaseHolder.getDatabase(databaseName);
         if (database == null) {
             throw new InvalidDBConfiguration("The specified database" + databaseName + " was not found. " +
-                                             "Did you forget the @Database annotation?");
+                    "Did you forget the @Database annotation?");
         }
         return database;
     }
@@ -166,11 +169,9 @@ public class FlowManager {
     }
 
     /**
-     * Returns the specific {@link com.raizlabs.android.dbflow.converter.TypeConverter} for the specified class. It defines
-     * how the class is stored in the DB
-     *
      * @param objectClass A class with an associated type converter. May return null if not found.
-     * @return
+     * @return The specific {@link com.raizlabs.android.dbflow.converter.TypeConverter} for the specified class. It defines
+     * how the custom datatype is handled going into and out of the DB.
      */
     public static TypeConverter getTypeConverterForClass(Class<?> objectClass) {
         return mDatabaseHolder.getTypeConverterForClass(objectClass);
@@ -207,11 +208,11 @@ public class FlowManager {
     }
 
     /**
-     * Returns the model adapter for the specified table. Used in loading and modifying the model class.
-     *
      * @param modelClass   The class of the table
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
-     * @return
+     * @return The associated model adapter (DAO) that is generated from a {@link Table} class. Handles
+     * interactions with the database. This method is meant for internal usage only.
+     * We strongly prefer you use the built-in methods associated with {@link Model} and {@link BaseModel}.
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ModelAdapter<ModelClass> getModelAdapter(Class<ModelClass> modelClass) {

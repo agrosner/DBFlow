@@ -35,7 +35,7 @@ public class ColumnAlias implements Query {
      * @param functionName The name of the function to call as the {@link Condition#column(ColumnAlias)}
      * @param columnNames  The name of columns to use as parameters to the specified function.
      * @return Creates a new instance with function name that quotes the specified columns.
-     * EX: date(`myColumn`) -> ColumnAlias.columnsWithFunction("date", "myColumn")
+     * EX: date(`myColumn`) -&gt; ColumnAlias.columnsWithFunction("date", "myColumn")
      */
     public static ColumnAlias columnsWithFunction(String functionName, String... columnNames) {
         return columnRaw(functionName + "(" + QueryBuilder.join("`, `", columnNames) + ")");
@@ -45,7 +45,7 @@ public class ColumnAlias implements Query {
      * @param functionName  The name of the function to call as the {@link Condition#column(ColumnAlias)}
      * @param columnAliases The alias' of columns to use as parameters to the specified function.
      * @return Creates a new instance with function name that quotes the specified columns.
-     * EX: date(`myColumn`) -> ColumnAlias.columnsWithFunction("date", ColumnAlias.column("myColumn"))
+     * EX: date(`myColumn`) -&gt; ColumnAlias.columnsWithFunction("date", ColumnAlias.column("myColumn"))
      */
     public static ColumnAlias columnsWithFunction(String functionName, ColumnAlias... columnAliases) {
         return columnRaw(functionName + "(" + QueryBuilder.join("`, `", columnAliases) + ")");
