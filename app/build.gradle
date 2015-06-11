@@ -32,11 +32,11 @@ android {
 
 dependencies {
     jars()
-    mod 'compiler', 'apt'
-    mod 'library'
+    mod 'DBFlow-Compiler', 'apt'
+    mod 'DBFlow'
     nsMod 'com.android.support:appcompat-v7:21.0.3'
 }
 
 android.applicationVariants.all { variant ->
-    variant.javaCompile.dependsOn ':compiler:jar'
+    variant.javaCompile.dependsOn ':DBFlow-Compiler:jar'
 }

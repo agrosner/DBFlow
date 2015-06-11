@@ -61,7 +61,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
         if (databaseName == null || databaseName.isEmpty()) {
             databaseName = element.getSimpleName().toString();
         }
-        if (isValidDatabaseName(databaseName)) {
+        if (!isValidDatabaseName(databaseName)) {
             throw new Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
                     "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
         }

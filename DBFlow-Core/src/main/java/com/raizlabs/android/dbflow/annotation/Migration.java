@@ -6,7 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: andrewgrosner
  * Description: Marks a Migration class to be included in DB construction. The class using this annotation
  * must implement the Migration interface.
  */

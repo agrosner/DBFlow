@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'android-apt'
+apply plugin: 'com.github.dcendents.android-maven'
+
+project.ext.artifactId = bt_name
 
 android {
     compileSdkVersion 22
@@ -8,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 4
         targetSdkVersion 22
-        versionName = VERSION_NAME
-        versionCode = VERSION_CODE
+        versionName = version
+        versionCode = version_code
     }
 
     lintOptions {
@@ -27,10 +30,10 @@ android {
 }
 
 dependencies {
-    compile project("${dbflow_project_prefix}flowcore")
+    compile project("${dbflow_project_prefix}DBFlow-Core")
     compile "com.android.support:support-annotations:22.0.0"
-    androidTestApt project("${dbflow_project_prefix}compiler")
+    androidTestApt project("${dbflow_project_prefix}DBFlow-Compiler")
 }
 
-apply from: '../maven_push.gradle'
+apply from: '../bintray_upload.gradle'
 apply from: '../android-artifacts.gradle'
