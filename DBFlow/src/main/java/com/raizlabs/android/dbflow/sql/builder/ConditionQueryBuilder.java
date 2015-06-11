@@ -435,7 +435,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * match the count of columns that are in this where query.
      *
      * @param values The values of the fields we wish to replace. Must match the length of the empty params and must be in empty param mode.
-     * @return The query with the parameters filled in.
+     * @return A new {@link ConditionQueryBuilder} with the parameters filled in.
      */
     public ConditionQueryBuilder<ModelClass> replaceEmptyParams(Object... values) {
         if (!useEmptyParams) {

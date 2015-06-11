@@ -7,11 +7,11 @@ import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +75,16 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
         Join<JoinType, ModelClass> join = new Join<>(this, table, joinType);
         joins.add(join);
         return join;
+    }
+
+    /**
+     * @param ids A list of ids (in order of declaration) by which we replace into the primary WHERE query
+     *            from a {@link ModelAdapter#createPrimaryModelWhere()}. The length and order MUST match
+     *            the order defined in the corresponding {@link ModelAdapter} for this class.
+     * @return A {@link Where} with a WHERE based on the primary keys specified.
+     */
+    public Where<ModelClass> byIds(Object... ids) {
+        return where().whereQuery(FlowManager.getPrimaryWhereQuery(table).replaceEmptyParams(ids));
     }
 
     /**
