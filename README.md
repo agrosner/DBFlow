@@ -35,6 +35,14 @@ If you wish to have your application featured here, please file an [issue](https
 
 #### 2.1.0
 
+1. Library now is on jCenter()/bintray!
+2. Full Enum Support. Note: they must be standard columns. We do not support foreign key or primary key for enums.
+3. Can now define inherited properties to use as columns. Note: They can only be normal, accessible to the subclass columns for now. Just
+ define `@Table(inheritedColumns = {@InheritedColumn(column = @Column, fieldName = "fieldName")}`.
+4. Bug Fixes, readme enhancements, Logging Improvements, and improved code commenting
+5. Function support for SQLite methods in a condition such that `date(myColumn1)=1433872730` can be written
+ as `Condition.columnsWithFunction("date", "myColumn1").eq(1433872730)`
+6. Fixed an issue where `Condition` instead of `SQLCondition` were leftover as a param in a few methods.
 
 #### 2.0.0
 
@@ -96,6 +104,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   }
 
 ```
+
+We only use reflection pretty much one time throughout the whole library, so this class is the only one needed.
 
 ### Gotchas/Compatibility
 
