@@ -1,8 +1,8 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
+[![JCenter](https://img.shields.io/badge/JCenter-2.1.0-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-2.0.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
@@ -32,6 +32,17 @@ If you wish to have your application featured here, please file an [issue](https
 3. [University of Oslo DHIS2 Android SDK](https://github.com/dhis2/dhis2-android-sdk)
 
 ## Changelog
+
+#### 2.1.0
+
+1. Library now is on jCenter()/bintray!
+2. Full Enum Support. Note: they must be standard columns. We do not support foreign key or primary key for enums.
+3. Can now define inherited properties to use as columns. Note: They can only be normal, accessible to the subclass columns for now. Just
+ define `@Table(inheritedColumns = {@InheritedColumn(column = @Column, fieldName = "fieldName")}`.
+4. Bug Fixes, readme enhancements, Logging Improvements, and improved code commenting
+5. Function support for SQLite methods in a condition such that `date(myColumn1)=1433872730` can be written
+ as `Condition.columnsWithFunction("date", "myColumn1").eq(1433872730)`
+6. Fixed an issue where `Condition` instead of `SQLCondition` were leftover as a param in a few methods.
 
 #### 2.0.0
 
@@ -79,19 +90,6 @@ Listed here are tutorial screen casts for DBFlow. If more are created, they may 
 
 ## Including in your project
 
-Add the maven repo url to your root build.gradle in the ```allProjects{}``` blocks:
-
-```groovy
-  ...
-
-  allProjects {
-    repositories {
-        maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
-    }
-  }
-
-
-```
 
 Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) to enable Annotation Processing:
 
@@ -100,12 +98,14 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:2.0.0'
-    compile "com.raizlabs.android:DBFlow-Core:2.0.0"
-    compile "com.raizlabs.android:DBFlow:2.0.0"
+    apt 'com.raizlabs.android:DBFlow-Compiler:2.1.0'
+    compile "com.raizlabs.android:DBFlow-Core:2.1.0"
+    compile "com.raizlabs.android:DBFlow:2.1.0"
   }
 
 ```
+
+We only use reflection pretty much one time throughout the whole library, so this class is the only one needed.
 
 ### Gotchas/Compatibility
 

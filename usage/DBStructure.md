@@ -19,6 +19,13 @@ public class AppDatabase {
 
 _P.S._ you can define as many ```@Database``` as you like as long as the names are unique.
 
+### Prepackaged Databases
+
+To include a prepackaged database for your application, simply include the ".db" file in
+`src/main/assets/{databaseName}.db`. On creation of the database, we copy over the file into the
+application for usage. Since this is prepackaged within the APK, we cannot delete it once it's copied over,
+leading to a large APK size (depending on the database file size).
+
 ### Configurable Properties
 
 **Global Conflict Handling**: By specifying `insertConflict()` and `updateConflict()` here,

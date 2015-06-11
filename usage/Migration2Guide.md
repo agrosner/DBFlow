@@ -68,10 +68,73 @@ So these annotations (and their corresponding methods moved into):
   3. `@Unique`
   4. `@NotNull`
 
+Previously:
+
+```java
+
+@Column(columnType = Column.PRIMARY_KEY_AUTO_INCREMENT,
+  notNull = true)
+String column;
+
+@Column(columnType = Column.FOREIGN_KEY,
+          references = {@ForeignKeyReference(columnName = "addressBook", columnType = long.class, foreignColumnName = "id")},
+          saveForeignKeyModel = false)
+AddressBook addressBook;
+
+```
+
+Becomes:
+
+```java
+
+  @PrimaryKey
+  @NotNull
+  @Column
+  String column;
+
+  @ForeignKey(
+          references = {@ForeignKeyReference(columnName = "addressBook", columnType = long.class, foreignColumnName = "id")},
+          saveForeignKeyModel = false)
+  @Column
+  AddressBook addressBook;
+
+```
+
 _Note: all the method names are the same from what was previously in `Model`,
 so just copy and paste into new annotation!_.
 
+`@Table` annotation's `value()` parameter now changes to more descriptive `tableName()`.
+
+`@ContainerAdapter` now changes to `@ModelContainer` for more descriptive name.
+
 ### Queries
+
+#### Static Methods
+
+Nearly all `static` `Select` methods have been removed in favor of using the
+SQL builder syntax.
+
+Previously:
+
+```java
+
+Select.all(MyTable.class);
+Select.byId(MyTable.class, "someColumnValue");
+
+```
+
+Becomes:
+
+```java
+
+new Select().from(MyTable.class).queryList();
+new Select().from(MyTable.class)
+  .where(Condition.column(MyTable$Table.COLUMN).is("someColumnValue"))
+  .queryList();
+
+```
+
+This was because it was confusing to have multiple ways of doing something.
 
 #### Condition
 
