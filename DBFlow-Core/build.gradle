@@ -1,0 +1,10 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+project.ext.artifactId = bt_name
+
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
+apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
+apply from: '../java-artifacts.gradle'

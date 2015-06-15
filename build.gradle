@@ -1,5 +1,6 @@
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
         maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
     }
@@ -7,21 +8,15 @@ buildscript {
         classpath 'com.android.tools.build:gradle:1.2.3'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
         classpath 'com.raizlabs:Griddle:1.0.3'
+        classpath 'com.github.dcendents:android-maven-plugin:1.2'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
     }
-}
-
-def isReleaseBuild() {
-    return version.contains("SNAPSHOT") == false
 }
 
 allprojects {
-    version = VERSION_NAME
-    group = GROUP
-
     repositories {
-        mavenCentral()
+        jcenter()
     }
 }
-
 
 apply plugin: 'android-reporting'
