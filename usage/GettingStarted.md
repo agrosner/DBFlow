@@ -237,3 +237,18 @@ This generates a `$Container` adapter class that's not usually generated to cut
 down on generated code.
 
 If you wish to lazy-load the relationship, just leave out the `@OneToMany` annotation.
+
+### Insertion
+
+Here is how to insert your Ant and Queen in your database :
+
+```
+for(Queen queen : queens) {
+    for(Ant ant : ants) {
+        ant.queen = new ForeignKeyContainer<Queen>(Queen.class);
+        ant.queen.put(Queen$Table.QUEEN_ID, queen.id);
+        ant.save();
+    }
+    queen.save();
+}
+```
