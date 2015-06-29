@@ -44,6 +44,11 @@ public class SelectTest extends FlowTestCase {
                 .and(Condition.column(TestModel3$Table.TYPE).is("test"));
 
         assertEquals("SELECT * FROM `TestModel3` WHERE `name`='test' AND `type`='test'", where4.getQuery().trim());
+
+        Where<TestModel3> where5 = new Select().from(TestModel3.class)
+                .byIds("Test");
+
+        assertEquals("SELECT * FROM `TestModel3` WHERE `name`='Test'", where5.getQuery().trim());
     }
 
     public void testJoins() {
