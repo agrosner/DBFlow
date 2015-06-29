@@ -10,15 +10,18 @@ public abstract class BaseModelView<ModelClass extends Model> extends BaseFinalM
 
     private ModelViewAdapter<? extends Model, BaseModelView<ModelClass>> adapter;
 
-    @SuppressWarnings("unchecked")
-    public BaseModelView() {
-        adapter = ((ModelViewAdapter<? extends Model, BaseModelView<ModelClass>>) FlowManager.getModelViewAdapter(
-                getClass()));
-    }
-
     @Override
     public boolean exists() {
-        return adapter.exists(this);
+        return getModelViewAdapter().exists(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public ModelViewAdapter<? extends Model, BaseModelView<ModelClass>> getModelViewAdapter() {
+        if (adapter == null) {
+            adapter = ((ModelViewAdapter<? extends Model, BaseModelView<ModelClass>>)
+                    FlowManager.getModelViewAdapter(getClass()));
+        }
+        return adapter;
     }
 
 }

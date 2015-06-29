@@ -42,44 +42,39 @@ public abstract class BaseModel implements Model {
         CHANGE
     }
 
-    private ModelAdapter mModelAdapter;
-
-    public BaseModel() {
-        mModelAdapter = FlowManager.getModelAdapter(getClass());
-    }
+    private ModelAdapter modelAdapter;
 
     @SuppressWarnings("unchecked")
     @Override
     public void save() {
-        mModelAdapter.save(this);
+        getModelAdapter().save(this);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void delete() {
-        mModelAdapter.delete(this);
+        getModelAdapter().delete(this);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void update() {
-        mModelAdapter.update(this);
+        getModelAdapter().update(this);
     }
 
     /**
      * Directly tries to insert this item into the DB without updating.
-     *
      */
     @SuppressWarnings("unchecked")
     @Override
     public void insert() {
-        mModelAdapter.insert(this);
+        getModelAdapter().insert(this);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean exists() {
-        return mModelAdapter.exists(this);
+        return getModelAdapter().exists(this);
     }
 
     /**
@@ -89,7 +84,15 @@ public abstract class BaseModel implements Model {
         return new AsyncModel<>(this);
     }
 
+    /**
+     * @return The associated {@link ModelAdapter}. The {@link FlowManager}
+     * may throw a {@link InvalidDBConfiguration} for this call if this class
+     * is not associated with a table, so be careful when using this method.
+     */
     public ModelAdapter getModelAdapter() {
-        return mModelAdapter;
+        if (modelAdapter == null) {
+            modelAdapter = FlowManager.getModelAdapter(getClass());
+        }
+        return modelAdapter;
     }
 }
