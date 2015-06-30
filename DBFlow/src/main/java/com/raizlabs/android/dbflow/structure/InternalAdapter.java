@@ -6,8 +6,6 @@ import android.database.sqlite.SQLiteStatement;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 
-import java.util.Objects;
-
 /**
  * Description: Used for our internal Adapter classes such as generated {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
  * or {@link ModelContainerAdapter}

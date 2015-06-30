@@ -185,7 +185,7 @@ public class SqlUtils {
         ModelClass retModel = null;
         if (BaseCacheableModel.class.isAssignableFrom(modelClass)) {
             retModel = (ModelClass) convertToCacheableModel(false, (Class<? extends BaseCacheableModel>) modelClass,
-                                                            cursor);
+                    cursor);
         } else {
             retModel = convertToModel(false, modelClass, cursor);
         }
@@ -235,7 +235,8 @@ public class SqlUtils {
         }
 
         if (FlowContentObserver.shouldNotify()) {
-            notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.SAVE);
+            notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.SAVE, modelAdapter.getCachingColumnName(),
+                    adapter.getCachingId(model));
         }
     }
 
@@ -255,15 +256,16 @@ public class SqlUtils {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
-                                                                adapter.getPrimaryModelWhere(model).getQuery(), null,
-                                                                ConflictAction.getSQLiteDatabaseAlgorithmInt(
-                                                                        modelAdapter.getUpdateOnConflictAction())) !=
-                  0);
+                adapter.getPrimaryModelWhere(model).getQuery(), null,
+                ConflictAction.getSQLiteDatabaseAlgorithmInt(
+                        modelAdapter.getUpdateOnConflictAction())) !=
+                0);
         if (!exists) {
             // insert
             insert(model, adapter, modelAdapter);
         } else if (FlowContentObserver.shouldNotify()) {
-            notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.UPDATE);
+            notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.UPDATE,
+                    modelAdapter.getCachingColumnName(), adapter.getCachingId(model));
         }
         return exists;
     }
@@ -282,7 +284,8 @@ public class SqlUtils {
         long id = insertStatement.executeInsert();
         adapter.updateAutoIncrement(model, id);
         if (FlowContentObserver.shouldNotify()) {
-            notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT);
+            notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.INSERT,
+                    modelAdapter.getCachingColumnName(), adapter.getCachingId(model));
         }
     }
 
@@ -293,13 +296,14 @@ public class SqlUtils {
      * @param model The model to delete
      */
     @SuppressWarnings("unchecked")
-    public static <TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
-    void delete(final TableClass model, AdapterClass modelAdapter) {
-        new Delete().from((Class<TableClass>) modelAdapter.getModelClass()).where(
-                modelAdapter.getPrimaryModelWhere(model)).query();
-        modelAdapter.updateAutoIncrement(model, 0);
+    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
+    void delete(final TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
+        new Delete().from((Class<TableClass>) adapter.getModelClass()).where(
+                adapter.getPrimaryModelWhere(model)).query();
+        adapter.updateAutoIncrement(model, 0);
         if (FlowContentObserver.shouldNotify()) {
-            notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.DELETE);
+            notifyModelChanged(modelAdapter.getModelClass(), BaseModel.Action.DELETE,
+                    modelAdapter.getCachingColumnName(), adapter.getCachingId(model));
         }
     }
 
@@ -309,8 +313,8 @@ public class SqlUtils {
      * @param action The {@link com.raizlabs.android.dbflow.structure.BaseModel.Action} enum
      * @param table  The table of the model
      */
-    public static void notifyModelChanged(Class<? extends Model> table, BaseModel.Action action) {
-        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action), null, true);
+    public static void notifyModelChanged(Class<? extends Model> table, BaseModel.Action action, String notifyKey, Object notifyValue) {
+        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action, notifyKey, notifyValue), null, true);
     }
 
     /**
@@ -319,13 +323,31 @@ public class SqlUtils {
      * @param modelClass
      * @return
      */
-    public static Uri getNotificationUri(Class<? extends Model> modelClass, BaseModel.Action action) {
+    public static Uri getNotificationUri(Class<? extends Model> modelClass, BaseModel.Action action, String notifyKey, Object notifyValue) {
         String mode = "";
         if (action != null) {
             mode = "#" + action.name();
         }
+        Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
+                .authority(FlowManager.getTableName(modelClass));
+        if (action != null) {
+            uriBuilder.fragment(action.name());
+        }
+        if (notifyKey != null) {
+            uriBuilder.appendQueryParameter(Uri.encode(notifyKey), Uri.encode(String.valueOf(notifyValue)));
+        }
         return Uri.parse("dbflow://" + FlowManager.getTableName(modelClass) + mode);
     }
+
+    /**
+     * @param modelClass The model class to use.
+     * @param action     The {@link BaseModel.Action} to use.
+     * @return The uri for updates to {@link Model}, meant for general changes.
+     */
+    public static Uri getNotificationUri(Class<? extends Model> modelClass, BaseModel.Action action) {
+        return getNotificationUri(modelClass, action, null, null);
+    }
+
 
     /**
      * Drops an active TRIGGER by specifying the onTable and triggerName

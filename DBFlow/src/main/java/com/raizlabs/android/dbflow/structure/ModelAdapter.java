@@ -81,7 +81,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
      */
     @Override
     public void delete(ModelClass model) {
-        SqlUtils.delete(model, this);
+        SqlUtils.delete(model, this, this);
     }
 
     /**

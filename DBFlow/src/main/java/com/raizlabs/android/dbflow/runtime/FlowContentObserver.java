@@ -14,8 +14,10 @@ import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Description: Listens for {@link com.raizlabs.android.dbflow.structure.Model} changes. Register for specific
@@ -47,8 +49,9 @@ public class FlowContentObserver extends ContentObserver {
     }
 
     /**
-     * Provides default implementation of the {@link FlowContentObserver.OnModelStateChangedListener}
-     * enabling you to only have to implement a small subset of methods.
+     * Called when the {@link FlowContentObserver} receives a URI from a model change event. This event
+     * is generalized to not include specific model keys. To get more specific events, register a
+     * {@link OnSpecificModelStateChangedListener}.
      */
     public interface OnModelStateChangedListener {
 
@@ -64,14 +67,29 @@ public class FlowContentObserver extends ContentObserver {
         void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action);
     }
 
-    /**
-     * Listeners for model changes.
-     */
+    public interface OnSpecificModelStateChangedListener {
+
+        /**
+         * Notifies that the state of a {@link com.raizlabs.android.dbflow.structure.Model}
+         * has changed for the table this is registered for.
+         *
+         * @param table      The table that this change occurred on. This is ONLY available on {@link Build.VERSION_CODES#JELLY_BEAN}
+         *                   and up.
+         * @param action     The action on the model. for versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN} ,
+         *                   the {@link com.raizlabs.android.dbflow.structure.BaseModel.Action#CHANGE} will always be called for any action.
+         * @param columnName The name of the primary column with the id that's changed.
+         * @param value      the value from the primary key thats changed converted to String.
+         */
+        void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action, String columnName, String value);
+    }
+
     private final List<OnModelStateChangedListener> modelChangeListeners = new ArrayList<>();
+    private final List<OnSpecificModelStateChangedListener> specificModelChangeListeners = new ArrayList<>();
+
 
     private final Map<String, Class<? extends Model>> registeredTables = new HashMap<>();
 
-    private final List<Uri> notificationUris = new ArrayList<>();
+    private final Set<Uri> notificationUris = new HashSet<>();
 
     protected boolean isInTransaction = false;
     private boolean notifyAllUris = false;
@@ -144,6 +162,24 @@ public class FlowContentObserver extends ContentObserver {
     }
 
     /**
+     * Add a specific listener for model changes
+     *
+     * @param modelChangeListener
+     */
+    public void addSpecificModelChangeListener(OnSpecificModelStateChangedListener modelChangeListener) {
+        specificModelChangeListeners.add(modelChangeListener);
+    }
+
+    /**
+     * Removes a specific listener for model changes
+     *
+     * @param modelChangeListener
+     */
+    public void removeSpecificModelChangeListener(OnSpecificModelStateChangedListener modelChangeListener) {
+        specificModelChangeListeners.remove(modelChangeListener);
+    }
+
+    /**
      * Registers the observer for model change events for specific class.
      */
     public void registerForContentChanges(Context context, Class<? extends Model> table) {
@@ -176,7 +212,22 @@ public class FlowContentObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange, Uri uri) {
         String fragment = uri.getFragment();
-        String tableName = uri.getEncodedSchemeSpecificPart().replace("//", "");
+        String tableName = uri.getAuthority();
+
+        String columnName = null;
+        String param = null;
+
+        Set<String> queryNames = uri.getQueryParameterNames();
+        if (!queryNames.isEmpty()) {
+            for (String key : queryNames) {
+                // for now we get first key we find
+                // maybe in future we add multi-column support
+                param = uri.getQueryParameter(key);
+                columnName = key;
+                break;
+            }
+        }
+
         Class<? extends Model> table = registeredTables.get(tableName);
         if (!isInTransaction) {
 
@@ -185,6 +236,12 @@ public class FlowContentObserver extends ContentObserver {
                 for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
                     modelChangeListener.onModelStateChanged(table, action);
                 }
+
+                if (columnName != null && param != null) {
+                    for (OnSpecificModelStateChangedListener modelChangeListener : specificModelChangeListeners) {
+                        modelChangeListener.onModelStateChanged(table, action, columnName, param);
+                    }
+                }
             }
         } else {
             // convert this uri to a CHANGE op if we don't care about individual changes.
@@ -192,10 +249,8 @@ public class FlowContentObserver extends ContentObserver {
                 uri = SqlUtils.getNotificationUri(table, BaseModel.Action.CHANGE);
             }
             synchronized (notificationUris) {
-                if (!notificationUris.contains(uri)) {
-                    // add and keep track of unique notification uris for when transaction completes.
-                    notificationUris.add(uri);
-                }
+                // add and keep track of unique notification uris for when transaction completes.
+                notificationUris.add(uri);
             }
         }
     }

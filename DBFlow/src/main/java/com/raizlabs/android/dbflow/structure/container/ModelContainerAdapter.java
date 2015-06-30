@@ -46,7 +46,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
      */
     @Override
     public void delete(ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.delete(modelContainer, this);
+        SqlUtils.delete(modelContainer, this, modelContainer.getModelAdapter());
     }
 
     /**
