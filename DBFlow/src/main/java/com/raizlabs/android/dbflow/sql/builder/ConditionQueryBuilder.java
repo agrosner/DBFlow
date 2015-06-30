@@ -13,6 +13,8 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
+
 /**
  * Description: Constructs a condition statement for a specific {@link com.raizlabs.android.dbflow.structure.Model} class.
  * This enables easy combining of conditions for SQL statements and will handle converting the model value for each column into
@@ -123,7 +125,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         if (isChanged || query.length() == 0) {
             isChanged = false;
             query = new StringBuilder();
-            if(whereRaw != null) {
+            if (whereRaw != null) {
                 query.append(whereRaw);
             }
 
@@ -189,7 +191,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
      * @return This builder.
      */
     public ConditionQueryBuilder<ModelClass> append(String selection, Object... selectionArgs) {
-        if(selection != null) {
+        if (selection != null) {
             String toAppend = selection;
 
             if (selectionArgs != null) {
@@ -260,9 +262,9 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         if (value instanceof Number) {
             stringVal = String.valueOf(value);
         } else {
-            if(value instanceof Where) {
+            if (value instanceof Where) {
                 stringVal = String.format("(%1s)", ((Where) value).getQuery().trim());
-            } else if(value instanceof ColumnAlias) {
+            } else if (value instanceof ColumnAlias) {
                 stringVal = ((ColumnAlias) value).getQuery();
             } else {
                 stringVal = String.valueOf(value);
@@ -347,7 +349,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             throw new IllegalStateException("The " + ConditionQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return addCondition(Condition.column(columnName).operation(operator).value(value));
+        return addCondition(column(columnName).operation(operator).value(value));
 
     }
 
@@ -450,7 +452,9 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         ConditionQueryBuilder<ModelClass> conditionQueryBuilder =
                 new ConditionQueryBuilder<>(modelAdapter.getModelClass());
         for (int i = 0; i < values.length; i++) {
-            conditionQueryBuilder.addCondition(conditions.get(i).columnName(), values[i]);
+            SQLCondition condition = conditions.get(i);
+            conditionQueryBuilder.addCondition(column(ColumnAlias.columnRaw(condition.columnName()))
+                    .operation(condition.operation()).value(values[i]));
         }
 
         return conditionQueryBuilder;

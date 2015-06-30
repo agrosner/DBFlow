@@ -324,10 +324,6 @@ public class SqlUtils {
      * @return
      */
     public static Uri getNotificationUri(Class<? extends Model> modelClass, BaseModel.Action action, String notifyKey, Object notifyValue) {
-        String mode = "";
-        if (action != null) {
-            mode = "#" + action.name();
-        }
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
                 .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
@@ -336,7 +332,7 @@ public class SqlUtils {
         if (notifyKey != null) {
             uriBuilder.appendQueryParameter(Uri.encode(notifyKey), Uri.encode(String.valueOf(notifyValue)));
         }
-        return Uri.parse("dbflow://" + FlowManager.getTableName(modelClass) + mode);
+        return uriBuilder.build();
     }
 
     /**

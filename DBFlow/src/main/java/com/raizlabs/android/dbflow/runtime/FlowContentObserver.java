@@ -222,7 +222,7 @@ public class FlowContentObserver extends ContentObserver {
             for (String key : queryNames) {
                 // for now we get first key we find
                 // maybe in future we add multi-column support
-                param = uri.getQueryParameter(key);
+                param = Uri.decode(uri.getQueryParameter(key));
                 columnName = key;
                 break;
             }

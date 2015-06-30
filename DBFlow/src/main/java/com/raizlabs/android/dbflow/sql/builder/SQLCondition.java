@@ -51,6 +51,11 @@ public interface SQLCondition {
     boolean hasSeparator();
 
     /**
+     * @return the operation that is used.
+     */
+    String operation();
+
+    /**
      * @return The raw value of the condition.
      */
     Object value();

@@ -1,16 +1,28 @@
 package com.raizlabs.android.dbflow.test.contentobserver;
 
+import android.net.Uri;
+
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
+import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
 
 /**
  * Description:
  */
 public class ContentObserverTest extends FlowTestCase {
+
+    public void testNotificationUri() {
+
+        Uri notificationUri = SqlUtils.getNotificationUri(TestModel1.class, BaseModel.Action.SAVE, TestModel1$Table.NAME, "this is a %test");
+        assertEquals(notificationUri.getAuthority(), TestModel1$Table.TABLE_NAME);
+        assertEquals(notificationUri.getFragment(), BaseModel.Action.SAVE.name());
+        assertEquals(Uri.decode(notificationUri.getQueryParameter(TestModel1$Table.NAME)), "this is a %test");
+    }
 
     public void testContentObserver() {
         Delete.table(TestModel1.class);
