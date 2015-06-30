@@ -218,7 +218,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> orderBy(boolean ascending, String... columns) {
-        orderBy = new QueryBuilder().appendArray(columns)
+        orderBy = new QueryBuilder().appendQuotedArray(columns)
                 .appendSpace()
                 .append(ascending ? "ASC" : "DESC")
                 .getQuery();
