@@ -38,7 +38,7 @@ public class ColumnAlias implements Query {
      * EX: date(`myColumn`) -&gt; ColumnAlias.columnsWithFunction("date", "myColumn")
      */
     public static ColumnAlias columnsWithFunction(String functionName, String... columnNames) {
-        return columnRaw(functionName + "(" + QueryBuilder.join("`, `", columnNames) + ")");
+        return columnRaw(new QueryBuilder<>(functionName).append("(").appendQuotedArray(columnNames).append(")").getQuery());
     }
 
     /**
@@ -48,7 +48,15 @@ public class ColumnAlias implements Query {
      * EX: date(`myColumn`) -&gt; ColumnAlias.columnsWithFunction("date", ColumnAlias.column("myColumn"))
      */
     public static ColumnAlias columnsWithFunction(String functionName, ColumnAlias... columnAliases) {
-        return columnRaw(functionName + "(" + QueryBuilder.join("`, `", columnAliases) + ")");
+        QueryBuilder queryBuilder = new QueryBuilder<>(functionName).append("(");
+        for (int i = 0; i < columnAliases.length; i++) {
+            if (i > 0) {
+                queryBuilder.append(",");
+            }
+            queryBuilder.appendQuoted(columnAliases[i].getAliasName());
+        }
+        queryBuilder.append(")");
+        return columnRaw(queryBuilder.getQuery());
     }
 
     /**
