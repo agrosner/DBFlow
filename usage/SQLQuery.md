@@ -189,7 +189,7 @@ Using DBFlow:
 ```java
 
 // Native SQL wrapper
-Update<Ant> update = new Update().table(Ant.class).set(Condition.column(Ant$Table.TYPE).eq("other"))
+Where update = new Update().table(Ant.class).set(Condition.column(Ant$Table.TYPE).eq("other"))
   .where(Condition.column(Ant$Table.TYPE).is("worker"))
   .and(Condition.column(Ant$Table.ISMALE).is(true));
 update.queryClose();
