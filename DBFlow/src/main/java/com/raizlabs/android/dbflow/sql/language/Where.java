@@ -227,7 +227,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return This WHERE query.
      */
     public Where<ModelClass> orderBy(String orderby) {
-        orderBy = orderby;
+        orderBy = OrderBy.fromString(orderby).getQuery();
         return this;
     }
 
@@ -296,7 +296,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
                 .appendQualifier("WHERE", conditionQueryBuilder.getQuery())
                 .appendQualifier("GROUP BY", groupBy)
                 .appendQualifier("HAVING", having.getQuery())
-                .appendQualifier("ORDER BY", orderBy)
+                .appendQualifier(null, orderBy)
                 .appendQualifier("LIMIT", limit)
                 .appendQualifier("OFFSET", offset);
 

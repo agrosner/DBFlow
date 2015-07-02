@@ -41,12 +41,12 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Appends the string with spaces on the front and end of the string
      *
-     * @param string The string to append
+     * @param object The object to append
      * @return This instance
      */
     @SuppressWarnings("unchecked")
-    public QueryClass appendSpaceSeparated(String string) {
-        return (QueryClass) appendSpace().append(string).appendSpace();
+    public QueryClass appendSpaceSeparated(Object object) {
+        return (QueryClass) appendSpace().append(object).appendSpace();
     }
 
     /**
@@ -146,7 +146,10 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      */
     public QueryClass appendQualifier(String name, String value) {
         if (value != null && value.length() > 0) {
-            append(name).appendSpaceSeparated(value);
+            if(name != null) {
+                append(name);
+            }
+            appendSpaceSeparated(value);
         }
         return castThis();
     }
