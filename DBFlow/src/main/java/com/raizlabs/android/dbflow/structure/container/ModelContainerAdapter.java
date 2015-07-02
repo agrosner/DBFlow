@@ -87,6 +87,11 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
         return getAutoIncrementingId(model);
     }
 
+    @Override
+    public boolean hasCachingId() {
+        return false;
+    }
+
     /**
      * Returns the type of the column for this model container. It's useful for when we do not know the exact class of the column
      * when in a {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}

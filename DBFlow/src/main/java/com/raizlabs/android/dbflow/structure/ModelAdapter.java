@@ -146,6 +146,11 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return cursor.getLong(columnIndex);
     }
 
+    @Override
+    public boolean hasCachingId() {
+        return false;
+    }
+
     /**
      * @return Only created once if doesn't exist, the extended class will return the builder to use.
      */

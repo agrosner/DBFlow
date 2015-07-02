@@ -92,6 +92,14 @@ public class LoadCursorWriter implements FlowWriter {
             final TableDefinition tableDefinition = ((TableDefinition) baseTableDefinition);
 
             if (tableDefinition.hasCachingId) {
+
+                WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+                    @Override
+                    public void write(JavaWriter javaWriter) throws IOException {
+                        javaWriter.emitStatement("return true");
+                    }
+                }, "boolean", "hasCachingId", Sets.newHashSet(Modifier.PUBLIC));
+
                 String[] params2 = new String[2];
                 params2[0] = ModelUtils.getParameter(isModelContainerDefinition, tableDefinition.getModelClassName());
                 params2[1] = ModelUtils.getVariable(isModelContainerDefinition);

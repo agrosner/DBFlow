@@ -48,6 +48,8 @@ with a "best practices" section.
 8. Fixes bugs with the [Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md) section implementation. `OneToMany.Method.SAVE` now actually works on `insert`, `update`, and `save` methods.
 9. Adds a `OnProgressProcessChangeListener` to listen for the total progress while
 looping through saving models in a `ProcessModelTransaction`.
+10. Escalated `convertToCacheableList()` to `public` and now can query to know if
+a `Model` has a valid caching id. Also some more public methods added to `SqlUtils`!
 
 
 #### 2.1.0
