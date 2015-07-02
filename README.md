@@ -42,7 +42,7 @@ works without crashing/complaining. Just don't call the non-tables associated `M
 4. Bug fixes and Improvements
 5. Adds ability to validate values for columns via the [ColumnValueValidator](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md).
 6. Adds the `OrderBy` object to aid in `ORDER BY` queries. Added `orderBy()` methods in the `From` class
-for easier access without needing to call `where()` first.
+for easier access without needing to call `where()` first. Adds `Collate` support within this class.
 7. Adds a `enableSelfRefreshes()` for the `FlowQueryList` and souped up the documentation
 with a "best practices" section.
 8. Fixes bugs with the [Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md) section implementation. `OneToMany.Method.SAVE` now actually works on `insert`, `update`, and `save` methods.

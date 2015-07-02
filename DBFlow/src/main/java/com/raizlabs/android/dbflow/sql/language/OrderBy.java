@@ -78,7 +78,7 @@ public class OrderBy implements Query {
      * @param collate The {@link Collate} to append to the end of this clause.
      * @return This instance with a {@link Collate} appended to the end.
      */
-    public OrderBy collation(Collate collate) {
+    public OrderBy collate(Collate collate) {
         orderByCollation = collate;
         return this;
     }
