@@ -22,7 +22,7 @@ public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBu
      * @return
      */
     public QueryBuilder appendColumn(ColumnDefinition column) {
-        if (column.length> -1) {
+        if (column.length> -1 && !column.isPrimaryKeyAutoIncrement) {
             query.append("(");
             query.append(column.length);
             query.append(")");
