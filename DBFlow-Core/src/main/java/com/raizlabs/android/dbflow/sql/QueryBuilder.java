@@ -213,6 +213,15 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     /**
+     * @param columnName The column name to use.
+     * @return A name in quotes. E.G. index => `index` so we can use keywords as column names without fear
+     * of clashing.
+     */
+    public static String quote(String columnName) {
+        return "`" + columnName.replace(".", "`.`") + "`";
+    }
+
+    /**
      * Returns a string containing the tokens joined by delimiters.
      *
      * @param delimiter The text to join the text with.

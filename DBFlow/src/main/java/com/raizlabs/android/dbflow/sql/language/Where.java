@@ -212,24 +212,19 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Defines a SQL ORDER BY statement without the ORDER BY.
-     *
      * @param ascending If we should be in ascending order
-     * @return
+     * @param columns   the columns to specify.
+     * @return This WHERE query.
      */
     public Where<ModelClass> orderBy(boolean ascending, String... columns) {
-        orderBy = new QueryBuilder().appendQuotedArray(columns)
-                .appendSpace()
-                .append(ascending ? "ASC" : "DESC")
+        orderBy = OrderBy.columns(columns).setAscending(ascending)
                 .getQuery();
         return this;
     }
 
     /**
-     * Defines a SQL ORDER BY statement without the ORDER BY.
-     *
-     * @param orderby The orderBy command
-     * @return
+     * @param orderby The orderBy string that we use.
+     * @return This WHERE query.
      */
     public Where<ModelClass> orderBy(String orderby) {
         orderBy = orderby;
@@ -237,10 +232,19 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Defines a SQL LIMIT statement without the LIMIT.
+     * @param orderby The {@link OrderBy}
+     * @return This WHERE query.
+     */
+    public Where<ModelClass> orderBy(OrderBy orderby) {
+        orderBy = orderby.getQuery();
+        return this;
+    }
+
+    /**
+     * Specify the limit value you wish to use..
      *
-     * @param limit
-     * @return
+     * @param limit The limit. E.g. 1
+     * @return This WHERE query.
      */
     public Where<ModelClass> limit(Object limit) {
         this.limit = String.valueOf(limit);
@@ -248,10 +252,10 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Defines a SQL OFFSET statement without the OFFSET.
+     * Add an OFFSET value to this query.
      *
-     * @param offset
-     * @return
+     * @param offset The offset value.
+     * @return This WHERE query.
      */
     public Where<ModelClass> offset(Object offset) {
         this.offset = String.valueOf(offset);
@@ -306,9 +310,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Run this query and returns the {@link android.database.Cursor} for it
-     *
-     * @return the Sqlite {@link android.database.Cursor} from this query
+     * @return the result of the query as a {@link Cursor}.
      */
     @Override
     public Cursor query() {

@@ -102,6 +102,13 @@ public class ColumnAlias implements Query {
         return queryBuilder.getQuery();
     }
 
+    /**
+     * @return The "AS" name from this column (quoted). If not specified, it will default to the original column name.
+     */
+    public String getAliasName() {
+        return QueryBuilder.quote(!TextUtils.isEmpty(asName) ? asName : columnName);
+    }
+
     @Override
     public String toString() {
         return getQuery();

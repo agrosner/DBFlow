@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JCenter](https://img.shields.io/badge/JCenter-2.1.0-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
+[![JCenter](https://img.shields.io/badge/JCenter-2.2.0-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
@@ -32,6 +32,15 @@ If you wish to have your application featured here, please file an [issue](https
 3. [University of Oslo DHIS2 Android SDK](https://github.com/dhis2/dhis2-android-sdk)
 
 ## Changelog
+
+#### 2.2.0
+
+1. Fixed a bug where `new Select().from(myTable.class).byId(PrimaryKey)` was incorrectly double-quoting columns.
+2. Adds a primary key into the URI of a `FlowContentObserver` for single primary key tables.
+3. Lazy loads `ModelAdapter` and `ModelViewAdapter` so subclassing a non-table `BaseModel` now
+works without crashing/complaining. Just don't call the non-tables associated `Model` methods directly.
+4. Bug fixes and Improvements
+5. Adds ability to validate values for columns via the [ColumnValueValidator](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md). 
 
 #### 2.1.0
 

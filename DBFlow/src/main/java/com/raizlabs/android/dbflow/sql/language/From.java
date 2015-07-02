@@ -106,29 +106,48 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     /**
-     * Returns a {@link Where} statement with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     *
      * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
-     * @return A where statement.
+     * @return A {@link Where} statement with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}.
      */
     public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         return where().whereQuery(conditionQueryBuilder);
     }
 
     /**
-     * Returns a {@link Where} statement with the specified array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}
-     *
      * @param conditions The array of conditions that define this WHERE statement
-     * @return A where statement.
+     * @return A {@link Where} statement with the specified array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}.
      */
     public Where<ModelClass> where(SQLCondition... conditions) {
         return where().andThese(conditions);
     }
 
     /**
-     * Run this query and returns the {@link android.database.Cursor} for it
-     *
-     * @return the Sqlite {@link android.database.Cursor} from this query
+     * @param orderBy The string order by to use.
+     * @return A {@link Where} with the specified ORDER BY string.
+     */
+    public Where<ModelClass> orderBy(String orderBy) {
+        return where().orderBy(orderBy);
+    }
+
+    /**
+     * @param orderBy The {@link OrderBy} to use.
+     * @return A {@link Where} with the specified {@link OrderBy}.
+     */
+    public Where<ModelClass> orderBy(OrderBy orderBy) {
+        return where().orderBy(orderBy);
+    }
+
+    /**
+     * @param ascending If we should be in ascending order
+     * @param columns   The columns to specify.
+     * @return This WHERE query.
+     */
+    public Where<ModelClass> orderBy(boolean ascending, String... columns) {
+        return where().orderBy(ascending, columns);
+    }
+
+    /**
+     * @return the result of the query as a {@link Cursor}.
      */
     @Override
     public Cursor query() {
@@ -146,9 +165,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     /**
-     * Queries and returns only the first {@link ModelClass} result from the DB.
-     *
-     * @return The first result of this query. Note: this query may return more than one from the DB.
+     * @return The first result of this query. It forces a {@link Where#limit(Object)} of 1 for more efficient querying.
      */
     @Override
     public ModelClass querySingle() {
