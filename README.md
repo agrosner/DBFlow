@@ -46,8 +46,8 @@ for easier access without needing to call `where()` first.
 7. Adds a `enableSelfRefreshes()` for the `FlowQueryList` and souped up the documentation
 with a "best practices" section.
 8. Fixes bugs with the [Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md) section implementation. `OneToMany.Method.SAVE` now actually works on `insert`, `update`, and `save` methods.
-9. Fixes an issue where using a autoincrementing primary key with `length()` causes a strange exception. Now we
-ignore columns with length specified on autoincrementing primary keys.
+9. Adds a `OnProgressProcessChangeListener` to listen for the total progress while
+looping through saving models in a `ProcessModelTransaction`.
 
 
 #### 2.1.0

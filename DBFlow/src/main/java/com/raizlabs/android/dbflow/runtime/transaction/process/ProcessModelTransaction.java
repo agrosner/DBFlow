@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction.process;
 
-import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
+import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -13,9 +13,27 @@ import java.util.List;
 public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>>
         implements ProcessModel<ModelClass> {
 
+    /**
+     * Called during execution of the {@link #processModel(Model)} method. Gives an idea of progress.
+     */
+    public interface OnProcessProgressChangeListener<ModelClass> {
+
+        /**
+         * @param current       The current index of execution.
+         * @param maxProgress   The maximum progress (total count of models)
+         * @param modifiedModel The model that was modified.
+         */
+        void onProcessProgressChange(long current, long maxProgress, ModelClass modifiedModel);
+    }
+
     protected ProcessModelInfo<ModelClass> processModelInfo;
 
     private final FlowContentObserver contentObserver;
+
+    private long count = 0;
+    private final long totalCount;
+
+    private OnProcessProgressChangeListener<ModelClass> changeListener;
 
     /**
      * Constructs this transaction with a single model enabled.
@@ -27,6 +45,18 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
         super(modelInfo.getInfo(), modelInfo.transactionListener);
         processModelInfo = modelInfo;
         this.contentObserver = contentObserver;
+
+        totalCount = processModelInfo.models.size();
+    }
+
+    /**
+     * Registers a listener to get callbacks during the {@link #processModel(Model)} operation when this
+     * transaction is executed.
+     *
+     * @param changeListener The listener to call.
+     */
+    public void setChangeListener(OnProcessProgressChangeListener<ModelClass> changeListener) {
+        this.changeListener = changeListener;
     }
 
     @Override
@@ -40,7 +70,17 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
         if (contentObserver != null) {
             contentObserver.beginTransaction();
         }
-        processModelInfo.processModels(this);
+        processModelInfo.processModels(new ProcessModel<ModelClass>() {
+            @Override
+            public void processModel(ModelClass model) {
+                ProcessModelTransaction.this.processModel(model);
+                count++;
+
+                if (changeListener != null) {
+                    changeListener.onProcessProgressChange(count, totalCount, model);
+                }
+            }
+        });
         List<ModelClass> models = processModelInfo.models;
         if (contentObserver != null) {
             contentObserver.endTransactionAndNotify();

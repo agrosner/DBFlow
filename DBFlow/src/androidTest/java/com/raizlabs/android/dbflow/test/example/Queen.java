@@ -32,7 +32,7 @@ public class Queen extends BaseModel {
             saveForeignKeyModel = false)
     Colony colony;
 
-    private List<Ant> ants;
+    List<Ant> ants;
 
     @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
     public List<Ant> getMyAnts() {
