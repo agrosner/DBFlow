@@ -109,8 +109,23 @@ Listed here are tutorial screen casts for DBFlow. If more are created, they may 
 
 ## Including in your project
 
+We need to include the [apt plugin](https://bitbucket.org/hvisser/android-apt) in our classpath to enable Annotation Processing:
 
-Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) to enable Annotation Processing:
+```groovy
+
+buildscript {
+    repositories {
+      // required for this library, don't use mavenCentral()
+        jcenter()
+    }
+    dependencies {
+         'com.neenbedankt.gradle.plugins:android-apt:1.4'
+    }
+}
+
+```
+
+Add the library to the project-level build.gradle, using the  to enable Annotation Processing:
 
 ```groovy
 
