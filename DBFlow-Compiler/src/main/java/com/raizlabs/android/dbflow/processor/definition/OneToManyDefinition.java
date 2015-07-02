@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
 
 /**
  * Description: Represents the {@link OneToMany} annotation.
@@ -63,7 +62,7 @@ public class OneToManyDefinition extends BaseDefinition {
      * @throws IOException
      */
     public void writeLoad(JavaWriter javaWriter) throws IOException {
-        if(isLoad()) {
+        if (isLoad()) {
             javaWriter.emitStatement(getMethodName());
         }
     }
@@ -75,18 +74,20 @@ public class OneToManyDefinition extends BaseDefinition {
      * @throws IOException
      */
     public void writeDelete(JavaWriter javaWriter) throws IOException {
-        if(isDelete()) {
+        if (isDelete()) {
             javaWriter.emitStatement("new %1s<>(%1s.withModels(%1s)).onExecute()",
-                                     Classes.DELETE_MODEL_LIST_TRANSACTION,
-                                     Classes.PROCESS_MODEL_INFO, getMethodName());
+                    Classes.DELETE_MODEL_LIST_TRANSACTION,
+                    Classes.PROCESS_MODEL_INFO, getMethodName());
+
+            javaWriter.emitStatement("%1s = null", getVariableName());
         }
     }
 
     public void writeSave(JavaWriter javaWriter) throws IOException {
         if (isSave()) {
             javaWriter.emitStatement("new %1s<>(%1s.withModels(%1s)).onExecute()",
-                                    Classes.SAVE_MODEL_LIST_TRANSACTION,
-                                    Classes.PROCESS_MODEL_INFO, getMethodName());
+                    Classes.SAVE_MODEL_LIST_TRANSACTION,
+                    Classes.PROCESS_MODEL_INFO, getMethodName());
         }
     }
 
