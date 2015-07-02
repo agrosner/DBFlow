@@ -67,6 +67,11 @@ public class FlowContentObserver extends ContentObserver {
         void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action);
     }
 
+    /**
+     * Listens for specific model changes. This is only available in {@link android.os.Build.VERSION_CODES#JELLY_BEAN}
+     * or higher due to the api of {@link ContentObserver}.
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public interface OnSpecificModelStateChangedListener {
 
         /**
