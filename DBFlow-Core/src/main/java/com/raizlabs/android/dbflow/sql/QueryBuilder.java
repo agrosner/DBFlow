@@ -214,7 +214,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
     /**
      * @param columnName The column name to use.
-     * @return A name in quotes. E.G. index => `index` so we can use keywords as column names without fear
+     * @return A name in quotes. E.G. index =&gt; `index` so we can use keywords as column names without fear
      * of clashing.
      */
     public static String quote(String columnName) {

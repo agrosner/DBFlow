@@ -109,4 +109,5 @@ public class Classes {
 
     public static final String DELETE_MODEL_LIST_TRANSACTION = TRANSACTION + "process.DeleteModelListTransaction";
 
+    public static final String SAVE_MODEL_LIST_TRANSACTION = TRANSACTION + "process.SaveModelTransaction";
 }

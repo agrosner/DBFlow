@@ -14,14 +14,14 @@ amazing apps.
 What sets this library apart:
   1. Many, many unit tests on nearly __every__ feature.
   2. Built on maximum performance using **annotation processing**, lazy-loading, and speed-tests [here](https://github.com/Raizlabs/AndroidDatabaseLibraryComparison)
-  3. Built-in model caching for blazing fast retrieval and ability to define own
-  cache.
-  3. Powerful and fluid SQL-wrapping statements
+  3. Built-in model caching for blazing-fast retrieval and very flexible customization.
+  3. Powerful and fluid SQL-wrapping statements that mimic real SQLite queries
   4. Triggers, Views, Indexes, and many more SQLite features.
   5. Seamless multi-database support.
   6. Direct-to-database parsing for data such as JSON
   7. Flexibility in the API enabling you to override functionality to suit your needs.
   8. ```ContentProvider``` generation using annotations
+  9. Content Observing using `Uri`
 
 ## Applications That Use DBFlow
 
@@ -43,6 +43,8 @@ works without crashing/complaining. Just don't call the non-tables associated `M
 5. Adds ability to validate values for columns via the [ColumnValueValidator](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md).
 6. Adds the `OrderBy` object to aid in `ORDER BY` queries. Added `orderBy()` methods in the `From` class
 for easier access without needing to call `where()` first.
+7. Adds a `enableSelfRefreshes()` for the `FlowQueryList` and souped up the documentation
+with a "best practices" section.
 
 
 #### 2.1.0

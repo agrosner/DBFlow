@@ -20,6 +20,7 @@ import com.raizlabs.android.dbflow.processor.writer.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
+import com.raizlabs.android.dbflow.processor.writer.OneToManySaveWriter;
 import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
 import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -162,7 +163,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
                 new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
                 new WhereQueryWriter(this, false),
                 new CreationQueryWriter(manager, this),
-                new DeleteWriter(this, false)
+                new DeleteWriter(this, false),
+                new OneToManySaveWriter(this, false)
         };
 
         // single primary key checking for a long or int valued column

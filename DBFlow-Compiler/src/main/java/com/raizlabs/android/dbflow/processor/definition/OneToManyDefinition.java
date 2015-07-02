@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 
 /**
  * Description: Represents the {@link OneToMany} annotation.
@@ -51,6 +52,10 @@ public class OneToManyDefinition extends BaseDefinition {
         return isAll() || methods.contains(OneToMany.Method.DELETE);
     }
 
+    public boolean isSave() {
+        return isAll() || methods.contains(OneToMany.Method.SAVE);
+    }
+
     /**
      * Writes the method to the specified java writer for loading from DB.
      *
@@ -74,7 +79,14 @@ public class OneToManyDefinition extends BaseDefinition {
             javaWriter.emitStatement("new %1s<>(%1s.withModels(%1s)).onExecute()",
                                      Classes.DELETE_MODEL_LIST_TRANSACTION,
                                      Classes.PROCESS_MODEL_INFO, getMethodName());
-            javaWriter.emitStatement("%1s = null", getVariableName());
+        }
+    }
+
+    public void writeSave(JavaWriter javaWriter) throws IOException {
+        if (isSave()) {
+            javaWriter.emitStatement("new %1s<>(%1s.withModels(%1s)).onExecute()",
+                                    Classes.SAVE_MODEL_LIST_TRANSACTION,
+                                    Classes.PROCESS_MODEL_INFO, getMethodName());
         }
     }
 
