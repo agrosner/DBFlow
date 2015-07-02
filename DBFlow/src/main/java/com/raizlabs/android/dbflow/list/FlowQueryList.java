@@ -22,6 +22,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTr
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
@@ -188,6 +189,25 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     public void refresh() {
         internalCursorList.refresh();
     }
+
+    /**
+     * Registers itself for content changes on the specific table that this list is for. When
+     * any model data is changed via the {@link Model} methods, we call {@link #refresh()} on this underlying data.
+     * To prevent many refreshes, call {@link #beginTransaction()} before making changes to a set of models,
+     * and then when finished call {@link #endTransactionAndNotify()}.
+     */
+    public void enableSelfRefreshes(Context context) {
+        registerForContentChanges(context);
+        addModelChangeListener(new OnModelStateChangedListener() {
+            @Override
+            public void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action) {
+                if (internalCursorList.getTable().equals(table)) {
+                    refresh();
+                }
+            }
+        });
+    }
+
 
     /**
      * Adds an item to this table, but does not allow positonal insertion. Same as calling

@@ -40,7 +40,10 @@ If you wish to have your application featured here, please file an [issue](https
 3. Lazy loads `ModelAdapter` and `ModelViewAdapter` so subclassing a non-table `BaseModel` now
 works without crashing/complaining. Just don't call the non-tables associated `Model` methods directly.
 4. Bug fixes and Improvements
-5. Adds ability to validate values for columns via the [ColumnValueValidator](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md). 
+5. Adds ability to validate values for columns via the [ColumnValueValidator](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md).
+6. Adds the `OrderBy` object to aid in `ORDER BY` queries. Added `orderBy()` methods in the `From` class
+for easier access without needing to call `where()` first.
+
 
 #### 2.1.0
 
@@ -86,7 +89,7 @@ For more detailed usage, check out these sections:
 
 [Observing Models](https://github.com/Raizlabs/DBFlow/blob/master/usage/ObservableModels.md)
 
-[Tables as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
+[Queries as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
 
 [Triggers, Indexes, and More](https://github.com/Raizlabs/DBFlow/blob/master/usage/TriggersIndexesAndMore.md)
 
