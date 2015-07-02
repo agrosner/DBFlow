@@ -53,7 +53,7 @@ public class ColumnAlias implements Query {
             if (i > 0) {
                 queryBuilder.append(",");
             }
-            queryBuilder.appendQuoted(columnAliases[i].getAliasName());
+            queryBuilder.append(columnAliases[i].getAliasName());
         }
         queryBuilder.append(")");
         return columnRaw(queryBuilder.getQuery());
