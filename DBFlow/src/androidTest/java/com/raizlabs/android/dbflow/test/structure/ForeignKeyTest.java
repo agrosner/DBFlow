@@ -1,9 +1,10 @@
 package com.raizlabs.android.dbflow.test.structure;
 
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI;
+
+import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
 
 /**
  * Description:
@@ -23,7 +24,7 @@ public class ForeignKeyTest extends FlowTestCase {
         foreignModel.save();
 
         ForeignModel retrieved = new Select().from(ForeignModel.class)
-                .where(Condition.column(ForeignModel$Table.NAME).is("Test"))
+                .where(column(ForeignModel$Table.NAME).is("Test"))
                 .querySingle();
         assertNotNull(retrieved);
         assertNotNull(retrieved.testModel1);
@@ -42,7 +43,7 @@ public class ForeignKeyTest extends FlowTestCase {
         foreignModel2.save();
 
         ForeignModel2 retrieved = new Select().from(ForeignModel2.class)
-                .where(Condition.column(ForeignModel2$Table.NAME).is("Test"))
+                .where(column(ForeignModel2$Table.NAME).is("Test"))
                 .querySingle();
         assertNotNull(retrieved);
         assertNotNull(retrieved.testModelAI);

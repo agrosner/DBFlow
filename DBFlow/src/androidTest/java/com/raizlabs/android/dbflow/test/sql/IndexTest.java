@@ -1,12 +1,13 @@
 package com.raizlabs.android.dbflow.test.sql;
 
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.index.Index;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import java.util.List;
+
+import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
 
 /**
  * Description:
@@ -37,7 +38,7 @@ public class IndexTest extends FlowTestCase {
 
         List<IndexModel> list = new Select().from(IndexModel.class)
                 .indexedBy(modelIndex.getIndexName())
-                .where(Condition.column(IndexModel$Table.SALARY).greaterThan(20000)).queryList();
+                .where(column(IndexModel$Table.SALARY).greaterThan(20000)).queryList();
 
         assertTrue(list.size() == 1);
 

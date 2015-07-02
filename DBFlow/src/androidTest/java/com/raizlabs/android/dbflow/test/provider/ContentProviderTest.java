@@ -4,10 +4,11 @@ import android.net.Uri;
 import android.test.ProviderTestCase2;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
-import com.raizlabs.android.dbflow.sql.language.Delete;
+
+import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
 
 /**
  * Description:
@@ -104,7 +105,7 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider$P
         assertEquals(testSyncableModel.name, "TestName");
 
         testSyncableModel = new Select().from(TestSyncableModel.class)
-                    .where(Condition.column(TestSyncableModel$Table.ID).is(testSyncableModel.id)).querySingle();
+                    .where(column(TestSyncableModel$Table.ID).is(testSyncableModel.id)).querySingle();
 
         TestSyncableModel fromContentProvider = new TestSyncableModel();
         fromContentProvider.id = testSyncableModel.id;

@@ -6,11 +6,12 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
+
+import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
 
 /**
  * Description:
@@ -39,7 +40,7 @@ public class Queen extends BaseModel {
         if (ants == null) {
             ants = new Select()
                     .from(Ant.class)
-                    .where(Condition.column(Ant$Table.QUEENFOREIGNKEYCONTAINER_QUEEN_ID).eq(id))
+                    .where(column(Ant$Table.QUEENFOREIGNKEYCONTAINER_QUEEN_ID).eq(id))
                     .queryList();
         }
         return ants;

@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.test.typeconverter;
 
 import android.location.Location;
 
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
@@ -14,6 +13,8 @@ import org.json.JSONObject;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
+
 /**
  * Description:
  */
@@ -21,7 +22,7 @@ public class TypeConverterTest extends FlowTestCase {
 
     public void testConverters() {
 
-        new Delete().from(TestType.class).where().query();
+        Delete.table(TestType.class);
 
         TestType testType = new TestType();
         testType.name = "Name";
@@ -56,7 +57,7 @@ public class TypeConverterTest extends FlowTestCase {
         testType.save();
 
         TestType retrieved = new Select().from(TestType.class)
-                .where(Condition.column(TestType$Table.NAME).is("Name"))
+                .where(column(TestType$Table.NAME).is("Name"))
                 .querySingle();
 
         assertNotNull(retrieved);
@@ -90,7 +91,7 @@ public class TypeConverterTest extends FlowTestCase {
         testType.save();
 
         TestType retrieved = new Select().from(TestType.class)
-                .where(Condition.column(TestType$Table.NAME).is("Name"))
+                .where(column(TestType$Table.NAME).is("Name"))
                 .querySingle();
 
         assertNotNull(retrieved);
@@ -121,11 +122,11 @@ public class TypeConverterTest extends FlowTestCase {
          */
         new Update<>(TestType.class)
                 .set(TestType$Table.NATIVEBOOLEAN + " = null")
-                .where(Condition.column(TestType$Table.NAME).eq(testType.name))
+                .where(column(TestType$Table.NAME).eq(testType.name))
                 .queryClose();
 
         TestType retrieved = new Select().from(TestType.class)
-                .where(Condition.column(TestType$Table.NAME).is("Name"))
+                .where(column(TestType$Table.NAME).is("Name"))
                 .querySingle();
         assertNotNull(retrieved);
 

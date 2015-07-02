@@ -6,7 +6,6 @@ import android.test.AndroidTestCase;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
 import com.raizlabs.android.dbflow.sql.migration.IndexMigration;
@@ -14,6 +13,8 @@ import com.raizlabs.android.dbflow.sql.migration.UpdateTableMigration;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
 
 /**
  * Description:
@@ -77,7 +78,7 @@ public class MigrationTest extends AndroidTestCase {
     public void testUpdateMigration() {
         UpdateTableMigration<MigrationModel> updateTableMigration
                 = new UpdateTableMigration<>(MigrationModel.class)
-                .set(Condition.column("name").is("test")).where(Condition.column("name").is("notTest"));
+                .set(column("name").is("test")).where(column("name").is("notTest"));
         updateTableMigration.onPreMigrate();
 
         assertEquals("UPDATE `MigrationModel` SET `name`='test' WHERE `name`='notTest'", updateTableMigration.getQuery().trim());

@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Description: The SQL FROM query wrapper that must have a {@link com.raizlabs.android.dbflow.sql.Query} base.
+ * Description: The SQL FROM query wrapper that must have a {@link Query} base.
  */
 public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements WhereBase<ModelClass>, ModelQueriable<ModelClass> {
 
@@ -107,7 +108,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
 
     /**
      * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
-     * @return A {@link Where} statement with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}.
+     * @return A {@link Where} statement with the specified {@link ConditionQueryBuilder}.
      */
     public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         return where().whereQuery(conditionQueryBuilder);
@@ -115,7 +116,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
 
     /**
      * @param conditions The array of conditions that define this WHERE statement
-     * @return A {@link Where} statement with the specified array of {@link com.raizlabs.android.dbflow.sql.builder.Condition}.
+     * @return A {@link Where} statement with the specified array of {@link Condition}.
      */
     public Where<ModelClass> where(SQLCondition... conditions) {
         return where().andThese(conditions);
@@ -237,9 +238,9 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     /**
-     * @return The base query, usually a {@link com.raizlabs.android.dbflow.sql.language.Delete}.
-     * {@link com.raizlabs.android.dbflow.sql.language.Select}, or {@link com.raizlabs.android.dbflow.sql.language.Update}
+     * @return The base query, usually a {@link Delete}, {@link Select}, or {@link Update}
      */
+    @Override
     public Query getQueryBuilderBase() {
         return queryBase;
     }
