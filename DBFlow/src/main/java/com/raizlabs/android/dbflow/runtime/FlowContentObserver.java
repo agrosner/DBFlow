@@ -5,11 +5,12 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Handler;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -20,20 +21,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Description: Listens for {@link com.raizlabs.android.dbflow.structure.Model} changes. Register for specific
+ * Description: Listens for {@link Model} changes. Register for specific
  * tables with {@link #addModelChangeListener(FlowContentObserver.OnModelStateChangedListener)}.
  * Provides ability to register and deregister listeners for when data is inserted, deleted, updated, and saved if the device is
- * above {@link android.os.Build.VERSION_CODES#JELLY_BEAN}. If below it will only provide one callback.
+ * above {@link VERSION_CODES#JELLY_BEAN}. If below it will only provide one callback.
  */
 public class FlowContentObserver extends ContentObserver {
 
     private static final List<FlowContentObserver> OBSERVER_LIST = new ArrayList<>();
-
     private static boolean forceNotify = false;
 
     /**
      * @return true if we have registered for content changes. Otherwise we do not notify
-     * in {@link com.raizlabs.android.dbflow.sql.SqlUtils#notifyModelChanged(Class, com.raizlabs.android.dbflow.structure.BaseModel.Action)}
+     * in {@link SqlUtils}
      * for efficiency purposes.
      */
     public static boolean shouldNotify() {
@@ -56,44 +56,41 @@ public class FlowContentObserver extends ContentObserver {
     public interface OnModelStateChangedListener {
 
         /**
-         * Notifies that the state of a {@link com.raizlabs.android.dbflow.structure.Model}
+         * Notifies that the state of a {@link Model}
          * has changed for the table this is registered for.
          *
-         * @param table  The table that this change occurred on. This is ONLY available on {@link Build.VERSION_CODES#JELLY_BEAN}
+         * @param table  The table that this change occurred on. This is ONLY available on {@link VERSION_CODES#JELLY_BEAN}
          *               and up.
-         * @param action The action on the model. for versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN} ,
-         *               the {@link com.raizlabs.android.dbflow.structure.BaseModel.Action#CHANGE} will always be called for any action.
+         * @param action The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
+         *               the {@link Action#CHANGE} will always be called for any action.
          */
-        void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action);
+        void onModelStateChanged(Class<? extends Model> table, Action action);
     }
 
     /**
-     * Listens for specific model changes. This is only available in {@link android.os.Build.VERSION_CODES#JELLY_BEAN}
+     * Listens for specific model changes. This is only available in {@link VERSION_CODES#JELLY_BEAN}
      * or higher due to the api of {@link ContentObserver}.
      */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @TargetApi(VERSION_CODES.JELLY_BEAN)
     public interface OnSpecificModelStateChangedListener {
 
         /**
-         * Notifies that the state of a {@link com.raizlabs.android.dbflow.structure.Model}
+         * Notifies that the state of a {@link Model}
          * has changed for the table this is registered for.
          *
-         * @param table      The table that this change occurred on. This is ONLY available on {@link Build.VERSION_CODES#JELLY_BEAN}
+         * @param table      The table that this change occurred on. This is ONLY available on {@link VERSION_CODES#JELLY_BEAN}
          *                   and up.
-         * @param action     The action on the model. for versions prior to {@link android.os.Build.VERSION_CODES#JELLY_BEAN} ,
-         *                   the {@link com.raizlabs.android.dbflow.structure.BaseModel.Action#CHANGE} will always be called for any action.
+         * @param action     The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
+         *                   the {@link Action#CHANGE} will always be called for any action.
          * @param columnName The name of the primary column with the id that's changed.
          * @param value      the value from the primary key thats changed converted to String.
          */
-        void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action, String columnName, String value);
+        void onModelStateChanged(Class<? extends Model> table, Action action, String columnName, String value);
     }
 
     private final List<OnModelStateChangedListener> modelChangeListeners = new ArrayList<>();
     private final List<OnSpecificModelStateChangedListener> specificModelChangeListeners = new ArrayList<>();
-
-
     private final Map<String, Class<? extends Model>> registeredTables = new HashMap<>();
-
     private final Set<Uri> notificationUris = new HashSet<>();
 
     protected boolean isInTransaction = false;
@@ -108,8 +105,8 @@ public class FlowContentObserver extends ContentObserver {
     }
 
     /**
-     * If true, this class will get specific when it needs to, such as using all {@link BaseModel.Action} qualifiers.
-     * If false, it only uses the {@link BaseModel.Action#CHANGE} action in callbacks.
+     * If true, this class will get specific when it needs to, such as using all {@link Action} qualifiers.
+     * If false, it only uses the {@link Action#CHANGE} action in callbacks.
      *
      * @param notifyAllUris
      */
@@ -135,7 +132,7 @@ public class FlowContentObserver extends ContentObserver {
         if (isInTransaction) {
             isInTransaction = false;
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            if (Build.VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) {
                 onChange(true);
             } else {
                 synchronized (notificationUris) {
@@ -151,7 +148,7 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Add a listener for model changes
      *
-     * @param modelChangeListener
+     * @param modelChangeListener Generic model change events from an {@link Action}
      */
     public void addModelChangeListener(OnModelStateChangedListener modelChangeListener) {
         modelChangeListeners.add(modelChangeListener);
@@ -160,7 +157,7 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Removes a listener for model changes
      *
-     * @param modelChangeListener
+     * @param modelChangeListener Generic model change events from a {@link Action}
      */
     public void removeModelChangeListener(OnModelStateChangedListener modelChangeListener) {
         modelChangeListeners.remove(modelChangeListener);
@@ -169,7 +166,7 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Add a specific listener for model changes
      *
-     * @param modelChangeListener
+     * @param modelChangeListener Listens for specific model change events.
      */
     public void addSpecificModelChangeListener(OnSpecificModelStateChangedListener modelChangeListener) {
         specificModelChangeListeners.add(modelChangeListener);
@@ -178,7 +175,7 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Removes a specific listener for model changes
      *
-     * @param modelChangeListener
+     * @param modelChangeListener Listens for specific model change events.
      */
     public void removeSpecificModelChangeListener(OnSpecificModelStateChangedListener modelChangeListener) {
         specificModelChangeListeners.remove(modelChangeListener);
@@ -209,11 +206,11 @@ public class FlowContentObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange) {
         for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
-            modelChangeListener.onModelStateChanged(null, BaseModel.Action.CHANGE);
+            modelChangeListener.onModelStateChanged(null, Action.CHANGE);
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @TargetApi(VERSION_CODES.JELLY_BEAN)
     @Override
     public void onChange(boolean selfChange, Uri uri) {
         String fragment = uri.getFragment();
@@ -236,7 +233,7 @@ public class FlowContentObserver extends ContentObserver {
         Class<? extends Model> table = registeredTables.get(tableName);
         if (!isInTransaction) {
 
-            BaseModel.Action action = BaseModel.Action.valueOf(fragment);
+            Action action = Action.valueOf(fragment);
             if (action != null) {
                 for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
                     modelChangeListener.onModelStateChanged(table, action);
@@ -251,7 +248,7 @@ public class FlowContentObserver extends ContentObserver {
         } else {
             // convert this uri to a CHANGE op if we don't care about individual changes.
             if (!notifyAllUris) {
-                uri = SqlUtils.getNotificationUri(table, BaseModel.Action.CHANGE);
+                uri = SqlUtils.getNotificationUri(table, Action.CHANGE);
             }
             synchronized (notificationUris) {
                 // add and keep track of unique notification uris for when transaction completes.
