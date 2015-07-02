@@ -39,15 +39,7 @@ public class Select implements Query {
      */
     private String[] rawColumns;
 
-    /**
-     * The method name we wish to execute
-     */
-    private String mMethodName;
-
-    /**
-     * The column name passed into the method name
-     */
-    private String mColumnName;
+    private ColumnAlias columnMethodAlias;
 
     /**
      * Empty constructor since other constructors have different vargs.
@@ -122,33 +114,26 @@ public class Select implements Query {
     }
 
     /**
-     * appends {@link #ALL} to the query
-     *
-     * @return
+     * @return appends {@link #ALL} to the query
      */
     public Select all() {
         return selectQualifier(ALL);
     }
 
     /**
-     * appends COUNT to the query
-     *
-     * @return
+     * @return appends COUNT to the query
      */
     public Select count() {
         return method("COUNT", "*");
     }
 
     /**
-     * Appends a method to this query. Such methods as avg, count, sum.
-     *
-     * @param methodName
-     * @param columnName
-     * @return
+     * @param methodName The name of the method.
+     * @param columnName The name of the column to use.
+     * @return Appends a method to this query. Such methods as avg, count, sum.
      */
     public Select method(String methodName, String columnName) {
-        mMethodName = methodName;
-        mColumnName = columnName;
+        columnMethodAlias = ColumnAlias.columnsWithFunction(methodName, columnName);
         return selectQualifier(METHOD);
     }
 
@@ -187,7 +172,7 @@ public class Select implements Query {
             } else if (mSelectQualifier == ALL) {
                 queryBuilder.append("ALL");
             } else if (mSelectQualifier == METHOD) {
-                queryBuilder.append(mMethodName.toUpperCase()).append("(").appendQuoted(mColumnName).append(")");
+                queryBuilder.append(columnMethodAlias.getQuery());
             }
             queryBuilder.appendSpace();
         }
