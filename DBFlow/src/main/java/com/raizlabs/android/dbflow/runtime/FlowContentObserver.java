@@ -130,7 +130,7 @@ public class FlowContentObserver extends ContentObserver {
         if (isInTransaction) {
             isInTransaction = false;
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                 onChange(true);
             } else {
                 synchronized (notificationUris) {
