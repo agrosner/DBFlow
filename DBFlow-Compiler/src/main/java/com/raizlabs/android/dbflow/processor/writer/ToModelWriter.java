@@ -33,7 +33,7 @@ public class ToModelWriter implements FlowWriter {
                 javaWriter.emitStatement(tableDefinition.getModelClassName() + " " + ModelUtils.getVariable(false) +
                         " = new " + tableDefinition.getModelClassName() + "()");
                 for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
-                    columnDefinition.writeToModelDefinition(javaWriter);
+                    columnDefinition.writeToModelDefinition(javaWriter, isModelContainerDefinition);
                 }
                 javaWriter.emitStatement("return " + ModelUtils.getVariable(false));
             }

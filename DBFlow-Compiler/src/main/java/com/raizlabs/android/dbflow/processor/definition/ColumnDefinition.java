@@ -473,7 +473,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         }
     }
 
-    public void writeToModelDefinition(JavaWriter javaWriter) throws IOException {
+    public void writeToModelDefinition(JavaWriter javaWriter, boolean isModelContainerAdapter) throws IOException {
 
         if (!isModel) {
             AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder("Object value");
@@ -486,6 +486,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             javaWriter.beginControlFlow("if (value%1s != null) ", columnFieldName);
         }
 
+
+        ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
 
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder();
         queryBuilder.appendVariable(false)

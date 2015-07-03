@@ -156,6 +156,10 @@ public class ColumnAccessModel implements Query {
         columnFieldBoxedType = columnFieldActualType;
     }
 
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
     public String getQueryNoCast() {
         return getQuery(false);
     }

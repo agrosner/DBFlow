@@ -120,7 +120,7 @@ public class LoadFromCursorModel implements FlowWriter {
             queryBuilder.append(")");
         }
 
-        if (accessModel.isPrivate) {
+        if (accessModel.isPrivate && !isContainerFieldDefinition) {
             queryBuilder.append(")");
         }
 

@@ -69,7 +69,7 @@ public class LoadCursorWriter implements FlowWriter {
 
                 for (ColumnDefinition columnDefinition : baseTableDefinition.getColumnDefinitions()) {
                     columnDefinition.writeLoadFromCursorDefinition(baseTableDefinition, javaWriter,
-                                                                   isModelContainerDefinition);
+                            isModelContainerDefinition);
                 }
 
                 // don't use methods here as they result in undefined behavior.
@@ -80,8 +80,8 @@ public class LoadCursorWriter implements FlowWriter {
                 }
                 if (implementsLoadFromCursorListener && !isModelContainerDefinition) {
                     javaWriter.emitStatement("%1s.onLoadFromCursor(%1s)",
-                                             ModelUtils.getVariable(isModelContainerDefinition),
-                                             params[1]);
+                            ModelUtils.getVariable(isModelContainerDefinition),
+                            params[1]);
                 }
 
             }
@@ -135,27 +135,27 @@ public class LoadCursorWriter implements FlowWriter {
                             ColumnDefinition columnDefinition = tableDefinition.getPrimaryColumnDefinitions().get(0);
 
                             javaWriter.emitStatement("return %1s.%1s", tableDefinition.getTableSourceClassName(),
-                                                     columnDefinition.columnName.toUpperCase());
+                                    columnDefinition.columnName.toUpperCase());
                         }
                     }, "String", "getCachingColumnName", Sets.newHashSet(Modifier.PUBLIC));
 
                     ColumnAccessModel columnAccessModel = new ColumnAccessModel(tableDefinition.getManager(),
-                                                                                tableDefinition.getPrimaryColumnDefinitions().get(
-                                                                                        0), false);
+                            tableDefinition.getPrimaryColumnDefinitions().get(
+                                    0), false);
                     final String statement = ModelUtils
                             .getCursorStatement(columnAccessModel.getCastedClass(),
-                                                columnAccessModel.getReferencedColumnFieldName())
+                                    columnAccessModel.getReferencedColumnFieldName())
                             .replace("()", "");
                     WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-                                                         @Override
-                                                         public void write(JavaWriter javaWriter) throws IOException {
+                                @Override
+                                public void write(JavaWriter javaWriter) throws IOException {
 
-                                                             javaWriter.emitStatement("return %1s", statement);
+                                    javaWriter.emitStatement("return %1s", statement);
 
-                                                         }
-                                                     }, "Object", "getCachingIdFromCursorIndex",
-                                                     Sets.newHashSet(Modifier.PUBLIC), "Cursor", "cursor",
-                                                     "int", "index" + columnAccessModel.getReferencedColumnFieldName().replace("()", ""));
+                                }
+                            }, "Object", "getCachingIdFromCursorIndex",
+                            Sets.newHashSet(Modifier.PUBLIC), "Cursor", "cursor",
+                            "int", "index" + columnAccessModel.getReferencedColumnFieldName().replace("()", ""));
                 }
             } else if (tableDefinition.hasAutoIncrement) {
                 params[0] = ModelUtils.getParameter(isModelContainerDefinition, tableDefinition.getModelClassName());
@@ -170,10 +170,17 @@ public class LoadCursorWriter implements FlowWriter {
                                 .append(ModelUtils.getVariable(isModelContainerDefinition));
 
                         if (!isModelContainerDefinition) {
-                            queryBuilder.append(".").append(columnDefinition.columnFieldName)
-                                    .append(" = ")
-                                    .appendCast(columnDefinition.columnFieldType)
+                            ColumnAccessModel columnAccessModel = new ColumnAccessModel(baseTableDefinition.getManager(),
+                                    columnDefinition, isModelContainerDefinition);
+                            queryBuilder.append(".").append(columnAccessModel.getSetterReferenceColumnFieldName());
+                            if (!columnAccessModel.isPrivate()) {
+                                queryBuilder.appendSpaceSeparated("=");
+                            }
+                            queryBuilder.appendCast(columnDefinition.columnFieldType)
                                     .append(params[3]).append(")");
+                            if (columnAccessModel.isPrivate()) {
+                                queryBuilder.append(")");
+                            }
                         } else {
                             String containerKeyName = columnDefinition.columnFieldName;
                             if (columnDefinition.containerKeyName != null) {
@@ -200,7 +207,10 @@ public class LoadCursorWriter implements FlowWriter {
                                 .append(ModelUtils.getVariable(isModelContainerDefinition));
 
                         if (!isModelContainerDefinition) {
-                            queryBuilder.append(".").append(columnDefinition.columnFieldName);
+                            ColumnAccessModel columnAccessModel = new ColumnAccessModel(
+                                    baseTableDefinition.getManager(),
+                                    columnDefinition, isModelContainerDefinition);
+                            queryBuilder.append(".").append(columnAccessModel.getReferencedColumnFieldName());
                         } else {
                             String containerKeyName = columnDefinition.columnFieldName;
                             if (columnDefinition.containerKeyName != null) {
@@ -220,7 +230,7 @@ public class LoadCursorWriter implements FlowWriter {
                             ColumnDefinition columnDefinition = tableDefinition.autoIncrementDefinition;
 
                             javaWriter.emitStatement("return %1s.%1s", tableDefinition.getTableSourceClassName(),
-                                                     columnDefinition.columnName.toUpperCase());
+                                    columnDefinition.columnName.toUpperCase());
                         }
                     }, "String", "getAutoIncrementingColumnName", Sets.newHashSet(Modifier.PUBLIC));
                 }
