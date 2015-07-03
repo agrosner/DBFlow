@@ -500,8 +500,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder();
         queryBuilder.appendVariable(false)
                 .append(".")
-                .append(columnFieldName);
-        queryBuilder.appendSpaceSeparated("=");
+                .append(columnAccessModel.getSetterReferenceColumnFieldName());
+
+        if (!columnAccessModel.isPrivate()) {
+            queryBuilder.appendSpaceSeparated("=");
+        }
 
         String getType = columnFieldType;
         // Type converters can never be primitive except boolean
@@ -528,7 +531,18 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                     .append(
                             ".toModel())");
         } else {
+            if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum()) {
+                queryBuilder.appendTypeConverter(null, getType, true);
+            }
             queryBuilder.append(String.format("value%1s)", columnFieldName));
+        }
+
+        if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum()) {
+            queryBuilder.append(")");
+        }
+
+        if (columnAccessModel.isPrivate()) {
+            queryBuilder.append(")");
         }
 
         javaWriter.emitStatement(queryBuilder.getQuery());

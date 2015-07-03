@@ -164,6 +164,14 @@ public class ColumnAccessModel implements Query {
         return isPrivate;
     }
 
+    public boolean isEnum() {
+        return isEnum;
+    }
+
+    public boolean isRequiresTypeConverter() {
+        return requiresTypeConverter;
+    }
+
     public String getQueryNoCast() {
         return getQuery(false);
     }
