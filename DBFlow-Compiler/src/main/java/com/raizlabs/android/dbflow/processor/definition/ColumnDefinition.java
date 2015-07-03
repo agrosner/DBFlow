@@ -532,13 +532,13 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                     .append(
                             ".toModel())");
         } else {
-            if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum()) {
+            if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum() && !columnAccessModel.isBoolean()) {
                 queryBuilder.appendTypeConverter(null, getType, true);
             }
             queryBuilder.append(String.format("value%1s)", columnFieldName));
         }
 
-        if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum()) {
+        if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum() && !columnAccessModel.isBoolean()) {
             queryBuilder.append(")");
         }
 

@@ -60,6 +60,8 @@ public class ColumnAccessModel implements Query {
 
     boolean isPrivate;
 
+    boolean isBoolean;
+
     boolean isEnum;
 
     String setterName;
@@ -77,6 +79,7 @@ public class ColumnAccessModel implements Query {
         columnFieldType = columnDefinition.columnFieldType;
         columnFieldActualType = columnDefinition.columnFieldActualType;
         referencedColumnFieldName = columnDefinition.columnFieldName;
+        isBoolean = columnDefinition.isBoolean;
         foreignKeyLocalColumnName = columnName;
         containerKeyName = columnDefinition.containerKeyName;
         isPrivate = columnDefinition.isPrivate;
@@ -141,6 +144,7 @@ public class ColumnAccessModel implements Query {
         columnName = columnDefinition.columnName;
         setterName = columnDefinition.setterName;
         getterName = columnDefinition.getterName;
+        isBoolean = columnDefinition.isBoolean;
         columnFieldActualType = columnDefinition.columnFieldActualType;
         columnFieldName = columnDefinition.columnFieldName;
         columnFieldType = columnDefinition.columnFieldType;
@@ -166,6 +170,10 @@ public class ColumnAccessModel implements Query {
 
     public boolean isEnum() {
         return isEnum;
+    }
+
+    public boolean isBoolean() {
+        return isBoolean;
     }
 
     public boolean isRequiresTypeConverter() {
