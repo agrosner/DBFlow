@@ -45,7 +45,7 @@ public class ForeignKeyContainerModel extends ContentValueModel {
                     .appendCast(accessModel.castedClass)
                     .append(modelContainerName)
                     .append(".")
-                    .appendGetValue(accessModel.getReferencedColumnFieldName())
+                    .appendGetValue(accessModel.referencedColumnFieldName)
                     .append("))");
             javaWriter.emitStatement(adapterQueryBuilder.getQuery());
 

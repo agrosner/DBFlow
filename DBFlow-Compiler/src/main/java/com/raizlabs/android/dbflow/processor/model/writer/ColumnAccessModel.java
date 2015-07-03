@@ -190,7 +190,7 @@ public class ColumnAccessModel implements Query {
         } else if (fieldIsAModelContainer) {
             contentValue.append(columnName)
                     .append(".")
-                    .appendGetValue(getReferencedColumnFieldName());
+                    .appendGetValue(referencedColumnFieldName);
         } else {
             if (isForeignKeyField) {
                 ColumnAccessModel columnAccessModel = new ColumnAccessModel(parentColumnDefinition.getManager(), parentColumnDefinition, isModelContainerAdapter);

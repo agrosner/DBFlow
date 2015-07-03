@@ -383,6 +383,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             // special case for model objects within class
             if (!fieldIsModelContainer && !isModelContainerAdapter && isModel) {
 
+                ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
+
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
                 }
@@ -397,9 +399,14 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder().appendVariable(false);
                 adapterQueryBuilder.append(".")
-                        .append(columnFieldName)
-                        .appendSpaceSeparated("=");
+                        .append(columnAccessModel.getSetterReferenceColumnFieldName());
+                if (!columnAccessModel.isPrivate()) {
+                    adapterQueryBuilder.appendSpaceSeparated("=");
+                }
                 adapterQueryBuilder.append(rawConditionStatement);
+                if (columnAccessModel.isPrivate()) {
+                    adapterQueryBuilder.append(")");
+                }
                 javaWriter.emitStatement(adapterQueryBuilder.getQuery());
 
                 javaWriter.endControlFlow();
