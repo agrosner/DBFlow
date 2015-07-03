@@ -40,15 +40,14 @@ If you wish to have your application featured here, please file an [issue](https
 3. Lazy loads `ModelAdapter` and `ModelViewAdapter` so subclassing a non-table `BaseModel` now
 works without crashing/complaining. Just don't call the non-tables associated `Model` methods directly.
 4. Bug fixes and Improvements
-5. Adds ability to validate values for columns via the [ColumnValueValidator](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md).
-6. Adds the `OrderBy` object to aid in `ORDER BY` queries. Added `orderBy()` methods in the `From` class
+5. Adds the `OrderBy` object to aid in `ORDER BY` queries. Added `orderBy()` methods in the `From` class
 for easier access without needing to call `where()` first. Adds `Collate` support within this class.
-7. Adds a `enableSelfRefreshes()` for the `FlowQueryList` and souped up the documentation
+6. Adds a `enableSelfRefreshes()` for the `FlowQueryList` and souped up the documentation
 with a "best practices" section.
-8. Fixes bugs with the [Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md) section implementation. `OneToMany.Method.SAVE` now actually works on `insert`, `update`, and `save` methods.
-9. Adds a `OnProgressProcessChangeListener` to listen for the total progress while
+7. Fixes bugs with the [Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md) section implementation. `OneToMany.Method.SAVE` now actually works on `insert`, `update`, and `save` methods.
+8. Adds a `OnProgressProcessChangeListener` to listen for the total progress while
 looping through saving models in a `ProcessModelTransaction`.
-10. Escalated `convertToCacheableList()` to `public` and now can query to know if
+9. Escalated `convertToCacheableList()` to `public` and now can query to know if
 a `Model` has a valid caching id. Also some more public methods added to `SqlUtils`!
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
