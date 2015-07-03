@@ -106,7 +106,7 @@ public class OrderBy implements Query {
             }
             queryBuilder.appendSpace().append(ascending ? "ASC" : "DESC");
             if (orderByCollation != null) {
-                queryBuilder.appendSpace().appendSpaceSeparated(orderByCollation);
+                queryBuilder.appendSpace().append("COLLATE").appendSpaceSeparated(orderByCollation);
             }
         }
         return queryBuilder.getQuery();
