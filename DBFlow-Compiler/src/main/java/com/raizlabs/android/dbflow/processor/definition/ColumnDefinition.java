@@ -307,7 +307,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.getValue(\"%1s\"), %1s.class)",
                                          modelDefinition,
                                          ModelUtils.getVariable(true), ModelUtils.getVariable(true),
-                                         columnFieldName,
+                                         containerKeyName,
                                          foreignKeyTableClassName);
             } else {
                 javaWriter.beginControlFlow("if (%1s != null)", modelDefinition);
@@ -458,11 +458,11 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 if (isModelContainerAdapter && isModel) {
                     javaWriter.emitStatement("%1s.put(\"%1s\",%1s.getData())", ModelUtils.getVariable(true),
-                                             columnFieldName, modelContainerName);
+                                             containerKeyName, modelContainerName);
                     javaWriter.nextControlFlow("else");
 
                     javaWriter.emitStatement("%1s.put(\"%1s\", null)", ModelUtils.getVariable(true),
-                                             columnFieldName);
+                                             containerKeyName);
                 }
 
                 javaWriter.endControlFlow();
