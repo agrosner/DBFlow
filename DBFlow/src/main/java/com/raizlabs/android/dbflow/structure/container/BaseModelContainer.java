@@ -31,8 +31,8 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         modelAdapter = FlowManager.getModelAdapter(table);
         modelContainerAdapter = FlowManager.getContainerAdapter(table);
         if (modelContainerAdapter == null) {
-            throw new InvalidDBConfiguration("The table" + FlowManager.getTableName(table) + " did not specify the ContainerAdapter" +
-                    "annotation. Please add and rebuild");
+            throw new InvalidDBConfiguration("The table `" + FlowManager.getTableName(table) 
+            + "` did not specify the ContainerAdapter annotation.");
         }
     }
 
