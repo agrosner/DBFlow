@@ -300,8 +300,9 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 javaWriter.emitSingleLineComment("Model Container Definition");
             }
 
+            ColumnAccessModel accessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
             String modelDefinition = isModelContainerAdapter ? (ModelUtils.getVariable(true) + columnFieldName)
-                    : ModelUtils.getModelStatement(columnFieldName);
+                    : ModelUtils.getModelStatement(accessModel.getReferencedColumnFieldName());
             if (isModelContainerAdapter) {
                 javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.getValue(\"%1s\"), %1s.class)",
                                          modelDefinition,

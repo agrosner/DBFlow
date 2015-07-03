@@ -66,8 +66,11 @@ public class ColumnAccessModel implements Query {
 
     String getterName;
 
+    ColumnDefinition parentColumnDefinition;
+
     public ColumnAccessModel(ProcessorManager manager, ColumnDefinition columnDefinition,
                              boolean isModelContainerAdapter) {
+        parentColumnDefinition = columnDefinition;
         this.fieldIsAModelContainer = columnDefinition.fieldIsModelContainer;
         columnName = columnDefinition.columnName;
         columnFieldName = columnDefinition.columnFieldName;
@@ -133,6 +136,7 @@ public class ColumnAccessModel implements Query {
     }
 
     public ColumnAccessModel(ColumnDefinition columnDefinition, ForeignKeyReference foreignKeyReference) {
+        parentColumnDefinition = columnDefinition;
         this.fieldIsAModelContainer = columnDefinition.fieldIsModelContainer;
         columnName = columnDefinition.columnName;
         setterName = columnDefinition.setterName;
@@ -186,10 +190,11 @@ public class ColumnAccessModel implements Query {
         } else if (fieldIsAModelContainer) {
             contentValue.append(columnName)
                     .append(".")
-                    .appendGetValue(referencedColumnFieldName);
+                    .appendGetValue(getReferencedColumnFieldName());
         } else {
             if (isForeignKeyField) {
-                contentValue.append(columnName)
+                ColumnAccessModel columnAccessModel = new ColumnAccessModel(parentColumnDefinition.getManager(), parentColumnDefinition, isModelContainerAdapter);
+                contentValue.append(columnAccessModel.getReferencedColumnFieldName())
                         .append(".");
             }
             contentValue.append(getReferencedColumnFieldName());

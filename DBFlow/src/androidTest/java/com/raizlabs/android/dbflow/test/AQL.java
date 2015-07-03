@@ -1,10 +1,13 @@
 package com.raizlabs.android.dbflow.test;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.test.sql.BoxedModel;
 
 import java.util.Date;
 
@@ -33,6 +36,11 @@ public class AQL extends BaseModel {
 
     @Column(name = Columns.AQL_TIMESTAMP)
     private Date timestamp;
+
+    @Column
+    @ForeignKey(references = {@ForeignKeyReference(columnName = "id1", columnType = long.class, foreignColumnName = "id"),
+    @ForeignKeyReference(columnName = "id2", columnType = String.class, foreignColumnName = "name")})
+    private BoxedModel boxedModel;
 
     public Long getAql_id() {
         return aql_id;
@@ -64,5 +72,13 @@ public class AQL extends BaseModel {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public BoxedModel getBoxedModel() {
+        return boxedModel;
+    }
+
+    public void setBoxedModel(BoxedModel boxedModel) {
+        this.boxedModel = boxedModel;
     }
 }

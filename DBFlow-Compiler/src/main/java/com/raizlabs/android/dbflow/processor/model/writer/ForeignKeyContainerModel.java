@@ -34,7 +34,7 @@ public class ForeignKeyContainerModel extends ContentValueModel {
             AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
 
             AdapterQueryBuilder ifBuilder = new AdapterQueryBuilder()
-                    .append(modelContainerName).append(".").appendGetValue(accessModel.referencedColumnFieldName);
+                    .append(modelContainerName).append(".").appendGetValue(accessModel.getReferencedColumnFieldName());
             javaWriter.beginControlFlow("if (%1s != null) ", ifBuilder.getQuery());
             if (!isContentValues()) {
                 adapterQueryBuilder.appendBindSQLiteStatement(getIndex(), accessModel.castedClass);
@@ -45,7 +45,7 @@ public class ForeignKeyContainerModel extends ContentValueModel {
                     .appendCast(accessModel.castedClass)
                     .append(modelContainerName)
                     .append(".")
-                    .appendGetValue(accessModel.referencedColumnFieldName)
+                    .appendGetValue(accessModel.getReferencedColumnFieldName())
                     .append("))");
             javaWriter.emitStatement(adapterQueryBuilder.getQuery());
 
