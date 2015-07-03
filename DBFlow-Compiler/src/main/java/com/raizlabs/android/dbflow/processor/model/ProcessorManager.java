@@ -294,7 +294,7 @@ public class ProcessorManager implements Handler {
                 databaseWriter.write(javaWriter);
                 javaWriter.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                processorManager.getMessager().printMessage(Diagnostic.Kind.WARNING, e.getMessage());
             }
         }
 
@@ -308,7 +308,7 @@ public class ProcessorManager implements Handler {
 
                 staticFlowManager.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                processorManager.getMessager().printMessage(Diagnostic.Kind.WARNING, e.getMessage());
             }
         }
     }

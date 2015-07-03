@@ -1,12 +1,13 @@
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
+
+import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
 
 /**
  * Description:
@@ -26,7 +27,7 @@ public class InsertTest extends FlowTestCase {
         FlowManager.getDatabase(TestDatabase.NAME).getWritableDatabase().execSQL(insert.getQuery());
 
         InsertModel model = new Select().from(InsertModel.class)
-                .where(Condition.column(InsertModel$Table.NAME).is("Test")).querySingle();
+                .where(column(InsertModel$Table.NAME).is("Test")).querySingle();
         assertNotNull(model);
 
 
@@ -37,7 +38,7 @@ public class InsertTest extends FlowTestCase {
         FlowManager.getDatabase(TestDatabase.NAME).getWritableDatabase().execSQL(insert.getQuery());
 
         model = new Select().from(InsertModel.class)
-                .where(Condition.column(InsertModel$Table.NAME).is("Test2")).querySingle();
+                .where(column(InsertModel$Table.NAME).is("Test2")).querySingle();
         assertNotNull(model);
     }
 }

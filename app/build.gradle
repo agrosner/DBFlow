@@ -28,6 +28,12 @@ android {
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
+
+    buildTypes {
+        debug{
+            minifyEnabled true
+        }
+    }
 }
 
 dependencies {

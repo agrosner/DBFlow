@@ -27,40 +27,35 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     /**
      * The first chunk of the SQL statement before this query.
      */
-    private final WhereBase<ModelClass> mWhereBase;
+    private final WhereBase<ModelClass> whereBase;
     /**
      * The database manager we run this query on
      */
-    private final BaseDatabaseDefinition mManager;
+    private final BaseDatabaseDefinition databaseDefinition;
     /**
      * Helps to build the where statement easily
      */
-    private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
+    private ConditionQueryBuilder<ModelClass> conditionQueryBuilder;
     /**
      * The SQL GROUP BY method
      */
-    private String mGroupBy;
+    private String groupBy;
     /**
      * The SQL HAVING
      */
-    private ConditionQueryBuilder<ModelClass> mHaving;
+    private ConditionQueryBuilder<ModelClass> having;
     /**
      * The SQL ORDER BY
      */
-    private String mOrderBy;
+    private String orderBy;
     /**
      * The SQL LIMIT
      */
-    private String mLimit;
+    private String limit;
     /**
      * The SQL OFFSET
      */
-    private String mOffset;
-
-    /**
-     * Marks this WHERE as only using the EXIST keyword.
-     */
-    private boolean isExistWhere;
+    private String offset;
 
     /**
      * Constructs this class with the specified {@link com.raizlabs.android.dbflow.config.FlowManager}
@@ -70,10 +65,10 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      */
     public Where(WhereBase<ModelClass> whereBase) {
         super(whereBase.getTable());
-        mWhereBase = whereBase;
-        mManager = FlowManager.getDatabaseForTable(mWhereBase.getTable());
-        mConditionQueryBuilder = new ConditionQueryBuilder<>(mWhereBase.getTable());
-        mHaving = new ConditionQueryBuilder<>(mWhereBase.getTable());
+        this.whereBase = whereBase;
+        databaseDefinition = FlowManager.getDatabaseForTable(this.whereBase.getTable());
+        conditionQueryBuilder = new ConditionQueryBuilder<>(this.whereBase.getTable());
+        having = new ConditionQueryBuilder<>(this.whereBase.getTable());
     }
 
     /**
@@ -84,7 +79,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> whereClause(String whereClause, Object... args) {
-        mConditionQueryBuilder.append(whereClause, args);
+        conditionQueryBuilder.append(whereClause, args);
         return this;
     }
 
@@ -96,7 +91,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      */
     public Where<ModelClass> whereQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
         if (conditionQueryBuilder != null) {
-            mConditionQueryBuilder = conditionQueryBuilder;
+            this.conditionQueryBuilder = conditionQueryBuilder;
         }
         return this;
     }
@@ -109,7 +104,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> and(String columnName, Object value) {
-        mConditionQueryBuilder.addCondition(columnName, value);
+        conditionQueryBuilder.addCondition(columnName, value);
         return this;
     }
 
@@ -122,7 +117,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> and(String columnName, String operator, Object value) {
-        mConditionQueryBuilder.addCondition(columnName, operator, value);
+        conditionQueryBuilder.addCondition(columnName, operator, value);
         return this;
     }
 
@@ -133,7 +128,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> and(SQLCondition condition) {
-        mConditionQueryBuilder.and(condition);
+        conditionQueryBuilder.and(condition);
         return this;
     }
 
@@ -144,7 +139,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> or(SQLCondition condition) {
-        mConditionQueryBuilder.or(condition);
+        conditionQueryBuilder.or(condition);
         return this;
     }
 
@@ -155,7 +150,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> andThese(List<SQLCondition> conditions) {
-        mConditionQueryBuilder.addConditions(conditions);
+        conditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
@@ -166,7 +161,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> andThese(SQLCondition... conditions) {
-        mConditionQueryBuilder.addConditions(conditions);
+        conditionQueryBuilder.addConditions(conditions);
         return this;
     }
 
@@ -177,7 +172,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> groupBy(QueryBuilder groupBy) {
-        mGroupBy = groupBy.getQuery();
+        this.groupBy = groupBy.getQuery();
         return this;
     }
 
@@ -188,7 +183,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> groupBy(ColumnAlias... columns) {
-        mGroupBy = new QueryBuilder().appendArray(columns)
+        groupBy = new QueryBuilder().appendArray(columns)
                 .getQuery();
         return this;
     }
@@ -200,7 +195,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> groupBy(String... columns) {
-        mGroupBy = new QueryBuilder().appendArray(columns)
+        groupBy = new QueryBuilder().appendArray(columns)
                 .getQuery();
         return this;
     }
@@ -212,54 +207,58 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> having(SQLCondition... conditions) {
-        mHaving.addConditions(conditions);
+        having.addConditions(conditions);
         return this;
     }
 
     /**
-     * Defines a SQL ORDER BY statement without the ORDER BY.
-     *
      * @param ascending If we should be in ascending order
-     * @return
+     * @param columns   the columns to specify.
+     * @return This WHERE query.
      */
     public Where<ModelClass> orderBy(boolean ascending, String... columns) {
-        mOrderBy = new QueryBuilder().appendArray(columns)
-                .appendSpace()
-                .append(ascending ? "ASC" : "DESC")
+        orderBy = OrderBy.columns(columns).setAscending(ascending)
                 .getQuery();
         return this;
     }
 
     /**
-     * Defines a SQL ORDER BY statement without the ORDER BY.
-     *
-     * @param orderby The orderBy command
-     * @return
+     * @param orderby The orderBy string that we use.
+     * @return This WHERE query.
      */
     public Where<ModelClass> orderBy(String orderby) {
-        mOrderBy = orderby;
+        orderBy = OrderBy.fromString(orderby).getQuery();
         return this;
     }
 
     /**
-     * Defines a SQL LIMIT statement without the LIMIT.
+     * @param orderby The {@link OrderBy}
+     * @return This WHERE query.
+     */
+    public Where<ModelClass> orderBy(OrderBy orderby) {
+        orderBy = orderby.getQuery();
+        return this;
+    }
+
+    /**
+     * Specify the limit value you wish to use..
      *
-     * @param limit
-     * @return
+     * @param limit The limit. E.g. 1
+     * @return This WHERE query.
      */
     public Where<ModelClass> limit(Object limit) {
-        mLimit = String.valueOf(limit);
+        this.limit = String.valueOf(limit);
         return this;
     }
 
     /**
-     * Defines a SQL OFFSET statement without the OFFSET.
+     * Add an OFFSET value to this query.
      *
-     * @param offset
-     * @return
+     * @param offset The offset value.
+     * @return This WHERE query.
      */
     public Where<ModelClass> offset(Object offset) {
-        mOffset = String.valueOf(offset);
+        this.offset = String.valueOf(offset);
         return this;
     }
 
@@ -269,9 +268,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> exists(Where where) {
-        mConditionQueryBuilder.addCondition(Condition.exists()
-                                                    .operation("")
-                                                    .value(where));
+        conditionQueryBuilder.addCondition(Condition.exists()
+                .operation("")
+                .value(where));
         return this;
     }
 
@@ -282,24 +281,24 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      */
     public long count() {
         long count;
-        if ((mWhereBase instanceof Set) || mWhereBase.getQueryBuilderBase() instanceof Delete) {
-            count = SQLiteCompatibilityUtils.executeUpdateDelete(mManager.getWritableDatabase(), getQuery());
+        if ((whereBase instanceof Set) || whereBase.getQueryBuilderBase() instanceof Delete) {
+            count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseDefinition.getWritableDatabase(), getQuery());
         } else {
-            count = DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
+            count = DatabaseUtils.longForQuery(databaseDefinition.getWritableDatabase(), getQuery(), null);
         }
         return count;
     }
 
     @Override
     public String getQuery() {
-        String fromQuery = mWhereBase.getQuery();
+        String fromQuery = whereBase.getQuery();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery)
-                .appendQualifier("WHERE", mConditionQueryBuilder.getQuery())
-                .appendQualifier("GROUP BY", mGroupBy)
-                .appendQualifier("HAVING", mHaving.getQuery())
-                .appendQualifier("ORDER BY", mOrderBy)
-                .appendQualifier("LIMIT", mLimit)
-                .appendQualifier("OFFSET", mOffset);
+                .appendQualifier("WHERE", conditionQueryBuilder.getQuery())
+                .appendQualifier("GROUP BY", groupBy)
+                .appendQualifier("HAVING", having.getQuery())
+                .appendQualifier(null, orderBy)
+                .appendQualifier("LIMIT", limit)
+                .appendQualifier("OFFSET", offset);
 
         // Don't wast time building the string
         // unless we're going to log it.
@@ -311,20 +310,18 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Run this query and returns the {@link android.database.Cursor} for it
-     *
-     * @return the Sqlite {@link android.database.Cursor} from this query
+     * @return the result of the query as a {@link Cursor}.
      */
     @Override
     public Cursor query() {
         // Query the sql here
         Cursor cursor = null;
         String query = getQuery();
-        if (mWhereBase.getQueryBuilderBase() instanceof Select) {
-            cursor = mManager.getWritableDatabase()
+        if (whereBase.getQueryBuilderBase() instanceof Select) {
+            cursor = databaseDefinition.getWritableDatabase()
                     .rawQuery(query, null);
         } else {
-            mManager.getWritableDatabase()
+            databaseDefinition.getWritableDatabase()
                     .execSQL(query);
         }
 
@@ -351,7 +348,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     protected void checkSelect(String methodName) {
-        if (!(mWhereBase.getQueryBuilderBase() instanceof Select)) {
+        if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
             throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
         }
     }
@@ -360,7 +357,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * Queries and returns only the first {@link ModelClass} result from the DB. Will enforce a limit of 1 item
      * returned from the database.
      *
-     * @return The first result of this query. Note: this query may return more than one from the DB.
+     * @return The first result of this query. Note: this query forces a limit of 1 from the database.
      */
     @Override
     public ModelClass querySingle() {
@@ -376,6 +373,6 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      */
     public boolean hasData() {
         checkSelect("query");
-        return SqlUtils.hasData(mWhereBase.getTable(), getQuery());
+        return SqlUtils.hasData(whereBase.getTable(), getQuery());
     }
 }
