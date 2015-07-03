@@ -51,23 +51,6 @@ looping through saving models in a `ProcessModelTransaction`.
 10. Escalated `convertToCacheableList()` to `public` and now can query to know if
 a `Model` has a valid caching id. Also some more public methods added to `SqlUtils`!
 
-
-#### 2.1.0
-
-1. Library now is on jCenter()/bintray!
-2. Full Enum Support. Note: they must be standard columns. We do not support foreign key or primary key for enums.
-3. Can now define inherited properties to use as columns. Note: They can only be normal, accessible to the subclass columns for now. Just
- define `@Table(inheritedColumns = {@InheritedColumn(column = @Column, fieldName = "fieldName")}`.
-4. Bug Fixes, readme enhancements, Logging Improvements, and improved code commenting
-5. Function support for SQLite methods in a condition such that `date(myColumn1)=1433872730` can be written
- as `Condition.columnsWithFunction("date", "myColumn1").eq(1433872730)`
-6. Fixed an issue where `Condition` instead of `SQLCondition` were leftover as a param in a few methods.
-
-#### 2.0.0
-
-1. Massive, massive changes to the library.
-2. For all changes, check out the migration guide [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migration2Guide.md)
-
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
 ## Usage Docs
