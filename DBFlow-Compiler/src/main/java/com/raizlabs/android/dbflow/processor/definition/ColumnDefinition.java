@@ -456,7 +456,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 }
 
-                if (isModelContainerAdapter && isModel && fieldIsModelContainer) {
+                if (isModelContainerAdapter && isModel) {
                     javaWriter.emitStatement("%1s.put(\"%1s\",%1s.getData())", ModelUtils.getVariable(true),
                                              columnFieldName, modelContainerName);
                     javaWriter.nextControlFlow("else");
@@ -476,6 +476,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
             LoadFromCursorModel loadFromCursorModel = new LoadFromCursorModel(columnAccessModel);
             loadFromCursorModel.setModelContainerName(columnName);
+            loadFromCursorModel.setIsModelContainerAdapter(isModelContainerAdapter);
             loadFromCursorModel.setIsNullable(isNullable());
             loadFromCursorModel.writeSingleField(javaWriter);
         }
