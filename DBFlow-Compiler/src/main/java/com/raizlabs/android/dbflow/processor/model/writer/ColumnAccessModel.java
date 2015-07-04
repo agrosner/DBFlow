@@ -60,20 +60,26 @@ public class ColumnAccessModel implements Query {
 
     boolean isPrivate;
 
+    boolean isBoolean;
+
     boolean isEnum;
 
     String setterName;
 
     String getterName;
 
+    ColumnDefinition parentColumnDefinition;
+
     public ColumnAccessModel(ProcessorManager manager, ColumnDefinition columnDefinition,
                              boolean isModelContainerAdapter) {
+        parentColumnDefinition = columnDefinition;
         this.fieldIsAModelContainer = columnDefinition.fieldIsModelContainer;
         columnName = columnDefinition.columnName;
         columnFieldName = columnDefinition.columnFieldName;
         columnFieldType = columnDefinition.columnFieldType;
         columnFieldActualType = columnDefinition.columnFieldActualType;
         referencedColumnFieldName = columnDefinition.columnFieldName;
+        isBoolean = columnDefinition.isBoolean;
         foreignKeyLocalColumnName = columnName;
         containerKeyName = columnDefinition.containerKeyName;
         isPrivate = columnDefinition.isPrivate;
@@ -133,10 +139,12 @@ public class ColumnAccessModel implements Query {
     }
 
     public ColumnAccessModel(ColumnDefinition columnDefinition, ForeignKeyReference foreignKeyReference) {
+        parentColumnDefinition = columnDefinition;
         this.fieldIsAModelContainer = columnDefinition.fieldIsModelContainer;
         columnName = columnDefinition.columnName;
         setterName = columnDefinition.setterName;
         getterName = columnDefinition.getterName;
+        isBoolean = columnDefinition.isBoolean;
         columnFieldActualType = columnDefinition.columnFieldActualType;
         columnFieldName = columnDefinition.columnFieldName;
         columnFieldType = columnDefinition.columnFieldType;
@@ -154,6 +162,22 @@ public class ColumnAccessModel implements Query {
         isPrimitive = castClass.getKind()
                 .isPrimitive();
         columnFieldBoxedType = columnFieldActualType;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public boolean isEnum() {
+        return isEnum;
+    }
+
+    public boolean isBoolean() {
+        return isBoolean;
+    }
+
+    public boolean isRequiresTypeConverter() {
+        return requiresTypeConverter;
     }
 
     public String getQueryNoCast() {
@@ -185,7 +209,8 @@ public class ColumnAccessModel implements Query {
                     .appendGetValue(referencedColumnFieldName);
         } else {
             if (isForeignKeyField) {
-                contentValue.append(columnName)
+                ColumnAccessModel columnAccessModel = new ColumnAccessModel(parentColumnDefinition.getManager(), parentColumnDefinition, isModelContainerAdapter);
+                contentValue.append(columnAccessModel.getReferencedColumnFieldName())
                         .append(".");
             }
             contentValue.append(getReferencedColumnFieldName());

@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JCenter](https://img.shields.io/badge/JCenter-2.2.0-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
+[![JCenter](https://img.shields.io/badge/JCenter-2.2.1-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
@@ -32,6 +32,11 @@ If you wish to have your application featured here, please file an [issue](https
 3. [University of Oslo DHIS2 Android SDK](https://github.com/dhis2/dhis2-android-sdk)
 
 ## Changelog
+
+#### 2.2.1
+1. Fixed issue with `OrderBy` where the `COLLATE` keyword was not appended to the query.
+2. Fixed conversion and inconsistency issues within a `ModelContainer` adapter that have foreign keys and private fields.
+3. Private primary keys now work with getter and setters, private fields within `ModelContainer` adapters now generate compilable code.
 
 #### 2.2.0
 
@@ -114,9 +119,9 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:2.1.0'
-    compile "com.raizlabs.android:DBFlow-Core:2.1.0"
-    compile "com.raizlabs.android:DBFlow:2.1.0"
+    apt 'com.raizlabs.android:DBFlow-Compiler:2.2.1'
+    compile "com.raizlabs.android:DBFlow-Core:2.2.1"
+    compile "com.raizlabs.android:DBFlow:2.2.1"
   }
 
 ```

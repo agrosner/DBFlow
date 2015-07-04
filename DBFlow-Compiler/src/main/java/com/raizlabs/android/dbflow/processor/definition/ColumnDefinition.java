@@ -300,13 +300,14 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                 javaWriter.emitSingleLineComment("Model Container Definition");
             }
 
+            ColumnAccessModel accessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
             String modelDefinition = isModelContainerAdapter ? (ModelUtils.getVariable(true) + columnFieldName)
-                    : ModelUtils.getModelStatement(columnFieldName);
+                    : ModelUtils.getModelStatement(accessModel.getReferencedColumnFieldName());
             if (isModelContainerAdapter) {
                 javaWriter.emitStatement("ModelContainer %1s = %1s.getInstance(%1s.getValue(\"%1s\"), %1s.class)",
                                          modelDefinition,
                                          ModelUtils.getVariable(true), ModelUtils.getVariable(true),
-                                         columnFieldName,
+                                         containerKeyName,
                                          foreignKeyTableClassName);
             } else {
                 javaWriter.beginControlFlow("if (%1s != null)", modelDefinition);
@@ -382,6 +383,8 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             // special case for model objects within class
             if (!fieldIsModelContainer && !isModelContainerAdapter && isModel) {
 
+                ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
+
                 for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
                     javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
                 }
@@ -396,9 +399,14 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder().appendVariable(false);
                 adapterQueryBuilder.append(".")
-                        .append(columnFieldName)
-                        .appendSpaceSeparated("=");
+                        .append(columnAccessModel.getSetterReferenceColumnFieldName());
+                if (!columnAccessModel.isPrivate()) {
+                    adapterQueryBuilder.appendSpaceSeparated("=");
+                }
                 adapterQueryBuilder.append(rawConditionStatement);
+                if (columnAccessModel.isPrivate()) {
+                    adapterQueryBuilder.append(")");
+                }
                 javaWriter.emitStatement(adapterQueryBuilder.getQuery());
 
                 javaWriter.endControlFlow();
@@ -448,13 +456,13 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
                 }
 
-                if (isModelContainerAdapter && isModel && fieldIsModelContainer) {
+                if (isModelContainerAdapter && isModel) {
                     javaWriter.emitStatement("%1s.put(\"%1s\",%1s.getData())", ModelUtils.getVariable(true),
-                                             columnFieldName, modelContainerName);
+                                             containerKeyName, modelContainerName);
                     javaWriter.nextControlFlow("else");
 
                     javaWriter.emitStatement("%1s.put(\"%1s\", null)", ModelUtils.getVariable(true),
-                                             columnFieldName);
+                                             containerKeyName);
                 }
 
                 javaWriter.endControlFlow();
@@ -468,12 +476,13 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
             LoadFromCursorModel loadFromCursorModel = new LoadFromCursorModel(columnAccessModel);
             loadFromCursorModel.setModelContainerName(columnName);
+            loadFromCursorModel.setIsModelContainerAdapter(isModelContainerAdapter);
             loadFromCursorModel.setIsNullable(isNullable());
             loadFromCursorModel.writeSingleField(javaWriter);
         }
     }
 
-    public void writeToModelDefinition(JavaWriter javaWriter) throws IOException {
+    public void writeToModelDefinition(JavaWriter javaWriter, boolean isModelContainerAdapter) throws IOException {
 
         if (!isModel) {
             AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder("Object value");
@@ -487,11 +496,16 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         }
 
 
+        ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
+
         AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder();
         queryBuilder.appendVariable(false)
                 .append(".")
-                .append(columnFieldName);
-        queryBuilder.appendSpaceSeparated("=");
+                .append(columnAccessModel.getSetterReferenceColumnFieldName());
+
+        if (!columnAccessModel.isPrivate()) {
+            queryBuilder.appendSpaceSeparated("=");
+        }
 
         String getType = columnFieldType;
         // Type converters can never be primitive except boolean
@@ -518,7 +532,18 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
                     .append(
                             ".toModel())");
         } else {
+            if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum() && !columnAccessModel.isBoolean()) {
+                queryBuilder.appendTypeConverter(null, getType, true);
+            }
             queryBuilder.append(String.format("value%1s)", columnFieldName));
+        }
+
+        if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum() && !columnAccessModel.isBoolean()) {
+            queryBuilder.append(")");
+        }
+
+        if (columnAccessModel.isPrivate()) {
+            queryBuilder.append(")");
         }
 
         javaWriter.emitStatement(queryBuilder.getQuery());

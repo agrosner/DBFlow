@@ -56,39 +56,42 @@ public class LoadFromCursorModel implements FlowWriter {
 
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
-        if (isModelContainerAdapter) {
-            AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder();
-            adapterQueryBuilder.append(modelContainerName)
-                    .appendPut(accessModel.getReferencedColumnFieldName())
-                    .append(ModelUtils.getCursorStatement(
-                            accessModel.castedClass, accessModel.foreignKeyLocalColumnName))
-                    .append(")");
-            javaWriter.emitStatement(adapterQueryBuilder.getQuery());
-        } else {
-            String cursorStatementClass = accessModel.castedClass;
-            if (accessModel.isEnum) {
-                cursorStatementClass = String.class.getName();
-            }
-            String cursorStatment = ModelUtils.getCursorStatement(cursorStatementClass,
-                                                                  accessModel.foreignKeyLocalColumnName);
-            emitColumnAssignment(javaWriter, cursorStatment);
+        String cursorStatementClass = accessModel.castedClass;
+        if (accessModel.isEnum) {
+            cursorStatementClass = String.class.getName();
         }
+        String cursorStatment = ModelUtils.getCursorStatement(cursorStatementClass,
+                accessModel.foreignKeyLocalColumnName);
+        emitColumnAssignment(javaWriter, cursorStatment);
     }
 
     private void emitColumnAssignment(JavaWriter javaWriter,
                                       String valueStatement) throws IOException {
         boolean isContainerFieldDefinition = accessModel.isModelContainerAdapter;
-        boolean isWritingForContainers = accessModel.fieldIsAModelContainer;
-        AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder().appendVariable(isContainerFieldDefinition);
-        if (isWritingForContainers) {
-            queryBuilder.append(".")
-                    .append(accessModel.columnName);
+        boolean fieldIsAModelContainer = accessModel.fieldIsAModelContainer;
+        boolean isNull = valueStatement.equals("null");
+        AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder();
+
+        if (isModelContainerAdapter) {
+            if (accessModel.isForeignKeyField) {
+                queryBuilder.append(modelContainerName);
+            } else {
+                queryBuilder.append(ModelUtils.getVariable(true));
+            }
+        } else {
+            queryBuilder.appendVariable(isContainerFieldDefinition);
+        }
+        if (fieldIsAModelContainer && isModelContainerAdapter) {
+            queryBuilder.appendPut(accessModel.getReferencedColumnFieldName());
+        } else if (fieldIsAModelContainer) {
+            queryBuilder.append(".").append(accessModel.columnFieldName)
+                    .appendPut(accessModel.getReferencedColumnFieldName());
+        } else if (isModelContainerAdapter && accessModel.isForeignKeyField) {
+            queryBuilder.appendPut(accessModel.getReferencedColumnFieldName());
         }
         if (isContainerFieldDefinition) {
             queryBuilder.appendPut(accessModel.containerKeyName);
-        } else if (isWritingForContainers) {
-            queryBuilder.appendPut(accessModel.getReferencedColumnFieldName());
-        } else {
+        } else if (!fieldIsAModelContainer && !isModelContainerAdapter) {
             queryBuilder.append(".")
                     .append(accessModel.getSetterReferenceColumnFieldName());
             if (!accessModel.isPrivate) {
@@ -97,14 +100,14 @@ public class LoadFromCursorModel implements FlowWriter {
         }
         if (accessModel.isEnum) {
             // don't attempt to use valueOf on a null, will throw a NullPointerException
-            if (!valueStatement.equals("null")) {
+            if (!isNull) {
                 queryBuilder.append(accessModel.castedClass)
                         .append(".valueOf(");
             }
         } else {
-            if (accessModel.requiresTypeConverter && !isContainerFieldDefinition) {
+            if (accessModel.requiresTypeConverter && !isNull) {
                 queryBuilder.appendTypeConverter(accessModel.columnFieldBoxedType, accessModel.columnFieldBoxedType,
-                                                 true);
+                        true);
             } else if (accessModel.isABlob) {
                 queryBuilder.append(String.format("new %1s(", Blob.class.getName()));
             }
@@ -112,15 +115,20 @@ public class LoadFromCursorModel implements FlowWriter {
 
         queryBuilder.append(valueStatement);
 
-        if (accessModel.requiresTypeConverter && !isContainerFieldDefinition && !accessModel.isEnum ||
-            (accessModel.isEnum && isContainerFieldDefinition && !valueStatement.equals("null"))) {
+        if (accessModel.requiresTypeConverter && !isNull && !accessModel.isEnum ||
+                (accessModel.isEnum && isContainerFieldDefinition && !isNull)) {
             queryBuilder.append("))");
-        } else if (isContainerFieldDefinition || isWritingForContainers || accessModel.isABlob ||
-                   (accessModel.isEnum && !valueStatement.equals("null"))) {
+        } else if (isModelContainerAdapter || isContainerFieldDefinition || fieldIsAModelContainer || accessModel.isABlob ||
+                (accessModel.isEnum && !isNull)) {
             queryBuilder.append(")");
         }
 
-        if (accessModel.isPrivate) {
+        if (accessModel.isPrivate && !isContainerFieldDefinition) {
+            queryBuilder.append(")");
+        }
+
+        if (accessModel.requiresTypeConverter && !accessModel.isEnum()
+                && isModelContainerAdapter && !isNull) {
             queryBuilder.append(")");
         }
 
