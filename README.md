@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JCenter](https://img.shields.io/badge/JCenter-2.2.0-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
+[![JCenter](https://img.shields.io/badge/JCenter-2.2.1-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
@@ -119,9 +119,9 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:2.1.0'
-    compile "com.raizlabs.android:DBFlow-Core:2.1.0"
-    compile "com.raizlabs.android:DBFlow:2.1.0"
+    apt 'com.raizlabs.android:DBFlow-Compiler:2.2.1'
+    compile "com.raizlabs.android:DBFlow-Core:2.2.1"
+    compile "com.raizlabs.android:DBFlow:2.2.1"
   }
 
 ```
