@@ -33,6 +33,11 @@ If you wish to have your application featured here, please file an [issue](https
 
 ## Changelog
 
+#### 2.2.1
+1. Fixed issue with `OrderBy` where the `COLLATE` keyword was not appended to the query.
+2. Fixed conversion and inconsistency issues within a `ModelContainer` adapter that have foreign keys and private fields.
+3. Private primary keys now work with getter and setters, private fields within `ModelContainer` adapters now generate compilable code.
+
 #### 2.2.0
 
 1. Fixed a bug where `new Select().from(myTable.class).byId(PrimaryKey)` was incorrectly double-quoting columns.
