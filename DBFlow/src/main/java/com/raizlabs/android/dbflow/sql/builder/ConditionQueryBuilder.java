@@ -263,7 +263,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             stringVal = String.valueOf(value);
         } else {
             if (value instanceof Where) {
-                stringVal = String.format("(%1s)", ((Where) value).getQuery().trim());
+                stringVal = String.format("%1s", ((Where) value).getQuery().trim());
             } else if (value instanceof ColumnAlias) {
                 stringVal = ((ColumnAlias) value).getQuery();
             } else {
