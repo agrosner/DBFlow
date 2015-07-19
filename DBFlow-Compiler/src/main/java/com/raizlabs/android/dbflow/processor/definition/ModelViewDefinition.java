@@ -4,12 +4,10 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.processor.Classes;
-import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
@@ -130,8 +128,11 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
     @Override
     protected String[] getImports() {
         return new String[]{
-                Classes.CURSOR, Classes.SELECT, Classes.CONDITION_QUERY_BUILDER,
-                Classes.CONDITION
+                Classes.CURSOR,
+                Classes.SELECT,
+                Classes.CONDITION_QUERY_BUILDER,
+                Classes.CONDITION,
+                Classes.FLOW_MANAGER
         };
     }
 
