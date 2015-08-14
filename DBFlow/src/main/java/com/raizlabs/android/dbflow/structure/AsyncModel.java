@@ -32,7 +32,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     private ModelClass model;
     private WeakReference<OnModelChangedListener> onModelChangedListener;
 
-    AsyncModel(ModelClass referenceModel) {
+    public AsyncModel(ModelClass referenceModel) {
         model = referenceModel;
     }
 
