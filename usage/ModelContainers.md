@@ -4,7 +4,7 @@ Model Containers (```ModelContainer```) are **mirrors** to actual ```Model``` cl
 
 Please note that they come with these restrictions:
   1. They must reference an existing ```Model``` table from the same database that you define.
-  2. You cannot ```SELECT``` from any ```ModelContainer``` class is it does not exist as a table. It implements ```Model``` as a convenience method to enable it to operate like a ```Model```.
+  2. You cannot ```SELECT``` from any ```ModelContainer``` class that does not exist as a table. It implements ```Model``` as a convenience method to enable it to operate like a ```Model```.
   3. Make sure to reference the correct table as it will not know that it's the wrong table
   4. This is **NOT** a fully featured JSON/Map/Object parser inside an ORM database library.
 
