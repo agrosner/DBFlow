@@ -31,8 +31,10 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         modelAdapter = FlowManager.getModelAdapter(table);
         modelContainerAdapter = FlowManager.getContainerAdapter(table);
         if (modelContainerAdapter == null) {
-            throw new InvalidDBConfiguration("The table `" + FlowManager.getTableName(table) 
-            + "` did not specify the ContainerAdapter annotation.");
+            throw new InvalidDBConfiguration("The table " + FlowManager.getTableName(table) + " did not specify the " +
+                    com.raizlabs.android.dbflow.annotation.ModelContainer.class.getSimpleName() + " annotation." +
+                    " Please decorate " + table.getName() +
+                    " with annotation @" + com.raizlabs.android.dbflow.annotation.ModelContainer.class.getSimpleName() + ".");
         }
     }
 
