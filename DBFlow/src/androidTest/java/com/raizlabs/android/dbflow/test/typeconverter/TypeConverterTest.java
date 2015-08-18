@@ -81,6 +81,68 @@ public class TypeConverterTest extends FlowTestCase {
     }
 
     /**
+     * Test converters in a view class.
+     */
+    public void testViewConverters() {
+
+        Delete.table(TestType.class);
+
+        TestType testType = new TestType();
+        testType.name = "Name";
+
+        long testTime = System.currentTimeMillis();
+
+        // calendar
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(testTime);
+        testType.calendar = calendar;
+
+        Date date = new Date(testTime);
+        testType.date = date;
+
+        java.sql.Date date1 = new java.sql.Date(testTime);
+        testType.sqlDate = date1;
+
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject("{ name: test, happy: true }");
+            testType.json = jsonObject;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        Location location = new Location("test");
+        location.setLatitude(40.5);
+        location.setLongitude(40.5);
+        testType.location = location;
+
+        testType.save();
+
+        TestTypeView retrievedView = new Select().from(TestTypeView.class)
+                .where(column(TestTypeView$ViewTable.NAME).is("Name"))
+                .querySingle();
+
+        assertNotNull(retrievedView);
+
+        assertNotNull(retrievedView.calendar);
+        assertTrue(retrievedView.calendar.equals(calendar));
+
+        assertNotNull(retrievedView.date);
+        assertTrue(retrievedView.date.equals(date));
+
+        assertNotNull(retrievedView.sqlDate);
+        assertTrue(retrievedView.sqlDate.equals(date1));
+
+        assertNotNull(retrievedView.json);
+        assertTrue(retrievedView.json.toString().equals(jsonObject.toString()));
+
+        assertNotNull(retrievedView.location);
+        assertTrue(retrievedView.location.getLongitude() == location.getLongitude());
+        assertTrue(retrievedView.location.getLatitude() == location.getLatitude());
+
+    }
+
+    /**
      * Nullable database columns need to be allowed to receive null values.
      */
     public void testConvertersNullValues() {
