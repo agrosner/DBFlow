@@ -84,7 +84,8 @@ public class SqlUtils {
                 // Ensure that we aren't iterating over this cursor concurrently from different threads
                 if (cursor.moveToFirst()) {
                     do {
-                        long id = cursor.getLong(cursor.getColumnIndex(instanceAdapter.getCachingColumnName()));
+                        Object id = instanceAdapter.getCachingIdFromCursorIndex(cursor,
+                                cursor.getColumnIndex(instanceAdapter.getCachingColumnName()));
 
                         // if it exists in cache no matter the query we will use that one
                         CacheableClass cacheable = modelCache.get(id);

@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'android-apt'
-apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.github.dcendents.android-maven'
 
 project.ext.artifactId = bt_name
 
@@ -35,5 +35,5 @@ dependencies {
     androidTestApt project("${dbflow_project_prefix}DBFlow-Compiler")
 }
 
-apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
+//apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
 apply from: '../android-artifacts.gradle'
