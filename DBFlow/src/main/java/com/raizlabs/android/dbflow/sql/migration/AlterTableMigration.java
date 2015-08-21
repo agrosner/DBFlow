@@ -111,6 +111,28 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     }
 
     /**
+     * Add a column to the DB. This does not necessarily need to be reflected in the {@link ModelClass},
+     * but it is recommended.
+     *
+     * @param columnType      The type of column that pertains to an {@link com.raizlabs.android.dbflow.sql.SQLiteType}
+     * @param columnName      The name of the column to add. Use the "$Table" class for the specified table.
+     * @param referenceClause The clause of the references that this foreign key points to.
+     * @return This instance
+     */
+    public AlterTableMigration<ModelClass> addForeignKeyColumn(Class columnType, String columnName, String referenceClause) {
+        if (columnDefinitions == null) {
+            columnDefinitions = new ArrayList<>();
+        }
+
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .appendQuoted(columnName).appendSpace().appendType(columnType.getName())
+                .appendSpace().append("REFERENCES ").append(referenceClause);
+        columnDefinitions.add(queryBuilder);
+
+        return this;
+    }
+
+    /**
      * @return The query that renames the table.
      */
     public String getRenameQuery() {
