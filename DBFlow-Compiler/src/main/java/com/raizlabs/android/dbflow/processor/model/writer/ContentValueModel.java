@@ -114,6 +114,8 @@ public class ContentValueModel implements FlowWriter {
 
         if (accessModel.isEnum) {
             contentValue.append(".name()");
+        } else if (accessModel.isABlob && accessModel.isModelContainerAdapter) {
+            contentValue.append(".getBlob()");
         }
         query.append(
                 separateVariableForNullCheck ? ")" : "").getQuery();
