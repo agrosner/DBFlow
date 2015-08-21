@@ -33,27 +33,16 @@ If you wish to have your application featured here, please file an [issue](https
 
 ## Changelog
 
-#### 2.2.1
-1. Fixed issue with `OrderBy` where the `COLLATE` keyword was not appended to the query.
-2. Fixed conversion and inconsistency issues within a `ModelContainer` adapter that have foreign keys and private fields.
-3. Private primary keys now work with getter and setters, private fields within `ModelContainer` adapters now generate compilable code.
+#### 2.3.0
+1. Last bug-fix release before major updates!
+2. Fixed issue where `allFields=true` for `@Table` would append a length of 0 to the column creation.
+3. Fix bug where model caching for `List` lookup would use legacy `long` not respecting the custom column.
+4. Fixed ability to build project
+5. Added  `priority` to migrations that enable them to be ordered based on that for the same version :)
+6. Fixes for `Blob` in `ModelContainer` classes. Code generation improvements will come
+7. Removed that pesky warning about "attempting to recreate file" during processing :)
 
-#### 2.2.0
 
-1. Fixed a bug where `new Select().from(myTable.class).byId(PrimaryKey)` was incorrectly double-quoting columns.
-2. Adds a primary key into the URI of a `FlowContentObserver` for single primary key tables.
-3. Lazy loads `ModelAdapter` and `ModelViewAdapter` so subclassing a non-table `BaseModel` now
-works without crashing/complaining. Just don't call the non-tables associated `Model` methods directly.
-4. Bug fixes and Improvements
-5. Adds the `OrderBy` object to aid in `ORDER BY` queries. Added `orderBy()` methods in the `From` class
-for easier access without needing to call `where()` first. Adds `Collate` support within this class.
-6. Adds a `enableSelfRefreshes()` for the `FlowQueryList` and souped up the documentation
-with a "best practices" section.
-7. Fixes bugs with the [Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md) section implementation. `OneToMany.Method.SAVE` now actually works on `insert`, `update`, and `save` methods.
-8. Adds a `OnProgressProcessChangeListener` to listen for the total progress while
-looping through saving models in a `ProcessModelTransaction`.
-9. Escalated `convertToCacheableList()` to `public` and now can query to know if
-a `Model` has a valid caching id. Also some more public methods added to `SqlUtils`!
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
@@ -106,7 +95,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-         'com.neenbedankt.gradle.plugins:android-apt:1.4'
+         'com.neenbedankt.gradle.plugins:android-apt:1.7'
     }
 }
 
@@ -119,9 +108,9 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:2.2.1'
-    compile "com.raizlabs.android:DBFlow-Core:2.2.1"
-    compile "com.raizlabs.android:DBFlow:2.2.1"
+    apt 'com.raizlabs.android:DBFlow-Compiler:2.3.0'
+    compile "com.raizlabs.android:DBFlow-Core:2.3.0"
+    compile "com.raizlabs.android:DBFlow:2.3.0"
   }
 
 ```
