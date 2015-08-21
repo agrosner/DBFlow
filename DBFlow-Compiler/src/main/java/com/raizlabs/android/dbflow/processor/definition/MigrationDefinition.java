@@ -19,6 +19,8 @@ public class MigrationDefinition extends BaseDefinition implements FlowWriter {
 
     public Integer version;
 
+    public int priority = -1;
+
     public MigrationDefinition(ProcessorManager processorManager, TypeElement typeElement) {
         super(typeElement, processorManager);
         setDefinitionClassName("");
@@ -27,6 +29,7 @@ public class MigrationDefinition extends BaseDefinition implements FlowWriter {
 
         this.databaseName = migration.databaseName();
         version = migration.version();
+        priority = migration.priority();
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.squareup.javawriter.JavaWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -115,17 +116,17 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
-                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
-                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
         }
 
-        for(QueryModelDefinition queryModelDefinition: manager.getQueryModelDefinitions(databaseName)) {
+        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
             javaWriter.emitStatement("holder.putDatabaseForTable(%1s, this)",
-                                     ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()));
+                    ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()));
         }
 
         javaWriter.emitEmptyLine();
@@ -136,12 +137,18 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
             Collections.sort(versionSet);
             for (Integer version : versionSet) {
                 List<MigrationDefinition> migrationDefinitions = migrationDefinitionMap.get(version);
+                Collections.sort(migrationDefinitions, new Comparator<MigrationDefinition>() {
+                    @Override
+                    public int compare(MigrationDefinition o1, MigrationDefinition o2) {
+                        return Integer.valueOf(o2.priority).compareTo(o1.priority);
+                    }
+                });
                 javaWriter.emitStatement("List<%1s> migrations%1s = new ArrayList<>()", Classes.MIGRATION, version);
                 javaWriter.emitStatement("%1s.put(%1s,%1s%1s)", DatabaseHandler.MIGRATION_FIELD_NAME, version,
-                                         "migrations", version);
+                        "migrations", version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {
                     javaWriter.emitStatement("%1s%1s.add(new %1s())", "migrations", version,
-                                             migrationDefinition.getSourceFileName());
+                            migrationDefinition.getSourceFileName());
                 }
             }
         }
@@ -150,33 +157,33 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
             javaWriter.emitStatement(DatabaseHandler.MODEL_FIELD_NAME + ".add(%1s)",
-                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
             javaWriter.emitStatement(DatabaseHandler.MODEL_NAME_MAP + ".put(\"%1s\", %1s)", tableDefinition.tableName,
-                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
+                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
             javaWriter.emitStatement(DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                                     ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
-                                     tableDefinition.getQualifiedAdapterClassName());
+                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
+                    tableDefinition.getQualifiedAdapterClassName());
         }
 
         for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(databaseName)) {
             javaWriter.emitStatement(DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                                     ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
-                                     modelContainerDefinition.getSourceFileName());
+                    ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
+                    modelContainerDefinition.getSourceFileName());
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
             javaWriter.emitStatement(DatabaseHandler.MODEL_VIEW_FIELD_NAME + ".add(%1s)",
-                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
+                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
             javaWriter.emitStatement(DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                                     ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()),
-                                     modelViewDefinition.getSourceFileName());
+                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()),
+                    modelViewDefinition.getSourceFileName());
         }
 
         javaWriter.emitSingleLineComment("Writing Query Models");
         for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
             javaWriter.emitStatement(DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                                     ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()),
-                                     queryModelDefinition.getQualifiedAdapterName());
+                    ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()),
+                    queryModelDefinition.getQualifiedAdapterName());
         }
 
         javaWriter.endConstructor();

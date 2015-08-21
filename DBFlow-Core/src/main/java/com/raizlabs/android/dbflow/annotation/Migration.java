@@ -24,4 +24,11 @@ public @interface Migration {
      */
     String databaseName();
 
+    /**
+     * @return If number greater than -1, the migrations from the same {@link #version()} get ordered from
+     * highest to lowest. if they are the same priority, there is no telling which one is executed first. The
+     * annotation processor will process in order it finds the classes.
+     */
+    int priority() default -1;
+
 }
