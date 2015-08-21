@@ -127,8 +127,8 @@ public class LoadFromCursorModel implements FlowWriter {
             queryBuilder.append(")");
         }
 
-        if (accessModel.requiresTypeConverter && !accessModel.isEnum()
-                && isModelContainerAdapter && !isNull) {
+        if ((accessModel.requiresTypeConverter) && !accessModel.isEnum()
+                && isModelContainerAdapter && !isNull  || isModelContainerAdapter && accessModel.isABlob) {
             queryBuilder.append(")");
         }
 

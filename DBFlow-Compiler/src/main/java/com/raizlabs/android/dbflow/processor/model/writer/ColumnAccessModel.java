@@ -216,7 +216,7 @@ public class ColumnAccessModel implements Query {
             contentValue.append(getReferencedColumnFieldName());
         }
 
-        if (isABlob) {
+        if (isABlob && !isModelContainerAdapter) {
             contentValue.append(".getBlob()");
         }
 
