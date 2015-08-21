@@ -104,10 +104,10 @@ public class OrderBy implements Query {
                 }
                 queryBuilder.append(columnAliasList.get(i).getAliasName());
             }
-            queryBuilder.appendSpace().append(ascending ? "ASC" : "DESC");
             if (orderByCollation != null) {
                 queryBuilder.appendSpace().append("COLLATE").appendSpaceSeparated(orderByCollation);
             }
+            queryBuilder.appendSpace().append(ascending ? "ASC" : "DESC");
         }
         return queryBuilder.getQuery();
     }
