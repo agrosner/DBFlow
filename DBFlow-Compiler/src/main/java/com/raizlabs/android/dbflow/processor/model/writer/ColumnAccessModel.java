@@ -193,7 +193,7 @@ public class ColumnAccessModel implements Query {
         AdapterQueryBuilder contentValue = new AdapterQueryBuilder();
 
         if (!requiresTypeConverter) {
-            if (castedClass != null && useCastIfApplicable) {
+            if (castedClass != null && useCastIfApplicable && !isABlob) {
                 contentValue.appendCast(isABlob ? "byte[]" : castedClass);
             } else {
                 contentValue.append("(");
