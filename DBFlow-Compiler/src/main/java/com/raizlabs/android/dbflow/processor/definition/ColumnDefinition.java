@@ -74,7 +74,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
 
     public boolean isModel;
 
-    public int length;
+    public int length = -1;
 
     /**
      * Whether this field is itself a model container
