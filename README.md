@@ -35,6 +35,8 @@ If you wish to have your application featured here, please file an [issue](https
 
 #### 2.3.0
 1. Last bug-fix release before major updates!
+2. Project module names have changed. This is due to gradle complaining about "DBFlow:DBFlow".
+ DBFlow -> dbflow, DBFlow-Core -> dbflow-core, and DBFlow-Compiler -> dbflow-processor
 2. Fixed issue where `allFields=true` for `@Table` would append a length of 0 to the column creation.
 3. Fix bug where model caching for `List` lookup would use legacy `long` not respecting the custom column.
 4. Fixed ability to build project
@@ -109,9 +111,9 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:2.3.0'
-    compile "com.raizlabs.android:DBFlow-Core:2.3.0"
-    compile "com.raizlabs.android:DBFlow:2.3.0"
+    apt 'com.raizlabs.android:dbflow-processor:2.3.0'
+    compile "com.raizlabs.android:dbflow-core:2.3.0"
+    compile "com.raizlabs.android:dbflow:2.3.0"
   }
 
 ```
