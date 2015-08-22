@@ -8,12 +8,9 @@ import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
-import com.raizlabs.android.dbflow.processor.writer.CreationQueryWriter;
-import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
-import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
-import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
+import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -62,7 +59,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
                                                                           Classes.LOAD_FROM_CURSOR_LISTENER,
                                                                           (TypeElement) element);
 
-        setDefinitionClassName(databaseWriter.classSeparator + DBFLOW_QUERY_MODEL_TAG);
+        setOutputClassName(databaseWriter.classSeparator + DBFLOW_QUERY_MODEL_TAG);
 
         mMethodWriters = new FlowWriter[]{
                 new LoadCursorWriter(this, false, implementsLoadFromCursorListener)
@@ -72,7 +69,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
     }
 
     @Override
-    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
+    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
         javaWriter.emitEmptyLine();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.write(javaWriter);
@@ -98,14 +95,6 @@ public class QueryModelDefinition extends BaseTableDefinition {
                 }
             }
         }
-    }
-
-    @Override
-    protected String[] getImports() {
-        return new String[]{
-                Classes.CURSOR,
-                Classes.CONDITION
-        };
     }
 
     @Override

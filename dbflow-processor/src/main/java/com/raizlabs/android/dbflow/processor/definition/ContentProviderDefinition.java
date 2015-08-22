@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.Classes;
-import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator;
@@ -15,6 +14,7 @@ import com.raizlabs.android.dbflow.processor.writer.provider.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.InsertWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.QueryWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.UpdateWriter;
+import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class ContentProviderDefinition extends BaseDefinition {
         ContentProvider provider = element.getAnnotation(ContentProvider.class);
         databaseName = provider.databaseName();
         DatabaseWriter databaseWriter = manager.getDatabaseWriter(databaseName);
-        setDefinitionClassName(databaseWriter.classSeparator + DEFINITION_NAME);
+        setOutputClassName(databaseWriter.classSeparator + DEFINITION_NAME);
 
         authority = provider.authority();
 
@@ -81,29 +81,7 @@ public class ContentProviderDefinition extends BaseDefinition {
     }
 
     @Override
-    protected String[] getImports() {
-        return new String[]{
-                Classes.CONTENT_PROVIDER,
-                Classes.FLOW_MANAGER,
-                Classes.SQLITE_DATABASE,
-                Classes.BASE_DATABASE_DEFINITION_NAME,
-                Classes.CURSOR,
-                Classes.URI,
-                Classes.URI_MATCHER,
-                Classes.BASE_CONTENT_PROVIDER,
-                Classes.SELECT,
-                Classes.CONTENT_VALUES,
-                Classes.CONTENT_URIS,
-                Classes.MODEL_ADAPTER,
-                Classes.CONFLICT_ACTION,
-                Classes.CONDITION,
-                Classes.DELETE,
-                Classes.UPDATE
-        };
-    }
-
-    @Override
-    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
+    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
         javaWriter.emitEmptyLine();
         javaWriter.emitField("String", AUTHORITY, Sets.newHashSet(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL),

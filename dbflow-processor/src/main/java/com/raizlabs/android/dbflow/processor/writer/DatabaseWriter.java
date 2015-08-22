@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
+import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -90,15 +91,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
     }
 
     @Override
-    protected String[] getImports() {
-        return new String[]{
-                Classes.LIST,
-                Classes.ARRAY_LIST
-        };
-    }
-
-    @Override
-    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
+    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
         javaWriter.emitEmptyLine();
 
         writeConstructor(javaWriter);

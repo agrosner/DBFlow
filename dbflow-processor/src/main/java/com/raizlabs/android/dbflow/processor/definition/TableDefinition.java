@@ -24,6 +24,7 @@ import com.raizlabs.android.dbflow.processor.writer.OneToManySaveWriter;
 import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
 import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -99,7 +100,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
             manager.logError("Databasewriter was null for : " + tableName);
         }
 
-        setDefinitionClassName(databaseWriter.classSeparator + DBFLOW_TABLE_TAG);
+        setOutputClassName(databaseWriter.classSeparator + DBFLOW_TABLE_TAG);
         this.adapterName = getModelClassName() + databaseWriter.classSeparator + DBFLOW_TABLE_ADAPTER;
 
 
@@ -250,7 +251,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
     }
 
     @Override
-    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
+    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
         javaWriter.emitEmptyLine();
         javaWriter.emitField("String", "TABLE_NAME", Sets.newHashSet(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL), "\"" + tableName + "\"");
         javaWriter.emitEmptyLine();

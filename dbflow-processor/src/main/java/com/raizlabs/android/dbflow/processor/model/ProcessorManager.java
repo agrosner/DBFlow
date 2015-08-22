@@ -18,7 +18,6 @@ import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
 import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowManagerHolderWriter;
-import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;

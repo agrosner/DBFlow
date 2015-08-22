@@ -1,41 +1,64 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.squareup.javawriter.JavaWriter;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+
+import java.util.Arrays;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import java.io.IOException;
+import javax.lang.model.element.TypeElement;
 
 /**
- * Description: The base source file definition
+ * Description: Holds onto a common-set of fields and provides a common-set of methods to output class files.
  */
-public abstract class BaseDefinition implements Definition, FlowWriter {
+public abstract class BaseDefinition implements TypeDefinition {
 
     public final ProcessorManager manager;
 
-    public final String elementClassName;
+    public ClassName elementClassName;
+    public TypeName elementTypeName;
+    public ClassName outputClassName;
 
-    public final Element element;
-
-    public String definitionClassName;
+    public Element element;
+    public TypeElement typeElement;
 
     public String packageName;
 
-    public BaseDefinition(Element typeElement, ProcessorManager processorManager) {
+    public BaseDefinition(Element element, ProcessorManager processorManager) {
         this.manager = processorManager;
-        this.element = typeElement;
-        elementClassName = element.getSimpleName().toString();
-        packageName = manager.getElements().getPackageOf(typeElement).toString();
+        this.element = element;
+        elementTypeName = TypeName.get(element.asType());
+        packageName = manager.getElements().getPackageOf(element).toString();
     }
 
-    protected void setDefinitionClassName(String definitionClassName) {
-        this.definitionClassName = elementClassName + definitionClassName;
+    public BaseDefinition(TypeElement element, ProcessorManager processorManager) {
+        this.manager = processorManager;
+        this.typeElement = element;
+        elementClassName = ClassName.get(typeElement);
+        packageName = manager.getElements().getPackageOf(element).toString();
+    }
+
+    protected void setOutputClassName(String postfix) {
+        outputClassName = ClassName.get(elementClassName.packageName(), elementClassName.simpleName() + postfix);
     }
 
     @Override
+    public TypeSpec getTypeSpec() {
+        TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(outputClassName.simpleName())
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addSuperinterfaces(Arrays.asList(getImplementsClasses()));
+        TypeName extendsClass = getExtendsClass();
+        if (extendsClass != null) {
+            typeBuilder.superclass(extendsClass);
+        }
+        typeBuilder.addJavadoc("This is generated code. Please do not modify");
+        onWriteDefinition(typeBuilder);
+        return typeBuilder.build();
+    }
+
     public String getSourceFileName() {
         return packageName + "." + definitionClassName;
     }
@@ -44,29 +67,15 @@ public abstract class BaseDefinition implements Definition, FlowWriter {
         return manager;
     }
 
-    @Override
-    public void write(JavaWriter javaWriter) throws IOException {
-        javaWriter.emitPackage(packageName);
-        javaWriter.emitImports(getImports());
-        javaWriter.beginType(definitionClassName, "class" , Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), getExtendsClass(), getImplementsClasses());
-        onWriteDefinition(javaWriter);
-        javaWriter.endType();
-        javaWriter.close();
-    }
-
-    protected String[] getImports() {
-        return new String[0];
-    }
-
-    protected String getExtendsClass() {
+    protected TypeName getExtendsClass() {
         return null;
     }
 
-    protected String[] getImplementsClasses() {
-        return new String[0];
+    protected TypeName[] getImplementsClasses() {
+        return new TypeName[0];
     }
 
-    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
+    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
     }
 }

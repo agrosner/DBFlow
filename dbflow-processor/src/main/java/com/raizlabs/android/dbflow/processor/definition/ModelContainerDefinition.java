@@ -4,13 +4,13 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-import com.raizlabs.android.dbflow.processor.writer.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
 import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
 import com.raizlabs.android.dbflow.processor.writer.ToModelWriter;
 import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
+import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class ModelContainerDefinition extends BaseDefinition {
         tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()),
                                                      classElement);
 
-        setDefinitionClassName(tableDefinition.databaseWriter.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
+        setOutputClassName(tableDefinition.databaseWriter.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
         methodWriters = new FlowWriter[]{
                 new SQLiteStatementWriter(tableDefinition, true, tableDefinition.implementsSqlStatementListener,
@@ -46,30 +46,12 @@ public class ModelContainerDefinition extends BaseDefinition {
     }
 
     @Override
-    protected String[] getImports() {
-        return new String[]{
-                Classes.HASH_MAP,
-                Classes.MAP,
-                Classes.FLOW_MANAGER,
-                Classes.CONDITION_QUERY_BUILDER,
-                Classes.MODEL_CONTAINER,
-                Classes.CONTAINER_ADAPTER,
-                Classes.MODEL,
-                Classes.CONTENT_VALUES,
-                Classes.CURSOR,
-                Classes.SQL_UTILS,
-                Classes.SELECT,
-                Classes.CONDITION
-        };
-    }
-
-    @Override
     protected String getExtendsClass() {
         return "ModelContainerAdapter<" + elementClassName + ">";
     }
 
     @Override
-    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
+    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
         javaWriter.emitField("Map<String, Class<?>>", "columnMap", Sets.newHashSet(Modifier.PRIVATE, Modifier.FINAL),
                              "new HashMap<>()");

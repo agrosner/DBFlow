@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.annotation.Migration;
-import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
@@ -23,7 +22,7 @@ public class MigrationDefinition extends BaseDefinition implements FlowWriter {
 
     public MigrationDefinition(ProcessorManager processorManager, TypeElement typeElement) {
         super(typeElement, processorManager);
-        setDefinitionClassName("");
+        setOutputClassName("");
 
         Migration migration = typeElement.getAnnotation(Migration.class);
 
