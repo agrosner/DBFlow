@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JCenter](https://img.shields.io/badge/JCenter-2.1.0-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
+[![JCenter](https://img.shields.io/badge/JCenter-2.2.1-red.svg?style=flat)](https://bintray.com/raizlabs/Libraries/DBFlow/view)
 [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
@@ -14,14 +14,14 @@ amazing apps.
 What sets this library apart:
   1. Many, many unit tests on nearly __every__ feature.
   2. Built on maximum performance using **annotation processing**, lazy-loading, and speed-tests [here](https://github.com/Raizlabs/AndroidDatabaseLibraryComparison)
-  3. Built-in model caching for blazing fast retrieval and ability to define own
-  cache.
-  3. Powerful and fluid SQL-wrapping statements
+  3. Built-in model caching for blazing-fast retrieval and very flexible customization.
+  3. Powerful and fluid SQL-wrapping statements that mimic real SQLite queries
   4. Triggers, Views, Indexes, and many more SQLite features.
   5. Seamless multi-database support.
   6. Direct-to-database parsing for data such as JSON
   7. Flexibility in the API enabling you to override functionality to suit your needs.
   8. ```ContentProvider``` generation using annotations
+  9. Content Observing using `Uri`
 
 ## Applications That Use DBFlow
 
@@ -33,21 +33,18 @@ If you wish to have your application featured here, please file an [issue](https
 
 ## Changelog
 
-#### 2.1.0
-
-1. Library now is on jCenter()/bintray!
-2. Full Enum Support. Note: they must be standard columns. We do not support foreign key or primary key for enums.
-3. Can now define inherited properties to use as columns. Note: They can only be normal, accessible to the subclass columns for now. Just
- define `@Table(inheritedColumns = {@InheritedColumn(column = @Column, fieldName = "fieldName")}`.
-4. Bug Fixes, readme enhancements, Logging Improvements, and improved code commenting
-5. Function support for SQLite methods in a condition such that `date(myColumn1)=1433872730` can be written
- as `Condition.columnsWithFunction("date", "myColumn1").eq(1433872730)`
-6. Fixed an issue where `Condition` instead of `SQLCondition` were leftover as a param in a few methods.
-
-#### 2.0.0
-
-1. Massive, massive changes to the library.
-2. For all changes, check out the migration guide [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migration2Guide.md)
+#### 2.3.0
+1. Last bug-fix release before major updates!
+2. Project module names have changed. This is due to gradle complaining about "DBFlow:DBFlow".
+ DBFlow -> dbflow, DBFlow-Core -> dbflow-core, and DBFlow-Compiler -> dbflow-processor
+2. Fixed issue where `allFields=true` for `@Table` would append a length of 0 to the column creation.
+3. Fix bug where model caching for `List` lookup would use legacy `long` not respecting the custom column.
+4. Fixed ability to build project
+5. Added  `priority` to migrations that enable them to be ordered based on that for the same version :)
+6. Fixes for `Blob` in `ModelContainer` classes. Code generation improvements will come
+7. Removed that pesky warning about "attempting to recreate file" during processing :)
+8. Fix `OrderBy` order sequence with `Collation`. It now goes after the `Collate` sequence.
+9. Updated compile version to android 6.0 (23) and a few of the tools used to build this project including to gradle 2.4.
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
@@ -77,7 +74,7 @@ For more detailed usage, check out these sections:
 
 [Observing Models](https://github.com/Raizlabs/DBFlow/blob/master/usage/ObservableModels.md)
 
-[Tables as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
+[Queries as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
 
 [Triggers, Indexes, and More](https://github.com/Raizlabs/DBFlow/blob/master/usage/TriggersIndexesAndMore.md)
 
@@ -90,17 +87,32 @@ Listed here are tutorial screen casts for DBFlow. If more are created, they may 
 
 ## Including in your project
 
+We need to include the [apt plugin](https://bitbucket.org/hvisser/android-apt) in our classpath to enable Annotation Processing:
 
-Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) to enable Annotation Processing:
+```groovy
+
+buildscript {
+    repositories {
+      // required for this library, don't use mavenCentral()
+        jcenter()
+    }
+    dependencies {
+         'com.neenbedankt.gradle.plugins:android-apt:1.7'
+    }
+}
+
+```
+
+Add the library to the project-level build.gradle, using the  to enable Annotation Processing:
 
 ```groovy
 
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:DBFlow-Compiler:2.1.0'
-    compile "com.raizlabs.android:DBFlow-Core:2.1.0"
-    compile "com.raizlabs.android:DBFlow:2.1.0"
+    apt 'com.raizlabs.android:dbflow-processor:2.3.0'
+    compile "com.raizlabs.android:dbflow-core:2.3.0"
+    compile "com.raizlabs.android:dbflow:2.3.0"
   }
 
 ```

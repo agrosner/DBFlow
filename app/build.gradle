@@ -28,15 +28,21 @@ android {
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
+
+    buildTypes {
+        debug{
+            minifyEnabled true
+        }
+    }
 }
 
 dependencies {
     jars()
-    mod 'DBFlow-Compiler', 'apt'
-    mod 'DBFlow'
+    mod 'dbflow-processor', 'apt'
+    mod 'dbflow'
     nsMod 'com.android.support:appcompat-v7:21.0.3'
 }
 
 android.applicationVariants.all { variant ->
-    variant.javaCompile.dependsOn ':DBFlow-Compiler:jar'
+    variant.javaCompile.dependsOn ':dbflow-processor:jar'
 }
