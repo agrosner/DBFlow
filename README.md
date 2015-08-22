@@ -44,8 +44,7 @@ If you wish to have your application featured here, please file an [issue](https
 6. Fixes for `Blob` in `ModelContainer` classes. Code generation improvements will come
 7. Removed that pesky warning about "attempting to recreate file" during processing :)
 8. Fix `OrderBy` order sequence with `Collation`. It now goes after the `Collate` sequence.
-
-
+9. Updated compile version to android 6.0 (23) and a few of the tools used to build this project including to gradle 2.4.
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
