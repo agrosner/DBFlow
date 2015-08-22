@@ -1,17 +1,16 @@
 apply plugin: 'com.android.library'
 apply plugin: 'android-apt'
-//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.github.dcendents.android-maven'
 
 project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.0"
 
     defaultConfig {
         minSdkVersion 4
-        targetSdkVersion 22
-        versionName = version
+        targetSdkVersion 23
         versionCode = version_code
     }
 
@@ -30,9 +29,9 @@ android {
 }
 
 dependencies {
-    compile project("${dbflow_project_prefix}DBFlow-Core")
-    compile "com.android.support:support-annotations:22.0.0"
-    androidTestApt project("${dbflow_project_prefix}DBFlow-Compiler")
+    compile project("${dbflow_project_prefix}dbflow-core")
+    compile "com.android.support:support-annotations:23.0.0"
+    androidTestApt project("${dbflow_project_prefix}dbflow-processor")
 }
 
 //apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'

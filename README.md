@@ -41,6 +41,7 @@ If you wish to have your application featured here, please file an [issue](https
 5. Added  `priority` to migrations that enable them to be ordered based on that for the same version :)
 6. Fixes for `Blob` in `ModelContainer` classes. Code generation improvements will come
 7. Removed that pesky warning about "attempting to recreate file" during processing :)
+8. Fix `OrderBy` order sequence with `Collation`. It now goes after the `Collate` sequence.
 
 
 

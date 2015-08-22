@@ -1,24 +1,42 @@
-/*task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    options {
-        links("http://docs.oracle.com/javase/7/docs/api/");
-        linksOffline("http://d.android.com/reference", "${android.sdkDirectory}/docs/reference");
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging bt_packaging
+                name bt_name
+                url bt_siteUrl
+                licenses {
+                    license {
+                        name bt_licenseName
+                        url bt_licenseUrl
+                    }
+                }
+                scm {
+                    connection bt_gitUrl
+                    developerConnection bt_gitUrl
+                    url bt_siteUrl
+                }
+            }
+        }
     }
 }
 
-task androidJavadocJar(type: Jar, dependsOn: javadoc) {
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
-}*/
-
-
-task androidSourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.sourceFiles
 }
 
 artifacts {
-    archives androidSourcesJar
-    //archives androidJavadocJar
+    //archives javadocJar
+    archives sourcesJar
 }
