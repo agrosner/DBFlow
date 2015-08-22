@@ -2,21 +2,14 @@ package com.raizlabs.android.dbflow.processor.utils;
 
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.data.Blob;
-import com.raizlabs.android.dbflow.processor.Classes;
-import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
-import com.raizlabs.android.dbflow.sql.StatementMap;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 
@@ -109,7 +102,7 @@ public class ModelUtils {
     }
 
     public static String getUtils(boolean isModelContainer) {
-        return isModelContainer ? Classes.MODEL_CONTAINER_UTILS : Classes.SQL_UTILS;
+        return isModelContainer ? ClassNames.MODEL_CONTAINER_UTILS : ClassNames.SQL_UTILS;
     }
 
     public static void writeColumnIndexCheckers(JavaWriter javaWriter,

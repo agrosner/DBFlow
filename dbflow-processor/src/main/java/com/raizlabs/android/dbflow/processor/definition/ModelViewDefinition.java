@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ModelView;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -68,8 +68,8 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
         DeclaredType typeAdapterInterface = null;
         final DeclaredType modelViewType = manager.getTypeUtils().getDeclaredType(
-                manager.getElements().getTypeElement(Classes.MODEL_VIEW),
-                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(Classes.MODEL).asType(), null)
+                manager.getElements().getTypeElement(ClassNames.MODEL_VIEW),
+                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassNames.MODEL).asType(), null)
         );
 
 
@@ -88,7 +88,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
         createColumnDefinitions((TypeElement) element);
 
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                Classes.LOAD_FROM_CURSOR_LISTENER, (TypeElement) element);
+                ClassNames.LOAD_FROM_CURSOR_LISTENER, (TypeElement) element);
 
         mMethodWriters = new FlowWriter[]{
                 new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
@@ -128,7 +128,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     @Override
     protected String getExtendsClass() {
-        return String.format("%1s<%1s,%1s>", Classes.MODEL_VIEW_ADAPTER, modelReferenceClass, getModelClassName());
+        return String.format("%1s<%1s,%1s>", ClassNames.MODEL_VIEW_ADAPTER, modelReferenceClass, getModelClassName());
     }
 
     public void writeViewTable() throws IOException {

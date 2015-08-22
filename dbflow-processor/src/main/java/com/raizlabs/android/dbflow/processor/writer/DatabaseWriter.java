@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.writer;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Database;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
@@ -56,7 +56,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     public DatabaseWriter(ProcessorManager manager, Element element) {
         super(element, manager);
-        packageName = Classes.FLOW_MANAGER_PACKAGE;
+        packageName = ClassNames.FLOW_MANAGER_PACKAGE;
 
         Database database = element.getAnnotation(Database.class);
         databaseName = database.name();
@@ -87,7 +87,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     @Override
     protected String getExtendsClass() {
-        return Classes.BASE_DATABASE_DEFINITION;
+        return ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME;
     }
 
     @Override
@@ -136,7 +136,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
                         return Integer.valueOf(o2.priority).compareTo(o1.priority);
                     }
                 });
-                javaWriter.emitStatement("List<%1s> migrations%1s = new ArrayList<>()", Classes.MIGRATION, version);
+                javaWriter.emitStatement("List<%1s> migrations%1s = new ArrayList<>()", ClassNames.MIGRATION, version);
                 javaWriter.emitStatement("%1s.put(%1s,%1s%1s)", DatabaseHandler.MIGRATION_FIELD_NAME, version,
                         "migrations", version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {

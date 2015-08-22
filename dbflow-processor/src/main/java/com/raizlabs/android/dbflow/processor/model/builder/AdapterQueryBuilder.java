@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.model.builder;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
-import com.raizlabs.android.dbflow.sql.StatementMap;
+import com.raizlabs.android.dbflow.processor.StatementMap;
 
 /**
  * Description: Used for writing our adapter classes by providing some reuse and helper methods.

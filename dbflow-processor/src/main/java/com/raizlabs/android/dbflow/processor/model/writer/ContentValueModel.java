@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
-import com.raizlabs.android.dbflow.sql.StatementMap;
+import com.raizlabs.android.dbflow.processor.StatementMap;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;

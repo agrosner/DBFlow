@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Lists;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javawriter.JavaWriter;
@@ -76,8 +76,8 @@ public class OneToManyDefinition extends BaseDefinition {
     public void writeDelete(JavaWriter javaWriter) throws IOException {
         if (isDelete()) {
             javaWriter.emitStatement("new %1s<>(%1s.withModels(%1s)).onExecute()",
-                    Classes.DELETE_MODEL_LIST_TRANSACTION,
-                    Classes.PROCESS_MODEL_INFO, getMethodName());
+                    ClassNames.DELETE_MODEL_LIST_TRANSACTION,
+                    ClassNames.PROCESS_MODEL_INFO, getMethodName());
 
             javaWriter.emitStatement("%1s = null", getVariableName());
         }
@@ -86,8 +86,8 @@ public class OneToManyDefinition extends BaseDefinition {
     public void writeSave(JavaWriter javaWriter) throws IOException {
         if (isSave()) {
             javaWriter.emitStatement("new %1s<>(%1s.withModels(%1s)).onExecute()",
-                    Classes.SAVE_MODEL_LIST_TRANSACTION,
-                    Classes.PROCESS_MODEL_INFO, getMethodName());
+                    ClassNames.SAVE_MODEL_LIST_TRANSACTION,
+                    ClassNames.PROCESS_MODEL_INFO, getMethodName());
         }
     }
 

@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
@@ -149,14 +149,14 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         createColumnDefinitions((TypeElement) element);
 
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                                                                          Classes.LOAD_FROM_CURSOR_LISTENER,
+                                                                          ClassNames.LOAD_FROM_CURSOR_LISTENER,
                                                                           (TypeElement) element);
 
         implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                Classes.CONTENT_VALUES_LISTENER, (TypeElement) element);
+                ClassNames.CONTENT_VALUES_LISTENER, (TypeElement) element);
 
         implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                Classes.SQLITE_STATEMENT_LISTENER, ((TypeElement) element));
+                ClassNames.SQLITE_STATEMENT_LISTENER, ((TypeElement) element));
 
         mMethodWriters = new FlowWriter[]{
                 new SQLiteStatementWriter(this, false, implementsSqlStatementListener, implementsContentValuesListener),
@@ -264,14 +264,14 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
         JavaWriter javaWriter = new JavaWriter(processingEnvironment.getFiler().createSourceFile(packageName + "." + adapterName).openWriter());
 
         javaWriter.emitPackage(packageName);
-        javaWriter.emitImports(Classes.MODEL_ADAPTER,
-                Classes.FLOW_MANAGER,
-                Classes.CONDITION_QUERY_BUILDER,
-                Classes.CURSOR,
-                Classes.CONTENT_VALUES,
-                Classes.SQL_UTILS,
-                Classes.SELECT,
-                Classes.CONDITION
+        javaWriter.emitImports(ClassNames.MODEL_ADAPTER,
+                ClassNames.FLOW_MANAGER,
+                ClassNames.CONDITION_QUERY_BUILDER,
+                ClassNames.CURSOR,
+                ClassNames.CONTENT_VALUES,
+                ClassNames.SQL_UTILS,
+                ClassNames.SELECT,
+                ClassNames.CONDITION
         );
         javaWriter.emitSingleLineComment("This table belongs to the %1s database", databaseName);
         javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ModelAdapter<" + element.getSimpleName() + ">");
@@ -325,18 +325,18 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                 @Override
                 public void write(JavaWriter javaWriter) throws IOException {
-                    javaWriter.emitStatement("return %1s.%1s", Classes.CONFLICT_ACTION, updateConflicationActionName);
+                    javaWriter.emitStatement("return %1s.%1s", ClassNames.CONFLICT_ACTION, updateConflicationActionName);
                 }
-            }, Classes.CONFLICT_ACTION, "getUpdateOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+            }, ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
         }
 
         if (!insertConflictActionName.isEmpty()) {
             WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
                 @Override
                 public void write(JavaWriter javaWriter) throws IOException {
-                    javaWriter.emitStatement("return %1s.%1s", Classes.CONFLICT_ACTION, insertConflictActionName);
+                    javaWriter.emitStatement("return %1s.%1s", ClassNames.CONFLICT_ACTION, insertConflictActionName);
                 }
-            }, Classes.CONFLICT_ACTION, "getInsertOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+            }, ClassNames.CONFLICT_ACTION, "getInsertOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
         }
 
         javaWriter.endType();

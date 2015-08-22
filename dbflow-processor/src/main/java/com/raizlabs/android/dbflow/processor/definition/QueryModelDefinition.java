@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
@@ -56,7 +56,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
         processorManager.addModelToDatabase(getQualifiedModelClassName(), databaseName);
 
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                                                                          Classes.LOAD_FROM_CURSOR_LISTENER,
+                                                                          ClassNames.LOAD_FROM_CURSOR_LISTENER,
                                                                           (TypeElement) element);
 
         setOutputClassName(databaseWriter.classSeparator + DBFLOW_QUERY_MODEL_TAG);
@@ -121,9 +121,9 @@ public class QueryModelDefinition extends BaseTableDefinition {
                 processingEnvironment.getFiler().createSourceFile(getQualifiedAdapterName()).openWriter());
 
         javaWriter.emitPackage(packageName);
-        javaWriter.emitImports(Classes.QUERY_MODEL_ADAPTER,
-                               Classes.FLOW_MANAGER,
-                               Classes.CURSOR
+        javaWriter.emitImports(ClassNames.QUERY_MODEL_ADAPTER,
+                               ClassNames.FLOW_MANAGER,
+                               ClassNames.CURSOR
         );
         javaWriter.emitSingleLineComment("This table belongs to the %1s database", databaseName);
         javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),

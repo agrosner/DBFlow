@@ -1,8 +1,7 @@
 package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -36,7 +35,7 @@ public class SQLiteStatementWriter implements FlowWriter {
     @Override
     public void write(JavaWriter javaWriter) throws IOException {
         final String[] args = new String[4];
-        args[0] = Classes.SQLITE_STATEMENT;
+        args[0] = ClassNames.SQLITE_STATEMENT;
         args[1] = "statement";
         args[2] = isModelContainerAdapter ? "ModelContainer<" + tableDefinition.getModelClassName() + ", ?>"
                 : tableDefinition.getModelClassName();
@@ -60,7 +59,7 @@ public class SQLiteStatementWriter implements FlowWriter {
             }
         }, "void", "bindToStatement", Sets.newHashSet(Modifier.PUBLIC), args);
 
-        args[0] = Classes.CONTENT_VALUES;
+        args[0] = ClassNames.CONTENT_VALUES;
         args[1] = "contentValues";
         writeContentValues(false, javaWriter, args);
         writeContentValues(true, javaWriter, args);

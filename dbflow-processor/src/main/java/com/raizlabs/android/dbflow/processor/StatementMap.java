@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.sql;
+package com.raizlabs.android.dbflow.processor;
 
 import java.util.HashMap;
 

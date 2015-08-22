@@ -94,26 +94,26 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
         return (QueryClass) this;
     }
 
-    /**
-     * Appends an {@link com.raizlabs.android.dbflow.sql.SQLiteType} to this query based on the class
-     * passed in.
-     *
-     * @param type The Class to look up from {@link com.raizlabs.android.dbflow.sql.SQLiteType}
-     * @return This instance
-     */
-    public QueryClass appendType(String type) {
-        return appendSQLiteType(SQLiteType.get(type));
-    }
+    ///**
+    // * Appends an {@link com.raizlabs.android.dbflow.sql.SQLiteType} to this query based on the class
+    // * passed in.
+    // *
+    // * @param type The Class to look up from {@link com.raizlabs.android.dbflow.sql.SQLiteType}
+    // * @return This instance
+    // */
+    //public QueryClass appendType(String type) {
+    //    return appendSQLiteType(SQLiteType.get(type));
+    //}
 
-    /**
-     * Appends the {@link com.raizlabs.android.dbflow.sql.SQLiteType} to this query
-     *
-     * @param sqLiteType The {@link com.raizlabs.android.dbflow.sql.SQLiteType} to append
-     * @return This instance
-     */
-    public QueryClass appendSQLiteType(SQLiteType sqLiteType) {
-        return append(sqLiteType.name());
-    }
+    ///**
+    // * Appends the {@link com.raizlabs.android.dbflow.sql.SQLiteType} to this query
+    // *
+    // * @param sqLiteType The {@link com.raizlabs.android.dbflow.sql.SQLiteType} to append
+    // * @return This instance
+    // */
+    //public QueryClass appendSQLiteType(SQLiteType sqLiteType) {
+    //    return append(sqLiteType.name());
+    //}
 
     /**
      * Appends an array of these objects by joining them with a comma with

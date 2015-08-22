@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
 import javax.lang.model.element.TypeElement;
@@ -28,7 +28,7 @@ public class TypeConverterDefinition {
         Types types = manager.getTypeUtils();
 
         DeclaredType typeConverterSuper = null;
-        DeclaredType typeConverter = manager.getTypeUtils().getDeclaredType(manager.getElements().getTypeElement(Classes.TYPE_CONVERTER),
+        DeclaredType typeConverter = manager.getTypeUtils().getDeclaredType(manager.getElements().getTypeElement(ClassNames.TYPE_CONVERTER),
                 types.getWildcardType(null, null), types.getWildcardType(null, null));
 
         for(TypeMirror superType: types.directSupertypes(classElement.asType())) {

@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
@@ -300,8 +300,8 @@ public class ProcessorManager implements Handler {
             try {
                 JavaWriter staticFlowManager = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
                                                                       .createSourceFile(
-                                                                              Classes.FLOW_MANAGER_PACKAGE + "." +
-                                                                              Classes.DATABASE_HOLDER_STATIC_CLASS_NAME).openWriter());
+                                                                              ClassNames.FLOW_MANAGER_PACKAGE + "." +
+                                                                              ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME).openWriter());
                 new FlowManagerHolderWriter(processorManager).write(staticFlowManager);
 
                 staticFlowManager.close();

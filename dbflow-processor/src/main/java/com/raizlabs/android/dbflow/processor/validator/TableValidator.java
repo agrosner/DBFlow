@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.processor.validator;
 
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -35,7 +35,7 @@ public class TableValidator implements Validator<TableDefinition> {
             success = false;
         }
 
-        if(!ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), Classes.MODEL, (TypeElement) tableDefinition.element)) {
+        if(!ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), ClassNames.MODEL, (TypeElement) tableDefinition.element)) {
             processorManager.logError("The @Table annotation can only apply to a class that implements Model");
             success = false;
         }

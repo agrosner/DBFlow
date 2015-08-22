@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.writer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
@@ -81,7 +81,7 @@ public class CreationQueryWriter implements FlowWriter {
 
                 boolean isModelView = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
                         tableDefinition.packageName + "." + tableDefinition.getModelClassName(),
-                        manager.getElements().getTypeElement(Classes.MODEL_VIEW));
+                        manager.getElements().getTypeElement(ClassNames.MODEL_VIEW));
 
                 // Views do not have primary keys
                 if (!isModelView) {

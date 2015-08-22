@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -25,8 +25,8 @@ public class FlowManagerHolderWriter implements FlowWriter {
 
     @Override
     public void write(JavaWriter staticFlowManager) throws IOException {
-        staticFlowManager.emitPackage(Classes.FLOW_MANAGER_PACKAGE);
-        staticFlowManager.beginType(Classes.DATABASE_HOLDER_STATIC_CLASS_NAME, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), Classes.FLOW_MANAGER_STATIC_INTERFACE);
+        staticFlowManager.emitPackage(ClassNames.FLOW_MANAGER_PACKAGE);
+        staticFlowManager.beginType(ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), ClassNames.FLOW_MANAGER_STATIC_INTERFACE);
 
         staticFlowManager.beginConstructor(Sets.newHashSet(Modifier.PUBLIC));
 

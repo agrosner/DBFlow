@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.data.Blob;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
@@ -228,7 +228,7 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
             onUpdateConflict = foreignKey.onUpdate();
         }
 
-        isModel = ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), Classes.MODEL, modelType);
+        isModel = ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), ClassNames.MODEL, modelType);
 
         // Any annotated members, otherwise we will use the scanner to find other ones
         final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(modelType);
