@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.definition.columnaccess;
+package com.raizlabs.android.dbflow.processor.definition.column;
 
 /**
  * Description: Simplest of all fields. Simply returns "model.field".

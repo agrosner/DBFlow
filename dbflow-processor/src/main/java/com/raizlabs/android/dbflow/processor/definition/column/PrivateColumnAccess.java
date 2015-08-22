@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.definition.columnaccess;
+package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.andrewgrosner.swiftdb.core.annotations.Column;
 import com.andrewgrosner.swiftdb.core.annotations.ForeignKeyReference;

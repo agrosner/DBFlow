@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.definition.columnaccess;
+package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.squareup.javapoet.TypeName;

@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.method;
+package com.raizlabs.android.dbflow.processor.definition.method;
 
 import com.raizlabs.android.dbflow.data.Blob;
 import com.squareup.javapoet.ArrayTypeName;
