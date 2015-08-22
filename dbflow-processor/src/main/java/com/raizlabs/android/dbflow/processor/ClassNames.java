@@ -62,4 +62,6 @@ public class ClassNames {
 
     public static final ClassName DELETE_MODEL_LIST_TRANSACTION = ClassName.get(PROCESS, "DeleteModelListTransaction");
     public static final ClassName SAVE_MODEL_LIST_TRANSACTION = ClassName.get(PROCESS, "SaveModelTransaction");
+
+    public static final ClassName PROPERTY = ClassName.get(LANGUAGE, "Property");
 }

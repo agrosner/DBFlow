@@ -1,39 +1,33 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.google.common.collect.Sets;
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.squareup.javawriter.JavaWriter;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeSpec;
+
+import java.io.IOException;
 
 import javax.lang.model.element.Modifier;
-import java.io.IOException;
 
 /**
  * Description: Assists in writing methods for adapters
  */
 public class InternalAdapterHelper {
 
-    public static void writeGetModelClass(JavaWriter javaWriter, final String modelClassName) throws IOException {
-        javaWriter.emitEmptyLine()
-                .emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return " + ModelUtils.getFieldClass(modelClassName));
-            }
-        }, "Class<" + modelClassName + ">", "getModelClass", Sets.newHashSet(Modifier.PUBLIC));
+    public static void writeGetModelClass(TypeSpec.Builder typeBuilder, final ClassName modelClassName) throws IOException {
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getModelClass")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return $T.class", modelClassName)
+                .returns(ParameterizedTypeName.get(ClassName.get(Class.class), modelClassName))
+                .build());
     }
 
-    public static void writeGetTableName(JavaWriter javaWriter, final String tableSourceClassName) throws IOException {
-        javaWriter
-                .emitEmptyLine()
-                .emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return " + ModelUtils.getStaticMember(tableSourceClassName, "TABLE_NAME"));
-            }
-        }, "String", "getTableName", Sets.newHashSet(Modifier.PUBLIC));
+    public static void writeGetTableName(TypeSpec.Builder typeBuilder, final String tableName) throws IOException {
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getTableName")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return `$L`", tableName)
+                .returns(ClassName.get(String.class))
+                .build());
     }
 }

@@ -24,6 +24,9 @@ import com.raizlabs.android.dbflow.processor.model.writer.LoadFromCursorModel;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
@@ -250,6 +253,13 @@ public class ColumnDefinition extends BaseDefinition implements FlowWriter {
         }
 
         isEnum = (modelType.getKind() == ElementKind.ENUM);
+    }
+
+    public void addPropertyDefinition(TypeSpec.Builder typeBuilder) {
+        ParameterizedTypeName propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.isPrimitive() ? elementTypeName.box() : elementTypeName);
+        typeBuilder.addField(FieldSpec.builder(propParam,
+                columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .initializer("new $T<>($S)", ClassNames.PROPERTY, columnName).build());
     }
 
     @Override

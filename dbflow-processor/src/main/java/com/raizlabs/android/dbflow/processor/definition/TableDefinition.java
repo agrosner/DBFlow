@@ -24,10 +24,14 @@ import com.raizlabs.android.dbflow.processor.writer.OneToManySaveWriter;
 import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
 import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +46,7 @@ import javax.lang.model.element.VariableElement;
 /**
  * Description: Used in writing ModelAdapters
  */
-public class TableDefinition extends BaseTableDefinition implements FlowWriter {
+public class TableDefinition extends BaseTableDefinition {
 
     public static final String DBFLOW_TABLE_TAG = "Table";
 
@@ -252,60 +256,53 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
-        javaWriter.emitEmptyLine();
-        javaWriter.emitField("String", "TABLE_NAME", Sets.newHashSet(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL), "\"" + tableName + "\"");
-        javaWriter.emitEmptyLine();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
-            columnDefinition.write(javaWriter);
+            columnDefinition.addPropertyDefinition(typeBuilder);
         }
+
+        // TODO: create index groups definition and write it here
     }
 
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
-        JavaWriter javaWriter = new JavaWriter(processingEnvironment.getFiler().createSourceFile(packageName + "." + adapterName).openWriter());
 
-        javaWriter.emitPackage(packageName);
-        javaWriter.emitImports(ClassNames.MODEL_ADAPTER,
-                ClassNames.FLOW_MANAGER,
-                ClassNames.CONDITION_QUERY_BUILDER,
-                ClassNames.CURSOR,
-                ClassNames.CONTENT_VALUES,
-                ClassNames.SQL_UTILS,
-                ClassNames.SELECT,
-                ClassNames.CONDITION
-        );
-        javaWriter.emitSingleLineComment("This table belongs to the %1s database", databaseName);
-        javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "ModelAdapter<" + element.getSimpleName() + ">");
-        InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassName());
-        InternalAdapterHelper.writeGetTableName(javaWriter, getSourceFileName());
+        TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(adapterName)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .superclass(ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName));
+        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
+        InternalAdapterHelper.writeGetTableName(typeBuilder, tableName);
+
+        String insertConflictName = insertConflictActionName;
+        if (!insertConflictName.isEmpty()) {
+            insertConflictName = String.format(" OR %1s ", insertConflictName);
+        }
+        QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO ")
+                .appendQuoted(tableName).appendSpace().append("(");
+
+        List<String> columnNames = new ArrayList<>();
+        List<String> bindings = new ArrayList<>();
+        for (int i = 0; i < getColumnDefinitions().size(); i++) {
+            ColumnDefinition columnDefinition = getColumnDefinitions().get(i);
+
+            if (columnDefinition.isForeignKey) {
+                for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
+                    columnNames.add(reference.columnName());
+                    bindings.add("?");
+                }
+            } else if (!columnDefinition.isPrimaryKeyAutoIncrement) {
+                columnNames.add(columnDefinition.columnName.toUpperCase());
+                bindings.add("?");
+            }
+        }
+
+        stringBuilder.appendQuotedList(columnNames).append(") VALUES (");
+        stringBuilder.appendList(bindings).append(")\"");
+
+
 
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
             @Override
             public void write(JavaWriter javaWriter) throws IOException {
-                String insertConflictName = insertConflictActionName;
-                if (!insertConflictName.isEmpty()) {
-                    insertConflictName = String.format(" OR %1s ", insertConflictName);
-                }
-                QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO ")
-                        .appendQuoted(tableName).appendSpace().append("(");
 
-                List<String> columnNames = new ArrayList<>();
-                List<String> bindings = new ArrayList<>();
-                for (int i = 0; i < getColumnDefinitions().size(); i++) {
-                    ColumnDefinition columnDefinition = getColumnDefinitions().get(i);
-
-                    if (columnDefinition.isForeignKey) {
-                        for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
-                            columnNames.add(reference.columnName());
-                            bindings.add("?");
-                        }
-                    } else if (!columnDefinition.isPrimaryKeyAutoIncrement) {
-                        columnNames.add(columnDefinition.columnName.toUpperCase());
-                        bindings.add("?");
-                    }
-                }
-
-                stringBuilder.appendQuotedList(columnNames).append(") VALUES (");
-                stringBuilder.appendList(bindings).append(")\"");
                 javaWriter.emitStatement(stringBuilder.toString(), insertConflictName);
             }
         }, "String", "getInsertStatementQuery", Sets.newHashSet(Modifier.PROTECTED, Modifier.FINAL));
@@ -341,5 +338,8 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
         javaWriter.endType();
         javaWriter.close();
+
+        JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, adapterName);
+
     }
 }
