@@ -10,20 +10,14 @@ import com.squareup.javapoet.TypeName;
 /**
  * Description: Supports type converters here.
  */
-public class TypeConverterAccess extends BaseColumnAccess {
-
-    private final ColumnDefinition columnDefinition;
-
-    private final BaseColumnAccess existingColumnAccess;
+public class TypeConverterAccess extends WrapperColumnAccess {
 
     public final TypeConverterDefinition typeConverterDefinition;
 
     private final ProcessorManager manager;
 
     public TypeConverterAccess(ProcessorManager manager, ColumnDefinition columnDefinition) {
-
-        this.columnDefinition = columnDefinition;
-        this.existingColumnAccess = columnDefinition.columnAccess;
+        super(columnDefinition);
         typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.elementTypeName.box());
         this.manager = manager;
     }

@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -36,6 +37,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public ForeignKeyAction onDelete;
     public ForeignKeyAction onUpdate;
 
+    public boolean isModel;
+
     public ForeignKeyColumnDefinition(ProcessorManager manager, Element typeElement) {
         super(manager, typeElement);
 
@@ -53,6 +56,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (referencedTableClassName.equals(TypeName.OBJECT)) {
             referencedTableClassName = ClassName.get(manager.getElements().getTypeElement(typeElement.asType().toString()));
         }
+
+        isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL, modelType);
 
         // we need to recheck for this instance
         if (columnAccess instanceof TypeConverterAccess) {

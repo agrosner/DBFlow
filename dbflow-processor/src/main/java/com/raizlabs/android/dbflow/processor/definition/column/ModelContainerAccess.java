@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
+import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.CodeBlock;
 
@@ -9,37 +10,46 @@ import com.squareup.javapoet.CodeBlock;
 public class ModelContainerAccess extends BaseColumnAccess {
 
     private final ColumnDefinition columnDefinition;
-
     private final BaseColumnAccess existingColumnAccess;
-
     private final ProcessorManager manager;
+
+    public String containerKeyName;
 
     public ModelContainerAccess(ProcessorManager manager, ColumnDefinition columnDefinition) {
 
         this.columnDefinition = columnDefinition;
         this.existingColumnAccess = columnDefinition.columnAccess;
         this.manager = manager;
+
+        ContainerKey containerKey = columnDefinition.element.getAnnotation(ContainerKey.class);
+        if (containerKey != null) {
+            containerKeyName = containerKey.value();
+        } else {
+            containerKeyName = columnDefinition.columnName;
+        }
     }
 
     @Override
     String getColumnAccessString(String variableNameString, String elementName) {
         return CodeBlock.builder()
-                .add("$L.get($S)", variableNameString,
-                        existingColumnAccess.getColumnAccessString(variableNameString, elementName))
+                .add("$L.get($S)",
+                        existingColumnAccess.getColumnAccessString(variableNameString, elementName),
+                        containerKeyName)
                 .build().toString();
     }
 
     @Override
     String getShortAccessString(String elementName) {
         return CodeBlock.builder()
-                .add("get($S)", existingColumnAccess.getShortAccessString(elementName))
+                .add("$L.get($S)", existingColumnAccess.getShortAccessString(elementName),
+                        containerKeyName)
                 .build().toString();
     }
 
     @Override
     String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
         String newFormattedAccess = CodeBlock.builder()
-                .add("$L.put($S, $L)", variableNameString, elementName, formattedAccess)
+                .add("$L.put($S, $L)", variableNameString, containerKeyName, formattedAccess)
                 .build().toString();
         return existingColumnAccess.setColumnAccessString(variableNameString, elementName, newFormattedAccess);
     }
