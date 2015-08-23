@@ -16,12 +16,12 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.type.MirroredTypeException;
 
 /**
@@ -175,7 +175,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         builder.beginControlFlow(ifNullBuilder.build().toString());
         builder.addStatement(columnAccess.setColumnAccessString(LoadFromCursorMethod.PARAM_MODEL, elementName,
                 CodeBlock.builder()
-                        .add("$T.select().from($T.class).where()", ClassNames.QUERY, referencedTableClassName)
+                        .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build())
                         .add(".querySingle()")
                         .build().toString()));

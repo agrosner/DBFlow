@@ -1,12 +1,12 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.CodeBlock;
 
 /**
- * Description:
+ * Description: Provides an easy way to wrap in model container accesses.
  */
 public class ModelContainerAccess extends BaseColumnAccess {
-
 
     private final ColumnDefinition columnDefinition;
 
@@ -23,16 +23,24 @@ public class ModelContainerAccess extends BaseColumnAccess {
 
     @Override
     String getColumnAccessString(String variableNameString, String elementName) {
-        return null;
+        return CodeBlock.builder()
+                .add("$L.get($S)", variableNameString,
+                        existingColumnAccess.getColumnAccessString(variableNameString, elementName))
+                .build().toString();
     }
 
     @Override
     String getShortAccessString(String elementName) {
-        return null;
+        return CodeBlock.builder()
+                .add("get($S)", existingColumnAccess.getShortAccessString(elementName))
+                .build().toString();
     }
 
     @Override
     String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
-        return null;
+        String newFormattedAccess = CodeBlock.builder()
+                .add("$L.put($S, $L)", variableNameString, elementName, formattedAccess)
+                .build().toString();
+        return existingColumnAccess.setColumnAccessString(variableNameString, elementName, newFormattedAccess);
     }
 }
