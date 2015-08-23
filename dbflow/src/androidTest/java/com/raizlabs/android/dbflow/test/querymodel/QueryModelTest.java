@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import java.util.List;
 import java.util.UUID;
 
-import static com.raizlabs.android.dbflow.sql.language.ColumnAlias.column;
+import static com.raizlabs.android.dbflow.sql.language.NameAlias.column;
 
 /**
  * Description: Tests the {@link TestQueryModel} to ensure it works as expected.

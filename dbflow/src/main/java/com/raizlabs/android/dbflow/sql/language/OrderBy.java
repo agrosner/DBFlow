@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class OrderBy implements Query {
 
-    private List<ColumnAlias> columnAliasList = new ArrayList<>();
+    private List<NameAlias> nameAliasList = new ArrayList<>();
 
     private boolean ascending = false;
 
@@ -28,12 +28,12 @@ public class OrderBy implements Query {
     }
 
     /**
-     * @param columnAliases The varg of aliases used in this {@link OrderBy} query.
+     * @param nameAliases The varg of aliases used in this {@link OrderBy} query.
      * @return A new instance with the specified alias'
      */
-    public static OrderBy columns(ColumnAlias... columnAliases) {
+    public static OrderBy columns(NameAlias... nameAliases) {
         OrderBy orderBy = new OrderBy();
-        orderBy.columnAliasList.addAll(Arrays.asList(columnAliases));
+        orderBy.nameAliasList.addAll(Arrays.asList(nameAliases));
         return orderBy;
     }
 
@@ -44,7 +44,7 @@ public class OrderBy implements Query {
     public static OrderBy columns(String... columnNames) {
         OrderBy orderBy = new OrderBy();
         for (String column : columnNames) {
-            orderBy.columnAliasList.add(ColumnAlias.column(column));
+            orderBy.nameAliasList.add(NameAlias.column(column));
         }
         return orderBy;
     }
@@ -98,11 +98,11 @@ public class OrderBy implements Query {
         if (!TextUtils.isEmpty(stringOrderBy)) {
             queryBuilder.append(stringOrderBy);
         } else {
-            for (int i = 0; i < columnAliasList.size(); i++) {
+            for (int i = 0; i < nameAliasList.size(); i++) {
                 if (i > 0) {
                     queryBuilder.append(", ");
                 }
-                queryBuilder.append(columnAliasList.get(i).getAliasName());
+                queryBuilder.append(nameAliasList.get(i).getAliasName());
             }
             if (orderByCollation != null) {
                 queryBuilder.appendSpace().append("COLLATE").appendSpaceSeparated(orderByCollation);

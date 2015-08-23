@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
+import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description:

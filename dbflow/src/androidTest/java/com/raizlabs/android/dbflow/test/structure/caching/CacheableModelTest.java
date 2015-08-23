@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
+import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description:

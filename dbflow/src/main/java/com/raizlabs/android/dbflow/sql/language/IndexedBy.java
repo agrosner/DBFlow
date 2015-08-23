@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -54,7 +53,7 @@ public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass
 
     /**
      * @param conditions the list of conditions used to build a WHERE query.
-     * @return a WHERE query with the specified {@link com.raizlabs.android.dbflow.sql.builder.Condition}
+     * @return a WHERE query with the specified {@link Condition}
      */
     public Where<ModelClass> where(Condition... conditions) {
         return where().andThese(conditions);

@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
+import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description:

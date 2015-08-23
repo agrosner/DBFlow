@@ -1,6 +1,4 @@
-package com.raizlabs.android.dbflow.sql.builder;
-
-import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
+package com.raizlabs.android.dbflow.sql.language;
 
 /**
  * Description: Base class for all kinds of {@link SQLCondition}
@@ -20,7 +18,7 @@ abstract class BaseCondition implements SQLCondition {
     /**
      * The column name
      */
-    protected ColumnAlias columnAlias;
+    protected NameAlias nameAlias;
 
     /**
      * A custom SQL statement after the value of the Condition
@@ -42,11 +40,11 @@ abstract class BaseCondition implements SQLCondition {
      */
     protected boolean isValueSet = false;
 
-    BaseCondition(ColumnAlias columnAlias) {
-        if (columnAlias == null) {
+    BaseCondition(NameAlias nameAlias) {
+        if (nameAlias == null) {
             throw new IllegalArgumentException("Column cannot be null");
         }
-        this.columnAlias = columnAlias;
+        this.nameAlias = nameAlias;
     }
 
     /**
@@ -69,7 +67,7 @@ abstract class BaseCondition implements SQLCondition {
      */
     @Override
     public String columnName() {
-        return columnAlias.getQuery();
+        return nameAlias.getQuery();
     }
 
     @Override
@@ -108,8 +106,8 @@ abstract class BaseCondition implements SQLCondition {
     /**
      * @return internal alias used for subclasses.
      */
-    ColumnAlias columnAlias() {
-        return columnAlias;
+    NameAlias columnAlias() {
+        return nameAlias;
     }
 
 }

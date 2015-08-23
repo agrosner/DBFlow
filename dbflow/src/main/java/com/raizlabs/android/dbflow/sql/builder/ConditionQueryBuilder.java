@@ -5,7 +5,9 @@ import android.database.DatabaseUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
+import com.raizlabs.android.dbflow.sql.language.Condition;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -13,7 +15,7 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
+import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description: Constructs a condition statement for a specific {@link com.raizlabs.android.dbflow.structure.Model} class.
@@ -264,8 +266,8 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         } else {
             if (value instanceof Where) {
                 stringVal = String.format("(%1s)", ((Where) value).getQuery().trim());
-            } else if (value instanceof ColumnAlias) {
-                stringVal = ((ColumnAlias) value).getQuery();
+            } else if (value instanceof NameAlias) {
+                stringVal = ((NameAlias) value).getQuery();
             } else {
                 stringVal = String.valueOf(value);
                 if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
@@ -393,7 +395,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Returns the raw query without converting the values of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}.
+     * Returns the raw query without converting the values of {@link SQLCondition}.
      *
      * @return
      */
@@ -453,7 +455,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
                 new ConditionQueryBuilder<>(modelAdapter.getModelClass());
         for (int i = 0; i < values.length; i++) {
             SQLCondition condition = conditions.get(i);
-            conditionQueryBuilder.addCondition(column(ColumnAlias.columnRaw(condition.columnName()))
+            conditionQueryBuilder.addCondition(column(NameAlias.columnRaw(condition.columnName()))
                     .operation(condition.operation()).value(values[i]));
         }
 

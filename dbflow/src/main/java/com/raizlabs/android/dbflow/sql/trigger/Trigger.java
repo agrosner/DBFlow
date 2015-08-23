@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.trigger;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -123,7 +123,7 @@ public class Trigger implements Query {
      *                  the UPDATE OF column1, column2,... will be used with their alias'
      * @return
      */
-    public <ModelClass extends Model> TriggerMethod<ModelClass> update(Class<ModelClass> onTable, ColumnAlias... ofColumns) {
+    public <ModelClass extends Model> TriggerMethod<ModelClass> update(Class<ModelClass> onTable, NameAlias... ofColumns) {
         return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, ofColumns);
     }
 

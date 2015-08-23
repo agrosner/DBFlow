@@ -1,17 +1,17 @@
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
-import static com.raizlabs.android.dbflow.sql.language.ColumnAlias.columnRaw;
+import static com.raizlabs.android.dbflow.sql.language.Condition.column;
+import static com.raizlabs.android.dbflow.sql.language.NameAlias.columnRaw;
 
 /**
  * Author: andrewgrosner
  * Description: Test our {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} and
- * {@link com.raizlabs.android.dbflow.sql.builder.Condition} classes to ensure they generate what they're supposed to.
+ * {@link Condition} classes to ensure they generate what they're supposed to.
  */
 public class BuilderTest extends FlowTestCase {
 

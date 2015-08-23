@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class Index<ModelClass extends Model> implements Query {
 
     private final String indexName;
     private Class<ModelClass> table;
-    private List<ColumnAlias> columns;
+    private List<NameAlias> columns;
     private boolean isUnique = false;
 
     /**
@@ -67,10 +67,10 @@ public class Index<ModelClass extends Model> implements Query {
      * @param columns The columns to create an index for.
      * @return This instance.
      */
-    public Index<ModelClass> on(@NonNull Class<ModelClass> table, ColumnAlias firstAlias, ColumnAlias... columns) {
+    public Index<ModelClass> on(@NonNull Class<ModelClass> table, NameAlias firstAlias, NameAlias... columns) {
         this.table = table;
         and(firstAlias);
-        for (ColumnAlias column : columns) {
+        for (NameAlias column : columns) {
             and(column);
         }
         return this;
@@ -83,9 +83,9 @@ public class Index<ModelClass extends Model> implements Query {
      * @return This instance.
      */
     public Index<ModelClass> and(String columnName) {
-        ColumnAlias columnAlias = ColumnAlias.column(columnName);
-        if (!columns.contains(columnAlias)) {
-            columns.add(columnAlias);
+        NameAlias nameAlias = NameAlias.column(columnName);
+        if (!columns.contains(nameAlias)) {
+            columns.add(nameAlias);
         }
         return this;
     }
@@ -96,7 +96,7 @@ public class Index<ModelClass extends Model> implements Query {
      * @param columnName The name of the column. If already exists, this column will not be added
      * @return This instance.
      */
-    public Index<ModelClass> and(ColumnAlias columnName) {
+    public Index<ModelClass> and(NameAlias columnName) {
         if (!columns.contains(columnName)) {
             columns.add(columnName);
         }

@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
+import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description: Test to ensure that passing null to non-null fields does not cause a NPE and that it

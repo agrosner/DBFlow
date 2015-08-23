@@ -8,9 +8,7 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -93,7 +91,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     }
 
     /**
-     * Uses the {@link com.raizlabs.android.dbflow.sql.builder.Condition} pairs to fill this insert query.
+     * Uses the {@link Condition} pairs to fill this insert query.
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      * @return
@@ -113,7 +111,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     }
 
     /**
-     * Uses the {@link com.raizlabs.android.dbflow.sql.builder.Condition} pairs to fill this insert query.
+     * Uses the {@link Condition} pairs to fill this insert query.
      *
      * @param conditionQueryBuilder The condition query builder to use
      * @return

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -13,7 +13,7 @@ public class UpdateTransaction<ModelClass extends Model> extends QueryTransactio
 
     /**
      * Constructs this transaction with WHERE {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     * with a set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to set on the Update.
+     * with a set of {@link Condition} to set on the Update.
      *
      * @param dbTransactionInfo     The information about this transaction
      * @param whereConditionBuilder The set of WHERE conditions to use.

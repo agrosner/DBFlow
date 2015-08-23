@@ -4,6 +4,10 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Description: A SQL SELECT statement generator. It generates the SELECT part of the statement.
  */
@@ -16,7 +20,7 @@ public class Select implements Query {
     /**
      * The select qualifier to append to the SELECT statement
      */
-    private int mSelectQualifier = NONE;
+    private int mSelectQualifier = ALL;
     /**
      * SELECT DISTINCT call
      */
@@ -25,61 +29,20 @@ public class Select implements Query {
      * SELECT ALL call
      */
     public static final int ALL = 1;
-    /**
-     * SELECT method call
-     */
-    public static final int METHOD = 2;
-    /**
-     * Specifies the column names to select from
-     */
-    private final ColumnAlias[] columns;
 
-    /**
-     * Specifies column names to select from that don't get quoted.
-     */
-    private String[] rawColumns;
-
-    private ColumnAlias columnMethodAlias;
-
-    /**
-     * Empty constructor since other constructors have different vargs.
-     */
-    public Select() {
-        columns = null;
-    }
+    private final List<Property> propertyList = new ArrayList<>();
 
     /**
      * Creates this instance with the specified columns from the specified {@link com.raizlabs.android.dbflow.config.FlowManager}
      *
-     * @param columns Quoted column names.
+     * @param properties The properties to select from.
      */
-    public Select(String... columns) {
-        this.columns = new ColumnAlias[columns == null ? 0 : columns.length];
-        if (columns != null) {
-            for (int i = 0; i < this.columns.length; i++) {
-                this.columns[i] = ColumnAlias.column(columns[i]);
-            }
+    public Select(Property... properties) {
+        Collections.addAll(propertyList, properties);
+
+        if (propertyList.isEmpty()) {
+            propertyList.add(Property.ALL_PROPERTY);
         }
-    }
-
-    /**
-     * Creates this instance with the specified column aliases
-     *
-     * @param columns A set of column aliases that we use in our query.
-     */
-    public Select(ColumnAlias... columns) {
-        this.columns = columns;
-    }
-
-    /**
-     * Attach columns you don't want to quote or have custom string.
-     *
-     * @param rawColumns The column names that are unquoted.
-     * @return This instance.
-     */
-    public Select rawColumns(String... rawColumns) {
-        this.rawColumns = rawColumns;
-        return this;
     }
 
     /**
@@ -102,61 +65,6 @@ public class Select implements Query {
         return selectQualifier(DISTINCT);
     }
 
-    /**
-     * Helper method to pick the correct qualifier for a SELECT query
-     *
-     * @param qualifierInt Can be {@link #ALL}, {@link #NONE}, {@link #DISTINCT}, or {@link #METHOD}
-     * @return
-     */
-    public Select selectQualifier(int qualifierInt) {
-        mSelectQualifier = qualifierInt;
-        return this;
-    }
-
-    /**
-     * @return appends {@link #ALL} to the query
-     */
-    public Select all() {
-        return selectQualifier(ALL);
-    }
-
-    /**
-     * @return appends COUNT to the query
-     */
-    public Select count() {
-        return method("COUNT", "*");
-    }
-
-    /**
-     * @param methodName The name of the method.
-     * @param columnName The name of the column to use.
-     * @return Appends a method to this query. Such methods as avg, count, sum.
-     */
-    public Select method(String methodName, String columnName) {
-        columnMethodAlias = ColumnAlias.columnsWithFunction(methodName, columnName);
-        return selectQualifier(METHOD);
-    }
-
-    /**
-     * The Average of the column values
-     *
-     * @param columnName
-     * @return
-     */
-    public Select avg(String columnName) {
-        return method("AVG", columnName);
-    }
-
-    /**
-     * Sums the specific column value
-     *
-     * @param columnName
-     * @return
-     */
-    public Select sum(String columnName) {
-        return method("SUM", columnName);
-    }
-
     @Override
     public String toString() {
         return getQuery();
@@ -171,28 +79,24 @@ public class Select implements Query {
                 queryBuilder.append("DISTINCT");
             } else if (mSelectQualifier == ALL) {
                 queryBuilder.append("ALL");
-            } else if (mSelectQualifier == METHOD) {
-                queryBuilder.append(columnMethodAlias.getQuery());
             }
             queryBuilder.appendSpace();
         }
 
-        boolean hasColumns = (columns != null && columns.length > 0);
-        boolean hasRawColumns = (rawColumns != null && rawColumns.length > 0);
-        if (hasColumns || hasRawColumns) {
-            if (hasColumns) {
-                queryBuilder.appendArray(columns);
-            }
-            if (hasRawColumns) {
-                if (hasColumns) {
-                    queryBuilder.append(", ");
-                }
-                queryBuilder.appendArray(rawColumns);
-            }
-        } else if (mSelectQualifier != METHOD) {
-            queryBuilder.append("*");
-        }
+        queryBuilder.append(QueryBuilder.join(",", propertyList));
         queryBuilder.appendSpace();
         return queryBuilder.getQuery();
+    }
+
+
+    /**
+     * Helper method to pick the correct qualifier for a SELECT query
+     *
+     * @param qualifierInt Can be {@link #ALL}, {@link #NONE}, {@link #DISTINCT}, or {@link #METHOD}
+     * @return
+     */
+    private Select selectQualifier(int qualifierInt) {
+        mSelectQualifier = qualifierInt;
+        return this;
     }
 }

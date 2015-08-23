@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -208,7 +209,7 @@ public class ContentUtils {
      *
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param queryUri        The URI of the query
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @return A {@link android.database.Cursor}
@@ -225,7 +226,7 @@ public class ContentUtils {
      *
      * @param queryUri        The URI of the query
      * @param table           The table to get from.
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
@@ -245,7 +246,7 @@ public class ContentUtils {
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param table           The table to get from.
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
@@ -267,7 +268,7 @@ public class ContentUtils {
      *
      * @param queryUri        The URI of the query
      * @param table           The table to get from
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
@@ -286,7 +287,7 @@ public class ContentUtils {
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param table           The table to get from
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}

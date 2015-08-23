@@ -1,10 +1,10 @@
-package com.raizlabs.android.dbflow.sql.builder;
+package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
  * operator. The value is the {@link com.raizlabs.android.dbflow.structure.Model} value of the column and WILL be
  * converted into the database value when we run the query.
  */
-public class Condition extends BaseCondition {
+public class Condition extends BaseCondition implements IConditional {
 
     /**
      * Creates a new instance with a raw condition query. The values will not be converted into
@@ -32,50 +32,50 @@ public class Condition extends BaseCondition {
     }
 
     public static Condition column(String columnName) {
-        return new Condition(ColumnAlias.column(columnName));
+        return new Condition(NameAlias.column(columnName));
     }
 
     public static Condition exists() {
-        return new Condition(ColumnAlias.columnRaw("EXISTS "));
+        return new Condition(NameAlias.columnRaw("EXISTS "));
     }
 
     /**
-     * @param function The name of the function to call as the {@link Condition#column(ColumnAlias)}
-     * @param columnNames  The name of columns to use as parameters to the specified function.
+     * @param function    The name of the function to call as the {@link Condition#column(NameAlias)}
+     * @param columnNames The name of columns to use as parameters to the specified function.
      * @return Creates a new instance with function name that quotes the specified columns.
      * EX: date(`myColumn`)=1433872730 -&gt; Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
      */
-    public static Condition columnsWithFunction(String function, String...columnNames) {
-        return new Condition(ColumnAlias.columnsWithFunction(function, columnNames));
+    public static Condition columnsWithFunction(String function, String... columnNames) {
+        return new Condition(NameAlias.columnsWithFunction(function, columnNames));
     }
 
     /**
-     * @param function The name of the function to call as the {@link Condition#column(ColumnAlias)}
-     * @param columnAliases  The name of columns to use as parameters to the specified function.
+     * @param function      The name of the function to call as the {@link Condition#column(NameAlias)}
+     * @param nameAliases The name of columns to use as parameters to the specified function.
      * @return Creates a new instance with function name that quotes the specified columns.
      * EX: date(`myColumn`)=1433872730 -&gt; Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
      */
-    public static Condition columnsWithFunction(String function, ColumnAlias...columnAliases) {
-        return new Condition(ColumnAlias.columnsWithFunction(function, columnAliases));
+    public static Condition columnsWithFunction(String function, NameAlias... nameAliases) {
+        return new Condition(NameAlias.columnsWithFunction(function, nameAliases));
     }
 
     /**
-     * Constructs instance with the specified {@link ColumnAlias} to enable or disable back ticks on the name.
+     * Constructs instance with the specified {@link NameAlias} to enable or disable back ticks on the name.
      *
-     * @param columnAlias The alias to use.
+     * @param nameAlias The alias to use.
      * @return A new {@link Condition}
      */
-    public static Condition column(ColumnAlias columnAlias) {
-        return new Condition(columnAlias);
+    public static Condition column(NameAlias nameAlias) {
+        return new Condition(nameAlias);
     }
 
     /**
      * Creates a new instance
      *
-     * @param columnAlias The name of the column in the DB
+     * @param nameAlias The name of the column in the DB
      */
-    private Condition(ColumnAlias columnAlias) {
-        super(columnAlias);
+    private Condition(NameAlias nameAlias) {
+        super(nameAlias);
     }
 
     @Override
@@ -112,6 +112,7 @@ public class Condition extends BaseCondition {
      *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
      * @return This condition
      */
+    @Override
     public Condition is(Object value) {
         operation = Operation.EQUALS;
         return value(value);
@@ -125,6 +126,7 @@ public class Condition extends BaseCondition {
      *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
      * @return This condition
      */
+    @Override
     public Condition eq(Object value) {
         return is(value);
     }
@@ -135,9 +137,20 @@ public class Condition extends BaseCondition {
      * @param value The value of the column in the DB
      * @return This condition
      */
+    @Override
     public Condition isNot(Object value) {
         operation = Operation.NOT_EQUALS;
         return value(value);
+    }
+    /**
+     * Assigns the operation to "!="
+     *
+     * @param value The value of the column in the DB
+     * @return This condition
+     */
+    @Override
+    public Condition notEq(Object value) {
+        return isNot(value);
     }
 
     /**
@@ -150,24 +163,26 @@ public class Condition extends BaseCondition {
      *                  The _ represents a single number or character.
      * @return This condition
      */
-    public Condition like(String likeRegex) {
+    @Override
+    public Condition like(Object value) {
         operation = String.format(" %1s ", Operation.LIKE);
-        return value(likeRegex);
+        return value(value);
     }
 
     /**
      * Uses the GLOB operation. Similar to LIKE except it uses case sensitive comparisons.
      *
-     * @param globRegex Uses sqlite GLOB regex to match rows.
-     *                  It must be a string to escape it properly.
-     *                  There are two wildcards: * and ?
-     *                  * represents [0,many) numbers or characters.
-     *                  The ? represents a single number or character
+     * @param value Uses sqlite GLOB regex to match rows.
+     *              It must be a string to escape it properly.
+     *              There are two wildcards: * and ?
+     *              * represents [0,many) numbers or characters.
+     *              The ? represents a single number or character
      * @return This condition
      */
-    public Condition glob(String globRegex) {
+    @Override
+    public Condition glob(Object value) {
         operation = String.format(" %1s ", Operation.GLOB);
-        return value(globRegex);
+        return value(value);
     }
 
     /**
@@ -188,6 +203,7 @@ public class Condition extends BaseCondition {
      * @param value The value of the column in the DB
      * @return This condition
      */
+    @Override
     public Condition greaterThan(Object value) {
         operation = Operation.GREATER_THAN;
         return value(value);
@@ -199,6 +215,7 @@ public class Condition extends BaseCondition {
      * @param value The value of the column in the DB
      * @return This condition
      */
+    @Override
     public Condition greaterThanOrEq(Object value) {
         operation = Operation.GREATER_THAN_OR_EQUALS;
         return value(value);
@@ -210,6 +227,7 @@ public class Condition extends BaseCondition {
      * @param value The value of the column in the DB
      * @return This condition
      */
+    @Override
     public Condition lessThan(Object value) {
         operation = Operation.LESS_THAN;
         return value(value);
@@ -221,6 +239,7 @@ public class Condition extends BaseCondition {
      * @param value The value of the column in the DB
      * @return This condition
      */
+    @Override
     public Condition lessThanOrEq(Object value) {
         operation = Operation.LESS_THAN_OR_EQUALS;
         return value(value);
@@ -301,6 +320,7 @@ public class Condition extends BaseCondition {
      * @param separator The separator to use
      * @return This instance
      */
+    @Override
     public Condition separator(String separator) {
         this.separator = separator;
         return this;
@@ -451,13 +471,13 @@ public class Condition extends BaseCondition {
 
         /**
          * Special operation that specify if the column is not null for a specified row. Use of this as
-         * an operator will ignore the value of the {@link com.raizlabs.android.dbflow.sql.builder.Condition} for it.
+         * an operator will ignore the value of the {@link Condition} for it.
          */
         public static final String IS_NOT_NULL = "IS NOT NULL";
 
         /**
          * Special operation that specify if the column is null for a specified row. Use of this as
-         * an operator will ignore the value of the {@link com.raizlabs.android.dbflow.sql.builder.Condition} for it.
+         * an operator will ignore the value of the {@link Condition} for it.
          */
         public static final String IS_NULL = "IS NULL";
 
@@ -488,7 +508,7 @@ public class Condition extends BaseCondition {
          * @param value     The value of the first argument of the BETWEEN clause
          */
         private Between(Condition condition, Object value) {
-            super(condition.columnAlias);
+            super(condition.nameAlias);
             this.operation = String.format(" %1s ", Operation.BETWEEN);
             this.value = value;
             isValueSet = true;
@@ -537,8 +557,8 @@ public class Condition extends BaseCondition {
          *
          * @param condition     The condition object to pass in. We only use the column name here.
          * @param firstArgument The first value in the IN query as one is required.
-         * @param isIn          if this is an {@link com.raizlabs.android.dbflow.sql.builder.Condition.Operation#IN}
-         *                      statement or a {@link com.raizlabs.android.dbflow.sql.builder.Condition.Operation#NOT_IN}
+         * @param isIn          if this is an {@link Condition.Operation#IN}
+         *                      statement or a {@link Condition.Operation#NOT_IN}
          */
         private In(Condition condition, Object firstArgument, boolean isIn, Object... arguments) {
             super(condition.columnAlias());
@@ -632,7 +652,7 @@ public class Condition extends BaseCondition {
             conditionQueryBuilder.append("(");
             for (SQLCondition condition : conditions) {
                 condition.appendConditionToQuery(conditionQueryBuilder);
-                if(condition.hasSeparator()) {
+                if (condition.hasSeparator()) {
                     conditionQueryBuilder.appendSpaceSeparated(condition.separator());
                 }
             }
