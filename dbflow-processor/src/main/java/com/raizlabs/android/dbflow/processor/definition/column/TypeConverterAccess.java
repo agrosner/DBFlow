@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
-import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.CodeBlock;
@@ -31,8 +32,8 @@ public class TypeConverterAccess extends BaseColumnAccess {
     String getColumnAccessString(String variableNameString, String elementName) {
         return CodeBlock.builder()
                 .add("($T) $T.getTypeConverter($T.class).getDBValue($L)",
-                        typeConverterDefinition.dbClassName,
-                        ClassNames.DB_MANAGER,
+                        typeConverterDefinition.getDbTypeName(),
+                        ClassNames.FLOW_MANAGER,
                         columnDefinition.elementTypeName.box(),
                         existingColumnAccess.getColumnAccessString(variableNameString, elementName))
                 .build()
@@ -43,8 +44,8 @@ public class TypeConverterAccess extends BaseColumnAccess {
     String getShortAccessString(String elementName) {
         return CodeBlock.builder()
                 .add("($T) $T.getTypeConverter($T.class).getDBValue($L)",
-                        typeConverterDefinition.dbClassName,
-                        ClassNames.DB_MANAGER,
+                        typeConverterDefinition.getDbTypeName(),
+                        ClassNames.FLOW_MANAGER,
                         columnDefinition.elementTypeName.box(),
                         existingColumnAccess.getShortAccessString(elementName))
                 .build()
@@ -55,21 +56,21 @@ public class TypeConverterAccess extends BaseColumnAccess {
     String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
         String newFormattedAccess = CodeBlock.builder()
                 .add("($T) $T.getTypeConverter($T.class).getModelValue(($T) $L)",
-                        typeConverterDefinition.modelClassName,
-                        ClassNames.DB_MANAGER,
+                        typeConverterDefinition.getModelTypeName(),
+                        ClassNames.FLOW_MANAGER,
                         columnDefinition.elementTypeName.box(),
-                        typeConverterDefinition.dbClassName,
+                        typeConverterDefinition.getDbTypeName(),
                         formattedAccess).build().toString();
         return existingColumnAccess.setColumnAccessString(variableNameString, elementName, newFormattedAccess);
     }
 
     @Override
-    SqliteConversions.SQLiteType getSqliteTypeForTypeName(TypeName elementTypeName) {
+    SQLiteType getSqliteTypeForTypeName(TypeName elementTypeName) {
         if (typeConverterDefinition == null) {
             manager.logError(TypeConverterAccess.class, "No type converter definition found for %1s. Please register it via annotations.", elementTypeName);
             throw new RuntimeException("");
         }
 
-        return super.getSqliteTypeForTypeName(typeConverterDefinition.dbClassName);
+        return super.getSqliteTypeForTypeName(typeConverterDefinition.getDbTypeName());
     }
 }

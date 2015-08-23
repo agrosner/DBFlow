@@ -23,6 +23,6 @@ public class OtherModel extends BaseModel {
     @ForeignKey(references =
             {@ForeignKeyReference(columnType = String.class,
                     columnName = "json",
-                    foreignColumnName = "name")})
+                    foreignKeyColumnName = "name")})
     SecondModel candy;
 }

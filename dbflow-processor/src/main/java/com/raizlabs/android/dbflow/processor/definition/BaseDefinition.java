@@ -24,6 +24,7 @@ public abstract class BaseDefinition implements TypeDefinition {
 
     public Element element;
     public TypeElement typeElement;
+    public String elementName;
 
     public String packageName;
 
@@ -31,6 +32,7 @@ public abstract class BaseDefinition implements TypeDefinition {
         this.manager = processorManager;
         this.element = element;
         elementTypeName = TypeName.get(element.asType());
+        elementName = element.getSimpleName().toString();
         packageName = manager.getElements().getPackageOf(element).toString();
     }
 
@@ -38,6 +40,7 @@ public abstract class BaseDefinition implements TypeDefinition {
         this.manager = processorManager;
         this.typeElement = element;
         elementClassName = ClassName.get(typeElement);
+        elementName = element.getSimpleName().toString();
         packageName = manager.getElements().getPackageOf(element).toString();
     }
 

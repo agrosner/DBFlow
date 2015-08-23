@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.model.builder;
 
 
-import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -16,7 +16,7 @@ import java.util.List;
 public class TableCreationQueryBuilder extends QueryBuilder<TableCreationQueryBuilder> {
 
     /**
-     * Appends a column to this class. It will append the correct string value based on the {@link com.raizlabs.android.dbflow.processor.definition.ColumnDefinition}
+     * Appends a column to this class. It will append the correct string value based on the {@link ColumnDefinition}
      *
      * @param column
      * @return

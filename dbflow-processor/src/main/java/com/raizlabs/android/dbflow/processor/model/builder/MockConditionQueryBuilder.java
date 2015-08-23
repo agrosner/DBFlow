@@ -22,7 +22,7 @@ public class MockConditionQueryBuilder extends QueryBuilder<MockConditionQueryBu
                                                                  ForeignKeyReference[] foreignKeyReferences) {
         for(int i = 0; i < foreignKeyReferences.length; i++) {
             ForeignKeyReference foreignKeyReference = foreignKeyReferences[i];
-            append("and(").appendMockCursorCondition(ModelUtils.getStaticMember(foreignColumnTableClass, foreignKeyReference.foreignColumnName()),
+            append("and(").appendMockCursorCondition(ModelUtils.getStaticMember(foreignColumnTableClass, foreignKeyReference.foreignKeyColumnName()),
                     ModelUtils.getClassFromAnnotation(foreignKeyReference),
                     foreignKeyReference.columnName()).append(")");
 

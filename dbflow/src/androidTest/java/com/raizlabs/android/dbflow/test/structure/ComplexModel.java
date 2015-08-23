@@ -19,12 +19,12 @@ public class ComplexModel extends BaseModel {
 
     @Column
     @ForeignKey(references = {@ForeignKeyReference(columnName = "testmodel_id",
-            columnType = String.class, foreignColumnName = "name")})
+            columnType = String.class, foreignKeyColumnName = "name")})
     JSONModel<TestModel1> testModel1;
 
     @Column
     @ForeignKey(references = {@ForeignKeyReference(columnName = "mapmodel_id",
-            columnType = String.class, foreignColumnName = "name")})
+            columnType = String.class, foreignKeyColumnName = "name")})
     MapModel<TestModel2> mapModel;
 
 }

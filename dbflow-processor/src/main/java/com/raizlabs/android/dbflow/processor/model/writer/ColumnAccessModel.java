@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.model.writer;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
@@ -103,7 +103,7 @@ public class ColumnAccessModel implements Query {
                                       String.format("No Type Converter found for %1s",
                                                     columnDefinition.modelType));
             } else {
-                newFieldType = typeConverterDefinition.getDbElement()
+                newFieldType = typeConverterDefinition.getDbTypeName()
                         .asType()
                         .toString();
             }
@@ -148,11 +148,11 @@ public class ColumnAccessModel implements Query {
         columnFieldActualType = columnDefinition.columnFieldActualType;
         columnFieldName = columnDefinition.columnFieldName;
         columnFieldType = columnDefinition.columnFieldType;
-        isPrivate = foreignKeyReference.fieldIsPrivate();
+        isPrivate = foreignKeyReference.referencedFieldIsPrivate();
         foreignKeyLocalColumnName = foreignKeyReference.columnName();
-        referencedColumnFieldName = columnDefinition.isModel ? foreignKeyReference.foreignColumnName()
+        referencedColumnFieldName = columnDefinition.isModel ? foreignKeyReference.foreignKeyColumnName()
                 : columnDefinition.columnFieldName;
-        containerKeyName = foreignKeyReference.foreignColumnName();
+        containerKeyName = foreignKeyReference.foreignKeyColumnName();
         isForeignKeyField = true;
         requiresTypeConverter = false;
         TypeMirror castClass = ModelUtils.getTypeMirrorFromAnnotation(foreignKeyReference);

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.model.builder;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
-import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;

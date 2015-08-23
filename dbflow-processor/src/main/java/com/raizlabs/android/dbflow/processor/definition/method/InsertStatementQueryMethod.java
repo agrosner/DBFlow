@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.method;
 
-import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
@@ -17,7 +17,6 @@ public class InsertStatementQueryMethod implements MethodDefinition {
     private TableDefinition tableDefinition;
 
     public InsertStatementQueryMethod(TableDefinition tableDefinition) {
-
         this.tableDefinition = tableDefinition;
     }
 

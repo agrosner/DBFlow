@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.writer;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
-import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;

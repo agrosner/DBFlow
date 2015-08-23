@@ -20,7 +20,7 @@ public class ForeignModel3 extends TestModel1 {
             tableClass = TestModelAI.class,
             references
                         = {@ForeignKeyReference(columnName = "testmodel_id",
-                                                columnType = Long.class, foreignColumnName = "id"
+                                                columnType = Long.class, foreignKeyColumnName = "id"
     )})
     Long testModelAI;
 }

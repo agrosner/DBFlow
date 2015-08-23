@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
-import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;

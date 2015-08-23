@@ -130,7 +130,7 @@ public class ProcessorManager implements Handler {
             modelContainers.put(getDatabase(modelClassName), modelContainerDefinitionMap);
         }
         modelContainerDefinitionMap.put(modelContainerDefinition.getModelClassQualifiedName(),
-                                        modelContainerDefinition);
+                modelContainerDefinition);
     }
 
     public void addQueryModelDefinition(QueryModelDefinition queryModelDefinition) {
@@ -139,7 +139,7 @@ public class ProcessorManager implements Handler {
         if (modelDefinitionMap == null) {
             modelDefinitionMap = Maps.newHashMap();
             queryModelDefinitionMap.put(getDatabase(queryModelDefinition.getQualifiedModelClassName()),
-                                        modelDefinitionMap);
+                    modelDefinitionMap);
         }
         modelDefinitionMap.put(queryModelDefinition.getQualifiedModelClassName(), queryModelDefinition);
     }
@@ -261,7 +261,7 @@ public class ProcessorManager implements Handler {
                 tableEndpointDefinition.contentProviderName);
         if (contentProviderDefinition == null) {
             logError("Content Provider %1s was not found for the @TableEndpoint %1s",
-                     tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
+                    tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
         } else {
             contentProviderDefinition.endpointDefinitions.add(tableEndpointDefinition);
         }
@@ -269,6 +269,10 @@ public class ProcessorManager implements Handler {
 
     public void logError(String error, Object... args) {
         getMessager().printMessage(Diagnostic.Kind.ERROR, String.format(error, args));
+    }
+
+    public void logError(Class callingClass, String error, Object... args) {
+        logError(callingClass + ": " + error, args);
     }
 
     @Override
@@ -288,8 +292,8 @@ public class ProcessorManager implements Handler {
         for (DatabaseWriter databaseWriter : databaseWriters) {
             try {
                 JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                                                               .createSourceFile(
-                                                                       databaseWriter.getSourceFileName()).openWriter());
+                        .createSourceFile(
+                                databaseWriter.getSourceFileName()).openWriter());
                 databaseWriter.write(javaWriter);
                 javaWriter.close();
             } catch (IOException e) {
@@ -299,9 +303,9 @@ public class ProcessorManager implements Handler {
         if (roundEnvironment.processingOver()) {
             try {
                 JavaWriter staticFlowManager = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                                                                      .createSourceFile(
-                                                                              ClassNames.FLOW_MANAGER_PACKAGE + "." +
-                                                                              ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME).openWriter());
+                        .createSourceFile(
+                                ClassNames.FLOW_MANAGER_PACKAGE + "." +
+                                        ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME).openWriter());
                 new FlowManagerHolderWriter(processorManager).write(staticFlowManager);
 
                 staticFlowManager.close();

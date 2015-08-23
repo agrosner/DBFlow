@@ -26,10 +26,10 @@ public class ForeignInteractionModel extends TestModel1 {
             onUpdate = ForeignKeyAction.CASCADE,
             references =
                     {@ForeignKeyReference(columnName = "testmodel_id",
-                                          foreignColumnName = "name",
+                                          foreignKeyColumnName = "name",
                                           columnType = String.class),
                             @ForeignKeyReference(columnName = "testmodel_type",
-                                                 foreignColumnName = "type",
+                                                 foreignKeyColumnName = "type",
                                                  columnType = String.class)},
             saveForeignKeyModel = false)
     ForeignKeyContainer<ParentModel> testModel1;

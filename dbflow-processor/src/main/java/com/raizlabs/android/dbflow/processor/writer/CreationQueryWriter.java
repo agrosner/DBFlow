@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
-import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -64,7 +64,7 @@ public class CreationQueryWriter implements FlowWriter {
                         if (columnDefinition.hasTypeConverter && !columnDefinition.isEnum) {
                             TypeConverterDefinition typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.modelType);
                             if (typeConverterDefinition != null) {
-                                queryBuilder.appendType(typeConverterDefinition.getDbElement().asType().toString());
+                                queryBuilder.appendType(typeConverterDefinition.getDbTypeName().asType().toString());
                             } else {
                                 manager.logError("No type converter defined for: " + columnDefinition.columnFieldType);
                                 queryBuilder.append("null");
@@ -142,7 +142,7 @@ public class CreationQueryWriter implements FlowWriter {
 
                         String[] foreignColumns = new String[foreignKeyField.foreignKeyReferences.length];
                         for (int i = 0; i < foreignColumns.length; i++) {
-                            foreignColumns[i] = foreignKeyField.foreignKeyReferences[i].foreignColumnName();
+                            foreignColumns[i] = foreignKeyField.foreignKeyReferences[i].foreignKeyColumnName();
                         }
 
                         String[] columns = new String[foreignKeyField.foreignKeyReferences.length];

@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
 

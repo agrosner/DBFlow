@@ -22,7 +22,7 @@ public class NoteModel extends BaseProviderModel<NoteModel> {
 
     @Column
     @ForeignKey(references = {@ForeignKeyReference(columnName = "providerModel",
-            columnType = long.class, foreignColumnName = "id")})
+            columnType = long.class, foreignKeyColumnName = "id")})
     ContentProviderModel contentProviderModel;
 
     @Column

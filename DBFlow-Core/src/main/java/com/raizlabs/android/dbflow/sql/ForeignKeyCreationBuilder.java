@@ -31,7 +31,7 @@ public class ForeignKeyCreationBuilder extends QueryBuilder<ForeignKeyCreationBu
      * @return
      */
     public ForeignKeyCreationBuilder addReference(ForeignKeyReference foreignKeyReference, ForeignKeyAction updateConflict, ForeignKeyAction deleteConflict){
-        foreignColumns.add(foreignKeyReference.foreignColumnName());
+        foreignColumns.add(foreignKeyReference.foreignKeyColumnName());
         columns.add(foreignKeyReference.columnName());
         updateConflicts.add(updateConflict);
         deleteConflicts.add(deleteConflict);

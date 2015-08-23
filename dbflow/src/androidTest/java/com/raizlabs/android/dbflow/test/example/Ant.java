@@ -27,7 +27,7 @@ public class Ant extends BaseModel {
     @Column
     @ForeignKey(references = {@ForeignKeyReference(columnName = "queen_id",
             columnType = Long.class,
-            foreignColumnName = "id")},
+            foreignKeyColumnName = "id")},
             saveForeignKeyModel = false)
     ForeignKeyContainer<Queen> queenForeignKeyContainer;
 
