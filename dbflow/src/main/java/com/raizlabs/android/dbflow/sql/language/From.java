@@ -33,7 +33,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     /**
      * An alias for the table
      */
-    private String tableAlias;
+    private NameAlias tableAlias;
 
     /**
      * Enables the SQL JOIN statement
@@ -50,6 +50,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
         super(table);
         queryBase = querybase;
         this.table = table;
+        tableAlias = new NameAlias(FlowManager.getTableName(table).replace("`", ""));
     }
 
     /**
@@ -59,7 +60,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @return This FROM statement
      */
     public From<ModelClass> as(String alias) {
-        tableAlias = alias;
+        tableAlias.as(alias);
         return this;
     }
 
@@ -224,7 +225,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
         queryBuilder.appendQuoted(FlowManager.getTableName(table));
 
         if (queryBase instanceof Select) {
-            queryBuilder.appendSpace().appendQualifier("AS", tableAlias);
+            queryBuilder.appendSpace().appendQualifier("AS", tableAlias.getAliasName());
             for (Join join : joins) {
                 queryBuilder.append(join.getQuery());
             }
