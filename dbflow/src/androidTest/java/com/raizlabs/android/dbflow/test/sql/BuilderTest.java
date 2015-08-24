@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.sql;
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
@@ -69,8 +70,8 @@ public class BuilderTest extends FlowTestCase {
     }
 
     public void testCombinedOperations() {
-        Condition.CombinedCondition combinedCondition = Condition.CombinedCondition
-                .begin(Condition.CombinedCondition
+        ConditionGroup combinedCondition = ConditionGroup
+                .begin(ConditionGroup
                         .begin(column(columnRaw("A"))).or(column(columnRaw("B"))))
                 .and(column(columnRaw("C")));
         ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, combinedCondition);

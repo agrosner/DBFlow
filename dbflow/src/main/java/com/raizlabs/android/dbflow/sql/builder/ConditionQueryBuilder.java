@@ -22,6 +22,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  * This enables easy combining of conditions for SQL statements and will handle converting the model value for each column into
  * the correct database-valued-string.
  */
+@Deprecated
 public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilder<ConditionQueryBuilder<ModelClass>> {
 
     /**

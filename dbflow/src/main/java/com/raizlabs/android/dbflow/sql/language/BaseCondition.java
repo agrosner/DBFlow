@@ -1,9 +1,48 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.database.DatabaseUtils;
+
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.converter.TypeConverter;
+
 /**
  * Description: Base class for all kinds of {@link SQLCondition}
  */
 abstract class BaseCondition implements SQLCondition {
+
+    /**
+     * Converts the given value for the column if it has a type converter. Then it turns that result into a string.
+     *
+     * @param value The value of the column in Model format.
+     * @return Returns the result of converting and type converting the specified value.
+     */
+    @SuppressWarnings("unchecked")
+    public static String convertValueToString(Object value) {
+        String stringVal;
+        if (value != null) {
+            TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+            if (typeConverter != null) {
+                value = typeConverter.getDBValue(value);
+            }
+        }
+
+        if (value instanceof Number) {
+            stringVal = String.valueOf(value);
+        } else {
+            if (value instanceof Where) {
+                stringVal = String.format("(%1s)", ((Where) value).getQuery().trim());
+            } else if (value instanceof NameAlias) {
+                stringVal = ((NameAlias) value).getQuery();
+            } else {
+                stringVal = String.valueOf(value);
+                if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
+                    stringVal = DatabaseUtils.sqlEscapeString(stringVal);
+                }
+            }
+        }
+
+        return stringVal;
+    }
 
     /**
      * The operation such as "=", "&lt;", and more
@@ -33,25 +72,15 @@ abstract class BaseCondition implements SQLCondition {
     /**
      * If it is a raw condition, we will not attempt to escape or convert the values.
      */
-    protected boolean isRaw = false;
+    protected boolean isRaw;
 
     /**
      * If true, the value is set and we should append it. (to prevent false positive nulls)
      */
-    protected boolean isValueSet = false;
+    protected boolean isValueSet;
 
     BaseCondition(NameAlias nameAlias) {
-        if (nameAlias == null) {
-            throw new IllegalArgumentException("Column cannot be null");
-        }
         this.nameAlias = nameAlias;
-    }
-
-    /**
-     * Internal constructor for combined conditions.
-     */
-    BaseCondition() {
-
     }
 
     /**

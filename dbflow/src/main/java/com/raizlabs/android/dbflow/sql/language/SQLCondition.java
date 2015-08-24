@@ -10,19 +10,12 @@ import com.raizlabs.android.dbflow.structure.Model;
 public interface SQLCondition {
 
     /**
-     * Appends itself to the {@link ConditionQueryBuilder}
+     * Appends itself to the {@link QueryBuilder}
      *
-     * @param conditionQueryBuilder The builder to append to.
      * @param <ModelClass>          The class that implements {@link Model}
+     * @param queryBuilder The builder to append to.
      */
-    <ModelClass extends Model> void appendConditionToQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder);
-
-    /**
-     * Appends to a {@link QueryBuilder} without converting any values.
-     *
-     * @param queryBuilder The builder to append to
-     */
-    void appendConditionToRawQuery(QueryBuilder queryBuilder);
+    void appendConditionToQuery(QueryBuilder queryBuilder);
 
     /**
      * The name of the column.

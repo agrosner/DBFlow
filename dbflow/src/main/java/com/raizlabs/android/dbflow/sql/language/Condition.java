@@ -4,8 +4,6 @@ import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,26 +26,15 @@ public class Condition extends BaseCondition implements IConditional {
     }
 
     @Override
-    public <ModelClass extends Model> void appendConditionToQuery(
-            ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        conditionQueryBuilder.append(columnName()).append(operation());
+    public void appendConditionToQuery(QueryBuilder queryBuilder) {
+        queryBuilder.append(columnName()).append(operation());
 
         // Do not use value for certain operators
         // If is raw, we do not want to convert the value to a string.
         if (isValueSet) {
-            conditionQueryBuilder.append(isRaw ? value() : conditionQueryBuilder.convertValueToString(value()));
+            queryBuilder.append(isRaw ? value() : BaseCondition.convertValueToString(value()));
         }
 
-        if (postArgument() != null) {
-            conditionQueryBuilder.appendSpace().append(postArgument());
-        }
-    }
-
-    @Override
-    public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-        queryBuilder.append(columnName());
-        queryBuilder.append(operation())
-                .append(value());
         if (postArgument() != null) {
             queryBuilder.appendSpace().append(postArgument());
         }
@@ -91,6 +78,7 @@ public class Condition extends BaseCondition implements IConditional {
         operation = Operation.NOT_EQUALS;
         return value(value);
     }
+
     /**
      * Assigns the operation to "!="
      *
@@ -105,11 +93,11 @@ public class Condition extends BaseCondition implements IConditional {
     /**
      * Uses the LIKE operation. Case insensitive comparisons.
      *
-     * @param likeRegex Uses sqlite LIKE regex to match rows.
-     *                  It must be a string to escape it properly.
-     *                  There are two wildcards: % and _
-     *                  % represents [0,many) numbers or characters.
-     *                  The _ represents a single number or character.
+     * @param value Uses sqlite LIKE regex to match rows.
+     *              It must be a string to escape it properly.
+     *              There are two wildcards: % and _
+     *              % represents [0,many) numbers or characters.
+     *              The _ represents a single number or character.
      * @return This condition
      */
     @Override
@@ -474,23 +462,14 @@ public class Condition extends BaseCondition implements IConditional {
         }
 
         @Override
-        public <ModelClass extends Model> void appendConditionToQuery(
-                ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-            conditionQueryBuilder.append(columnName()).append(operation())
-                    .append(conditionQueryBuilder.convertValueToString(value()))
-                    .appendSpaceSeparated("AND")
-                    .append(conditionQueryBuilder.convertValueToString(secondValue()))
+        public void appendConditionToQuery(QueryBuilder queryBuilder) {
+            queryBuilder.append(columnName()).append(operation())
+                    .append(isRaw ? value() : BaseCondition.convertValueToString(value()))
+                    .appendSpaceSeparated(Operation.AND)
+                    .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue()))
                     .appendSpace().appendOptional(postArgument());
         }
 
-        @Override
-        public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-            queryBuilder.append(columnName()).append(operation())
-                    .append((value()))
-                    .appendSpaceSeparated(Operation.AND)
-                    .append(secondValue())
-                    .appendSpace().appendOptional(postArgument());
-        }
     }
 
     /**
@@ -529,104 +508,10 @@ public class Condition extends BaseCondition implements IConditional {
         }
 
         @Override
-        public <ModelClass extends Model> void appendConditionToQuery(
-                ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-            conditionQueryBuilder.append(columnName()).append(operation())
-                    .append("(").appendArgumentList(inArguments).append(")");
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
+        public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append("(").appendList(inArguments).append(")");
+                    .append("(").append(QueryBuilder.join(",", inArguments)).append(")");
         }
     }
 
-    /**
-     * Allows combining of {@link SQLCondition} into one condition.
-     */
-    public static class CombinedCondition extends BaseCondition {
-
-        /**
-         * Constructs a new instance of the combined condition.
-         *
-         * @return A new instance.
-         */
-        public static CombinedCondition begin(SQLCondition condition) {
-            return new CombinedCondition(condition);
-        }
-
-        private final List<SQLCondition> conditions = new ArrayList<>();
-
-        private CombinedCondition(SQLCondition condition) {
-            conditions.add(condition);
-        }
-
-        /**
-         * Appends the {@link SQLCondition} with an {@link Operation#OR}
-         *
-         * @param sqlCondition The condition to append.
-         * @return This instance.
-         */
-        public CombinedCondition or(SQLCondition sqlCondition) {
-            return operator(Operation.OR, sqlCondition);
-        }
-
-        /**
-         * Appends the {@link SQLCondition} with an {@link Operation#AND}
-         *
-         * @param sqlCondition The condition to append.
-         * @return This instance.
-         */
-        public CombinedCondition and(SQLCondition sqlCondition) {
-            return operator(Operation.AND, sqlCondition);
-        }
-
-        /**
-         * Appends the {@link SQLCondition} with the specified operator string.
-         *
-         * @param sqlCondition The condition to append.
-         * @return This instance.
-         */
-        public CombinedCondition operator(String operator, SQLCondition sqlCondition) {
-            setPreviousSeparator(operator);
-            conditions.add(sqlCondition);
-            return this;
-        }
-
-        @Override
-        public <ModelClass extends Model> void appendConditionToQuery(
-                ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-            conditionQueryBuilder.append("(");
-            for (SQLCondition condition : conditions) {
-                condition.appendConditionToQuery(conditionQueryBuilder);
-                if (condition.hasSeparator()) {
-                    conditionQueryBuilder.appendSpaceSeparated(condition.separator());
-                }
-            }
-            conditionQueryBuilder.append(")");
-        }
-
-        @Override
-        public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-            queryBuilder.append("(");
-            for (SQLCondition condition : conditions) {
-                condition.appendConditionToRawQuery(queryBuilder);
-            }
-            queryBuilder.append(")");
-        }
-
-        /**
-         * Sets the last condition to use the separator specified
-         *
-         * @param separator AND, OR, etc.
-         */
-        private void setPreviousSeparator(String separator) {
-            if (conditions.size() > 0) {
-                // set previous to use OR separator
-                conditions.get(conditions.size() - 1).separator(separator);
-            }
-        }
-    }
 }
