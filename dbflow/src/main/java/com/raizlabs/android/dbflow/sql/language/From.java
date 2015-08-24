@@ -7,10 +7,8 @@ import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +16,8 @@ import java.util.List;
 /**
  * Description: The SQL FROM query wrapper that must have a {@link Query} base.
  */
-public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements WhereBase<ModelClass>, ModelQueriable<ModelClass> {
+public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements
+        WhereBase<ModelClass>, ModelQueriable<ModelClass>, Transformable<ModelClass> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!
@@ -77,26 +76,15 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
         return join;
     }
 
-    /**
-     * @param ids A list of ids (in order of declaration) by which we replace into the primary WHERE query
-     *            from a {@link ModelAdapter#createPrimaryModelWhere()}. The length and order MUST match
-     *            the order defined in the corresponding {@link ModelAdapter} for this class.
-     * @return A {@link Where} with a WHERE based on the primary keys specified.
-     */
-    public Where<ModelClass> byIds(Object... ids) {
-        return where().whereQuery(FlowManager.getPrimaryWhereQuery(table).replaceEmptyParams(ids));
-    }
-
-    /**
-     * Returns a {@link Where} statement with the sql clause
-     *
-     * @param whereClause The full SQL string after the WHERE keyword
-     * @param args        The arguments to append
-     * @return The WHERE piece of the query
-     */
-    public Where<ModelClass> where(String whereClause, Object... args) {
-        return where().whereClause(whereClause, args);
-    }
+    ///**
+    // * @param ids A list of ids (in order of declaration) by which we replace into the primary WHERE query
+    // *            from a {@link ModelAdapter#createPrimaryModelWhere()}. The length and order MUST match
+    // *            the order defined in the corresponding {@link ModelAdapter} for this class.
+    // * @return A {@link Where} with a WHERE based on the primary keys specified.
+    // */
+    //public Where<ModelClass> byIds(Object... ids) {
+    //    return where().whereQuery(FlowManager.getPrimaryWhereQuery(table).replaceEmptyParams(ids));
+    //}
 
     /**
      * @return an empty {@link Where} statement
@@ -106,44 +94,11 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     /**
-     * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
-     * @return A {@link Where} statement with the specified {@link ConditionQueryBuilder}.
-     */
-    public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        return where().whereQuery(conditionQueryBuilder);
-    }
-
-    /**
      * @param conditions The array of conditions that define this WHERE statement
      * @return A {@link Where} statement with the specified array of {@link Condition}.
      */
     public Where<ModelClass> where(SQLCondition... conditions) {
         return where().andThese(conditions);
-    }
-
-    /**
-     * @param orderBy The string order by to use.
-     * @return A {@link Where} with the specified ORDER BY string.
-     */
-    public Where<ModelClass> orderBy(String orderBy) {
-        return where().orderBy(orderBy);
-    }
-
-    /**
-     * @param orderBy The {@link OrderBy} to use.
-     * @return A {@link Where} with the specified {@link OrderBy}.
-     */
-    public Where<ModelClass> orderBy(OrderBy orderBy) {
-        return where().orderBy(orderBy);
-    }
-
-    /**
-     * @param ascending If we should be in ascending order
-     * @param columns   The columns to specify.
-     * @return This WHERE query.
-     */
-    public Where<ModelClass> orderBy(boolean ascending, String... columns) {
-        return where().orderBy(ascending, columns);
     }
 
     /**
@@ -244,4 +199,38 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
         return queryBase;
     }
 
+    @Override
+    public Where<ModelClass> groupBy(NameAlias... nameAliases) {
+        return where().groupBy(nameAliases);
+    }
+
+    @Override
+    public Where<ModelClass> groupBy(Property... properties) {
+        return where().groupBy(properties);
+    }
+
+    @Override
+    public Where<ModelClass> orderBy(NameAlias nameAlias, boolean ascending) {
+        return where().orderBy(nameAlias, ascending);
+    }
+
+    @Override
+    public Where<ModelClass> orderBy(Property property, boolean ascending) {
+        return where().orderBy(property, ascending);
+    }
+
+    @Override
+    public Where<ModelClass> limit(int count) {
+        return where().limit(count);
+    }
+
+    @Override
+    public Where<ModelClass> offset(int offset) {
+        return where().offset(offset);
+    }
+
+    @Override
+    public Where<ModelClass> having(SQLCondition... conditions) {
+        return where().having(conditions);
+    }
 }

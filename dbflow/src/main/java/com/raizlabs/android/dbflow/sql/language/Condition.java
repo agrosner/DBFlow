@@ -19,62 +19,11 @@ import java.util.List;
 public class Condition extends BaseCondition implements IConditional {
 
     /**
-     * Creates a new instance with a raw condition query. The values will not be converted into
-     * SQL-safe value. Ex: itemOrder =itemOrder + 1. If not raw, this becomes itemOrder ='itemOrder + 1'
-     *
-     * @param columnName
-     * @return This raw condition
-     */
-    public static Condition columnRaw(String columnName) {
-        Condition condition = column(columnName);
-        condition.isRaw = true;
-        return condition;
-    }
-
-    public static Condition column(String columnName) {
-        return new Condition(NameAlias.column(columnName));
-    }
-
-    public static Condition exists() {
-        return new Condition(NameAlias.columnRaw("EXISTS "));
-    }
-
-    /**
-     * @param function    The name of the function to call as the {@link Condition#column(NameAlias)}
-     * @param columnNames The name of columns to use as parameters to the specified function.
-     * @return Creates a new instance with function name that quotes the specified columns.
-     * EX: date(`myColumn`)=1433872730 -&gt; Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
-     */
-    public static Condition columnsWithFunction(String function, String... columnNames) {
-        return new Condition(NameAlias.columnsWithFunction(function, columnNames));
-    }
-
-    /**
-     * @param function      The name of the function to call as the {@link Condition#column(NameAlias)}
-     * @param nameAliases The name of columns to use as parameters to the specified function.
-     * @return Creates a new instance with function name that quotes the specified columns.
-     * EX: date(`myColumn`)=1433872730 -&gt; Condition.columnsWithFunction("date", "myColumn").eq(1433872730)
-     */
-    public static Condition columnsWithFunction(String function, NameAlias... nameAliases) {
-        return new Condition(NameAlias.columnsWithFunction(function, nameAliases));
-    }
-
-    /**
-     * Constructs instance with the specified {@link NameAlias} to enable or disable back ticks on the name.
-     *
-     * @param nameAlias The alias to use.
-     * @return A new {@link Condition}
-     */
-    public static Condition column(NameAlias nameAlias) {
-        return new Condition(nameAlias);
-    }
-
-    /**
      * Creates a new instance
      *
      * @param nameAlias The name of the column in the DB
      */
-    private Condition(NameAlias nameAlias) {
+    Condition(NameAlias nameAlias) {
         super(nameAlias);
     }
 

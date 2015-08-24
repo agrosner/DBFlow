@@ -55,12 +55,14 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      *
      * @param whereBase The FROM or SET statement chunk
      */
-    public Where(WhereBase<ModelClass> whereBase) {
+    Where(WhereBase<ModelClass> whereBase, SQLCondition... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
         databaseDefinition = FlowManager.getDatabaseForTable(this.whereBase.getTable());
         conditionQueryBuilder = new ConditionQueryBuilder<>(this.whereBase.getTable());
         having = new ConditionQueryBuilder<>(this.whereBase.getTable());
+
+        conditionQueryBuilder.addConditions(conditions);
     }
 
     /**
@@ -163,9 +165,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> exists(Where where) {
-        conditionQueryBuilder.addCondition(Condition.exists()
-                .operation("")
-                .value(where));
+        //conditionQueryBuilder.addCondition(Condition.exists()
+        //        .operation("")
+        //        .value(where));
         return this;
     }
 
