@@ -62,10 +62,6 @@ public abstract class BaseDefinition implements TypeDefinition {
         return typeBuilder.build();
     }
 
-    public String getSourceFileName() {
-        return packageName + "." + definitionClassName;
-    }
-
     public ProcessorManager getManager() {
         return manager;
     }

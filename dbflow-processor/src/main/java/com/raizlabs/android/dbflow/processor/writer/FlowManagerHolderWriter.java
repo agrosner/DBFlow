@@ -1,52 +1,47 @@
 package com.raizlabs.android.dbflow.processor.writer;
 
-import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TypeDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.squareup.javawriter.JavaWriter;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.io.IOException;
 
 /**
  * Description: Top-level writer that handles writing all {@link com.raizlabs.android.dbflow.processor.writer.DatabaseWriter}
  * and {@link com.raizlabs.android.dbflow.annotation.TypeConverter}
  */
-public class FlowManagerHolderWriter implements FlowWriter {
+public class FlowManagerHolderWriter implements TypeDefinition {
 
     private final ProcessorManager processorManager;
 
-    public FlowManagerHolderWriter(ProcessorManager processorManager){
+    public FlowManagerHolderWriter(ProcessorManager processorManager) {
         this.processorManager = processorManager;
     }
 
     @Override
-    public void write(JavaWriter staticFlowManager) throws IOException {
-        staticFlowManager.emitPackage(ClassNames.FLOW_MANAGER_PACKAGE);
-        staticFlowManager.beginType(ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), ClassNames.FLOW_MANAGER_STATIC_INTERFACE);
+    public TypeSpec getTypeSpec() {
+        TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-        staticFlowManager.beginConstructor(Sets.newHashSet(Modifier.PUBLIC));
-
-        staticFlowManager.emitSingleLineComment("Registering with FlowManagerHolder");
-        for(DatabaseWriter databaseWriter : processorManager.getManagerWriters()) {
-            staticFlowManager.emitStatement("new %1s(this)", databaseWriter.getSourceFileName());
+        MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC);
+        for (DatabaseWriter databaseWriter : processorManager.getManagerWriters()) {
+            constructor.addStatement("new $T(this)", databaseWriter.elementClassName);
         }
-        staticFlowManager.emitEmptyLine();
-
-        staticFlowManager.endConstructor();
-
-        staticFlowManager.beginInitializer(true);
-
-        for (TypeConverterDefinition typeConverterDefinition: processorManager.getTypeConverters()) {
-            staticFlowManager.emitStatement(DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME + ".put(%1s, new %1s())", ModelUtils.getFieldClass(typeConverterDefinition.getModelClassQualifiedName()),
-                    typeConverterDefinition.getQualifiedName());
+        for (TypeConverterDefinition typeConverterDefinition : processorManager.getTypeConverters()) {
+            constructor.addStatement("$L.put(%1s.class, new %1s())", DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
+                    typeConverterDefinition.getModelTypeName(),
+                    typeConverterDefinition.getClassName());
         }
 
-        staticFlowManager.endInitializer();
 
-        staticFlowManager.endType();
+        typeBuilder.addMethod(constructor.build());
+
+
+        return typeBuilder.build();
     }
 }

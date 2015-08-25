@@ -1,10 +1,8 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
-import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -17,12 +15,11 @@ import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.DefinitionUtils;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
 import com.raizlabs.android.dbflow.processor.model.builder.MockConditionQueryBuilder;
 import com.raizlabs.android.dbflow.processor.model.writer.ColumnAccessModel;
-import com.raizlabs.android.dbflow.processor.model.writer.ContentValueModel;
-import com.raizlabs.android.dbflow.processor.model.writer.ForeignKeyContainerModel;
 import com.raizlabs.android.dbflow.processor.model.writer.LoadFromCursorModel;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -127,7 +124,7 @@ public class ColumnDefinition extends BaseDefinition {
 
 
         // Any annotated members, otherwise we will use the scanner to find other ones
-        final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(modelType);
+        final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
         if (typeConverterDefinition != null
                 || (!hasTypeConverter && !SQLiteType.containsType(elementTypeName))) {
             hasTypeConverter = true;
@@ -189,7 +186,7 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getLoadFromCursorMethod() {
-        return DefinitionUtils.getLoadFromCursorMethod(elementName, columnAccess, elementTypeName, name).build();
+        return DefinitionUtils.getLoadFromCursorMethod(elementName, columnAccess, elementTypeName, columnName).build();
     }
 
     public String getColumnAccessString() {
@@ -200,7 +197,7 @@ public class ColumnDefinition extends BaseDefinition {
         return (columnName + "_" + reference.columnName()).toUpperCase();
     }
 
-    public void writeLoadFromCursorDefinition(BaseTableDefinition tableDefinition, JavaWriter javaWriter,
+    /*public void writeLoadFromCursorDefinition(BaseTableDefinition tableDefinition, JavaWriter javaWriter,
                                               boolean isModelContainerAdapter) throws IOException {
         if (isForeignKey) {
             //TODO: This is wrong, should be using condition query builder
@@ -380,5 +377,5 @@ public class ColumnDefinition extends BaseDefinition {
         }
     }
 
-
+*/
 }

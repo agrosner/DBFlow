@@ -18,6 +18,8 @@ import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
 import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowManagerHolderWriter;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeName;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ public class ProcessorManager implements Handler {
     private ProcessingEnvironment processingEnvironment;
     private List<String> uniqueDatabases = Lists.newArrayList();
     private Map<String, String> modelToDatabaseMap = Maps.newHashMap();
-    private Map<String, TypeConverterDefinition> typeConverters = Maps.newHashMap();
+    private Map<TypeName, TypeConverterDefinition> typeConverters = Maps.newHashMap();
     private Map<String, Map<String, ModelContainerDefinition>> modelContainers = Maps.newHashMap();
     private Map<String, Map<String, TableDefinition>> tableDefinitions = Maps.newHashMap();
     private Map<String, Map<String, TableDefinition>> tableNameDefinitionMap = Maps.newHashMap();
@@ -105,11 +107,11 @@ public class ProcessorManager implements Handler {
     }
 
     public void addTypeConverterDefinition(TypeConverterDefinition definition) {
-        typeConverters.put(definition.getModelClassQualifiedName(), definition);
+        typeConverters.put(definition.getModelTypeName(), definition);
     }
 
-    public TypeConverterDefinition getTypeConverterDefinition(TypeElement typeElement) {
-        return typeConverters.get(typeElement.getQualifiedName().toString());
+    public TypeConverterDefinition getTypeConverterDefinition(TypeName typeName) {
+        return typeConverters.get(typeName);
     }
 
     public void addModelToDatabase(String modelName, String databaseName) {
@@ -291,24 +293,17 @@ public class ProcessorManager implements Handler {
         List<DatabaseWriter> databaseWriters = getManagerWriters();
         for (DatabaseWriter databaseWriter : databaseWriters) {
             try {
-                JavaWriter javaWriter = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                        .createSourceFile(
-                                databaseWriter.getSourceFileName()).openWriter());
-                databaseWriter.write(javaWriter);
-                javaWriter.close();
+                JavaFile.builder(databaseWriter.packageName, databaseWriter.getTypeSpec())
+                        .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
             } catch (IOException e) {
             }
         }
 
         if (roundEnvironment.processingOver()) {
             try {
-                JavaWriter staticFlowManager = new JavaWriter(processorManager.getProcessingEnvironment().getFiler()
-                        .createSourceFile(
-                                ClassNames.FLOW_MANAGER_PACKAGE + "." +
-                                        ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME).openWriter());
-                new FlowManagerHolderWriter(processorManager).write(staticFlowManager);
-
-                staticFlowManager.close();
+                JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
+                        new FlowManagerHolderWriter(processorManager).getTypeSpec())
+                        .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
             } catch (IOException e) {
             }
         }

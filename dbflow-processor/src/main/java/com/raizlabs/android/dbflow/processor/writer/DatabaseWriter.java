@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TypeDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -34,7 +35,7 @@ import javax.lang.model.element.Modifier;
  * which contain {@link com.raizlabs.android.dbflow.annotation.Table},
  * {@link com.raizlabs.android.dbflow.annotation.ModelView}, and {@link com.raizlabs.android.dbflow.annotation.Migration}
  */
-public class DatabaseWriter extends BaseDefinition implements FlowWriter {
+public class DatabaseWriter extends BaseDefinition implements TypeDefinition {
 
     public String databaseName;
 
