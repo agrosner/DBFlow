@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 /**
  * Description: The static FQCN string file to assist in providing class names for imports and more in the Compiler
@@ -28,6 +29,7 @@ public class ClassNames {
 
     public static final ClassName SQLITE_STATEMENT = ClassName.get("android.database.sqlite", "SQLiteStatement");
     public static final ClassName URI = ClassName.get("android.net", "Uri");
+    public static final ClassName URI_MATCHER = ClassName.get("android.content", "UriMatcher");
     public static final ClassName CURSOR = ClassName.get("android.database", "Cursor");
     public static final ClassName CONTENT_VALUES = ClassName.get("android.content", "ContentValues");
 
@@ -64,4 +66,7 @@ public class ClassNames {
     public static final ClassName SAVE_MODEL_LIST_TRANSACTION = ClassName.get(PROCESS, "SaveModelTransaction");
 
     public static final ClassName PROPERTY = ClassName.get(LANGUAGE, "Property");
+
+    public static final ClassName BASE_CONTENT_PROVIDER = ClassName.get(RUNTIME, "BaseContentProvider");
+
 }

@@ -255,7 +255,7 @@ public class ProcessorManager implements Handler {
     }
 
     public void addContentProviderDefinition(ContentProviderDefinition contentProviderDefinition) {
-        providerMap.put(contentProviderDefinition.elementClassName, contentProviderDefinition);
+        providerMap.put(contentProviderDefinition.elementClassName.simpleName(), contentProviderDefinition);
     }
 
     public void putTableEndpointForProvider(TableEndpointDefinition tableEndpointDefinition) {
