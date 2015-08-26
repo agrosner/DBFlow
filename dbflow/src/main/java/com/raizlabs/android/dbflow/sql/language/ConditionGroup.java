@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,23 +68,13 @@ public class ConditionGroup extends BaseCondition implements Query {
     }
 
     @Override
-    public <ModelClass extends Model> void appendConditionToQuery(
-            QueryBuilder queryBuilder) {
+    public void appendConditionToQuery(QueryBuilder queryBuilder) {
         queryBuilder.append("(");
         for (SQLCondition condition : conditionsList) {
             condition.appendConditionToQuery(queryBuilder);
             if (condition.hasSeparator()) {
                 queryBuilder.appendSpaceSeparated(condition.separator());
             }
-        }
-        queryBuilder.append(")");
-    }
-
-    @Override
-    public void appendConditionToRawQuery(QueryBuilder queryBuilder) {
-        queryBuilder.append("(");
-        for (SQLCondition condition : conditionsList) {
-            condition.appendConditionToRawQuery(queryBuilder);
         }
         queryBuilder.append(")");
     }

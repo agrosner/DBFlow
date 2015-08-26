@@ -54,14 +54,12 @@ public class ContentUriDefinition extends BaseDefinition {
 
         segments = contentUri.segments();
 
-        if(typeElement instanceof VariableElement) {
-            TypeMirror typeMirror = typeElement.asType();
-            if (!ClassNames.URI.equals(typeMirror.toString())) {
+        if (typeElement instanceof VariableElement) {
+            if (!ClassNames.URI.equals(elementTypeName)) {
                 processorManager.logError("Content Uri field returned wrong type. It must return a Uri");
             }
-        } else if(typeElement instanceof ExecutableElement) {
-            TypeMirror typeMirror = ((ExecutableElement) typeElement).getReturnType();
-            if (!ClassNames.URI.equals(typeMirror.toString())) {
+        } else if (typeElement instanceof ExecutableElement) {
+            if (!ClassNames.URI.equals(elementTypeName)) {
                 processorManager.logError("ContentUri method returns wrong type. It must return Uri");
             }
         }

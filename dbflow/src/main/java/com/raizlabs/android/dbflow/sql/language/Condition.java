@@ -16,6 +16,10 @@ import java.util.List;
  */
 public class Condition extends BaseCondition implements IConditional {
 
+    public static Condition column(NameAlias column) {
+        return new Condition(column);
+    }
+
     /**
      * Creates a new instance
      *

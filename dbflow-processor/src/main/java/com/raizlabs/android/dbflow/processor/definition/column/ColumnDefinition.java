@@ -11,17 +11,9 @@ import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
-import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
-import com.raizlabs.android.dbflow.processor.definition.DefinitionUtils;
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.model.builder.AdapterQueryBuilder;
-import com.raizlabs.android.dbflow.processor.model.builder.MockConditionQueryBuilder;
-import com.raizlabs.android.dbflow.processor.model.writer.ColumnAccessModel;
-import com.raizlabs.android.dbflow.processor.model.writer.LoadFromCursorModel;
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
@@ -31,7 +23,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.PrimitiveType;
 import javax.tools.Diagnostic;
 
 /**

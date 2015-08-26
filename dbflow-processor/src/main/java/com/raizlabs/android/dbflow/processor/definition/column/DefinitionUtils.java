@@ -1,8 +1,8 @@
-package com.raizlabs.android.dbflow.processor.definition;
+package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.processor.SQLiteType;
-import com.raizlabs.android.dbflow.processor.definition.column.BaseColumnAccess;
-import com.raizlabs.android.dbflow.processor.definition.column.TypeConverterAccess;
+import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.CodeBlock;
@@ -23,7 +23,7 @@ public class DefinitionUtils {
         String finalAccessStatement = statement;
         if (columnAccess instanceof TypeConverterAccess) {
             finalAccessStatement = "ref" + elementName;
-            codeBuilder.addStatement("$T $L = $L", ((TypeConverterAccess) columnAccess).typeConverterDefinition.dbClassName,
+            codeBuilder.addStatement("$T $L = $L", ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName(),
                     finalAccessStatement, statement);
         }
 
@@ -37,7 +37,7 @@ public class DefinitionUtils {
 
         if (!elementTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else")
-                    .addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, NameUtils.quote(columnName))
+                    .addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, QueryBuilder.quote(columnName))
                     .endControlFlow();
         }
         return codeBuilder;
@@ -52,7 +52,7 @@ public class DefinitionUtils {
         // If TypeConverter, need to assign variable and then check for null.
         if (columnAccess instanceof TypeConverterAccess) {
             finalAccessStatement = "ref" + elementName;
-            codeBuilder.addStatement("$T $L = $L", ((TypeConverterAccess) columnAccess).typeConverterDefinition.dbClassName,
+            codeBuilder.addStatement("$T $L = $L", ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName(),
                     finalAccessStatement, statement);
         }
 
@@ -75,10 +75,10 @@ public class DefinitionUtils {
     public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, BaseColumnAccess columnAccess,
                                                             TypeName elementTypeName, String columnName) {
         String method = "";
-        if (SqliteConversions.containsMethod(elementTypeName)) {
-            method = SqliteConversions.getMethod(elementTypeName);
+        if (SQLiteType.containsMethod(elementTypeName)) {
+            method = SQLiteType.getMethod(elementTypeName);
         } else if (columnAccess instanceof TypeConverterAccess) {
-            method = SqliteConversions.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
+            method = SQLiteType.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
         }
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -100,7 +100,7 @@ public class DefinitionUtils {
         if (SQLiteType.containsType(elementTypeName)) {
             statement = SQLiteType.get(elementTypeName).toString();
         } else if (columnAccess instanceof TypeConverterAccess) {
-            statement = SQLiteType.get(((TypeConverterAccess) columnAccess).typeConverterDefinition.dbClassName).toString();
+            statement = SQLiteType.get(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName()).toString();
         }
 
 

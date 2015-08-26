@@ -407,7 +407,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
         int paramSize = conditions.size();
         for (int i = 0; i < paramSize; i++) {
             SQLCondition condition = conditions.get(i);
-            condition.appendConditionToRawQuery(rawQuery);
+            condition.appendConditionToQuery(rawQuery);
             if (count < paramSize - 1) {
                 if (condition.hasSeparator()) {
                     rawQuery.appendSpaceSeparated(condition.separator());
