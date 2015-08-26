@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.migration;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.sql.index.Index;
+import com.raizlabs.android.dbflow.sql.language.Index;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**

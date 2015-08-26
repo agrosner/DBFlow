@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 public abstract class QueryModelAdapter<ModelClass extends Model> implements InstanceAdapter<ModelClass, ModelClass> {
 
     @Override
-    public ConditionQueryBuilder<ModelClass> getPrimaryModelWhere(ModelClass model) {
+    public ConditionQueryBuilder<ModelClass> getPrimaryConditions(ModelClass model) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 

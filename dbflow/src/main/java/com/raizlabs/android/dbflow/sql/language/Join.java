@@ -3,8 +3,11 @@ package com.raizlabs.android.dbflow.sql.language;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Description: Specifies a SQLite JOIN statement
@@ -28,32 +31,32 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     /**
      * The table to JOIN on
      */
-    private Class<ModelClass> mTable;
+    private Class<ModelClass> table;
 
     /**
      * The type of JOIN to use
      */
-    private JoinType mJoinType;
+    private JoinType type;
 
     /**
      * The FROM statement that prefixes this statement.
      */
-    private From<FromClass> mFrom;
+    private From<FromClass> from;
 
     /**
      * The alias to name the JOIN
      */
-    private String mAlias;
+    private NameAlias alias;
 
     /**
      * The ON conditions
      */
-    private ConditionQueryBuilder<ModelClass> mOn;
+    private ConditionGroup on;
 
     /**
      * What columns to use.
      */
-    private String[] mUsing;
+    private List<Property> using = new ArrayList<>();
 
     /**
      * If it is a natural JOIN.
@@ -61,9 +64,10 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     private boolean isNatural = false;
 
     Join(From<FromClass> from, Class<ModelClass> table, JoinType joinType) {
-        mFrom = from;
-        mTable = table;
-        mJoinType = joinType;
+        this.from = from;
+        this.table = table;
+        type = joinType;
+        alias = new NameAlias(FlowManager.getTableName(table));
     }
 
     /**
@@ -73,7 +77,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @return This instance
      */
     public Join<ModelClass, FromClass> as(String alias) {
-        mAlias = alias;
+        this.alias.as(alias);
         return this;
     }
 
@@ -84,7 +88,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      */
     public From<FromClass> natural() {
         isNatural = true;
-        return mFrom;
+        return from;
     }
 
     /**
@@ -94,19 +98,20 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @return The FROM that this JOIN came from
      */
     public From<FromClass> on(Condition... onConditions) {
-        mOn = new ConditionQueryBuilder<>(mTable, onConditions);
-        return mFrom;
+        on = new ConditionGroup();
+        on.andAll(onConditions);
+        return from;
     }
 
     /**
-     * The USING statement of thie JOIN
+     * The USING statement of the JOIN
      *
      * @param columns THe columns to use
      * @return The FROM that this JOIN came from
      */
-    public From<FromClass> using(String... columns) {
-        mUsing = columns;
-        return mFrom;
+    public From<FromClass> using(Property... columns) {
+        Collections.addAll(using, columns);
+        return from;
     }
 
     @Override
@@ -117,27 +122,21 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
             queryBuilder.append("NATURAL ");
         }
 
-        queryBuilder.append(mJoinType.toString()).appendSpace();
+        queryBuilder.append(type.toString()).appendSpace();
 
         queryBuilder.append("JOIN")
                 .appendSpace()
-                .appendQuoted(FlowManager.getTableName(mTable))
+                .append(alias.getDefinition())
                 .appendSpace();
 
-        if (mAlias != null) {
-            queryBuilder.append("AS ")
-                    .append(mAlias)
-                    .appendSpace();
-        }
-
-        if (mOn != null) {
+        if (on != null) {
             queryBuilder.append("ON")
                     .appendSpace()
-                    .append(mOn.getRawQuery())
+                    .append(on.getQuery())
                     .appendSpace();
-        } else if (mUsing != null) {
+        } else if (using != null) {
             queryBuilder.append("USING (")
-                    .appendArray(mUsing)
+                    .appendArray(using)
                     .append(")").appendSpace();
         }
         return queryBuilder.getQuery();

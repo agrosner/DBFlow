@@ -288,7 +288,7 @@ public class SqlUtils {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
-                adapter.getPrimaryModelWhere(model).getQuery(), null,
+                adapter.getPrimaryConditions(model).getQuery(), null,
                 ConflictAction.getSQLiteDatabaseAlgorithmInt(
                         modelAdapter.getUpdateOnConflictAction())) !=
                 0);
@@ -327,7 +327,7 @@ public class SqlUtils {
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void delete(final TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         new Delete().from((Class<TableClass>) adapter.getModelClass()).where(
-                adapter.getPrimaryModelWhere(model)).query();
+                adapter.getPrimaryConditions(model)).query();
         adapter.updateAutoIncrement(model, 0);
         notifyModelChanged(model, adapter, modelAdapter, Action.DELETE);
     }

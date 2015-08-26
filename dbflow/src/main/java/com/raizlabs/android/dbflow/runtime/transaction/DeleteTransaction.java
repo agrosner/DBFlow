@@ -1,9 +1,8 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -18,18 +17,7 @@ public class DeleteTransaction<ModelClass extends Model> extends QueryTransactio
      * @param table             The model table that we act on
      */
     public DeleteTransaction(DBTransactionInfo dbTransactionInfo,
-                             Class<ModelClass> table, Condition... conditions) {
+                             Class<ModelClass> table, SQLCondition... conditions) {
         super(dbTransactionInfo, new Delete().from(table).where(conditions));
-    }
-
-    /**
-     * Constructs this transaction with a delete with the specified where args
-     *
-     * @param dbTransactionInfo     The information about this transaction
-     * @param conditionQueryBuilder The where statement that we will use
-     */
-    public DeleteTransaction(DBTransactionInfo dbTransactionInfo,
-                             ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        super(dbTransactionInfo, new Delete().from(conditionQueryBuilder.getTableClass()).where(conditionQueryBuilder));
     }
 }

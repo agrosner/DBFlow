@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.test.sql;
 
-import com.raizlabs.android.dbflow.sql.index.Index;
+import com.raizlabs.android.dbflow.sql.language.Index;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;

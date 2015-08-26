@@ -71,7 +71,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     /**
      * Loads a model from the DB into the json stored in this class. It also will recreate the JSON stored in this object
      *
-     * @param primaryKeys The keys to reference (in order of the {@link ModelAdapter#getPrimaryModelWhere(Model)})
+     * @param primaryKeys The keys to reference (in order of the {@link ModelAdapter#getPrimaryConditions(Model)})
      */
     public void load(Object... primaryKeys) {
         setData(new JSONObject());

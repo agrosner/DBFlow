@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.sql.index;
+package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
 
@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -48,14 +47,15 @@ public class Index<ModelClass extends Model> implements Query {
     /**
      * The table to execute this Index on.
      *
-     * @param table   The table to execute index on.
-     * @param columns The columns to create an index for.
+     * @param table      The table to execute index on.
+     * @param properties The properties to create an index for.
      * @return This instance.
      */
-    public Index<ModelClass> on(@NonNull Class<ModelClass> table, String... columns) {
+    public Index<ModelClass> on(@NonNull Class<ModelClass> table, Property firstProperty, Property... properties) {
         this.table = table;
-        for (String column : columns) {
-            and(column);
+        and(firstProperty);
+        for (Property property : properties) {
+            and(property);
         }
         return this;
     }
@@ -79,13 +79,12 @@ public class Index<ModelClass extends Model> implements Query {
     /**
      * Appends a column to this index list.
      *
-     * @param columnName The name of the column. If already exists, this column will not be added
+     * @param property The name of the column. If already exists, this column will not be added
      * @return This instance.
      */
-    public Index<ModelClass> and(String columnName) {
-        NameAlias nameAlias = NameAlias.column(columnName);
-        if (!columns.contains(nameAlias)) {
-            columns.add(nameAlias);
+    public Index<ModelClass> and(Property property) {
+        if (!columns.contains(property.nameAlias)) {
+            columns.add(property.nameAlias);
         }
         return this;
     }

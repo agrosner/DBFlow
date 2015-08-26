@@ -120,7 +120,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     /**
-     * @return The first result of this query. It forces a {@link Where#limit(Object)} of 1 for more efficient querying.
+     * @return The first result of this query. It forces a {@link Where#limit(int)} of 1 for more efficient querying.
      */
     @Override
     public ModelClass querySingle() {
@@ -157,11 +157,11 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     /**
      * Begins an INDEXED BY piece of this query with the specified name.
      *
-     * @param indexName The name of the index.
+     * @param indexProperty The index property generated.
      * @return An INDEXED BY piece of this statement
      */
-    public IndexedBy<ModelClass> indexedBy(String indexName) {
-        return new IndexedBy<>(indexName, this);
+    public IndexedBy<ModelClass> indexedBy(IndexProperty<ModelClass> indexProperty) {
+        return new IndexedBy<>(indexProperty, this);
     }
 
     @Override

@@ -6,8 +6,8 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -352,7 +352,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
             throw new IllegalStateException("The " + ConditionQueryBuilder.class.getSimpleName() + " is " +
                     "operating in empty param mode. All params must be empty");
         }
-        return addCondition(column(columnName).operation(operator).value(value));
+        return addCondition(column(new NameAlias(columnName)).operation(operator).value(value));
 
     }
 
@@ -396,32 +396,6 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
     }
 
     /**
-     * Returns the raw query without converting the values of {@link SQLCondition}.
-     *
-     * @return
-     */
-    public String getRawQuery() {
-        QueryBuilder rawQuery = new QueryBuilder();
-
-        int count = 0;
-        int paramSize = conditions.size();
-        for (int i = 0; i < paramSize; i++) {
-            SQLCondition condition = conditions.get(i);
-            condition.appendConditionToQuery(rawQuery);
-            if (count < paramSize - 1) {
-                if (condition.hasSeparator()) {
-                    rawQuery.appendSpaceSeparated(condition.separator());
-                } else {
-                    rawQuery.appendSpaceSeparated(separator);
-                }
-            }
-            count++;
-        }
-
-        return rawQuery.toString();
-    }
-
-    /**
      * This will append all the primary key names with empty params from the underlying {@link com.raizlabs.android.dbflow.structure.ModelAdapter}.
      * Ex: name = ?, columnName = ?
      * <p></p>
@@ -456,7 +430,7 @@ public class ConditionQueryBuilder<ModelClass extends Model> extends QueryBuilde
                 new ConditionQueryBuilder<>(modelAdapter.getModelClass());
         for (int i = 0; i < values.length; i++) {
             SQLCondition condition = conditions.get(i);
-            conditionQueryBuilder.addCondition(column(NameAlias.columnRaw(condition.columnName()))
+            conditionQueryBuilder.addCondition(column(new NameAlias(condition.columnName()).tickName(false))
                     .operation(condition.operation()).value(values[i]));
         }
 

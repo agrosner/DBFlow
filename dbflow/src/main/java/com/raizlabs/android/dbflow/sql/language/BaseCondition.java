@@ -139,7 +139,4 @@ abstract class BaseCondition implements SQLCondition {
         return nameAlias;
     }
 
-    public void setIsRaw(boolean isRaw) {
-        this.isRaw = isRaw;
-    }
 }

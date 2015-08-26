@@ -12,7 +12,7 @@ public interface SQLCondition {
     /**
      * Appends itself to the {@link QueryBuilder}
      *
-     * @param <ModelClass>          The class that implements {@link Model}
+     * @param <ModelClass> The class that implements {@link Model}
      * @param queryBuilder The builder to append to.
      */
     void appendConditionToQuery(QueryBuilder queryBuilder);
@@ -53,4 +53,5 @@ public interface SQLCondition {
      * @return The raw value of the condition.
      */
     Object value();
+
 }

@@ -157,7 +157,7 @@ public class ContentUtils {
 
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
-        int count = contentResolver.update(updateUri, contentValues, adapter.getPrimaryModelWhere(model).getQuery(), null);
+        int count = contentResolver.update(updateUri, contentValues, adapter.getPrimaryConditions(model).getQuery(), null);
         if (count == 0) {
             FlowLog.log(FlowLog.Level.W, "Updated failed of: " + model.getClass());
         }
@@ -166,7 +166,7 @@ public class ContentUtils {
 
     /**
      * Deletes the specified model through the {@link android.content.ContentResolver}. Uses the deleteUri
-     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryModelWhere(com.raizlabs.android.dbflow.structure.Model)}
+     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryConditions(com.raizlabs.android.dbflow.structure.Model)}
      *
      * @param deleteUri    A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
      * @param model        The model to delete
@@ -180,7 +180,7 @@ public class ContentUtils {
 
     /**
      * Deletes the specified model through the {@link android.content.ContentResolver}. Uses the deleteUri
-     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryModelWhere(com.raizlabs.android.dbflow.structure.Model)}
+     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryConditions(com.raizlabs.android.dbflow.structure.Model)}
      *
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param deleteUri       A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
@@ -192,7 +192,7 @@ public class ContentUtils {
     public static <TableClass extends Model> int delete(ContentResolver contentResolver, Uri deleteUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
 
-        int count = contentResolver.delete(deleteUri, adapter.getPrimaryModelWhere(model).getQuery(), null);
+        int count = contentResolver.delete(deleteUri, adapter.getPrimaryConditions(model).getQuery(), null);
 
         // reset autoincrement to 0
         if (count > 0) {

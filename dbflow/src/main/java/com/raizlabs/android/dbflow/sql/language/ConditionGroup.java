@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Condition.Operation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class ConditionGroup extends BaseCondition implements Query {
         super(columnName);
 
         // default is AND
-        separator = Condition.Operation.AND;
+        separator = Operation.AND;
     }
 
     public ConditionGroup() {
@@ -35,23 +36,51 @@ public class ConditionGroup extends BaseCondition implements Query {
     }
 
     /**
-     * Appends the {@link SQLCondition} with an {@link Condition.Operation#OR}
+     * Appends the {@link SQLCondition} with an {@link Operation#OR}
      *
      * @param sqlCondition The condition to append.
      * @return This instance.
      */
     public ConditionGroup or(SQLCondition sqlCondition) {
-        return operator(Condition.Operation.OR, sqlCondition);
+        return operator(Operation.OR, sqlCondition);
     }
 
     /**
-     * Appends the {@link SQLCondition} with an {@link Condition.Operation#AND}
+     * Appends the {@link SQLCondition} with an {@link Operation#AND}
      *
      * @param sqlCondition The condition to append.
      * @return This instance.
      */
     public ConditionGroup and(SQLCondition sqlCondition) {
-        return operator(Condition.Operation.AND, sqlCondition);
+        return operator(Operation.AND, sqlCondition);
+    }
+
+    /**
+     * Applies the {@link Operation#AND} to all of the passed
+     * {@link SQLCondition}.
+     *
+     * @param sqlConditions
+     * @return
+     */
+    public ConditionGroup andAll(SQLCondition... sqlConditions) {
+        for (SQLCondition sqlCondition : sqlConditions) {
+            and(sqlCondition);
+        }
+        return this;
+    }
+
+    /**
+     * Applies the {@link Operation#AND} to all of the passed
+     * {@link SQLCondition}.
+     *
+     * @param sqlConditions
+     * @return
+     */
+    public ConditionGroup orAll(SQLCondition... sqlConditions) {
+        for (SQLCondition sqlCondition : sqlConditions) {
+            or(sqlCondition);
+        }
+        return this;
     }
 
     /**
@@ -110,5 +139,10 @@ public class ConditionGroup extends BaseCondition implements Query {
             }
         }
         return query.toString();
+    }
+
+    @Override
+    public String toString() {
+        return getQuery();
     }
 }

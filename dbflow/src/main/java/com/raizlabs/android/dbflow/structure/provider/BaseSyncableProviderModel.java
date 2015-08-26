@@ -55,6 +55,6 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
     @Override
     @SuppressWarnings("unchecked")
     public void load() {
-        load(getModelAdapter().getPrimaryModelWhere(this), "");
+        load(getModelAdapter().getPrimaryConditions(this), "");
     }
 }

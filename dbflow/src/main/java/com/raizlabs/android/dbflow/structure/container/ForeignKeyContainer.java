@@ -63,7 +63,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
      */
     public ModelClass load() {
         if(model == null && data != null) {
-            model = new Select().from(modelAdapter.getModelClass()).where(modelContainerAdapter.getPrimaryModelWhere(this)).querySingle();
+            model = new Select().from(modelAdapter.getModelClass()).where(modelContainerAdapter.getPrimaryConditions(this)).querySingle();
         }
         return model;
     }
