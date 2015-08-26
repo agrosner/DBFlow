@@ -169,10 +169,7 @@ public class TableDefinition extends BaseTableDefinition implements FlowWriter {
 
         // single primary key checking for a long or int valued column
         if (getPrimaryColumnDefinitions().size() == 1) {
-            ColumnDefinition columnDefinition = getColumnDefinitions().get(0);
-            if (columnDefinition.isPrimaryKey) {
-                hasCachingId = !columnDefinition.hasTypeConverter;
-            }
+            hasCachingId = !getPrimaryColumnDefinitions().get(0).hasTypeConverter;
         }
     }
 
