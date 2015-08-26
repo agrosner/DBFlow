@@ -76,7 +76,35 @@ public class ConditionGroup extends BaseCondition implements Query {
      * @param sqlConditions
      * @return
      */
+    public ConditionGroup andAll(List<SQLCondition> sqlConditions) {
+        for (SQLCondition sqlCondition : sqlConditions) {
+            and(sqlCondition);
+        }
+        return this;
+    }
+
+    /**
+     * Applies the {@link Operation#AND} to all of the passed
+     * {@link SQLCondition}.
+     *
+     * @param sqlConditions
+     * @return
+     */
     public ConditionGroup orAll(SQLCondition... sqlConditions) {
+        for (SQLCondition sqlCondition : sqlConditions) {
+            or(sqlCondition);
+        }
+        return this;
+    }
+
+    /**
+     * Applies the {@link Operation#AND} to all of the passed
+     * {@link SQLCondition}.
+     *
+     * @param sqlConditions
+     * @return
+     */
+    public ConditionGroup orAll(List<SQLCondition> sqlConditions) {
         for (SQLCondition sqlCondition : sqlConditions) {
             or(sqlCondition);
         }

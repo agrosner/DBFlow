@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -33,19 +32,21 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * The database manager we run this query on
      */
     private final BaseDatabaseDefinition databaseDefinition;
+
     /**
      * Helps to build the where statement easily
      */
-    private ConditionQueryBuilder<ModelClass> conditionQueryBuilder;
+    private ConditionGroup conditionGroup;
 
     private final List<NameAlias> groupByList = new ArrayList<>();
 
     private final List<OrderBy> orderByList = new ArrayList<>();
 
     /**
-     * The SQL HAVING
+     * The SQL HAVING statement
      */
-    private ConditionQueryBuilder<ModelClass> having;
+    private ConditionGroup havingGroup;
+
     private int limit = VALUE_UNSET;
     private int offset = VALUE_UNSET;
 
@@ -59,10 +60,10 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         super(whereBase.getTable());
         this.whereBase = whereBase;
         databaseDefinition = FlowManager.getDatabaseForTable(this.whereBase.getTable());
-        conditionQueryBuilder = new ConditionQueryBuilder<>(this.whereBase.getTable());
-        having = new ConditionQueryBuilder<>(this.whereBase.getTable());
+        conditionGroup = new ConditionGroup();
+        havingGroup = new ConditionGroup();
 
-        conditionQueryBuilder.addConditions(conditions);
+        conditionGroup.andAll(conditions);
     }
 
     /**
@@ -72,7 +73,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> and(SQLCondition condition) {
-        conditionQueryBuilder.and(condition);
+        conditionGroup.and(condition);
         return this;
     }
 
@@ -83,7 +84,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> or(SQLCondition condition) {
-        conditionQueryBuilder.or(condition);
+        conditionGroup.or(condition);
         return this;
     }
 
@@ -93,8 +94,8 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param conditions The list of {@link SQLCondition}
      * @return
      */
-    public Where<ModelClass> andThese(List<SQLCondition> conditions) {
-        conditionQueryBuilder.addConditions(conditions);
+    public Where<ModelClass> andAll(List<SQLCondition> conditions) {
+        conditionGroup.andAll(conditions);
         return this;
     }
 
@@ -104,8 +105,8 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param conditions The array of {@link SQLCondition}
      * @return
      */
-    public Where<ModelClass> andThese(SQLCondition... conditions) {
-        conditionQueryBuilder.addConditions(conditions);
+    public Where<ModelClass> andAll(SQLCondition... conditions) {
+        conditionGroup.andAll(conditions);
         return this;
     }
 
@@ -131,7 +132,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      */
     @Override
     public Where<ModelClass> having(SQLCondition... conditions) {
-        having.addConditions(conditions);
+        havingGroup.andAll(conditions);
         return this;
     }
 
@@ -165,7 +166,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> exists(Where where) {
-        //conditionQueryBuilder.addCondition(Condition.exists()
+        //conditionGroup.addCondition(Condition.exists()
         //        .operation("")
         //        .value(where));
         return this;
@@ -190,9 +191,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     public String getQuery() {
         String fromQuery = whereBase.getQuery();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery)
-                .appendQualifier("WHERE", conditionQueryBuilder.getQuery())
+                .appendQualifier("WHERE", conditionGroup.getQuery())
                 .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-                .appendQualifier("HAVING", having.getQuery())
+                .appendQualifier("HAVING", havingGroup.getQuery())
                 .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {

@@ -34,7 +34,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @param conditions The varg of conditions
      * @return This instance.
      */
-    public Set<ModelClass> conditions(Condition... conditions) {
+    public Set<ModelClass> conditions(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
