@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.annotation.QueryModel;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 
 /**
  * Description: The baseclass for adapters to {@link QueryModel} that defines how it interacts with the DB. The
@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 public abstract class QueryModelAdapter<ModelClass extends Model> implements InstanceAdapter<ModelClass, ModelClass> {
 
     @Override
-    public ConditionQueryBuilder<ModelClass> getPrimaryConditions(ModelClass model) {
+    public ConditionGroup getPrimaryConditions(ModelClass model) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 

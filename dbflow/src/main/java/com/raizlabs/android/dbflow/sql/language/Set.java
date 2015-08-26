@@ -4,10 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.Map;
@@ -15,39 +14,18 @@ import java.util.Map;
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
-public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Queriable {
+public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Queriable, Transformable<ModelClass> {
 
-    private ConditionQueryBuilder<ModelClass> mConditionQueryBuilder;
+    private ConditionGroup conditionGroup;
 
-    private Query mUpdate;
+    private Query update;
+
+    private Class<ModelClass> table;
 
     Set(Query update, Class<ModelClass> table) {
-        mUpdate = update;
-        mConditionQueryBuilder = new ConditionQueryBuilder<>(table).setSeparator(",");
-    }
-
-    /**
-     * Specifies a condition clause for this SET.
-     * @param setClause
-     * @param args
-     * @return
-     */
-    public Set<ModelClass> conditionClause(String setClause, Object... args) {
-        mConditionQueryBuilder.append(setClause, args);
-        return this;
-    }
-
-    /**
-     * Specifies the condition query for this SET.
-     *
-     * @param conditionQueryBuilder The condition query to use
-     * @return This instance.
-     */
-    public Set<ModelClass> conditionQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        if(conditionQueryBuilder != null) {
-            mConditionQueryBuilder = conditionQueryBuilder;
-        }
-        return this;
+        this.update = update;
+        this.table = table;
+        conditionGroup = new ConditionGroup();
     }
 
     /**
@@ -57,63 +35,69 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return This instance.
      */
     public Set<ModelClass> conditions(Condition... conditions) {
-        mConditionQueryBuilder.addConditions(conditions);
+        conditionGroup.andAll(conditions);
         return this;
     }
 
     /**
      * Specifies a set of content values to append to this SET as Conditions
+     *
      * @param contentValues The set of values to append.
      * @return This instance.
      */
     public Set<ModelClass> conditionValues(ContentValues contentValues) {
         java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
 
-        for(Map.Entry<String, Object> entry : entries) {
+        for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
-            mConditionQueryBuilder.addCondition(Condition.column(key).is(contentValues.get(key)));
+            conditionGroup.and(Condition.column(new NameAlias(key)).is(contentValues.get(key)));
         }
         return this;
     }
 
     /**
-     * Begins completing the rest of this UPDATE statement.
+     * Begins completing the rest of this SET statement.
      *
-     * @param whereClause The whereclause to append
-     * @param args        The argument bindings for the whereClause.
-     * @return
-     */
-    public Where<ModelClass> where(String whereClause, Object... args) {
-        return where().whereClause(whereClause, args);
-    }
-
-    /**
-     * Begins completing the rest of this UPDATE statement.
-     *
-     * @param conditions The varg of conditions for the WHERE part
+     * @param conditions The conditions to fill the WHERE with.
      * @return The where piece of this query.
      */
-    public Where<ModelClass> where(Condition... conditions) {
-        return where().andThese(conditions);
+    public Where<ModelClass> where(SQLCondition... conditions) {
+        return new Where<>(this, conditions);
     }
 
-    /**
-     * Begins completing the rest of this UPDATE statement.
-     *
-     * @return The where piece of this query.
-     */
-    public Where<ModelClass> where() {
-        return new Where<>(this);
+    @Override
+    public Where<ModelClass> groupBy(NameAlias... nameAliases) {
+        return where().groupBy(nameAliases);
     }
 
-    /**
-     * Begins completing the rest of this UPDATE statement.
-     *
-     * @param whereConditionBuilder The where condition querybuilder to use
-     * @return The where piece of this query.
-     */
-    public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> whereConditionBuilder) {
-        return where().whereQuery(whereConditionBuilder);
+    @Override
+    public Where<ModelClass> groupBy(Property... properties) {
+        return where().groupBy(properties);
+    }
+
+    @Override
+    public Where<ModelClass> orderBy(NameAlias nameAlias, boolean ascending) {
+        return where().orderBy(nameAlias, ascending);
+    }
+
+    @Override
+    public Where<ModelClass> orderBy(Property property, boolean ascending) {
+        return where().orderBy(property, ascending);
+    }
+
+    @Override
+    public Where<ModelClass> limit(int count) {
+        return where().limit(count);
+    }
+
+    @Override
+    public Where<ModelClass> offset(int offset) {
+        return where().offset(offset);
+    }
+
+    @Override
+    public Where<ModelClass> having(SQLCondition... conditions) {
+        return where().having(conditions);
     }
 
     /**
@@ -128,25 +112,25 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder =
-                new QueryBuilder(mUpdate.getQuery())
+                new QueryBuilder(update.getQuery())
                         .append("SET ")
-                        .append(mConditionQueryBuilder.getQuery()).appendSpace();
+                        .append(conditionGroup.getQuery()).appendSpace();
         return queryBuilder.getQuery();
     }
 
     @Override
     public Class<ModelClass> getTable() {
-        return mConditionQueryBuilder.getTableClass();
+        return table;
     }
 
     @Override
     public Query getQueryBuilderBase() {
-        return mUpdate;
+        return update;
     }
 
     @Override
     public Cursor query() {
-        FlowManager.getDatabaseForTable(mConditionQueryBuilder.getTableClass()).getWritableDatabase().execSQL(getQuery());
+        FlowManager.getDatabaseForTable(table).getWritableDatabase().execSQL(getQuery());
         return null;
     }
 
