@@ -51,9 +51,8 @@ public class Index<ModelClass extends Model> implements Query {
      * @param properties The properties to create an index for.
      * @return This instance.
      */
-    public Index<ModelClass> on(@NonNull Class<ModelClass> table, Property firstProperty, Property... properties) {
+    public Index<ModelClass> on(@NonNull Class<ModelClass> table, Property... properties) {
         this.table = table;
-        and(firstProperty);
         for (Property property : properties) {
             and(property);
         }

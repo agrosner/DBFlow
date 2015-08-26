@@ -8,8 +8,8 @@ import android.net.Uri;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Condition;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -215,7 +215,7 @@ public class ContentUtils {
      * @return A {@link android.database.Cursor}
      */
     public static <TableClass extends Model> Cursor query(ContentResolver contentResolver, Uri queryUri,
-                                                          ConditionQueryBuilder<TableClass> whereConditions,
+                                                          ConditionGroup whereConditions,
                                                           String orderBy, String... columns) {
         return contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
     }
@@ -233,7 +233,7 @@ public class ContentUtils {
      * @return A list of {@link TableClass}
      */
     public static <TableClass extends Model> List<TableClass> queryList(Uri queryUri, Class<TableClass> table,
-                                                                        ConditionQueryBuilder<TableClass> whereConditions,
+                                                                        ConditionGroup whereConditions,
                                                                         String orderBy, String... columns) {
         return queryList(FlowManager.getContext().getContentResolver(), queryUri, table, whereConditions, orderBy, columns);
     }
@@ -253,11 +253,11 @@ public class ContentUtils {
      * @return A list of {@link TableClass}
      */
     public static <TableClass extends Model> List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
-                                                                        ConditionQueryBuilder<TableClass> whereConditions,
+                                                                        ConditionGroup whereConditions,
                                                                         String orderBy, String... columns) {
         Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
-	    List<TableClass> list = SqlUtils.convertToList(table, cursor);
-	    cursor.close();
+        List<TableClass> list = SqlUtils.convertToList(table, cursor);
+        cursor.close();
 
         return list;
     }
@@ -275,7 +275,7 @@ public class ContentUtils {
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass extends Model> TableClass querySingle(Uri queryUri, Class<TableClass> table,
-                                                                    ConditionQueryBuilder<TableClass> whereConditions,
+                                                                    ConditionGroup whereConditions,
                                                                     String orderBy, String... columns) {
         return querySingle(FlowManager.getContext().getContentResolver(), queryUri, table, whereConditions, orderBy, columns);
     }
@@ -294,7 +294,7 @@ public class ContentUtils {
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass extends Model> TableClass querySingle(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
-                                                                    ConditionQueryBuilder<TableClass> whereConditions,
+                                                                    ConditionGroup whereConditions,
                                                                     String orderBy, String... columns) {
         List<TableClass> list = queryList(contentResolver, queryUri, table, whereConditions, orderBy, columns);
         return list.size() > 0 ? list.get(0) : null;

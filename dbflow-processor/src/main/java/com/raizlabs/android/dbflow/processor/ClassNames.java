@@ -27,6 +27,8 @@ public class ClassNames {
     public static final String TRANSACTION = RUNTIME + ".transaction";
     public static final String PROCESS = TRANSACTION + ".process";
 
+    public static final ClassName DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder");
+
     public static final ClassName SQLITE_STATEMENT = ClassName.get("android.database.sqlite", "SQLiteStatement");
     public static final ClassName URI = ClassName.get("android.net", "Uri");
     public static final ClassName URI_MATCHER = ClassName.get("android.content", "UriMatcher");

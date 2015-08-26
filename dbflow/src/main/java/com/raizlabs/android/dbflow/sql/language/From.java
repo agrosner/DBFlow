@@ -98,7 +98,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @return A {@link Where} statement with the specified array of {@link Condition}.
      */
     public Where<ModelClass> where(SQLCondition... conditions) {
-        return where().andThese(conditions);
+        return where().andAll(conditions);
     }
 
     /**

@@ -37,7 +37,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
             }
             this.columns = new NameAlias[columns.length];
             for (int i = 0; i < this.columns.length; i++) {
-                this.columns[i] = NameAlias.column(columns[i]);
+                this.columns[i] = new NameAlias(columns[i]);
             }
         }
     }
@@ -99,7 +99,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
 
         if (whenCondition != null) {
             queryBuilder.append(" WHEN ");
-            whenCondition.appendConditionToRawQuery(queryBuilder);
+            whenCondition.appendConditionToQuery(queryBuilder);
             queryBuilder.appendSpace();
         }
 

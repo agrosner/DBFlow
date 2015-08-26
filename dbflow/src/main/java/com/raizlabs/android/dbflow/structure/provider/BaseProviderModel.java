@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.structure.provider;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
@@ -55,7 +55,7 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
 
     @Override
     @SuppressWarnings("unchecked")
-    public void load(ConditionQueryBuilder<TableClass> whereConditions,
+    public void load(ConditionGroup whereConditions,
                      String orderBy, String... columns) {
         Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), whereConditions, orderBy, columns);
         if (cursor != null && cursor.moveToFirst()) {

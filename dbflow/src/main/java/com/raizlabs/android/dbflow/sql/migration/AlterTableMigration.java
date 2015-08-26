@@ -103,9 +103,10 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
             columnDefinitions = new ArrayList<>();
         }
 
-        QueryBuilder queryBuilder = new QueryBuilder()
-                .appendQuoted(columnName).appendSpace().appendType(columnType.getName());
-        columnDefinitions.add(queryBuilder);
+        // TODO: put this back
+        //QueryBuilder queryBuilder = new QueryBuilder()
+        //        .appendQuoted(columnName).appendSpace().appendType(columnType.getName());
+        //columnDefinitions.add(queryBuilder);
 
         return this;
     }
@@ -124,10 +125,11 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
             columnDefinitions = new ArrayList<>();
         }
 
-        QueryBuilder queryBuilder = new QueryBuilder()
-                .appendQuoted(columnName).appendSpace().appendType(columnType.getName())
-                .appendSpace().append("REFERENCES ").append(referenceClause);
-        columnDefinitions.add(queryBuilder);
+        // TODO: put this back
+        //QueryBuilder queryBuilder = new QueryBuilder()
+        //        .appendQuoted(columnName).appendSpace().appendType(columnType.getName())
+        //        .appendSpace().append("REFERENCES ").append(referenceClause);
+        //columnDefinitions.add(queryBuilder);
 
         return this;
     }
