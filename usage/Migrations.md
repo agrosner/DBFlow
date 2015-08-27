@@ -56,8 +56,13 @@ Now we want to **add** a column to this table. We have two ways:
 @Migration(version = 2, databaseName = AppDatabase.NAME)
 public class Migration1 extends AlterTableMigration<TestModel> {
 
+    public Migration1() {
+      super(TestModel.class);
+    }
+
     @Override
     public void onPreMigrate() {
+      super.onPreMigrate()
       // Simple ALTER TABLE migration wraps the statements into a nice builder notation
       addColumn(Long.class, "timestamp");
     }
