@@ -39,6 +39,13 @@ public @interface Database {
     boolean foreignKeysSupported() default false;
 
     /**
+     * In order to use an in-memory database, set this to true.
+     *
+     * @return if database is in-memory.
+     */
+    boolean inMemory() default false;
+
+    /**
      * @return Checks for consistency in the DB, if true it will recopy over the prepackage database.
      */
     boolean consistencyCheckEnabled() default false;
