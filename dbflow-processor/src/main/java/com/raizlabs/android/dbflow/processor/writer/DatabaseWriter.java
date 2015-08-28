@@ -41,6 +41,8 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
     boolean foreignKeysSupported;
 
+    boolean inMemory;
+
     boolean consistencyChecksEnabled;
 
     boolean backupEnabled;
@@ -78,6 +80,7 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
 
         databaseVersion = database.version();
         foreignKeysSupported = database.foreignKeysSupported();
+        inMemory = database.inMemory();
 
         insertConflict = database.insertConflict();
         updateConflict = database.updateConflict();
@@ -208,6 +211,14 @@ public class DatabaseWriter extends BaseDefinition implements FlowWriter {
                 javaWriter.emitStatement("return %1s", foreignKeysSupported);
             }
         }, "boolean", "isForeignKeysSupported", DatabaseHandler.METHOD_MODIFIERS);
+
+        // Get Model Container
+        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
+            @Override
+            public void write(JavaWriter javaWriter) throws IOException {
+                javaWriter.emitStatement("return %1s", inMemory);
+            }
+        }, "boolean", "isInMemory", DatabaseHandler.METHOD_MODIFIERS);
 
         // Get Model Container
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {

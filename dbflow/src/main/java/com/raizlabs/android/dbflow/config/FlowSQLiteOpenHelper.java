@@ -48,37 +48,39 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private SQLiteOpenHelper backupHelper;
 
     public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager, DatabaseHelperListener listener) {
-        super(FlowManager.getContext(), flowManager.getDatabaseFileName(), null, flowManager.getDatabaseVersion());
+        super(FlowManager.getContext(), flowManager.isInMemory() ? null : flowManager.getDatabaseFileName(), null, flowManager.getDatabaseVersion());
         databaseHelperListener = listener;
         databaseDefinition = flowManager;
 
-        movePrepackagedDB(databaseDefinition.getDatabaseFileName(), databaseDefinition.getDatabaseFileName());
+        if (!flowManager.isInMemory()) {
+            movePrepackagedDB(databaseDefinition.getDatabaseFileName(), databaseDefinition.getDatabaseFileName());
 
-        if (flowManager.backupEnabled()) {
-            // Temp database mirrors existing
-            backupHelper = new SQLiteOpenHelper(FlowManager.getContext(), getTempDbFileName(),
-                    null, flowManager.getDatabaseVersion()) {
-                @Override
-                public void onOpen(SQLiteDatabase db) {
-                    checkForeignKeySupport(db);
-                }
+            if (flowManager.backupEnabled()) {
+                // Temp database mirrors existing
+                backupHelper = new SQLiteOpenHelper(FlowManager.getContext(), getTempDbFileName(),
+                        null, flowManager.getDatabaseVersion()) {
+                    @Override
+                    public void onOpen(SQLiteDatabase db) {
+                        checkForeignKeySupport(db);
+                    }
 
-                @Override
-                public void onCreate(SQLiteDatabase db) {
-                    checkForeignKeySupport(db);
-                    executeCreations(db);
-                    executeMigrations(db, -1, db.getVersion());
-                }
+                    @Override
+                    public void onCreate(SQLiteDatabase db) {
+                        checkForeignKeySupport(db);
+                        executeCreations(db);
+                        executeMigrations(db, -1, db.getVersion());
+                    }
 
-                @Override
-                public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                    checkForeignKeySupport(db);
-                    executeCreations(db);
-                    executeMigrations(db, oldVersion, newVersion);
-                }
-            };
-            restoreDatabase(getTempDbFileName(), databaseDefinition.getDatabaseFileName());
-            backupHelper.getWritableDatabase();
+                    @Override
+                    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+                        checkForeignKeySupport(db);
+                        executeCreations(db);
+                        executeMigrations(db, oldVersion, newVersion);
+                    }
+                };
+                restoreDatabase(getTempDbFileName(), databaseDefinition.getDatabaseFileName());
+                backupHelper.getWritableDatabase();
+            }
         }
     }
 

@@ -202,6 +202,11 @@ public abstract class BaseDatabaseDefinition {
     public abstract boolean isForeignKeysSupported();
 
     /**
+     * @return True if the {@link com.raizlabs.android.dbflow.annotation.Database#inMemory()} annotation is true.
+     */
+    public abstract boolean isInMemory();
+
+    /**
      * @return True if the {@link com.raizlabs.android.dbflow.annotation.Database#backupEnabled()} annotation is true.
      */
     public abstract boolean backupEnabled();
