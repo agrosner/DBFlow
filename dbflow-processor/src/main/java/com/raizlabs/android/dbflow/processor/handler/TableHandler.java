@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.TableValidator;
 import com.raizlabs.android.dbflow.processor.validator.Validator;
-import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Element;
 import java.io.IOException;

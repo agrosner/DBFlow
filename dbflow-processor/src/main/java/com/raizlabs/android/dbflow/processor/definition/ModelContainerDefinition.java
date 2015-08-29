@@ -1,19 +1,25 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.google.common.collect.Sets;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
-import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
+import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionClause;
 import com.raizlabs.android.dbflow.processor.definition.method.ToModelMethod;
-import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javawriter.JavaWriter;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -25,7 +31,7 @@ public class ModelContainerDefinition extends BaseDefinition {
 
     public static final String DBFLOW_MODEL_CONTAINER_TAG = "Container";
 
-    private FlowWriter[] methodWriters;
+    private MethodDefinition[] methods;
     private TableDefinition tableDefinition;
 
     public ModelContainerDefinition(TypeElement classElement, ProcessorManager manager) {
@@ -34,53 +40,58 @@ public class ModelContainerDefinition extends BaseDefinition {
 
         setOutputClassName(tableDefinition.databaseMethod.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
-        methodWriters = new FlowWriter[]{
-                new SQLiteStatementWriter(tableDefinition, true, tableDefinition.implementsSqlStatementListener,
-                                          tableDefinition.implementsContentValuesListener),
-                new ExistenceWriter(tableDefinition, true),
-                new WhereQueryWriter(tableDefinition, true),
+        methods = new MethodDefinition[]{
+                new BindToContentValuesMethod(tableDefinition, true, true, tableDefinition.implementsContentValuesListener),
+                new BindToContentValuesMethod(tableDefinition, false, true, tableDefinition.implementsContentValuesListener),
+                new BindToStatementMethod(tableDefinition, true, true),
+                new BindToStatementMethod(tableDefinition, false, true),
+                new ExistenceMethod(tableDefinition, true),
+                new PrimaryConditionClause(tableDefinition, true),
                 new ToModelMethod(tableDefinition, true),
-                new LoadCursorWriter(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener)
+                new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener)
         };
     }
 
     @Override
-    protected String getExtendsClass() {
-        return "ModelContainerAdapter<" + elementClassName + ">";
+    protected TypeName getExtendsClass() {
+        return ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER_ADAPTER, elementClassName);
     }
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
-        javaWriter.emitField("Map<String, Class<?>>", "columnMap", Sets.newHashSet(Modifier.PRIVATE, Modifier.FINAL),
-                             "new HashMap<>()");
-        javaWriter.emitEmptyLine();
+        typeBuilder.addField(FieldSpec.builder(ParameterizedTypeName.get(ClassName.get(Map.class),
+                ClassName.get(String.class), ClassName.get(Class.class)), "columnMap", Modifier.PRIVATE, Modifier.FINAL)
+                .initializer("new $T()", ParameterizedTypeName.get(HashMap.class)).build());
 
-        javaWriter.beginConstructor(Sets.newHashSet(Modifier.PUBLIC));
+        CodeBlock.Builder constructorCode = CodeBlock.builder();
 
         for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
-            javaWriter.emitStatement("%1s.put(\"%1s\", %1s.class)", "columnMap", columnDefinition.columnName,
-                                     columnDefinition.columnFieldType);
+            constructorCode.addStatement("$L.put($S, $T.class)", "columnMap", columnDefinition.columnName,
+                    columnDefinition.elementTypeName);
         }
+        typeBuilder.addMethod(MethodSpec.constructorBuilder()
+                .addCode(constructorCode.build())
+                .addModifiers(Modifier.PUBLIC).build());
 
-        javaWriter.endConstructor();
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getClassForColumn")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(ClassName.get(String.class), "columnName")
+                .addStatement("return $L.get($L)", "columnMap", "columnName")
+                .returns(ParameterizedTypeName.get(ClassName.get(Class.class)))
+                .build());
 
-        javaWriter.emitEmptyLine();
-        javaWriter.emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s.get(%1s)", "columnMap", "columnName");
+        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
+        InternalAdapterHelper.writeGetTableName(typeBuilder,
+                elementClassName + tableDefinition.databaseMethod.classSeparator +
+                        TableDefinition.DBFLOW_TABLE_TAG);
+
+        for (MethodDefinition method : methods) {
+            MethodSpec methodSpec = method.getMethodSpec();
+            if (methodSpec != null) {
+                typeBuilder.addMethod(methodSpec);
             }
-        }, "Class<?>", "getClassForColumn", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "String", "columnName");
-
-        InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassQualifiedName());
-        InternalAdapterHelper.writeGetTableName(javaWriter,
-                                                elementClassName + tableDefinition.databaseMethod.classSeparator +
-                                                TableDefinition.DBFLOW_TABLE_TAG);
-
-        for (FlowWriter writer : methodWriters) {
-            writer.write(javaWriter);
         }
     }
 

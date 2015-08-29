@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMet
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -101,6 +102,11 @@ public class QueryModelDefinition extends BaseTableDefinition {
     public List<ColumnDefinition> getPrimaryColumnDefinitions() {
         // Shouldn't include any
         return new ArrayList<>();
+    }
+
+    @Override
+    public ClassName getPropertyClassName() {
+        return outputClassName;
     }
 
     public String getQualifiedModelClassName() {

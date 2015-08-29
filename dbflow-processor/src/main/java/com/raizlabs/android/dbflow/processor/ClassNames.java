@@ -73,5 +73,5 @@ public class ClassNames {
 
     public static final ClassName MODEL_CONTAINER_UTILS = ClassName.get(CONTAINER, "ModelContainerUtils");
     public static final ClassName MODEL_CONTAINER = ClassName.get(CONTAINER, "ModelContainer");
-
+    public static final ClassName MODEL_CONTAINER_ADAPTER = ClassName.get(CONTAINER, "ModelContainerAdapter");
 }

@@ -7,6 +7,8 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -23,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 
 /**
@@ -57,7 +60,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             referencedTableClassName = ClassName.get(manager.getElements().getTypeElement(typeElement.asType().toString()));
         }
 
-        isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL, modelType);
+        TypeElement element = manager.getProcessingEnvironment().getElementUtils().getTypeElement(elementTypeName.toString());
+        isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), element);
 
         // we need to recheck for this instance
         if (columnAccess instanceof TypeConverterAccess) {
@@ -170,8 +174,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 ifNullBuilder.add(" && ");
             }
             ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
+
+            // TODO: fix reference here
             selectBuilder.add("\n.and($L.$L.eq($L.$L))",
-                    TableDefinition.getPropertyClassName(referencedTableClassName),
+                    ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "$" + TableDefinition.DBFLOW_TABLE_ADAPTER),
                     referenceDefinition.foreignColumnName, LoadFromCursorMethod.PARAM_MODEL,
                     columnAccess.getShortAccessString(elementName) + "." +
                             referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.foreignColumnName));

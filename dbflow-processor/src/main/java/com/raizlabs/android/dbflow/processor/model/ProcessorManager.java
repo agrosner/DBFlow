@@ -217,7 +217,7 @@ public class ProcessorManager implements Handler {
     }
 
     public Set<QueryModelDefinition> getQueryModelDefinitions(String databaseName) {
-        Map<String, QueryModelDefinition> modelQueryDefinition = queryModelDefinitionMap.get(databaseName);
+        Map<TypeName, QueryModelDefinition> modelQueryDefinition = queryModelDefinitionMap.get(databaseName);
         if (modelQueryDefinition != null) {
             return Sets.newHashSet(queryModelDefinitionMap.get(databaseName).values());
         } else {

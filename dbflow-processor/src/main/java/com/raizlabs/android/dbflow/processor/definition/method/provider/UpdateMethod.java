@@ -19,7 +19,7 @@ import javax.lang.model.element.Modifier;
 /**
  * Description:
  */
-public class UpdateWriter implements MethodDefinition {
+public class UpdateMethod implements MethodDefinition {
 
     private static final String PARAM_URI = "uri";
     private static final String PARAM_CONTENT_VALUES = "values";
@@ -28,7 +28,7 @@ public class UpdateWriter implements MethodDefinition {
 
     private final ProcessorManager manager;
 
-    public UpdateWriter(ContentProviderDefinition contentProviderDefinition, ProcessorManager manager) {
+    public UpdateMethod(ContentProviderDefinition contentProviderDefinition, ProcessorManager manager) {
         this.contentProviderDefinition = contentProviderDefinition;
         this.manager = manager;
     }

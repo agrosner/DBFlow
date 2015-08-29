@@ -6,9 +6,12 @@ import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.provider.DeleteMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.provider.InsertMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.provider.QueryMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.provider.UpdateMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -66,9 +69,10 @@ public class ContentProviderDefinition extends BaseDefinition {
 
         methods = new MethodDefinition[]{
                 new QueryMethod(this, manager),
-                new InsertMethod(this),
+                new InsertMethod(this, false),
+                new InsertMethod(this, true),
                 new DeleteMethod(this, manager),
-                new UpdateWriter(this, manager)
+                new UpdateMethod(this, manager)
         };
     }
 
@@ -146,8 +150,11 @@ public class ContentProviderDefinition extends BaseDefinition {
         getTypeBuilder.addCode(getTypeCode.build());
         typeBuilder.addMethod(getTypeBuilder.build());
 
-        for (FlowWriter writer : methods) {
-            writer.write(javaWriter);
+        for (MethodDefinition method : methods) {
+            MethodSpec methodSpec = method.getMethodSpec();
+            if (methodSpec != null) {
+                typeBuilder.addMethod(methodSpec);
+            }
         }
 
 

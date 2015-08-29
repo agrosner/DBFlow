@@ -14,7 +14,7 @@ import javax.lang.model.element.Modifier;
  */
 public class InternalAdapterHelper {
 
-    public static void writeGetModelClass(TypeSpec.Builder typeBuilder, final ClassName modelClassName) throws IOException {
+    public static void writeGetModelClass(TypeSpec.Builder typeBuilder, final ClassName modelClassName) {
         typeBuilder.addMethod(MethodSpec.methodBuilder("getModelClass")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -23,7 +23,7 @@ public class InternalAdapterHelper {
                 .build());
     }
 
-    public static void writeGetTableName(TypeSpec.Builder typeBuilder, final String tableName) throws IOException {
+    public static void writeGetTableName(TypeSpec.Builder typeBuilder, final String tableName) {
         typeBuilder.addMethod(MethodSpec.methodBuilder("getTableName")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addStatement("return `$L`", tableName)

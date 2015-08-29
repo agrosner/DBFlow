@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
@@ -12,9 +13,11 @@ import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+*/
 /**
  * Description: Writes the bindTo contentValues and SQLiteStatement methods in a ModelAdapter and ContainerAdapter.
- */
+ *//*
+
 public class SQLiteStatementWriter implements FlowWriter {
 
     private TableDefinition tableDefinition;
@@ -90,3 +93,4 @@ public class SQLiteStatementWriter implements FlowWriter {
         }, "void", isInsert ? "bindToInsertValues" : "bindToContentValues", Sets.newHashSet(Modifier.PUBLIC), args);
     }
 }
+*/

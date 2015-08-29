@@ -35,7 +35,7 @@ public class TableValidator implements Validator<TableDefinition> {
             success = false;
         }
 
-        if(!ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), ClassNames.MODEL, (TypeElement) tableDefinition.element)) {
+        if(!ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), ClassNames.MODEL.toString(), (TypeElement) tableDefinition.element)) {
             processorManager.logError("The @Table annotation can only apply to a class that implements Model");
             success = false;
         }

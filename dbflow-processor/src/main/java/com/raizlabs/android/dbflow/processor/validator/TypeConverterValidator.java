@@ -6,18 +6,18 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 /**
  * Description:
  */
-public class TypeConverterValidator implements Validator<TypeConverterDefinition>  {
+public class TypeConverterValidator implements Validator<TypeConverterDefinition> {
     @Override
     public boolean validate(ProcessorManager processorManager, TypeConverterDefinition typeConverterDefinition) {
         boolean success = true;
 
-        if(typeConverterDefinition.getModelTypeName() == null) {
-            processorManager.logError("TypeConverter: " + typeConverterDefinition.getClassName().getSimpleName() +
-                " uses an unsupported Model Element parameter. If it has type parameters, you must remove them or subclass it" +
+        if (typeConverterDefinition.getModelTypeName() == null) {
+            processorManager.logError("TypeConverter: " + typeConverterDefinition.getClassName().toString() +
+                    " uses an unsupported Model Element parameter. If it has type parameters, you must remove them or subclass it" +
                     "for proper usage.");
             success = false;
-        } else if(typeConverterDefinition.getDbTypeName() == null) {
-            processorManager.logError("TypeConverter: " + typeConverterDefinition.getClassName().getSimpleName() +
+        } else if (typeConverterDefinition.getDbTypeName() == null) {
+            processorManager.logError("TypeConverter: " + typeConverterDefinition.getClassName().toString() +
                     " uses an unsupported DB Element parameter. If it has type parameters, you must remove them or subclass it " +
                     "for proper usage.");
             success = false;
