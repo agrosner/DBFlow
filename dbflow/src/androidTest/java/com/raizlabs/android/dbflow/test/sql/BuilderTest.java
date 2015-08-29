@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
-import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
@@ -20,14 +20,12 @@ public class BuilderTest extends FlowTestCase {
      * This test will ensure that all column values are converted appropriately
      */
     public void testConditions() {
-        ConditionQueryBuilder<ConditionModel> conditionQueryBuilder
-                = new ConditionQueryBuilder<>(ConditionModel.class);
-        conditionQueryBuilder.addConditions(
-                column("number").is(5L),
-                column("bytes").is(5),
-                column("fraction").is(6.5d));
+        ConditionGroup conditionGroup = ConditionGroup.clause()
+                .and(ConditionModel$Table.number.is(5L))
+                .and(ConditionModel$Table.bytes.is(5))
+                .and(ConditionModel$Table.fraction.is(6.5d));
 
-        assertEquals("`number`=5 AND `bytes`=5 AND `fraction`=6.5", conditionQueryBuilder.getQuery());
+        assertEquals("`number`=5 AND `bytes`=5 AND `fraction`=6.5", conditionGroup.getQuery());
 
 
         conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class)
