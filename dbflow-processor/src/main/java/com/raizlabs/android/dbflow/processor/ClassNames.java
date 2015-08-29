@@ -46,7 +46,6 @@ public class ClassNames {
     public static final ClassName CONDITION = ClassName.get(BUILDER, "Condition");
 
 
-    public static final ClassName SELECT = ClassName.get(LANGUAGE, "Select");
     public static final ClassName SQL_UTILS = ClassName.get(SQL, "SqlUtils");
     public static final ClassName TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter");
     public static final ClassName MODEL_CONTAINER_UTILS = ClassName.get(CONTAINER, "ModelContainerUtils");
@@ -67,6 +66,8 @@ public class ClassNames {
     public static final ClassName SAVE_MODEL_LIST_TRANSACTION = ClassName.get(PROCESS, "SaveModelTransaction");
 
     public static final ClassName PROPERTY = ClassName.get(LANGUAGE, "Property");
+    public static final ClassName CONDITION_GROUP = ClassName.get(LANGUAGE, "ConditionGroup");
+    public static final ClassName SELECT = ClassName.get(LANGUAGE, "Select");
 
     public static final ClassName BASE_CONTENT_PROVIDER = ClassName.get(RUNTIME, "BaseContentProvider");
 

@@ -1,13 +1,12 @@
 package com.raizlabs.android.dbflow.processor.definition.method;
 
-import com.andrewgrosner.swiftdb.processor.ClassNames;
-import com.andrewgrosner.swiftdb.processor.definition.MethodDefinition;
-import com.andrewgrosner.swiftdb.processor.definition.TableDefinition;
-import com.andrewgrosner.swiftdb.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 
-import java.lang.Override;import java.lang.String;import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Modifier;
 
 /**
  * Description: Creates a method that builds a clause of ConditionGroup that represents its primary keys. Useful
@@ -32,8 +31,9 @@ public class PrimaryConditionClause implements MethodDefinition {
                 .returns(ClassNames.CONDITION_GROUP);
         CodeBlock.Builder code = CodeBlock.builder()
                 .add("return $T.clause()", ClassNames.CONDITION_GROUP);
-        for (ColumnDefinition columnDefinition : tableDefinition.primaryDefinitionList) {
-            code.add(".and($T.$L.eq($L))", tableDefinition.propertyClassName, columnDefinition.name, columnDefinition.getColumnAccessString());
+        for (ColumnDefinition columnDefinition : tableDefinition.getPrimaryColumnDefinitions()) {
+            code.add(".and($T.$L.eq($L))", tableDefinition.outputClassName, columnDefinition.columnName,
+                    columnDefinition.getColumnAccessString());
         }
         methodBuilder.addCode(code.addStatement("").build());
         return methodBuilder.build();

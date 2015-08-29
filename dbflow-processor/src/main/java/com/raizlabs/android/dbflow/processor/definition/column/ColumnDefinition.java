@@ -55,7 +55,7 @@ public class ColumnDefinition extends BaseDefinition {
 
     public List<Integer> uniqueGroups = new ArrayList<>();
 
-    public String collate;
+    public Collate collate;
     public String defaultValue;
 
     public boolean isBoolean = false;
@@ -70,9 +70,7 @@ public class ColumnDefinition extends BaseDefinition {
             this.columnName = column.name().equals("") ? element.getSimpleName()
                     .toString() : column.name();
             length = column.length();
-            collate = column.collate().equals(Collate.NONE) ? ""
-                    : column.collate()
-                    .name();
+            collate = column.collate();
             defaultValue = column.defaultValue();
         } else {
             this.columnName = element.getSimpleName()
@@ -185,6 +183,24 @@ public class ColumnDefinition extends BaseDefinition {
 
     public String getReferenceColumnName(ForeignKeyReference reference) {
         return (columnName + "_" + reference.columnName()).toUpperCase();
+    }
+
+    public CodeBlock getCreationName() {
+        CodeBlock.Builder codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName);
+
+        if (length > -1) {
+            codeBlockBuilder.add("($L)", length);
+        }
+
+        if (!collate.equals(Collate.NONE)) {
+            codeBlockBuilder.add(" COLLATE $L", collate);
+        }
+
+        if (unique) {
+            codeBlockBuilder.add(" UNIQUE");
+        }
+
+        return codeBlockBuilder.build();
     }
 
     /*public void writeLoadFromCursorDefinition(BaseTableDefinition tableDefinition, JavaWriter javaWriter,

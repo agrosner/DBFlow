@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
@@ -12,6 +13,15 @@ import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.CreationQueryMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.InsertStatementQueryMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionClause;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
@@ -33,14 +43,15 @@ import com.squareup.javawriter.JavaWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 
 /**
  * Description: Used in writing ModelAdapters
@@ -61,13 +72,15 @@ public class TableDefinition extends BaseTableDefinition {
 
     public String updateConflicationActionName;
 
-    public ArrayList<ColumnDefinition> primaryColumnDefinitions;
+    public List<ColumnDefinition> primaryColumnDefinitions;
+    public List<ForeignKeyColumnDefinition> foreignKeyDefinitions;
+    public List<UniqueGroupsDefinition> uniqueGroupsDefinitions;
+
 
     public ColumnDefinition autoIncrementDefinition;
 
     public boolean hasAutoIncrement = false;
 
-    public ArrayList<ColumnDefinition> foreignKeyDefinitions;
 
     public boolean implementsContentValuesListener = false;
 
@@ -75,7 +88,16 @@ public class TableDefinition extends BaseTableDefinition {
 
     public boolean implementsLoadFromCursorListener = false;
 
-    FlowWriter[] mMethodWriters;
+    private final MethodDefinition[] methods = new MethodDefinition[]{
+            new BindToContentValuesMethod(this),
+            new BindToStatementMethod(this, true),
+            new BindToStatementMethod(this, false),
+            new InsertStatementQueryMethod(this),
+            new CreationQueryMethod(this),
+            new LoadFromCursorMethod(this),
+            new ExistenceMethod(this),
+            new PrimaryConditionClause(this)
+    };
 
     public boolean hasCachingId = false;
 
@@ -84,8 +106,6 @@ public class TableDefinition extends BaseTableDefinition {
     public Map<String, ColumnDefinition> mColumnMap = Maps.newHashMap();
 
     public Map<Integer, List<ColumnDefinition>> columnUniqueMap = Maps.newHashMap();
-
-    public Map<Integer, UniqueGroup> uniqueGroupMap = Maps.newHashMap();
 
     public List<OneToManyDefinition> oneToManyDefinitions = new ArrayList<>();
 
@@ -132,17 +152,10 @@ public class TableDefinition extends BaseTableDefinition {
         }
         primaryColumnDefinitions = new ArrayList<>();
         foreignKeyDefinitions = new ArrayList<>();
-
-        UniqueGroup[] groups = table.uniqueColumnGroups();
-        for (UniqueGroup uniqueGroup : groups) {
-            if (uniqueGroupMap.containsKey(uniqueGroup.groupNumber())) {
-                manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber(), tableName);
-            }
-            uniqueGroupMap.put(uniqueGroup.groupNumber(), uniqueGroup);
-        }
+        uniqueGroupsDefinitions = new ArrayList<>();
 
         InheritedColumn[] inheritedColumns = table.inheritedColumns();
-        for (InheritedColumn inheritedColumn: inheritedColumns) {
+        for (InheritedColumn inheritedColumn : inheritedColumns) {
             if (inheritedColumnMap.containsKey(inheritedColumn.fieldName())) {
                 manager.logError("A duplicate inherited column with name %1s was found for %1s", inheritedColumn.fieldName(), tableName);
             }
@@ -151,9 +164,25 @@ public class TableDefinition extends BaseTableDefinition {
 
         createColumnDefinitions((TypeElement) element);
 
+        UniqueGroup[] groups = table.uniqueColumnGroups();
+        Set<Integer> uniqueNumbersSet = new HashSet<>();
+        for (UniqueGroup uniqueGroup : groups) {
+            if (uniqueNumbersSet.contains(uniqueGroup.groupNumber())) {
+                manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber(), tableName);
+            }
+            UniqueGroupsDefinition definition = new UniqueGroupsDefinition(manager, uniqueGroup);
+            for (ColumnDefinition columnDefinition : getColumnDefinitions()) {
+                if (columnDefinition.uniqueGroups.contains(definition.number)) {
+                    definition.addColumnDefinition(columnDefinition);
+                }
+            }
+            uniqueGroupsDefinitions.add(definition);
+            uniqueNumbersSet.add(uniqueGroup.groupNumber());
+        }
+
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                                                                          ClassNames.LOAD_FROM_CURSOR_LISTENER,
-                                                                          (TypeElement) element);
+                ClassNames.LOAD_FROM_CURSOR_LISTENER,
+                (TypeElement) element);
 
         implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
                 ClassNames.CONTENT_VALUES_LISTENER, (TypeElement) element);
@@ -197,17 +226,21 @@ public class TableDefinition extends BaseTableDefinition {
                     !element.getModifiers().contains(Modifier.STATIC) &&
                     !element.getModifiers().contains(Modifier.PRIVATE) &&
                     !element.getModifiers().contains(Modifier.FINAL)));
-                    inheritedColumnMap.containsKey(element.getSimpleName().toString());
-
+            inheritedColumnMap.containsKey(element.getSimpleName().toString());
             if (element.getAnnotation(Column.class) != null || isValidColumn) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) element);
+                ColumnDefinition columnDefinition;
+                if (element.getAnnotation(ForeignKey.class) != null) {
+                    columnDefinition = new ForeignKeyColumnDefinition(manager, element);
+                } else {
+                    columnDefinition = new ColumnDefinition(manager, element);
+                }
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
                     mColumnMap.put(columnDefinition.columnName, columnDefinition);
                     if (columnDefinition.isPrimaryKey) {
                         primaryColumnDefinitions.add(columnDefinition);
-                    } else if (columnDefinition.isForeignKey) {
-                        foreignKeyDefinitions.add(columnDefinition);
+                    } else if (columnDefinition instanceof ForeignKeyColumnDefinition) {
+                        foreignKeyDefinitions.add((ForeignKeyColumnDefinition) columnDefinition);
                     } else if (columnDefinition.isPrimaryKeyAutoIncrement) {
                         autoIncrementDefinition = columnDefinition;
                         hasAutoIncrement = true;
@@ -227,9 +260,9 @@ public class TableDefinition extends BaseTableDefinition {
                         }
                     }
                 }
-            } else if(element.getAnnotation(OneToMany.class) != null) {
+            } else if (element.getAnnotation(OneToMany.class) != null) {
                 OneToManyDefinition oneToManyDefinition = new OneToManyDefinition(element, manager);
-                if(oneToManyValidator.validate(manager, oneToManyDefinition)) {
+                if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition);
                 }
             }
@@ -295,7 +328,6 @@ public class TableDefinition extends BaseTableDefinition {
 
         stringBuilder.appendQuotedList(columnNames).append(") VALUES (");
         stringBuilder.appendList(bindings).append(")\"");
-
 
 
         WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {

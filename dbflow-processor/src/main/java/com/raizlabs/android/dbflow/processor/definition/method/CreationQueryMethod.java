@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.UniqueGroupsDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyReferenceDefinition;
@@ -36,7 +37,7 @@ public class CreationQueryMethod implements MethodDefinition {
 
         CodeBlock.Builder creationBuilder = CodeBlock.builder()
                 .add("CREATE TABLE IF NOT EXISTS ")
-                .add(NameUtils.quote(tableDefinition.name))
+                .add(QueryBuilder.quote(tableDefinition.tableName))
                 .add("(");
 
         for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
@@ -48,7 +49,7 @@ public class CreationQueryMethod implements MethodDefinition {
             creationBuilder.add(columnDefinition.getCreationName());
         }
 
-        for (UniqueGroupsDefinition definition : tableDefinition.uniqueGroupsDefinitionList) {
+        for (UniqueGroupsDefinition definition : tableDefinition.uniqueGroupsDefinitions) {
             creationBuilder.add(definition.getCreationName());
         }
 
