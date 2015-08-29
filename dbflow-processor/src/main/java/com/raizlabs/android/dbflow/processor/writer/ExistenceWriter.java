@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
@@ -12,9 +13,11 @@ import com.squareup.javawriter.JavaWriter;
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
 
+*/
 /**
  * Description: Writes the statement if Model or ModelContainer exists.
- */
+ *//*
+
 public class ExistenceWriter implements FlowWriter {
 
     private final BaseTableDefinition tableDefinition;
@@ -51,3 +54,4 @@ public class ExistenceWriter implements FlowWriter {
                 ModelUtils.getVariable(isModelContainerAdapter));
     }
 }
+*/

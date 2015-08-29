@@ -4,21 +4,17 @@ import com.google.common.collect.Lists;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator;
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.raizlabs.android.dbflow.processor.writer.provider.DeleteWriter;
-import com.raizlabs.android.dbflow.processor.writer.provider.InsertWriter;
-import com.raizlabs.android.dbflow.processor.writer.provider.QueryWriter;
-import com.raizlabs.android.dbflow.processor.writer.provider.UpdateWriter;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javawriter.JavaWriter;
 
 import java.util.List;
 
@@ -45,7 +41,7 @@ public class ContentProviderDefinition extends BaseDefinition {
 
     public List<TableEndpointDefinition> endpointDefinitions = Lists.newArrayList();
 
-    private FlowWriter[] mWriters;
+    private MethodDefinition[] methods;
 
     public ContentProviderDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
@@ -68,10 +64,10 @@ public class ContentProviderDefinition extends BaseDefinition {
             }
         }
 
-        mWriters = new FlowWriter[]{
-                new QueryWriter(this, manager),
-                new InsertWriter(this),
-                new DeleteWriter(this, manager),
+        methods = new MethodDefinition[]{
+                new QueryMethod(this, manager),
+                new InsertMethod(this),
+                new DeleteMethod(this, manager),
                 new UpdateWriter(this, manager)
         };
     }
@@ -150,7 +146,7 @@ public class ContentProviderDefinition extends BaseDefinition {
         getTypeBuilder.addCode(getTypeCode.build());
         typeBuilder.addMethod(getTypeBuilder.build());
 
-        for (FlowWriter writer : mWriters) {
+        for (FlowWriter writer : methods) {
             writer.write(javaWriter);
         }
 

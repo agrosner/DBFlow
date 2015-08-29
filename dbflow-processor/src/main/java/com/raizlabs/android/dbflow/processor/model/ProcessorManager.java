@@ -17,7 +17,7 @@ import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
-import com.raizlabs.android.dbflow.processor.writer.FlowManagerHolderWriter;
+import com.raizlabs.android.dbflow.processor.definition.FlowManagerHolderDefinition;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 
@@ -301,7 +301,7 @@ public class ProcessorManager implements Handler {
         if (roundEnvironment.processingOver()) {
             try {
                 JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                        new FlowManagerHolderWriter(processorManager).getTypeSpec())
+                        new FlowManagerHolderDefinition(processorManager).getTypeSpec())
                         .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
             } catch (IOException e) {
             }

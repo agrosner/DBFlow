@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.writer.provider;
+package com.raizlabs.android.dbflow.processor.definition.method.provider;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
@@ -16,13 +16,13 @@ import javax.lang.model.element.Modifier;
 /**
  * Description:
  */
-public class QueryWriter implements MethodDefinition {
+public class QueryMethod implements MethodDefinition {
 
     private final ContentProviderDefinition contentProviderDefinition;
 
     private final ProcessorManager manager;
 
-    public QueryWriter(ContentProviderDefinition contentProviderDefinition, ProcessorManager manager) {
+    public QueryMethod(ContentProviderDefinition contentProviderDefinition, ProcessorManager manager) {
         this.contentProviderDefinition = contentProviderDefinition;
         this.manager = manager;
     }

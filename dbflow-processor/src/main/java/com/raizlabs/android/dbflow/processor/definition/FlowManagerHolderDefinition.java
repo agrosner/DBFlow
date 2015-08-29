@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.writer;
+package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
@@ -15,11 +15,11 @@ import javax.lang.model.element.Modifier;
  * Description: Top-level writer that handles writing all {@link DatabaseMethod}
  * and {@link com.raizlabs.android.dbflow.annotation.TypeConverter}
  */
-public class FlowManagerHolderWriter implements TypeDefinition {
+public class FlowManagerHolderDefinition implements TypeDefinition {
 
     private final ProcessorManager processorManager;
 
-    public FlowManagerHolderWriter(ProcessorManager processorManager) {
+    public FlowManagerHolderDefinition(ProcessorManager processorManager) {
         this.processorManager = processorManager;
     }
 

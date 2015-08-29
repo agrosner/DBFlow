@@ -35,6 +35,7 @@ public class ClassNames {
     public static final ClassName URI_MATCHER = ClassName.get("android.content", "UriMatcher");
     public static final ClassName CURSOR = ClassName.get("android.database", "Cursor");
     public static final ClassName CONTENT_VALUES = ClassName.get("android.content", "ContentValues");
+    public static final ClassName CONTENT_URIS = ClassName.get("android.content", "ContentUris");
 
     public static final ClassName MODEL_ADAPTER = ClassName.get(STRUCTURE, "ModelAdapter");
     public static final ClassName QUERY_MODEL_ADAPTER = ClassName.get(STRUCTURE, "QueryModelAdapter");
@@ -72,4 +73,5 @@ public class ClassNames {
 
     public static final ClassName MODEL_CONTAINER_UTILS = ClassName.get(CONTAINER, "ModelContainerUtils");
     public static final ClassName MODEL_CONTAINER = ClassName.get(CONTAINER, "ModelContainer");
+
 }
