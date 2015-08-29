@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
 
 import java.util.Set;
 
@@ -42,7 +42,7 @@ public class DatabaseHandler extends BaseContainerHandler<Database> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        DatabaseWriter managerWriter = new DatabaseWriter(processorManager, element);
+        DatabaseMethod managerWriter = new DatabaseMethod(processorManager, element);
         processorManager.addFlowManagerWriter(managerWriter);
     }
 }

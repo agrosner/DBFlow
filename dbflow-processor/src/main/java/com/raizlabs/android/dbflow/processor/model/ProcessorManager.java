@@ -16,7 +16,7 @@ import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
-import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
 import com.raizlabs.android.dbflow.processor.writer.FlowManagerHolderWriter;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
@@ -52,7 +52,7 @@ public class ProcessorManager implements Handler {
     private Map<String, Map<String, QueryModelDefinition>> queryModelDefinitionMap = Maps.newHashMap();
     private Map<String, Map<String, ModelViewDefinition>> modelViewDefinition = Maps.newHashMap();
     private Map<String, Map<Integer, List<MigrationDefinition>>> migrations = Maps.newHashMap();
-    private Map<String, DatabaseWriter> managerWriters = Maps.newHashMap();
+    private Map<String, DatabaseMethod> managerWriters = Maps.newHashMap();
     private List<BaseContainerHandler> handlers = new ArrayList<>();
     private Map<String, ContentProviderDefinition> providerMap = Maps.newHashMap();
 
@@ -94,15 +94,15 @@ public class ProcessorManager implements Handler {
         return uniqueDatabases.size() == 1;
     }
 
-    public void addFlowManagerWriter(DatabaseWriter databaseWriter) {
-        managerWriters.put(databaseWriter.databaseName, databaseWriter);
+    public void addFlowManagerWriter(DatabaseMethod databaseMethod) {
+        managerWriters.put(databaseMethod.databaseName, databaseMethod);
     }
 
-    public List<DatabaseWriter> getManagerWriters() {
+    public List<DatabaseMethod> getManagerWriters() {
         return new ArrayList<>(managerWriters.values());
     }
 
-    public DatabaseWriter getDatabaseWriter(String databaseName) {
+    public DatabaseMethod getDatabaseWriter(String databaseName) {
         return managerWriters.get(databaseName);
     }
 
@@ -290,10 +290,10 @@ public class ProcessorManager implements Handler {
                 WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager);
             }
         }
-        List<DatabaseWriter> databaseWriters = getManagerWriters();
-        for (DatabaseWriter databaseWriter : databaseWriters) {
+        List<DatabaseMethod> databaseMethods = getManagerWriters();
+        for (DatabaseMethod databaseMethod : databaseMethods) {
             try {
-                JavaFile.builder(databaseWriter.packageName, databaseWriter.getTypeSpec())
+                JavaFile.builder(databaseMethod.packageName, databaseMethod.getTypeSpec())
                         .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
             } catch (IOException e) {
             }

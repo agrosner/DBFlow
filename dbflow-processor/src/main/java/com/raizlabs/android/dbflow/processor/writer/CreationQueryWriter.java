@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Lists;
@@ -25,10 +26,12 @@ import java.util.Set;
 import javax.lang.model.element.Modifier;
 import javax.tools.Diagnostic;
 
+*/
 /**
  * Description: Handles writing the method to return a {@link com.raizlabs.android.dbflow.annotation.Table}
  * creation statement.
- */
+ *//*
+
 public class CreationQueryWriter implements FlowWriter {
 
     private final TableDefinition tableDefinition;
@@ -184,3 +187,4 @@ public class CreationQueryWriter implements FlowWriter {
         }, "String", "getCreationQuery", Sets.newHashSet(Modifier.PUBLIC));
     }
 }
+*/

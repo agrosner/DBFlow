@@ -21,17 +21,17 @@ import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.InsertStatementQueryMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.OneToManyDeleteMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionClause;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
 import com.raizlabs.android.dbflow.processor.writer.CreationQueryWriter;
-import com.raizlabs.android.dbflow.processor.writer.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
-import com.raizlabs.android.dbflow.processor.writer.OneToManySaveWriter;
+import com.raizlabs.android.dbflow.processor.writer.OneToManySaveMethod;
 import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
 import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -89,14 +89,16 @@ public class TableDefinition extends BaseTableDefinition {
     public boolean implementsLoadFromCursorListener = false;
 
     private final MethodDefinition[] methods = new MethodDefinition[]{
-            new BindToContentValuesMethod(this),
-            new BindToStatementMethod(this, true),
-            new BindToStatementMethod(this, false),
+            new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
+            new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
+            new BindToStatementMethod(this, true, false),
+            new BindToStatementMethod(this, false, false),
             new InsertStatementQueryMethod(this),
             new CreationQueryMethod(this),
             new LoadFromCursorMethod(this),
             new ExistenceMethod(this),
-            new PrimaryConditionClause(this)
+            new PrimaryConditionClause(this),
+            new OneToManyDeleteMethod(this, false)
     };
 
     public boolean hasCachingId = false;
@@ -118,24 +120,24 @@ public class TableDefinition extends BaseTableDefinition {
         this.tableName = table.tableName();
         databaseName = table.databaseName();
 
-        databaseWriter = manager.getDatabaseWriter(databaseName);
-        if (databaseWriter == null) {
+        databaseMethod = manager.getDatabaseWriter(databaseName);
+        if (databaseMethod == null) {
             manager.logError("Databasewriter was null for : " + tableName);
         }
 
-        setOutputClassName(databaseWriter.classSeparator + DBFLOW_TABLE_TAG);
-        this.adapterName = getModelClassName() + databaseWriter.classSeparator + DBFLOW_TABLE_ADAPTER;
+        setOutputClassName(databaseMethod.classSeparator + DBFLOW_TABLE_TAG);
+        this.adapterName = getModelClassName() + databaseMethod.classSeparator + DBFLOW_TABLE_ADAPTER;
 
 
         // globular default
         ConflictAction insertConflict = table.insertConflict();
-        if (insertConflict.equals(ConflictAction.NONE) && !databaseWriter.insertConflict.equals(ConflictAction.NONE)) {
-            insertConflict = databaseWriter.insertConflict;
+        if (insertConflict.equals(ConflictAction.NONE) && !databaseMethod.insertConflict.equals(ConflictAction.NONE)) {
+            insertConflict = databaseMethod.insertConflict;
         }
 
         ConflictAction updateConflict = table.updateConflict();
-        if (updateConflict.equals(ConflictAction.NONE) && !databaseWriter.updateConflict.equals(ConflictAction.NONE)) {
-            updateConflict = databaseWriter.updateConflict;
+        if (updateConflict.equals(ConflictAction.NONE) && !databaseMethod.updateConflict.equals(ConflictAction.NONE)) {
+            updateConflict = databaseMethod.updateConflict;
         }
 
         insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
@@ -196,8 +198,8 @@ public class TableDefinition extends BaseTableDefinition {
                 new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
                 new WhereQueryWriter(this, false),
                 new CreationQueryWriter(manager, this),
-                new DeleteWriter(this, false),
-                new OneToManySaveWriter(this, false)
+                new OneToManyDeleteMethod(this, false),
+                new OneToManySaveMethod(this, false)
         };
 
         // single primary key checking for a long or int valued column

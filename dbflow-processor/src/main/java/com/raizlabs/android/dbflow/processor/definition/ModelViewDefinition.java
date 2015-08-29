@@ -57,10 +57,10 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
         this.query = modelView.query();
         this.databaseName = modelView.databaseName();
 
-        databaseWriter = manager.getDatabaseWriter(databaseName);
-        this.viewTableName = getModelClassName() + databaseWriter.classSeparator + TABLE_VIEW_TAG;
+        databaseMethod = manager.getDatabaseWriter(databaseName);
+        this.viewTableName = getModelClassName() + databaseMethod.classSeparator + TABLE_VIEW_TAG;
 
-        setOutputClassName(databaseWriter.classSeparator + DBFLOW_MODEL_VIEW_TAG);
+        setOutputClassName(databaseMethod.classSeparator + DBFLOW_MODEL_VIEW_TAG);
 
         this.name = modelView.name();
         if (name == null || name.isEmpty()) {
@@ -124,7 +124,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     @Override
     public String getTableSourceClassName() {
-        return name + databaseWriter.classSeparator + TABLE_VIEW_TAG;
+        return name + databaseMethod.classSeparator + TABLE_VIEW_TAG;
     }
 
     @Override

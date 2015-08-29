@@ -1,14 +1,12 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator;
-import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.DeleteWriter;
 import com.raizlabs.android.dbflow.processor.writer.provider.InsertWriter;
@@ -22,7 +20,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.lang.model.element.Element;
@@ -55,8 +52,8 @@ public class ContentProviderDefinition extends BaseDefinition {
 
         ContentProvider provider = element.getAnnotation(ContentProvider.class);
         databaseName = provider.databaseName();
-        DatabaseWriter databaseWriter = manager.getDatabaseWriter(databaseName);
-        setOutputClassName(databaseWriter.classSeparator + DEFINITION_NAME);
+        DatabaseMethod databaseMethod = manager.getDatabaseWriter(databaseName);
+        setOutputClassName(databaseMethod.classSeparator + DEFINITION_NAME);
 
         authority = provider.authority();
 

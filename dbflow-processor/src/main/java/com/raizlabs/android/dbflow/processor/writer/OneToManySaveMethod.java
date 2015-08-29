@@ -14,12 +14,12 @@ import javax.lang.model.element.Modifier;
 /**
  * Description: Overrides the save, update, and insert methods if the {@link com.raizlabs.android.dbflow.annotation.OneToMany.Method#SAVE} is used.
  */
-public class OneToManySaveWriter implements FlowWriter {
+public class OneToManySaveMethod implements FlowWriter {
 
     private final TableDefinition tableDefinition;
     private final boolean isModelContainerAdapter;
 
-    public OneToManySaveWriter(TableDefinition tableDefinition, boolean isModelContainerAdapter) {
+    public OneToManySaveMethod(TableDefinition tableDefinition, boolean isModelContainerAdapter) {
         this.tableDefinition = tableDefinition;
         this.isModelContainerAdapter = isModelContainerAdapter;
     }

@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -17,7 +17,7 @@ public abstract class BaseTableDefinition extends BaseDefinition {
     protected List<ColumnDefinition> columnDefinitions;
 
     private String modelClassName;
-    public DatabaseWriter databaseWriter;
+    public DatabaseMethod databaseMethod;
 
     public BaseTableDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);

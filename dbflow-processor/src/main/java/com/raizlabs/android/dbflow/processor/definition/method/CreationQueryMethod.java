@@ -53,7 +53,7 @@ public class CreationQueryMethod implements MethodDefinition {
             creationBuilder.add(definition.getCreationName());
         }
 
-        int primarySize = tableDefinition.primaryDefinitionList.size();
+        int primarySize = tableDefinition.getPrimaryColumnDefinitions().size();
         for (int i = 0; i < primarySize; i++) {
             if (i == 0) {
                 creationBuilder.add(", PRIMARY KEY(");
@@ -64,14 +64,14 @@ public class CreationQueryMethod implements MethodDefinition {
             }
 
             ColumnDefinition primaryDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
-            creationBuilder.add(NameUtils.quote(primaryDefinition.name));
+            creationBuilder.add(QueryBuilder.quote(primaryDefinition.columnName));
 
             if (i == primarySize - 1) {
                 creationBuilder.add(")");
             }
         }
 
-        int foreignSize = tableDefinition.foreignKeyColumnDefinitions.size();
+        int foreignSize = tableDefinition.foreignKeyDefinitions.size();
 
         List<CodeBlock> foreignKeyBlocks = new ArrayList<>();
         List<CodeBlock> tableNameBlocks = new ArrayList<>();
@@ -80,7 +80,7 @@ public class CreationQueryMethod implements MethodDefinition {
         for (int i = 0; i < foreignSize; i++) {
             CodeBlock.Builder foreignKeyBuilder = CodeBlock.builder();
             CodeBlock.Builder referenceBuilder = CodeBlock.builder();
-            ForeignKeyColumnDefinition foreignKeyColumnDefinition = tableDefinition.foreignKeyColumnDefinitions.get(i);
+            ForeignKeyColumnDefinition foreignKeyColumnDefinition = tableDefinition.foreignKeyDefinitions.get(i);
 
             foreignKeyBuilder.add(", FOREIGN KEY(");
 

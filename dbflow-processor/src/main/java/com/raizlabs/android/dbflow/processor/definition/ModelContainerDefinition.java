@@ -33,7 +33,7 @@ public class ModelContainerDefinition extends BaseDefinition {
         tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()),
                                                      classElement);
 
-        setOutputClassName(tableDefinition.databaseWriter.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
+        setOutputClassName(tableDefinition.databaseMethod.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
         methodWriters = new FlowWriter[]{
                 new SQLiteStatementWriter(tableDefinition, true, tableDefinition.implementsSqlStatementListener,
@@ -77,7 +77,7 @@ public class ModelContainerDefinition extends BaseDefinition {
 
         InternalAdapterHelper.writeGetModelClass(javaWriter, getModelClassQualifiedName());
         InternalAdapterHelper.writeGetTableName(javaWriter,
-                                                elementClassName + tableDefinition.databaseWriter.classSeparator +
+                                                elementClassName + tableDefinition.databaseMethod.classSeparator +
                                                 TableDefinition.DBFLOW_TABLE_TAG);
 
         for (FlowWriter writer : methodWriters) {

@@ -16,4 +16,6 @@ public interface SQLiteStatementListener {
      * @param sqLiteStatement The insert statement from the {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
      */
     void onBindToStatement(SQLiteStatement sqLiteStatement);
+
+    void onBindToInsertStatement(SQLiteStatement sqLiteStatement);
 }

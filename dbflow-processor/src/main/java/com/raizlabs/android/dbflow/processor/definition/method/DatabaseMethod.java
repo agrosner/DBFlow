@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.writer;
+package com.raizlabs.android.dbflow.processor.definition.method;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Database;
@@ -35,7 +35,7 @@ import javax.lang.model.type.TypeMirror;
  * which contain {@link com.raizlabs.android.dbflow.annotation.Table},
  * {@link com.raizlabs.android.dbflow.annotation.ModelView}, and {@link com.raizlabs.android.dbflow.annotation.Migration}
  */
-public class DatabaseWriter extends BaseDefinition implements TypeDefinition {
+public class DatabaseMethod extends BaseDefinition implements TypeDefinition {
 
     public String databaseName;
 
@@ -55,7 +55,7 @@ public class DatabaseWriter extends BaseDefinition implements TypeDefinition {
 
     TypeName sqliteOpenHelperClass;
 
-    public DatabaseWriter(ProcessorManager manager, Element element) {
+    public DatabaseMethod(ProcessorManager manager, Element element) {
         super(element, manager);
         packageName = ClassNames.FLOW_MANAGER_PACKAGE;
 

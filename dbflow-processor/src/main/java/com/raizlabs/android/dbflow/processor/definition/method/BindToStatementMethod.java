@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 
@@ -21,11 +22,13 @@ public class BindToStatementMethod implements MethodDefinition {
 
     private TableDefinition tableDefinition;
     private boolean isInsert;
+    private boolean isModelContainerAdapter;
 
-    public BindToStatementMethod(TableDefinition tableDefinition, boolean isInsert) {
+    public BindToStatementMethod(TableDefinition tableDefinition, boolean isInsert, boolean isModelContainerAdapter) {
 
         this.tableDefinition = tableDefinition;
         this.isInsert = isInsert;
+        this.isModelContainerAdapter = isModelContainerAdapter;
     }
 
     @Override
@@ -46,6 +49,12 @@ public class BindToStatementMethod implements MethodDefinition {
                 realCount.incrementAndGet();
             }
         }
+
+        if (tableDefinition.implementsSqlStatementListener) {
+            methodBuilder.addStatement("$L.onBindTo$LStatement($L)",
+                    ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "", PARAM_STATEMENT);
+        }
+
         return methodBuilder.build();
     }
 }

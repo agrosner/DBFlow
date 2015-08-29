@@ -5,7 +5,8 @@ import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.squareup.javawriter.JavaWriter;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.ParameterizedTypeName;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -61,32 +62,31 @@ public class OneToManyDefinition extends BaseDefinition {
      * @param javaWriter
      * @throws IOException
      */
-    public void writeLoad(JavaWriter javaWriter) throws IOException {
+    public void writeLoad(CodeBlock.Builder codeBuilder) throws IOException {
         if (isLoad()) {
-            javaWriter.emitStatement(getMethodName());
+            codeBuilder.addStatement(getMethodName());
         }
     }
 
     /**
      * Writes a delete method that will delete all related objects.
      *
-     * @param javaWriter
-     * @throws IOException
+     * @param codeBuilder
      */
-    public void writeDelete(JavaWriter javaWriter) throws IOException {
+    public void writeDelete(CodeBlock.Builder codeBuilder) {
         if (isDelete()) {
-            javaWriter.emitStatement("new %1s<>(%1s.withModels(%1s)).onExecute()",
-                    ClassNames.DELETE_MODEL_LIST_TRANSACTION,
+            codeBuilder.addStatement("new $T($T.withModels($L)).onExecute()",
+                    ParameterizedTypeName.get(ClassNames.DELETE_MODEL_LIST_TRANSACTION),
                     ClassNames.PROCESS_MODEL_INFO, getMethodName());
 
-            javaWriter.emitStatement("%1s = null", getVariableName());
+            codeBuilder.addStatement("$L = null", getVariableName());
         }
     }
 
-    public void writeSave(JavaWriter javaWriter) throws IOException {
+    public void writeSave(CodeBlock.Builder codeBuilder) throws IOException {
         if (isSave()) {
-            javaWriter.emitStatement("new %1s<>(%1s.withModels(%1s)).onExecute()",
-                    ClassNames.SAVE_MODEL_LIST_TRANSACTION,
+            codeBuilder.addStatement("new $T($T.withModels($L)).onExecute()",
+                    ParameterizedTypeName.get(ClassNames.SAVE_MODEL_LIST_TRANSACTION),
                     ClassNames.PROCESS_MODEL_INFO, getMethodName());
         }
     }
