@@ -1,20 +1,24 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionClause;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
-import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,7 +34,7 @@ import javax.tools.Diagnostic;
 /**
  * Description: Used in writing ModelViewAdapters
  */
-public class ModelViewDefinition extends BaseTableDefinition implements FlowWriter {
+public class ModelViewDefinition extends BaseTableDefinition {
 
     private static final String DBFLOW_MODEL_VIEW_TAG = "View";
 
@@ -44,9 +48,9 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
     private String name;
 
-    private TypeElement modelReferenceClass;
+    private ClassName modelReferenceClass;
 
-    private FlowWriter[] mMethodWriters;
+    private MethodDefinition[] methods;
 
     private String viewTableName;
 
@@ -69,8 +73,8 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
         DeclaredType typeAdapterInterface = null;
         final DeclaredType modelViewType = manager.getTypeUtils().getDeclaredType(
-                manager.getElements().getTypeElement(ClassNames.MODEL_VIEW),
-                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassNames.MODEL).asType(), null)
+                manager.getElements().getTypeElement(ClassNames.MODEL_VIEW.toString()),
+                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassNames.MODEL.toString()).asType(), null)
         );
 
 
@@ -83,18 +87,18 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
 
         if (typeAdapterInterface != null) {
             final List<? extends TypeMirror> typeArguments = typeAdapterInterface.getTypeArguments();
-            modelReferenceClass = manager.getElements().getTypeElement(typeArguments.get(0).toString());
+            modelReferenceClass = ClassName.get(manager.getElements().getTypeElement(typeArguments.get(0).toString()));
         }
 
         createColumnDefinitions((TypeElement) element);
 
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.LOAD_FROM_CURSOR_LISTENER, (TypeElement) element);
+                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), (TypeElement) element);
 
-        mMethodWriters = new FlowWriter[]{
-                new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
-                new ExistenceWriter(this, false),
-                new WhereQueryWriter(this, false)
+        methods = new MethodDefinition[]{
+                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener),
+                new ExistenceMethod(this, false),
+                new PrimaryConditionClause(this, false)
         };
     }
 
@@ -103,10 +107,10 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
         List<? extends Element> variableElements = manager.getElements().getAllMembers(typeElement);
         for (Element variableElement : variableElements) {
             if (variableElement.getAnnotation(Column.class) != null) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement);
                 columnDefinitions.add(columnDefinition);
 
-                if (columnDefinition.isPrimaryKey || columnDefinition.isForeignKey || columnDefinition.isPrimaryKeyAutoIncrement) {
+                if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition || columnDefinition.isPrimaryKeyAutoIncrement) {
                     manager.getMessager().printMessage(Diagnostic.Kind.ERROR, "ModelViews cannot have primary or foreign keys");
                 }
             }
@@ -118,65 +122,55 @@ public class ModelViewDefinition extends BaseTableDefinition implements FlowWrit
         return getColumnDefinitions();
     }
 
-    public String getFullyQualifiedModelClassName() {
-        return packageName + "." + getModelClassName();
+    @Override
+    public ClassName getPropertyClassName() {
+        return ClassName.get(packageName, viewTableName);
     }
 
     @Override
-    public String getTableSourceClassName() {
-        return name + databaseMethod.classSeparator + TABLE_VIEW_TAG;
-    }
-
-    @Override
-    protected String getExtendsClass() {
-        return String.format("%1s<%1s,%1s>", ClassNames.MODEL_VIEW_ADAPTER, modelReferenceClass, getModelClassName());
+    protected TypeName getExtendsClass() {
+        return ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, modelReferenceClass, elementClassName);
     }
 
     public void writeViewTable() throws IOException {
-        JavaWriter javaWriter = new JavaWriter(manager.getProcessingEnvironment().getFiler()
-                .createSourceFile(packageName + "." + viewTableName).openWriter());
-        javaWriter.emitPackage(packageName);
-        javaWriter.beginType(viewTableName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
-        javaWriter.emitEmptyLine();
-        javaWriter.emitField("String", "VIEW_NAME", Sets.newHashSet(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL), "\"" + name + "\"");
-        javaWriter.emitEmptyLine();
+
+        TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(viewTableName)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addField(FieldSpec.builder(ClassName.get(String.class), "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .initializer("$S", name).build());
+
+        JavaFile file = JavaFile.builder(packageName, typeBuilder.build()).build();
+        file.writeTo(manager.getProcessingEnvironment().getFiler());
+
         for (ColumnDefinition columnDefinition : columnDefinitions) {
-            columnDefinition.write(javaWriter);
+            columnDefinition.addPropertyDefinition(typeBuilder);
         }
-        javaWriter.endType();
-        javaWriter.close();
     }
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
-        for (FlowWriter writer : mMethodWriters) {
-            writer.write(javaWriter);
+        for (MethodDefinition method : methods) {
+            MethodSpec methodSpec = method.getMethodSpec();
+            if (methodSpec != null) {
+                typeBuilder.addMethod(methodSpec);
+            }
         }
 
-        javaWriter.emitEmptyLine();
-        javaWriter.emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return \"%1s\"", query);
-            }
-        }, "String", "getCreationQuery", DatabaseHandler.METHOD_MODIFIERS);
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getCreationQuery")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $S", query)
+                .returns(ClassName.get(String.class)).build());
 
-        javaWriter.emitEmptyLine();
-        javaWriter.emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return \"%1s\"", name);
-            }
-        }, "String", "getViewName", DatabaseHandler.METHOD_MODIFIERS);
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getViewName")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $S", name)
+                .returns(ClassName.get(String.class)).build());
 
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return new %1s()", getFullyQualifiedModelClassName());
-            }
-        }, getFullyQualifiedModelClassName(), "newInstance", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return new $T()", elementClassName).build());
     }
-
 }

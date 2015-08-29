@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
@@ -18,9 +19,11 @@ import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 
+*/
 /**
  * Description: Writes the load from cursor statement.
- */
+ *//*
+
 public class LoadCursorWriter implements FlowWriter {
 
     public static final Map<String, String> CURSOR_METHOD_MAP = new HashMap<String, String>() {
@@ -238,3 +241,4 @@ public class LoadCursorWriter implements FlowWriter {
         }
     }
 }
+*/

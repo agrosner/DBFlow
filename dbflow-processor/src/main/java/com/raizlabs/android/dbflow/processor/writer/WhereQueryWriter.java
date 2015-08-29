@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.processor.writer;
 
 import com.google.common.collect.Sets;
@@ -18,9 +19,11 @@ import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
+*/
 /**
  * Description: Writes the completed SQL statement that contains its primary key values checking for existence.
- */
+ *//*
+
 public class WhereQueryWriter implements FlowWriter {
 
     private BaseTableDefinition tableDefinition;
@@ -101,3 +104,4 @@ public class WhereQueryWriter implements FlowWriter {
         }
     }
 }
+*/

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.method;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.squareup.javapoet.CodeBlock;
@@ -16,10 +17,12 @@ public class PrimaryConditionClause implements MethodDefinition {
 
     static final String PARAM_MODEL = "model";
 
-    private final TableDefinition tableDefinition;
+    private final BaseTableDefinition tableDefinition;
+    private final boolean isModelContainerAdapter;
 
-    public PrimaryConditionClause(TableDefinition tableDefinition) {
+    public PrimaryConditionClause(BaseTableDefinition tableDefinition, boolean isModelContainerAdapter) {
         this.tableDefinition = tableDefinition;
+        this.isModelContainerAdapter = isModelContainerAdapter;
     }
 
     @Override

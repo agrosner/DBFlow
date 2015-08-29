@@ -177,6 +177,11 @@ public class ColumnDefinition extends BaseDefinition {
         return DefinitionUtils.getLoadFromCursorMethod(elementName, columnAccess, elementTypeName, columnName).build();
     }
 
+    public CodeBlock getToModelMethod(boolean isModelContainerDefinition) {
+        // TODO: get this working.
+        return CodeBlock.builder().build();
+    }
+
     public String getColumnAccessString() {
         return columnAccess.getColumnAccessString(ExistenceMethod.PARAM_MODEL, elementName);
     }

@@ -1,11 +1,9 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
-import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -22,23 +20,16 @@ import com.raizlabs.android.dbflow.processor.definition.method.InsertStatementQu
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.OneToManyDeleteMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.OneToManySaveMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionClause;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
-import com.raizlabs.android.dbflow.processor.writer.CreationQueryWriter;
-import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
-import com.raizlabs.android.dbflow.processor.writer.OneToManySaveMethod;
-import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
-import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,7 +61,7 @@ public class TableDefinition extends BaseTableDefinition {
 
     public String insertConflictActionName;
 
-    public String updateConflicationActionName;
+    public String updateConflictActionName;
 
     public List<ColumnDefinition> primaryColumnDefinitions;
     public List<ForeignKeyColumnDefinition> foreignKeyDefinitions;
@@ -88,18 +79,7 @@ public class TableDefinition extends BaseTableDefinition {
 
     public boolean implementsLoadFromCursorListener = false;
 
-    private final MethodDefinition[] methods = new MethodDefinition[]{
-            new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
-            new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
-            new BindToStatementMethod(this, true, false),
-            new BindToStatementMethod(this, false, false),
-            new InsertStatementQueryMethod(this),
-            new CreationQueryMethod(this),
-            new LoadFromCursorMethod(this),
-            new ExistenceMethod(this),
-            new PrimaryConditionClause(this),
-            new OneToManyDeleteMethod(this, false)
-    };
+    private final MethodDefinition[] methods;
 
     public boolean hasCachingId = false;
 
@@ -142,12 +122,12 @@ public class TableDefinition extends BaseTableDefinition {
 
         insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
                 : insertConflict.name();
-        updateConflicationActionName = updateConflict.equals(ConflictAction.NONE) ? ""
+        updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
                 : updateConflict.name();
 
         allFields = table.allFields();
 
-        manager.addModelToDatabase(getModelClassName(), databaseName);
+        manager.addModelToDatabase(elementClassName, databaseName);
 
         if (tableName == null || tableName.isEmpty()) {
             tableName = element.getSimpleName().toString();
@@ -183,37 +163,38 @@ public class TableDefinition extends BaseTableDefinition {
         }
 
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.LOAD_FROM_CURSOR_LISTENER,
+                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
                 (TypeElement) element);
 
         implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.CONTENT_VALUES_LISTENER, (TypeElement) element);
+                ClassNames.CONTENT_VALUES_LISTENER.toString(), (TypeElement) element);
 
         implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.SQLITE_STATEMENT_LISTENER, ((TypeElement) element));
+                ClassNames.SQLITE_STATEMENT_LISTENER.toString(), ((TypeElement) element));
 
-        mMethodWriters = new FlowWriter[]{
-                new SQLiteStatementWriter(this, false, implementsSqlStatementListener, implementsContentValuesListener),
-                new ExistenceWriter(this, false),
-                new LoadCursorWriter(this, false, implementsLoadFromCursorListener),
-                new WhereQueryWriter(this, false),
-                new CreationQueryWriter(manager, this),
+        methods = new MethodDefinition[]{
+                new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
+                new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
+                new BindToStatementMethod(this, true, false),
+                new BindToStatementMethod(this, false, false),
+                new InsertStatementQueryMethod(this),
+                new CreationQueryMethod(this),
+                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener),
+                new ExistenceMethod(this, ),
+                new PrimaryConditionClause(this, ),
                 new OneToManyDeleteMethod(this, false),
-                new OneToManySaveMethod(this, false)
+                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE),
+                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT),
+                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE)
         };
 
         // single primary key checking for a long or int valued column
         if (getPrimaryColumnDefinitions().size() == 1) {
-            ColumnDefinition columnDefinition = getColumnDefinitions().get(0);
+            ColumnDefinition columnDefinition = getPrimaryColumnDefinitions().get(0);
             if (columnDefinition.isPrimaryKey) {
                 hasCachingId = !columnDefinition.hasTypeConverter;
             }
         }
-    }
-
-    @Override
-    public String getTableSourceClassName() {
-        return definitionClassName;
     }
 
     @Override
@@ -284,6 +265,11 @@ public class TableDefinition extends BaseTableDefinition {
         return packageName + "." + adapterName;
     }
 
+    @Override
+    public ClassName getPropertyClassName() {
+        return ClassName.get(packageName, adapterName);
+    }
+
     public String getQualifiedModelClassName() {
         return packageName + "." + getModelClassName();
     }
@@ -305,74 +291,41 @@ public class TableDefinition extends BaseTableDefinition {
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
         InternalAdapterHelper.writeGetTableName(typeBuilder, tableName);
 
-        String insertConflictName = insertConflictActionName;
-        if (!insertConflictName.isEmpty()) {
-            insertConflictName = String.format(" OR %1s ", insertConflictName);
-        }
-        QueryBuilder stringBuilder = new QueryBuilder("return \"INSERT%1sINTO ")
-                .appendQuoted(tableName).appendSpace().append("(");
-
-        List<String> columnNames = new ArrayList<>();
-        List<String> bindings = new ArrayList<>();
-        for (int i = 0; i < getColumnDefinitions().size(); i++) {
-            ColumnDefinition columnDefinition = getColumnDefinitions().get(i);
-
-            if (columnDefinition.isForeignKey) {
-                for (ForeignKeyReference reference : columnDefinition.foreignKeyReferences) {
-                    columnNames.add(reference.columnName());
-                    bindings.add("?");
-                }
-            } else if (!columnDefinition.isPrimaryKeyAutoIncrement) {
-                columnNames.add(columnDefinition.columnName.toUpperCase());
-                bindings.add("?");
+        for (MethodDefinition methodDefinition : methods) {
+            MethodSpec spec = methodDefinition.getMethodSpec();
+            if (spec != null) {
+                typeBuilder.addMethod(spec);
             }
         }
 
-        stringBuilder.appendQuotedList(columnNames).append(") VALUES (");
-        stringBuilder.appendList(bindings).append(")\"");
+        typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return new $T()", elementClassName)
+                .returns(elementClassName)
+                .build());
 
 
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-
-                javaWriter.emitStatement(stringBuilder.toString(), insertConflictName);
-            }
-        }, "String", "getInsertStatementQuery", Sets.newHashSet(Modifier.PROTECTED, Modifier.FINAL));
-
-        for (FlowWriter writer : mMethodWriters) {
-            writer.write(javaWriter);
-        }
-
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return new %1s()", getQualifiedModelClassName());
-            }
-        }, getQualifiedModelClassName(), "newInstance", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
-
-        if (!updateConflicationActionName.isEmpty()) {
-            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-                @Override
-                public void write(JavaWriter javaWriter) throws IOException {
-                    javaWriter.emitStatement("return %1s.%1s", ClassNames.CONFLICT_ACTION, updateConflicationActionName);
-                }
-            }, ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        if (!updateConflictActionName.isEmpty()) {
+            typeBuilder.addMethod(MethodSpec.methodBuilder("getUpdateOnConflictAction")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addCode("return $T.$L", ClassNames.CONFLICT_ACTION, updateConflictActionName)
+                    .returns(ClassNames.CONFLICT_ACTION)
+                    .build());
         }
 
         if (!insertConflictActionName.isEmpty()) {
-            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-                @Override
-                public void write(JavaWriter javaWriter) throws IOException {
-                    javaWriter.emitStatement("return %1s.%1s", ClassNames.CONFLICT_ACTION, insertConflictActionName);
-                }
-            }, ClassNames.CONFLICT_ACTION, "getInsertOnConflictAction", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+            typeBuilder.addMethod(MethodSpec.methodBuilder("getInsertOnConflictAction")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addCode("return $T.$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
+                    .returns(ClassNames.CONFLICT_ACTION).build());
         }
 
-        javaWriter.endType();
-        javaWriter.close();
 
-        JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, adapterName);
+        JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
+        javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
 
     }
 }

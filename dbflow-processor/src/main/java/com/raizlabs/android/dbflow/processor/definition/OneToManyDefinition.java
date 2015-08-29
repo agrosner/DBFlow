@@ -83,7 +83,7 @@ public class OneToManyDefinition extends BaseDefinition {
         }
     }
 
-    public void writeSave(CodeBlock.Builder codeBuilder) throws IOException {
+    public void writeSave(CodeBlock.Builder codeBuilder) {
         if (isSave()) {
             codeBuilder.addStatement("new $T($T.withModels($L)).onExecute()",
                     ParameterizedTypeName.get(ClassNames.SAVE_MODEL_LIST_TRANSACTION),

@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.processor.writer.ExistenceWriter;
 import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
 import com.raizlabs.android.dbflow.processor.writer.SQLiteStatementWriter;
-import com.raizlabs.android.dbflow.processor.writer.ToModelWriter;
+import com.raizlabs.android.dbflow.processor.definition.method.ToModelMethod;
 import com.raizlabs.android.dbflow.processor.writer.WhereQueryWriter;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javawriter.JavaWriter;
@@ -30,8 +30,7 @@ public class ModelContainerDefinition extends BaseDefinition {
 
     public ModelContainerDefinition(TypeElement classElement, ProcessorManager manager) {
         super(classElement, manager);
-        tableDefinition = manager.getTableDefinition(manager.getDatabase(classElement.getSimpleName().toString()),
-                                                     classElement);
+        tableDefinition = manager.getTableDefinition(manager.getDatabase(elementClassName), classElement);
 
         setOutputClassName(tableDefinition.databaseMethod.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
@@ -40,7 +39,7 @@ public class ModelContainerDefinition extends BaseDefinition {
                                           tableDefinition.implementsContentValuesListener),
                 new ExistenceWriter(tableDefinition, true),
                 new WhereQueryWriter(tableDefinition, true),
-                new ToModelWriter(tableDefinition, true),
+                new ToModelMethod(tableDefinition, true),
                 new LoadCursorWriter(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener)
         };
     }

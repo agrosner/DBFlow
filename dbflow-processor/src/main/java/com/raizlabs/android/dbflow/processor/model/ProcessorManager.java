@@ -12,11 +12,11 @@ import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
 import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
 import com.raizlabs.android.dbflow.processor.writer.FlowManagerHolderWriter;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
@@ -44,12 +44,12 @@ public class ProcessorManager implements Handler {
 
     private ProcessingEnvironment processingEnvironment;
     private List<String> uniqueDatabases = Lists.newArrayList();
-    private Map<String, String> modelToDatabaseMap = Maps.newHashMap();
+    private Map<TypeName, String> modelToDatabaseMap = Maps.newHashMap();
     private Map<TypeName, TypeConverterDefinition> typeConverters = Maps.newHashMap();
     private Map<String, Map<String, ModelContainerDefinition>> modelContainers = Maps.newHashMap();
     private Map<String, Map<String, TableDefinition>> tableDefinitions = Maps.newHashMap();
     private Map<String, Map<String, TableDefinition>> tableNameDefinitionMap = Maps.newHashMap();
-    private Map<String, Map<String, QueryModelDefinition>> queryModelDefinitionMap = Maps.newHashMap();
+    private Map<String, Map<TypeName, QueryModelDefinition>> queryModelDefinitionMap = Maps.newHashMap();
     private Map<String, Map<String, ModelViewDefinition>> modelViewDefinition = Maps.newHashMap();
     private Map<String, Map<Integer, List<MigrationDefinition>>> migrations = Maps.newHashMap();
     private Map<String, DatabaseMethod> managerWriters = Maps.newHashMap();
@@ -114,36 +114,35 @@ public class ProcessorManager implements Handler {
         return typeConverters.get(typeName);
     }
 
-    public void addModelToDatabase(String modelName, String databaseName) {
+    public void addModelToDatabase(TypeName modelType, String databaseName) {
         addDatabase(databaseName);
-        modelToDatabaseMap.put(modelName, databaseName);
+        modelToDatabaseMap.put(modelType, databaseName);
     }
 
-    public String getDatabase(String modelName) {
-        return modelToDatabaseMap.get(modelName);
+    public String getDatabase(TypeName modelType) {
+        return modelToDatabaseMap.get(modelType);
     }
 
     public void addModelContainerDefinition(ModelContainerDefinition modelContainerDefinition) {
-        String modelClassName = modelContainerDefinition.element.getSimpleName().toString();
         Map<String, ModelContainerDefinition> modelContainerDefinitionMap = modelContainers.get(
-                getDatabase(modelClassName));
+                getDatabase(modelContainerDefinition.elementClassName));
         if (modelContainerDefinitionMap == null) {
             modelContainerDefinitionMap = Maps.newHashMap();
-            modelContainers.put(getDatabase(modelClassName), modelContainerDefinitionMap);
+            modelContainers.put(getDatabase(modelContainerDefinition.elementClassName), modelContainerDefinitionMap);
         }
         modelContainerDefinitionMap.put(modelContainerDefinition.getModelClassQualifiedName(),
                 modelContainerDefinition);
     }
 
     public void addQueryModelDefinition(QueryModelDefinition queryModelDefinition) {
-        Map<String, QueryModelDefinition> modelDefinitionMap = queryModelDefinitionMap.get(
-                getDatabase(queryModelDefinition.getQualifiedModelClassName()));
+        Map<TypeName, QueryModelDefinition> modelDefinitionMap = queryModelDefinitionMap.get(
+                getDatabase(queryModelDefinition.elementClassName));
         if (modelDefinitionMap == null) {
             modelDefinitionMap = Maps.newHashMap();
-            queryModelDefinitionMap.put(getDatabase(queryModelDefinition.getQualifiedModelClassName()),
+            queryModelDefinitionMap.put(getDatabase(queryModelDefinition.elementClassName),
                     modelDefinitionMap);
         }
-        modelDefinitionMap.put(queryModelDefinition.getQualifiedModelClassName(), queryModelDefinition);
+        modelDefinitionMap.put(queryModelDefinition.elementClassName, queryModelDefinition);
     }
 
     public ModelContainerDefinition getModelContainerDefinition(String databaseName, TypeElement typeElement) {

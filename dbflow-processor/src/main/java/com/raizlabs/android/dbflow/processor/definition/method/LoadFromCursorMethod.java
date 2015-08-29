@@ -49,10 +49,14 @@ public class LoadFromCursorMethod implements MethodDefinition {
     public static final String PARAM_CURSOR = "cursor";
 
     private BaseTableDefinition baseTableDefinition;
+    private final boolean isModelContainerAdapter;
+    private final boolean implementsLoadFromCursorListener;
 
-    public LoadFromCursorMethod(BaseTableDefinition baseTableDefinition) {
+    public LoadFromCursorMethod(BaseTableDefinition baseTableDefinition, boolean isModelContainerAdapter, boolean implementsLoadFromCursorListener) {
 
         this.baseTableDefinition = baseTableDefinition;
+        this.isModelContainerAdapter = isModelContainerAdapter;
+        this.implementsLoadFromCursorListener = implementsLoadFromCursorListener;
     }
 
     @Override

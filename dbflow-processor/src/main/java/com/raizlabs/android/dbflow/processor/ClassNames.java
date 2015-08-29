@@ -48,7 +48,6 @@ public class ClassNames {
 
     public static final ClassName SQL_UTILS = ClassName.get(SQL, "SqlUtils");
     public static final ClassName TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter");
-    public static final ClassName MODEL_CONTAINER_UTILS = ClassName.get(CONTAINER, "ModelContainerUtils");
     public static final ClassName PROCESS_MODEL_INFO = ClassName.get(PROCESS, "ProcessModelInfo");
 
     public static final ClassName FLOW_MANAGER_STATIC_INTERFACE = ClassName.get(FLOW_MANAGER_PACKAGE, "DatabaseHolder");
@@ -71,4 +70,6 @@ public class ClassNames {
 
     public static final ClassName BASE_CONTENT_PROVIDER = ClassName.get(RUNTIME, "BaseContentProvider");
 
+    public static final ClassName MODEL_CONTAINER_UTILS = ClassName.get(CONTAINER, "ModelContainerUtils");
+    public static final ClassName MODEL_CONTAINER = ClassName.get(CONTAINER, "ModelContainer");
 }

@@ -1,18 +1,18 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.raizlabs.android.dbflow.processor.writer.LoadCursorWriter;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
     public boolean implementsLoadFromCursorListener = false;
 
-    FlowWriter[] mMethodWriters;
+    MethodDefinition[] methods;
 
     public QueryModelDefinition(Element typeElement,
                                 ProcessorManager processorManager) {
@@ -54,26 +54,25 @@ public class QueryModelDefinition extends BaseTableDefinition {
         allFields = queryModel.allFields();
         adapterName = getModelClassName() + databaseMethod.classSeparator + DBFLOW_TABLE_ADAPTER;
 
-        processorManager.addModelToDatabase(getQualifiedModelClassName(), databaseName);
+        processorManager.addModelToDatabase(elementClassName, databaseName);
 
-        implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                                                                          ClassNames.LOAD_FROM_CURSOR_LISTENER,
-                                                                          (TypeElement) element);
+        implementsLoadFromCursorListener = ProcessorUtils
+                .implementsClass(manager.getProcessingEnvironment(), ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
+                        (TypeElement) element);
 
         setOutputClassName(databaseMethod.classSeparator + DBFLOW_QUERY_MODEL_TAG);
 
-        mMethodWriters = new FlowWriter[]{
-                new LoadCursorWriter(this, false, implementsLoadFromCursorListener)
+        methods = new MethodDefinition[]{
+                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener)
         };
-        
+
         createColumnDefinitions(((TypeElement) typeElement));
     }
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
-        javaWriter.emitEmptyLine();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
-            columnDefinition.write(javaWriter);
+            columnDefinition.addPropertyDefinition(typeBuilder);
         }
     }
 
@@ -85,9 +84,9 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
             // no private static or final fields
             boolean isValidColumn = allFields && (variableElement.getKind().isField() &&
-                                                  !variableElement.getModifiers().contains(Modifier.STATIC) &&
-                                                  !variableElement.getModifiers().contains(Modifier.PRIVATE) &&
-                                                  !variableElement.getModifiers().contains(Modifier.FINAL));
+                    !variableElement.getModifiers().contains(Modifier.STATIC) &&
+                    !variableElement.getModifiers().contains(Modifier.PRIVATE) &&
+                    !variableElement.getModifiers().contains(Modifier.FINAL));
 
             if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
@@ -104,45 +103,31 @@ public class QueryModelDefinition extends BaseTableDefinition {
         return new ArrayList<>();
     }
 
-    @Override
-    public String getTableSourceClassName() {
-        return definitionClassName;
-    }
-
     public String getQualifiedModelClassName() {
         return packageName + "." + getModelClassName();
     }
 
-    public String getQualifiedAdapterName() {
-        return packageName + "." + adapterName;
-    }
-
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
-        JavaWriter javaWriter = new JavaWriter(
-                processingEnvironment.getFiler().createSourceFile(getQualifiedAdapterName()).openWriter());
 
-        javaWriter.emitPackage(packageName);
-        javaWriter.emitImports(ClassNames.QUERY_MODEL_ADAPTER,
-                               ClassNames.FLOW_MANAGER,
-                               ClassNames.CURSOR
-        );
-        javaWriter.emitSingleLineComment("This table belongs to the %1s database", databaseName);
-        javaWriter.beginType(adapterName, "class", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL),
-                             "QueryModelAdapter<" + element.getSimpleName() + ">");
 
-        for (FlowWriter writer : mMethodWriters) {
-            writer.write(javaWriter);
+        TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(adapterName)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .superclass(ParameterizedTypeName.get(ClassNames.QUERY_MODEL_ADAPTER, elementClassName));
+
+        for (MethodDefinition method : methods) {
+            MethodSpec methodSpec = method.getMethodSpec();
+            if (methodSpec != null) {
+                typeBuilder.addMethod(methodSpec);
+            }
         }
 
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return new %1s()", getQualifiedModelClassName());
-            }
-        }, getQualifiedModelClassName(), "newInstance", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return new $T()", elementClassName).build());
 
-        javaWriter.endType();
-        javaWriter.close();
+        JavaFile javaFile = JavaFile.builder(packageName, typeBuilder.build()).build();
+        javaFile.writeTo(processingEnvironment.getFiler());
     }
 
 }
