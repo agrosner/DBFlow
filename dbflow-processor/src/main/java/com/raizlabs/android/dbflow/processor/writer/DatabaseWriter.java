@@ -13,13 +13,12 @@ import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javawriter.JavaWriter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +28,7 @@ import java.util.regex.Pattern;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Description: Writes {@link com.raizlabs.android.dbflow.annotation.Database} definitions,
@@ -53,7 +53,7 @@ public class DatabaseWriter extends BaseDefinition implements TypeDefinition {
 
     public String classSeparator;
 
-    String sqliteOpenHelperClass;
+    TypeName sqliteOpenHelperClass;
 
     public DatabaseWriter(ProcessorManager manager, Element element) {
         super(element, manager);
@@ -69,7 +69,10 @@ public class DatabaseWriter extends BaseDefinition implements TypeDefinition {
                     "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
         }
 
-        sqliteOpenHelperClass = ProcessorUtils.getOpenHelperClass(database);
+        TypeMirror openHelper = ProcessorUtils.getOpenHelperClass(database);
+        if (openHelper != null) {
+            sqliteOpenHelperClass = TypeName.get(openHelper);
+        }
 
         consistencyChecksEnabled = database.consistencyCheckEnabled();
         backupEnabled = database.backupEnabled();
@@ -87,19 +90,18 @@ public class DatabaseWriter extends BaseDefinition implements TypeDefinition {
     }
 
     @Override
-    protected String getExtendsClass() {
+    protected TypeName getExtendsClass() {
         return ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME;
     }
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
-        javaWriter.emitEmptyLine();
 
-        writeConstructor(javaWriter);
-        writeGetters(javaWriter);
+        writeConstructor(typeBuilder);
+        writeGetters(typeBuilder);
     }
 
-    private void writeConstructor(TypeSpec.Builder builder) throws IOException {
+    private void writeConstructor(TypeSpec.Builder builder) {
 
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
@@ -117,8 +119,6 @@ public class DatabaseWriter extends BaseDefinition implements TypeDefinition {
             constructor.addStatement("holder.putDatabaseForTable($T.class, this)", queryModelDefinition.elementClassName);
         }
 
-        builder.emitEmptyLine();
-        builder.emitSingleLineComment("Begin Migrations");
         Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = manager.getMigrationsForDatabase(databaseName);
         if (migrationDefinitionMap != null && !migrationDefinitionMap.isEmpty()) {
             List<Integer> versionSet = new ArrayList<>(migrationDefinitionMap.keySet());
@@ -131,104 +131,82 @@ public class DatabaseWriter extends BaseDefinition implements TypeDefinition {
                         return Integer.valueOf(o2.priority).compareTo(o1.priority);
                     }
                 });
-                builder.emitStatement("List<%1s> migrations%1s = new ArrayList<>()", ClassNames.MIGRATION, version);
-                builder.emitStatement("%1s.put(%1s,%1s%1s)", DatabaseHandler.MIGRATION_FIELD_NAME, version,
-                        "migrations", version);
+                constructor.addStatement("$T migrations$L = new $T()", ParameterizedTypeName.get(ClassName.get(List.class), ClassNames.MIGRATION),
+                        version, ParameterizedTypeName.get(ArrayList.class));
+                constructor.addStatement("$L.put($L, migrations$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
+                        version, version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {
-                    builder.emitStatement("%1s%1s.add(new %1s())", "migrations", version,
-                            migrationDefinition.getSourceFileName());
+                    constructor.addStatement("migrations$L.add(new $T())", version, migrationDefinition.elementClassName);
                 }
             }
         }
-        builder.emitSingleLineComment("End Migrations");
-        builder.emitEmptyLine();
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
-            builder.emitStatement(DatabaseHandler.MODEL_FIELD_NAME + ".add(%1s)",
-                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
-            builder.emitStatement(DatabaseHandler.MODEL_NAME_MAP + ".put(\"%1s\", %1s)", tableDefinition.tableName,
-                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()));
-            builder.emitStatement(DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(tableDefinition.getQualifiedModelClassName()),
-                    tableDefinition.getQualifiedAdapterClassName());
+            constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName);
+            constructor.addStatement("$L.put($S, $L)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName);
+            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
+                    tableDefinition.elementClassName, tableDefinition.outputClassName);
         }
 
         for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(databaseName)) {
-            builder.emitStatement(DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(modelContainerDefinition.getModelClassQualifiedName()),
-                    modelContainerDefinition.getSourceFileName());
+            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
+                    modelContainerDefinition.elementClassName, modelContainerDefinition.outputClassName);
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
-            builder.emitStatement(DatabaseHandler.MODEL_VIEW_FIELD_NAME + ".add(%1s)",
-                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()));
-            builder.emitStatement(DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(modelViewDefinition.getFullyQualifiedModelClassName()),
-                    modelViewDefinition.getSourceFileName());
+            constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName);
+            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
+                    modelViewDefinition.elementClassName, modelViewDefinition.outputClassName);
         }
 
-        builder.emitSingleLineComment("Writing Query Models");
         for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
-            builder.emitStatement(DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME + ".put(%1s, new %1s())",
-                    ModelUtils.getFieldClass(queryModelDefinition.getQualifiedModelClassName()),
-                    queryModelDefinition.getQualifiedAdapterName());
+            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
+                    queryModelDefinition.elementClassName, queryModelDefinition.outputClassName);
         }
 
-        builder.endConstructor();
+        builder.addMethod(constructor.build());
     }
 
-    private void writeGetters(JavaWriter javaWriter) throws IOException {
+    private void writeGetters(TypeSpec.Builder typeBuilder) {
 
         // create helper
-        if (!Void.class.getCanonicalName().equals(sqliteOpenHelperClass)) {
-            WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-                @Override
-                public void write(JavaWriter javaWriter) throws IOException {
-                    javaWriter.emitStatement("return new %1s(this, internalHelperListener)", sqliteOpenHelperClass);
-                }
-            }, "FlowSQLiteOpenHelper", "createHelper", DatabaseHandler.METHOD_MODIFIERS);
+        if (!TypeName.VOID.equals(sqliteOpenHelperClass)) {
+            typeBuilder.addMethod(MethodSpec.methodBuilder("createHelper")
+                    .addAnnotation(Override.class)
+                    .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                    .addStatement("return new $T(this, internalHelperListener)", sqliteOpenHelperClass)
+                    .returns(ClassNames.FLOW_SQLITE_OPEN_HELPER).build());
         }
 
-        // Get Model Container
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s", foreignKeysSupported);
-            }
-        }, "boolean", "isForeignKeysSupported", DatabaseHandler.METHOD_MODIFIERS);
+        typeBuilder.addMethod(MethodSpec.methodBuilder("isForeignKeysSupported")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $L", foreignKeysSupported)
+                .returns(TypeName.BOOLEAN).build());
 
-        // Get Model Container
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s", backupEnabled);
-            }
-        }, "boolean", "backupEnabled", DatabaseHandler.METHOD_MODIFIERS);
+        typeBuilder.addMethod(MethodSpec.methodBuilder("backupEnabled")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $L", backupEnabled)
+                .returns(TypeName.BOOLEAN).build());
 
-        // Get Model Container
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s", consistencyChecksEnabled);
-            }
-        }, "boolean", "areConsistencyChecksEnabled", DatabaseHandler.METHOD_MODIFIERS);
+        typeBuilder.addMethod(MethodSpec.methodBuilder("areConsistencyChecksEnabled")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $L", consistencyChecksEnabled)
+                .returns(TypeName.BOOLEAN).build());
 
-        // Get Model Container
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return %1s", databaseVersion);
-            }
-        }, "int", "getDatabaseVersion", DatabaseHandler.METHOD_MODIFIERS);
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseVersion")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $L", databaseVersion)
+                .returns(TypeName.INT).build());
 
-        // Get Model Container
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return \"%1s\"", databaseName);
-            }
-        }, "String", "getDatabaseName", DatabaseHandler.METHOD_MODIFIERS);
-
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $S", databaseName)
+                .returns(ClassName.get(String.class)).build());
     }
 
     /**

@@ -45,11 +45,11 @@ public class ProcessorUtils {
         return isSubClass;
     }
 
-    public static String getOpenHelperClass(Database database) {
+    public static TypeMirror getOpenHelperClass(Database database) {
         try {
             database.sqlHelperClass();
         } catch (MirroredTypeException mte) {
-            return mte.getTypeMirror().toString();
+            return mte.getTypeMirror();
         }
         return null;
     }

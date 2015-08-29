@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.processor;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
 
 /**
  * Description: The static FQCN string file to assist in providing class names for imports and more in the Compiler
@@ -13,7 +12,6 @@ public class ClassNames {
     public static final String BASE_PACKAGE = "com.raizlabs.android.dbflow";
     public static final String FLOW_MANAGER_PACKAGE = BASE_PACKAGE + ".config";
     public static final String DATABASE_HOLDER_STATIC_CLASS_NAME = "GeneratedDatabaseHolder";
-    public static final String BASE_DATABASE_DEFINITION_CLASSNAME = "BaseDatabaseDefinition";
     public static final String CONVERTER = BASE_PACKAGE + ".converter";
     public static final String STRUCTURE = BASE_PACKAGE + ".structure";
     public static final String CONTAINER = STRUCTURE + ".container";
@@ -28,6 +26,9 @@ public class ClassNames {
     public static final String PROCESS = TRANSACTION + ".process";
 
     public static final ClassName DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder");
+    public static final ClassName FLOW_SQLITE_OPEN_HELPER = ClassName.get(CONFIG, "FlowSQLiteOpenHelper");
+    public static final ClassName FLOW_MANAGER = ClassName.get(CONFIG, "FlowManager");
+    public static final ClassName BASE_DATABASE_DEFINITION_CLASSNAME = ClassName.get(CONFIG, "BaseDatabaseDefinition");
 
     public static final ClassName SQLITE_STATEMENT = ClassName.get("android.database.sqlite", "SQLiteStatement");
     public static final ClassName URI = ClassName.get("android.net", "Uri");
@@ -46,14 +47,12 @@ public class ClassNames {
 
 
     public static final ClassName SELECT = ClassName.get(LANGUAGE, "Select");
-    public static final ClassName FLOW_MANAGER = ClassName.get(CONFIG, "FlowManager");
     public static final ClassName SQL_UTILS = ClassName.get(SQL, "SqlUtils");
     public static final ClassName TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter");
     public static final ClassName MODEL_CONTAINER_UTILS = ClassName.get(CONTAINER, "ModelContainerUtils");
     public static final ClassName PROCESS_MODEL_INFO = ClassName.get(PROCESS, "ProcessModelInfo");
 
     public static final ClassName FLOW_MANAGER_STATIC_INTERFACE = ClassName.get(FLOW_MANAGER_PACKAGE, "DatabaseHolder");
-
 
     public static final ClassName MIGRATION = ClassName.get(MIGRATION_PACKAGE, "Migration");
 
