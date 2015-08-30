@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -12,9 +13,11 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class TriggerTest extends FlowTestCase {
 
 
@@ -64,3 +67,4 @@ public class TriggerTest extends FlowTestCase {
     }
 
 }
+*/

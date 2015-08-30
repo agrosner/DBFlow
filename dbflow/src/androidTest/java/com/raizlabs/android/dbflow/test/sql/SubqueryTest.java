@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -6,9 +7,11 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 import static com.raizlabs.android.dbflow.sql.language.Condition.columnRaw;
 
+*/
 /**
  * Description: Validates subquery formatting
- */
+ *//*
+
 public class SubqueryTest extends FlowTestCase {
 
 
@@ -39,3 +42,4 @@ public class SubqueryTest extends FlowTestCase {
                 query.trim());
     }
 }
+*/

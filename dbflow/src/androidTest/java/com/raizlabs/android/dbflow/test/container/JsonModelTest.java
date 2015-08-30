@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.container.JSONArrayModel;
 import com.raizlabs.android.dbflow.structure.container.JSONModel;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
-import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -110,7 +109,7 @@ public class JsonModelTest extends FlowTestCase {
             assertTrue(firstModel.name.equals("testModel"));
 
             JSONModel<ParentModel> firstJsonModel = jsonArrayModel.getJsonModel(0);
-            assertTrue(firstJsonModel.getValue(TestModel1$Table.NAME).equals("testModel"));
+            assertTrue(firstJsonModel.getValue(TestModel1_Table.name).equals("testModel"));
 
             Delete.tables(ParentModel.class);
 

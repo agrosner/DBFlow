@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.sql.language.From;
@@ -12,9 +13,11 @@ import java.util.List;
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 import static com.raizlabs.android.dbflow.sql.language.OrderBy.columns;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class SelectTest extends FlowTestCase {
 
     public void testSelectStatement() {
@@ -83,3 +86,4 @@ public class SelectTest extends FlowTestCase {
     }
 
 }
+*/

@@ -22,8 +22,7 @@ public class BlobModelTest extends FlowTestCase {
         assertTrue(blobModel.exists());
 
         BlobModel model = new Select().from(BlobModel.class)
-                .where(column(BlobModel$Table.KEY)
-                               .is(blobModel.key))
+                .where(BlobModel_Table.key.is(blobModel.key))
                 .querySingle();
 
         assertNotNull(model);

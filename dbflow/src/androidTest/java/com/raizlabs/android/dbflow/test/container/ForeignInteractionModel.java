@@ -41,8 +41,8 @@ public class ForeignInteractionModel extends TestModel1 {
     public void setTestModel1(ParentModel model1) {
         testModel1 = new ForeignKeyContainer<>(ParentModel.class);
         Map<String, Object> map = new HashMap<>();
-        map.put(ParentModel$Table.NAME, model1.name);
-        map.put(ParentModel$Table.TYPE, model1.type);
+        map.put(ParentModel_Table.NAME, model1.name);
+        map.put(ParentModel_Table.TYPE, model1.type);
         testModel1.setData(map);
     }
 }

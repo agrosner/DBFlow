@@ -40,7 +40,7 @@ public class Queen extends BaseModel {
         if (ants == null) {
             ants = new Select()
                     .from(Ant.class)
-                    .where(column(Ant$Table.QUEENFOREIGNKEYCONTAINER_QUEEN_ID).eq(id))
+                    .where(column(Ant_Table.containerQueenId).eq(id))
                     .queryList();
         }
         return ants;

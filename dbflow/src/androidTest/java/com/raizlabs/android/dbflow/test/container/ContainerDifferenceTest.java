@@ -22,7 +22,7 @@ public class ContainerDifferenceTest extends FlowTestCase {
         autoIncrementContainer.save();
 
         autoIncrementContainer = new Select().from(AIContainerForeign.class).where(
-                column(AIContainerForeign$Table.ID).is(autoIncrementContainer.id)).querySingle();
+                column(AIContainerForeign_Table.id).is(autoIncrementContainer.id)).querySingle();
         assertNull(autoIncrementContainer.foreignModel);
         assertNull(autoIncrementContainer.container);
 

@@ -29,8 +29,8 @@ public class AIContainerForeign extends AutoIncrementContainer {
 
     public void setContainer(AutoIncrementContainer autoIncrementContainer) {
         container = new ForeignKeyContainer<>(AutoIncrementContainer.class);
-        container.put(AutoIncrementContainer$Table.A_ID, autoIncrementContainer.a_id);
-        container.put(AutoIncrementContainer$Table.NAME, autoIncrementContainer.name);
-        container.put(AutoIncrementContainer$Table.ID, autoIncrementContainer.id);
+        container.put(AutoIncrementContainer_Table.A_ID, autoIncrementContainer.a_id);
+        container.put(AutoIncrementContainer_Table.NAME, autoIncrementContainer.name);
+        container.put(AutoIncrementContainer_Table.ID, autoIncrementContainer.id);
     }
 }

@@ -34,7 +34,7 @@ public class ForeignKeyModelTest extends FlowTestCase {
 
 
         foreignInteractionModel = new Select().from(ForeignInteractionModel.class)
-                .where(column(ForeignInteractionModel$Table.NAME).is("Test2")).querySingle();
+                .where(column(ForeignInteractionModel_Table.name).is("Test2")).querySingle();
         assertNotNull(foreignInteractionModel);
         assertNotNull(foreignInteractionModel.testModel1);
         TestModel1 testModel11 = foreignInteractionModel.getTestModel1();

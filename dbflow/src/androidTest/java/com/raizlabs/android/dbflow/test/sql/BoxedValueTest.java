@@ -58,7 +58,7 @@ public class BoxedValueTest extends FlowTestCase {
     private void loadModel() {
         testObject = new Select()
                 .from(BoxedModel.class)
-                .where(column(BoxedModel$Table.ID).eq(testObject.id))
+                .where(BoxedModel_Table.id.eq(testObject.id))
                 .querySingle();
     }
 
