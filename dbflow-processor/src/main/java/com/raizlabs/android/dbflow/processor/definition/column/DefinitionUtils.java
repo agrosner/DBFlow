@@ -15,8 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DefinitionUtils {
 
-    public static CodeBlock.Builder getContentValuesStatement(String elementName, BaseColumnAccess columnAccess, String columnName, TypeName elementTypeName) {
-        String statement = columnAccess.getColumnAccessString(BindToContentValuesMethod.PARAM_MODEL, elementName);
+    public static CodeBlock.Builder getContentValuesStatement(String elementName, BaseColumnAccess columnAccess, String columnName, TypeName elementTypeName, boolean isModelContainerAdapter) {
+        String statement = columnAccess.getColumnAccessString(BindToContentValuesMethod.PARAM_MODEL, elementName, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -43,8 +43,8 @@ public class DefinitionUtils {
         return codeBuilder;
     }
 
-    public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName, BaseColumnAccess columnAccess, TypeName elementTypeName) {
-        String statement = columnAccess.getColumnAccessString(BindToStatementMethod.PARAM_MODEL, elementName);
+    public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName, BaseColumnAccess columnAccess, TypeName elementTypeName, boolean isModelContainerAdapter) {
+        String statement = columnAccess.getColumnAccessString(BindToStatementMethod.PARAM_MODEL, elementName, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -61,7 +61,7 @@ public class DefinitionUtils {
         }
         codeBuilder.addStatement("$L.bind$L($L, $L)",
                 BindToStatementMethod.PARAM_STATEMENT,
-                columnAccess.getSqliteTypeForTypeName(elementTypeName).getSQLiteStatementMethod(),
+                columnAccess.getSqliteTypeForTypeName(elementTypeName, isModelContainerAdapter).getSQLiteStatementMethod(),
                 index.intValue(), finalAccessStatement);
         if (!elementTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else")
@@ -73,7 +73,7 @@ public class DefinitionUtils {
     }
 
     public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, BaseColumnAccess columnAccess,
-                                                            TypeName elementTypeName, String columnName) {
+                                                            TypeName elementTypeName, String columnName, boolean isModelContainerAdapter) {
         String method = "";
         if (SQLiteType.containsMethod(elementTypeName)) {
             method = SQLiteType.getMethod(elementTypeName);
@@ -87,7 +87,7 @@ public class DefinitionUtils {
         codeBuilder.beginControlFlow("if ($L != -1 && !$L.isNull($L))", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
         codeBuilder.addStatement(columnAccess.setColumnAccessString(LoadFromCursorMethod.PARAM_MODEL, elementName,
-                CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build().toString()));
+                CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build().toString(), isModelContainerAdapter));
 
         codeBuilder.endControlFlow();
 

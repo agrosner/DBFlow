@@ -5,11 +5,16 @@ package com.raizlabs.android.dbflow.processor.definition.column;
  */
 abstract class WrapperColumnAccess extends BaseColumnAccess {
 
-    protected BaseColumnAccess existingColumnAccess;
     protected ColumnDefinition columnDefinition;
+    protected BaseColumnAccess existingColumnAccess;
 
     public WrapperColumnAccess(ColumnDefinition columnDefinition) {
-        existingColumnAccess = columnDefinition.columnAccess;
+        this.existingColumnAccess = columnDefinition.columnAccess;
         this.columnDefinition = columnDefinition;
     }
+
+    protected BaseColumnAccess getExistingColumnAccess() {
+        return existingColumnAccess;
+    }
+
 }

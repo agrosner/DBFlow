@@ -133,11 +133,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     @Override
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        builder.beginControlFlow("if ($L != null)", getColumnAccess(isModelContainerAdapter)
-                .getColumnAccessString(BindToContentValuesMethod.PARAM_MODEL, elementName));
+        builder.beginControlFlow("if ($L != null)", columnAccess
+                .getColumnAccessString(BindToContentValuesMethod.PARAM_MODEL, elementName, isModelContainerAdapter));
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
-            builder.add(referenceDefinition.getContentValuesStatement());
+            builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter));
             elseBuilder.addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, referenceDefinition.columnName);
         }
         builder.nextControlFlow("else")
@@ -149,11 +149,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     @Override
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        builder.beginControlFlow("if ($L != null)", getColumnAccess(isModelContainerAdapter)
-                .getColumnAccessString(BindToStatementMethod.PARAM_MODEL, elementName));
+        builder.beginControlFlow("if ($L != null)", columnAccess
+                .getColumnAccessString(BindToStatementMethod.PARAM_MODEL, elementName, isModelContainerAdapter));
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
-            builder.add(referenceDefinition.getSQLiteStatementMethod(index));
+            builder.add(referenceDefinition.getSQLiteStatementMethod(index, isModelContainerAdapter));
             elseBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue());
             index.incrementAndGet();
         }
@@ -183,17 +183,17 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             selectBuilder.add("\n.and($L.$L.eq($L.$L))",
                     ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
                     referenceDefinition.foreignColumnName, LoadFromCursorMethod.PARAM_MODEL,
-                    getColumnAccess(isModelContainerAdapter).getShortAccessString(elementName) + "." +
-                            referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.foreignColumnName));
+                    columnAccess.getShortAccessString(elementName, isModelContainerAdapter) + "." +
+                            referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.foreignColumnName, isModelContainerAdapter));
         }
         ifNullBuilder.add(")");
         builder.beginControlFlow(ifNullBuilder.build().toString());
-        builder.addStatement(getColumnAccess(isModelContainerAdapter).setColumnAccessString(LoadFromCursorMethod.PARAM_MODEL, elementName,
+        builder.addStatement(columnAccess.setColumnAccessString(LoadFromCursorMethod.PARAM_MODEL, elementName,
                 CodeBlock.builder()
                         .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build())
                         .add(".querySingle()")
-                        .build().toString()));
+                        .build().toString(), isModelContainerAdapter));
         builder.endControlFlow();
         return builder.build();
     }

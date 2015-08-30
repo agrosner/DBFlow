@@ -13,24 +13,27 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName) {
+    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
         return CodeBlock.builder()
-                .add("$L.getBlob()", existingColumnAccess.getColumnAccessString(variableNameString, elementName))
+                .add("$L.getBlob()", getExistingColumnAccess()
+                        .getColumnAccessString(variableNameString, elementName, isModelContainerAdapter))
                 .build().toString();
     }
 
     @Override
-    String getShortAccessString(String elementName) {
+    String getShortAccessString(String elementName, boolean isModelContainerAdapter) {
         return CodeBlock.builder()
-                .add("$L.getBlob()", existingColumnAccess.getShortAccessString(elementName))
+                .add("$L.getBlob()", getExistingColumnAccess()
+                        .getShortAccessString(elementName, isModelContainerAdapter))
                 .build().toString();
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
+    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
         String newFormattedAccess = CodeBlock.builder()
                 .add("$L.setBlob($L)", variableNameString, formattedAccess)
                 .build().toString();
-        return existingColumnAccess.setColumnAccessString(variableNameString, elementName, newFormattedAccess);
+        return getExistingColumnAccess()
+                .setColumnAccessString(variableNameString, elementName, newFormattedAccess, isModelContainerAdapter);
     }
 }

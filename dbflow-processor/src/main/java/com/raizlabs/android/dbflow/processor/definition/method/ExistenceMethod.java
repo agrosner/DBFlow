@@ -37,7 +37,8 @@ public class ExistenceMethod implements MethodDefinition {
                 .returns(TypeName.BOOLEAN);
         if (tableDefinition.hasAutoIncrement()) {
             ColumnDefinition columnDefinition = tableDefinition.getPrimaryColumnDefinitions().get(0);
-            methodBuilder.addStatement("return (($T) $L).longValue() > 0", ClassName.get(Number.class), columnDefinition.getColumnAccessString());
+            methodBuilder.addStatement("return (($T) $L).longValue() > 0", ClassName.get(Number.class),
+                    columnDefinition.getColumnAccessString(isModelContainerAdapter));
         } else {
             CodeBlock.Builder selectBuilder = CodeBlock.builder();
             java.util.List<ColumnDefinition> primaryDefinitionList = tableDefinition.getPrimaryColumnDefinitions();

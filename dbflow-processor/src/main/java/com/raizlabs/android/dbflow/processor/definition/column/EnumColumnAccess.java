@@ -12,24 +12,27 @@ public class EnumColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName) {
+    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
         return CodeBlock.builder()
-                .add("$L.name()", existingColumnAccess.getColumnAccessString(variableNameString, elementName))
+                .add("$L.name()", getExistingColumnAccess()
+                        .getColumnAccessString(variableNameString, elementName, isModelContainerAdapter))
                 .build().toString();
     }
 
     @Override
-    String getShortAccessString(String elementName) {
+    String getShortAccessString(String elementName, boolean isModelContainerAdapter) {
         return CodeBlock.builder()
-                .add("$L.name()", existingColumnAccess.getShortAccessString(elementName))
+                .add("$L.name()", getExistingColumnAccess()
+                        .getShortAccessString(elementName, isModelContainerAdapter))
                 .build().toString();
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
+    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
         String newFormattedAccess = CodeBlock.builder()
                 .add("$T.valueOf($L)", columnDefinition.elementClassName, formattedAccess)
                 .build().toString();
-        return existingColumnAccess.setColumnAccessString(variableNameString, elementName, newFormattedAccess);
+        return getExistingColumnAccess()
+                .setColumnAccessString(variableNameString, elementName, newFormattedAccess, isModelContainerAdapter);
     }
 }

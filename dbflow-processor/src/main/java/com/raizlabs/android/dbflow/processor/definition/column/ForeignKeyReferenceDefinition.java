@@ -57,25 +57,28 @@ public class ForeignKeyReferenceDefinition {
         return DefinitionUtils.getCreationStatement(columnClassName, null, columnName).build();
     }
 
-    CodeBlock getContentValuesStatement() {
+    CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         return DefinitionUtils.getContentValuesStatement(
-                tableColumnAccess.getShortAccessString(foreignKeyFieldName) + "." + columnAccess.getShortAccessString(foreignColumnName),
+                tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter)
+                        + "." + columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
                 simpleColumnAccess,
-                columnName, columnClassName).build();
+                columnName, columnClassName, isModelContainerAdapter).build();
     }
 
-    CodeBlock getSQLiteStatementMethod(AtomicInteger index) {
+    CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         return DefinitionUtils.getSQLiteStatementMethod(
                 index,
-                tableColumnAccess.getShortAccessString(foreignKeyFieldName) + "." + columnAccess.getShortAccessString(foreignColumnName),
+                tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter)
+                        + "." + columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
                 simpleColumnAccess,
-                columnClassName).build();
+                columnClassName, isModelContainerAdapter).build();
     }
 
-    CodeBlock getLoadFromCursorMethod() {
+    CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
         return DefinitionUtils.getLoadFromCursorMethod(
-                tableColumnAccess.getShortAccessString(foreignKeyFieldName) + "." + columnAccess.getShortAccessString(foreignColumnName),
+                tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter)
+                        + "." + columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
                 simpleColumnAccess,
-                columnClassName, columnName).build();
+                columnClassName, columnName, isModelContainerAdapter).build();
     }
 }

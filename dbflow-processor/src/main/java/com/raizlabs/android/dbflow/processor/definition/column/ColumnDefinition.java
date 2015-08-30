@@ -167,35 +167,31 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getContentValuesStatement(elementName, getColumnAccess(isModelContainerAdapter)
-                , columnName, elementTypeName).build();
+        return DefinitionUtils.getContentValuesStatement(elementName, columnAccess,
+                columnName, elementTypeName, isModelContainerAdapter).build();
     }
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
-        return DefinitionUtils.getSQLiteStatementMethod(index, elementName,
-                getColumnAccess(isModelContainerAdapter), elementTypeName).build();
+        return DefinitionUtils.getSQLiteStatementMethod(index, elementName, columnAccess,
+                elementTypeName, isModelContainerAdapter).build();
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getLoadFromCursorMethod(elementName, getColumnAccess(isModelContainerAdapter),
-                elementTypeName, columnName).build();
+        return DefinitionUtils.getLoadFromCursorMethod(elementName, columnAccess,
+                elementTypeName, columnName, isModelContainerAdapter).build();
     }
 
-    public CodeBlock getToModelMethod(boolean isModelContainerDefinition) {
+    public CodeBlock getToModelMethod(boolean isModelContainerAdapter) {
         // TODO: get this working.
         return CodeBlock.builder().build();
     }
 
-    public String getColumnAccessString() {
-        return columnAccess.getColumnAccessString(ExistenceMethod.PARAM_MODEL, elementName);
+    public String getColumnAccessString(boolean isModelContainerAdapter) {
+        return columnAccess.getColumnAccessString(ExistenceMethod.PARAM_MODEL, elementName, isModelContainerAdapter);
     }
 
     public String getReferenceColumnName(ForeignKeyReference reference) {
         return (columnName + "_" + reference.columnName()).toUpperCase();
-    }
-
-    public BaseColumnAccess getColumnAccess(boolean isModelContainerAdapter) {
-        return columnAccess;
     }
 
     public CodeBlock getCreationName() {

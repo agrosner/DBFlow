@@ -25,33 +25,35 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName) {
+    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
         return CodeBlock.builder()
                 .add("($T) $T.$L($T.class).getDBValue($L)",
                         typeConverterDefinition.getDbTypeName(),
                         ClassNames.FLOW_MANAGER,
                         METHOD_TYPE_CONVERTER,
                         columnDefinition.elementTypeName.box(),
-                        existingColumnAccess.getColumnAccessString(variableNameString, elementName))
+                        getExistingColumnAccess()
+                                .getColumnAccessString(variableNameString, elementName, isModelContainerAdapter))
                 .build()
                 .toString();
     }
 
     @Override
-    String getShortAccessString(String elementName) {
+    String getShortAccessString(String elementName, boolean isModelContainerAdapter) {
         return CodeBlock.builder()
                 .add("($T) $T.$L($T.class).getDBValue($L)",
                         typeConverterDefinition.getDbTypeName(),
                         ClassNames.FLOW_MANAGER,
                         METHOD_TYPE_CONVERTER,
                         columnDefinition.elementTypeName.box(),
-                        existingColumnAccess.getShortAccessString(elementName))
+                        getExistingColumnAccess()
+                                .getShortAccessString(elementName, isModelContainerAdapter))
                 .build()
                 .toString();
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
+    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
         String newFormattedAccess = CodeBlock.builder()
                 .add("($T) $T.$L($T.class).getModelValue(($T) $L)",
                         typeConverterDefinition.getModelTypeName(),
@@ -60,16 +62,17 @@ public class TypeConverterAccess extends WrapperColumnAccess {
                         columnDefinition.elementTypeName.box(),
                         typeConverterDefinition.getDbTypeName(),
                         formattedAccess).build().toString();
-        return existingColumnAccess.setColumnAccessString(variableNameString, elementName, newFormattedAccess);
+        return getExistingColumnAccess()
+                .setColumnAccessString(variableNameString, elementName, newFormattedAccess, isModelContainerAdapter);
     }
 
     @Override
-    SQLiteType getSqliteTypeForTypeName(TypeName elementTypeName) {
+    SQLiteType getSqliteTypeForTypeName(TypeName elementTypeName, boolean isModelContainerAdapter) {
         if (typeConverterDefinition == null) {
             manager.logError(TypeConverterAccess.class, "No type converter definition found for %1s. Please register it via annotations.", elementTypeName);
             throw new RuntimeException("");
         }
 
-        return super.getSqliteTypeForTypeName(typeConverterDefinition.getDbTypeName());
+        return super.getSqliteTypeForTypeName(typeConverterDefinition.getDbTypeName(), isModelContainerAdapter);
     }
 }

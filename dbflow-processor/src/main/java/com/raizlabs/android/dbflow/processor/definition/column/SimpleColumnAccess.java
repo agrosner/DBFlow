@@ -6,17 +6,17 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 public class SimpleColumnAccess extends BaseColumnAccess {
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName) {
+    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
         return variableNameString + "." + elementName;
     }
 
     @Override
-    String getShortAccessString(String elementName) {
+    String getShortAccessString(String elementName, boolean isModelContainerAdapter) {
         return elementName;
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
-        return getColumnAccessString(variableNameString, elementName) + " = " + formattedAccess;
+    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
+        return getColumnAccessString(variableNameString, elementName, isModelContainerAdapter) + " = " + formattedAccess;
     }
 }
