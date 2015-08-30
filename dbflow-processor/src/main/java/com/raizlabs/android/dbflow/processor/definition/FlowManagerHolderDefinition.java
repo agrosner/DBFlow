@@ -1,9 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
-import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
-import com.raizlabs.android.dbflow.processor.definition.TypeDefinition;
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.MethodSpec;
@@ -12,7 +10,7 @@ import com.squareup.javapoet.TypeSpec;
 import javax.lang.model.element.Modifier;
 
 /**
- * Description: Top-level writer that handles writing all {@link DatabaseMethod}
+ * Description: Top-level writer that handles writing all {@link DatabaseDefinition}
  * and {@link com.raizlabs.android.dbflow.annotation.TypeConverter}
  */
 public class FlowManagerHolderDefinition implements TypeDefinition {
@@ -30,8 +28,8 @@ public class FlowManagerHolderDefinition implements TypeDefinition {
 
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC);
-        for (DatabaseMethod databaseMethod : processorManager.getManagerWriters()) {
-            constructor.addStatement("new $T(this)", databaseMethod.elementClassName);
+        for (DatabaseDefinition databaseDefinition : processorManager.getDatabaseDefinitionMap()) {
+            constructor.addStatement("new $T(this)", databaseDefinition.elementClassName);
         }
         for (TypeConverterDefinition typeConverterDefinition : processorManager.getTypeConverters()) {
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,

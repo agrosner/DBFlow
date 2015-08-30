@@ -100,24 +100,24 @@ public class TableDefinition extends BaseTableDefinition {
         this.tableName = table.tableName();
         databaseName = table.databaseName();
 
-        databaseMethod = manager.getDatabaseWriter(databaseName);
-        if (databaseMethod == null) {
+        databaseDefinition = manager.getDatabaseWriter(databaseName);
+        if (databaseDefinition == null) {
             manager.logError("Databasewriter was null for : " + tableName);
         }
 
-        setOutputClassName(databaseMethod.classSeparator + DBFLOW_TABLE_TAG);
-        this.adapterName = getModelClassName() + databaseMethod.classSeparator + DBFLOW_TABLE_ADAPTER;
+        setOutputClassName(databaseDefinition.classSeparator + DBFLOW_TABLE_TAG);
+        this.adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
 
 
         // globular default
         ConflictAction insertConflict = table.insertConflict();
-        if (insertConflict.equals(ConflictAction.NONE) && !databaseMethod.insertConflict.equals(ConflictAction.NONE)) {
-            insertConflict = databaseMethod.insertConflict;
+        if (insertConflict.equals(ConflictAction.NONE) && !databaseDefinition.insertConflict.equals(ConflictAction.NONE)) {
+            insertConflict = databaseDefinition.insertConflict;
         }
 
         ConflictAction updateConflict = table.updateConflict();
-        if (updateConflict.equals(ConflictAction.NONE) && !databaseMethod.updateConflict.equals(ConflictAction.NONE)) {
-            updateConflict = databaseMethod.updateConflict;
+        if (updateConflict.equals(ConflictAction.NONE) && !databaseDefinition.updateConflict.equals(ConflictAction.NONE)) {
+            updateConflict = databaseDefinition.updateConflict;
         }
 
         insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""

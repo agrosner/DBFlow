@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.ClassNames;
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.provider.DeleteMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.provider.InsertMethod;
@@ -51,8 +51,8 @@ public class ContentProviderDefinition extends BaseDefinition {
 
         ContentProvider provider = element.getAnnotation(ContentProvider.class);
         databaseName = provider.databaseName();
-        DatabaseMethod databaseMethod = manager.getDatabaseWriter(databaseName);
-        setOutputClassName(databaseMethod.classSeparator + DEFINITION_NAME);
+        DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseName);
+        setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
 
         authority = provider.authority();
 

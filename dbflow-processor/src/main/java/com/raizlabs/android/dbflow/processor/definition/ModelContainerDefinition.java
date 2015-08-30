@@ -38,7 +38,7 @@ public class ModelContainerDefinition extends BaseDefinition {
         super(classElement, manager);
         tableDefinition = manager.getTableDefinition(manager.getDatabase(elementTypeName), elementTypeName);
 
-        setOutputClassName(tableDefinition.databaseMethod.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
+        setOutputClassName(tableDefinition.databaseDefinition.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
         methods = new MethodDefinition[]{
                 new BindToContentValuesMethod(tableDefinition, true, true, tableDefinition.implementsContentValuesListener),
@@ -50,6 +50,11 @@ public class ModelContainerDefinition extends BaseDefinition {
                 new ToModelMethod(tableDefinition, true),
                 new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener)
         };
+
+    }
+
+    public String getDatabaseName() {
+        return tableDefinition.databaseName;
     }
 
     @Override
@@ -83,9 +88,7 @@ public class ModelContainerDefinition extends BaseDefinition {
                 .build());
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
-        InternalAdapterHelper.writeGetTableName(typeBuilder,
-                elementClassName + tableDefinition.databaseMethod.classSeparator +
-                        TableDefinition.DBFLOW_TABLE_TAG);
+        InternalAdapterHelper.writeGetTableName(typeBuilder, tableDefinition.tableName);
 
         for (MethodDefinition method : methods) {
             MethodSpec methodSpec = method.getMethodSpec();

@@ -51,9 +51,9 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
         QueryModel queryModel = typeElement.getAnnotation(QueryModel.class);
         databaseName = queryModel.databaseName();
-        databaseMethod = manager.getDatabaseWriter(databaseName);
+        databaseDefinition = manager.getDatabaseWriter(databaseName);
         allFields = queryModel.allFields();
-        adapterName = getModelClassName() + databaseMethod.classSeparator + DBFLOW_TABLE_ADAPTER;
+        adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
 
         processorManager.addModelToDatabase(elementClassName, databaseName);
 
@@ -61,7 +61,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
                 .implementsClass(manager.getProcessingEnvironment(), ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
                         (TypeElement) element);
 
-        setOutputClassName(databaseMethod.classSeparator + DBFLOW_QUERY_MODEL_TAG);
+        setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
 
         methods = new MethodDefinition[]{
                 new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener)

@@ -26,7 +26,6 @@ import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -61,10 +60,10 @@ public class ModelViewDefinition extends BaseTableDefinition {
         this.query = modelView.query();
         this.databaseName = modelView.databaseName();
 
-        databaseMethod = manager.getDatabaseWriter(databaseName);
-        this.viewTableName = getModelClassName() + databaseMethod.classSeparator + TABLE_VIEW_TAG;
+        databaseDefinition = manager.getDatabaseWriter(databaseName);
+        this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;
 
-        setOutputClassName(databaseMethod.classSeparator + DBFLOW_MODEL_VIEW_TAG);
+        setOutputClassName(databaseDefinition.classSeparator + DBFLOW_MODEL_VIEW_TAG);
 
         this.name = modelView.name();
         if (name == null || name.isEmpty()) {

@@ -39,10 +39,11 @@ public class ToModelMethod implements MethodDefinition {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER,
-                                tableDefinition.elementTypeName, WildcardTypeName.get(tableDefinition.manager
+                                tableDefinition.elementClassName, WildcardTypeName.get(tableDefinition.manager
                                         .getTypeUtils().getWildcardType(null, null))),
                         ModelUtils.getVariable(true))
-                .addCode(codeBuilder.build()).build();
+                .addCode(codeBuilder.build())
+                .returns(tableDefinition.elementClassName).build();
 
     }
 }

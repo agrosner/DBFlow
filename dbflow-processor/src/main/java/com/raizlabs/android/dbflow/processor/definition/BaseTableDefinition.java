@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.Element;
@@ -18,7 +18,7 @@ public abstract class BaseTableDefinition extends BaseDefinition {
     protected List<ColumnDefinition> columnDefinitions;
 
     private String modelClassName;
-    public DatabaseMethod databaseMethod;
+    public DatabaseDefinition databaseDefinition;
 
     public BaseTableDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
@@ -35,6 +35,10 @@ public abstract class BaseTableDefinition extends BaseDefinition {
     public abstract List<ColumnDefinition> getPrimaryColumnDefinitions();
 
     public abstract ClassName getPropertyClassName();
+
+    public ClassName getParameterClassName() {
+        return elementClassName;
+    }
 
     public boolean hasAutoIncrement() {
         return false;

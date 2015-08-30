@@ -22,6 +22,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -35,7 +36,7 @@ import javax.lang.model.type.TypeMirror;
  * which contain {@link com.raizlabs.android.dbflow.annotation.Table},
  * {@link com.raizlabs.android.dbflow.annotation.ModelView}, and {@link com.raizlabs.android.dbflow.annotation.Migration}
  */
-public class DatabaseMethod extends BaseDefinition implements TypeDefinition {
+public class DatabaseDefinition extends BaseDefinition implements TypeDefinition {
 
     public String databaseName;
 
@@ -55,7 +56,14 @@ public class DatabaseMethod extends BaseDefinition implements TypeDefinition {
 
     TypeName sqliteOpenHelperClass;
 
-    public DatabaseMethod(ProcessorManager manager, Element element) {
+    public Map<TypeName, TableDefinition> tableDefinitionMap = new HashMap<>();
+    public Map<String, TableDefinition> tableNameMap = new HashMap<>();
+
+    public Map<TypeName, QueryModelDefinition> queryModelDefinitionMap = new HashMap<>();
+    public Map<TypeName, ModelContainerDefinition> modelContainerDefinitionMap = new HashMap<>();
+    public Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
+
+    public DatabaseDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
         packageName = ClassNames.FLOW_MANAGER_PACKAGE;
 
