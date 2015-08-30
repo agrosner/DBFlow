@@ -22,9 +22,17 @@ public class DefinitionUtils {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
         String finalAccessStatement = statement;
-        if (columnAccess instanceof TypeConverterAccess) {
+        if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
             finalAccessStatement = "ref" + elementName;
-            codeBuilder.addStatement("$T $L = $L", ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName(),
+
+            TypeName typeName;
+            if (columnAccess instanceof TypeConverterAccess) {
+                typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+            } else {
+                typeName = elementTypeName;
+            }
+
+            codeBuilder.addStatement("$T $L = $L", typeName,
                     finalAccessStatement, statement);
         }
 
@@ -34,7 +42,7 @@ public class DefinitionUtils {
 
         codeBuilder.addStatement("$L.put($S, $L)",
                 BindToContentValuesMethod.PARAM_CONTENT_VALUES,
-                QueryBuilder.quote(columnName), statement);
+                QueryBuilder.quote(columnName), finalAccessStatement);
 
         if (!elementTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else")

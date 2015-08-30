@@ -24,6 +24,10 @@ public class SimpleColumnAccess extends BaseColumnAccess {
 
     @Override
     String setColumnAccessString(TypeName fieldType, String elementName, String formattedAccess, boolean isModelContainerAdapter, String variableNameString) {
-        return getColumnAccessString(fieldType, elementName, isModelContainerAdapter, variableNameString) + " = " + formattedAccess;
+        if (isModelContainerAdapter) {
+            return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
+        } else {
+            return getColumnAccessString(fieldType, elementName, isModelContainerAdapter, variableNameString) + " = " + formattedAccess;
+        }
     }
 }
