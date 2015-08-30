@@ -40,18 +40,18 @@ public class ModelContainerAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getShortAccessString(String elementName, boolean isModelContainerAdapter) {
+    String getShortAccessString(boolean isModelContainerAdapter, String elementName) {
         return CodeBlock.builder()
-                .add("$L.get($S)", existingColumnAccess.getShortAccessString(elementName, isModelContainerAdapter),
+                .add("$L.get($S)", existingColumnAccess.getShortAccessString(isModelContainerAdapter, elementName),
                         containerKeyName)
                 .build().toString();
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, String formattedAccess) {
-        String newFormattedAccess = CodeBlock.builder()
+    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+        CodeBlock newFormattedAccess = CodeBlock.builder()
                 .add("$L.put($S, $L)", variableNameString, containerKeyName, formattedAccess)
-                .build().toString();
+                .build();
         return existingColumnAccess.setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess);
     }
 }

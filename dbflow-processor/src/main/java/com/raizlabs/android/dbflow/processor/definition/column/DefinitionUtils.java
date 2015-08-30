@@ -110,7 +110,7 @@ public class DefinitionUtils {
         codeBuilder.beginControlFlow("if ($L != -1 && !$L.isNull($L))", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build().toString()));
+                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build()));
 
         codeBuilder.endControlFlow();
 

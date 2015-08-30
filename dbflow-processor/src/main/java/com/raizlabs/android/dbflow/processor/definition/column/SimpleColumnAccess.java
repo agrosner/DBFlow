@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.processor.SQLiteType;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
 /**
@@ -22,12 +23,12 @@ public class SimpleColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getShortAccessString(String elementName, boolean isModelContainerAdapter) {
+    String getShortAccessString(boolean isModelContainerAdapter, String elementName) {
         return elementName;
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, String formattedAccess) {
+    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {

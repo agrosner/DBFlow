@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -169,6 +170,31 @@ public class SqlUtils {
         }
 
         return model;
+    }
+
+    /**
+     * Takes first row from the cursor and returns a {@link ModelContainer} representation
+     * of it.
+     *
+     * @param dontMoveToFirst If it's a list or at a specific position, do not reset the cursor
+     * @param table           The model class that we convert the cursor data into.
+     * @param cursor          The cursor from the DB
+     * @param modelContainer  The non-null modelcontainer to populate data into.
+     * @param <ModelClass>    The class that implements {@link Model}
+     * @return A model transformed from the {@link Cursor}
+     */
+    @SuppressWarnings("unchecked")
+    public static <ModelClass extends Model> ModelContainer<ModelClass, ?>
+    convertToModelContainer(boolean dontMoveToFirst, @NonNull Class<ModelClass> table, @NonNull Cursor cursor,
+                            @NonNull ModelContainer<ModelClass, ?> modelContainer) {
+        if (dontMoveToFirst || cursor.moveToFirst()) {
+            ModelContainerAdapter modelAdapter = FlowManager.getContainerAdapter(table);
+            if (modelAdapter != null) {
+                modelAdapter.loadFromCursor(cursor, modelContainer);
+            }
+        }
+
+        return modelContainer;
     }
 
     /**

@@ -22,18 +22,18 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getShortAccessString(String elementName, boolean isModelContainerAdapter) {
+    String getShortAccessString(boolean isModelContainerAdapter, String elementName) {
         return CodeBlock.builder()
                 .add("$L.getBlob()", getExistingColumnAccess()
-                        .getShortAccessString(elementName, isModelContainerAdapter))
+                        .getShortAccessString(isModelContainerAdapter, elementName))
                 .build().toString();
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, String formattedAccess) {
-        String newFormattedAccess = CodeBlock.builder()
+    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+        CodeBlock newFormattedAccess = CodeBlock.builder()
                 .add("$L.setBlob($L)", variableNameString, formattedAccess)
-                .build().toString();
+                .build();
         return getExistingColumnAccess()
                 .setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess);
     }

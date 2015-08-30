@@ -63,16 +63,17 @@ public class ForeignKeyReferenceDefinition {
     }
 
     CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
-        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter);
-        String columnShortAccess = columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter);
+        String shortAccess = tableColumnAccess.getShortAccessString(isModelContainerAdapter, foreignKeyFieldName);
+        String columnShortAccess = columnAccess.getShortAccessString(isModelContainerAdapter, foreignColumnName);
+
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
                 columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter)).build();
     }
 
     CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
-        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter);
-        String columnShortAccess = columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter);
+        String shortAccess = tableColumnAccess.getShortAccessString(isModelContainerAdapter, foreignKeyFieldName);
+        String columnShortAccess = columnAccess.getShortAccessString(isModelContainerAdapter, foreignColumnName);
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getSQLiteStatementMethod(
                 index, columnShortAccess, combined,

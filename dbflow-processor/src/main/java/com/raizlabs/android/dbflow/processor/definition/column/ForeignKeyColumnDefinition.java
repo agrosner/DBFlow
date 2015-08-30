@@ -186,21 +186,30 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             }
             ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
+            String accessString = columnAccess.getShortAccessString(isModelContainerAdapter, elementName) + "." +
+                    referenceDefinition.columnAccess.getShortAccessString(
+                            isModelContainerAdapter, referenceDefinition.foreignColumnName);
             // TODO: respect separator here.
             selectBuilder.add("\n.and($L.$L.eq($L.$L))",
                     ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
                     referenceDefinition.foreignColumnName, ModelUtils.getVariable(isModelContainerAdapter),
-                    columnAccess.getShortAccessString(elementName, isModelContainerAdapter) + "." +
-                            referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.foreignColumnName, isModelContainerAdapter));
+                    accessString, isModelContainerAdapter);
         }
         ifNullBuilder.add(")");
         builder.beginControlFlow(ifNullBuilder.build().toString());
+
+        CodeBlock.Builder initializer = CodeBlock.builder()
+                .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
+                .add(selectBuilder.build());
+        if (!isModelContainerAdapter) {
+            initializer.add(".querySingle()");
+        } else {
+            initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
+                    ModelUtils.getVariable(true), referencedTableClassName);
+        }
+
         builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), CodeBlock.builder()
-                        .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
-                        .add(selectBuilder.build())
-                        .add(".querySingle()")
-                        .build().toString()));
+                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build()));
         builder.endControlFlow();
         return builder.build();
     }
