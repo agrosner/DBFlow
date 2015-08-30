@@ -1,14 +1,18 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Description: Used to write Models and ModelViews
@@ -36,8 +40,10 @@ public abstract class BaseTableDefinition extends BaseDefinition {
 
     public abstract ClassName getPropertyClassName();
 
-    public ClassName getParameterClassName() {
-        return elementClassName;
+    public TypeName getParameterClassName(boolean isModelContainerAdapter) {
+        return isModelContainerAdapter ? ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER,
+                elementClassName, TypeName.get(manager.getTypeUtils().getWildcardType(null, null)))
+                : elementClassName;
     }
 
     public boolean hasAutoIncrement() {

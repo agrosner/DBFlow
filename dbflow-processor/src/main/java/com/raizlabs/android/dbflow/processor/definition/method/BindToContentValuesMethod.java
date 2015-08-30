@@ -37,7 +37,8 @@ public class BindToContentValuesMethod implements MethodDefinition {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
-                .addParameter(baseTableDefinition.elementClassName, PARAM_MODEL)
+                .addParameter(baseTableDefinition.getParameterClassName(isModelContainerAdapter),
+                        ModelUtils.getVariable(isModelContainerAdapter))
                 .returns(TypeName.VOID);
 
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();

@@ -131,9 +131,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public CodeBlock getContentValuesStatement() {
+    public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        builder.beginControlFlow("if ($L != null)", columnAccess.getColumnAccessString(BindToContentValuesMethod.PARAM_MODEL, elementName));
+        builder.beginControlFlow("if ($L != null)", getColumnAccess(isModelContainerAdapter)
+                .getColumnAccessString(BindToContentValuesMethod.PARAM_MODEL, elementName));
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
             builder.add(referenceDefinition.getContentValuesStatement());
@@ -146,9 +147,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public CodeBlock getSQLiteStatementMethod(AtomicInteger index) {
+    public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        builder.beginControlFlow("if ($L != null)", columnAccess.getColumnAccessString(BindToStatementMethod.PARAM_MODEL, elementName));
+        builder.beginControlFlow("if ($L != null)", getColumnAccess(isModelContainerAdapter)
+                .getColumnAccessString(BindToStatementMethod.PARAM_MODEL, elementName));
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
             builder.add(referenceDefinition.getSQLiteStatementMethod(index));
@@ -162,7 +164,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public CodeBlock getLoadFromCursorMethod() {
+    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder()
                 .add("//// Only load model if references match, for efficiency\n");
         CodeBlock.Builder ifNullBuilder = CodeBlock.builder()
@@ -181,12 +183,12 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             selectBuilder.add("\n.and($L.$L.eq($L.$L))",
                     ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
                     referenceDefinition.foreignColumnName, LoadFromCursorMethod.PARAM_MODEL,
-                    columnAccess.getShortAccessString(elementName) + "." +
+                    getColumnAccess(isModelContainerAdapter).getShortAccessString(elementName) + "." +
                             referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.foreignColumnName));
         }
         ifNullBuilder.add(")");
         builder.beginControlFlow(ifNullBuilder.build().toString());
-        builder.addStatement(columnAccess.setColumnAccessString(LoadFromCursorMethod.PARAM_MODEL, elementName,
+        builder.addStatement(getColumnAccess(isModelContainerAdapter).setColumnAccessString(LoadFromCursorMethod.PARAM_MODEL, elementName,
                 CodeBlock.builder()
                         .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build())

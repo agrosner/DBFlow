@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
@@ -30,7 +31,8 @@ public class ExistenceMethod implements MethodDefinition {
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("exists")
                 .addAnnotation(Override.class)
-                .addParameter(tableDefinition.elementClassName, PARAM_MODEL)
+                .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
+                        ModelUtils.getVariable(isModelContainerAdapter))
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .returns(TypeName.BOOLEAN);
         if (tableDefinition.hasAutoIncrement()) {

@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnD
 import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
-import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionClause;
+import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionMethod;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.ClassName;
@@ -97,7 +97,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
         methods = new MethodDefinition[]{
                 new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener),
                 new ExistenceMethod(this, false),
-                new PrimaryConditionClause(this, false)
+                new PrimaryConditionMethod(this, false)
         };
     }
 

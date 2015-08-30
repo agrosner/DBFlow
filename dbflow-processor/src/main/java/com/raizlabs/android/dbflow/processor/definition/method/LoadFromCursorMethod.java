@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
@@ -65,7 +66,8 @@ public class LoadFromCursorMethod implements MethodDefinition {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ClassNames.CURSOR, PARAM_CURSOR)
-                .addParameter(baseTableDefinition.elementClassName, PARAM_MODEL)
+                .addParameter(baseTableDefinition.getParameterClassName(isModelContainerAdapter),
+                        ModelUtils.getVariable(isModelContainerAdapter))
                 .returns(TypeName.VOID);
 
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();

@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMe
 import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
-import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionClause;
+import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.ToModelMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.ClassName;
@@ -46,7 +46,7 @@ public class ModelContainerDefinition extends BaseDefinition {
                 new BindToStatementMethod(tableDefinition, true, true),
                 new BindToStatementMethod(tableDefinition, false, true),
                 new ExistenceMethod(tableDefinition, true),
-                new PrimaryConditionClause(tableDefinition, true),
+                new PrimaryConditionMethod(tableDefinition, true),
                 new ToModelMethod(tableDefinition, true),
                 new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener)
         };

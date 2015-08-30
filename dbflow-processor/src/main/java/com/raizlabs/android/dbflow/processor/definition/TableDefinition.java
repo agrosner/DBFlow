@@ -21,7 +21,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMet
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.OneToManyDeleteMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.OneToManySaveMethod;
-import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionClause;
+import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
@@ -181,7 +181,7 @@ public class TableDefinition extends BaseTableDefinition {
                 new CreationQueryMethod(this),
                 new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener),
                 new ExistenceMethod(this, false),
-                new PrimaryConditionClause(this, false),
+                new PrimaryConditionMethod(this, false),
                 new OneToManyDeleteMethod(this, false),
                 new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE),
                 new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT),
