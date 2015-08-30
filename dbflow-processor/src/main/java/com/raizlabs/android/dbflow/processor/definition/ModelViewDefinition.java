@@ -138,12 +138,12 @@ public class ModelViewDefinition extends BaseTableDefinition {
                 .addField(FieldSpec.builder(ClassName.get(String.class), "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                         .initializer("$S", name).build());
 
-        JavaFile file = JavaFile.builder(packageName, typeBuilder.build()).build();
-        file.writeTo(manager.getProcessingEnvironment().getFiler());
-
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.addPropertyDefinition(typeBuilder);
         }
+
+        JavaFile file = JavaFile.builder(packageName, typeBuilder.build()).build();
+        file.writeTo(manager.getProcessingEnvironment().getFiler());
     }
 
     @Override
@@ -170,6 +170,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
         typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
                 .addAnnotation(Override.class)
                 .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return new $T()", elementClassName).build());
+                .addStatement("return new $T()", elementClassName)
+                .returns(elementClassName).build());
     }
 }
