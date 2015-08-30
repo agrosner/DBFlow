@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.typeconverter;
 
 import android.location.Location;
@@ -15,9 +16,11 @@ import java.util.Date;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class TypeConverterTest extends FlowTestCase {
 
     public void testConverters() {
@@ -80,9 +83,11 @@ public class TypeConverterTest extends FlowTestCase {
 
     }
 
-    /**
+    */
+/**
      * Nullable database columns need to be allowed to receive null values.
-     */
+     *//*
+
     public void testConvertersNullValues() {
         new Delete().from(TestType.class).where().query();
 
@@ -104,10 +109,12 @@ public class TypeConverterTest extends FlowTestCase {
         assertNull(retrieved.location);
     }
 
-    /**
+    */
+/**
      * Type converters that autobox to native types need to have their behavior checked
      * when null values are present in the database.
-     */
+     *//*
+
     public void testConvertersNullDatabaseConversionValues() {
         new Delete().from(TestType.class).where().query();
 
@@ -115,11 +122,13 @@ public class TypeConverterTest extends FlowTestCase {
         testType.name = "Name";
         testType.save();
 
-        /*
+        */
+/*
          * NOTE: We don't want to engage the type converter here since we are attempting to test
          * the read behavior of pre-existing null database values and not the write behavior of
          * the type converter.
-         */
+         *//*
+
         new Update<>(TestType.class)
                 .set(TestType$Table.NATIVEBOOLEAN + " = null")
                 .where(column(TestType$Table.NAME).eq(testType.name))
@@ -134,3 +143,4 @@ public class TypeConverterTest extends FlowTestCase {
     }
 
 }
+*/

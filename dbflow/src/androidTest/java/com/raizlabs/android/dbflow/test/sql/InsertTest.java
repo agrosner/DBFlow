@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -9,9 +10,11 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class InsertTest extends FlowTestCase {
 
 
@@ -42,3 +45,4 @@ public class InsertTest extends FlowTestCase {
         assertNotNull(model);
     }
 }
+*/

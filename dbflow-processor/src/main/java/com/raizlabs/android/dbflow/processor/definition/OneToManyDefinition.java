@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 
 /**
  * Description: Represents the {@link OneToMany} annotation.
@@ -25,7 +26,7 @@ public class OneToManyDefinition extends BaseDefinition {
 
     public List<OneToMany.Method> methods = Lists.newArrayList();
 
-    public OneToManyDefinition(Element typeElement,
+    public OneToManyDefinition(ExecutableElement typeElement,
                                ProcessorManager processorManager) {
         super(typeElement, processorManager);
 
@@ -75,8 +76,8 @@ public class OneToManyDefinition extends BaseDefinition {
      */
     public void writeDelete(CodeBlock.Builder codeBuilder) {
         if (isDelete()) {
-            codeBuilder.addStatement("new $T($T.withModels($L)).onExecute()",
-                    ParameterizedTypeName.get(ClassNames.DELETE_MODEL_LIST_TRANSACTION),
+            codeBuilder.addStatement("new $T<>($T.withModels($L)).onExecute()",
+                    ClassNames.DELETE_MODEL_LIST_TRANSACTION,
                     ClassNames.PROCESS_MODEL_INFO, getMethodName());
 
             codeBuilder.addStatement("$L = null", getVariableName());
@@ -85,8 +86,8 @@ public class OneToManyDefinition extends BaseDefinition {
 
     public void writeSave(CodeBlock.Builder codeBuilder) {
         if (isSave()) {
-            codeBuilder.addStatement("new $T($T.withModels($L)).onExecute()",
-                    ParameterizedTypeName.get(ClassNames.SAVE_MODEL_LIST_TRANSACTION),
+            codeBuilder.addStatement("new $T<>($T.withModels($L)).onExecute()",
+                    ClassNames.SAVE_MODEL_LIST_TRANSACTION,
                     ClassNames.PROCESS_MODEL_INFO, getMethodName());
         }
     }

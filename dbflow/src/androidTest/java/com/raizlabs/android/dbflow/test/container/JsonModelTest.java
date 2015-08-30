@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -8,9 +9,11 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class JsonModelTest extends FlowTestCase {
 
     public void testJsonModel() {
@@ -134,3 +137,4 @@ public class JsonModelTest extends FlowTestCase {
     }
 
 }
+*/

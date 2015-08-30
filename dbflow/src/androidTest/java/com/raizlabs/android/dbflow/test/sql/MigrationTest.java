@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import android.database.Cursor;
@@ -16,9 +17,11 @@ import java.util.List;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class MigrationTest extends AndroidTestCase {
 
     @Override
@@ -112,3 +115,4 @@ public class MigrationTest extends AndroidTestCase {
         FlowManager.destroy();
     }
 }
+*/

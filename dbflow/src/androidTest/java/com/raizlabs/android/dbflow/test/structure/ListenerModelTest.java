@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.structure;
 
 import android.content.ContentValues;
@@ -15,9 +16,11 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class ListenerModelTest extends FlowTestCase {
 
     public void testListeners() {
@@ -30,6 +33,11 @@ public class ListenerModelTest extends FlowTestCase {
                 new SQLiteStatementListener() {
                     @Override
                     public void onBindToStatement(SQLiteStatement sqLiteStatement) {
+                        called[1] = true;
+                    }
+
+                    @Override
+                    public void onBindToInsertStatement(SQLiteStatement sqLiteStatement) {
                         called[1] = true;
                     }
                 },
@@ -68,3 +76,4 @@ public class ListenerModelTest extends FlowTestCase {
         }
     }
 }
+*/

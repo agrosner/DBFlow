@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -6,9 +7,11 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description: Asserts values are handled same for container and adapter
- */
+ *//*
+
 public class ContainerDifferenceTest extends FlowTestCase {
 
     public void testContainer() {
@@ -48,3 +51,4 @@ public class ContainerDifferenceTest extends FlowTestCase {
         Delete.table(AutoIncrementContainer.class);
     }
 }
+*/

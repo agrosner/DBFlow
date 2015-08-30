@@ -38,10 +38,10 @@ public class Queen extends BaseModel {
     @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
     public List<Ant> getMyAnts() {
         if (ants == null) {
-            ants = new Select()
-                    .from(Ant.class)
-                    .where(column(Ant_Table.containerQueenId).eq(id))
-                    .queryList();
+            //ants = new Select()
+            //        .from(Ant.class)
+            //        .where(column(Ant_Table.containerQueenId).eq(id))
+            //        .queryList();
         }
         return ants;
     }

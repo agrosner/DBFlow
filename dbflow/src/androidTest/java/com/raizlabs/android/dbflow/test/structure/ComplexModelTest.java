@@ -1,12 +1,15 @@
+/*
 package com.raizlabs.android.dbflow.test.structure;
 
 import com.raizlabs.android.dbflow.structure.container.JSONModel;
 import com.raizlabs.android.dbflow.structure.container.MapModel;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class ComplexModelTest extends FlowTestCase {
 
     public void testComplexModel() {
@@ -42,3 +45,4 @@ public class ComplexModelTest extends FlowTestCase {
 
 }
 
+*/

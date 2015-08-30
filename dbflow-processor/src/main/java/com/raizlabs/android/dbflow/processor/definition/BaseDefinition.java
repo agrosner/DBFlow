@@ -8,6 +8,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.util.Arrays;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 
@@ -28,14 +29,38 @@ public abstract class BaseDefinition implements TypeDefinition {
 
     public String packageName;
 
+    public BaseDefinition(ExecutableElement element, ProcessorManager processorManager) {
+        this.manager = processorManager;
+        this.element = element;
+        packageName = manager.getElements().getPackageOf(element).toString();
+        elementName = element.getSimpleName().toString();
+
+        try {
+            elementTypeName = TypeName.get(element.asType());
+            if (!elementTypeName.isPrimitive()) {
+                elementClassName = getElementClassName(element);
+            }
+        } catch (Exception e){
+
+        }
+    }
+
     public BaseDefinition(Element element, ProcessorManager processorManager) {
         this.manager = processorManager;
         this.element = element;
-        elementTypeName = TypeName.get(element.asType());
-        elementName = element.getSimpleName().toString();
         packageName = manager.getElements().getPackageOf(element).toString();
+        try {
+            if (element instanceof ExecutableElement) {
+                elementTypeName = TypeName.get(((ExecutableElement) element).getReturnType());
+            } else {
+                elementTypeName = TypeName.get(element.asType());
+            }
+        } catch (IllegalArgumentException i) {
+            manager.logError("Found illegal type:" + element.asType() + " for " + element.getSimpleName().toString());
+        }
+        elementName = element.getSimpleName().toString();
         if (!elementTypeName.isPrimitive()) {
-            elementClassName = ClassName.bestGuess(element.asType().toString());
+            elementClassName = getElementClassName(element);
         }
     }
 
@@ -46,6 +71,10 @@ public abstract class BaseDefinition implements TypeDefinition {
         elementTypeName = TypeName.get(element.asType());
         elementName = element.getSimpleName().toString();
         packageName = manager.getElements().getPackageOf(element).toString();
+    }
+
+    protected ClassName getElementClassName(Element element) {
+        return ClassName.bestGuess(element.asType().toString());
     }
 
     protected void setOutputClassName(String postfix) {

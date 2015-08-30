@@ -60,10 +60,23 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (!referencedTableClassName.equals(TypeName.OBJECT)) {
             referencedTableClassName = ClassName.get(manager.getElements().getTypeElement(typeElement.asType().toString()));
         } else {
-            referencedTableClassName = elementClassName;
+            if (columnAccess instanceof ModelContainerAccess) {
+                List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
+                if (args.size() > 0) {
+                    referencedTableClassName = ClassName.bestGuess(args.get(0).toString());
+                }
+            } else {
+                referencedTableClassName = ClassName.bestGuess(elementTypeName.toString());
+            }
         }
 
-        TypeElement element = manager.getProcessingEnvironment().getElementUtils().getTypeElement(elementTypeName.toString());
+        if (referencedTableClassName == null) {
+            manager.logError("Referenced was null for %1s within %1s", typeElement, elementTypeName);
+        }
+
+        TypeElement element = manager.getElements().getTypeElement(
+                manager.getTypeUtils().erasure(typeElement.asType()).toString());
+
         isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), element);
 
         // we need to recheck for this instance

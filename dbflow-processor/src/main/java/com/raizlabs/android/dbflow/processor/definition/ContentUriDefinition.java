@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -63,5 +64,10 @@ public class ContentUriDefinition extends BaseDefinition {
                 processorManager.logError("ContentUri method returns wrong type. It must return Uri");
             }
         }
+    }
+
+    @Override
+    protected ClassName getElementClassName(Element element) {
+        return null;
     }
 }

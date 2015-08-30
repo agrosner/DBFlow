@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.structure.caching;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -8,9 +9,11 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class CacheableModelTest extends FlowTestCase {
 
     public void testCacheableModel() {
@@ -92,3 +95,4 @@ public class CacheableModelTest extends FlowTestCase {
 
     }
 }
+*/

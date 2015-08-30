@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -7,9 +8,11 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class ForeignKeyModelTest extends FlowTestCase {
 
     public void testForeignKeyModel() {
@@ -44,3 +47,4 @@ public class ForeignKeyModelTest extends FlowTestCase {
         Delete.tables(ForeignInteractionModel.class, ParentModel.class);
     }
 }
+*/

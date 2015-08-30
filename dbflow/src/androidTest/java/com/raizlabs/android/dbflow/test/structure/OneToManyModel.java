@@ -28,9 +28,9 @@ public class OneToManyModel extends BaseModel {
     @OneToMany(methods = {OneToMany.Method.ALL})
     public List<TestModel2> getOrders() {
         if (orders == null) {
-            orders = new Select().from(TestModel2.class)
-                    .where(Condition.column(TestModel2$Table.MODEL_ORDER).greaterThan(3))
-                    .queryList();
+            //orders = new Select().from(TestModel2.class)
+            //        .where(Condition.column(TestModel2$Table.MODEL_ORDER).greaterThan(3))
+            //        .queryList();
         }
         return orders;
     }

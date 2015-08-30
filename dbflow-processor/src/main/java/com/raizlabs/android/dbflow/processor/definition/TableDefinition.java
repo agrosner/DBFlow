@@ -41,6 +41,7 @@ import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 
@@ -244,7 +245,7 @@ public class TableDefinition extends BaseTableDefinition {
                     }
                 }
             } else if (element.getAnnotation(OneToMany.class) != null) {
-                OneToManyDefinition oneToManyDefinition = new OneToManyDefinition(element, manager);
+                OneToManyDefinition oneToManyDefinition = new OneToManyDefinition((ExecutableElement) element, manager);
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition);
                 }

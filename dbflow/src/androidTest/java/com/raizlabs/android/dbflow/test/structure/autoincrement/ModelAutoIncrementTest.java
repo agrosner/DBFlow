@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.structure.autoincrement;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -7,9 +8,11 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class ModelAutoIncrementTest extends FlowTestCase {
 
 
@@ -47,3 +50,4 @@ public class ModelAutoIncrementTest extends FlowTestCase {
         FlowManager.init(getContext());
     }
 }
+*/

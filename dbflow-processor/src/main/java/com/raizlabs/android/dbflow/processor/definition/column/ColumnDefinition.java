@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
 /**
@@ -120,21 +121,29 @@ public class ColumnDefinition extends BaseDefinition {
             containerKeyName = columnName;
         }
 
-
-        // Any annotated members, otherwise we will use the scanner to find other ones
-        final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
-        if (typeConverterDefinition != null
-                || (!hasTypeConverter && !SQLiteType.containsType(elementTypeName))) {
-            hasTypeConverter = true;
-            columnAccess = new TypeConverterAccess(manager, this);
-        }
-
-        if (element.getKind() == ElementKind.ENUM) {
+        TypeElement typeElement = manager.getElements().getTypeElement(element.asType().toString());
+        if (typeElement != null && typeElement.getKind() == ElementKind.ENUM) {
             columnAccess = new EnumColumnAccess(this);
-        }
-
-        if (elementTypeName.equals(ClassName.get(Blob.class))) {
+        } else if (elementTypeName.equals(ClassName.get(Blob.class))) {
             columnAccess = new BlobColumnAccess(this);
+        } else {
+            if (elementTypeName instanceof ParameterizedTypeName) {
+                List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
+                if (!args.isEmpty()) {
+                    columnAccess = new ModelContainerAccess(manager, this);
+                }
+            } else if (elementTypeName instanceof ArrayTypeName) {
+                processorManager.getMessager()
+                        .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
+            } else {
+                // Any annotated members, otherwise we will use the scanner to find other ones
+                final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
+                if (typeConverterDefinition != null
+                        || (!hasTypeConverter && !SQLiteType.containsType(elementTypeName))) {
+                    hasTypeConverter = true;
+                    columnAccess = new TypeConverterAccess(manager, this);
+                }
+            }
         }
 
         if (elementTypeName.box().equals(TypeName.BOOLEAN)) {
@@ -145,16 +154,13 @@ public class ColumnDefinition extends BaseDefinition {
         // TODO: add Index annotation
 
         // TODO: consider dropping model container fields
-        if (elementTypeName instanceof ParameterizedTypeName) {
-            List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
-            if (!args.isEmpty()) {
-                columnAccess = new ModelContainerAccess(manager, this);
-            }
-        } else if (elementTypeName instanceof ArrayTypeName) {
-            processorManager.getMessager()
-                    .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
-        }
 
+
+    }
+
+    @Override
+    protected ClassName getElementClassName(Element element) {
+        return null;
     }
 
     public void addPropertyDefinition(TypeSpec.Builder typeBuilder) {

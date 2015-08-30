@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.sql.language.Index;
@@ -9,9 +10,11 @@ import java.util.List;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class IndexTest extends FlowTestCase {
 
     public void testIndex() {
@@ -48,3 +51,4 @@ public class IndexTest extends FlowTestCase {
 
     }
 }
+*/

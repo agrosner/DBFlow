@@ -1,3 +1,4 @@
+/*
 package com.raizlabs.android.dbflow.test.structure;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -6,9 +7,11 @@ import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
+*/
 /**
  * Description:
- */
+ *//*
+
 public class ForeignKeyTest extends FlowTestCase {
 
     // region Test Foreign Key
@@ -52,3 +55,4 @@ public class ForeignKeyTest extends FlowTestCase {
 
     // endregion Test Foreign Key
 }
+*/

@@ -53,7 +53,7 @@ public class InsertMethod implements MethodDefinition {
                         new NotifyMethod(tableEndpointDefinition, uriDefinition,
                                 Notify.Method.INSERT).addCode(code);
 
-                        code.addStatement("return $T.withAppendedId($L, id)", ClassNames.CONTENT_URIS);
+                        code.addStatement("return $T.withAppendedId($L, id)", ClassNames.CONTENT_URIS, PARAM_URI);
                     } else {
                         code.addStatement("return id > 0 ? 1 : 0");
                     }
