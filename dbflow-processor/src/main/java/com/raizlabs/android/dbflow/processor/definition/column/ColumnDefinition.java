@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -41,6 +42,8 @@ public class ColumnDefinition extends BaseDefinition {
     public String columnName;
 
     public String columnFieldName;
+
+    public String containerKeyName;
 
     public boolean hasTypeConverter = false;
     public boolean isPrimaryKey = false;
@@ -110,6 +113,13 @@ public class ColumnDefinition extends BaseDefinition {
             onNullConflict = notNullAnno.onNullConflict();
         }
 
+        ContainerKey containerKey = element.getAnnotation(ContainerKey.class);
+        if (containerKey != null) {
+            containerKeyName = containerKey.value();
+        } else {
+            containerKeyName = columnName;
+        }
+
 
         // Any annotated members, otherwise we will use the scanner to find other ones
         final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
@@ -167,17 +177,17 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getContentValuesStatement(elementName, elementName,
-                columnName, elementTypeName, isModelContainerAdapter, columnAccess).build();
+        return DefinitionUtils.getContentValuesStatement(containerKeyName, elementName,
+                columnName, elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter)).build();
     }
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
-        return DefinitionUtils.getSQLiteStatementMethod(index, elementName, elementName,
-                elementTypeName, isModelContainerAdapter, columnAccess).build();
+        return DefinitionUtils.getSQLiteStatementMethod(index, containerKeyName, elementName,
+                elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter)).build();
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getLoadFromCursorMethod(elementName, elementName,
+        return DefinitionUtils.getLoadFromCursorMethod(containerKeyName, elementName,
                 elementTypeName, columnName, isModelContainerAdapter, columnAccess).build();
     }
 
@@ -187,7 +197,7 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public String getColumnAccessString(boolean isModelContainerAdapter) {
-        return columnAccess.getColumnAccessString(elementTypeName, elementName, elementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+        return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
     }
 
     public String getReferenceColumnName(ForeignKeyReference reference) {

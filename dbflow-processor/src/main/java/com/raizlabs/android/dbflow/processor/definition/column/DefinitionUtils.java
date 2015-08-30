@@ -16,8 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DefinitionUtils {
 
-    public static CodeBlock.Builder getContentValuesStatement(String elementName, String fullElementName, String columnName, TypeName elementTypeName, boolean isModelContainerAdapter, BaseColumnAccess columnAccess) {
-        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+    public static CodeBlock.Builder getContentValuesStatement(String elementName, String fullElementName,
+                                                              String columnName, TypeName elementTypeName,
+                                                              boolean isModelContainerAdapter, BaseColumnAccess columnAccess,
+                                                              String variableNameString) {
+        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -52,8 +55,11 @@ public class DefinitionUtils {
         return codeBuilder;
     }
 
-    public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName, String fullElementName, TypeName elementTypeName, boolean isModelContainerAdapter, BaseColumnAccess columnAccess) {
-        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+    public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName,
+                                                             String fullElementName, TypeName elementTypeName,
+                                                             boolean isModelContainerAdapter, BaseColumnAccess columnAccess,
+                                                             String variableNameString) {
+        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -88,7 +94,9 @@ public class DefinitionUtils {
         return codeBuilder;
     }
 
-    public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, String fullElementName, TypeName elementTypeName, String columnName, boolean isModelContainerAdapter, BaseColumnAccess columnAccess) {
+    public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, String fullElementName,
+                                                            TypeName elementTypeName, String columnName,
+                                                            boolean isModelContainerAdapter, BaseColumnAccess columnAccess) {
         String method = "";
         if (SQLiteType.containsMethod(elementTypeName)) {
             method = SQLiteType.getMethod(elementTypeName);

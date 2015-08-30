@@ -77,7 +77,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
         ForeignKeyReference[] references = foreignKey.references();
         for (ForeignKeyReference reference : references) {
-            ForeignKeyReferenceDefinition referenceDefinition = new ForeignKeyReferenceDefinition(manager, elementName, reference, columnAccess);
+            ForeignKeyReferenceDefinition referenceDefinition = new ForeignKeyReferenceDefinition(manager, elementName, reference, columnAccess, this);
             // TODO: add validation
             foreignKeyReferenceDefinitionList.add(referenceDefinition);
         }
@@ -208,7 +208,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     private String getFinalAccessStatement(CodeBlock.Builder codeBuilder, boolean isModelContainerAdapter, String statement) {
         String finalAccessStatement = statement;
         if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
-            finalAccessStatement = "ref" + elementName;
+            finalAccessStatement = getRefName();
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
@@ -222,5 +222,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     finalAccessStatement, statement);
         }
         return finalAccessStatement;
+    }
+
+    public String getRefName() {
+        return "ref" + elementName;
     }
 }

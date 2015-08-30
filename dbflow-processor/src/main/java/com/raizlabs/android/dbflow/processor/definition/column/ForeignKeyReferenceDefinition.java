@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
@@ -27,13 +28,17 @@ public class ForeignKeyReferenceDefinition {
     public final BaseColumnAccess columnAccess;
 
     private final BaseColumnAccess tableColumnAccess;
+    private final ForeignKeyColumnDefinition foreignKeyColumnDefinition;
 
     private final BaseColumnAccess simpleColumnAccess = new SimpleColumnAccess();
 
-    public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName, ForeignKeyReference foreignKeyReference, BaseColumnAccess tableColumnAccess) {
+    public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
+                                         ForeignKeyReference foreignKeyReference, BaseColumnAccess tableColumnAccess,
+                                         ForeignKeyColumnDefinition foreignKeyColumnDefinition) {
         this.manager = manager;
         this.foreignKeyFieldName = foreignKeyFieldName;
         this.tableColumnAccess = tableColumnAccess;
+        this.foreignKeyColumnDefinition = foreignKeyColumnDefinition;
 
         columnName = foreignKeyReference.columnName();
         foreignColumnName = foreignKeyReference.foreignKeyColumnName();
@@ -62,7 +67,7 @@ public class ForeignKeyReferenceDefinition {
         String columnShortAccess = columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter);
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
-                columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess).build();
+                columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter)).build();
     }
 
     CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
@@ -71,14 +76,12 @@ public class ForeignKeyReferenceDefinition {
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getSQLiteStatementMethod(
                 index, columnShortAccess, combined,
-                columnClassName, isModelContainerAdapter, simpleColumnAccess).build();
+                columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter)).build();
     }
 
-    CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getLoadFromCursorMethod(
-                columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
-                tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter)
-                        + "." + columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
-                columnClassName, columnName, isModelContainerAdapter, simpleColumnAccess).build();
+    private String getForeignKeyColumnVariable(boolean isModelContainerAdapter) {
+        return isModelContainerAdapter ? foreignKeyColumnDefinition.getRefName() : ModelUtils.getVariable(isModelContainerAdapter);
     }
+
+
 }
