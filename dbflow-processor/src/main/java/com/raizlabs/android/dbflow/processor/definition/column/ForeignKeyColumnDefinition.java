@@ -186,14 +186,19 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             }
             ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
-            String accessString = columnAccess.getShortAccessString(isModelContainerAdapter, elementName) + "." +
-                    referenceDefinition.columnAccess.getShortAccessString(
-                            isModelContainerAdapter, referenceDefinition.foreignColumnName);
+            String accessString;
+
+            if (!isModelContainerAdapter) {
+                accessString = ModelUtils.getVariable(false) + "." + columnAccess.getShortAccessString(false, elementName) + "." +
+                        referenceDefinition.columnAccess.getShortAccessString(false, referenceDefinition.foreignColumnName);
+            } else {
+                accessString = columnAccess.getColumnAccessString(referenceDefinition.columnClassName, elementName, elementName, ModelUtils.getVariable(true), true);
+            }
+
             // TODO: respect separator here.
-            selectBuilder.add("\n.and($L.$L.eq($L.$L))",
+            selectBuilder.add("\n.and($L.$L.eq($L))",
                     ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
-                    referenceDefinition.foreignColumnName, ModelUtils.getVariable(isModelContainerAdapter),
-                    accessString, isModelContainerAdapter);
+                    referenceDefinition.foreignColumnName, accessString);
         }
         ifNullBuilder.add(")");
         builder.beginControlFlow(ifNullBuilder.build().toString());
