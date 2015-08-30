@@ -79,7 +79,7 @@ public class ModelContainerDefinition extends BaseDefinition {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ClassName.get(String.class), "columnName")
                 .addStatement("return $L.get($L)", "columnMap", "columnName")
-                .returns(ParameterizedTypeName.get(ClassName.get(Class.class)))
+                .returns(ClassName.get(Class.class))
                 .build());
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
@@ -93,9 +93,5 @@ public class ModelContainerDefinition extends BaseDefinition {
                 typeBuilder.addMethod(methodSpec);
             }
         }
-    }
-
-    public String getModelClassQualifiedName() {
-        return ((TypeElement) element).getQualifiedName().toString();
     }
 }

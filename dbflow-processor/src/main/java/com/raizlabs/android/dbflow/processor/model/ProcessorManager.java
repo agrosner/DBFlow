@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
+import com.raizlabs.android.dbflow.processor.definition.FlowManagerHolderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
@@ -17,7 +18,6 @@ import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
-import com.raizlabs.android.dbflow.processor.definition.FlowManagerHolderDefinition;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 
@@ -46,7 +46,7 @@ public class ProcessorManager implements Handler {
     private List<String> uniqueDatabases = Lists.newArrayList();
     private Map<TypeName, String> modelToDatabaseMap = Maps.newHashMap();
     private Map<TypeName, TypeConverterDefinition> typeConverters = Maps.newHashMap();
-    private Map<String, Map<String, ModelContainerDefinition>> modelContainers = Maps.newHashMap();
+    private Map<String, Map<TypeName, ModelContainerDefinition>> modelContainers = Maps.newHashMap();
     private Map<String, Map<String, TableDefinition>> tableDefinitions = Maps.newHashMap();
     private Map<String, Map<String, TableDefinition>> tableNameDefinitionMap = Maps.newHashMap();
     private Map<String, Map<TypeName, QueryModelDefinition>> queryModelDefinitionMap = Maps.newHashMap();
@@ -124,13 +124,13 @@ public class ProcessorManager implements Handler {
     }
 
     public void addModelContainerDefinition(ModelContainerDefinition modelContainerDefinition) {
-        Map<String, ModelContainerDefinition> modelContainerDefinitionMap = modelContainers.get(
+        Map<TypeName, ModelContainerDefinition> modelContainerDefinitionMap = modelContainers.get(
                 getDatabase(modelContainerDefinition.elementClassName));
         if (modelContainerDefinitionMap == null) {
             modelContainerDefinitionMap = Maps.newHashMap();
             modelContainers.put(getDatabase(modelContainerDefinition.elementClassName), modelContainerDefinitionMap);
         }
-        modelContainerDefinitionMap.put(modelContainerDefinition.getModelClassQualifiedName(),
+        modelContainerDefinitionMap.put(modelContainerDefinition.elementClassName,
                 modelContainerDefinition);
     }
 
@@ -145,8 +145,8 @@ public class ProcessorManager implements Handler {
         modelDefinitionMap.put(queryModelDefinition.elementClassName, queryModelDefinition);
     }
 
-    public ModelContainerDefinition getModelContainerDefinition(String databaseName, TypeElement typeElement) {
-        return modelContainers.get(databaseName).get(typeElement.getQualifiedName().toString());
+    public ModelContainerDefinition getModelContainerDefinition(String databaseName, TypeName typeName) {
+        return modelContainers.get(databaseName).get(typeName);
     }
 
     public void addTableDefinition(TableDefinition tableDefinition) {
@@ -192,7 +192,7 @@ public class ProcessorManager implements Handler {
     }
 
     public Set<ModelContainerDefinition> getModelContainers(String databaseName) {
-        Map<String, ModelContainerDefinition> modelContainerDefinitionMap = modelContainers.get(databaseName);
+        Map<TypeName, ModelContainerDefinition> modelContainerDefinitionMap = modelContainers.get(databaseName);
         if (modelContainerDefinitionMap != null) {
             return Sets.newHashSet(modelContainers.get(databaseName).values());
         }

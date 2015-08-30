@@ -34,7 +34,7 @@ public class FlowManagerHolderDefinition implements TypeDefinition {
             constructor.addStatement("new $T(this)", databaseMethod.elementClassName);
         }
         for (TypeConverterDefinition typeConverterDefinition : processorManager.getTypeConverters()) {
-            constructor.addStatement("$L.put(%1s.class, new %1s())", DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
+            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
                     typeConverterDefinition.getModelTypeName(),
                     typeConverterDefinition.getClassName());
         }

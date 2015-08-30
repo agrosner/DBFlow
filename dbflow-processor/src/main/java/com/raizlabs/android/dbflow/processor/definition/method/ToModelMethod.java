@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.WildcardTypeName;
 
 import javax.lang.model.element.Modifier;
 
@@ -34,10 +35,12 @@ public class ToModelMethod implements MethodDefinition {
         }
         codeBuilder.addStatement("return $L", ModelUtils.getVariable(false));
 
-        return MethodSpec.methodBuilder("tomModel")
+        return MethodSpec.methodBuilder("toModel")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER, tableDefinition.elementTypeName),
+                .addParameter(ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER,
+                                tableDefinition.elementTypeName, WildcardTypeName.get(tableDefinition.manager
+                                        .getTypeUtils().getWildcardType(null, null))),
                         ModelUtils.getVariable(true))
                 .addCode(codeBuilder.build()).build();
 

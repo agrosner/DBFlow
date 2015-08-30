@@ -49,7 +49,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     @Override
     String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
         String newFormattedAccess = CodeBlock.builder()
-                .add("($T) $T.getTypeConverter($T.class).getModelValue(($T) $L)",
+                .add("($T) $T.getTypeConverterForClass($T.class).getModelValue(($T) $L)",
                         typeConverterDefinition.getModelTypeName(),
                         ClassNames.FLOW_MANAGER,
                         columnDefinition.elementTypeName.box(),

@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -26,7 +27,7 @@ public class InternalAdapterHelper {
     public static void writeGetTableName(TypeSpec.Builder typeBuilder, final String tableName) {
         typeBuilder.addMethod(MethodSpec.methodBuilder("getTableName")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return `$L`", tableName)
+                .addStatement("return $S", QueryBuilder.quote(tableName))
                 .returns(ClassName.get(String.class))
                 .build());
     }

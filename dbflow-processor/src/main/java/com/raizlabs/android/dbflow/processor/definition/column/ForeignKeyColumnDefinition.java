@@ -177,7 +177,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
             // TODO: fix reference here
             selectBuilder.add("\n.and($L.$L.eq($L.$L))",
-                    ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "$" + TableDefinition.DBFLOW_TABLE_ADAPTER),
+                    ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_ADAPTER),
                     referenceDefinition.foreignColumnName, LoadFromCursorMethod.PARAM_MODEL,
                     columnAccess.getShortAccessString(elementName) + "." +
                             referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.foreignColumnName));
