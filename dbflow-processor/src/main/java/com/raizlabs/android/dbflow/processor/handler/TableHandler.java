@@ -8,6 +8,8 @@ import com.raizlabs.android.dbflow.processor.validator.TableValidator;
 import com.raizlabs.android.dbflow.processor.validator.Validator;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+
 import java.io.IOException;
 
 /**
@@ -30,7 +32,7 @@ public class TableHandler extends BaseContainerHandler<Table> {
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         try {
-            TableDefinition tableDefinition = new TableDefinition(processorManager, element);
+            TableDefinition tableDefinition = new TableDefinition(processorManager, (TypeElement) element);
             if(definitionValidator.validate(processorManager, tableDefinition)) {
                 WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
                 tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());

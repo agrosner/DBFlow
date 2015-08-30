@@ -47,7 +47,7 @@ public class ProcessorManager implements Handler {
     private Map<TypeName, String> modelToDatabaseMap = Maps.newHashMap();
     private Map<TypeName, TypeConverterDefinition> typeConverters = Maps.newHashMap();
     private Map<String, Map<TypeName, ModelContainerDefinition>> modelContainers = Maps.newHashMap();
-    private Map<String, Map<String, TableDefinition>> tableDefinitions = Maps.newHashMap();
+    private Map<String, Map<TypeName, TableDefinition>> tableDefinitions = Maps.newHashMap();
     private Map<String, Map<String, TableDefinition>> tableNameDefinitionMap = Maps.newHashMap();
     private Map<String, Map<TypeName, QueryModelDefinition>> queryModelDefinitionMap = Maps.newHashMap();
     private Map<String, Map<String, ModelViewDefinition>> modelViewDefinition = Maps.newHashMap();
@@ -150,7 +150,7 @@ public class ProcessorManager implements Handler {
     }
 
     public void addTableDefinition(TableDefinition tableDefinition) {
-        Map<String, TableDefinition> tableDefinitionMap = tableDefinitions.get(tableDefinition.databaseName);
+        Map<TypeName, TableDefinition> tableDefinitionMap = tableDefinitions.get(tableDefinition.databaseName);
         if (tableDefinitionMap == null) {
             tableDefinitionMap = Maps.newHashMap();
             tableDefinitions.put(tableDefinition.databaseName, tableDefinitionMap);
@@ -161,12 +161,12 @@ public class ProcessorManager implements Handler {
             tableNameDefinitionMap.put(tableDefinition.databaseName, tableNameMap);
         }
 
-        tableDefinitionMap.put(tableDefinition.element.asType().toString(), tableDefinition);
+        tableDefinitionMap.put(tableDefinition.elementTypeName, tableDefinition);
         tableNameMap.put(tableDefinition.tableName, tableDefinition);
     }
 
-    public TableDefinition getTableDefinition(String databaseName, TypeElement typeElement) {
-        return tableDefinitions.get(databaseName).get(typeElement.getQualifiedName().toString());
+    public TableDefinition getTableDefinition(String databaseName, TypeName typeName) {
+        return tableDefinitions.get(databaseName).get(typeName);
     }
 
     public TableDefinition getTableDefinition(String databaseName, String tableName) {
@@ -200,7 +200,7 @@ public class ProcessorManager implements Handler {
     }
 
     public Set<TableDefinition> getTableDefinitions(String databaseName) {
-        Map<String, TableDefinition> tableDefinitionMap = tableDefinitions.get(databaseName);
+        Map<TypeName, TableDefinition> tableDefinitionMap = tableDefinitions.get(databaseName);
         if (tableDefinitionMap != null) {
             return Sets.newHashSet(tableDefinitions.get(databaseName).values());
         }

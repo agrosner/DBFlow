@@ -36,7 +36,7 @@ public class ModelContainerDefinition extends BaseDefinition {
 
     public ModelContainerDefinition(TypeElement classElement, ProcessorManager manager) {
         super(classElement, manager);
-        tableDefinition = manager.getTableDefinition(manager.getDatabase(elementClassName), classElement);
+        tableDefinition = manager.getTableDefinition(manager.getDatabase(elementTypeName), elementTypeName);
 
         setOutputClassName(tableDefinition.databaseMethod.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 

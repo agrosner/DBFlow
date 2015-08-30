@@ -12,6 +12,8 @@ import com.squareup.javapoet.TypeName;
  */
 public class TypeConverterAccess extends WrapperColumnAccess {
 
+    private static final String METHOD_TYPE_CONVERTER = "getTypeConverterForClass";
+
     public final TypeConverterDefinition typeConverterDefinition;
 
     private final ProcessorManager manager;
@@ -25,9 +27,10 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     @Override
     String getColumnAccessString(String variableNameString, String elementName) {
         return CodeBlock.builder()
-                .add("($T) $T.getTypeConverter($T.class).getDBValue($L)",
+                .add("($T) $T.$L($T.class).getDBValue($L)",
                         typeConverterDefinition.getDbTypeName(),
                         ClassNames.FLOW_MANAGER,
+                        METHOD_TYPE_CONVERTER,
                         columnDefinition.elementTypeName.box(),
                         existingColumnAccess.getColumnAccessString(variableNameString, elementName))
                 .build()
@@ -37,9 +40,10 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     @Override
     String getShortAccessString(String elementName) {
         return CodeBlock.builder()
-                .add("($T) $T.getTypeConverter($T.class).getDBValue($L)",
+                .add("($T) $T.$L($T.class).getDBValue($L)",
                         typeConverterDefinition.getDbTypeName(),
                         ClassNames.FLOW_MANAGER,
+                        METHOD_TYPE_CONVERTER,
                         columnDefinition.elementTypeName.box(),
                         existingColumnAccess.getShortAccessString(elementName))
                 .build()
@@ -49,9 +53,10 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     @Override
     String setColumnAccessString(String variableNameString, String elementName, String formattedAccess) {
         String newFormattedAccess = CodeBlock.builder()
-                .add("($T) $T.getTypeConverterForClass($T.class).getModelValue(($T) $L)",
+                .add("($T) $T.$L($T.class).getModelValue(($T) $L)",
                         typeConverterDefinition.getModelTypeName(),
                         ClassNames.FLOW_MANAGER,
+                        METHOD_TYPE_CONVERTER,
                         columnDefinition.elementTypeName.box(),
                         typeConverterDefinition.getDbTypeName(),
                         formattedAccess).build().toString();

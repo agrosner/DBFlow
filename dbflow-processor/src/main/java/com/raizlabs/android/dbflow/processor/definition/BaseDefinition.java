@@ -34,7 +34,9 @@ public abstract class BaseDefinition implements TypeDefinition {
         elementTypeName = TypeName.get(element.asType());
         elementName = element.getSimpleName().toString();
         packageName = manager.getElements().getPackageOf(element).toString();
-        elementClassName = ClassName.get(packageName, element.getSimpleName().toString());
+        if (!elementTypeName.isPrimitive()) {
+            elementClassName = ClassName.bestGuess(element.asType().toString());
+        }
     }
 
     public BaseDefinition(TypeElement element, ProcessorManager processorManager) {

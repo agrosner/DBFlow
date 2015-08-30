@@ -93,7 +93,7 @@ public class TableDefinition extends BaseTableDefinition {
 
     public Map<String, InheritedColumn> inheritedColumnMap = new HashMap<>();
 
-    public TableDefinition(ProcessorManager manager, Element element) {
+    public TableDefinition(ProcessorManager manager, TypeElement element) {
         super(element, manager);
 
         Table table = element.getAnnotation(Table.class);
