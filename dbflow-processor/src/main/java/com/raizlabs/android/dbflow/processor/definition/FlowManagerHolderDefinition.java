@@ -24,12 +24,13 @@ public class FlowManagerHolderDefinition implements TypeDefinition {
     @Override
     public TypeSpec getTypeSpec() {
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .superclass(ClassNames.DATABASE_HOLDER);
 
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC);
         for (DatabaseDefinition databaseDefinition : processorManager.getDatabaseDefinitionMap()) {
-            constructor.addStatement("new $T(this)", databaseDefinition.elementClassName);
+            constructor.addStatement("new $T(this)", databaseDefinition.outputClassName);
         }
         for (TypeConverterDefinition typeConverterDefinition : processorManager.getTypeConverters()) {
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
