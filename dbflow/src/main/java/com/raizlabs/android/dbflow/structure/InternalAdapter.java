@@ -57,6 +57,8 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      */
     void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
 
+    void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model);
+
     /**
      * Binds a {@link ModelClass} to the specified db statement
      *

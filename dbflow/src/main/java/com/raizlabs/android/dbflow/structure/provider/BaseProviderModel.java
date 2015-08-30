@@ -45,7 +45,7 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
     @Override
     @SuppressWarnings("unchecked")
     public boolean exists() {
-        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), getModelAdapter().getPrimaryConditions(this), "");
+        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), getModelAdapter().getPrimaryConditionClause(this), "");
         boolean exists = (cursor != null && cursor.getCount() > 0);
         if (cursor != null) {
             cursor.close();
@@ -67,7 +67,7 @@ public abstract class BaseProviderModel<TableClass extends BaseProviderModel> ex
     @Override
     @SuppressWarnings("unchecked")
     public void load() {
-        load(getModelAdapter().getPrimaryConditions(this), "");
+        load(getModelAdapter().getPrimaryConditionClause(this), "");
     }
 
 }

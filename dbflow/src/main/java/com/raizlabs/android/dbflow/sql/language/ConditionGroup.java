@@ -173,4 +173,12 @@ public class ConditionGroup extends BaseCondition implements Query {
     public String toString() {
         return getQuery();
     }
+
+    public int size() {
+        return conditionsList.size();
+    }
+
+    public List<SQLCondition> getConditions() {
+        return conditionsList;
+    }
 }

@@ -157,7 +157,7 @@ public class ContentUtils {
 
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
-        int count = contentResolver.update(updateUri, contentValues, adapter.getPrimaryConditions(model).getQuery(), null);
+        int count = contentResolver.update(updateUri, contentValues, adapter.getPrimaryConditionClause(model).getQuery(), null);
         if (count == 0) {
             FlowLog.log(FlowLog.Level.W, "Updated failed of: " + model.getClass());
         }
@@ -192,7 +192,7 @@ public class ContentUtils {
     public static <TableClass extends Model> int delete(ContentResolver contentResolver, Uri deleteUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
 
-        int count = contentResolver.delete(deleteUri, adapter.getPrimaryConditions(model).getQuery(), null);
+        int count = contentResolver.delete(deleteUri, adapter.getPrimaryConditionClause(model).getQuery(), null);
 
         // reset autoincrement to 0
         if (count > 0) {

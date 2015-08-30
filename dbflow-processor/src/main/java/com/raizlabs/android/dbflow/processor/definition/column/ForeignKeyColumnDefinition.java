@@ -56,8 +56,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
 
         // hopefully intentionally left blank
-        if (referencedTableClassName.equals(TypeName.OBJECT)) {
+        if (!referencedTableClassName.equals(TypeName.OBJECT)) {
             referencedTableClassName = ClassName.get(manager.getElements().getTypeElement(typeElement.asType().toString()));
+        } else {
+            referencedTableClassName = elementClassName;
         }
 
         TypeElement element = manager.getProcessingEnvironment().getElementUtils().getTypeElement(elementTypeName.toString());

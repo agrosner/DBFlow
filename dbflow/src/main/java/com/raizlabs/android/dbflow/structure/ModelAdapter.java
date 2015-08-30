@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 
 /**
  * Author: andrewgrosner
@@ -15,8 +15,6 @@ import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
  */
 public abstract class ModelAdapter<ModelClass extends Model>
         implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
-
-    private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
 
     private SQLiteStatement mInsertStatement;
 
@@ -104,8 +102,8 @@ public abstract class ModelAdapter<ModelClass extends Model>
     public long getAutoIncrementingId(ModelClass model) {
         throw new InvalidDBConfiguration(
                 String.format("This method may have been called in error. The model class %1s must contain" +
-                              "a single primary key (if used in a ModelCache, this method may be called)",
-                              getModelClass()));
+                                "a single primary key (if used in a ModelCache, this method may be called)",
+                        getModelClass()));
     }
 
     /**
@@ -115,8 +113,8 @@ public abstract class ModelAdapter<ModelClass extends Model>
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
                 String.format("This method may have been called in error. The model class %1s must contain" +
-                              "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
-                              getModelClass()));
+                                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                        getModelClass()));
     }
 
     /**
@@ -149,24 +147,6 @@ public abstract class ModelAdapter<ModelClass extends Model>
     @Override
     public boolean hasCachingId() {
         return false;
-    }
-
-    /**
-     * @return Only created once if doesn't exist, the extended class will return the builder to use.
-     */
-    protected abstract ConditionQueryBuilder<ModelClass> createPrimaryModelWhere();
-
-    /**
-     * Will create the where query only once that is used to check for existence in the DB.
-     *
-     * @return The WHERE query containing all primary key fields
-     */
-    public ConditionQueryBuilder<ModelClass> getPrimaryModelWhere() {
-        if (mPrimaryWhere == null) {
-            mPrimaryWhere = createPrimaryModelWhere();
-        }
-        mPrimaryWhere.setUseEmptyParams(true);
-        return mPrimaryWhere;
     }
 
     /**

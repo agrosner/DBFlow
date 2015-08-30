@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -116,14 +115,14 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @param conditionQueryBuilder The condition query builder to use
      * @return
      */
-    public Insert<ModelClass> columnValues(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+    public Insert<ModelClass> columnValues(ConditionGroup conditionGroup) {
 
-        int size = conditionQueryBuilder.size();
+        int size = conditionGroup.size();
         String[] columns = new String[size];
         Object[] values = new Object[size];
 
         for (int i = 0; i < size; i++) {
-            SQLCondition condition = conditionQueryBuilder.getConditions().get(i);
+            SQLCondition condition = conditionGroup.getConditions().get(i);
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }

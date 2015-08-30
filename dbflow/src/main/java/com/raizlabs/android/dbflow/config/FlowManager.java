@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
@@ -121,18 +120,6 @@ public class FlowManager {
         }
 
         return mDatabaseHolder;
-    }
-
-    /**
-     * Returns the primary where query for a specific table. Its the WHERE statement containing columnName = ?.
-     *
-     * @param table The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
-     * @return The primary where query
-     */
-    @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ConditionQueryBuilder<ModelClass> getPrimaryWhereQuery(
-            Class<ModelClass> table) {
-        return getDatabaseForTable(table).getModelAdapterForTable(table).getPrimaryModelWhere();
     }
 
     /**

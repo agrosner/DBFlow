@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
@@ -43,7 +42,7 @@ public class BuilderTest extends FlowTestCase {
     }
 
     public void testChainingConditions() {
-        ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class);
+        ConditionGroup conditionQueryBuilder = ConditionGroup.clause();
         conditionQueryBuilder.addCondition(column(ConditionModel$Table.NAME).is("James").separator("OR"))
                 .addCondition(column(ConditionModel$Table.NUMBER).is(6).separator("AND"))
                 .addCondition(column(ConditionModel$Table.FRACTION).is(4.5d));
@@ -59,11 +58,11 @@ public class BuilderTest extends FlowTestCase {
 
     public void testInOperators() {
         Condition.In in = column(ConditionModel$Table.NAME).in("Jason", "Ryan", "Michael");
-        ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, in);
+        ConditionGroup conditionQueryBuilder = ConditionGroup.clause().and(in);
         assertEquals("`name` IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
 
         Condition.In notIn = column(ConditionModel$Table.NAME).notIn("Jason", "Ryan", "Michael");
-        conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, notIn);
+        conditionQueryBuilder = ConditionGroup.clause().and(notIn);
         assertEquals("`name` NOT IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
     }
 

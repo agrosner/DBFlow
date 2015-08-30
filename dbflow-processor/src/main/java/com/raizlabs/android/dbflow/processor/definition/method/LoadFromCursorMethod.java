@@ -64,8 +64,8 @@ public class LoadFromCursorMethod implements MethodDefinition {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("loadFromCursor")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(baseTableDefinition.elementClassName, PARAM_MODEL)
                 .addParameter(ClassNames.CURSOR, PARAM_CURSOR)
+                .addParameter(baseTableDefinition.elementClassName, PARAM_MODEL)
                 .returns(TypeName.VOID);
 
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();

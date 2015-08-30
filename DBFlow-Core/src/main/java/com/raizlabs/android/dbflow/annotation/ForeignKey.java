@@ -32,7 +32,7 @@ public @interface ForeignKey {
      * @return an optional table class that this reference points to. It's only used if the field
      * is NOT a Model class.
      */
-    Class<?> tableClass() default Void.class;
+    Class<?> tableClass() default Object.class;
 
     /**
      * Defines {@link ForeignKeyAction} action to be performed
