@@ -32,6 +32,36 @@ public class MapModel<ModelClass extends Model> extends BaseModelContainer<Model
     }
 
     @Override
+    public Integer getIntValue(String columnName) {
+        return null;
+    }
+
+    @Override
+    public Long getLongValue(String columnName) {
+        return null;
+    }
+
+    @Override
+    public Boolean getBooleanValue(String columnName) {
+        return null;
+    }
+
+    @Override
+    public String getStringValue(String columnName) {
+        return null;
+    }
+
+    @Override
+    public Float getFloatValue(String columnName) {
+        return null;
+    }
+
+    @Override
+    public Short getShortValue(String columnName) {
+        return null;
+    }
+
+    @Override
     public Object getValue(String columnName) {
         return  getData().get(columnName);
     }

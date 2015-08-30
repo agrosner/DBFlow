@@ -1,10 +1,6 @@
 package com.raizlabs.android.dbflow.structure.container;
 
-import android.database.Cursor;
-
 import com.raizlabs.android.dbflow.config.FlowLog;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -54,6 +50,66 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
             value = null;
         }
         return value;
+    }
+
+    @Override
+    public Integer getIntValue(String columnName) {
+        try {
+            return getData() != null ? getData().getInt(columnName) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return null;
+        }
+    }
+
+    @Override
+    public Long getLongValue(String columnName) {
+        try {
+            return getData() != null ? getData().getLong(columnName) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return null;
+        }
+    }
+
+    @Override
+    public Boolean getBooleanValue(String columnName) {
+        try {
+            return getData() != null ? getData().getBoolean(columnName) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getStringValue(String columnName) {
+        try {
+            return getData() != null ? getData().getString(columnName) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return null;
+        }
+    }
+
+    @Override
+    public Float getFloatValue(String columnName) {
+        try {
+            return getData() != null ? (float) getData().getDouble(columnName) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return null;
+        }
+    }
+
+    @Override
+    public Short getShortValue(String columnName) {
+        try {
+            return getData() != null ? (short) getData().getInt(columnName) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return null;
+        }
     }
 
     @Override

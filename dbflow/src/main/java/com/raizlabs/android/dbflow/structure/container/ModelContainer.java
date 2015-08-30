@@ -49,6 +49,18 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      */
     Object getValue(String columnName);
 
+    Integer getIntValue(String columnName);
+
+    Long getLongValue(String columnName);
+
+    Boolean getBooleanValue(String columnName);
+
+    String getStringValue(String columnName);
+
+    Float getFloatValue(String columnName);
+
+    Short getShortValue(String columnName);
+
     /**
      * Puts the value with the specified key and value to the object
      *
