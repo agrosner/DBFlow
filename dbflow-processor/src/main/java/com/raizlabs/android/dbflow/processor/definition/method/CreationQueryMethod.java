@@ -105,7 +105,7 @@ public class CreationQueryMethod implements MethodDefinition {
                 if (j > 0) {
                     referenceBuilder.add(", ");
                 }
-                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.foreignKeyReferenceDefinitionList.get(i);
+                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.foreignKeyReferenceDefinitionList.get(j);
                 referenceBuilder.add("$L", QueryBuilder.quote(referenceDefinition.foreignColumnName));
             }
             referenceBuilder.add(") ON UPDATE $L ON DELETE $L", foreignKeyColumnDefinition.onUpdate.name().replace("_", " "),

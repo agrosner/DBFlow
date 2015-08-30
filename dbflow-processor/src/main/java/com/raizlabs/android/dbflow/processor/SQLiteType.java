@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor;
 
+import com.raizlabs.android.dbflow.data.Blob;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
@@ -65,7 +66,13 @@ public enum SQLiteType {
     };
 
     public static SQLiteType get(TypeName typeName) {
-        return sTypeMap.get(typeName);
+        SQLiteType sqLiteType = sTypeMap.get(typeName);
+
+        // fix for enums
+        if (sqLiteType == null) {
+            sqLiteType = SQLiteType.TEXT;
+        }
+        return sqLiteType;
     }
 
     public static boolean containsType(TypeName typeName) {
@@ -86,7 +93,7 @@ public enum SQLiteType {
         put(TypeName.SHORT, "getShort");
         put(TypeName.SHORT.box(), "getShort");
         put(ClassName.get(String.class), "getString");
-        //put(Blob.class.getName(), "getBlob");
+        put(ClassName.get(Blob.class), "getBlob");
     }};
 
     public static boolean containsMethod(TypeName typeName) {

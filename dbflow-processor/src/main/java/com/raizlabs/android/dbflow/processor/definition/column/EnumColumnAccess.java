@@ -31,7 +31,7 @@ public class EnumColumnAccess extends WrapperColumnAccess {
     @Override
     String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
         CodeBlock newFormattedAccess = CodeBlock.builder()
-                .add("$T.valueOf($L)", columnDefinition.elementClassName, formattedAccess)
+                .add("$T.valueOf($L)", columnDefinition.elementTypeName, formattedAccess)
                 .build();
         return getExistingColumnAccess()
                 .setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess);

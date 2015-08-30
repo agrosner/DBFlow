@@ -59,7 +59,7 @@ public class ColumnDefinition extends BaseDefinition {
 
     public List<Integer> uniqueGroups = new ArrayList<>();
 
-    public Collate collate;
+    public Collate collate = Collate.NONE;
     public String defaultValue;
 
     public boolean isBoolean = false;
