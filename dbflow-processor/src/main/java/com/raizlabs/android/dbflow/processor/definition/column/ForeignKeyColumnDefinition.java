@@ -189,14 +189,14 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             // TODO: respect separator here.
             selectBuilder.add("\n.and($L.$L.eq($L.$L))",
                     ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
-                    referenceDefinition.foreignColumnName, LoadFromCursorMethod.PARAM_MODEL,
+                    referenceDefinition.foreignColumnName, ModelUtils.getVariable(isModelContainerAdapter),
                     columnAccess.getShortAccessString(elementName, isModelContainerAdapter) + "." +
                             referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.foreignColumnName, isModelContainerAdapter));
         }
         ifNullBuilder.add(")");
         builder.beginControlFlow(ifNullBuilder.build().toString());
         builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                isModelContainerAdapter, LoadFromCursorMethod.PARAM_MODEL, CodeBlock.builder()
+                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), CodeBlock.builder()
                         .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build())
                         .add(".querySingle()")
