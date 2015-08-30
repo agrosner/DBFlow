@@ -49,7 +49,7 @@ public abstract class BaseDefinition implements TypeDefinition {
     }
 
     protected void setOutputClassName(String postfix) {
-        outputClassName = ClassName.get(elementClassName.packageName(), elementClassName.simpleName() + postfix);
+        outputClassName = ClassName.get(packageName, elementClassName.simpleName() + postfix);
     }
 
     @Override
