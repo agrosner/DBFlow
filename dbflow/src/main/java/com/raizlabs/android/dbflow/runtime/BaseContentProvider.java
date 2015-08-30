@@ -6,12 +6,31 @@ import android.net.Uri;
 
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.language.Property;
 
 /**
  * Description: The base provider class that {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
  * extend when generated.
  */
 public abstract class BaseContentProvider extends ContentProvider {
+
+    /**
+     * Converts the column into a {@link Property}. This exists since the propery method is static and cannot
+     * be referenced easily.
+     */
+    protected interface PropertyConverter {
+
+        Property fromName(String columnName);
+    }
+
+    protected static Property[] toProperties(PropertyConverter propertyConverter, String... selection) {
+        Property[] properties = new Property[selection.length];
+        for (int i = 0; i < selection.length; i++) {
+            String columnName = selection[i];
+            properties[i] = propertyConverter.fromName(columnName);
+        }
+        return properties;
+    }
 
     protected BaseDatabaseDefinition database;
 
@@ -20,8 +39,6 @@ public abstract class BaseContentProvider extends ContentProvider {
         database = FlowManager.getDatabase(getDatabaseName());
         return true;
     }
-
-    protected abstract String getDatabaseName();
 
     @Override
     public int bulkInsert(final Uri uri, final ContentValues[] values) {
@@ -37,6 +54,8 @@ public abstract class BaseContentProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return count[0];
     }
+
+    protected abstract String getDatabaseName();
 
     protected abstract int bulkInsert(Uri uri, ContentValues contentValues);
 

@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.method.provider;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -42,11 +43,17 @@ public class QueryMethod implements MethodDefinition {
         method.addStatement("$L cursor = null", ClassNames.CURSOR);
         method.beginControlFlow("switch($L.match(uri))", ContentProviderDefinition.URI_MATCHER);
         for (TableEndpointDefinition tableEndpointDefinition : contentProviderDefinition.endpointDefinitions) {
+            TableDefinition tableDefinition = manager.getTableDefinition(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
             for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
                 if (uriDefinition.queryEnabled) {
                     method.beginControlFlow("case $L:", uriDefinition.name);
                     CodeBlock.Builder codeBuilder = CodeBlock.builder()
-                            .add("cursor = new $T()\n.from", ClassNames.SELECT);
+                            .add("cursor = new $T(toProperties($L, selection))\n.from", ClassNames.SELECT,
+                                    CodeBlock.builder()
+                                            .add("new $T(){ \n", ClassNames.PROPERTY_CONVERTER)
+                                            .add("public $T fromName(String columnName) {\n", ClassNames.PROPERTY)
+                                            .add("return $L.getProperty(columnName); \n}\n}", tableDefinition.getPropertyClassName())
+                                            .build());
                     ProviderMethodUtils.appendTableName(codeBuilder,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
                     codeBuilder.add(".where()");

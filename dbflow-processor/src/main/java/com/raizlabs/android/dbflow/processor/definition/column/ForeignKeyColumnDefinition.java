@@ -16,6 +16,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
@@ -103,6 +104,15 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             ParameterizedTypeName propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, reference.columnClassName.isPrimitive() ? reference.columnClassName.box() : reference.columnClassName);
             typeBuilder.addField(FieldSpec.builder(propParam, reference.columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                     .initializer("new $T<>($S)", ClassNames.PROPERTY, reference.columnName).build());
+        }
+    }
+
+    @Override
+    public void addPropertyCase(MethodSpec.Builder methodBuilder) {
+        for (ForeignKeyReferenceDefinition reference : foreignKeyReferenceDefinitionList) {
+            methodBuilder.beginControlFlow("case $S: ", reference.columnName);
+            methodBuilder.addStatement("return $L", reference.columnName);
+            methodBuilder.endControlFlow();
         }
     }
 

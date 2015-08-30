@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.content.ContentProvider;
+
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;

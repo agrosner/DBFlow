@@ -277,10 +277,24 @@ public class TableDefinition extends BaseTableDefinition {
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
+        MethodSpec.Builder getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(String.class, "columnName")
+                .returns(ClassNames.PROPERTY);
+
+        getPropertyForNameMethod.beginControlFlow("switch ($L) ", "columnName");
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.addPropertyDefinition(typeBuilder);
+            columnDefinition.addPropertyCase(getPropertyForNameMethod);
         }
+        getPropertyForNameMethod.beginControlFlow("default: ");
+        getPropertyForNameMethod.addStatement("throw new $T($S)", IllegalArgumentException.class,
+                "Invalid column name passed. Ensure you are calling the correct table's column");
+        getPropertyForNameMethod.endControlFlow();
+        getPropertyForNameMethod.endControlFlow();
 
+
+        typeBuilder.addMethod(getPropertyForNameMethod.build());
         // TODO: create index groups definition and write it here
     }
 

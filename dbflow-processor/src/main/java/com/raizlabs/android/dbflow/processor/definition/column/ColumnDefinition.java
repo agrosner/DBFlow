@@ -20,6 +20,7 @@ import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
@@ -168,6 +169,12 @@ public class ColumnDefinition extends BaseDefinition {
         typeBuilder.addField(FieldSpec.builder(propParam,
                 columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("new $T<>($S)", ClassNames.PROPERTY, columnName).build());
+    }
+
+    public void addPropertyCase(MethodSpec.Builder methodBuilder) {
+        methodBuilder.beginControlFlow("case $S: ", columnName);
+        methodBuilder.addStatement("return $L", columnName);
+        methodBuilder.endControlFlow();
     }
 
     public CodeBlock getInsertStatementColumnName() {
