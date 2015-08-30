@@ -46,7 +46,7 @@ public class BindToStatementMethod implements MethodDefinition {
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
 
             if (!isInsert || (isInsert && !columnDefinition.isPrimaryKeyAutoIncrement)) {
-                methodBuilder.addCode(columnDefinition.getSQLiteStatementMethod(realCount, ));
+                methodBuilder.addCode(columnDefinition.getSQLiteStatementMethod(realCount, isModelContainerAdapter));
                 realCount.incrementAndGet();
             }
         }

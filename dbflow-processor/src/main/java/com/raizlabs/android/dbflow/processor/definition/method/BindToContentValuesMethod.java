@@ -43,7 +43,7 @@ public class BindToContentValuesMethod implements MethodDefinition {
 
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
-            methodBuilder.addCode(columnDefinition.getContentValuesStatement());
+            methodBuilder.addCode(columnDefinition.getContentValuesStatement(isModelContainerAdapter));
         }
 
         if (implementsContentValuesListener) {

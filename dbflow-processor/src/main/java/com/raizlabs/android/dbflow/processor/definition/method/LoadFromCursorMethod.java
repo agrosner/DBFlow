@@ -72,7 +72,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
 
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
-            methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod());
+            methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod(isModelContainerAdapter));
         }
 
         return methodBuilder.build();
