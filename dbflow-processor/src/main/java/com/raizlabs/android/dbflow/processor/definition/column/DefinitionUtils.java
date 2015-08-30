@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
@@ -16,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefinitionUtils {
 
     public static CodeBlock.Builder getContentValuesStatement(String elementName, BaseColumnAccess columnAccess, String columnName, TypeName elementTypeName, boolean isModelContainerAdapter) {
-        String statement = columnAccess.getColumnAccessString(BindToContentValuesMethod.PARAM_MODEL, elementName, isModelContainerAdapter);
+        String statement = columnAccess.getColumnAccessString(ModelUtils.getVariable(isModelContainerAdapter), elementName, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -44,7 +45,7 @@ public class DefinitionUtils {
     }
 
     public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName, BaseColumnAccess columnAccess, TypeName elementTypeName, boolean isModelContainerAdapter) {
-        String statement = columnAccess.getColumnAccessString(BindToStatementMethod.PARAM_MODEL, elementName, isModelContainerAdapter);
+        String statement = columnAccess.getColumnAccessString(ModelUtils.getVariable(isModelContainerAdapter), elementName, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -86,7 +87,7 @@ public class DefinitionUtils {
         codeBuilder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, columnName);
         codeBuilder.beginControlFlow("if ($L != -1 && !$L.isNull($L))", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
-        codeBuilder.addStatement(columnAccess.setColumnAccessString(LoadFromCursorMethod.PARAM_MODEL, elementName,
+        codeBuilder.addStatement(columnAccess.setColumnAccessString(ModelUtils.getVariable(isModelContainerAdapter), elementName,
                 CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build().toString(), isModelContainerAdapter));
 
         codeBuilder.endControlFlow();

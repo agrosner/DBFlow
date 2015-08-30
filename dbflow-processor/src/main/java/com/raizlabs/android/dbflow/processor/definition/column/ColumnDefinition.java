@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
@@ -187,7 +188,7 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public String getColumnAccessString(boolean isModelContainerAdapter) {
-        return columnAccess.getColumnAccessString(ExistenceMethod.PARAM_MODEL, elementName, isModelContainerAdapter);
+        return columnAccess.getColumnAccessString(ModelUtils.getVariable(isModelContainerAdapter), elementName, isModelContainerAdapter);
     }
 
     public String getReferenceColumnName(ForeignKeyReference reference) {
