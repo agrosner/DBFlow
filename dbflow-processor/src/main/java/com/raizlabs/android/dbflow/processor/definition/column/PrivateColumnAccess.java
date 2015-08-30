@@ -24,7 +24,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, String variableNameString) {
+    String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (StringUtils.isNullOrEmpty(getterName)) {
             return String.format("%1s.get%1s()", variableNameString, capitalize(elementName));
         } else {
@@ -42,7 +42,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String formattedAccess, boolean isModelContainerAdapter, String variableNameString) {
+    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, String formattedAccess) {
         if (StringUtils.isNullOrEmpty(setterName)) {
             return String.format("%1s.set%1s(%1s)", variableNameString, capitalize(elementName), formattedAccess);
         } else {

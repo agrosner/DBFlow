@@ -9,7 +9,7 @@ import com.squareup.javapoet.TypeName;
 public class SimpleColumnAccess extends BaseColumnAccess {
 
     @Override
-    String getColumnAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, String variableNameString) {
+    String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (isModelContainerAdapter) {
             String method = SQLiteType.getMethod(fieldType);
             if (method == null) {
@@ -17,7 +17,7 @@ public class SimpleColumnAccess extends BaseColumnAccess {
             }
             return variableNameString + "." + method + "Value(\"" + elementName + "\")";
         } else {
-            return variableNameString + "." + elementName;
+            return variableNameString + "." + fullElementName;
         }
     }
 
@@ -27,11 +27,11 @@ public class SimpleColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String formattedAccess, boolean isModelContainerAdapter, String variableNameString) {
+    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, String formattedAccess) {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
-            return getColumnAccessString(fieldType, elementName, false, variableNameString) + " = " + formattedAccess;
+            return getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, false) + " = " + formattedAccess;
         }
     }
 }

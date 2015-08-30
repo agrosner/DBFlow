@@ -167,18 +167,18 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getContentValuesStatement(elementName, columnAccess,
-                columnName, elementTypeName, isModelContainerAdapter).build();
+        return DefinitionUtils.getContentValuesStatement(elementName, elementName,
+                columnName, elementTypeName, isModelContainerAdapter, columnAccess).build();
     }
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
-        return DefinitionUtils.getSQLiteStatementMethod(index, elementName, columnAccess,
-                elementTypeName, isModelContainerAdapter).build();
+        return DefinitionUtils.getSQLiteStatementMethod(index, elementName, elementName,
+                elementTypeName, isModelContainerAdapter, columnAccess).build();
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getLoadFromCursorMethod(elementName, columnAccess,
-                elementTypeName, columnName, isModelContainerAdapter).build();
+        return DefinitionUtils.getLoadFromCursorMethod(elementName, elementName,
+                elementTypeName, columnName, isModelContainerAdapter, columnAccess).build();
     }
 
     public CodeBlock getToModelMethod(boolean isModelContainerAdapter) {
@@ -187,7 +187,7 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public String getColumnAccessString(boolean isModelContainerAdapter) {
-        return columnAccess.getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter));
+        return columnAccess.getColumnAccessString(elementTypeName, elementName, elementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
     }
 
     public String getReferenceColumnName(ForeignKeyReference reference) {

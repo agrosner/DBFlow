@@ -16,14 +16,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DefinitionUtils {
 
-    public static CodeBlock.Builder getContentValuesStatement(String elementName, BaseColumnAccess columnAccess, String columnName, TypeName elementTypeName, boolean isModelContainerAdapter) {
-        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter));
+    public static CodeBlock.Builder getContentValuesStatement(String elementName, String fullElementName, String columnName, TypeName elementTypeName, boolean isModelContainerAdapter, BaseColumnAccess columnAccess) {
+        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
         String finalAccessStatement = statement;
         if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
-            finalAccessStatement = "ref" + elementName;
+            finalAccessStatement = "ref" + fullElementName;
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
@@ -52,15 +52,14 @@ public class DefinitionUtils {
         return codeBuilder;
     }
 
-    public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName, BaseColumnAccess columnAccess, TypeName elementTypeName, boolean isModelContainerAdapter) {
-        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter));
+    public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName, String fullElementName, TypeName elementTypeName, boolean isModelContainerAdapter, BaseColumnAccess columnAccess) {
+        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
         String finalAccessStatement = statement;
-        // If TypeConverter, need to assign variable and then check for null.
         if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
-            finalAccessStatement = "ref" + elementName;
+            finalAccessStatement = "ref" + fullElementName;
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
@@ -89,8 +88,7 @@ public class DefinitionUtils {
         return codeBuilder;
     }
 
-    public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, BaseColumnAccess columnAccess,
-                                                            TypeName elementTypeName, String columnName, boolean isModelContainerAdapter) {
+    public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, String fullElementName, TypeName elementTypeName, String columnName, boolean isModelContainerAdapter, BaseColumnAccess columnAccess) {
         String method = "";
         if (SQLiteType.containsMethod(elementTypeName)) {
             method = SQLiteType.getMethod(elementTypeName);
@@ -103,8 +101,8 @@ public class DefinitionUtils {
         codeBuilder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, columnName);
         codeBuilder.beginControlFlow("if ($L != -1 && !$L.isNull($L))", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
-        codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName,
-                CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build().toString(), isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter)));
+        codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
+                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build().toString()));
 
         codeBuilder.endControlFlow();
 

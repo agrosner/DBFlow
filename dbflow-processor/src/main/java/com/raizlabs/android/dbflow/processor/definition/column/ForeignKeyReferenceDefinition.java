@@ -58,27 +58,27 @@ public class ForeignKeyReferenceDefinition {
     }
 
     CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getContentValuesStatement(
-                tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter)
-                        + "." + columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
-                simpleColumnAccess,
-                columnName, columnClassName, isModelContainerAdapter).build();
+        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter);
+        String columnShortAccess = columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter);
+        String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
+        return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
+                columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess).build();
     }
 
     CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
+        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter);
+        String columnShortAccess = columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter);
+        String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getSQLiteStatementMethod(
-                index,
-                tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter)
-                        + "." + columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
-                simpleColumnAccess,
-                columnClassName, isModelContainerAdapter).build();
+                index, columnShortAccess, combined,
+                columnClassName, isModelContainerAdapter, simpleColumnAccess).build();
     }
 
     CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
         return DefinitionUtils.getLoadFromCursorMethod(
+                columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
                 tableColumnAccess.getShortAccessString(foreignKeyFieldName, isModelContainerAdapter)
                         + "." + columnAccess.getShortAccessString(foreignColumnName, isModelContainerAdapter),
-                simpleColumnAccess,
-                columnClassName, columnName, isModelContainerAdapter).build();
+                columnClassName, columnName, isModelContainerAdapter, simpleColumnAccess).build();
     }
 }

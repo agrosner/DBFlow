@@ -134,24 +134,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     @Override
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
-
         String statement = columnAccess
-                .getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter));
-        String finalAccessStatement = statement;
-        if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
-            finalAccessStatement = "ref" + elementName;
-
-            TypeName typeName;
-            if (columnAccess instanceof TypeConverterAccess) {
-                typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
-            } else {
-                typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
-                statement = ModelUtils.getVariable(isModelContainerAdapter) + ".getInstance(" + statement + ", " + referencedTableClassName + ".class)";
-            }
-
-            builder.addStatement("$T $L = $L", typeName,
-                    finalAccessStatement, statement);
-        }
+                .getColumnAccessString(elementTypeName, elementName, elementName,
+                        ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+        String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
         builder.beginControlFlow("if ($L != null)", finalAccessStatement);
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
@@ -167,8 +153,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     @Override
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        builder.beginControlFlow("if ($L != null)", columnAccess
-                .getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, BindToStatementMethod.PARAM_MODEL));
+        String statement = columnAccess
+                .getColumnAccessString(elementTypeName, elementName, elementName,
+                        ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+        String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
+        builder.beginControlFlow("if ($L != null)", finalAccessStatement);
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
             builder.add(referenceDefinition.getSQLiteStatementMethod(index, isModelContainerAdapter));
@@ -206,13 +195,32 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
         ifNullBuilder.add(")");
         builder.beginControlFlow(ifNullBuilder.build().toString());
-        builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName,
-                CodeBlock.builder()
+        builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
+                isModelContainerAdapter, LoadFromCursorMethod.PARAM_MODEL, CodeBlock.builder()
                         .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build())
                         .add(".querySingle()")
-                        .build().toString(), isModelContainerAdapter, LoadFromCursorMethod.PARAM_MODEL));
+                        .build().toString()));
         builder.endControlFlow();
         return builder.build();
+    }
+
+    private String getFinalAccessStatement(CodeBlock.Builder codeBuilder, boolean isModelContainerAdapter, String statement) {
+        String finalAccessStatement = statement;
+        if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
+            finalAccessStatement = "ref" + elementName;
+
+            TypeName typeName;
+            if (columnAccess instanceof TypeConverterAccess) {
+                typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+            } else {
+                typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
+                statement = ModelUtils.getVariable(isModelContainerAdapter) + ".getInstance(" + statement + ", " + referencedTableClassName + ".class)";
+            }
+
+            codeBuilder.addStatement("$T $L = $L", typeName,
+                    finalAccessStatement, statement);
+        }
+        return finalAccessStatement;
     }
 }
