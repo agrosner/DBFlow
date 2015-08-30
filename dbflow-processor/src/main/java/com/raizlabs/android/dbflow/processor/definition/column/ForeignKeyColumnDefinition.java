@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValu
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -133,8 +134,24 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     @Override
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
-        builder.beginControlFlow("if ($L != null)", columnAccess
-                .getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, BindToContentValuesMethod.PARAM_MODEL));
+
+        String statement = columnAccess
+                .getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter));
+        String finalAccessStatement = statement;
+        if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
+            finalAccessStatement = "ref" + elementName;
+
+            TypeName typeName;
+            if (columnAccess instanceof TypeConverterAccess) {
+                typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+            } else {
+                typeName = elementTypeName;
+            }
+
+            builder.addStatement("$T $L = $L", typeName,
+                    finalAccessStatement, statement);
+        }
+        builder.beginControlFlow("if ($L != null)", finalAccessStatement);
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
             builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter));
