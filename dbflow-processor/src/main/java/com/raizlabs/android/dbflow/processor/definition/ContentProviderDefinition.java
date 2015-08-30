@@ -101,7 +101,7 @@ public class ContentProviderDefinition extends BaseDefinition {
                 Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
 
         CodeBlock.Builder initializer = CodeBlock.builder().addStatement("new $T($T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER)
-                .add("{\n");
+                .add("static {\n");
 
         for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
             for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
