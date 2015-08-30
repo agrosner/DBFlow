@@ -151,7 +151,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName);
-            constructor.addStatement("$L.put($S, $L)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName);
+            constructor.addStatement("$L.put($S, $T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
                     tableDefinition.elementClassName, tableDefinition.outputClassName);
         }
