@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -41,8 +42,7 @@ public abstract class BaseTableDefinition extends BaseDefinition {
     public abstract ClassName getPropertyClassName();
 
     public TypeName getParameterClassName(boolean isModelContainerAdapter) {
-        return isModelContainerAdapter ? ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER,
-                elementClassName, TypeName.get(manager.getTypeUtils().getWildcardType(null, null)))
+        return isModelContainerAdapter ? ModelUtils.getModelContainerType(manager, elementClassName)
                 : elementClassName;
     }
 

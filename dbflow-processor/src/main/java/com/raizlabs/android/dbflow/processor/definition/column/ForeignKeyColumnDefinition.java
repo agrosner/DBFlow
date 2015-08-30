@@ -145,7 +145,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             if (columnAccess instanceof TypeConverterAccess) {
                 typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
             } else {
-                typeName = elementTypeName;
+                typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
+                statement = ModelUtils.getVariable(isModelContainerAdapter) + ".getInstance(" + statement + ", " + referencedTableClassName + ".class)";
             }
 
             builder.addStatement("$T $L = $L", typeName,
