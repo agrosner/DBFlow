@@ -267,7 +267,7 @@ public class TableDefinition extends BaseTableDefinition {
 
     @Override
     public ClassName getPropertyClassName() {
-        return ClassName.get(packageName, adapterName);
+        return outputClassName;
     }
 
     public String getQualifiedModelClassName() {

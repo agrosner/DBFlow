@@ -178,7 +178,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
             selectBuilder.add("\n.and($L.$L.eq($L.$L))",
-                    ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_ADAPTER),
+                    ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
                     referenceDefinition.foreignColumnName, LoadFromCursorMethod.PARAM_MODEL,
                     columnAccess.getShortAccessString(elementName) + "." +
                             referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.foreignColumnName));
