@@ -19,8 +19,6 @@ public class ModelViewHandler extends BaseContainerHandler<ModelView> {
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         ModelViewDefinition modelViewDefinition = new ModelViewDefinition(processorManager, element);
         processorManager.addModelViewDefinition(modelViewDefinition);
-
-        WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
         try {
             modelViewDefinition.writeViewTable();
         } catch (IOException e) {

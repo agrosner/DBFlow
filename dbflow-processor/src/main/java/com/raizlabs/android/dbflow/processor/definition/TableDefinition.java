@@ -261,8 +261,8 @@ public class TableDefinition extends BaseTableDefinition {
         return primaryColumnDefinitions;
     }
 
-    public String getQualifiedAdapterClassName() {
-        return packageName + "." + adapterName;
+    public ClassName getAdapterClassName() {
+        return ClassName.get(packageName, adapterName);
     }
 
     @Override

@@ -250,6 +250,21 @@ public class ProcessorManager implements Handler {
             try {
                 JavaFile.builder(databaseDefinition.packageName, databaseDefinition.getTypeSpec())
                         .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+
+                Collection<TableDefinition> tableDefinitions = databaseDefinition.tableDefinitionMap.values();
+                for (TableDefinition tableDefinition : tableDefinitions) {
+                    tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
+                }
+
+                Collection<ModelContainerDefinition> modelContainerDefinitions = databaseDefinition.modelContainerDefinitionMap.values();
+                for (ModelContainerDefinition modelContainerDefinition : modelContainerDefinitions) {
+                    WriterUtils.writeBaseDefinition(modelContainerDefinition, processorManager);
+                }
+
+                Collection<ModelViewDefinition> modelViewDefinitions = databaseDefinition.modelViewDefinitionMap.values();
+                for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
+                    WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
+                }
             } catch (IOException e) {
             }
         }

@@ -80,6 +80,11 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
         TypeMirror openHelper = ProcessorUtils.getOpenHelperClass(database);
         if (openHelper != null) {
             sqliteOpenHelperClass = TypeName.get(openHelper);
+            if (sqliteOpenHelperClass.equals(TypeName.VOID.box())) {
+                sqliteOpenHelperClass = ClassNames.FLOW_SQLITE_OPEN_HELPER;
+            }
+        } else {
+            sqliteOpenHelperClass = ClassNames.FLOW_SQLITE_OPEN_HELPER;
         }
 
         consistencyChecksEnabled = database.consistencyCheckEnabled();
@@ -153,7 +158,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($S, $T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                    tableDefinition.elementClassName, tableDefinition.outputClassName);
+                    tableDefinition.elementClassName, tableDefinition.getAdapterClassName());
         }
 
         for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(databaseName)) {

@@ -24,6 +24,5 @@ public class ModelContainerHandler extends BaseContainerHandler<ModelContainer> 
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         ModelContainerDefinition modelContainerDefinition = new ModelContainerDefinition((TypeElement) element, processorManager);
         processorManager.addModelContainerDefinition(modelContainerDefinition);
-        WriterUtils.writeBaseDefinition(modelContainerDefinition, processorManager);
     }
 }
