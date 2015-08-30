@@ -68,6 +68,7 @@ public class ClassNames {
     public static final ClassName PROPERTY = ClassName.get(LANGUAGE, "Property");
     public static final ClassName CONDITION_GROUP = ClassName.get(LANGUAGE, "ConditionGroup");
     public static final ClassName SELECT = ClassName.get(LANGUAGE, "Select");
+    public static final ClassName UPDATE = ClassName.get(LANGUAGE, "Update");
 
     public static final ClassName BASE_CONTENT_PROVIDER = ClassName.get(RUNTIME, "BaseContentProvider");
 

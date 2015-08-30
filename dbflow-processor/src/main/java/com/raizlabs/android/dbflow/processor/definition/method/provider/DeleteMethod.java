@@ -70,7 +70,7 @@ public class DeleteMethod implements MethodDefinition {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ClassNames.URI, PARAM_URI)
                 .addParameter(ClassName.get(String.class), PARAM_SELECTION)
-                .addParameter(ArrayTypeName.get(String.class), PARAM_SELECTION_ARGS)
+                .addParameter(ArrayTypeName.of(String.class), PARAM_SELECTION_ARGS)
                 .returns(TypeName.INT).build();
     }
 

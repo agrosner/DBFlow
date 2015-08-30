@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinitio
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
-import com.raizlabs.android.dbflow.processor.model.builder.SqlQueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
@@ -43,11 +42,11 @@ public class InsertMethod implements MethodDefinition {
                             ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
 
-                    SqlQueryBuilder queryBuilder = new SqlQueryBuilder("final long id = ")
-                            .appendGetDatabase(contentProviderDefinition.databaseName)
-                            .appendInsertWithOnConflict(tableEndpointDefinition.tableName);
-
-                    code.addStatement(queryBuilder.getQuery());
+                    code.add("final long id = FlowManager.getDatabase($S).getWritableDatabase()",
+                            contentProviderDefinition.databaseName)
+                            .add(".insertWithOnConflict($S, null, values, " +
+                                            "$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", tableEndpointDefinition.tableName,
+                                    ClassNames.CONFLICT_ACTION);
 
                     if (!isBulk) {
                         new NotifyMethod(tableEndpointDefinition, uriDefinition,

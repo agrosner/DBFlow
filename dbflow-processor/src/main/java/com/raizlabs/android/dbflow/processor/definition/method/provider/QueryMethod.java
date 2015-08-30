@@ -6,9 +6,9 @@ import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.model.builder.SqlQueryBuilder;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 
 import javax.lang.model.element.Modifier;
@@ -33,10 +33,11 @@ public class QueryMethod implements MethodDefinition {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ClassNames.URI, "uri")
-                .addParameter(ArrayTypeName.get(String.class), "projection")
+                .addParameter(ArrayTypeName.of(String.class), "projection")
                 .addParameter(ClassName.get(String.class), "selection")
-                .addParameter(ArrayTypeName.get(String.class), "selectionArgs")
-                .addParameter(ClassName.get(String.class), "sortOrder");
+                .addParameter(ArrayTypeName.of(String.class), "selectionArgs")
+                .addParameter(ClassName.get(String.class), "sortOrder")
+                .returns(ClassNames.CURSOR);
 
         method.addStatement("$L cursor = null", ClassNames.CURSOR);
         method.beginControlFlow("switch($L.match(uri))", ContentProviderDefinition.URI_MATCHER);
@@ -44,15 +45,17 @@ public class QueryMethod implements MethodDefinition {
             for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
                 if (uriDefinition.queryEnabled) {
                     method.beginControlFlow("case $L:", uriDefinition.name);
-
-                    SqlQueryBuilder select = new SqlQueryBuilder("cursor = ")
-                            .appendSelect()
-                            .appendFromTable(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName)
-                            .appendWhere().appendPathSegments(manager, contentProviderDefinition.databaseName,
-                                    tableEndpointDefinition.tableName, uriDefinition.segments)
-                            .appendQuery();
-                    method.addStatement(select.getQuery());
+                    CodeBlock.Builder codeBuilder = CodeBlock.builder()
+                            .add("cursor = new $T()\n.from", ClassNames.SELECT);
+                    ProviderMethodUtils.appendTableName(codeBuilder,
+                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                    codeBuilder.add(".where()");
+                    ProviderMethodUtils.appendPathSegments(codeBuilder, manager, uriDefinition.segments,
+                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                    codeBuilder.add(".query();\n");
+                    method.addCode(codeBuilder.build());
                     method.addStatement("break");
+                    method.endControlFlow();
                 }
             }
         }
