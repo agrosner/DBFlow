@@ -59,9 +59,17 @@ public class DefinitionUtils {
 
         String finalAccessStatement = statement;
         // If TypeConverter, need to assign variable and then check for null.
-        if (columnAccess instanceof TypeConverterAccess) {
+        if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
             finalAccessStatement = "ref" + elementName;
-            codeBuilder.addStatement("$T $L = $L", ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName(),
+
+            TypeName typeName;
+            if (columnAccess instanceof TypeConverterAccess) {
+                typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+            } else {
+                typeName = elementTypeName;
+            }
+
+            codeBuilder.addStatement("$T $L = $L", typeName,
                     finalAccessStatement, statement);
         }
 

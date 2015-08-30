@@ -27,7 +27,7 @@ public class SimpleColumnAccess extends BaseColumnAccess {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
-            return getColumnAccessString(fieldType, elementName, isModelContainerAdapter, variableNameString) + " = " + formattedAccess;
+            return getColumnAccessString(fieldType, elementName, false, variableNameString) + " = " + formattedAccess;
         }
     }
 }
