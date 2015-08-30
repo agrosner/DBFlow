@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.TypeName;
 
 /**
  * Description: Provides an easy way to wrap in model container accesses.
@@ -30,10 +31,10 @@ public class ModelContainerAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
+    String getColumnAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, String variableNameString) {
         return CodeBlock.builder()
                 .add("$L.get($S)",
-                        existingColumnAccess.getColumnAccessString(variableNameString, elementName, isModelContainerAdapter),
+                        existingColumnAccess.getColumnAccessString(fieldType, elementName, isModelContainerAdapter, variableNameString),
                         containerKeyName)
                 .build().toString();
     }
@@ -47,10 +48,10 @@ public class ModelContainerAccess extends BaseColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
+    String setColumnAccessString(TypeName fieldType, String elementName, String formattedAccess, boolean isModelContainerAdapter, String variableNameString) {
         String newFormattedAccess = CodeBlock.builder()
                 .add("$L.put($S, $L)", variableNameString, containerKeyName, formattedAccess)
                 .build().toString();
-        return existingColumnAccess.setColumnAccessString(variableNameString, elementName, newFormattedAccess, isModelContainerAdapter);
+        return existingColumnAccess.setColumnAccessString(fieldType, elementName, newFormattedAccess, isModelContainerAdapter, variableNameString);
     }
 }

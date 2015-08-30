@@ -1,12 +1,14 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
+import com.squareup.javapoet.TypeName;
+
 /**
  * Description: Simplest of all fields. Simply returns "model.field".
  */
 public class SimpleColumnAccess extends BaseColumnAccess {
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
+    String getColumnAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, String variableNameString) {
         if (isModelContainerAdapter) {
             return variableNameString + ".getValue(\"" + elementName + "\")";
         } else {
@@ -20,7 +22,7 @@ public class SimpleColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
-        return getColumnAccessString(variableNameString, elementName, isModelContainerAdapter) + " = " + formattedAccess;
+    String setColumnAccessString(TypeName fieldType, String elementName, String formattedAccess, boolean isModelContainerAdapter, String variableNameString) {
+        return getColumnAccessString(fieldType, elementName, isModelContainerAdapter, variableNameString) + " = " + formattedAccess;
     }
 }

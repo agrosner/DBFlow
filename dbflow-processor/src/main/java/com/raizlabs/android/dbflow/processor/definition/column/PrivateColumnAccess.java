@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
+import com.squareup.javapoet.TypeName;
 
 /**
  * Description:
@@ -23,7 +24,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
+    String getColumnAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, String variableNameString) {
         if (StringUtils.isNullOrEmpty(getterName)) {
             return String.format("%1s.get%1s()", variableNameString, capitalize(elementName));
         } else {
@@ -41,7 +42,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
+    String setColumnAccessString(TypeName fieldType, String elementName, String formattedAccess, boolean isModelContainerAdapter, String variableNameString) {
         if (StringUtils.isNullOrEmpty(setterName)) {
             return String.format("%1s.set%1s(%1s)", variableNameString, capitalize(elementName), formattedAccess);
         } else {

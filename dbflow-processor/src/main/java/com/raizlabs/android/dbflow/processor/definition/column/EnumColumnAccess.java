@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.TypeName;
 
 /**
  * Description:
@@ -12,10 +13,10 @@ public class EnumColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
+    String getColumnAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, String variableNameString) {
         return CodeBlock.builder()
                 .add("$L.name()", getExistingColumnAccess()
-                        .getColumnAccessString(variableNameString, elementName, isModelContainerAdapter))
+                        .getColumnAccessString(fieldType, elementName, isModelContainerAdapter, variableNameString))
                 .build().toString();
     }
 
@@ -28,11 +29,11 @@ public class EnumColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
+    String setColumnAccessString(TypeName fieldType, String elementName, String formattedAccess, boolean isModelContainerAdapter, String variableNameString) {
         String newFormattedAccess = CodeBlock.builder()
                 .add("$T.valueOf($L)", columnDefinition.elementClassName, formattedAccess)
                 .build().toString();
         return getExistingColumnAccess()
-                .setColumnAccessString(variableNameString, elementName, newFormattedAccess, isModelContainerAdapter);
+                .setColumnAccessString(fieldType, elementName, newFormattedAccess, isModelContainerAdapter, variableNameString);
     }
 }

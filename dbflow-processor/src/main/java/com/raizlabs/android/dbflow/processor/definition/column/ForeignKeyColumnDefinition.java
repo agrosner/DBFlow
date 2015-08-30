@@ -134,7 +134,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
         builder.beginControlFlow("if ($L != null)", columnAccess
-                .getColumnAccessString(BindToContentValuesMethod.PARAM_MODEL, elementName, isModelContainerAdapter));
+                .getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, BindToContentValuesMethod.PARAM_MODEL));
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
             builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter));
@@ -150,7 +150,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         CodeBlock.Builder builder = CodeBlock.builder();
         builder.beginControlFlow("if ($L != null)", columnAccess
-                .getColumnAccessString(BindToStatementMethod.PARAM_MODEL, elementName, isModelContainerAdapter));
+                .getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, BindToStatementMethod.PARAM_MODEL));
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
             builder.add(referenceDefinition.getSQLiteStatementMethod(index, isModelContainerAdapter));
@@ -188,12 +188,12 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
         ifNullBuilder.add(")");
         builder.beginControlFlow(ifNullBuilder.build().toString());
-        builder.addStatement(columnAccess.setColumnAccessString(LoadFromCursorMethod.PARAM_MODEL, elementName,
+        builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName,
                 CodeBlock.builder()
                         .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build())
                         .add(".querySingle()")
-                        .build().toString(), isModelContainerAdapter));
+                        .build().toString(), isModelContainerAdapter, LoadFromCursorMethod.PARAM_MODEL));
         builder.endControlFlow();
         return builder.build();
     }

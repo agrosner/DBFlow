@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
-import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -188,7 +187,7 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public String getColumnAccessString(boolean isModelContainerAdapter) {
-        return columnAccess.getColumnAccessString(ModelUtils.getVariable(isModelContainerAdapter), elementName, isModelContainerAdapter);
+        return columnAccess.getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter));
     }
 
     public String getReferenceColumnName(ForeignKeyReference reference) {

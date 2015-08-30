@@ -25,7 +25,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(String variableNameString, String elementName, boolean isModelContainerAdapter) {
+    String getColumnAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, String variableNameString) {
         return CodeBlock.builder()
                 .add("($T) $T.$L($T.class).getDBValue($L)",
                         typeConverterDefinition.getDbTypeName(),
@@ -33,7 +33,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
                         METHOD_TYPE_CONVERTER,
                         columnDefinition.elementTypeName.box(),
                         getExistingColumnAccess()
-                                .getColumnAccessString(variableNameString, elementName, isModelContainerAdapter))
+                                .getColumnAccessString(fieldType, elementName, isModelContainerAdapter, variableNameString))
                 .build()
                 .toString();
     }
@@ -53,7 +53,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(String variableNameString, String elementName, String formattedAccess, boolean isModelContainerAdapter) {
+    String setColumnAccessString(TypeName fieldType, String elementName, String formattedAccess, boolean isModelContainerAdapter, String variableNameString) {
         String newFormattedAccess = CodeBlock.builder()
                 .add("($T) $T.$L($T.class).getModelValue(($T) $L)",
                         typeConverterDefinition.getModelTypeName(),
@@ -63,7 +63,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
                         typeConverterDefinition.getDbTypeName(),
                         formattedAccess).build().toString();
         return getExistingColumnAccess()
-                .setColumnAccessString(variableNameString, elementName, newFormattedAccess, isModelContainerAdapter);
+                .setColumnAccessString(fieldType, elementName, newFormattedAccess, isModelContainerAdapter, variableNameString);
     }
 
     @Override

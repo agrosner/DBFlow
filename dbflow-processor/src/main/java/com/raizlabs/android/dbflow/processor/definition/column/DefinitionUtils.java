@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefinitionUtils {
 
     public static CodeBlock.Builder getContentValuesStatement(String elementName, BaseColumnAccess columnAccess, String columnName, TypeName elementTypeName, boolean isModelContainerAdapter) {
-        String statement = columnAccess.getColumnAccessString(ModelUtils.getVariable(isModelContainerAdapter), elementName, isModelContainerAdapter);
+        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter));
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -45,7 +45,7 @@ public class DefinitionUtils {
     }
 
     public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName, BaseColumnAccess columnAccess, TypeName elementTypeName, boolean isModelContainerAdapter) {
-        String statement = columnAccess.getColumnAccessString(ModelUtils.getVariable(isModelContainerAdapter), elementName, isModelContainerAdapter);
+        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter));
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -87,8 +87,8 @@ public class DefinitionUtils {
         codeBuilder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, columnName);
         codeBuilder.beginControlFlow("if ($L != -1 && !$L.isNull($L))", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
-        codeBuilder.addStatement(columnAccess.setColumnAccessString(ModelUtils.getVariable(isModelContainerAdapter), elementName,
-                CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build().toString(), isModelContainerAdapter));
+        codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName,
+                CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build().toString(), isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter)));
 
         codeBuilder.endControlFlow();
 
