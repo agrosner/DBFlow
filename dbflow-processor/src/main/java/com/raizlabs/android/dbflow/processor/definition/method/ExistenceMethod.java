@@ -50,7 +50,7 @@ public class ExistenceMethod implements MethodDefinition {
                 selectBuilder.add("$L.$L", tableDefinition.getPropertyClassName(), columnDefinition.columnName);
             }
             methodBuilder.addStatement("return new $T($L).from($T.class).where(getPrimaryConditionClause($L)).hasData()",
-                    ClassNames.SELECT, selectBuilder.build(), tableDefinition.elementClassName, PARAM_MODEL);
+                    ClassNames.SELECT, selectBuilder.build(), tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
         }
 
         return methodBuilder.build();
