@@ -37,7 +37,7 @@ public class PrimaryConditionMethod implements MethodDefinition {
         CodeBlock.Builder code = CodeBlock.builder()
                 .add("return $T.clause()", ClassNames.CONDITION_GROUP);
         for (ColumnDefinition columnDefinition : tableDefinition.getPrimaryColumnDefinitions()) {
-            code.add(".and($T.$L.eq($L))", tableDefinition.outputClassName, columnDefinition.columnName,
+            code.add(".and($T.$L.eq($L))", tableDefinition.getPropertyClassName(), columnDefinition.columnName,
                     columnDefinition.getColumnAccessString(isModelContainerAdapter));
         }
         methodBuilder.addCode(code.addStatement("").build());
