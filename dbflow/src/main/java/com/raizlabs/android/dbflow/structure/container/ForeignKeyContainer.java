@@ -13,7 +13,7 @@ import java.util.Map;
  * underlying data, which in this case is just the primary keys. Any {@link com.raizlabs.android.dbflow.structure.Model}
  * method will force this object to load the referenced Model from the DB to interact with.
  */
-public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelContainer<ModelClass, Map<String, Object>> {
+public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelContainer<ModelClass, Map<String, Object>> {
 
     /**
      * Constructs a new instance with the specified table.
@@ -49,61 +49,6 @@ public class ForeignKeyContainer<ModelClass extends Model> extends BaseModelCont
     @Override
     public Object getValue(String columnName) {
         return getData().get(columnName);
-    }
-
-    @Override
-    public Integer getIntValue(String columnName) {
-        Object value = getValue(columnName);
-        if (value instanceof String) {
-            return Integer.valueOf((String) value);
-        } else {
-            return (Integer) value;
-        }
-    }
-
-    @Override
-    public Long getLongValue(String columnName) {
-        Object value = getValue(columnName);
-        if (value instanceof String) {
-            return Long.valueOf((String) value);
-        } else {
-            return (Long) value;
-        }
-    }
-
-    @Override
-    public Boolean getBooleanValue(String columnName) {
-        Object value = getValue(columnName);
-        if (value instanceof String) {
-            return Boolean.valueOf((String) value);
-        } else {
-            return (Boolean) value;
-        }
-    }
-
-    @Override
-    public String getStringValue(String columnName) {
-        return String.valueOf(getValue(columnName));
-    }
-
-    @Override
-    public Float getFloatValue(String columnName) {
-        Object value = getValue(columnName);
-        if (value instanceof String) {
-            return Float.valueOf((String) value);
-        } else {
-            return (Float) value;
-        }
-    }
-
-    @Override
-    public Short getShortValue(String columnName) {
-        Object value = getValue(columnName);
-        if (value instanceof String) {
-            return Short.valueOf((String) value);
-        } else {
-            return (Short) value;
-        }
     }
 
     @Override

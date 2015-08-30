@@ -10,7 +10,7 @@ import java.util.Map;
  * Description: An anonymous model object that operates just like a {@link java.util.Map}. It must correspond to
  * a {@link ModelClass} to get its blueprint.
  */
-public class MapModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, Map> implements Model {
+public class MapModel<ModelClass extends Model> extends SimpleModelContainer<ModelClass, Map<String, Object>> implements Model {
 
     public MapModel(Class<ModelClass> table) {
         this(new HashMap<String, Object>(), table);
@@ -32,38 +32,8 @@ public class MapModel<ModelClass extends Model> extends BaseModelContainer<Model
     }
 
     @Override
-    public Integer getIntValue(String columnName) {
-        return null;
-    }
-
-    @Override
-    public Long getLongValue(String columnName) {
-        return null;
-    }
-
-    @Override
-    public Boolean getBooleanValue(String columnName) {
-        return null;
-    }
-
-    @Override
-    public String getStringValue(String columnName) {
-        return null;
-    }
-
-    @Override
-    public Float getFloatValue(String columnName) {
-        return null;
-    }
-
-    @Override
-    public Short getShortValue(String columnName) {
-        return null;
-    }
-
-    @Override
     public Object getValue(String columnName) {
-        return  getData().get(columnName);
+        return getData().get(columnName);
     }
 
     @Override
