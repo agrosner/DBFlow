@@ -119,7 +119,7 @@ public class ColumnDefinition extends BaseDefinition {
         if (containerKey != null) {
             containerKeyName = containerKey.value();
         } else {
-            containerKeyName = columnName;
+            containerKeyName = elementName;
         }
 
         TypeElement typeElement = manager.getElements().getTypeElement(element.asType().toString());
