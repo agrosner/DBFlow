@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMe
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
@@ -102,6 +103,8 @@ public class DefinitionUtils {
             method = SQLiteType.getMethod(elementTypeName);
         } else if (columnAccess instanceof TypeConverterAccess) {
             method = SQLiteType.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
+        } else if (columnAccess instanceof EnumColumnAccess) {
+            method = SQLiteType.getMethod(ClassName.get(String.class));
         }
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();

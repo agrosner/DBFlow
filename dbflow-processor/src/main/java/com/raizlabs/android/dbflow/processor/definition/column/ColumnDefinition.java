@@ -147,9 +147,9 @@ public class ColumnDefinition extends BaseDefinition {
             }
         }
 
-        if (elementTypeName.box().equals(TypeName.BOOLEAN)) {
+        if (elementTypeName.box().equals(TypeName.BOOLEAN.box())) {
             isBoolean = true;
-            // TODO: add boolean column access
+            columnAccess = new BooleanColumnAccess(manager, this);
         }
 
         // TODO: add Index annotation
