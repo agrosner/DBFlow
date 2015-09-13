@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
@@ -17,7 +19,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class Property<T> implements IConditional<T>, Query {
 
-    public static final Property ALL_PROPERTY = new Property("*") {
+    public static final Property ALL_PROPERTY = new Property(null, "*") {
         @Override
         public String toString() {
             // don't tick the *
@@ -25,34 +27,59 @@ public class Property<T> implements IConditional<T>, Query {
         }
     };
 
+    private final Class<? extends Model> table;
     protected final NameAlias nameAlias;
 
-    public Property(NameAlias nameAlias) {
+
+    public Property(Class<? extends Model> table, NameAlias nameAlias) {
+        this.table = table;
         this.nameAlias = nameAlias;
     }
 
-    public Property(String columnName) {
-        nameAlias = new NameAlias(columnName);
+    public Property(Class<? extends Model> table, String columnName) {
+        this(table, new NameAlias(columnName));
     }
 
-    public Property(String columnName, String aliasName) {
-        nameAlias = new NameAlias(columnName, aliasName);
+    public Property(Class<? extends Model> table, String columnName, String aliasName) {
+        this(table, new NameAlias(columnName, aliasName));
     }
 
     /**
      * @param aliasName The fileName of the alias.
      * @return A new {@link Property} that expresses the current column fileName with the specified Alias fileName.
      */
-    public Property as(String aliasName) {
-        return new Property(nameAlias.getAliasNameNoTicks(), aliasName);
+    public Property<T> as(String aliasName) {
+        return new Property<>(table, nameAlias.getAliasNameNoTicks(), aliasName);
     }
 
     /**
      * @return A property appends DISTINCT to the property name. This is handy in {@link Method} queries.
      * This distinct {@link Property} can only be used with one column within a {@link Method}.
      */
-    public Property distinct() {
-        return new Property(new NameAlias("DISTINCT " + nameAlias.getName(), nameAlias.getAliasNamePropertyNoTicks()).tickName(false));
+    public Property<T> distinct() {
+        return new Property<>(table, new NameAlias("DISTINCT " + nameAlias.getName(), nameAlias.getAliasNamePropertyNoTicks()).tickName(false));
+    }
+
+    /**
+     * @return A property that represents the {@link Model} from which it belongs to. This is useful
+     * in {@link Join} queries to represent this property. The resulting column name becomes a
+     * tableName.columnName.
+     */
+    public Property<T> withTable() {
+        return withTable(new NameAlias(FlowManager.getTableName(table)));
+    }
+
+    /**
+     * @param tableNameAlias The name of the table to append. This may be different because of complex queries
+     *                       that use a {@link NameAlias} for the table Name.
+     * @return A property that represents the {@link Model} from which it belongs to. This is useful
+     * in {@link Join} queries to represent this property. The resulting column name becomes a
+     * tableName.columnName.
+     */
+    public Property<T> withTable(NameAlias tableNameAlias) {
+        NameAlias alias = new NameAlias(tableNameAlias.getAliasName() + "." + nameAlias.getName(), nameAlias.getAliasName());
+        alias.tickName(false);
+        return new Property<>(table, alias);
     }
 
     public String getDefinition() {
@@ -132,5 +159,74 @@ public class Property<T> implements IConditional<T>, Query {
     @Override
     public Condition.In notIn(T firstValue, T... values) {
         return column(nameAlias).notIn(firstValue, values);
+    }
+
+    @Override
+    public Condition is(IConditional<T> conditional) {
+        return column(nameAlias).is(conditional);
+    }
+
+    @Override
+    public Condition eq(IConditional<T> conditional) {
+        return column(nameAlias).eq(conditional);
+    }
+
+    @Override
+    public Condition isNot(IConditional<T> conditional) {
+        return column(nameAlias).isNot(conditional);
+    }
+
+    @Override
+    public Condition notEq(IConditional<T> conditional) {
+        return column(nameAlias).notEq(conditional);
+    }
+
+    @Override
+    public Condition like(IConditional<T> conditional) {
+        return column(nameAlias).like(conditional);
+    }
+
+    @Override
+    public Condition glob(IConditional<T> conditional) {
+        return column(nameAlias).glob(conditional);
+    }
+
+    @Override
+    public Condition greaterThan(IConditional<T> conditional) {
+        return column(nameAlias).greaterThan(conditional);
+    }
+
+    @Override
+    public Condition greaterThanOrEq(IConditional<T> conditional) {
+        return column(nameAlias).greaterThanOrEq(conditional);
+    }
+
+    @Override
+    public Condition lessThan(IConditional<T> conditional) {
+        return column(nameAlias).lessThan(conditional);
+    }
+
+    @Override
+    public Condition lessThanOrEq(IConditional<T> conditional) {
+        return column(nameAlias).lessThanOrEq(conditional);
+    }
+
+    @Override
+    public Condition.Between between(IConditional<T> conditional) {
+        return column(nameAlias).between(conditional);
+    }
+
+    @Override
+    public Condition.In in(IConditional<T> firstConditional, IConditional<T>... conditionals) {
+        return column(nameAlias).in(firstConditional, conditionals);
+    }
+
+    @Override
+    public Condition.In notIn(IConditional<T> firstConditional, IConditional<T>... conditionals) {
+        return column(nameAlias).notIn(firstConditional, conditionals);
+    }
+
+    public Class<? extends Model> getTable() {
+        return table;
     }
 }

@@ -4,6 +4,8 @@ import android.database.DatabaseUtils;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
  * Description: Base class for all kinds of {@link SQLCondition}
@@ -33,6 +35,12 @@ abstract class BaseCondition implements SQLCondition {
                 stringVal = String.format("(%1s)", ((Where) value).getQuery().trim());
             } else if (value instanceof NameAlias) {
                 stringVal = ((NameAlias) value).getQuery();
+            } else if (value instanceof SQLCondition) {
+                QueryBuilder queryBuilder = new QueryBuilder();
+                ((SQLCondition) value).appendConditionToQuery(queryBuilder);
+                stringVal = queryBuilder.toString();
+            } else if (value instanceof Query) {
+                stringVal = ((Query) value).getQuery();
             } else {
                 stringVal = String.valueOf(value);
                 if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {

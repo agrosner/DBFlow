@@ -1,4 +1,3 @@
-/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import android.database.Cursor;
@@ -14,13 +13,6 @@ import com.raizlabs.android.dbflow.sql.migration.UpdateTableMigration;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
-*/
-/**
- * Description:
- *//*
 
 public class MigrationTest extends AndroidTestCase {
 
@@ -81,7 +73,7 @@ public class MigrationTest extends AndroidTestCase {
     public void testUpdateMigration() {
         UpdateTableMigration<MigrationModel> updateTableMigration
                 = new UpdateTableMigration<>(MigrationModel.class)
-                .set(column("name").is("test")).where(column("name").is("notTest"));
+                .set(MigrationModel_Table.name.is("test")).where(MigrationModel_Table.name.is("notTest"));
         updateTableMigration.onPreMigrate();
 
         assertEquals("UPDATE `MigrationModel` SET `name`='test' WHERE `name`='notTest'", updateTableMigration.getQuery().trim());
@@ -104,7 +96,7 @@ public class MigrationTest extends AndroidTestCase {
     public void testIndexMigration() {
         IndexMigration<TestModel3> indexMigration
                 = new IndexMigration<>("MyIndex", TestModel3.class)
-                .addColumn(TestModel3$Table.TYPE);
+                .addColumn(TestModel3_Table.type);
         assertEquals("CREATE INDEX IF NOT EXISTS `MyIndex` ON `TestModel3`(`type`)", indexMigration.getIndexQuery().trim());
     }
 
@@ -115,4 +107,3 @@ public class MigrationTest extends AndroidTestCase {
         FlowManager.destroy();
     }
 }
-*/

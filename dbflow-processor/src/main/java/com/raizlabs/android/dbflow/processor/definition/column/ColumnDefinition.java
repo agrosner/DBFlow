@@ -165,11 +165,11 @@ public class ColumnDefinition extends BaseDefinition {
         return null;
     }
 
-    public void addPropertyDefinition(TypeSpec.Builder typeBuilder) {
+    public void addPropertyDefinition(TypeSpec.Builder typeBuilder, TypeName tableClass) {
         ParameterizedTypeName propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.isPrimitive() ? elementTypeName.box() : elementTypeName);
         typeBuilder.addField(FieldSpec.builder(propParam,
                 columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T<>($S)", ClassNames.PROPERTY, columnName).build());
+                .initializer("new $T<>($T.class, $S)", ClassNames.PROPERTY,  tableClass, columnName).build());
     }
 
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {

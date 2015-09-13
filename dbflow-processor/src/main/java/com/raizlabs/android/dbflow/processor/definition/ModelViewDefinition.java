@@ -139,7 +139,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
                         .initializer("$S", name).build());
 
         for (ColumnDefinition columnDefinition : columnDefinitions) {
-            columnDefinition.addPropertyDefinition(typeBuilder);
+            columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
         }
 
         JavaFile file = JavaFile.builder(packageName, typeBuilder.build()).build();

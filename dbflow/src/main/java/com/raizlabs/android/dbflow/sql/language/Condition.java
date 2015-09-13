@@ -267,6 +267,71 @@ public class Condition extends BaseCondition implements IConditional {
         return this;
     }
 
+    @Override
+    public Condition is(IConditional conditional) {
+        return is((Object) conditional);
+    }
+
+    @Override
+    public Condition eq(IConditional conditional) {
+        return eq((Object) conditional);
+    }
+
+    @Override
+    public Condition isNot(IConditional conditional) {
+        return isNot((Object) conditional);
+    }
+
+    @Override
+    public Condition notEq(IConditional conditional) {
+        return notEq((Object) conditional);
+    }
+
+    @Override
+    public Condition like(IConditional conditional) {
+        return like((Object) conditional);
+    }
+
+    @Override
+    public Condition glob(IConditional conditional) {
+        return glob((Object) conditional);
+    }
+
+    @Override
+    public Condition greaterThan(IConditional conditional) {
+        return greaterThan((Object) conditional);
+    }
+
+    @Override
+    public Condition greaterThanOrEq(IConditional conditional) {
+        return greaterThanOrEq((Object) conditional);
+    }
+
+    @Override
+    public Condition lessThan(IConditional conditional) {
+        return lessThan((Object) conditional);
+    }
+
+    @Override
+    public Condition lessThanOrEq(IConditional conditional) {
+        return lessThanOrEq((Object) conditional);
+    }
+
+    @Override
+    public Between between(IConditional conditional) {
+        return between((Object) conditional);
+    }
+
+    @Override
+    public In in(IConditional firstConditional, IConditional[] conditionals) {
+        return in((Object) firstConditional, conditionals);
+    }
+
+    @Override
+    public In notIn(IConditional firstConditional, IConditional[] conditionals) {
+        return notIn((Object) firstConditional, conditionals);
+    }
+
     /**
      * Will concatenate a value to the specified condition such that: itemOrder=itemOrder + value or
      * if its a SQL string: name=name||'value'

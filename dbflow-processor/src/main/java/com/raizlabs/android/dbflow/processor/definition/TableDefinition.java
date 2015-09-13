@@ -289,7 +289,7 @@ public class TableDefinition extends BaseTableDefinition {
 
         getPropertyForNameMethod.beginControlFlow("switch ($L) ", "columnName");
         for (ColumnDefinition columnDefinition : columnDefinitions) {
-            columnDefinition.addPropertyDefinition(typeBuilder);
+            columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
             columnDefinition.addPropertyCase(getPropertyForNameMethod);
         }
         getPropertyForNameMethod.beginControlFlow("default: ");

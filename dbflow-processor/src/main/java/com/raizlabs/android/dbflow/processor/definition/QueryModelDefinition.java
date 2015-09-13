@@ -73,7 +73,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
         for (ColumnDefinition columnDefinition : columnDefinitions) {
-            columnDefinition.addPropertyDefinition(typeBuilder);
+            columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
         }
     }
 

@@ -101,11 +101,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public void addPropertyDefinition(TypeSpec.Builder typeBuilder) {
+    public void addPropertyDefinition(TypeSpec.Builder typeBuilder, TypeName tableClassName) {
         for (ForeignKeyReferenceDefinition reference : foreignKeyReferenceDefinitionList) {
             ParameterizedTypeName propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, reference.columnClassName.isPrimitive() ? reference.columnClassName.box() : reference.columnClassName);
             typeBuilder.addField(FieldSpec.builder(propParam, reference.columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("new $T<>($S)", ClassNames.PROPERTY, reference.columnName).build());
+                    .initializer("new $T<>($T.class, $S)", ClassNames.PROPERTY, tableClassName, reference.columnName).build());
         }
     }
 
