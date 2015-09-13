@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
@@ -16,7 +17,7 @@ public class EnumColumnAccess extends WrapperColumnAccess {
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (isModelContainerAdapter) {
             return getExistingColumnAccess()
-                    .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter);
+                    .getColumnAccessString(ClassName.get(String.class), elementName, fullElementName, variableNameString, isModelContainerAdapter);
         } else {
             return CodeBlock.builder()
                     .add("$L.name()", getExistingColumnAccess()
@@ -29,7 +30,7 @@ public class EnumColumnAccess extends WrapperColumnAccess {
     String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         if (isModelContainerAdapter) {
             return getExistingColumnAccess()
-                    .getShortAccessString(fieldType, elementName, isModelContainerAdapter);
+                    .getShortAccessString(ClassName.get(String.class), elementName, isModelContainerAdapter);
         } else {
             return CodeBlock.builder()
                     .add("$L.name()", getExistingColumnAccess()
@@ -44,6 +45,6 @@ public class EnumColumnAccess extends WrapperColumnAccess {
                 .add("$T.valueOf($L)", columnDefinition.elementTypeName, formattedAccess)
                 .build();
         return getExistingColumnAccess()
-                .setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess);
+                .setColumnAccessString(ClassName.get(String.class), elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess);
     }
 }

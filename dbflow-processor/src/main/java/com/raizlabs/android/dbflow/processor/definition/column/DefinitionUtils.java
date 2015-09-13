@@ -33,6 +33,8 @@ public class DefinitionUtils {
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
                 typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+            } else if (columnAccess instanceof EnumColumnAccess) {
+                typeName = ClassName.get(String.class);
             } else {
                 typeName = elementTypeName;
             }
@@ -67,12 +69,15 @@ public class DefinitionUtils {
         codeBuilder.addStatement("// element name: $L, fullElementName: $L, variableNameString: $L", elementName, fullElementName, variableNameString);
 
         String finalAccessStatement = statement;
-        if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
+        if (columnAccess instanceof TypeConverterAccess
+                || isModelContainerAdapter) {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
                 typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+            } else if (columnAccess instanceof EnumColumnAccess) {
+                typeName = ClassName.get(String.class);
             } else {
                 typeName = elementTypeName;
             }
