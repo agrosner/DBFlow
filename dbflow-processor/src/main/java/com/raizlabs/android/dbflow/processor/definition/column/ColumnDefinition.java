@@ -59,6 +59,7 @@ public class ColumnDefinition extends BaseDefinition {
     public boolean unique = false;
 
     public List<Integer> uniqueGroups = new ArrayList<>();
+    public List<Integer> indexGroups = new ArrayList<>();
 
     public Collate collate = Collate.NONE;
     public String defaultValue;
@@ -169,7 +170,7 @@ public class ColumnDefinition extends BaseDefinition {
         ParameterizedTypeName propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.isPrimitive() ? elementTypeName.box() : elementTypeName);
         typeBuilder.addField(FieldSpec.builder(propParam,
                 columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T<>($T.class, $S)", ClassNames.PROPERTY,  tableClass, columnName).build());
+                .initializer("new $T<>($T.class, $S)", ClassNames.PROPERTY, tableClass, columnName).build());
     }
 
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {
@@ -260,186 +261,4 @@ public class ColumnDefinition extends BaseDefinition {
 
         return codeBlockBuilder.build();
     }
-
-    /*public void writeLoadFromCursorDefinition(BaseTableDefinition tableDefinition, JavaWriter javaWriter,
-                                              boolean isModelContainerAdapter) throws IOException {
-        if (isForeignKey) {
-            //TODO: This is wrong, should be using condition query builder
-            javaWriter.emitEmptyLine();
-            javaWriter.emitSingleLineComment("Begin Loading %1s Model Foreign Key", columnFieldName);
-
-            // special case for model objects within class
-            if (!fieldIsModelContainer && !isModelContainerAdapter && isModel) {
-
-                ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
-
-                for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                    javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
-                }
-                ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
-                MockConditionQueryBuilder conditionQueryBuilder = new MockConditionQueryBuilder()
-                        .appendForeignKeyReferences(columnFieldType + tableDefinition.databaseWriter.classSeparator +
-                                TableDefinition.DBFLOW_TABLE_TAG, columnName, foreignKeyReferences);
-
-                String rawConditionStatement = String.format("new Select().from(%1s).where().%1s.querySingle()",
-                        ModelUtils.getFieldClass(columnFieldType),
-                        conditionQueryBuilder);
-
-                AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder().appendVariable(false);
-                adapterQueryBuilder.append(".")
-                        .append(columnAccessModel.getSetterReferenceColumnFieldName());
-                if (!columnAccessModel.isPrivate()) {
-                    adapterQueryBuilder.appendSpaceSeparated("=");
-                }
-                adapterQueryBuilder.append(rawConditionStatement);
-                if (columnAccessModel.isPrivate()) {
-                    adapterQueryBuilder.append(")");
-                }
-                javaWriter.emitStatement(adapterQueryBuilder.getQuery());
-
-                javaWriter.endControlFlow();
-
-            } else {
-                if (isModelContainerAdapter) {
-                    javaWriter.emitSingleLineComment("Writing for container adapter load from cursor for containers");
-                } else {
-                    javaWriter.emitSingleLineComment("Writing normal adapter load from cursor for containers");
-                }
-                for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                    javaWriter.emitStatement(ModelUtils.getColumnIndex(foreignKeyReference.columnName()));
-                }
-                ModelUtils.writeColumnIndexCheckers(javaWriter, foreignKeyReferences);
-
-                String modelContainerName = "";
-                if (isModelContainerAdapter) {
-                    if (isModel) {
-                        modelContainerName = ModelUtils.getVariable(isModelContainerAdapter) + columnFieldName;
-                        javaWriter.emitStatement(
-                                "ModelContainer %1s = %1s.getInstance(%1s.newDataInstance(), %1s.class)",
-                                modelContainerName, ModelUtils.getVariable(true),
-                                ModelUtils.getVariable(true),
-                                foreignKeyTableClassName);
-                    } else {
-                        modelContainerName = ModelUtils.getVariable(isModelContainerAdapter);
-                    }
-                } else if (fieldIsModelContainer) {
-                    AdapterQueryBuilder containerBuilder =
-                            new AdapterQueryBuilder().appendVariable(isModelContainerAdapter)
-                                    .append(".")
-                                    .append(columnFieldName)
-                                    .appendSpaceSeparated("=")
-                                    .append("new ")
-                                    .append(columnFieldActualType)
-                                    .appendParenthesisEnclosed(ModelUtils.getFieldClass(columnFieldType));
-                    javaWriter.emitStatement(containerBuilder.getQuery());
-                }
-
-                for (ForeignKeyReference foreignKeyReference : foreignKeyReferences) {
-                    ColumnAccessModel columnAccessModel = new ColumnAccessModel(this, foreignKeyReference);
-                    LoadFromCursorModel loadFromCursorModel = new LoadFromCursorModel(columnAccessModel);
-                    loadFromCursorModel.setIsNullable(isNullable());
-                    loadFromCursorModel.setModelContainerName(modelContainerName);
-                    loadFromCursorModel.setIsModelContainerAdapter(isModelContainerAdapter);
-                    loadFromCursorModel.write(javaWriter);
-
-                }
-
-                if (isModelContainerAdapter && isModel) {
-                    javaWriter.emitStatement("%1s.put(\"%1s\",%1s.getData())", ModelUtils.getVariable(true),
-                            containerKeyName, modelContainerName);
-                    javaWriter.nextControlFlow("else");
-
-                    javaWriter.emitStatement("%1s.put(\"%1s\", null)", ModelUtils.getVariable(true),
-                            containerKeyName);
-                }
-
-                javaWriter.endControlFlow();
-
-            }
-
-            javaWriter.emitSingleLineComment("End");
-            javaWriter.emitEmptyLine();
-
-        } else {
-            ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
-            LoadFromCursorModel loadFromCursorModel = new LoadFromCursorModel(columnAccessModel);
-            loadFromCursorModel.setModelContainerName(columnName);
-            loadFromCursorModel.setIsModelContainerAdapter(isModelContainerAdapter);
-            loadFromCursorModel.setIsNullable(isNullable());
-            loadFromCursorModel.writeSingleField(javaWriter);
-        }
-    }
-
-    public void writeToModelDefinition(JavaWriter javaWriter, boolean isModelContainerAdapter) throws IOException {
-
-        if (!isModel) {
-            AdapterQueryBuilder adapterQueryBuilder = new AdapterQueryBuilder("Object value");
-            adapterQueryBuilder.append(columnFieldName)
-                    .appendSpaceSeparated("=")
-                    .appendVariable(true)
-                    .append(".")
-                    .appendGetValue(containerKeyName);
-            javaWriter.emitStatement(adapterQueryBuilder.getQuery());
-            javaWriter.beginControlFlow("if (value%1s != null) ", columnFieldName);
-        }
-
-
-        ColumnAccessModel columnAccessModel = new ColumnAccessModel(manager, this, isModelContainerAdapter);
-
-        AdapterQueryBuilder queryBuilder = new AdapterQueryBuilder();
-        queryBuilder.appendVariable(false)
-                .append(".")
-                .append(columnAccessModel.getSetterReferenceColumnFieldName());
-
-        if (!columnAccessModel.isPrivate()) {
-            queryBuilder.appendSpaceSeparated("=");
-        }
-
-        String getType = columnFieldType;
-        // Type converters can never be primitive except boolean
-        if (element.asType()
-                .getKind()
-                .isPrimitive()) {
-            getType = manager.getTypeUtils()
-                    .boxedClass((PrimitiveType) element.asType())
-                    .asType()
-                    .toString();
-        }
-
-        queryBuilder.appendCast(fieldIsModelContainer ? modelContainerType : getType);
-
-        if (isModel) {
-            queryBuilder.appendVariable(true)
-                    .append(".getInstance(");
-            queryBuilder.appendVariable(true)
-                    .append(".")
-                    .appendGetValue(containerKeyName);
-            queryBuilder.append(",")
-                    .append(ModelUtils.getFieldClass(columnFieldType))
-                    .append(")")
-                    .append(
-                            ".toModel())");
-        } else {
-            if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum() && !columnAccessModel.isBoolean()) {
-                queryBuilder.appendTypeConverter(null, getType, true);
-            }
-            queryBuilder.append(String.format("value%1s)", columnFieldName));
-        }
-
-        if (columnAccessModel.isRequiresTypeConverter() && !columnAccessModel.isEnum() && !columnAccessModel.isBoolean()) {
-            queryBuilder.append(")");
-        }
-
-        if (columnAccessModel.isPrivate()) {
-            queryBuilder.append(")");
-        }
-
-        javaWriter.emitStatement(queryBuilder.getQuery());
-
-        if (!isModel) {
-            javaWriter.endControlFlow();
-        }
-    }
-
-*/
 }

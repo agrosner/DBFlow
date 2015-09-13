@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -68,6 +69,7 @@ public class TableDefinition extends BaseTableDefinition {
     public List<ColumnDefinition> primaryColumnDefinitions;
     public List<ForeignKeyColumnDefinition> foreignKeyDefinitions;
     public List<UniqueGroupsDefinition> uniqueGroupsDefinitions;
+    public List<IndexGroupsDefinition> indexGroupsDefinitions;
 
 
     public ColumnDefinition autoIncrementDefinition;
@@ -137,6 +139,7 @@ public class TableDefinition extends BaseTableDefinition {
         primaryColumnDefinitions = new ArrayList<>();
         foreignKeyDefinitions = new ArrayList<>();
         uniqueGroupsDefinitions = new ArrayList<>();
+        indexGroupsDefinitions = new ArrayList<>();
 
         InheritedColumn[] inheritedColumns = table.inheritedColumns();
         for (InheritedColumn inheritedColumn : inheritedColumns) {
@@ -146,7 +149,7 @@ public class TableDefinition extends BaseTableDefinition {
             inheritedColumnMap.put(inheritedColumn.fieldName(), inheritedColumn);
         }
 
-        createColumnDefinitions((TypeElement) element);
+        createColumnDefinitions(element);
 
         UniqueGroup[] groups = table.uniqueColumnGroups();
         Set<Integer> uniqueNumbersSet = new HashSet<>();
@@ -164,15 +167,30 @@ public class TableDefinition extends BaseTableDefinition {
             uniqueNumbersSet.add(uniqueGroup.groupNumber());
         }
 
+        IndexGroup[] indexGroups = table.indexGroups();
+        uniqueNumbersSet = new HashSet<>();
+        for (IndexGroup indexGroup : indexGroups) {
+            if (uniqueNumbersSet.contains(indexGroup.number())) {
+                manager.logError(TableDefinition.class, "A duplicate unique index number %1s was found for %1s", indexGroup.number(), elementName);
+            }
+            IndexGroupsDefinition definition = new IndexGroupsDefinition(manager, this, indexGroup);
+            for (ColumnDefinition columnDefinition : getColumnDefinitions()) {
+                if (columnDefinition.indexGroups.contains(definition.indexNumber)) {
+                    definition.columnDefinitionList.add(columnDefinition);
+                }
+            }
+            indexGroupsDefinitions.add(definition);
+            uniqueNumbersSet.add(indexGroup.number());
+        }
+
         implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
-                (TypeElement) element);
+                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element);
 
         implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.CONTENT_VALUES_LISTENER.toString(), (TypeElement) element);
+                ClassNames.CONTENT_VALUES_LISTENER.toString(), element);
 
         implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.SQLITE_STATEMENT_LISTENER.toString(), ((TypeElement) element));
+                ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element);
 
         methods = new MethodDefinition[]{
                 new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
@@ -276,10 +294,6 @@ public class TableDefinition extends BaseTableDefinition {
         return outputClassName;
     }
 
-    public String getQualifiedModelClassName() {
-        return packageName + "." + getModelClassName();
-    }
-
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
         MethodSpec.Builder getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
@@ -298,9 +312,12 @@ public class TableDefinition extends BaseTableDefinition {
         getPropertyForNameMethod.endControlFlow();
         getPropertyForNameMethod.endControlFlow();
 
+        // add index properties here
+        for (IndexGroupsDefinition indexGroupsDefinition : indexGroupsDefinitions) {
+            typeBuilder.addField(indexGroupsDefinition.getFieldSpec());
+        }
 
         typeBuilder.addMethod(getPropertyForNameMethod.build());
-        // TODO: create index groups definition and write it here
     }
 
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {

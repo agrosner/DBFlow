@@ -48,6 +48,13 @@ public @interface Table {
      */
     UniqueGroup[] uniqueColumnGroups() default {};
 
+
+    /**
+     * @return The set of INDEX clauses that specific columns can define to belong to, using the {@link Index} annotation.
+     * The generated Index properties belong to the corresponding property class to this table.
+     */
+    IndexGroup[] indexGroups() default {};
+
     /**
      * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.
      * Each must be accessible via: public, package private, or protected.

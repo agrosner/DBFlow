@@ -66,6 +66,7 @@ public class ClassNames {
     public static final ClassName SAVE_MODEL_LIST_TRANSACTION = ClassName.get(PROCESS, "SaveModelTransaction");
 
     public static final ClassName PROPERTY = ClassName.get(LANGUAGE, "Property");
+    public static final ClassName INDEX_PROPERTY = ClassName.get(LANGUAGE, "IndexProperty");
     public static final ClassName CONDITION_GROUP = ClassName.get(LANGUAGE, "ConditionGroup");
     public static final ClassName SELECT = ClassName.get(LANGUAGE, "Select");
     public static final ClassName UPDATE = ClassName.get(LANGUAGE, "Update");

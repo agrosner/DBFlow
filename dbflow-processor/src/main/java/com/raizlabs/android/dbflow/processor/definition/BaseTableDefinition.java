@@ -1,12 +1,10 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.ArrayList;
