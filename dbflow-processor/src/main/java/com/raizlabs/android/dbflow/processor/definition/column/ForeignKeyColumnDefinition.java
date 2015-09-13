@@ -231,14 +231,23 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         ifNullBuilder.add(")");
         builder.beginControlFlow(ifNullBuilder.build().toString());
 
-        CodeBlock.Builder initializer = CodeBlock.builder()
-                .add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
+        CodeBlock.Builder initializer = CodeBlock.builder();
+
+        // need to cast to type we're initializing.
+        if (isModelContainer) {
+            initializer.add("($T)", elementTypeName);
+        }
+        initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                 .add(selectBuilder.build());
-        if (!isModelContainerAdapter) {
+        if (!isModelContainerAdapter && !isModelContainer) {
             initializer.add(".querySingle()");
         } else {
-            initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
-                    ModelUtils.getVariable(true), referencedTableClassName);
+            if (isModelContainerAdapter) {
+                initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
+                        ModelUtils.getVariable(true), referencedTableClassName);
+            } else {
+                initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
+            }
         }
 
         builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,

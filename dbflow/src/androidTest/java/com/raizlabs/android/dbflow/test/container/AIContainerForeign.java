@@ -18,12 +18,12 @@ public class AIContainerForeign extends AutoIncrementContainer {
 
     @Column
     @ForeignKey(references = {
-            @ForeignKeyReference(columnType = Long.class, columnName = "ai_container_id", foreignKeyColumnName = "id")})
+            @ForeignKeyReference(columnType = long.class, columnName = "ai_container_id", foreignKeyColumnName = "id")})
     AutoIncrementContainer foreignModel;
 
     @Column
     @ForeignKey(references = {
-            @ForeignKeyReference(columnType = Long.class, columnName = "ai_container_id_container",
+            @ForeignKeyReference(columnType = long.class, columnName = "ai_container_id_container",
                                  foreignKeyColumnName = "id")})
     ForeignKeyContainer<AutoIncrementContainer> container;
 
