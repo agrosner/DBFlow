@@ -28,7 +28,7 @@ public class Queen extends BaseModel {
 
     @Column
     @ForeignKey(references = {@ForeignKeyReference(columnName = "colony_id",
-            columnType = Long.class,
+            columnType = long.class,
             foreignKeyColumnName = "id")},
             saveForeignKeyModel = false)
     Colony colony;
