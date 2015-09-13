@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.test.sql;
+package com.raizlabs.android.dbflow.test.sql.index;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Index;
@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import java.util.List;
 
-import static com.raizlabs.android.dbflow.test.sql.IndexModel_Table.salary;
+import static com.raizlabs.android.dbflow.test.sql.index.IndexModel_Table.salary;
 
 public class IndexTest extends FlowTestCase {
 
@@ -37,7 +37,6 @@ public class IndexTest extends FlowTestCase {
         IndexProperty<IndexModel> indexProperty = new IndexProperty<>(modelIndex.getIndexName(),
                 true, IndexModel.class, salary);
 
-        // TODO: generate index property.
         List<IndexModel> list = new Select().from(IndexModel.class)
                 .indexedBy(indexProperty)
                 .where(salary.greaterThan(20000l)).queryList();

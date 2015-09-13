@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.test.sql;
+package com.raizlabs.android.dbflow.test.sql.index;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Index;
