@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
@@ -10,17 +9,12 @@ import com.squareup.javapoet.TypeName;
  */
 public class ModelContainerAccess extends BaseColumnAccess {
 
-    private final ColumnDefinition columnDefinition;
     private final BaseColumnAccess existingColumnAccess;
-    private final ProcessorManager manager;
 
     public String containerKeyName;
 
-    public ModelContainerAccess(ProcessorManager manager, ColumnDefinition columnDefinition) {
-
-        this.columnDefinition = columnDefinition;
+    public ModelContainerAccess(ColumnDefinition columnDefinition) {
         this.existingColumnAccess = columnDefinition.columnAccess;
-        this.manager = manager;
 
         ContainerKey containerKey = columnDefinition.element.getAnnotation(ContainerKey.class);
         if (containerKey != null) {
@@ -28,6 +22,11 @@ public class ModelContainerAccess extends BaseColumnAccess {
         } else {
             containerKeyName = columnDefinition.columnName;
         }
+    }
+
+    public ModelContainerAccess(BaseColumnAccess existingColumnAccess, String containerKeyName) {
+        this.existingColumnAccess = existingColumnAccess;
+        this.containerKeyName = containerKeyName;
     }
 
     @Override

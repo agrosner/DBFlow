@@ -11,6 +11,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Description: Holds onto a common-set of fields and provides a common-set of methods to output class files.
@@ -22,6 +23,7 @@ public abstract class BaseDefinition implements TypeDefinition {
     public ClassName elementClassName;
     public TypeName elementTypeName;
     public ClassName outputClassName;
+    public TypeName erasedTypeName;
 
     public Element element;
     public TypeElement typeElement;
@@ -36,11 +38,14 @@ public abstract class BaseDefinition implements TypeDefinition {
         elementName = element.getSimpleName().toString();
 
         try {
-            elementTypeName = TypeName.get(element.asType());
+            TypeMirror typeMirror = element.asType();
+            elementTypeName = TypeName.get(typeMirror);
             if (!elementTypeName.isPrimitive()) {
                 elementClassName = getElementClassName(element);
             }
-        } catch (Exception e){
+            TypeMirror erasedType = processorManager.getTypeUtils().erasure(typeMirror);
+            erasedTypeName = TypeName.get(erasedType);
+        } catch (Exception e) {
 
         }
     }
@@ -50,13 +55,19 @@ public abstract class BaseDefinition implements TypeDefinition {
         this.element = element;
         packageName = manager.getElements().getPackageOf(element).toString();
         try {
+            TypeMirror typeMirror;
             if (element instanceof ExecutableElement) {
-                elementTypeName = TypeName.get(((ExecutableElement) element).getReturnType());
+                typeMirror = ((ExecutableElement) element).getReturnType();
+                elementTypeName = TypeName.get(typeMirror);
             } else {
-                elementTypeName = TypeName.get(element.asType());
+                typeMirror = element.asType();
+                elementTypeName = TypeName.get(typeMirror);
             }
+            TypeMirror erasedType = processorManager.getTypeUtils().erasure(typeMirror);
+            erasedTypeName = TypeName.get(erasedType);
         } catch (IllegalArgumentException i) {
             manager.logError("Found illegal type:" + element.asType() + " for " + element.getSimpleName().toString());
+            manager.logError("Exception here:" + i.toString());
         }
         elementName = element.getSimpleName().toString();
         if (!elementTypeName.isPrimitive()) {

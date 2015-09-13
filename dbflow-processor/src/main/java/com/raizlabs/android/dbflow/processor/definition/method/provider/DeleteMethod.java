@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.model.builder.SqlQueryBuilder;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -37,41 +36,47 @@ public class DeleteMethod implements MethodDefinition {
 
     @Override
     public MethodSpec getMethodSpec() {
-        CodeBlock.Builder code = CodeBlock.builder();
-        code.beginControlFlow("switch(MATCHER.match($L))", PARAM_URI);
-        for (TableEndpointDefinition tableEndpointDefinition : contentProviderDefinition.endpointDefinitions) {
-            for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
-                if (uriDefinition.deleteEnabled) {
-
-                    code.beginControlFlow("case $L:", uriDefinition.name);
-
-                    SqlQueryBuilder queryBuilder = new SqlQueryBuilder("long count = ")
-                            .appendDelete()
-                            .appendFromTable(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName)
-                            .appendWhere()
-                            .appendPathSegments(manager, contentProviderDefinition.databaseName,
-                                    tableEndpointDefinition.tableName, uriDefinition.segments)
-                            .appendCount();
-                    code.addStatement(queryBuilder.getQuery());
-
-                    new NotifyMethod(tableEndpointDefinition, uriDefinition, Notify.Method.DELETE).addCode(code);
-
-                    code.addStatement("return (int) count");
-                    code.endControlFlow();
-                }
-            }
-        }
-
-        code.beginControlFlow("default:")
-                .addStatement("throw new $T($S + $L)", ClassName.get(IllegalArgumentException.class), "Unknown URI", PARAM_URI)
-                .endControlFlow();
-        return MethodSpec.methodBuilder("delete")
+        MethodSpec.Builder method = MethodSpec.methodBuilder("delete")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ClassNames.URI, PARAM_URI)
                 .addParameter(ClassName.get(String.class), PARAM_SELECTION)
                 .addParameter(ArrayTypeName.of(String.class), PARAM_SELECTION_ARGS)
-                .returns(TypeName.INT).build();
+                .returns(TypeName.INT);
+
+        method.beginControlFlow("switch(MATCHER.match($L))", PARAM_URI);
+        for (TableEndpointDefinition tableEndpointDefinition : contentProviderDefinition.endpointDefinitions) {
+            for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
+                if (uriDefinition.deleteEnabled) {
+
+                    method.beginControlFlow("case $L:", uriDefinition.name);
+
+                    CodeBlock.Builder code = CodeBlock.builder();
+                    code.add("long count = new $T().from", ClassNames.DELETE);
+                    ProviderMethodUtils.appendTableName(code,
+                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                    code.add(".where()");
+                    ProviderMethodUtils.appendPathSegments(code, manager, uriDefinition.segments,
+                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                    code.add(".count();\n");
+
+                    method.addCode(code.build());
+
+                    new NotifyMethod(tableEndpointDefinition, uriDefinition, Notify.Method.DELETE)
+                            .addCode(code);
+
+                    method.addStatement("return (int) count");
+                    method.endControlFlow();
+                }
+            }
+        }
+
+        method.beginControlFlow("default:")
+                .addStatement("throw new $T($S + $L)", ClassName.get(IllegalArgumentException.class), "Unknown URI", PARAM_URI)
+                .endControlFlow();
+        method.endControlFlow();
+
+        return method.build();
     }
 
 }

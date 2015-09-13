@@ -130,6 +130,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
         typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .returns(elementClassName)
                 .addStatement("return new $T()", elementClassName).build());
 
         JavaFile javaFile = JavaFile.builder(packageName, typeBuilder.build()).build();

@@ -73,7 +73,7 @@ public class ModelContainerDefinition extends BaseDefinition {
 
         for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
             constructorCode.addStatement("$L.put($S, $T.class)", "columnMap", columnDefinition.columnName,
-                    columnDefinition.elementTypeName);
+                    columnDefinition.erasedTypeName);
         }
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
                 .addCode(constructorCode.build())

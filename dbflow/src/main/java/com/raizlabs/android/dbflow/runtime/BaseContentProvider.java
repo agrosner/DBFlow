@@ -18,7 +18,7 @@ public abstract class BaseContentProvider extends ContentProvider {
      * Converts the column into a {@link Property}. This exists since the propery method is static and cannot
      * be referenced easily.
      */
-    protected interface PropertyConverter {
+    public interface PropertyConverter {
 
         Property fromName(String columnName);
     }

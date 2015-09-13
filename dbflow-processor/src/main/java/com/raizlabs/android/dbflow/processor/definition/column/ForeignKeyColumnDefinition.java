@@ -244,12 +244,16 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     private String getFinalAccessStatement(CodeBlock.Builder codeBuilder, boolean isModelContainerAdapter, String statement) {
         String finalAccessStatement = statement;
-        if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
+        if (columnAccess instanceof TypeConverterAccess ||
+                columnAccess instanceof ModelContainerAccess ||
+                isModelContainerAdapter) {
             finalAccessStatement = getRefName();
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
                 typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+            } else if (columnAccess instanceof ModelContainerAccess) {
+                typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
             } else {
                 typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
                 statement = ModelUtils.getVariable(isModelContainerAdapter) + ".getInstance(" + statement + ", " + referencedTableClassName + ".class)";

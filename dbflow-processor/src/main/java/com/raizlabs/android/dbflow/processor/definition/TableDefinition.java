@@ -325,7 +325,7 @@ public class TableDefinition extends BaseTableDefinition {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getUpdateOnConflictAction")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addCode("return $T.$L", ClassNames.CONFLICT_ACTION, updateConflictActionName)
+                    .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, updateConflictActionName)
                     .returns(ClassNames.CONFLICT_ACTION)
                     .build());
         }
@@ -334,7 +334,7 @@ public class TableDefinition extends BaseTableDefinition {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getInsertOnConflictAction")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addCode("return $T.$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
+                    .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
                     .returns(ClassNames.CONFLICT_ACTION).build());
         }
 

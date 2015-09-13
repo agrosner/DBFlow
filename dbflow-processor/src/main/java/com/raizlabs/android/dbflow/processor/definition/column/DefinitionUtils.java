@@ -26,8 +26,9 @@ public class DefinitionUtils {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
         String finalAccessStatement = statement;
-        if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
-            finalAccessStatement = "ref" + fullElementName;
+        if (columnAccess instanceof TypeConverterAccess ||
+                isModelContainerAdapter) {
+            finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
@@ -63,10 +64,11 @@ public class DefinitionUtils {
         String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
+        codeBuilder.addStatement("// element name: $L, fullElementName: $L, variableNameString: $L", elementName, fullElementName, variableNameString);
 
         String finalAccessStatement = statement;
         if (columnAccess instanceof TypeConverterAccess || isModelContainerAdapter) {
-            finalAccessStatement = "ref" + fullElementName;
+            finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
