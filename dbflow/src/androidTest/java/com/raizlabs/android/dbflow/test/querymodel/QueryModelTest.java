@@ -1,4 +1,3 @@
-/*
 package com.raizlabs.android.dbflow.test.querymodel;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -9,11 +8,9 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import java.util.List;
 import java.util.UUID;
 
-*/
 /**
  * Description: Tests the {@link TestQueryModel} to ensure it works as expected.
- *//*
-
+ */
 public class QueryModelTest extends FlowTestCase {
 
 
@@ -34,10 +31,10 @@ public class QueryModelTest extends FlowTestCase {
         salaryModel.department = "Developer";
         salaryModel.save();
 
-        Where<SalaryModel> selectQuery = new Select(column(SalaryModel_Table.DEPARTMENT),
-                                                    column(SalaryModel_Table.SALARY).as("average_salary"),
-                                                    column(SalaryModel_Table.NAME).as("newName"))
-                                            .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT);
+        Where<SalaryModel> selectQuery = new Select(SalaryModel_Table.department,
+                SalaryModel_Table.salary.as("average_salary"),
+                SalaryModel_Table.name.as("newName"))
+                .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel_Table.department);
 
         TestQueryModel testQueryModel = selectQuery.queryCustomSingle(TestQueryModel.class);
 
@@ -58,4 +55,3 @@ public class QueryModelTest extends FlowTestCase {
         Delete.tables(SalaryModel.class);
     }
 }
-*/

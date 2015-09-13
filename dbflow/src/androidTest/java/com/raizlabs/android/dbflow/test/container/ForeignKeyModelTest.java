@@ -1,17 +1,9 @@
-/*
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
-
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
-*/
-/**
- * Description:
- *//*
 
 public class ForeignKeyModelTest extends FlowTestCase {
 
@@ -37,7 +29,7 @@ public class ForeignKeyModelTest extends FlowTestCase {
 
 
         foreignInteractionModel = new Select().from(ForeignInteractionModel.class)
-                .where(column(ForeignInteractionModel_Table.name).is("Test2")).querySingle();
+                .where(ForeignInteractionModel_Table.name.is("Test2")).querySingle();
         assertNotNull(foreignInteractionModel);
         assertNotNull(foreignInteractionModel.testModel1);
         TestModel1 testModel11 = foreignInteractionModel.getTestModel1();
@@ -47,4 +39,3 @@ public class ForeignKeyModelTest extends FlowTestCase {
         Delete.tables(ForeignInteractionModel.class, ParentModel.class);
     }
 }
-*/

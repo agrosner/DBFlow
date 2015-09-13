@@ -1,17 +1,12 @@
-/*
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
-*/
 /**
  * Description: Asserts values are handled same for container and adapter
- *//*
-
+ */
 public class ContainerDifferenceTest extends FlowTestCase {
 
     public void testContainer() {
@@ -24,8 +19,8 @@ public class ContainerDifferenceTest extends FlowTestCase {
         autoIncrementContainer.container = null;
         autoIncrementContainer.save();
 
-        autoIncrementContainer = new Select().from(AIContainerForeign.class).where(
-                column(AIContainerForeign_Table.id).is(autoIncrementContainer.id)).querySingle();
+        autoIncrementContainer = new Select().from(AIContainerForeign.class)
+                .where(AIContainerForeign_Table.id.is(autoIncrementContainer.id)).querySingle();
         assertNull(autoIncrementContainer.foreignModel);
         assertNull(autoIncrementContainer.container);
 
@@ -51,4 +46,3 @@ public class ContainerDifferenceTest extends FlowTestCase {
         Delete.table(AutoIncrementContainer.class);
     }
 }
-*/

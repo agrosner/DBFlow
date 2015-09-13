@@ -1,4 +1,3 @@
-/*
 package com.raizlabs.android.dbflow.test.provider;
 
 import android.net.Uri;
@@ -11,11 +10,10 @@ import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
-*/
+
 /**
  * Description:
- *//*
-
+ */
 public class ContentProviderTest extends ProviderTestCase2<TestContentProvider_Provider> {
 
     @Override
@@ -108,7 +106,7 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider_P
         assertEquals(testSyncableModel.name, "TestName");
 
         testSyncableModel = new Select().from(TestSyncableModel.class)
-                    .where(column(TestSyncableModel_Table.ID).is(testSyncableModel.id)).querySingle();
+                .where(TestSyncableModel_Table.id.is(testSyncableModel.id)).querySingle();
 
         TestSyncableModel fromContentProvider = new TestSyncableModel();
         fromContentProvider.id = testSyncableModel.id;
@@ -124,11 +122,9 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider_P
     }
 
 
-
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         FlowManager.destroy();
     }
 }
-*/

@@ -11,8 +11,6 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
 
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
 /**
  * Description:
  */
@@ -38,10 +36,10 @@ public class Queen extends BaseModel {
     @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
     public List<Ant> getMyAnts() {
         if (ants == null) {
-            //ants = new Select()
-            //        .from(Ant.class)
-            //        .where(column(Ant_Table.containerQueenId).eq(id))
-            //        .queryList();
+            ants = new Select()
+                    .from(Ant.class)
+                    .where(Ant_Table.queen_id.eq(id))
+                    .queryList();
         }
         return ants;
     }
