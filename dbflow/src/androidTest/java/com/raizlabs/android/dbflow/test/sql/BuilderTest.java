@@ -1,4 +1,3 @@
-/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
@@ -6,22 +5,16 @@ import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
-*/
 /**
  * Author: andrewgrosner
- * Description: Test our {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} and
+ * Description: Test our {@link ConditionGroup} and
  * {@link Condition} classes to ensure they generate what they're supposed to.
- *//*
-
+ */
 public class BuilderTest extends FlowTestCase {
 
-    */
-/**
+    /**
      * This test will ensure that all column values are converted appropriately
-     *//*
-
+     */
     public void testConditions() {
         ConditionGroup conditionGroup = ConditionGroup.clause()
                 .and(ConditionModel_Table.number.is(5L))
@@ -32,7 +25,7 @@ public class BuilderTest extends FlowTestCase {
 
 
         conditionGroup = ConditionGroup.clause()
-                .and(ConditionModel_Table.NUMBER.between(5L).and(10L));
+                .and(ConditionModel_Table.number.between(5L).and(10L));
         assertEquals("`number` BETWEEN 5 AND 10", conditionGroup.getQuery().trim());
     }
 
@@ -45,17 +38,18 @@ public class BuilderTest extends FlowTestCase {
 
     public void testChainingConditions() {
         ConditionGroup conditionQueryBuilder = ConditionGroup.clause();
-        conditionQueryBuilder.and(ConditionModel_Table.name.is("James").separator("OR"))
-                .and(ConditionModel_Table.number.is(6).separator("AND"))
-                .addCondition(ConditionModel_Table.fraction.is(4.5d));
+        conditionQueryBuilder.and(ConditionModel_Table.name.is("James"))
+                .or(ConditionModel_Table.number.is(6l))
+                .and(ConditionModel_Table.fraction.is(4.5d));
         assertEquals("`name`='James' OR `number`=6 AND `fraction`=4.5", conditionQueryBuilder.getQuery().trim());
     }
 
     public void testIsOperators() {
-        ConditionGroup conditionQueryBuilder = ConditionGroup.clause()
-                .and(ConditionModel_Table.name.is("James"))
-                .or(ConditionModel_Table.fraction.isNotNull());
-        assertEquals("`name`='James' OR `fraction` IS NOT NULL", conditionQueryBuilder.getQuery().trim());
+        // TODO: add is not null/null ops
+        //ConditionGroup conditionQueryBuilder = ConditionGroup.clause()
+        //        .and(ConditionModel_Table.name.is("James"))
+        //        .or(ConditionModel_Table.fraction.isNotNull());
+        //assertEquals("`name`='James' OR `fraction` IS NOT NULL", conditionQueryBuilder.getQuery().trim());
     }
 
     public void testInOperators() {
@@ -69,6 +63,7 @@ public class BuilderTest extends FlowTestCase {
     }
 
     public void testCombinedOperations() {
+        // TODO: fix combined ops
         //ConditionGroup combinedCondition = ConditionGroup
         //        .begin(ConditionGroup
         //                .begin(column(columnRaw("A"))).or(column(columnRaw("B"))))
@@ -78,4 +73,4 @@ public class BuilderTest extends FlowTestCase {
     }
 
 }
-*/
+

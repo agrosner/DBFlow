@@ -1,16 +1,9 @@
-/*
+
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
-
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
-*/
-/**
- * Description:
- *//*
 
 public class BlobModelTest extends FlowTestCase {
 
@@ -33,4 +26,3 @@ public class BlobModelTest extends FlowTestCase {
         assertEquals(new String(model.blob.getBlob()), TEST_BLOB);
     }
 }
-*/

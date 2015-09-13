@@ -1,4 +1,3 @@
-/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import android.database.sqlite.SQLiteConstraintException;
@@ -9,14 +8,10 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
-*/
 /**
  * Description: Test to ensure that passing null to non-null fields does not cause a NPE and that it
  * will fail.
- *//*
-
+ */
 public class BoxedValueTest extends FlowTestCase {
 
     private static final AtomicLong SEQUENCE_ID = new AtomicLong();
@@ -85,4 +80,3 @@ public class BoxedValueTest extends FlowTestCase {
     }
 
 }
-*/
