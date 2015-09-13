@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import com.raizlabs.android.dbflow.sql.language.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -158,6 +159,14 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      * @param value      The value of the item in Model form.
      */
     void put(String columnName, Object value);
+
+    /**
+     * Puts a {@link Property} with the specified key and value to the object.
+     *
+     * @param property The property to put.
+     * @param value    The value for the property.
+     */
+    void put(Property property, Object value);
 
     /**
      * @return The associated model adapter from the table for this {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}

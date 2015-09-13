@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure.container;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.sql.language.Property;
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -129,6 +130,11 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public abstract void put(String columnName, Object value);
+
+    @Override
+    public void put(Property property, Object value) {
+        put(property.getQuery(), value);
+    }
 
     @Override
     public ModelAdapter<ModelClass> getModelAdapter() {
