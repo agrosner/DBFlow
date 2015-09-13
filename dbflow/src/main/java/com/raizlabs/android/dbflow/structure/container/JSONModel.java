@@ -1,8 +1,7 @@
 package com.raizlabs.android.dbflow.structure.container;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -189,7 +188,14 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     @Override
     public byte[] getBlbValue(String key) {
         try {
-            return getData() != null ? (byte[]) getData().get(key) : null;
+            if (getData() != null) {
+                Object value = getData().get(key);
+                if (value instanceof Blob) {
+                    return ((Blob) value).getBlob();
+                } else {
+                    return (byte[]) value;
+                }
+            }
         } catch (JSONException e) {
             FlowLog.logError(e);
             return null;
