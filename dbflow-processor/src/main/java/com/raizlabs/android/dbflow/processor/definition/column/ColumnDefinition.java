@@ -137,20 +137,21 @@ public class ColumnDefinition extends BaseDefinition {
                 processorManager.getMessager()
                         .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
             } else {
-                // Any annotated members, otherwise we will use the scanner to find other ones
-                final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
-                if (typeConverterDefinition != null
-                        || (!hasTypeConverter && !SQLiteType.containsType(elementTypeName))) {
-                    hasTypeConverter = true;
-                    columnAccess = new TypeConverterAccess(manager, this);
+                if (elementTypeName.box().equals(TypeName.BOOLEAN.box())) {
+                    isBoolean = true;
+                    columnAccess = new BooleanColumnAccess(manager, this);
+                } else {
+                    // Any annotated members, otherwise we will use the scanner to find other ones
+                    final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
+                    if (typeConverterDefinition != null
+                            || (!hasTypeConverter && !SQLiteType.containsType(elementTypeName))) {
+                        hasTypeConverter = true;
+                        columnAccess = new TypeConverterAccess(manager, this);
+                    }
                 }
             }
         }
 
-        if (elementTypeName.box().equals(TypeName.BOOLEAN.box())) {
-            isBoolean = true;
-            columnAccess = new BooleanColumnAccess(manager, this);
-        }
 
         // TODO: add Index annotation
 
