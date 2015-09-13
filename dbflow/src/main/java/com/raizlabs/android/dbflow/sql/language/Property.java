@@ -291,6 +291,16 @@ public class Property<T> implements IConditional<T>, Query {
         return column(nameAlias).notIn(firstBaseModelQueriable, baseModelQueriables);
     }
 
+    @Override
+    public Condition concatenate(T value) {
+        return column(nameAlias).concatenate(value);
+    }
+
+    @Override
+    public Condition concatenate(IConditional conditional) {
+        return column(nameAlias).concatenate(conditional);
+    }
+
     public Class<? extends Model> getTable() {
         return table;
     }

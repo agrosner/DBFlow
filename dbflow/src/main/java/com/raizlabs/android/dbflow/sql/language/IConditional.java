@@ -19,6 +19,10 @@ public interface IConditional<ValueType> extends Query {
 
     Condition eq(BaseModelQueriable baseModelQueriable);
 
+    Condition concatenate(ValueType value);
+
+    Condition concatenate(IConditional conditional);
+
     Condition isNot(ValueType value);
 
     Condition isNot(IConditional conditional);

@@ -404,23 +404,17 @@ public class Condition extends BaseCondition implements IConditional {
         return queryBuilder.getQuery();
     }
 
-    /**
-     * Will concatenate a value to the specified condition such that: itemOrder=itemOrder + value or
-     * if its a SQL string: name=name||'value'
-     *
-     * @param value
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public Condition concatenateToColumn(Object value) {
+    @Override
+    public Condition concatenate(Object value) {
         operation = new QueryBuilder(Operation.EQUALS).append(columnName()).toString();
         if (value != null && !isRaw) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
+                //noinspection unchecked
                 value = typeConverter.getDBValue(value);
             }
         }
-        if (value instanceof String) {
+        if (value instanceof String || value instanceof IConditional) {
             operation = String.format("%1s %1s ", operation, Operation.CONCATENATE);
         } else if (value instanceof Number) {
             operation = String.format("%1s %1s ", operation, Operation.PLUS);
@@ -431,6 +425,11 @@ public class Condition extends BaseCondition implements IConditional {
         this.value = value;
         isValueSet = true;
         return this;
+    }
+
+    @Override
+    public Condition concatenate(IConditional conditional) {
+        return concatenate((Object) conditional);
     }
 
     /**

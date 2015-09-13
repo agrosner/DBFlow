@@ -5,13 +5,13 @@ import android.net.Uri;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.provider.TestContentProvider;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
+import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
 import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.isOpen;
 import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.note;
@@ -19,7 +19,6 @@ import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.provider
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.id;
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.integerField;
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.name;
-import static com.raizlabs.android.dbflow.test.sql.TestUpdateModel_Table.value;
 
 public class UpdateTest extends FlowTestCase {
 
@@ -38,20 +37,16 @@ public class UpdateTest extends FlowTestCase {
 
         assertEquals("UPDATE `TestModel1`", from.getQuery().trim());
 
-        Where<TestModel1> where = from.set(Condition.column("name").is("newvalue"))
-                .where(Condition.column("name").is("oldvalue"));
+        Where<TestModel1> where = from.set(TestModel1_Table.name.is("newvalue"))
+                .where(TestModel1_Table.name.is("oldvalue"));
 
         assertEquals("UPDATE `TestModel1` SET `name`='newvalue' WHERE `name`='oldvalue'", where.getQuery().trim());
         where.query();
 
-        String query = new Update<>(BoxedModel.class).set(integerField.eq(integerField + " + 1")).getQuery();
-        assertEquals("UPDATE `BoxedModel` SET `integerField`=integerField + 1", query.trim());
-
-
-        query = new Update<>(BoxedModel.class).set(integerField.concatenateToColumn(1)).getQuery();
+        String query = new Update<>(BoxedModel.class).set(integerField.concatenate(1)).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `integerField`=`integerField` + 1", query.trim());
 
-        query = new Update<>(BoxedModel.class).set(name.concatenateToColumn("Test")).getQuery();
+        query = new Update<>(BoxedModel.class).set(name.concatenate("Test")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
 
         query = new Update<>(BoxedModel.class).set(name.eq("Test"))
