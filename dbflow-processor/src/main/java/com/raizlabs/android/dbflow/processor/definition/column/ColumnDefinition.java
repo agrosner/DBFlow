@@ -5,6 +5,8 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.Index;
+import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Unique;
@@ -123,6 +125,18 @@ public class ColumnDefinition extends BaseDefinition {
             containerKeyName = elementName;
         }
 
+        Index index = element.getAnnotation(Index.class);
+        if (index != null) {
+            // empty index, we assume generic
+            if (index.indexGroups().length == 0) {
+                indexGroups.add(IndexGroup.GENERIC);
+            } else {
+                for (int group : index.indexGroups()) {
+                    indexGroups.add(group);
+                }
+            }
+        }
+
         TypeElement typeElement = manager.getElements().getTypeElement(element.asType().toString());
         if (typeElement != null && typeElement.getKind() == ElementKind.ENUM) {
             columnAccess = new EnumColumnAccess(this);
@@ -152,13 +166,6 @@ public class ColumnDefinition extends BaseDefinition {
                 }
             }
         }
-
-
-        // TODO: add Index annotation
-
-        // TODO: consider dropping model container fields
-
-
     }
 
     @Override
