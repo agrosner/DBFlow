@@ -60,9 +60,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
 
         // hopefully intentionally left blank
-        if (!referencedTableClassName.equals(TypeName.OBJECT)) {
-            referencedTableClassName = ClassName.get(manager.getElements().getTypeElement(typeElement.asType().toString()));
-        } else {
+        if (referencedTableClassName.equals(TypeName.OBJECT)) {
             if (elementTypeName instanceof ParameterizedTypeName) {
                 List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
                 if (args.size() > 0) {
@@ -160,100 +158,112 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
-        CodeBlock.Builder builder = CodeBlock.builder();
-        String statement = columnAccess
-                .getColumnAccessString(elementTypeName, elementName, elementName,
-                        ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
-        String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
-        builder.addStatement("// original statement: $L", statement);
-        builder.beginControlFlow("if ($L != null)", finalAccessStatement);
-        CodeBlock.Builder elseBuilder = CodeBlock.builder();
-        for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
-            builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter));
-            elseBuilder.addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, referenceDefinition.columnName);
+        if (!isModel && !isModelContainer) {
+            return super.getContentValuesStatement(isModelContainerAdapter);
+        } else {
+            CodeBlock.Builder builder = CodeBlock.builder();
+            String statement = columnAccess
+                    .getColumnAccessString(elementTypeName, elementName, elementName,
+                            ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+            String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
+            builder.addStatement("// original statement: $L", statement);
+            builder.beginControlFlow("if ($L != null)", finalAccessStatement);
+            CodeBlock.Builder elseBuilder = CodeBlock.builder();
+            for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
+                builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter));
+                elseBuilder.addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, referenceDefinition.columnName);
+            }
+            builder.nextControlFlow("else")
+                    .add(elseBuilder.build())
+                    .endControlFlow();
+            return builder.build();
         }
-        builder.nextControlFlow("else")
-                .add(elseBuilder.build())
-                .endControlFlow();
-        return builder.build();
     }
 
     @Override
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
-        CodeBlock.Builder builder = CodeBlock.builder();
-        String statement = columnAccess
-                .getColumnAccessString(elementTypeName, elementName, elementName,
-                        ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
-        String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
-        builder.beginControlFlow("if ($L != null)", finalAccessStatement);
-        CodeBlock.Builder elseBuilder = CodeBlock.builder();
-        for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
-            builder.add(referenceDefinition.getSQLiteStatementMethod(index, isModelContainerAdapter));
-            elseBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue());
-            index.incrementAndGet();
+        if (!isModel && !isModelContainer) {
+            return super.getSQLiteStatementMethod(index, isModelContainerAdapter);
+        } else {
+            CodeBlock.Builder builder = CodeBlock.builder();
+            String statement = columnAccess
+                    .getColumnAccessString(elementTypeName, elementName, elementName,
+                            ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+            String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
+            builder.beginControlFlow("if ($L != null)", finalAccessStatement);
+            CodeBlock.Builder elseBuilder = CodeBlock.builder();
+            for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
+                builder.add(referenceDefinition.getSQLiteStatementMethod(index, isModelContainerAdapter));
+                elseBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue());
+                index.incrementAndGet();
+            }
+            builder.nextControlFlow("else")
+                    .add(elseBuilder.build())
+                    .endControlFlow();
+            return builder.build();
         }
-        builder.nextControlFlow("else")
-                .add(elseBuilder.build())
-                .endControlFlow();
-        return builder.build();
     }
 
     @Override
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
-        CodeBlock.Builder builder = CodeBlock.builder()
-                .add("//// Only load model if references match, for efficiency\n");
-        CodeBlock.Builder ifNullBuilder = CodeBlock.builder()
-                .add("if (");
-        CodeBlock.Builder selectBuilder = CodeBlock.builder();
-        for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
-            ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
-            String indexName = "index" + referenceDefinition.columnName;
-            builder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, referenceDefinition.columnName);
-            if (i > 0) {
-                ifNullBuilder.add(" && ");
-            }
-            ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
-
-            String accessString;
-
-            if (!isModelContainerAdapter) {
-                accessString = ModelUtils.getVariable(false) + "." + columnAccess.getShortAccessString(referenceDefinition.columnClassName, elementName, false) + "." +
-                        referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.columnClassName, referenceDefinition.foreignColumnName, false);
-            } else {
-                accessString = columnAccess.getColumnAccessString(referenceDefinition.columnClassName, elementName, elementName, ModelUtils.getVariable(true), true);
-            }
-
-            // TODO: respect separator here.
-            selectBuilder.add("\n.and($L.$L.eq($L))",
-                    ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
-                    referenceDefinition.foreignColumnName, accessString);
-        }
-        ifNullBuilder.add(")");
-        builder.beginControlFlow(ifNullBuilder.build().toString());
-
-        CodeBlock.Builder initializer = CodeBlock.builder();
-
-        // need to cast to type we're initializing.
-        if (isModelContainer) {
-            initializer.add("($T)", elementTypeName);
-        }
-        initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
-                .add(selectBuilder.build());
-        if (!isModelContainerAdapter && !isModelContainer) {
-            initializer.add(".querySingle()");
+        if (!isModel && !isModelContainer) {
+            return super.getLoadFromCursorMethod(isModelContainerAdapter);
         } else {
-            if (isModelContainerAdapter) {
-                initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
-                        ModelUtils.getVariable(true), referencedTableClassName);
-            } else {
-                initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
-            }
-        }
+            CodeBlock.Builder builder = CodeBlock.builder()
+                    .add("//// Only load model if references match, for efficiency\n");
+            CodeBlock.Builder ifNullBuilder = CodeBlock.builder()
+                    .add("if (");
+            CodeBlock.Builder selectBuilder = CodeBlock.builder();
+            for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
+                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
+                String indexName = "index" + referenceDefinition.columnName;
+                builder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, referenceDefinition.columnName);
+                if (i > 0) {
+                    ifNullBuilder.add(" && ");
+                }
+                ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
-        builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build()));
-        builder.endControlFlow();
-        return builder.build();
+                String accessString;
+
+                if (!isModelContainerAdapter) {
+                    accessString = ModelUtils.getVariable(false) + "." + columnAccess.getShortAccessString(referenceDefinition.columnClassName, elementName, false) + "." +
+                            referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.columnClassName, referenceDefinition.foreignColumnName, false);
+                } else {
+                    accessString = columnAccess.getColumnAccessString(referenceDefinition.columnClassName, elementName, elementName, ModelUtils.getVariable(true), true);
+                }
+
+                // TODO: respect separator here.
+                selectBuilder.add("\n.and($L.$L.eq($L))",
+                        ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
+                        referenceDefinition.foreignColumnName, accessString);
+            }
+            ifNullBuilder.add(")");
+            builder.beginControlFlow(ifNullBuilder.build().toString());
+
+            CodeBlock.Builder initializer = CodeBlock.builder();
+
+            // need to cast to type we're initializing.
+            if (isModelContainer) {
+                initializer.add("($T)", elementTypeName);
+            }
+            initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
+                    .add(selectBuilder.build());
+            if (!isModelContainerAdapter && !isModelContainer) {
+                initializer.add(".querySingle()");
+            } else {
+                if (isModelContainerAdapter) {
+                    initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
+                            ModelUtils.getVariable(true), referencedTableClassName);
+                } else {
+                    initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
+                }
+            }
+
+            builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
+                    isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build()));
+            builder.endControlFlow();
+            return builder.build();
+        }
     }
 
     String getFinalAccessStatement(CodeBlock.Builder codeBuilder, boolean isModelContainerAdapter, String statement) {
@@ -269,8 +279,12 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             } else if (columnAccess instanceof ModelContainerAccess) {
                 typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
             } else {
-                typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
-                statement = ModelUtils.getVariable(isModelContainerAdapter) + ".getInstance(" + statement + ", " + referencedTableClassName + ".class)";
+                if (isModelContainer || isModel) {
+                    typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
+                    statement = ModelUtils.getVariable(isModelContainerAdapter) + ".getInstance(" + statement + ", " + referencedTableClassName + ".class)";
+                } else {
+                    typeName = elementTypeName;
+                }
             }
 
             codeBuilder.addStatement("$T $L = $L", typeName,
