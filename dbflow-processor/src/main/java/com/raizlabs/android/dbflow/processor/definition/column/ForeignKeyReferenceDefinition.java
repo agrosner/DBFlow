@@ -63,7 +63,10 @@ public class ForeignKeyReferenceDefinition {
     }
 
     CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
+        // fix its access here.
         String shortAccess = tableColumnAccess.getShortAccessString(isModelContainerAdapter, foreignKeyFieldName);
+        shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(isModelContainerAdapter, shortAccess);
+
         String columnShortAccess = columnAccess.getShortAccessString(isModelContainerAdapter, foreignColumnName);
 
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;

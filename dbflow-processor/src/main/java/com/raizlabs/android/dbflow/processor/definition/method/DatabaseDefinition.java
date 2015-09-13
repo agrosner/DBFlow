@@ -174,7 +174,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
         for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                    queryModelDefinition.elementClassName, queryModelDefinition.outputClassName);
+                    queryModelDefinition.elementClassName, queryModelDefinition.getAdapterClassName());
         }
 
         builder.addMethod(constructor.build());

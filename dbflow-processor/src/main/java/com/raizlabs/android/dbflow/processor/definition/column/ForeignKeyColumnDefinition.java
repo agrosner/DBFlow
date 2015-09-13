@@ -161,6 +161,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 .getColumnAccessString(elementTypeName, elementName, elementName,
                         ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
         String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
+        builder.addStatement("// original statement: $L", statement);
         builder.beginControlFlow("if ($L != null)", finalAccessStatement);
         CodeBlock.Builder elseBuilder = CodeBlock.builder();
         for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
@@ -242,7 +243,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         return builder.build();
     }
 
-    private String getFinalAccessStatement(CodeBlock.Builder codeBuilder, boolean isModelContainerAdapter, String statement) {
+    String getFinalAccessStatement(CodeBlock.Builder codeBuilder, boolean isModelContainerAdapter, String statement) {
         String finalAccessStatement = statement;
         if (columnAccess instanceof TypeConverterAccess ||
                 columnAccess instanceof ModelContainerAccess ||
@@ -263,6 +264,16 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     finalAccessStatement, statement);
         }
         return finalAccessStatement;
+    }
+
+    String getForeignKeyReferenceAccess(boolean isModelContainerAdapter, String statement) {
+        if (columnAccess instanceof TypeConverterAccess ||
+                columnAccess instanceof ModelContainerAccess ||
+                isModelContainerAdapter) {
+            return getRefName();
+        } else {
+            return statement;
+        }
     }
 
     public String getRefName() {

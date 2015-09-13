@@ -109,8 +109,8 @@ public class QueryModelDefinition extends BaseTableDefinition {
         return outputClassName;
     }
 
-    public String getQualifiedModelClassName() {
-        return packageName + "." + getModelClassName();
+    public ClassName getAdapterClassName() {
+        return ClassName.get(packageName, adapterName);
     }
 
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
