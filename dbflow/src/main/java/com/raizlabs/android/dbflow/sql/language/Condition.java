@@ -62,7 +62,7 @@ public class Condition extends BaseCondition implements IConditional {
      * Assigns the operation to "=" the equals operator.
      *
      * @param value The value of the column from the {@link com.raizlabs.android.dbflow.structure.Model} Note
-     *              this value may be type converted if used in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     *              this value may be type converted if used in a {@link ConditionGroup}
      *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
      * @return This condition
      */
@@ -323,13 +323,85 @@ public class Condition extends BaseCondition implements IConditional {
     }
 
     @Override
-    public In in(IConditional firstConditional, IConditional[] conditionals) {
+    public In in(IConditional firstConditional, IConditional... conditionals) {
         return in((Object) firstConditional, conditionals);
     }
 
     @Override
-    public In notIn(IConditional firstConditional, IConditional[] conditionals) {
+    public In notIn(IConditional firstConditional, IConditional... conditionals) {
         return notIn((Object) firstConditional, conditionals);
+    }
+
+    @Override
+    public In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable[] baseModelQueriables) {
+        return notIn((Object) firstBaseModelQueriable, baseModelQueriables);
+    }
+
+    @Override
+    public Condition is(BaseModelQueriable baseModelQueriable) {
+        return is((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition eq(BaseModelQueriable baseModelQueriable) {
+        return eq((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition isNot(BaseModelQueriable baseModelQueriable) {
+        return isNot((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition notEq(BaseModelQueriable baseModelQueriable) {
+        return notEq((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition like(BaseModelQueriable baseModelQueriable) {
+        return like((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition glob(BaseModelQueriable baseModelQueriable) {
+        return glob((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition greaterThan(BaseModelQueriable baseModelQueriable) {
+        return greaterThan((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition greaterThanOrEq(BaseModelQueriable baseModelQueriable) {
+        return greaterThanOrEq((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition lessThan(BaseModelQueriable baseModelQueriable) {
+        return lessThan((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Condition lessThanOrEq(BaseModelQueriable baseModelQueriable) {
+        return lessThanOrEq((Object) baseModelQueriable);
+    }
+
+    @Override
+    public Between between(BaseModelQueriable baseModelQueriable) {
+        return between((Object) baseModelQueriable);
+    }
+
+    @Override
+    public In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable[] baseModelQueriables) {
+        return in((Object) firstBaseModelQueriable, baseModelQueriables);
+    }
+
+    @Override
+    public String getQuery() {
+        QueryBuilder queryBuilder = new QueryBuilder();
+        appendConditionToQuery(queryBuilder);
+        return queryBuilder.getQuery();
     }
 
     /**
@@ -469,9 +541,9 @@ public class Condition extends BaseCondition implements IConditional {
          * OR comparison separator
          */
         public static final String OR = "OR";
+
         /**
-         * An empty value for the condition. If empty in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-         * you need to replace all of these with actual values.
+         * An empty value for the condition.
          */
         public static final String EMPTY_PARAM = "?";
 

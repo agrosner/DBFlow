@@ -9,53 +9,79 @@ public interface IConditional<ValueType> extends Query {
 
     Condition is(ValueType value);
 
+    Condition is(IConditional conditional);
+
+    Condition is(BaseModelQueriable baseModelQueriable);
+
     Condition eq(ValueType value);
+
+    Condition eq(IConditional conditional);
+
+    Condition eq(BaseModelQueriable baseModelQueriable);
 
     Condition isNot(ValueType value);
 
+    Condition isNot(IConditional conditional);
+
+    Condition isNot(BaseModelQueriable baseModelQueriable);
+
     Condition notEq(ValueType value);
-
-    Condition like(ValueType value);
-
-    Condition glob(ValueType value);
-
-    Condition greaterThan(ValueType value);
-
-    Condition greaterThanOrEq(ValueType value);
-
-    Condition lessThan(ValueType value);
-
-    Condition lessThanOrEq(ValueType value);
-
-    Condition.Between between(ValueType value);
-
-    Condition.In in(ValueType firstValue, ValueType... values);
-
-    Condition.In notIn(ValueType firstValue, ValueType... values);
-
-    Condition is(IConditional<ValueType> conditional);
-
-    Condition eq(IConditional<ValueType> conditional);
-
-    Condition isNot(IConditional<ValueType> conditional);
 
     Condition notEq(IConditional<ValueType> conditional);
 
-    Condition like(IConditional<ValueType> conditional);
+    Condition notEq(BaseModelQueriable baseModelQueriable);
 
-    Condition glob(IConditional<ValueType> conditional);
+    Condition like(ValueType value);
 
-    Condition greaterThan(IConditional<ValueType> conditional);
+    Condition like(IConditional conditional);
 
-    Condition greaterThanOrEq(IConditional<ValueType> conditional);
+    Condition like(BaseModelQueriable baseModelQueriable);
 
-    Condition lessThan(IConditional<ValueType> conditional);
+    Condition glob(ValueType value);
 
-    Condition lessThanOrEq(IConditional<ValueType> conditional);
+    Condition glob(IConditional conditional);
 
-    Condition.Between between(IConditional<ValueType> conditional);
+    Condition glob(BaseModelQueriable baseModelQueriable);
 
-    Condition.In in(IConditional<ValueType> firstConditional, IConditional<ValueType>... conditionals);
+    Condition greaterThan(ValueType value);
 
-    Condition.In notIn(IConditional<ValueType> firstConditional, IConditional<ValueType>... conditionals);
+    Condition greaterThan(IConditional conditional);
+
+    Condition greaterThan(BaseModelQueriable baseModelQueriable);
+
+    Condition greaterThanOrEq(ValueType value);
+
+    Condition greaterThanOrEq(IConditional conditional);
+
+    Condition greaterThanOrEq(BaseModelQueriable baseModelQueriable);
+
+    Condition lessThan(ValueType value);
+
+    Condition lessThan(IConditional conditional);
+
+    Condition lessThan(BaseModelQueriable baseModelQueriable);
+
+    Condition lessThanOrEq(ValueType value);
+
+    Condition lessThanOrEq(IConditional conditional);
+
+    Condition lessThanOrEq(BaseModelQueriable baseModelQueriable);
+
+    Condition.Between between(ValueType value);
+
+    Condition.Between between(IConditional conditional);
+
+    Condition.Between between(BaseModelQueriable baseModelQueriable);
+
+    Condition.In in(ValueType firstValue, ValueType... values);
+
+    Condition.In in(IConditional firstConditional, IConditional... conditionals);
+
+    Condition.In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables);
+
+    Condition.In notIn(ValueType firstValue, ValueType... values);
+
+    Condition.In notIn(IConditional firstConditional, IConditional... conditionals);
+
+    Condition.In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables);
 }

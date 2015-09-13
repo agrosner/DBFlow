@@ -162,17 +162,17 @@ public class Property<T> implements IConditional<T>, Query {
     }
 
     @Override
-    public Condition is(IConditional<T> conditional) {
+    public Condition is(IConditional conditional) {
         return column(nameAlias).is(conditional);
     }
 
     @Override
-    public Condition eq(IConditional<T> conditional) {
+    public Condition eq(IConditional conditional) {
         return column(nameAlias).eq(conditional);
     }
 
     @Override
-    public Condition isNot(IConditional<T> conditional) {
+    public Condition isNot(IConditional conditional) {
         return column(nameAlias).isNot(conditional);
     }
 
@@ -182,48 +182,113 @@ public class Property<T> implements IConditional<T>, Query {
     }
 
     @Override
-    public Condition like(IConditional<T> conditional) {
+    public Condition like(IConditional conditional) {
         return column(nameAlias).like(conditional);
     }
 
     @Override
-    public Condition glob(IConditional<T> conditional) {
+    public Condition glob(IConditional conditional) {
         return column(nameAlias).glob(conditional);
     }
 
     @Override
-    public Condition greaterThan(IConditional<T> conditional) {
+    public Condition greaterThan(IConditional conditional) {
         return column(nameAlias).greaterThan(conditional);
     }
 
     @Override
-    public Condition greaterThanOrEq(IConditional<T> conditional) {
+    public Condition greaterThanOrEq(IConditional conditional) {
         return column(nameAlias).greaterThanOrEq(conditional);
     }
 
     @Override
-    public Condition lessThan(IConditional<T> conditional) {
+    public Condition lessThan(IConditional conditional) {
         return column(nameAlias).lessThan(conditional);
     }
 
     @Override
-    public Condition lessThanOrEq(IConditional<T> conditional) {
+    public Condition lessThanOrEq(IConditional conditional) {
         return column(nameAlias).lessThanOrEq(conditional);
     }
 
     @Override
-    public Condition.Between between(IConditional<T> conditional) {
+    public Condition.Between between(IConditional conditional) {
         return column(nameAlias).between(conditional);
     }
 
     @Override
-    public Condition.In in(IConditional<T> firstConditional, IConditional<T>... conditionals) {
+    public Condition.In in(IConditional firstConditional, IConditional... conditionals) {
         return column(nameAlias).in(firstConditional, conditionals);
     }
 
     @Override
-    public Condition.In notIn(IConditional<T> firstConditional, IConditional<T>... conditionals) {
+    public Condition.In notIn(IConditional firstConditional, IConditional... conditionals) {
         return column(nameAlias).notIn(firstConditional, conditionals);
+    }
+
+    @Override
+    public Condition is(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).is(baseModelQueriable);
+    }
+
+    @Override
+    public Condition eq(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).eq(baseModelQueriable);
+    }
+
+    @Override
+    public Condition isNot(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).isNot(baseModelQueriable);
+    }
+
+    @Override
+    public Condition notEq(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).notEq(baseModelQueriable);
+    }
+
+    @Override
+    public Condition like(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).like(baseModelQueriable);
+    }
+
+    @Override
+    public Condition glob(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).glob(baseModelQueriable);
+    }
+
+    @Override
+    public Condition greaterThan(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).greaterThan(baseModelQueriable);
+    }
+
+    @Override
+    public Condition greaterThanOrEq(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).greaterThanOrEq(baseModelQueriable);
+    }
+
+    @Override
+    public Condition lessThan(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).lessThan(baseModelQueriable);
+    }
+
+    @Override
+    public Condition lessThanOrEq(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).lessThanOrEq(baseModelQueriable);
+    }
+
+    @Override
+    public Condition.Between between(BaseModelQueriable baseModelQueriable) {
+        return column(nameAlias).between(baseModelQueriable);
+    }
+
+    @Override
+    public Condition.In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
+        return column(nameAlias).in(firstBaseModelQueriable, baseModelQueriables);
+    }
+
+    @Override
+    public Condition.In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
+        return column(nameAlias).notIn(firstBaseModelQueriable, baseModelQueriables);
     }
 
     public Class<? extends Model> getTable() {
