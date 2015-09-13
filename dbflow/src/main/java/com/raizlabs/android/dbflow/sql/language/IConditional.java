@@ -13,6 +13,8 @@ public interface IConditional<ValueType> extends Query {
 
     Condition is(BaseModelQueriable baseModelQueriable);
 
+    Condition isNull();
+
     Condition eq(ValueType value);
 
     Condition eq(IConditional conditional);
@@ -28,6 +30,8 @@ public interface IConditional<ValueType> extends Query {
     Condition isNot(IConditional conditional);
 
     Condition isNot(BaseModelQueriable baseModelQueriable);
+
+    Condition isNotNull();
 
     Condition notEq(ValueType value);
 

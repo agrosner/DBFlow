@@ -235,21 +235,13 @@ public class Condition extends BaseCondition implements IConditional {
         return this;
     }
 
-    /**
-     * Appends IS NULL to the end of this condition
-     *
-     * @return
-     */
+    @Override
     public Condition isNull() {
         operation = String.format(" %1s ", Operation.IS_NULL);
         return this;
     }
 
-    /**
-     * Appends IS NOT NULL to the end of this condition
-     *
-     * @return
-     */
+    @Override
     public Condition isNotNull() {
         operation = String.format(" %1s ", Operation.IS_NOT_NULL);
         return this;

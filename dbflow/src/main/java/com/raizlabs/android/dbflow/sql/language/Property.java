@@ -102,6 +102,11 @@ public class Property<T> implements IConditional<T>, Query {
     }
 
     @Override
+    public Condition isNull() {
+        return column(nameAlias).isNull();
+    }
+
+    @Override
     public Condition eq(T value) {
         return column(nameAlias).eq(value);
     }
@@ -109,6 +114,11 @@ public class Property<T> implements IConditional<T>, Query {
     @Override
     public Condition isNot(T value) {
         return column(nameAlias).isNot(value);
+    }
+
+    @Override
+    public Condition isNotNull() {
+        return column(nameAlias).isNotNull();
     }
 
     @Override

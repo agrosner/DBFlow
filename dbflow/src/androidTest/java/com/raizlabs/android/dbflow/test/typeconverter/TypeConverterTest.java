@@ -81,7 +81,7 @@ public class TypeConverterTest extends FlowTestCase {
 
     /**
      * Nullable database columns need to be allowed to receive null values.
-     * <p/>
+     * <p>
      * Type converters that autobox to native types need to have their behavior checked
      * when null values are present in the database.
      */
@@ -124,7 +124,7 @@ public class TypeConverterTest extends FlowTestCase {
          */
 
         new Update<>(TestType.class)
-                .set(TestType_Table.nativeBoolean.eq(null))
+                .set(TestType_Table.nativeBoolean.isNull())
                 .where(TestType_Table.name.eq(testType.name))
                 .queryClose();
 
