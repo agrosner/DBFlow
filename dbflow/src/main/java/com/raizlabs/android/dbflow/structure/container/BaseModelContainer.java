@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.container;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -41,6 +42,22 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     public BaseModelContainer(Class<ModelClass> table, DataClass data) {
         this(table);
         this.data = data;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getTypeConvertedPropertyValue(Class<T> type, String key) {
+        Object value = getValue(key);
+        if (value != null && type.isAssignableFrom(value.getClass())) {
+            return (T) value;
+        } else {
+            TypeConverter<Object, T> converter = FlowManager.getTypeConverterForClass(type);
+            if (converter != null) {
+                return converter.getModelValue(value);
+            } else {
+                return null;
+            }
+        }
     }
 
     @Override

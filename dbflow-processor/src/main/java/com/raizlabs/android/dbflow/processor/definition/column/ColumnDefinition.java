@@ -218,10 +218,21 @@ public class ColumnDefinition extends BaseDefinition {
      * @param isModelContainerAdapter
      * @return A string without any type conversion for this field.
      */
-    public String getRawColumnAccessString(boolean isModelContainerAdapter) {
+    public String getPropertyComparisonAccessStatement(boolean isModelContainerAdapter) {
         if (columnAccess instanceof TypeConverterAccess) {
-            return ((TypeConverterAccess) columnAccess).existingColumnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
-                    ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+            TypeConverterAccess converterAccess = ((TypeConverterAccess) columnAccess);
+            TypeConverterDefinition converterDefinition = converterAccess.typeConverterDefinition;
+            if (!isModelContainerAdapter) {
+                return converterAccess.existingColumnAccess.getColumnAccessString(converterDefinition.getDbTypeName(), containerKeyName, elementName,
+                        ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+            } else {
+                return CodeBlock.builder()
+                        .add("$L.getTypeConvertedPropertyValue($T.class, $S)",
+                                ModelUtils.getVariable(isModelContainerAdapter),
+                                converterAccess.typeConverterDefinition.getModelTypeName(),
+                                containerKeyName)
+                        .build().toString();
+            }
         } else {
             return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
                     ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);

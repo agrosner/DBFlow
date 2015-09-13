@@ -12,7 +12,7 @@ public class SimpleColumnAccess extends BaseColumnAccess {
     @Override
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (isModelContainerAdapter) {
-            String method = SQLiteType.getMethod(fieldType);
+            String method = SQLiteType.getModelContainerMethod(fieldType);
             if (method == null) {
                 method = "get";
             }

@@ -14,18 +14,28 @@ public class EnumColumnAccess extends WrapperColumnAccess {
 
     @Override
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
-        return CodeBlock.builder()
-                .add("$L.name()", getExistingColumnAccess()
-                        .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter))
-                .build().toString();
+        if (isModelContainerAdapter) {
+            return getExistingColumnAccess()
+                    .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter);
+        } else {
+            return CodeBlock.builder()
+                    .add("$L.name()", getExistingColumnAccess()
+                            .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter))
+                    .build().toString();
+        }
     }
 
     @Override
     String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
-        return CodeBlock.builder()
-                .add("$L.name()", getExistingColumnAccess()
-                        .getShortAccessString(fieldType, elementName, isModelContainerAdapter))
-                .build().toString();
+        if (isModelContainerAdapter) {
+            return getExistingColumnAccess()
+                    .getShortAccessString(fieldType, elementName, isModelContainerAdapter);
+        } else {
+            return CodeBlock.builder()
+                    .add("$L.name()", getExistingColumnAccess()
+                            .getShortAccessString(fieldType, elementName, isModelContainerAdapter))
+                    .build().toString();
+        }
     }
 
     @Override

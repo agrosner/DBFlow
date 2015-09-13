@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.structure.container;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 

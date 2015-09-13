@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.CodeBlock;
@@ -38,7 +37,7 @@ public class PrimaryConditionMethod implements MethodDefinition {
                 .add("return $T.clause()", ClassNames.CONDITION_GROUP);
         for (ColumnDefinition columnDefinition : tableDefinition.getPrimaryColumnDefinitions()) {
             code.add(".and($T.$L.eq($L))", tableDefinition.getPropertyClassName(), columnDefinition.columnName,
-                    columnDefinition.getRawColumnAccessString(isModelContainerAdapter));
+                    columnDefinition.getPropertyComparisonAccessStatement(isModelContainerAdapter));
         }
         methodBuilder.addCode(code.addStatement("").build());
         return methodBuilder.build();

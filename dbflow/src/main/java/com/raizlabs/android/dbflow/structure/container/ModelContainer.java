@@ -50,6 +50,18 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     Object getValue(String key);
 
     /**
+     * Converts the value into a safe value that's represented by the return type.
+     * If the class has a type converter, it will use this method to upconvert the value
+     * if its not already represented by its type-converter.
+     *
+     * @param type The type of the value to get.
+     * @param key  The key to use.
+     * @param <T>  The return type we cast the return to.
+     * @return The value that we use to compare in properties.
+     */
+    <T> T getTypeConvertedPropertyValue(Class<T> type, String key);
+
+    /**
      * @param key The key in the container.
      * @return The value converted into an {@link Integer}.
      */
