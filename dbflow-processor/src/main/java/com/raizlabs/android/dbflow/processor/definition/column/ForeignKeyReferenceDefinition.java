@@ -25,7 +25,7 @@ public class ForeignKeyReferenceDefinition {
 
     private boolean isReferencedFieldPrivate;
 
-    public final BaseColumnAccess columnAccess;
+    public BaseColumnAccess columnAccess;
 
     private final BaseColumnAccess tableColumnAccess;
     private final ForeignKeyColumnDefinition foreignKeyColumnDefinition;
@@ -52,10 +52,14 @@ public class ForeignKeyReferenceDefinition {
         }
         columnClassName = TypeName.get(columnClass);
         isReferencedFieldPrivate = foreignKeyReference.referencedFieldIsPrivate();
-        if (isReferencedFieldPrivate) {
+        if (isReferencedFieldPrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PrivateColumnAccess(foreignKeyReference);
         } else {
-            columnAccess = new SimpleColumnAccess();
+            if (foreignKeyColumnDefinition.isModelContainer) {
+                columnAccess = new ModelContainerAccess(tableColumnAccess, foreignColumnName);
+            } else {
+                columnAccess = new SimpleColumnAccess();
+            }
         }
 
         // create for referencing in model container
@@ -68,7 +72,7 @@ public class ForeignKeyReferenceDefinition {
 
     CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         // fix its access here.
-        String shortAccess = tableColumnAccess.getShortAccessString(isModelContainerAdapter, foreignKeyFieldName);
+        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, isModelContainerAdapter);
         shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(isModelContainerAdapter, shortAccess);
 
         String columnShortAccess = getShortColumnAccess(isModelContainerAdapter);
@@ -79,7 +83,7 @@ public class ForeignKeyReferenceDefinition {
     }
 
     CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
-        String shortAccess = tableColumnAccess.getShortAccessString(isModelContainerAdapter, foreignKeyFieldName);
+        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, isModelContainerAdapter);
         shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(isModelContainerAdapter, shortAccess);
 
         String columnShortAccess = getShortColumnAccess(isModelContainerAdapter);
@@ -95,7 +99,7 @@ public class ForeignKeyReferenceDefinition {
 
     private String getShortColumnAccess(boolean isModelContainerAdapter) {
         return isModelContainerAdapter ? foreignColumnName
-                : columnAccess.getShortAccessString(isModelContainerAdapter, foreignColumnName);
+                : columnAccess.getShortAccessString(columnClassName, foreignColumnName, isModelContainerAdapter);
     }
 
 }

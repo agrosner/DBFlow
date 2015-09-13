@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
+import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
@@ -31,18 +32,26 @@ public class ModelContainerAccess extends BaseColumnAccess {
 
     @Override
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
+        String method = SQLiteType.getMethod(fieldType);
+        if (method == null) {
+            method = "get";
+        }
         return CodeBlock.builder()
-                .add("$L.get($S)",
+                .add("$L.$LValue($S)",
                         existingColumnAccess.getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter),
+                        method,
                         containerKeyName)
                 .build().toString();
     }
 
     @Override
-    String getShortAccessString(boolean isModelContainerAdapter, String elementName) {
+    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+        String method = SQLiteType.getMethod(fieldType);
+        if (method == null) {
+            method = "get";
+        }
         return CodeBlock.builder()
-                .add("$L.get($S)", existingColumnAccess.getShortAccessString(isModelContainerAdapter, elementName),
-                        containerKeyName)
+                .add("$LValue($S)", method, containerKeyName)
                 .build().toString();
     }
 

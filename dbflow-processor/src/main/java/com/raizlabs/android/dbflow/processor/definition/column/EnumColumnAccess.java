@@ -21,10 +21,10 @@ public class EnumColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getShortAccessString(boolean isModelContainerAdapter, String elementName) {
+    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         return CodeBlock.builder()
                 .add("$L.name()", getExistingColumnAccess()
-                        .getShortAccessString(isModelContainerAdapter, elementName))
+                        .getShortAccessString(fieldType, elementName, isModelContainerAdapter))
                 .build().toString();
     }
 

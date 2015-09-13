@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
@@ -26,28 +27,44 @@ public class PrivateColumnAccess extends BaseColumnAccess {
 
     @Override
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
-        if (StringUtils.isNullOrEmpty(getterName)) {
-            return String.format("%1s.get%1s()", variableNameString, capitalize(elementName));
+        if (!isModelContainerAdapter) {
+            if (StringUtils.isNullOrEmpty(getterName)) {
+                return String.format("%1s.get%1s()", variableNameString, capitalize(elementName));
+            } else {
+                return String.format("%1s.%1s()", variableNameString, getterName);
+            }
         } else {
-            return String.format("%1s.%1s()", variableNameString, getterName);
+            String method = SQLiteType.getMethod(fieldType);
+            if (method == null) {
+                method = "get";
+            }
+            return variableNameString + "." + method + "Value(\"" + elementName + "\")";
         }
     }
 
     @Override
-    String getShortAccessString(boolean isModelContainerAdapter, String elementName) {
-        if (StringUtils.isNullOrEmpty(getterName)) {
-            return String.format("get%1s()", capitalize(elementName));
+    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+        if (!isModelContainerAdapter) {
+            if (StringUtils.isNullOrEmpty(getterName)) {
+                return String.format("get%1s()", capitalize(elementName));
+            } else {
+                return String.format("%1s()", getterName);
+            }
         } else {
-            return String.format("%1s()", getterName);
+            return elementName;
         }
     }
 
     @Override
     String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
-        if (StringUtils.isNullOrEmpty(setterName)) {
-            return String.format("%1s.set%1s(%1s)", variableNameString, capitalize(elementName), formattedAccess);
+        if (isModelContainerAdapter) {
+            return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
-            return String.format("%1s.%1s(%1s)", variableNameString, setterName, formattedAccess);
+            if (StringUtils.isNullOrEmpty(setterName)) {
+                return String.format("%1s.set%1s(%1s)", variableNameString, capitalize(elementName), formattedAccess);
+            } else {
+                return String.format("%1s.%1s(%1s)", variableNameString, setterName, formattedAccess);
+            }
         }
     }
 

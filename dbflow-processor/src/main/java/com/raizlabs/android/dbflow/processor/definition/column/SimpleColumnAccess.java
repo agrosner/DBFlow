@@ -23,7 +23,7 @@ public class SimpleColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getShortAccessString(boolean isModelContainerAdapter, String elementName) {
+    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         return elementName;
     }
 

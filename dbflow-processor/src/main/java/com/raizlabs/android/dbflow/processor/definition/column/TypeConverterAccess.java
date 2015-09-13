@@ -39,7 +39,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getShortAccessString(boolean isModelContainerAdapter, String elementName) {
+    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         return CodeBlock.builder()
                 .add("($T) $T.$L($T.class).getDBValue($L)",
                         typeConverterDefinition.getDbTypeName(),
@@ -47,7 +47,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
                         METHOD_TYPE_CONVERTER,
                         columnDefinition.elementTypeName.box(),
                         getExistingColumnAccess()
-                                .getShortAccessString(isModelContainerAdapter, elementName))
+                                .getShortAccessString(fieldType, elementName, isModelContainerAdapter))
                 .build()
                 .toString();
     }

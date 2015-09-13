@@ -42,6 +42,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public ForeignKeyAction onDelete;
     public ForeignKeyAction onUpdate;
 
+    public boolean isModelContainer;
+
     public boolean isModel;
 
     public ForeignKeyColumnDefinition(ProcessorManager manager, Element typeElement) {
@@ -65,6 +67,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
                 if (args.size() > 0) {
                     referencedTableClassName = ClassName.bestGuess(args.get(0).toString());
+                    isModelContainer = true;
                 }
             } else {
                 referencedTableClassName = ClassName.bestGuess(elementTypeName.toString());
@@ -79,6 +82,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 manager.getTypeUtils().erasure(typeElement.asType()).toString());
 
         isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), element);
+        isModelContainer = isModelContainer || ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL_CONTAINER.toString(), element);
 
         // we need to recheck for this instance
         if (columnAccess instanceof TypeConverterAccess) {
@@ -213,8 +217,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             String accessString;
 
             if (!isModelContainerAdapter) {
-                accessString = ModelUtils.getVariable(false) + "." + columnAccess.getShortAccessString(false, elementName) + "." +
-                        referenceDefinition.columnAccess.getShortAccessString(false, referenceDefinition.foreignColumnName);
+                accessString = ModelUtils.getVariable(false) + "." + columnAccess.getShortAccessString(referenceDefinition.columnClassName, elementName, false) + "." +
+                        referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.columnClassName, referenceDefinition.foreignColumnName, false);
             } else {
                 accessString = columnAccess.getColumnAccessString(referenceDefinition.columnClassName, elementName, elementName, ModelUtils.getVariable(true), true);
             }

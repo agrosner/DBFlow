@@ -12,7 +12,7 @@ public abstract class BaseColumnAccess {
 
     abstract String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter);
 
-    abstract String getShortAccessString(boolean isModelContainerAdapter, String elementName);
+    abstract String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter);
 
     abstract String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess);
 
