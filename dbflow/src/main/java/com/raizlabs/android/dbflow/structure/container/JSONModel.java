@@ -198,8 +198,8 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
             }
         } catch (JSONException e) {
             FlowLog.logError(e);
-            return null;
         }
+        return null;
     }
 
     @Override
