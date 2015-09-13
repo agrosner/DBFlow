@@ -131,7 +131,7 @@ public class ColumnDefinition extends BaseDefinition {
             if (elementTypeName instanceof ParameterizedTypeName) {
                 List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
                 if (!args.isEmpty()) {
-                    columnAccess = new ModelContainerAccess(this);
+                    //columnAccess = new ModelContainerAccess(this);
                 }
             } else if (elementTypeName instanceof ArrayTypeName) {
                 processorManager.getMessager()

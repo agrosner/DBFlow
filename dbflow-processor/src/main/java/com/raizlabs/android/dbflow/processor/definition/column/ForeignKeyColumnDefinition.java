@@ -61,7 +61,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (!referencedTableClassName.equals(TypeName.OBJECT)) {
             referencedTableClassName = ClassName.get(manager.getElements().getTypeElement(typeElement.asType().toString()));
         } else {
-            if (columnAccess instanceof ModelContainerAccess) {
+            if (elementTypeName instanceof ParameterizedTypeName) {
                 List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
                 if (args.size() > 0) {
                     referencedTableClassName = ClassName.bestGuess(args.get(0).toString());
