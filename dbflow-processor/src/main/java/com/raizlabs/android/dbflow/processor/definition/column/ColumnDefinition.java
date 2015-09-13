@@ -214,6 +214,20 @@ public class ColumnDefinition extends BaseDefinition {
         return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
     }
 
+    /**
+     * @param isModelContainerAdapter
+     * @return A string without any type conversion for this field.
+     */
+    public String getRawColumnAccessString(boolean isModelContainerAdapter) {
+        if (columnAccess instanceof TypeConverterAccess) {
+            return ((TypeConverterAccess) columnAccess).existingColumnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+                    ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+        } else {
+            return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+                    ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+        }
+    }
+
     public String getReferenceColumnName(ForeignKeyReference reference) {
         return (columnName + "_" + reference.columnName()).toUpperCase();
     }

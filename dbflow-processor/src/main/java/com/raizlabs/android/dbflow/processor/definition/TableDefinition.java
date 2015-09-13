@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -259,7 +260,11 @@ public class TableDefinition extends BaseTableDefinition {
 
     @Override
     public List<ColumnDefinition> getPrimaryColumnDefinitions() {
-        return primaryColumnDefinitions;
+        if (getAutoIncrementPrimaryKey() != null) {
+            return Lists.newArrayList(getAutoIncrementPrimaryKey());
+        } else {
+            return primaryColumnDefinitions;
+        }
     }
 
     public ClassName getAdapterClassName() {
