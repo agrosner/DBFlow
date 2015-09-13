@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -17,7 +18,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
     public static final String UPDATE = "UPDATE";
 
     final Trigger trigger;
-    private NameAlias[] columns;
+    private Property[] properties;
     private final String methodName;
 
     /**
@@ -27,30 +28,15 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
     boolean forEachRow = false;
     private Condition whenCondition;
 
-    TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, String... columns) {
+    TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, Property... properties) {
         this.trigger = trigger;
         this.methodName = methodName;
         this.onTable = onTable;
-        if (columns != null && columns.length > 0 && columns[0] != null) {
+        if (properties != null && properties.length > 0 && properties[0] != null) {
             if (!methodName.equals(UPDATE)) {
                 throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
             }
-            this.columns = new NameAlias[columns.length];
-            for (int i = 0; i < this.columns.length; i++) {
-                this.columns[i] = new NameAlias(columns[i]);
-            }
-        }
-    }
-
-    TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, NameAlias... columns) {
-        this.trigger = trigger;
-        this.methodName = methodName;
-        this.onTable = onTable;
-        if (columns != null && columns.length > 0 && columns[0] != null) {
-            if (!methodName.equals(UPDATE)) {
-                throw new IllegalArgumentException("An Trigger OF can only be used with an UPDATE method");
-            }
-            this.columns = columns;
+            this.properties = properties;
         }
     }
 
@@ -87,9 +73,9 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
         QueryBuilder queryBuilder
                 = new QueryBuilder(trigger.getQuery())
                 .append(methodName);
-        if (columns != null && columns.length > 0) {
+        if (properties != null && properties.length > 0) {
             queryBuilder.appendSpaceSeparated("OF")
-                    .appendArray(columns);
+                    .appendArray(properties);
         }
         queryBuilder.appendSpaceSeparated("ON").appendQuoted(FlowManager.getTableName(onTable));
 

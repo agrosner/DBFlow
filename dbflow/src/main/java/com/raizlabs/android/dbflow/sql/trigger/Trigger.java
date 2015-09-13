@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.trigger;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -90,7 +90,7 @@ public class Trigger implements Query {
      * @return
      */
     public <ModelClass extends Model> TriggerMethod<ModelClass> delete(Class<ModelClass> onTable) {
-        return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable, (String)null);
+        return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable, null);
     }
 
     /**
@@ -100,31 +100,19 @@ public class Trigger implements Query {
      * @return
      */
     public <ModelClass extends Model> TriggerMethod<ModelClass> insert(Class<ModelClass> onTable) {
-        return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable, (String)null);
+        return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable, null);
     }
 
     /**
      * Starts an UPDATE ON command
      *
-     * @param onTable   The table ON
-     * @param ofColumns if empty, will not execute an OF command. If you specify columns,
-     *                  the UPDATE OF column1, column2,... will be used.
+     * @param onTable    The table ON
+     * @param properties if empty, will not execute an OF command. If you specify columns,
+     *                   the UPDATE OF column1, column2,... will be used.
      * @return
      */
-    public <ModelClass extends Model> TriggerMethod<ModelClass> update(Class<ModelClass> onTable, String... ofColumns) {
-        return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, ofColumns);
-    }
-
-    /**
-     * Starts an UPDATE ON command
-     *
-     * @param onTable   The table ON
-     * @param ofColumns if empty, will not execute an OF command. If you specify columns,
-     *                  the UPDATE OF column1, column2,... will be used with their alias'
-     * @return
-     */
-    public <ModelClass extends Model> TriggerMethod<ModelClass> update(Class<ModelClass> onTable, NameAlias... ofColumns) {
-        return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, ofColumns);
+    public <ModelClass extends Model> TriggerMethod<ModelClass> update(Class<ModelClass> onTable, Property... properties) {
+        return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, properties);
     }
 
     /**

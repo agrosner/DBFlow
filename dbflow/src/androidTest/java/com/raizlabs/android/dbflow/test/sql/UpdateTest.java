@@ -1,4 +1,3 @@
-/*
 package com.raizlabs.android.dbflow.test.sql;
 
 import android.content.ContentValues;
@@ -15,11 +14,6 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.provider.NoteModel$Table;
 import com.raizlabs.android.dbflow.test.provider.TestContentProvider;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
-
-*/
-/**
- * Description:
- *//*
 
 public class UpdateTest extends FlowTestCase {
 
@@ -114,4 +108,3 @@ public class UpdateTest extends FlowTestCase {
     }
 
 }
-*/
