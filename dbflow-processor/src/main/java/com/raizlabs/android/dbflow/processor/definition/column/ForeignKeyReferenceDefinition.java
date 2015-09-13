@@ -80,6 +80,8 @@ public class ForeignKeyReferenceDefinition {
 
     CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         String shortAccess = tableColumnAccess.getShortAccessString(isModelContainerAdapter, foreignKeyFieldName);
+        shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(isModelContainerAdapter, shortAccess);
+
         String columnShortAccess = getShortColumnAccess(isModelContainerAdapter);
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getSQLiteStatementMethod(
@@ -92,7 +94,7 @@ public class ForeignKeyReferenceDefinition {
     }
 
     private String getShortColumnAccess(boolean isModelContainerAdapter) {
-        return isModelContainerAdapter ? modelContainerAccess.getShortAccessString(isModelContainerAdapter, foreignColumnName)
+        return isModelContainerAdapter ? foreignColumnName
                 : columnAccess.getShortAccessString(isModelContainerAdapter, foreignColumnName);
     }
 
