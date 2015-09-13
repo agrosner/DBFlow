@@ -44,22 +44,100 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
 
     /**
-     * @param columnName The name of the column
+     * @param key The key in the container.
      * @return the value with the specified key
      */
-    Object getValue(String columnName);
+    Object getValue(String key);
 
-    Integer getIntValue(String columnName);
+    /**
+     * @param key The key in the container.
+     * @return The value converted into an {@link Integer}.
+     */
+    Integer getIntegerValue(String key);
 
-    Long getLongValue(String columnName);
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as an int.
+     */
+    int getIntValue(String key);
 
-    Boolean getBooleanValue(String columnName);
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link Long}.
+     */
+    Long getLongValue(String key);
 
-    String getStringValue(String columnName);
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link long}.
+     */
+    long getLngValue(String key);
 
-    Float getFloatValue(String columnName);
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link Boolean}.
+     */
+    Boolean getBooleanValue(String key);
 
-    Short getShortValue(String columnName);
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a a {@link boolean}.
+     */
+    boolean getBoolValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link String}.
+     */
+    String getStringValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link Float}.
+     */
+    Float getFloatValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link float}.
+     */
+    float getFltValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link Double}.
+     */
+    Double getDoubleValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link double}.
+     */
+    double getDbleValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link Short}.
+     */
+    Short getShortValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link short}.
+     */
+    short getShrtValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link Byte[]}.
+     */
+    Byte[] getBlobValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link byte[]}.
+     */
+    byte[] getBlbValue(String key);
 
     /**
      * Puts the value with the specified key and value to the object

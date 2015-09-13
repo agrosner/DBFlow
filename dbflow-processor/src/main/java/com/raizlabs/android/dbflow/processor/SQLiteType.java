@@ -104,6 +104,25 @@ public enum SQLiteType {
         return sMethodMap.get(typeName);
     }
 
+    private static Map<TypeName, String> sModelContainerMethodMap = new HashMap<TypeName, String>() {{
+        put(ArrayTypeName.of(TypeName.BYTE), "getBlb");
+        put(ArrayTypeName.of(TypeName.BYTE.box()), "getBlob");
+        put(TypeName.DOUBLE, "getDble");
+        put(TypeName.DOUBLE.box(), "getDouble");
+        put(TypeName.FLOAT, "getFlt");
+        put(TypeName.FLOAT.box(), "getFloat");
+        put(TypeName.INT, "getInt");
+        put(TypeName.INT.box(), "getInteger");
+        put(TypeName.LONG, "getLng");
+        put(TypeName.LONG.box(), "getLong");
+        put(TypeName.SHORT, "getShrt");
+        put(TypeName.SHORT.box(), "getShort");
+        put(ClassName.get(String.class), "getString");
+        put(ClassName.get(Blob.class), "getBlob");
+    }};
 
+    public static String getModelContainerMethod(TypeName typeName) {
+        return sModelContainerMethodMap.get(typeName);
+    }
 
 }

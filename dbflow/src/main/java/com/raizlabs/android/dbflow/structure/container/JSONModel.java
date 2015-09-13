@@ -44,8 +44,8 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
-    public Object getValue(String columnName) {
-        Object value = getData() != null ? getData().opt(columnName) : null;
+    public Object getValue(String key) {
+        Object value = getData() != null ? getData().opt(key) : null;
         if (JSONObject.NULL.equals(value)) {
             value = null;
         }
@@ -53,9 +53,9 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
-    public Integer getIntValue(String columnName) {
+    public Integer getIntegerValue(String key) {
         try {
-            return getData() != null ? getData().getInt(columnName) : null;
+            return getData() != null ? getData().getInt(key) : null;
         } catch (JSONException e) {
             FlowLog.logError(e);
             return null;
@@ -63,9 +63,19 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
-    public Long getLongValue(String columnName) {
+    public int getIntValue(String key) {
         try {
-            return getData() != null ? getData().getLong(columnName) : null;
+            return getData() != null ? getData().getInt(key) : 0;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return 0;
+        }
+    }
+
+    @Override
+    public Long getLongValue(String key) {
+        try {
+            return getData() != null ? getData().getLong(key) : null;
         } catch (JSONException e) {
             FlowLog.logError(e);
             return null;
@@ -73,9 +83,19 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
-    public Boolean getBooleanValue(String columnName) {
+    public long getLngValue(String key) {
         try {
-            return getData() != null ? getData().getBoolean(columnName) : null;
+            return getData() != null ? getData().getLong(key) : 0;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return 0;
+        }
+    }
+
+    @Override
+    public Boolean getBooleanValue(String key) {
+        try {
+            return getData() != null ? getData().getBoolean(key) : null;
         } catch (JSONException e) {
             FlowLog.logError(e);
             return null;
@@ -83,9 +103,19 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
-    public String getStringValue(String columnName) {
+    public boolean getBoolValue(String key) {
         try {
-            return getData() != null ? getData().getString(columnName) : null;
+            return getData() != null && getData().getBoolean(key);
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return false;
+        }
+    }
+
+    @Override
+    public String getStringValue(String key) {
+        try {
+            return getData() != null ? getData().getString(key) : null;
         } catch (JSONException e) {
             FlowLog.logError(e);
             return null;
@@ -93,9 +123,21 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
-    public Float getFloatValue(String columnName) {
+    public Float getFloatValue(String key) {
+        Double d = getDoubleValue(key);
+        return (d == null) ? null : d.floatValue();
+    }
+
+    @Override
+    public float getFltValue(String key) {
+        Float f = getFloatValue(key);
+        return f == null ? 0 : f;
+    }
+
+    @Override
+    public Double getDoubleValue(String key) {
         try {
-            return getData() != null ? (float) getData().getDouble(columnName) : null;
+            return getData() != null ? getData().getDouble(key) : null;
         } catch (JSONException e) {
             FlowLog.logError(e);
             return null;
@@ -103,9 +145,49 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
-    public Short getShortValue(String columnName) {
+    public double getDbleValue(String key) {
         try {
-            return getData() != null ? (short) getData().getInt(columnName) : null;
+            return getData() != null ? getData().getDouble(key) : 0;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return 0;
+        }
+    }
+
+    @Override
+    public Short getShortValue(String key) {
+        try {
+            return getData() != null ? (short) getData().getInt(key) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return null;
+        }
+    }
+
+    @Override
+    public short getShrtValue(String key) {
+        try {
+            return getData() != null ? (short) getData().getInt(key) : 0;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return 0;
+        }
+    }
+
+    @Override
+    public Byte[] getBlobValue(String key) {
+        try {
+            return getData() != null ? (Byte[]) getData().get(key) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return null;
+        }
+    }
+
+    @Override
+    public byte[] getBlbValue(String key) {
+        try {
+            return getData() != null ? (byte[]) getData().get(key) : null;
         } catch (JSONException e) {
             FlowLog.logError(e);
             return null;

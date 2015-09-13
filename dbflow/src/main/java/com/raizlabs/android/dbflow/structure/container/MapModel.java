@@ -32,8 +32,8 @@ public class MapModel<ModelClass extends Model> extends SimpleModelContainer<Mod
     }
 
     @Override
-    public Object getValue(String columnName) {
-        return getData().get(columnName);
+    public Object getValue(String key) {
+        return getData().get(key);
     }
 
     @Override

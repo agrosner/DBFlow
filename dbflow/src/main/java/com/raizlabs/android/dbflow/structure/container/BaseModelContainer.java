@@ -108,7 +108,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     @Override
-    public abstract Object getValue(String columnName);
+    public abstract Object getValue(String key);
 
     @Override
     public abstract void put(String columnName, Object value);

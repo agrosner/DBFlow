@@ -16,8 +16,8 @@ public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> 
     }
 
     @Override
-    public Integer getIntValue(String columnName) {
-        Object value = getValue(columnName);
+    public Integer getIntegerValue(String key) {
+        Object value = getValue(key);
         if (value instanceof String) {
             return Integer.valueOf((String) value);
         } else {
@@ -26,8 +26,14 @@ public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> 
     }
 
     @Override
-    public Long getLongValue(String columnName) {
-        Object value = getValue(columnName);
+    public int getIntValue(String key) {
+        Integer value = getIntegerValue(key);
+        return value == null ? 0 : value;
+    }
+
+    @Override
+    public Long getLongValue(String key) {
+        Object value = getValue(key);
         if (value instanceof String) {
             return Long.valueOf((String) value);
         } else {
@@ -36,8 +42,14 @@ public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> 
     }
 
     @Override
-    public Boolean getBooleanValue(String columnName) {
-        Object value = getValue(columnName);
+    public long getLngValue(String key) {
+        Long value = getLongValue(key);
+        return value == null ? 0 : value;
+    }
+
+    @Override
+    public Boolean getBooleanValue(String key) {
+        Object value = getValue(key);
         if (value instanceof String) {
             return Boolean.valueOf((String) value);
         } else {
@@ -46,13 +58,19 @@ public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> 
     }
 
     @Override
-    public String getStringValue(String columnName) {
-        return String.valueOf(getValue(columnName));
+    public boolean getBoolValue(String key) {
+        Boolean value = getBooleanValue(key);
+        return value != null && value;
     }
 
     @Override
-    public Float getFloatValue(String columnName) {
-        Object value = getValue(columnName);
+    public String getStringValue(String key) {
+        return String.valueOf(getValue(key));
+    }
+
+    @Override
+    public Float getFloatValue(String key) {
+        Object value = getValue(key);
         if (value instanceof String) {
             return Float.valueOf((String) value);
         } else {
@@ -61,12 +79,50 @@ public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> 
     }
 
     @Override
-    public Short getShortValue(String columnName) {
-        Object value = getValue(columnName);
+    public float getFltValue(String key) {
+        Float value = getFloatValue(key);
+        return value == null ? 0 : value;
+    }
+
+    @Override
+    public Double getDoubleValue(String key) {
+        Object value = getValue(key);
+        if (value instanceof String) {
+            return Double.valueOf((String) value);
+        } else {
+            return (Double) value;
+        }
+    }
+
+    @Override
+    public double getDbleValue(String key) {
+        Double value = getDoubleValue(key);
+        return value == null ? 0 : value;
+    }
+
+    @Override
+    public Byte[] getBlobValue(String key) {
+        return (Byte[]) getValue(key);
+    }
+
+    @Override
+    public byte[] getBlbValue(String key) {
+        return (byte[]) getValue(key);
+    }
+
+    @Override
+    public Short getShortValue(String key) {
+        Object value = getValue(key);
         if (value instanceof String) {
             return Short.valueOf((String) value);
         } else {
             return (Short) value;
         }
+    }
+
+    @Override
+    public short getShrtValue(String key) {
+        Short value = getShortValue(key);
+        return value == null ? 0 : value;
     }
 }

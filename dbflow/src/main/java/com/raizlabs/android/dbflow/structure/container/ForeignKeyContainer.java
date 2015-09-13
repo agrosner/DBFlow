@@ -47,8 +47,8 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
     }
 
     @Override
-    public Object getValue(String columnName) {
-        return getData().get(columnName);
+    public Object getValue(String key) {
+        return getData().get(key);
     }
 
     @Override

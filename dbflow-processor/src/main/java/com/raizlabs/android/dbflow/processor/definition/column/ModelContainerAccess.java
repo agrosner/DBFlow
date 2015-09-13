@@ -32,7 +32,7 @@ public class ModelContainerAccess extends BaseColumnAccess {
 
     @Override
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
-        String method = SQLiteType.getMethod(fieldType);
+        String method = SQLiteType.getModelContainerMethod(fieldType);
         if (method == null) {
             method = "get";
         }
@@ -46,7 +46,7 @@ public class ModelContainerAccess extends BaseColumnAccess {
 
     @Override
     String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
-        String method = SQLiteType.getMethod(fieldType);
+        String method = SQLiteType.getModelContainerMethod(fieldType);
         if (method == null) {
             method = "get";
         }
