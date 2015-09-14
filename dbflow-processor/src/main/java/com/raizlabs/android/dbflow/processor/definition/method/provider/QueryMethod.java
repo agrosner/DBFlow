@@ -55,7 +55,7 @@ public class QueryMethod implements MethodDefinition {
                                             .add("return $L.getProperty(columnName); \n}\n}", tableDefinition.getPropertyClassName())
                                             .build());
                     ProviderMethodUtils.appendTableName(codeBuilder,
-                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                            manager.getDatabaseName(contentProviderDefinition.databaseName), tableEndpointDefinition.tableName);
                     codeBuilder.add(".where()");
                     ProviderMethodUtils.appendPathSegments(codeBuilder, manager, uriDefinition.segments,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);

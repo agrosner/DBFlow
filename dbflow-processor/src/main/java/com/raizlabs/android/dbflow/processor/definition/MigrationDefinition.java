@@ -2,8 +2,10 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
 
 /**
  * Description: Used in holding data about migration files.
@@ -11,7 +13,7 @@ import javax.lang.model.element.TypeElement;
 public class MigrationDefinition extends BaseDefinition {
 
 
-    public String databaseName;
+    public TypeName databaseName;
 
     public Integer version;
 
@@ -22,8 +24,11 @@ public class MigrationDefinition extends BaseDefinition {
         setOutputClassName("");
 
         Migration migration = typeElement.getAnnotation(Migration.class);
-
-        this.databaseName = migration.databaseName();
+        try {
+            migration.database();
+        } catch (MirroredTypeException mte) {
+            databaseName = TypeName.get(mte.getTypeMirror());
+        }
         version = migration.version();
         priority = migration.priority();
     }

@@ -31,6 +31,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
 
 /**
  * Description: Used in writing ModelAdapters
@@ -60,7 +62,7 @@ public class TableDefinition extends BaseTableDefinition {
 
     public String adapterName;
 
-    public String databaseName;
+    public TypeName databaseTypeName;
 
     public String insertConflictActionName;
 
@@ -71,11 +73,9 @@ public class TableDefinition extends BaseTableDefinition {
     public List<UniqueGroupsDefinition> uniqueGroupsDefinitions;
     public List<IndexGroupsDefinition> indexGroupsDefinitions;
 
-
     public ColumnDefinition autoIncrementDefinition;
 
     public boolean hasAutoIncrement = false;
-
 
     public boolean implementsContentValuesListener = false;
 
@@ -101,10 +101,14 @@ public class TableDefinition extends BaseTableDefinition {
         super(element, manager);
 
         Table table = element.getAnnotation(Table.class);
-        this.tableName = table.tableName();
-        databaseName = table.databaseName();
+        this.tableName = table.name();
+        try {
+            table.database();
+        } catch (MirroredTypeException mte) {
+            databaseTypeName = TypeName.get(mte.getTypeMirror());
+        }
 
-        databaseDefinition = manager.getDatabaseWriter(databaseName);
+        databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
         if (databaseDefinition == null) {
             manager.logError("Databasewriter was null for : " + tableName);
         }
@@ -131,7 +135,7 @@ public class TableDefinition extends BaseTableDefinition {
 
         allFields = table.allFields();
 
-        manager.addModelToDatabase(elementClassName, databaseName);
+        manager.addModelToDatabase(elementClassName, databaseTypeName);
 
         if (tableName == null || tableName.isEmpty()) {
             tableName = element.getSimpleName().toString();

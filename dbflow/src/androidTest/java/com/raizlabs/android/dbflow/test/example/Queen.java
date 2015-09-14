@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Description:
  */
-@Table(databaseName = ColonyDatabase.NAME)
+@Table(database = ColonyDatabase.class)
 public class Queen extends BaseModel {
 
     @Column

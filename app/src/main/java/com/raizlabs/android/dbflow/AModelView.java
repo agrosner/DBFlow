@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.structure.BaseModelView;
 /**
  * Description:
  */
-@ModelView(query = "SELECT time from AModel where time > 0", databaseName = AppDatabase.NAME)
+@ModelView(query = "SELECT time from AModel where time > 0", database = AppDatabase.class)
 public class AModelView extends BaseModelView<AModel> {
 
     @Column

@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.provider.BaseProviderModel;
 /**
  * Description:
  */
-@Table(databaseName = ContentDatabase.NAME)
+@Table(database = ContentDatabase.class)
 public class NoteModel extends BaseProviderModel<NoteModel> {
 
 

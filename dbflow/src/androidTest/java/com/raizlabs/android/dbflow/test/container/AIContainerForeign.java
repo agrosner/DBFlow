@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description:
  */
 @ModelContainer
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class AIContainerForeign extends AutoIncrementContainer {
 
 

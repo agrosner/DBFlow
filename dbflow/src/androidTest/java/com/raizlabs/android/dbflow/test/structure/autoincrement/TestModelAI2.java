@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
 @ModelContainer
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class TestModelAI2 extends BaseModel {
 
     @Column(name = "_id")

@@ -11,13 +11,8 @@ import org.json.JSONObject;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
-* Author: andrewgrosner
-* Contributors: { }
-* Description:
-*/
 @ModelContainer
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class TestType extends TestModel1 {
 
     @Column

@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 /**
 * Description:
 */
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 @ModelContainer
 public class TestModel3 extends TestModel1 {
     @Column

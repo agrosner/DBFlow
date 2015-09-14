@@ -6,6 +6,6 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 /**
  * Description:
  */
-@Table(databaseName = ListDatabase.NAME)
+@Table(database = ListDatabase.class)
 public class ListModel extends TestModel1 {
 }

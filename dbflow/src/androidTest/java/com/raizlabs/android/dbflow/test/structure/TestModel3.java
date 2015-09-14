@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 
 import java.sql.Date;
 
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class TestModel3 extends BaseModel {
 
     @Column

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
 
 /**
  * Description:
@@ -38,7 +39,7 @@ public class ContentProviderDefinition extends BaseDefinition {
 
     private static final String AUTHORITY = "AUTHORITY";
 
-    public String databaseName;
+    public TypeName databaseName;
 
     public String authority;
 
@@ -50,7 +51,11 @@ public class ContentProviderDefinition extends BaseDefinition {
         super(typeElement, processorManager);
 
         ContentProvider provider = element.getAnnotation(ContentProvider.class);
-        databaseName = provider.databaseName();
+        try {
+            provider.database();
+        } catch (MirroredTypeException mte) {
+            databaseName = TypeName.get(mte.getTypeMirror());
+        }
         DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseName);
         setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
 

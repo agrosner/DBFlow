@@ -13,7 +13,7 @@ import java.util.Date;
 /**
  * Description:
  */
-@Table(databaseName = TestDatabase.NAME,
+@Table(database = TestDatabase.class,
         indexGroups = {
                 @IndexGroup(number = 1, name = "firstIndex"),
                 @IndexGroup(number = 2, name = "secondIndex"),

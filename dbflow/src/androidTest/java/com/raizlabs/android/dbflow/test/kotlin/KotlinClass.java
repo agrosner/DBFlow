@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 /**
  * Description:
  */
-@Table(databaseName = KotlinDatabase.NAME)
+@Table(database = KotlinDatabase.class)
 public class KotlinClass extends BaseModel {
 
     @Column

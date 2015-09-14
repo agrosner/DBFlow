@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 /**
  * Description:
  */
-@Table(databaseName = GlobalDatabase.NAME, updateConflict = ConflictAction.IGNORE)
+@Table(database = GlobalDatabase.class, updateConflict = ConflictAction.IGNORE)
 public class GlobalModel extends BaseModel {
 
     @Column

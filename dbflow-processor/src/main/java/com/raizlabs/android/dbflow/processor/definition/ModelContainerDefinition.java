@@ -53,8 +53,8 @@ public class ModelContainerDefinition extends BaseDefinition {
 
     }
 
-    public String getDatabaseName() {
-        return tableDefinition.databaseName;
+    public TypeName getDatabaseName() {
+        return tableDefinition.databaseTypeName;
     }
 
     @Override

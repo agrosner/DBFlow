@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.test.sql;
 
 /**
- * Description:
+ * Description: Model used to be inherited from.
  */
 public class InheritedModel {
 

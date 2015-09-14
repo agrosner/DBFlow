@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
  * Description:
  */
 @ModelContainer
-@Table(databaseName = ColonyDatabase.NAME)
+@Table(database = ColonyDatabase.class)
 public class Ant extends BaseModel {
 
     @Column

@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
  * Description:
  */
 @ModelContainer
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class ParentModel extends TestModel1 {
 
     @Column

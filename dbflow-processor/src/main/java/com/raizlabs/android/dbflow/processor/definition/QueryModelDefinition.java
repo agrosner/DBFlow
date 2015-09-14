@@ -13,6 +13,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.MirroredTypeException;
 
 /**
  * Description:
@@ -34,7 +36,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
     public static final String DBFLOW_TABLE_ADAPTER = "QueryModelAdapter";
 
-    public String databaseName;
+    public TypeName databaseTypeName;
 
     public boolean allFields;
 
@@ -50,12 +52,17 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
 
         QueryModel queryModel = typeElement.getAnnotation(QueryModel.class);
-        databaseName = queryModel.databaseName();
-        databaseDefinition = manager.getDatabaseWriter(databaseName);
+        try {
+            queryModel.database();
+        } catch (MirroredTypeException mte) {
+            databaseTypeName = TypeName.get(mte.getTypeMirror());
+        }
+
+        databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
         allFields = queryModel.allFields();
         adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
 
-        processorManager.addModelToDatabase(elementClassName, databaseName);
+        processorManager.addModelToDatabase(elementClassName, databaseTypeName);
 
         implementsLoadFromCursorListener = ProcessorUtils
                 .implementsClass(manager.getProcessingEnvironment(), ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
@@ -90,7 +97,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
                     !variableElement.getModifiers().contains(Modifier.FINAL));
 
             if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, (VariableElement) variableElement);
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement);
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
                 }

@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@Table(databaseName = TestDatabase.NAME, indexGroups = @IndexGroup(name = "customIndex", unique = true))
+@Table(database = TestDatabase.class, indexGroups = @IndexGroup(name = "customIndex", unique = true))
 public class IndexModel extends BaseModel {
 
     @Column

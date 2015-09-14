@@ -120,19 +120,19 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ClassNames.DATABASE_HOLDER, "holder");
 
-        for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
+        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
             constructor.addStatement("holder.putDatabaseForTable($T.class, this)", tableDefinition.elementClassName);
         }
 
-        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
+        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
             constructor.addStatement("holder.putDatabaseForTable($T.class, this)", modelViewDefinition.elementClassName);
         }
 
-        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
+        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
             constructor.addStatement("holder.putDatabaseForTable($T.class, this)", queryModelDefinition.elementClassName);
         }
 
-        Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = manager.getMigrationsForDatabase(databaseName);
+        Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName);
         if (migrationDefinitionMap != null && !migrationDefinitionMap.isEmpty()) {
             List<Integer> versionSet = new ArrayList<>(migrationDefinitionMap.keySet());
             Collections.sort(versionSet);
@@ -154,25 +154,25 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             }
         }
 
-        for (TableDefinition tableDefinition : manager.getTableDefinitions(databaseName)) {
+        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($S, $T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
                     tableDefinition.elementClassName, tableDefinition.getAdapterClassName());
         }
 
-        for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(databaseName)) {
+        for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(elementClassName)) {
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
                     modelContainerDefinition.elementClassName, modelContainerDefinition.outputClassName);
         }
 
-        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(databaseName)) {
+        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName);
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
                     modelViewDefinition.elementClassName, modelViewDefinition.outputClassName);
         }
 
-        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(databaseName)) {
+        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
                     queryModelDefinition.elementClassName, queryModelDefinition.getAdapterClassName());
         }

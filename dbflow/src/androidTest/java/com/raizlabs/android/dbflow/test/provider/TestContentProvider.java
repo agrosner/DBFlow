@@ -14,7 +14,7 @@ import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
  * Description:
  */
 @ContentProvider(authority = TestContentProvider.AUTHORITY,
-        databaseName = ContentDatabase.NAME,
+        database = ContentDatabase.class,
         baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 public class TestContentProvider {
 

@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.structure.container.JSONModel;
 import com.raizlabs.android.dbflow.structure.container.MapModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class ComplexModel extends BaseModel {
 
     @Column

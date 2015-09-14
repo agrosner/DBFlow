@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 /**
  * Description: Test to ensure that nullable and non-null and boxed primitive classes work as expected.
  */
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class BoxedModel extends TestModel1 {
 
     @Column

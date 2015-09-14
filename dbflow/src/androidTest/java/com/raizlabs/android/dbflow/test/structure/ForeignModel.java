@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class ForeignModel extends TestModel1 {
     @Column
     @ForeignKey(references =

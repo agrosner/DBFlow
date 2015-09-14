@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description: Tests to ensure the allFields flag works as expected.
  */
-@Table(databaseName = TestDatabase.NAME, allFields = true)
+@Table(database = TestDatabase.class, allFields = true)
 public class TestEmptyModel extends BaseModel {
 
     @Column

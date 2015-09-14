@@ -8,11 +8,8 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI;
 
-/**
- * Description:
- */
 @ModelContainer
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class ForeignModel3 extends TestModel1 {
 
     @Column

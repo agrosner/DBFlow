@@ -42,12 +42,12 @@ import javax.tools.Diagnostic;
 public class ProcessorManager implements Handler {
 
     private ProcessingEnvironment processingEnvironment;
-    private List<String> uniqueDatabases = Lists.newArrayList();
-    private Map<TypeName, String> modelToDatabaseMap = Maps.newHashMap();
+    private List<TypeName> uniqueDatabases = Lists.newArrayList();
+    private Map<TypeName, TypeName> modelToDatabaseMap = Maps.newHashMap();
     private Map<TypeName, TypeConverterDefinition> typeConverters = Maps.newHashMap();
-    private Map<String, Map<Integer, List<MigrationDefinition>>> migrations = Maps.newHashMap();
+    private Map<TypeName, Map<Integer, List<MigrationDefinition>>> migrations = Maps.newHashMap();
 
-    private Map<String, DatabaseDefinition> databaseDefinitionMap = Maps.newHashMap();
+    private Map<TypeName, DatabaseDefinition> databaseDefinitionMap = Maps.newHashMap();
     private List<BaseContainerHandler> handlers = new ArrayList<>();
     private Map<String, ContentProviderDefinition> providerMap = Maps.newHashMap();
 
@@ -79,21 +79,21 @@ public class ProcessorManager implements Handler {
         return processingEnvironment;
     }
 
-    public void addDatabase(String database) {
+    public void addDatabase(TypeName database) {
         if (!uniqueDatabases.contains(database)) {
             uniqueDatabases.add(database);
         }
     }
 
     public void addFlowManagerWriter(DatabaseDefinition databaseDefinition) {
-        databaseDefinitionMap.put(databaseDefinition.databaseName, databaseDefinition);
+        databaseDefinitionMap.put(databaseDefinition.elementClassName, databaseDefinition);
     }
 
     public List<DatabaseDefinition> getDatabaseDefinitionMap() {
         return new ArrayList<>(databaseDefinitionMap.values());
     }
 
-    public DatabaseDefinition getDatabaseWriter(String databaseName) {
+    public DatabaseDefinition getDatabaseWriter(TypeName databaseName) {
         return databaseDefinitionMap.get(databaseName);
     }
 
@@ -105,13 +105,17 @@ public class ProcessorManager implements Handler {
         return typeConverters.get(typeName);
     }
 
-    public void addModelToDatabase(TypeName modelType, String databaseName) {
+    public void addModelToDatabase(TypeName modelType, TypeName databaseName) {
         addDatabase(databaseName);
         modelToDatabaseMap.put(modelType, databaseName);
     }
 
-    public String getDatabase(TypeName modelType) {
+    public TypeName getDatabase(TypeName modelType) {
         return modelToDatabaseMap.get(modelType);
+    }
+
+    public String getDatabaseName(TypeName databaseTypeName) {
+        return databaseDefinitionMap.get(databaseTypeName).databaseName;
     }
 
     public void addModelContainerDefinition(ModelContainerDefinition modelContainerDefinition) {
@@ -121,21 +125,21 @@ public class ProcessorManager implements Handler {
     }
 
     public void addQueryModelDefinition(QueryModelDefinition queryModelDefinition) {
-        databaseDefinitionMap.get(queryModelDefinition.databaseName).queryModelDefinitionMap.
+        databaseDefinitionMap.get(queryModelDefinition.databaseTypeName).queryModelDefinitionMap.
                 put(queryModelDefinition.elementClassName, queryModelDefinition);
     }
 
     public void addTableDefinition(TableDefinition tableDefinition) {
-        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(tableDefinition.databaseName);
+        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(tableDefinition.databaseTypeName);
         databaseDefinition.tableDefinitionMap.put(tableDefinition.elementClassName, tableDefinition);
         databaseDefinition.tableNameMap.put(tableDefinition.tableName, tableDefinition);
     }
 
-    public TableDefinition getTableDefinition(String databaseName, TypeName typeName) {
+    public TableDefinition getTableDefinition(TypeName databaseName, TypeName typeName) {
         return databaseDefinitionMap.get(databaseName).tableDefinitionMap.get(typeName);
     }
 
-    public TableDefinition getTableDefinition(String databaseName, String tableName) {
+    public TableDefinition getTableDefinition(TypeName databaseName, String tableName) {
         return databaseDefinitionMap.get(databaseName).tableNameMap.get(tableName);
     }
 
@@ -148,7 +152,7 @@ public class ProcessorManager implements Handler {
         return Sets.newHashSet(typeConverters.values());
     }
 
-    public Set<ModelContainerDefinition> getModelContainers(String databaseName) {
+    public Set<ModelContainerDefinition> getModelContainers(TypeName databaseName) {
         DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
         if (databaseDefinition != null) {
             return Sets.newHashSet(databaseDefinition.modelContainerDefinitionMap.values());
@@ -156,7 +160,7 @@ public class ProcessorManager implements Handler {
         return Sets.newHashSet();
     }
 
-    public Set<TableDefinition> getTableDefinitions(String databaseName) {
+    public Set<TableDefinition> getTableDefinitions(TypeName databaseName) {
         DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
         if (databaseDefinition != null) {
             return Sets.newHashSet(databaseDefinition.tableNameMap.values());
@@ -164,7 +168,7 @@ public class ProcessorManager implements Handler {
         return Sets.newHashSet();
     }
 
-    public Set<ModelViewDefinition> getModelViewDefinitions(String databaseName) {
+    public Set<ModelViewDefinition> getModelViewDefinitions(TypeName databaseName) {
         DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
         if (databaseDefinition != null) {
             return Sets.newHashSet(databaseDefinition.modelViewDefinitionMap.values());
@@ -172,7 +176,7 @@ public class ProcessorManager implements Handler {
         return Sets.newHashSet();
     }
 
-    public Set<QueryModelDefinition> getQueryModelDefinitions(String databaseName) {
+    public Set<QueryModelDefinition> getQueryModelDefinitions(TypeName databaseName) {
         DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
         if (databaseDefinition != null) {
             return Sets.newHashSet(databaseDefinition.queryModelDefinitionMap.values());
@@ -200,7 +204,7 @@ public class ProcessorManager implements Handler {
         }
     }
 
-    public Map<Integer, List<MigrationDefinition>> getMigrationsForDatabase(String databaseName) {
+    public Map<Integer, List<MigrationDefinition>> getMigrationsForDatabase(TypeName databaseName) {
         Map<Integer, List<MigrationDefinition>> migrationDefinitions = migrations.get(databaseName);
         if (migrationDefinitions != null) {
             return migrationDefinitions;

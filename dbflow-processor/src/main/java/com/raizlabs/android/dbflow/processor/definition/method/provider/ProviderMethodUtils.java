@@ -1,11 +1,11 @@
 package com.raizlabs.android.dbflow.processor.definition.method.provider;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
-import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.TypeName;
 
 /**
  * Description:
@@ -18,7 +18,7 @@ public class ProviderMethodUtils {
     }
 
     static void appendPathSegments(CodeBlock.Builder codeBuilder, ProcessorManager processorManager,
-                                   ContentUri.PathSegment[] pathSegments, String databaseName, String tableName) {
+                                   ContentUri.PathSegment[] pathSegments, TypeName databaseName, String tableName) {
         TableDefinition tableDefinition = processorManager.getTableDefinition(databaseName, tableName);
         if (tableDefinition == null) {
             processorManager.logError("Could not find table definition for %1s from %1s", tableName, databaseName);
@@ -36,7 +36,7 @@ public class ProviderMethodUtils {
                         String name = columnDefinition.element.asType().toString();
 
                         // handle char
-                        if ("char" .equals(name)) {
+                        if ("char".equals(name)) {
                             name = "character";
                         }
                         name = name.substring(0, 1).toUpperCase() + name.substring(1);

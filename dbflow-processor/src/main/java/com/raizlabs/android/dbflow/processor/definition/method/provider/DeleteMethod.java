@@ -49,12 +49,13 @@ public class DeleteMethod implements MethodDefinition {
             for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
                 if (uriDefinition.deleteEnabled) {
 
+                    String databaseName = manager.getDatabaseName(contentProviderDefinition.databaseName);
+
                     method.beginControlFlow("case $L:", uriDefinition.name);
 
                     CodeBlock.Builder code = CodeBlock.builder();
                     code.add("long count = new $T().from", ClassNames.DELETE);
-                    ProviderMethodUtils.appendTableName(code,
-                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                    ProviderMethodUtils.appendTableName(code, databaseName, tableEndpointDefinition.tableName);
                     code.add(".where()");
                     ProviderMethodUtils.appendPathSegments(code, manager, uriDefinition.segments,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);

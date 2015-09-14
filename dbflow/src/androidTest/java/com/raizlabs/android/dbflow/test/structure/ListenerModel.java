@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class ListenerModel extends TestModel1 implements LoadFromCursorListener,
         SQLiteStatementListener, ContentValuesListener {
 

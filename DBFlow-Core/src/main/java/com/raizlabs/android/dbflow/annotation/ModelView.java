@@ -24,7 +24,7 @@ public @interface ModelView {
     String name() default "";
 
     /**
-     * @return The name of the database this corresponds to. By default if one DB is defined, no need to specify the name.
+     * @return The class of the database this corresponds to. .
      */
-    String databaseName();
+    Class<?> database();
 }

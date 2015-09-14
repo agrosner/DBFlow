@@ -27,6 +27,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
@@ -41,7 +42,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
     final boolean implementsLoadFromCursorListener;
 
-    public String databaseName;
+    public TypeName databaseName;
 
     private String query;
 
@@ -58,7 +59,11 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
         ModelView modelView = element.getAnnotation(ModelView.class);
         this.query = modelView.query();
-        this.databaseName = modelView.databaseName();
+        try {
+            modelView.database();
+        } catch (MirroredTypeException mte) {
+            this.databaseName = TypeName.get(mte.getTypeMirror());
+        }
 
         databaseDefinition = manager.getDatabaseWriter(databaseName);
         this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;

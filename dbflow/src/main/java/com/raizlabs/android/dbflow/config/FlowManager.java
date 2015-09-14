@@ -93,7 +93,7 @@ public class FlowManager {
 
     /**
      * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
-     * @return the {@link com.raizlabs.android.dbflow.config.BaseDatabaseDefinition} for the specified databaseName
+     * @return the {@link com.raizlabs.android.dbflow.config.BaseDatabaseDefinition} for the specified database
      */
     public static BaseDatabaseDefinition getDatabase(String databaseName) {
         getDatabaseHolder();

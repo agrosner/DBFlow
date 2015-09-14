@@ -17,7 +17,7 @@ import java.util.Map;
  * Description:
  */
 @ModelContainer
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class ForeignInteractionModel extends TestModel1 {
 
     @Column

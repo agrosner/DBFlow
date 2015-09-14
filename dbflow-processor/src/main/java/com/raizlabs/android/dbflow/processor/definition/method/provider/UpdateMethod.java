@@ -57,7 +57,8 @@ public class UpdateMethod implements MethodDefinition {
                     CodeBlock.Builder codeBuilder = CodeBlock.builder()
                             .add("final int count = (int) new $T", ClassNames.UPDATE);
                     ProviderMethodUtils.appendTableName(codeBuilder,
-                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                            manager.getDatabaseName(contentProviderDefinition.databaseName),
+                            tableEndpointDefinition.tableName);
                     codeBuilder.add(".conflictAction(adapter.getUpdateOnConflictAction()).set().conditionValues(values)");
                     codeBuilder.add(".where()");
                     ProviderMethodUtils.appendPathSegments(codeBuilder, manager, uriDefinition.segments,

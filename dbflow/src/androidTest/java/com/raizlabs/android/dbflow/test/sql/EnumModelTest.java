@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
- * Description:
+ * Description: Tests enums
  */
 public class EnumModelTest extends FlowTestCase {
 
