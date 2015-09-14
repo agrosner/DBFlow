@@ -144,10 +144,7 @@ public class ColumnDefinition extends BaseDefinition {
             columnAccess = new BlobColumnAccess(this);
         } else {
             if (elementTypeName instanceof ParameterizedTypeName) {
-                List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
-                if (!args.isEmpty()) {
-                    //columnAccess = new ModelContainerAccess(this);
-                }
+                // do nothing.
             } else if (elementTypeName instanceof ArrayTypeName) {
                 processorManager.getMessager()
                         .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");

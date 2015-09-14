@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
-import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
@@ -13,17 +12,6 @@ public class ModelContainerAccess extends BaseColumnAccess {
     private final BaseColumnAccess existingColumnAccess;
 
     public String containerKeyName;
-
-    public ModelContainerAccess(ColumnDefinition columnDefinition) {
-        this.existingColumnAccess = columnDefinition.columnAccess;
-
-        ContainerKey containerKey = columnDefinition.element.getAnnotation(ContainerKey.class);
-        if (containerKey != null) {
-            containerKeyName = containerKey.value();
-        } else {
-            containerKeyName = columnDefinition.columnName;
-        }
-    }
 
     public ModelContainerAccess(BaseColumnAccess existingColumnAccess, String containerKeyName) {
         this.existingColumnAccess = existingColumnAccess;

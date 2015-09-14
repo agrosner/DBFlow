@@ -31,7 +31,6 @@ public class ForeignKeyReferenceDefinition {
     private final ForeignKeyColumnDefinition foreignKeyColumnDefinition;
 
     private final BaseColumnAccess simpleColumnAccess = new SimpleColumnAccess();
-    private final ModelContainerAccess modelContainerAccess;
 
     public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
                                          ColumnDefinition referencedColumn,
@@ -60,9 +59,6 @@ public class ForeignKeyReferenceDefinition {
                 columnAccess = new SimpleColumnAccess();
             }
         }
-
-        // create for referencing in model container
-        modelContainerAccess = new ModelContainerAccess(columnAccess, foreignColumnName);
     }
 
     public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
@@ -93,9 +89,6 @@ public class ForeignKeyReferenceDefinition {
                 columnAccess = new SimpleColumnAccess();
             }
         }
-
-        // create for referencing in model container
-        modelContainerAccess = new ModelContainerAccess(columnAccess, foreignColumnName);
     }
 
     CodeBlock getCreationStatement() {
