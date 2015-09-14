@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ModelView;
+import com.raizlabs.android.dbflow.annotation.ModelViewQuery;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
@@ -12,6 +13,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionMethod;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -29,7 +31,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic;
 
 /**
  * Description: Used in writing ModelViewAdapters
@@ -44,7 +45,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
     public TypeName databaseName;
 
-    private String query;
+    private String queryFieldName;
 
     private String name;
 
@@ -58,7 +59,6 @@ public class ModelViewDefinition extends BaseTableDefinition {
         super(element, manager);
 
         ModelView modelView = element.getAnnotation(ModelView.class);
-        this.query = modelView.query();
         try {
             modelView.database();
         } catch (MirroredTypeException mte) {
@@ -115,9 +115,31 @@ public class ModelViewDefinition extends BaseTableDefinition {
                 columnDefinitions.add(columnDefinition);
 
                 if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition || columnDefinition.isPrimaryKeyAutoIncrement) {
-                    manager.getMessager().printMessage(Diagnostic.Kind.ERROR, "ModelViews cannot have primary or foreign keys");
+                    manager.logError("ModelViews cannot have primary or foreign keys");
                 }
+            } else if (variableElement.getAnnotation(ModelViewQuery.class) != null) {
+                if (!variableElement.getModifiers().contains(Modifier.PUBLIC)) {
+                    manager.logError("The ModelViewQuery must be public");
+                }
+                if (!variableElement.getModifiers().contains(Modifier.STATIC)) {
+                    manager.logError("The ModelViewQuery must be static");
+                }
+
+                if (!variableElement.getModifiers().contains(Modifier.FINAL)) {
+                    manager.logError("The ModelViewQuery must be final");
+                }
+
+                TypeElement element = manager.getElements().getTypeElement(variableElement.asType().toString());
+                if (!ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.QUERY.toString(), element)) {
+                    manager.logError("The field %1s must implement %1s", variableElement.getSimpleName().toString(), ClassNames.QUERY.toString());
+                }
+
+                queryFieldName = variableElement.getSimpleName().toString();
             }
+        }
+
+        if (StringUtils.isNullOrEmpty(queryFieldName)) {
+            manager.logError("%1s is missing the @ModelViewQuery field.", elementClassName);
         }
     }
 
@@ -163,7 +185,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
         typeBuilder.addMethod(MethodSpec.methodBuilder("getCreationQuery")
                 .addAnnotation(Override.class)
                 .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $S", query)
+                .addStatement("return $T.$L.getQuery()", elementClassName, queryFieldName)
                 .returns(ClassName.get(String.class)).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getViewName")

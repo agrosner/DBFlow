@@ -46,8 +46,9 @@ public class ClassNames {
     public static final ClassName CONDITION_QUERY_BUILDER = ClassName.get(BUILDER, "ConditionQueryBuilder");
     public static final ClassName CONDITION = ClassName.get(BUILDER, "Condition");
 
-
     public static final ClassName SQL_UTILS = ClassName.get(SQL, "SqlUtils");
+    public static final ClassName QUERY = ClassName.get(SQL, "Query");
+
     public static final ClassName TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter");
     public static final ClassName PROCESS_MODEL_INFO = ClassName.get(PROCESS, "ProcessModelInfo");
 
