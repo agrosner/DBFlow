@@ -45,8 +45,6 @@ public class ColumnDefinition extends BaseDefinition {
 
     public String columnName;
 
-    public String columnFieldName;
-
     public String containerKeyName;
 
     public boolean hasTypeConverter = false;

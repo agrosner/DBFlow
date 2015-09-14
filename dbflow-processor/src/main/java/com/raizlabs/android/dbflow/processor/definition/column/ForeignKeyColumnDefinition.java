@@ -50,6 +50,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     public boolean needsReferences;
 
+    public boolean nonModelColumn;
+
     public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition, Element typeElement) {
         super(manager, typeElement);
         this.tableDefinition = tableDefinition;
@@ -86,6 +88,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
         isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), element);
         isModelContainer = isModelContainer || ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL_CONTAINER.toString(), element);
+        nonModelColumn = !isModel && !isModelContainer;
 
         // we need to recheck for this instance
         if (columnAccess instanceof TypeConverterAccess) {
@@ -173,7 +176,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
-        if (!isModel && !isModelContainer) {
+        if (nonModelColumn) {
             return super.getContentValuesStatement(isModelContainerAdapter);
         } else {
             checkNeedsReferences();
@@ -198,7 +201,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
-        if (!isModel && !isModelContainer) {
+        if (nonModelColumn) {
             return super.getSQLiteStatementMethod(index, isModelContainerAdapter);
         } else {
             checkNeedsReferences();
@@ -223,7 +226,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
-        if (!isModel && !isModelContainer) {
+        if (nonModelColumn) {
             return super.getLoadFromCursorMethod(isModelContainerAdapter);
         } else {
             checkNeedsReferences();
@@ -341,6 +344,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     ForeignKeyReferenceDefinition foreignKeyReferenceDefinition =
                             new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn, columnAccess, this);
                     foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition);
+                }
+                if (nonModelColumn) {
+                    columnName = foreignKeyReferenceDefinitionList.get(0).columnName;
                 }
                 needsReferences = false;
             }

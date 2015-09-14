@@ -41,9 +41,9 @@ public class ForeignKeyReferenceDefinition {
         this.tableColumnAccess = tableColumnAccess;
         this.foreignKeyFieldName = foreignKeyFieldName;
 
-        columnName = foreignKeyFieldName + "_" + referencedColumn.columnFieldName;
+        columnName = foreignKeyFieldName + "_" + referencedColumn.columnName;
         foreignColumnName = referencedColumn.columnName;
-        columnClassName = referencedColumn.elementClassName;
+        columnClassName = referencedColumn.elementTypeName;
 
         if (referencedColumn.columnAccess instanceof WrapperColumnAccess) {
             isReferencedFieldPrivate = (((WrapperColumnAccess) referencedColumn.columnAccess).existingColumnAccess instanceof PrivateColumnAccess);

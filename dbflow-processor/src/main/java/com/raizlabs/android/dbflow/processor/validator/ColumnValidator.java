@@ -3,10 +3,7 @@ package com.raizlabs.android.dbflow.processor.validator;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.EnumColumnAccess;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
-import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyReferenceDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-
-import java.util.List;
 
 /**
  * Description: Ensures the integrity of the annotation processor for columns.
@@ -23,7 +20,7 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
         if (columnDefinition.columnName == null || columnDefinition.columnName.isEmpty()) {
             success = false;
             processorManager.logError("Field %1s cannot have a null column name for column: %1s and type: %1s",
-                    columnDefinition.columnFieldName, columnDefinition.columnName,
+                    columnDefinition.elementName, columnDefinition.columnName,
                     columnDefinition.elementTypeName);
         }
 
@@ -40,21 +37,12 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
         }
 
         if (columnDefinition instanceof ForeignKeyColumnDefinition) {
-            List<ForeignKeyReferenceDefinition> references = ((ForeignKeyColumnDefinition) columnDefinition).foreignKeyReferenceDefinitionList;
-            if (references == null || references.isEmpty()) {
-                success = false;
-                processorManager.logError(
-                        "Foreign Key for field %1s is missing it's references. Column: %1s and type: %1s",
-                        columnDefinition.columnFieldName, columnDefinition.columnName,
-                        columnDefinition.elementTypeName);
-            }
-
             if (columnDefinition.column.name()
                     .length() > 0) {
                 success = false;
                 processorManager.logError("Foreign Key %1s cannot specify the column() field. " +
                                 "Use a @ForeignKeyReference(columnName = {NAME} instead. Column: %1s and type: %1s",
-                        columnDefinition.columnFieldName, columnDefinition.columnName,
+                        ((ForeignKeyColumnDefinition) columnDefinition).elementName, columnDefinition.columnName,
                         columnDefinition.elementTypeName);
             }
 
