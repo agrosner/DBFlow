@@ -12,6 +12,7 @@ android {
         minSdkVersion 4
         targetSdkVersion 23
         versionCode = version_code
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
     lintOptions {
