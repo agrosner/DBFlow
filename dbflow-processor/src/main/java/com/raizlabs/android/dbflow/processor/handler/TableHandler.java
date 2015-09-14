@@ -31,7 +31,6 @@ public class TableHandler extends BaseContainerHandler<Table> {
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         TableDefinition tableDefinition = new TableDefinition(processorManager, (TypeElement) element);
         if (definitionValidator.validate(processorManager, tableDefinition)) {
-            WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
             processorManager.addTableDefinition(tableDefinition);
         }
     }

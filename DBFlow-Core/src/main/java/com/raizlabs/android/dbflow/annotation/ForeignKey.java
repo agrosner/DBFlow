@@ -13,12 +13,12 @@ import java.lang.annotation.Target;
 public @interface ForeignKey {
 
     /**
-     * Defines the references for a composite {@link ForeignKey} definition. It enables for multiple local
-     * columns that reference another Model's primary keys.
+     * Defines explicit references for a composite {@link ForeignKey} definition. This is no longer required
+     * as the library will autogenerate references for you based on the other table's primary keys.
      *
-     * @return the set of references
+     * @return the set of explicit references if you wish to have different values than default generated.
      */
-    ForeignKeyReference[] references();
+    ForeignKeyReference[] references() default {};
 
     /**
      * @return When this column is a {@link ForeignKey} and a Model, returning true with save the model

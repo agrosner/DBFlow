@@ -18,11 +18,4 @@ public class OtherModel extends BaseModel {
     @Column
     @PrimaryKey
     String name;
-
-    @Column
-    @ForeignKey(references =
-            {@ForeignKeyReference(columnType = String.class,
-                    columnName = "json",
-                    foreignKeyColumnName = "name")})
-    SecondModel candy;
 }

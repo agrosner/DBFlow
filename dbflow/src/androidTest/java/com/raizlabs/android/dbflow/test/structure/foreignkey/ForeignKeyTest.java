@@ -1,10 +1,10 @@
-package com.raizlabs.android.dbflow.test.structure;
+package com.raizlabs.android.dbflow.test.structure.foreignkey;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI;
 
-import static com.raizlabs.android.dbflow.test.structure.ForeignModel_Table.name;
+import static com.raizlabs.android.dbflow.test.structure.foreignkey.ForeignModel_Table.name;
 
 public class ForeignKeyTest extends FlowTestCase {
 

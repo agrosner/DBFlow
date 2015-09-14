@@ -237,7 +237,7 @@ public class TableDefinition extends BaseTableDefinition {
             if (element.getAnnotation(Column.class) != null || isValidColumn) {
                 ColumnDefinition columnDefinition;
                 if (element.getAnnotation(ForeignKey.class) != null) {
-                    columnDefinition = new ForeignKeyColumnDefinition(manager, element);
+                    columnDefinition = new ForeignKeyColumnDefinition(manager, this, element);
                 } else {
                     columnDefinition = new ColumnDefinition(manager, element);
                 }

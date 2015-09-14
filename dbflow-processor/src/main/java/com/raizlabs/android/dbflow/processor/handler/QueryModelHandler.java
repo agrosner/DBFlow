@@ -23,15 +23,6 @@ public class QueryModelHandler extends BaseContainerHandler<QueryModel> {
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         QueryModelDefinition queryModelDefinition = new QueryModelDefinition(element, processorManager);
-
         processorManager.addQueryModelDefinition(queryModelDefinition);
-
-        WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
-
-        try {
-            queryModelDefinition.writeAdapter(processorManager.getProcessingEnvironment());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

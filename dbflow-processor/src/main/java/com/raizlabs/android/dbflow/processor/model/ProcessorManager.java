@@ -257,6 +257,7 @@ public class ProcessorManager implements Handler {
 
                 Collection<TableDefinition> tableDefinitions = databaseDefinition.tableDefinitionMap.values();
                 for (TableDefinition tableDefinition : tableDefinitions) {
+                    WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
                     tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
                 }
 
@@ -268,6 +269,12 @@ public class ProcessorManager implements Handler {
                 Collection<ModelViewDefinition> modelViewDefinitions = databaseDefinition.modelViewDefinitionMap.values();
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
                     WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
+                }
+
+                Collection<QueryModelDefinition> queryModelDefinitions = databaseDefinition.queryModelDefinitionMap.values();
+                for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
+                    WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
+                    queryModelDefinition.writeAdapter(processorManager.getProcessingEnvironment());
                 }
             } catch (IOException e) {
             }

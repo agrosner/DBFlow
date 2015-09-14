@@ -332,8 +332,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     private void checkNeedsReferences() {
         TableDefinition referencedTableDefinition = manager.getTableDefinition(tableDefinition.databaseTypeName, referencedTableClassName);
         if (referencedTableDefinition == null) {
-            manager.logError("Could not find the referenced table definition %1s. Ensure it exists in the same" +
-                    "database %1s", referencedTableClassName, tableDefinition.databaseTypeName);
+            manager.logError("Could not find the referenced table definition %1s from %1s. Ensure it exists in the same" +
+                    "database %1s", referencedTableClassName, tableDefinition.tableName, tableDefinition.databaseTypeName);
         } else {
             if (needsReferences) {
                 List<ColumnDefinition> primaryColumns = referencedTableDefinition.getPrimaryColumnDefinitions();
