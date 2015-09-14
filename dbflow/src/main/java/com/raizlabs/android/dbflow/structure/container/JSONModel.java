@@ -45,6 +45,11 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
+    public boolean containsValue(String key) {
+        return getData() != null && getData().has(key) && getData().opt(key) != null;
+    }
+
+    @Override
     public Object getValue(String key) {
         Object value = getData() != null ? getData().opt(key) : null;
         if (JSONObject.NULL.equals(value)) {

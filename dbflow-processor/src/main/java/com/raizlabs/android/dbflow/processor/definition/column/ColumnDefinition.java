@@ -209,8 +209,17 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getToModelMethod(boolean isModelContainerAdapter) {
-        // TODO: get this working.
-        return CodeBlock.builder().build();
+        String method = SQLiteType.getModelContainerMethod(elementTypeName);
+        if (method == null) {
+            method = "get";
+        }
+        CodeBlock.Builder codeBuilder = CodeBlock.builder()
+                .add("$L.$LValue($S)", ModelUtils.getVariable(true), method, containerKeyName);
+
+        return CodeBlock.builder()
+                .addStatement(columnAccess.setColumnAccessString(elementTypeName, containerKeyName, elementName,
+                        false, ModelUtils.getVariable(false), codeBuilder.build()))
+                .build();
     }
 
     public String getColumnAccessString(boolean isModelContainerAdapter) {

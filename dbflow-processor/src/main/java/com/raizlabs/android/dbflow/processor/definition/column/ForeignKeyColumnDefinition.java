@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
+import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -282,6 +283,69 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
             builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
                     isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build()));
+            builder.endControlFlow();
+            return builder.build();
+        }
+    }
+
+    @Override
+    public CodeBlock getToModelMethod(boolean isModelContainerAdapter) {
+        checkNeedsReferences();
+        if (nonModelColumn) {
+            return super.getToModelMethod(isModelContainerAdapter);
+        } else {
+            CodeBlock.Builder builder = CodeBlock.builder();
+            CodeBlock.Builder ifContains = CodeBlock.builder();
+            CodeBlock.Builder selectBuilder = CodeBlock.builder();
+
+            for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
+                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
+                String method = SQLiteType.getModelContainerMethod(referenceDefinition.columnClassName);
+                if (method == null) {
+                    method = "get";
+                }
+                String accessStatement = getRefName() + referenceDefinition.columnName;
+                CodeBlock.Builder codeBuilder = CodeBlock.builder()
+                        .addStatement("$T $L = $L.$LValue($S)",
+                                referenceDefinition.columnClassName,
+                                accessStatement, ModelUtils.getVariable(true),
+                                method, referenceDefinition.foreignColumnName);
+
+                if (i > 0) {
+                    ifContains.add(" && ");
+                }
+                ifContains.add("$L != $L", accessStatement, referenceDefinition.columnClassName.isPrimitive() ? "0" : "null");
+
+                builder.add(codeBuilder.build());
+
+                selectBuilder.add("\n.and($L.$L.eq($L))",
+                        ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
+                        referenceDefinition.foreignColumnName, accessStatement);
+            }
+
+            builder.beginControlFlow("if ($L)", ifContains.build().toString());
+
+            CodeBlock.Builder initializer = CodeBlock.builder();
+
+            // need to cast to type we're initializing.
+            if (isModelContainer) {
+                initializer.add("($T)", elementTypeName);
+            }
+            initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
+                    .add(selectBuilder.build());
+            if (!isModelContainerAdapter && !isModelContainer) {
+                initializer.add(".querySingle()");
+            } else {
+                if (isModelContainerAdapter) {
+                    initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
+                            ModelUtils.getVariable(true), referencedTableClassName);
+                } else {
+                    initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
+                }
+            }
+            builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
+                    isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build()));
+
             builder.endControlFlow();
             return builder.build();
         }

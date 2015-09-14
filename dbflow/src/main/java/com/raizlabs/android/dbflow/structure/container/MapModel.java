@@ -23,6 +23,11 @@ public class MapModel<ModelClass extends Model> extends SimpleModelContainer<Mod
     }
 
     @Override
+    public boolean containsValue(String key) {
+        return getData() != null && getData().containsKey(key) && getData().get(key) != null;
+    }
+
+    @Override
     public Map newDataInstance() {
         return new HashMap();
     }

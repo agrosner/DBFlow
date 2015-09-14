@@ -47,6 +47,11 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
     }
 
     @Override
+    public boolean containsValue(String key) {
+        return getData() != null && getData().containsKey(key) && getData().get(key) != null;
+    }
+
+    @Override
     public Object getValue(String key) {
         return getData().get(key);
     }

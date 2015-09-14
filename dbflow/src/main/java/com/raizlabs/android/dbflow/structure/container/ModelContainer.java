@@ -45,6 +45,12 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
 
     /**
+     * @param key The key to lookup.
+     * @return true if this container contains a value with the specified key. Nulls do not count.
+     */
+    boolean containsValue(String key);
+
+    /**
      * @param key The key in the container.
      * @return the value with the specified key
      */
