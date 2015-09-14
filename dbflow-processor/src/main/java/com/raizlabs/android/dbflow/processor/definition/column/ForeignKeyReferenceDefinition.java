@@ -34,12 +34,44 @@ public class ForeignKeyReferenceDefinition {
     private final ModelContainerAccess modelContainerAccess;
 
     public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
+                                         ColumnDefinition referencedColumn,
+                                         BaseColumnAccess tableColumnAccess,
+                                         ForeignKeyColumnDefinition foreignKeyColumnDefinition) {
+        this.manager = manager;
+        this.foreignKeyColumnDefinition = foreignKeyColumnDefinition;
+        this.tableColumnAccess = tableColumnAccess;
+        this.foreignKeyFieldName = foreignKeyFieldName;
+
+        columnName = foreignKeyFieldName + "_" + referencedColumn.columnFieldName;
+        foreignColumnName = referencedColumn.columnName;
+        columnClassName = referencedColumn.elementClassName;
+
+        if (referencedColumn.columnAccess instanceof WrapperColumnAccess) {
+            isReferencedFieldPrivate = (((WrapperColumnAccess) referencedColumn.columnAccess).existingColumnAccess instanceof PrivateColumnAccess);
+        } else {
+            isReferencedFieldPrivate = (referencedColumn.columnAccess instanceof PrivateColumnAccess);
+        }
+        if (isReferencedFieldPrivate && !foreignKeyColumnDefinition.isModelContainer) {
+            columnAccess = new PrivateColumnAccess(referencedColumn.column);
+        } else {
+            if (foreignKeyColumnDefinition.isModelContainer) {
+                columnAccess = new ModelContainerAccess(tableColumnAccess, foreignColumnName);
+            } else {
+                columnAccess = new SimpleColumnAccess();
+            }
+        }
+
+        // create for referencing in model container
+        modelContainerAccess = new ModelContainerAccess(columnAccess, foreignColumnName);
+    }
+
+    public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
                                          ForeignKeyReference foreignKeyReference, BaseColumnAccess tableColumnAccess,
                                          ForeignKeyColumnDefinition foreignKeyColumnDefinition) {
         this.manager = manager;
-        this.foreignKeyFieldName = foreignKeyFieldName;
         this.tableColumnAccess = tableColumnAccess;
         this.foreignKeyColumnDefinition = foreignKeyColumnDefinition;
+        this.foreignKeyFieldName = foreignKeyFieldName;
 
         columnName = foreignKeyReference.columnName();
         foreignColumnName = foreignKeyReference.foreignKeyColumnName();

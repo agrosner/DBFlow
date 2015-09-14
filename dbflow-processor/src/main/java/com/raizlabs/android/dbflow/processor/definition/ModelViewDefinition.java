@@ -118,6 +118,9 @@ public class ModelViewDefinition extends BaseTableDefinition {
                     manager.logError("ModelViews cannot have primary or foreign keys");
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery.class) != null) {
+                if (!StringUtils.isNullOrEmpty(queryFieldName)) {
+                    manager.logError("Found duplicate ");
+                }
                 if (!variableElement.getModifiers().contains(Modifier.PUBLIC)) {
                     manager.logError("The ModelViewQuery must be public");
                 }

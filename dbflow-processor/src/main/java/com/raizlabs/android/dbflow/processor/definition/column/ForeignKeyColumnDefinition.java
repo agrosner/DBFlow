@@ -37,6 +37,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     public final List<ForeignKeyReferenceDefinition> foreignKeyReferenceDefinitionList = new ArrayList<>();
 
+    public final TableDefinition tableDefinition;
+
     public ClassName referencedTableClassName;
 
     public ForeignKeyAction onDelete;
@@ -46,8 +48,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     public boolean isModel;
 
-    public ForeignKeyColumnDefinition(ProcessorManager manager, Element typeElement) {
+    public boolean needsReferences;
+
+    public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition, Element typeElement) {
         super(manager, typeElement);
+        this.tableDefinition = tableDefinition;
 
         ForeignKey foreignKey = typeElement.getAnnotation(ForeignKey.class);
         onUpdate = foreignKey.onUpdate();
@@ -92,16 +97,22 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
 
         ForeignKeyReference[] references = foreignKey.references();
-        for (ForeignKeyReference reference : references) {
-            ForeignKeyReferenceDefinition referenceDefinition = new ForeignKeyReferenceDefinition(manager, elementName, reference, columnAccess, this);
-            // TODO: add validation
-            foreignKeyReferenceDefinitionList.add(referenceDefinition);
+        if (references.length == 0) {
+            // no references specified we will delegate references call to post-evaluation
+            needsReferences = true;
+        } else {
+            for (ForeignKeyReference reference : references) {
+                ForeignKeyReferenceDefinition referenceDefinition = new ForeignKeyReferenceDefinition(manager, elementName, reference, columnAccess, this);
+                // TODO: add validation
+                foreignKeyReferenceDefinitionList.add(referenceDefinition);
+            }
         }
 
     }
 
     @Override
     public void addPropertyDefinition(TypeSpec.Builder typeBuilder, TypeName tableClassName) {
+        checkNeedsReferences();
         for (ForeignKeyReferenceDefinition reference : foreignKeyReferenceDefinitionList) {
             ParameterizedTypeName propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, reference.columnClassName.isPrimitive() ? reference.columnClassName.box() : reference.columnClassName);
             typeBuilder.addField(FieldSpec.builder(propParam, reference.columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
@@ -111,6 +122,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {
+        checkNeedsReferences();
         for (ForeignKeyReferenceDefinition reference : foreignKeyReferenceDefinitionList) {
             methodBuilder.beginControlFlow("case $S: ", reference.columnName);
             methodBuilder.addStatement("return $L", reference.columnName);
@@ -120,6 +132,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public CodeBlock getInsertStatementColumnName() {
+        checkNeedsReferences();
         CodeBlock.Builder builder = CodeBlock.builder();
         for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
             if (i > 0) {
@@ -133,6 +146,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public CodeBlock getInsertStatementValuesString() {
+        checkNeedsReferences();
         CodeBlock.Builder builder = CodeBlock.builder();
         for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
             if (i > 0) {
@@ -145,6 +159,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public CodeBlock getCreationName() {
+        checkNeedsReferences();
         CodeBlock.Builder builder = CodeBlock.builder();
         for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
             if (i > 0) {
@@ -161,6 +176,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (!isModel && !isModelContainer) {
             return super.getContentValuesStatement(isModelContainerAdapter);
         } else {
+            checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder();
             String statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
@@ -185,6 +201,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (!isModel && !isModelContainer) {
             return super.getSQLiteStatementMethod(index, isModelContainerAdapter);
         } else {
+            checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder();
             String statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
@@ -209,6 +226,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (!isModel && !isModelContainer) {
             return super.getLoadFromCursorMethod(isModelContainerAdapter);
         } else {
+            checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder()
                     .add("//// Only load model if references match, for efficiency\n");
             CodeBlock.Builder ifNullBuilder = CodeBlock.builder()
@@ -305,5 +323,27 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     public String getRefName() {
         return "ref" + elementName;
+    }
+
+    /**
+     * If {@link ForeignKey} has no {@link ForeignKeyReference}s, we use the primary key the referenced
+     * table. We do this post-evaluation so all of the {@link TableDefinition} can be generated.
+     */
+    private void checkNeedsReferences() {
+        TableDefinition referencedTableDefinition = manager.getTableDefinition(tableDefinition.databaseTypeName, referencedTableClassName);
+        if (referencedTableDefinition == null) {
+            manager.logError("Could not find the referenced table definition %1s. Ensure it exists in the same" +
+                    "database %1s", referencedTableClassName, tableDefinition.databaseTypeName);
+        } else {
+            if (needsReferences) {
+                List<ColumnDefinition> primaryColumns = referencedTableDefinition.getPrimaryColumnDefinitions();
+                for (ColumnDefinition primaryColumn : primaryColumns) {
+                    ForeignKeyReferenceDefinition foreignKeyReferenceDefinition =
+                            new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn, columnAccess, this);
+                    foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition);
+                }
+                needsReferences = false;
+            }
+        }
     }
 }
