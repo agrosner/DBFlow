@@ -17,6 +17,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     public final TypeConverterDefinition typeConverterDefinition;
 
     private final ProcessorManager manager;
+    private String typeConverterFieldName;
 
     public TypeConverterAccess(ProcessorManager manager, ColumnDefinition columnDefinition) {
         super(columnDefinition);
@@ -24,46 +25,66 @@ public class TypeConverterAccess extends WrapperColumnAccess {
         this.manager = manager;
     }
 
+    public TypeConverterAccess(ProcessorManager manager, ColumnDefinition columnDefinition, String typeConverterFieldName) {
+        this(manager, columnDefinition);
+        this.typeConverterFieldName = typeConverterFieldName;
+    }
+
     @Override
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
-        return CodeBlock.builder()
-                .add("($T) $T.$L($T.class).getDBValue($L)",
-                        typeConverterDefinition.getDbTypeName(),
-                        ClassNames.FLOW_MANAGER,
-                        METHOD_TYPE_CONVERTER,
-                        columnDefinition.elementTypeName.box(),
-                        getExistingColumnAccess()
-                                .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter))
-                .build()
-                .toString();
+        CodeBlock.Builder codeBuilder = CodeBlock.builder();
+        if (typeConverterFieldName == null) {
+            codeBuilder.add("($T) $T.$L($T.class)", typeConverterDefinition.getDbTypeName(),
+                    ClassNames.FLOW_MANAGER,
+                    METHOD_TYPE_CONVERTER,
+                    columnDefinition.elementTypeName.box());
+        } else {
+            codeBuilder.add(typeConverterFieldName);
+        }
+        codeBuilder.add(".getDBValue($L)", getExistingColumnAccess()
+                .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter));
+
+
+        return codeBuilder.build().toString();
     }
 
     @Override
     String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
-        return CodeBlock.builder()
-                .add("($T) $T.$L($T.class).getDBValue($L)",
-                        typeConverterDefinition.getDbTypeName(),
-                        ClassNames.FLOW_MANAGER,
-                        METHOD_TYPE_CONVERTER,
-                        columnDefinition.elementTypeName.box(),
-                        getExistingColumnAccess()
-                                .getShortAccessString(fieldType, elementName, isModelContainerAdapter))
-                .build()
-                .toString();
+        CodeBlock.Builder codeBuilder = CodeBlock.builder();
+        if (typeConverterFieldName == null) {
+            codeBuilder.add("($T) $T.$L($T.class)",
+                    typeConverterDefinition.getDbTypeName(),
+                    ClassNames.FLOW_MANAGER,
+                    METHOD_TYPE_CONVERTER,
+                    columnDefinition.elementTypeName.box());
+        } else {
+            codeBuilder.add(typeConverterFieldName);
+        }
+        codeBuilder.add(".getDBValue($L)", getExistingColumnAccess()
+                .getShortAccessString(fieldType, elementName, isModelContainerAdapter));
+
+
+        return codeBuilder.build().toString();
     }
 
     @Override
     String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
-        CodeBlock newFormattedAccess = CodeBlock.builder()
-                .add("($T) $T.$L($T.class).getModelValue(($T) $L)",
-                        typeConverterDefinition.getModelTypeName(),
-                        ClassNames.FLOW_MANAGER,
-                        METHOD_TYPE_CONVERTER,
-                        columnDefinition.elementTypeName.box(),
-                        typeConverterDefinition.getDbTypeName(),
-                        formattedAccess).build();
+        CodeBlock.Builder newFormattedAccess = CodeBlock.builder();
+        if (typeConverterFieldName == null) {
+            newFormattedAccess.add("($T) $T.$L($T.class)",
+                    typeConverterDefinition.getModelTypeName(),
+                    ClassNames.FLOW_MANAGER,
+                    METHOD_TYPE_CONVERTER,
+                    columnDefinition.elementTypeName.box()).build();
+        } else {
+            newFormattedAccess.add(typeConverterFieldName);
+        }
+        newFormattedAccess.add(".getModelValue(($T) $L)",
+                typeConverterDefinition.getDbTypeName(),
+                formattedAccess);
+
         return getExistingColumnAccess()
-                .setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess);
+                .setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess.build());
     }
 
     @Override

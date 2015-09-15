@@ -46,4 +46,11 @@ public @interface Column {
      * The params must align exactly to an expected setter, otherwise a compile error ensues.
      */
     String setterName() default "";
+
+    /**
+     * @return A custom type converter that's only used for this field. It will be created and used in
+     * the Adapter associated with this table.
+     */
+    Class<? extends com.raizlabs.android.dbflow.converter.TypeConverter> typeConverter() default com.raizlabs.android.dbflow.converter.TypeConverter.class;
+
 }

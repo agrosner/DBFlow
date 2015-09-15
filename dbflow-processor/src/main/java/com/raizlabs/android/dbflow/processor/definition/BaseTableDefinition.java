@@ -8,7 +8,9 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -19,6 +21,7 @@ import javax.lang.model.element.TypeElement;
 public abstract class BaseTableDefinition extends BaseDefinition {
 
     protected List<ColumnDefinition> columnDefinitions;
+    protected Map<ClassName, List<ColumnDefinition>> associatedTypeConverters = new HashMap<>();
 
     private String modelClassName;
     public DatabaseDefinition databaseDefinition;
@@ -42,6 +45,20 @@ public abstract class BaseTableDefinition extends BaseDefinition {
     public TypeName getParameterClassName(boolean isModelContainerAdapter) {
         return isModelContainerAdapter ? ModelUtils.getModelContainerType(manager, elementClassName)
                 : elementClassName;
+    }
+
+    public String addColumnForTypeConverter(ColumnDefinition columnDefinition, ClassName typeConverterName) {
+        List<ColumnDefinition> columnDefinitions = associatedTypeConverters.get(typeConverterName);
+        if (columnDefinitions == null) {
+            columnDefinitions = new ArrayList<>();
+        }
+        columnDefinitions.add(columnDefinition);
+
+        return "typeConverter" + typeConverterName.simpleName();
+    }
+
+    public Map<ClassName, List<ColumnDefinition>> getAssociatedTypeConverters() {
+        return associatedTypeConverters;
     }
 
     public boolean hasAutoIncrement() {

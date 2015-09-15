@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.CustomTypeConverterPropertyMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
@@ -111,7 +112,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
         List<? extends Element> variableElements = manager.getElements().getAllMembers(typeElement);
         for (Element variableElement : variableElements) {
             if (variableElement.getAnnotation(Column.class) != null) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement);
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this);
                 columnDefinitions.add(columnDefinition);
 
                 if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition || columnDefinition.isPrimaryKeyAutoIncrement) {
@@ -178,6 +179,8 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
+        new CustomTypeConverterPropertyMethod(this).addToType(typeBuilder);
+
         for (MethodDefinition method : methods) {
             MethodSpec methodSpec = method.getMethodSpec();
             if (methodSpec != null) {

@@ -54,7 +54,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public boolean nonModelColumn;
 
     public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition, Element typeElement) {
-        super(manager, typeElement);
+        super(manager, typeElement, tableDefinition);
         this.tableDefinition = tableDefinition;
 
         ForeignKey foreignKey = typeElement.getAnnotation(ForeignKey.class);

@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
+import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -35,6 +36,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
 import javax.tools.Diagnostic;
 
 /**
@@ -68,7 +70,7 @@ public class ColumnDefinition extends BaseDefinition {
 
     public BaseColumnAccess columnAccess;
 
-    public ColumnDefinition(ProcessorManager processorManager, Element element) {
+    public ColumnDefinition(ProcessorManager processorManager, Element element, BaseTableDefinition baseTableDefinition) {
         super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
@@ -135,28 +137,55 @@ public class ColumnDefinition extends BaseDefinition {
             }
         }
 
-        TypeElement typeElement = manager.getElements().getTypeElement(element.asType().toString());
-        if (typeElement != null && typeElement.getKind() == ElementKind.ENUM) {
-            columnAccess = new EnumColumnAccess(this);
-        } else if (elementTypeName.equals(ClassName.get(Blob.class))) {
-            columnAccess = new BlobColumnAccess(this);
-        } else {
-            if (elementTypeName instanceof ParameterizedTypeName) {
-                // do nothing.
-            } else if (elementTypeName instanceof ArrayTypeName) {
-                processorManager.getMessager()
-                        .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
+        ClassName typeConverterClassName = null;
+        TypeElement typeConverterElement = null;
+        if (column != null) {
+            try {
+                column.typeConverter();
+            } catch (MirroredTypeException mte) {
+                typeConverterElement = manager.getElements().getTypeElement(mte.getTypeMirror().toString());
+                typeConverterClassName = ClassName.get(typeConverterElement);
+            }
+        }
+
+        boolean hasCustomConverter = false;
+        if (typeConverterClassName != null && !typeConverterClassName.equals(ClassNames.TYPE_CONVERTER)) {
+            TypeConverterDefinition typeConverterDefinition = new TypeConverterDefinition(typeConverterElement, manager);
+            if (!typeConverterDefinition.getModelTypeName().equals(elementTypeName)) {
+                manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
+                        typeConverterDefinition.getModelTypeName(), typeConverterClassName, elementTypeName);
             } else {
-                if (elementTypeName.box().equals(TypeName.BOOLEAN.box())) {
-                    isBoolean = true;
-                    columnAccess = new BooleanColumnAccess(manager, this);
+                hasCustomConverter = true;
+                String fieldName = baseTableDefinition.addColumnForTypeConverter(this, typeConverterClassName);
+                hasTypeConverter = true;
+                columnAccess = new TypeConverterAccess(manager, this, fieldName);
+            }
+        }
+
+        if (!hasCustomConverter) {
+            TypeElement typeElement = manager.getElements().getTypeElement(element.asType().toString());
+            if (typeElement != null && typeElement.getKind() == ElementKind.ENUM) {
+                columnAccess = new EnumColumnAccess(this);
+            } else if (elementTypeName.equals(ClassName.get(Blob.class))) {
+                columnAccess = new BlobColumnAccess(this);
+            } else {
+                if (elementTypeName instanceof ParameterizedTypeName) {
+                    // do nothing.
+                } else if (elementTypeName instanceof ArrayTypeName) {
+                    processorManager.getMessager()
+                            .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
                 } else {
-                    // Any annotated members, otherwise we will use the scanner to find other ones
-                    final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
-                    if (typeConverterDefinition != null
-                            || (!hasTypeConverter && !SQLiteType.containsType(elementTypeName))) {
-                        hasTypeConverter = true;
-                        columnAccess = new TypeConverterAccess(manager, this);
+                    if (elementTypeName.box().equals(TypeName.BOOLEAN.box())) {
+                        isBoolean = true;
+                        columnAccess = new BooleanColumnAccess(manager, this);
+                    } else {
+                        // Any annotated members, otherwise we will use the scanner to find other ones
+                        final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
+                        if (typeConverterDefinition != null
+                                || (!hasTypeConverter && !SQLiteType.containsType(elementTypeName))) {
+                            hasTypeConverter = true;
+                            columnAccess = new TypeConverterAccess(manager, this);
+                        }
                     }
                 }
             }

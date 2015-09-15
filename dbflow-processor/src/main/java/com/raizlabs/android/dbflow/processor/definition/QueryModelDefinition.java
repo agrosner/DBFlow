@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.CustomTypeConverterPropertyMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -24,7 +25,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.MirroredTypeException;
 
 /**
@@ -97,7 +97,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
                     !variableElement.getModifiers().contains(Modifier.FINAL));
 
             if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement);
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this);
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
                 }
@@ -122,10 +122,11 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
 
-
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(adapterName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(ParameterizedTypeName.get(ClassNames.QUERY_MODEL_ADAPTER, elementClassName));
+
+        new CustomTypeConverterPropertyMethod(this).addToType(typeBuilder);
 
         for (MethodDefinition method : methods) {
             MethodSpec methodSpec = method.getMethodSpec();

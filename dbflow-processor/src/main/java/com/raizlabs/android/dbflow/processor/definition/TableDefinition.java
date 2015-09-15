@@ -17,6 +17,7 @@ import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnD
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.CreationQueryMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.CustomTypeConverterPropertyMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.InsertStatementQueryMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
@@ -239,7 +240,7 @@ public class TableDefinition extends BaseTableDefinition {
                 if (element.getAnnotation(ForeignKey.class) != null) {
                     columnDefinition = new ForeignKeyColumnDefinition(manager, this, element);
                 } else {
-                    columnDefinition = new ColumnDefinition(manager, element);
+                    columnDefinition = new ColumnDefinition(manager, element, this);
                 }
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
@@ -331,6 +332,8 @@ public class TableDefinition extends BaseTableDefinition {
                 .superclass(ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName));
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
         InternalAdapterHelper.writeGetTableName(typeBuilder, tableName);
+
+        new CustomTypeConverterPropertyMethod(this).addToType(typeBuilder);
 
         for (MethodDefinition methodDefinition : methods) {
             MethodSpec spec = methodDefinition.getMethodSpec();
