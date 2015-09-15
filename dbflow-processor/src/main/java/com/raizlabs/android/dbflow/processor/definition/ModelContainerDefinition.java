@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.CustomTypeConverterPropertyMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
@@ -68,6 +69,8 @@ public class ModelContainerDefinition extends BaseDefinition {
         typeBuilder.addField(FieldSpec.builder(ParameterizedTypeName.get(ClassName.get(Map.class),
                 ClassName.get(String.class), ClassName.get(Class.class)), "columnMap", Modifier.PRIVATE, Modifier.FINAL)
                 .initializer("new $T()", ParameterizedTypeName.get(HashMap.class)).build());
+
+        new CustomTypeConverterPropertyMethod(tableDefinition).addToType(typeBuilder);
 
         CodeBlock.Builder constructorCode = CodeBlock.builder();
 
