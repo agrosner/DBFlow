@@ -211,7 +211,11 @@ public class ColumnDefinition extends BaseDefinition {
     public CodeBlock getToModelMethod(boolean isModelContainerAdapter) {
         String method = SQLiteType.getModelContainerMethod(elementTypeName);
         if (method == null) {
-            method = "get";
+            if (columnAccess instanceof EnumColumnAccess) {
+                method = SQLiteType.getModelContainerMethod(ClassName.get(String.class));
+            } else {
+                method = "get";
+            }
         }
         CodeBlock.Builder codeBuilder = CodeBlock.builder()
                 .add("$L.$LValue($S)", ModelUtils.getVariable(true), method, containerKeyName);

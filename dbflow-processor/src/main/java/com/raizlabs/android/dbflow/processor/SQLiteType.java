@@ -118,7 +118,7 @@ public enum SQLiteType {
         put(TypeName.SHORT, "getShrt");
         put(TypeName.SHORT.box(), "getShort");
         put(ClassName.get(String.class), "getString");
-        put(ClassName.get(Blob.class), "getBlob");
+        put(ClassName.get(Blob.class), "getBlb");
     }};
 
     public static String getModelContainerMethod(TypeName typeName) {
