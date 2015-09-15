@@ -25,9 +25,11 @@ public class TypeConverterAccess extends WrapperColumnAccess {
         this.manager = manager;
     }
 
-    public TypeConverterAccess(ProcessorManager manager, ColumnDefinition columnDefinition, String typeConverterFieldName) {
-        this(manager, columnDefinition);
+    public TypeConverterAccess(ProcessorManager manager, ColumnDefinition columnDefinition, TypeConverterDefinition typeConverterDefinition, String typeConverterFieldName) {
+        super(columnDefinition);
+        this.manager = manager;
         this.typeConverterFieldName = typeConverterFieldName;
+        this.typeConverterDefinition = typeConverterDefinition;
     }
 
     @Override
@@ -93,7 +95,6 @@ public class TypeConverterAccess extends WrapperColumnAccess {
             manager.logError(TypeConverterAccess.class, "No type converter definition found for %1s. Please register it via annotations.", elementTypeName);
             throw new RuntimeException("");
         }
-
         return super.getSqliteTypeForTypeName(typeConverterDefinition.getDbTypeName(), isModelContainerAdapter);
     }
 }

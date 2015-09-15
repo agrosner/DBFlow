@@ -26,8 +26,8 @@ public class CustomTypeConverterPropertyMethod implements TypeAdder {
     public void addToType(TypeSpec.Builder typeBuilder) {
         Set<ClassName> customTypeConverters = baseTableDefinition.getAssociatedTypeConverters().keySet();
         for (ClassName className : customTypeConverters) {
-            typeBuilder.addField(FieldSpec.builder(className, "typeConverter" + className.simpleName().toString(), Modifier.PRIVATE, Modifier.FINAL)
-                    .initializer("new $()", className)
+            typeBuilder.addField(FieldSpec.builder(className, "typeConverter" + className.simpleName(), Modifier.PRIVATE, Modifier.FINAL)
+                    .initializer("new $T()", className)
                     .build());
         }
     }

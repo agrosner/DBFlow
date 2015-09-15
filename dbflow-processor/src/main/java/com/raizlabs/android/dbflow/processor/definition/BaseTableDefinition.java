@@ -51,6 +51,7 @@ public abstract class BaseTableDefinition extends BaseDefinition {
         List<ColumnDefinition> columnDefinitions = associatedTypeConverters.get(typeConverterName);
         if (columnDefinitions == null) {
             columnDefinitions = new ArrayList<>();
+            associatedTypeConverters.put(typeConverterName, columnDefinitions);
         }
         columnDefinitions.add(columnDefinition);
 

@@ -158,7 +158,7 @@ public class ColumnDefinition extends BaseDefinition {
                 hasCustomConverter = true;
                 String fieldName = baseTableDefinition.addColumnForTypeConverter(this, typeConverterClassName);
                 hasTypeConverter = true;
-                columnAccess = new TypeConverterAccess(manager, this, fieldName);
+                columnAccess = new TypeConverterAccess(manager, this, typeConverterDefinition, fieldName);
             }
         }
 
