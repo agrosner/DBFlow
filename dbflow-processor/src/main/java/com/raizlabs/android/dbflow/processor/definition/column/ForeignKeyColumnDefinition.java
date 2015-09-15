@@ -289,10 +289,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public CodeBlock getToModelMethod(boolean isModelContainerAdapter) {
+    public CodeBlock getToModelMethod() {
         checkNeedsReferences();
         if (nonModelColumn) {
-            return super.getToModelMethod(isModelContainerAdapter);
+            return super.getToModelMethod();
         } else {
             CodeBlock.Builder builder = CodeBlock.builder();
             CodeBlock.Builder ifContains = CodeBlock.builder();
@@ -333,18 +333,13 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             }
             initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                     .add(selectBuilder.build());
-            if (!isModelContainerAdapter && !isModelContainer) {
+            if (!isModelContainer) {
                 initializer.add(".querySingle()");
             } else {
-                if (isModelContainerAdapter) {
-                    initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
-                            ModelUtils.getVariable(true), referencedTableClassName);
-                } else {
-                    initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
-                }
+                initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
             }
             builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                    isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build()));
+                    false, ModelUtils.getVariable(false), initializer.build()));
 
             builder.endControlFlow();
             return builder.build();

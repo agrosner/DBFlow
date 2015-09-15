@@ -17,11 +17,9 @@ import javax.lang.model.element.Modifier;
 public class ToModelMethod implements MethodDefinition {
 
     private TableDefinition tableDefinition;
-    private boolean isModelContainerDefinition;
 
-    public ToModelMethod(TableDefinition tableDefinition, boolean isModelContainerDefinition) {
+    public ToModelMethod(TableDefinition tableDefinition) {
         this.tableDefinition = tableDefinition;
-        this.isModelContainerDefinition = isModelContainerDefinition;
     }
 
     @Override
@@ -31,7 +29,7 @@ public class ToModelMethod implements MethodDefinition {
                 .addStatement("$T $L = new $T()", tableDefinition.elementClassName, ModelUtils.getVariable(false),
                         tableDefinition.elementClassName);
         for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
-            codeBuilder.add(columnDefinition.getToModelMethod(isModelContainerDefinition));
+            codeBuilder.add(columnDefinition.getToModelMethod());
         }
         codeBuilder.addStatement("return $L", ModelUtils.getVariable(false));
 

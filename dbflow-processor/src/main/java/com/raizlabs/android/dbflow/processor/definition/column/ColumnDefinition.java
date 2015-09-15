@@ -208,7 +208,7 @@ public class ColumnDefinition extends BaseDefinition {
                 elementTypeName, columnName, isModelContainerAdapter, columnAccess).build();
     }
 
-    public CodeBlock getToModelMethod(boolean isModelContainerAdapter) {
+    public CodeBlock getToModelMethod() {
         String method = SQLiteType.getModelContainerMethod(elementTypeName);
         if (method == null) {
             if (columnAccess instanceof EnumColumnAccess) {

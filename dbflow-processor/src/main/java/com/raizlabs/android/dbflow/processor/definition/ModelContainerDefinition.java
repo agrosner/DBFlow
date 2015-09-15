@@ -47,7 +47,7 @@ public class ModelContainerDefinition extends BaseDefinition {
                 new BindToStatementMethod(tableDefinition, false, true),
                 new ExistenceMethod(tableDefinition, true),
                 new PrimaryConditionMethod(tableDefinition, true),
-                new ToModelMethod(tableDefinition, true),
+                new ToModelMethod(tableDefinition),
                 new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener)
         };
 
