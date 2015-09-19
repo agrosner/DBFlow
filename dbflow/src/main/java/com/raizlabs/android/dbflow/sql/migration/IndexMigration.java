@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.Index;
-import com.raizlabs.android.dbflow.sql.language.Property;
+import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**

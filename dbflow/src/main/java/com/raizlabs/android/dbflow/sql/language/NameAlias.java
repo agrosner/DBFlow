@@ -1,5 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
@@ -15,26 +18,30 @@ public class NameAlias implements Query {
 
     private boolean tickName = true;
 
-    public NameAlias(String name) {
+    public NameAlias(@NonNull String name) {
         this.name = name;
     }
 
-    public NameAlias(String name, String aliasName) {
+    public NameAlias(@NonNull String name, @NonNull String aliasName) {
         this(name);
         as(aliasName);
     }
 
-    public NameAlias(NameAlias existing) {
+    public NameAlias(@NonNull NameAlias existing) {
         this(existing.name, existing.aliasName);
     }
 
-    public NameAlias as(String aliasName) {
+    public NameAlias as(@NonNull String aliasName) {
         this.aliasName = aliasName;
         return this;
     }
 
-    public NameAlias tickName(boolean tickName) {
-        this.tickName = tickName;
+    /**
+     * @param shouldTickName if true the names are quoted. False we leave out the quotes.
+     * @return This instance.
+     */
+    public NameAlias tickName(boolean shouldTickName) {
+        this.tickName = shouldTickName;
         return this;
     }
 
@@ -48,31 +55,55 @@ public class NameAlias implements Query {
         return getDefinition();
     }
 
+    /**
+     * @return The full definition name that this Alias uses to define its definition.
+     * E.g: `firstName` AS `FN`.
+     */
+    @NonNull
     public String getDefinition() {
-        StringBuilder definition = new StringBuilder(tickName ? getName() : getNameNoTicks());
+        StringBuilder definition = new StringBuilder(tickName ? getName() : getNamePropertyRaw());
         if (aliasName != null) {
             definition.append(" AS ").append(getAliasName());
         }
         return definition.toString();
     }
 
+    /**
+     * @return The alias name of this table. If none is defined, it returns {@link #getName()}.
+     */
+    @NonNull
     public String getAliasName() {
-        return QueryBuilder.quote(getAliasNameNoTicks());
+        return QueryBuilder.quote(getAliasNameRaw());
     }
 
-    public String getAliasNamePropertyNoTicks() {
+    /**
+     * @return The value of the aliasName. It may be null.
+     */
+    @Nullable
+    public String getAliasPropertyRaw() {
         return aliasName;
     }
 
-    public String getAliasNameNoTicks() {
+    /**
+     * @return The alias name for this table without any quotes. If none is defined it returns {@link #getNamePropertyRaw()}.
+     */
+    public String getAliasNameRaw() {
         return aliasName != null ? aliasName : name;
     }
 
+    /**
+     * @return The original name of this alias.
+     */
+    @NonNull
     public String getName() {
         return QueryBuilder.quote(name);
     }
 
-    public String getNameNoTicks() {
+    /**
+     * @return The name of this alias.
+     */
+    @NonNull
+    public String getNamePropertyRaw() {
         return name;
     }
 }

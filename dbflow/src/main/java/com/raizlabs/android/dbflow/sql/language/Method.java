@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.property.Property;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,6 +72,6 @@ public class Method extends Property {
 
     @Override
     public String toString() {
-        return nameAlias.getNameNoTicks() + "(" + QueryBuilder.join(",", propertyList) + ")";
+        return nameAlias.getNamePropertyRaw() + "(" + QueryBuilder.join(",", propertyList) + ")";
     }
 }

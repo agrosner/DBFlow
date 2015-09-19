@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.sql.language;
+package com.raizlabs.android.dbflow.sql.language.property;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;

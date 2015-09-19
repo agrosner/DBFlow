@@ -69,7 +69,6 @@ public class DefinitionUtils {
         String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
-        codeBuilder.addStatement("// element name: $L, fullElementName: $L, variableNameString: $L", elementName, fullElementName, variableNameString);
 
         String finalAccessStatement = statement;
         if (columnAccess instanceof TypeConverterAccess
