@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.property.Property;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -17,7 +17,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
     public static final String UPDATE = "UPDATE";
 
     final Trigger trigger;
-    private Property[] properties;
+    private IProperty[] properties;
     private final String methodName;
 
     /**
@@ -27,7 +27,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
     boolean forEachRow = false;
     private Condition whenCondition;
 
-    TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, Property... properties) {
+    TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, IProperty... properties) {
         this.trigger = trigger;
         this.methodName = methodName;
         this.onTable = onTable;

@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.trigger;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -111,7 +112,7 @@ public class Trigger implements Query {
      *                   the UPDATE OF column1, column2,... will be used.
      * @return
      */
-    public <ModelClass extends Model> TriggerMethod<ModelClass> update(Class<ModelClass> onTable, Property... properties) {
+    public <ModelClass extends Model> TriggerMethod<ModelClass> update(Class<ModelClass> onTable, IProperty... properties) {
         return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, properties);
     }
 

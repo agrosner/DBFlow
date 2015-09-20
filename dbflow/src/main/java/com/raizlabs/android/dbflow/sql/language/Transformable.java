@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -11,11 +12,11 @@ interface Transformable<T extends Model> {
 
     Where<T> groupBy(NameAlias... nameAliases);
 
-    Where<T> groupBy(Property... properties);
+    Where<T> groupBy(IProperty... properties);
 
     Where<T> orderBy(NameAlias nameAlias, boolean ascending);
 
-    Where<T> orderBy(Property property, boolean ascending);
+    Where<T> orderBy(IProperty property, boolean ascending);
 
     Where<T> limit(int count);
 

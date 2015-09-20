@@ -15,13 +15,13 @@ import java.util.List;
  */
 public class IndexProperty<T extends Model> {
 
-    private final List<Property> propertyList = new ArrayList<>();
+    private final List<IProperty> propertyList = new ArrayList<>();
 
     private final Class<T> table;
     private final boolean unique;
     private String indexName;
 
-    public IndexProperty(String indexName, boolean unique, Class<T> table, Property... properties) {
+    public IndexProperty(String indexName, boolean unique, Class<T> table, IProperty... properties) {
         this.indexName = indexName;
         Collections.addAll(propertyList, properties);
         this.table = table;

@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.Index;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -55,7 +56,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      * @param property The name of the column to add to the Index
      * @return This migration
      */
-    public IndexMigration<ModelClass> addColumn(Property property) {
+    public IndexMigration<ModelClass> addColumn(IProperty property) {
         getIndex().and(property);
         return this;
     }

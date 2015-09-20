@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.language.property.Property;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -118,9 +118,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     @Override
-    public Where<ModelClass> groupBy(Property... properties) {
-        for (Property property : properties) {
-            groupByList.add(property.nameAlias);
+    public Where<ModelClass> groupBy(IProperty... properties) {
+        for (IProperty property : properties) {
+            groupByList.add(property.getNameAlias());
         }
         return this;
     }
@@ -144,8 +144,8 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     @Override
-    public Where<ModelClass> orderBy(Property property, boolean ascending) {
-        orderByList.add(new OrderBy(property.nameAlias, ascending));
+    public Where<ModelClass> orderBy(IProperty property, boolean ascending) {
+        orderByList.add(new OrderBy(property.getNameAlias(), ascending));
         return this;
     }
 
@@ -167,6 +167,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     public Where<ModelClass> exists(Where where) {
+        // TODO: // FIXME: 9/19/15 needs implementation
         //conditionGroup.addCondition(Condition.exists()
         //        .operation("")
         //        .value(where));

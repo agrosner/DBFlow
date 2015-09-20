@@ -6,7 +6,7 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.property.Property;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -72,7 +72,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     }
 
     @Override
-    public Where<ModelClass> groupBy(Property... properties) {
+    public Where<ModelClass> groupBy(IProperty... properties) {
         return where().groupBy(properties);
     }
 
@@ -82,7 +82,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     }
 
     @Override
-    public Where<ModelClass> orderBy(Property property, boolean ascending) {
+    public Where<ModelClass> orderBy(IProperty property, boolean ascending) {
         return where().orderBy(property, ascending);
     }
 

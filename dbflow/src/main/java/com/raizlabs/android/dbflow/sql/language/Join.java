@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.property.Property;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     /**
      * What columns to use.
      */
-    private List<Property> using = new ArrayList<>();
+    private List<IProperty> using = new ArrayList<>();
 
     /**
      * If it is a natural JOIN.
@@ -110,7 +110,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @param columns THe columns to use
      * @return The FROM that this JOIN came from
      */
-    public From<FromClass> using(Property... columns) {
+    public From<FromClass> using(IProperty... columns) {
         Collections.addAll(using, columns);
         return from;
     }

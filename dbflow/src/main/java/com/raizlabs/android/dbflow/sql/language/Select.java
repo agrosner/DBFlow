@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -31,14 +32,14 @@ public class Select implements Query {
      */
     public static final int ALL = 1;
 
-    private final List<Property> propertyList = new ArrayList<>();
+    private final List<IProperty> propertyList = new ArrayList<>();
 
     /**
      * Creates this instance with the specified columns from the specified {@link com.raizlabs.android.dbflow.config.FlowManager}
      *
      * @param properties The properties to select from.
      */
-    public Select(Property... properties) {
+    public Select(IProperty... properties) {
         Collections.addAll(propertyList, properties);
 
         if (propertyList.isEmpty()) {

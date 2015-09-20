@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.language.property.Property;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -52,9 +52,9 @@ public class Index<ModelClass extends Model> implements Query {
      * @param properties The properties to create an index for.
      * @return This instance.
      */
-    public Index<ModelClass> on(@NonNull Class<ModelClass> table, Property... properties) {
+    public Index<ModelClass> on(@NonNull Class<ModelClass> table, IProperty... properties) {
         this.table = table;
-        for (Property property : properties) {
+        for (IProperty property : properties) {
             and(property);
         }
         return this;
@@ -82,9 +82,9 @@ public class Index<ModelClass extends Model> implements Query {
      * @param property The name of the column. If already exists, this column will not be added
      * @return This instance.
      */
-    public Index<ModelClass> and(Property property) {
-        if (!columns.contains(property.nameAlias)) {
-            columns.add(property.nameAlias);
+    public Index<ModelClass> and(IProperty property) {
+        if (!columns.contains(property.getNameAlias())) {
+            columns.add(property.getNameAlias());
         }
         return this;
     }

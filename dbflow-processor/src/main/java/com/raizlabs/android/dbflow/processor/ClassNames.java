@@ -17,6 +17,7 @@ public class ClassNames {
     public static final String CONTAINER = STRUCTURE + ".container";
     public static final String SQL = BASE_PACKAGE + ".sql";
     public static final String LANGUAGE = SQL + ".language";
+    public static final String PROPERTY_PACKAGE = LANGUAGE + ".property";
     public static final String CONFIG = BASE_PACKAGE + ".config";
     public static final String BUILDER = SQL + ".builder";
     public static final String MIGRATION_PACKAGE = SQL + ".migration";
@@ -66,8 +67,8 @@ public class ClassNames {
     public static final ClassName DELETE_MODEL_LIST_TRANSACTION = ClassName.get(PROCESS, "DeleteModelListTransaction");
     public static final ClassName SAVE_MODEL_LIST_TRANSACTION = ClassName.get(PROCESS, "SaveModelTransaction");
 
-    public static final ClassName PROPERTY = ClassName.get(LANGUAGE, "Property");
-    public static final ClassName INDEX_PROPERTY = ClassName.get(LANGUAGE, "IndexProperty");
+    public static final ClassName PROPERTY = ClassName.get(PROPERTY_PACKAGE, "Property");
+    public static final ClassName INDEX_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "IndexProperty");
     public static final ClassName CONDITION_GROUP = ClassName.get(LANGUAGE, "ConditionGroup");
     public static final ClassName SELECT = ClassName.get(LANGUAGE, "Select");
     public static final ClassName UPDATE = ClassName.get(LANGUAGE, "Update");

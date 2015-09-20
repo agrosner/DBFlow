@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -46,7 +47,7 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
      * @param properties                 The columns to project the SELECT on.
      */
     public SelectSingleModelTransaction(TransactionListener<ModelClass> transactionListener,
-                                        Class<ModelClass> table, ConditionGroup conditionGroup, Property... properties) {
+                                        Class<ModelClass> table, ConditionGroup conditionGroup, IProperty... properties) {
         this(new Select(properties).from(table).where(conditionGroup), transactionListener);
     }
 

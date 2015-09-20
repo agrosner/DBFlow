@@ -14,7 +14,7 @@ import java.util.List;
  * operator. The value is the {@link com.raizlabs.android.dbflow.structure.Model} value of the column and WILL be
  * converted into the database value when we run the query.
  */
-public class Condition extends BaseCondition implements IConditional {
+public class Condition extends BaseCondition implements ITypeConditional {
 
     public static Condition column(NameAlias column) {
         return new Condition(column);
@@ -260,67 +260,67 @@ public class Condition extends BaseCondition implements IConditional {
     }
 
     @Override
-    public Condition is(IConditional conditional) {
+    public Condition is(ITypeConditional conditional) {
         return is((Object) conditional);
     }
 
     @Override
-    public Condition eq(IConditional conditional) {
+    public Condition eq(ITypeConditional conditional) {
         return eq((Object) conditional);
     }
 
     @Override
-    public Condition isNot(IConditional conditional) {
+    public Condition isNot(ITypeConditional conditional) {
         return isNot((Object) conditional);
     }
 
     @Override
-    public Condition notEq(IConditional conditional) {
+    public Condition notEq(ITypeConditional conditional) {
         return notEq((Object) conditional);
     }
 
     @Override
-    public Condition like(IConditional conditional) {
+    public Condition like(ITypeConditional conditional) {
         return like((Object) conditional);
     }
 
     @Override
-    public Condition glob(IConditional conditional) {
+    public Condition glob(ITypeConditional conditional) {
         return glob((Object) conditional);
     }
 
     @Override
-    public Condition greaterThan(IConditional conditional) {
+    public Condition greaterThan(ITypeConditional conditional) {
         return greaterThan((Object) conditional);
     }
 
     @Override
-    public Condition greaterThanOrEq(IConditional conditional) {
+    public Condition greaterThanOrEq(ITypeConditional conditional) {
         return greaterThanOrEq((Object) conditional);
     }
 
     @Override
-    public Condition lessThan(IConditional conditional) {
+    public Condition lessThan(ITypeConditional conditional) {
         return lessThan((Object) conditional);
     }
 
     @Override
-    public Condition lessThanOrEq(IConditional conditional) {
+    public Condition lessThanOrEq(ITypeConditional conditional) {
         return lessThanOrEq((Object) conditional);
     }
 
     @Override
-    public Between between(IConditional conditional) {
+    public Between between(ITypeConditional conditional) {
         return between((Object) conditional);
     }
 
     @Override
-    public In in(IConditional firstConditional, IConditional... conditionals) {
+    public In in(ITypeConditional firstConditional, ITypeConditional... conditionals) {
         return in((Object) firstConditional, conditionals);
     }
 
     @Override
-    public In notIn(IConditional firstConditional, IConditional... conditionals) {
+    public In notIn(ITypeConditional firstConditional, ITypeConditional... conditionals) {
         return notIn((Object) firstConditional, conditionals);
     }
 
@@ -406,7 +406,7 @@ public class Condition extends BaseCondition implements IConditional {
                 value = typeConverter.getDBValue(value);
             }
         }
-        if (value instanceof String || value instanceof IConditional) {
+        if (value instanceof String || value instanceof ITypeConditional) {
             operation = String.format("%1s %1s ", operation, Operation.CONCATENATE);
         } else if (value instanceof Number) {
             operation = String.format("%1s %1s ", operation, Operation.PLUS);
@@ -420,7 +420,7 @@ public class Condition extends BaseCondition implements IConditional {
     }
 
     @Override
-    public Condition concatenate(IConditional conditional) {
+    public Condition concatenate(ITypeConditional conditional) {
         return concatenate((Object) conditional);
     }
 
