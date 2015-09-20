@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMe
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -118,9 +119,14 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public void addPropertyDefinition(TypeSpec.Builder typeBuilder, TypeName tableClassName) {
         checkNeedsReferences();
         for (ForeignKeyReferenceDefinition reference : foreignKeyReferenceDefinitionList) {
-            ParameterizedTypeName propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, reference.columnClassName.isPrimitive() ? reference.columnClassName.box() : reference.columnClassName);
+            TypeName propParam;
+            if (reference.columnClassName.isPrimitive() && !reference.columnClassName.equals(TypeName.BOOLEAN)) {
+                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, StringUtils.capitalize(reference.columnClassName.toString()) + "Property");
+            } else {
+                propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, reference.columnClassName.box());
+            }
             typeBuilder.addField(FieldSpec.builder(propParam, reference.columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("new $T<>($T.class, $S)", ClassNames.PROPERTY, tableClassName, reference.columnName).build());
+                    .initializer("new $T($T.class, $S)", propParam, tableClassName, reference.columnName).build());
         }
     }
 

@@ -304,7 +304,7 @@ public class TableDefinition extends BaseTableDefinition {
         MethodSpec.Builder getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String.class, "columnName")
-                .returns(ClassNames.PROPERTY);
+                .returns(ClassNames.IPROPERTY);
 
         getPropertyForNameMethod.beginControlFlow("switch ($L) ", "columnName");
         for (ColumnDefinition columnDefinition : columnDefinitions) {

@@ -51,7 +51,7 @@ public class QueryMethod implements MethodDefinition {
                             .add("cursor = new $T(toProperties($L, selection))\n.from", ClassNames.SELECT,
                                     CodeBlock.builder()
                                             .add("new $T(){ \n", ClassNames.PROPERTY_CONVERTER)
-                                            .add("public $T fromName(String columnName) {\n", ClassNames.PROPERTY)
+                                            .add("public $T fromName(String columnName) {\n", ClassNames.IPROPERTY)
                                             .add("return $L.getProperty(columnName); \n}\n}", tableDefinition.getPropertyClassName())
                                             .build());
                     ProviderMethodUtils.appendTableName(codeBuilder,

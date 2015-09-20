@@ -29,7 +29,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (!isModelContainerAdapter) {
             if (StringUtils.isNullOrEmpty(getterName)) {
-                return String.format("%1s.get%1s()", variableNameString, capitalize(elementName));
+                return String.format("%1s.get%1s()", variableNameString, StringUtils.capitalize(elementName));
             } else {
                 return String.format("%1s.%1s()", variableNameString, getterName);
             }
@@ -46,7 +46,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         if (!isModelContainerAdapter) {
             if (StringUtils.isNullOrEmpty(getterName)) {
-                return String.format("get%1s()", capitalize(elementName));
+                return String.format("get%1s()", StringUtils.capitalize(elementName));
             } else {
                 return String.format("%1s()", getterName);
             }
@@ -61,18 +61,11 @@ public class PrivateColumnAccess extends BaseColumnAccess {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
             if (StringUtils.isNullOrEmpty(setterName)) {
-                return String.format("%1s.set%1s(%1s)", variableNameString, capitalize(elementName), formattedAccess);
+                return String.format("%1s.set%1s(%1s)", variableNameString, StringUtils.capitalize(elementName), formattedAccess);
             } else {
                 return String.format("%1s.%1s(%1s)", variableNameString, setterName, formattedAccess);
             }
         }
     }
 
-    private static String capitalize(String str) {
-        if (str == null || str.trim().length() == 0) {
-            return str;
-        }
-
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
-    }
 }

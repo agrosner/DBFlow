@@ -18,6 +18,7 @@ import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
@@ -198,10 +199,15 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public void addPropertyDefinition(TypeSpec.Builder typeBuilder, TypeName tableClass) {
-        ParameterizedTypeName propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.isPrimitive() ? elementTypeName.box() : elementTypeName);
+        TypeName propParam;
+        if (elementTypeName.isPrimitive() && !elementTypeName.equals(TypeName.BOOLEAN)) {
+            propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, StringUtils.capitalize(elementTypeName.toString()) + "Property");
+        } else {
+            propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box());
+        }
         typeBuilder.addField(FieldSpec.builder(propParam,
                 columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T<>($T.class, $S)", ClassNames.PROPERTY, tableClass, columnName).build());
+                .initializer("new $T($T.class, $S)", propParam, tableClass, columnName).build());
     }
 
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {
