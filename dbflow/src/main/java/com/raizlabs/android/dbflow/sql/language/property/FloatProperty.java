@@ -9,102 +9,101 @@ import com.raizlabs.android.dbflow.structure.Model;
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
- * Description: Basic {@link int} property. Accepts only int, {@link BaseModelQueriable}, and
+ * Description: Basic {@link float} property. Accepts only float, {@link BaseModelQueriable}, and
  * {@link ITypeConditional} objects.
  */
-public class IntProperty extends BaseProperty<IntProperty> {
+public class FloatProperty extends BaseProperty<FloatProperty> {
 
-    public IntProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public FloatProperty(Class<? extends Model> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public IntProperty(Class<? extends Model> table, String columnName) {
+    public FloatProperty(Class<? extends Model> table, String columnName) {
         this(table, new NameAlias(columnName));
     }
 
-    public IntProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public FloatProperty(Class<? extends Model> table, String columnName, String aliasName) {
         this(table, new NameAlias(columnName, aliasName));
     }
 
     @Override
-    public IntProperty as(String aliasName) {
-        return new IntProperty(table, nameAlias.getAliasNameRaw(), aliasName);
+    public FloatProperty as(String aliasName) {
+        return new FloatProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }
 
     @Override
-    public IntProperty distinct() {
-        return new IntProperty(table, getDistinctAliasName());
+    public FloatProperty distinct() {
+        return new FloatProperty(table, getDistinctAliasName());
     }
 
     @Override
-    public IntProperty withTable(NameAlias tableNameAlias) {
+    public FloatProperty withTable(NameAlias tableNameAlias) {
         NameAlias alias = new NameAlias(tableNameAlias.getAliasName() + "." + nameAlias.getName(), nameAlias.getAliasName());
         alias.tickName(false);
-        return new IntProperty(table, alias);
+        return new FloatProperty(table, alias);
     }
 
-    public Condition is(int value) {
+    public Condition is(float value) {
         return column(nameAlias).is(value);
     }
 
-    public Condition eq(int value) {
+    public Condition eq(float value) {
         return column(nameAlias).eq(value);
     }
 
-    public Condition isNot(int value) {
+    public Condition isNot(float value) {
         return column(nameAlias).isNot(value);
     }
 
-    public Condition notEq(int value) {
+    public Condition notEq(float value) {
         return column(nameAlias).notEq(value);
     }
 
-    public Condition like(int value) {
+    public Condition like(float value) {
         return column(nameAlias).like(value);
     }
 
-    public Condition glob(int value) {
+    public Condition glob(float value) {
         return column(nameAlias).glob(value);
     }
 
-    public Condition greaterThan(int value) {
+    public Condition greaterThan(float value) {
         return column(nameAlias).greaterThan(value);
     }
 
-    public Condition greaterThanOrEq(int value) {
+    public Condition greaterThanOrEq(float value) {
         return column(nameAlias).greaterThanOrEq(value);
     }
 
-    public Condition lessThan(int value) {
+    public Condition lessThan(float value) {
         return column(nameAlias).lessThan(value);
     }
 
-    public Condition lessThanOrEq(int value) {
+    public Condition lessThanOrEq(float value) {
         return column(nameAlias).lessThanOrEq(value);
     }
 
-    public Condition.Between between(int value) {
+    public Condition.Between between(float value) {
         return column(nameAlias).between(value);
     }
 
-    public Condition.In in(int firstValue, int... values) {
+    public Condition.In in(float firstValue, float... values) {
         Condition.In in = column(nameAlias).in(firstValue);
-        for (int value : values) {
+        for (float value : values) {
             in.and(value);
         }
         return in;
     }
 
-    public Condition.In notIn(int firstValue, int... values) {
+    public Condition.In notIn(float firstValue, float... values) {
         Condition.In in = column(nameAlias).notIn(firstValue);
-        for (int value : values) {
+        for (float value : values) {
             in.and(value);
         }
         return in;
     }
 
-    public Condition concatenate(int value) {
+    public Condition concatenate(float value) {
         return column(nameAlias).concatenate(value);
     }
-
 }

@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
@@ -9,102 +10,106 @@ import com.raizlabs.android.dbflow.structure.Model;
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
- * Description: Basic {@link int} property. Accepts only int, {@link BaseModelQueriable}, and
+ * Description: Basic {@link short} property. Accepts only short, {@link BaseModelQueriable}, and
  * {@link ITypeConditional} objects.
  */
-public class IntProperty extends BaseProperty<IntProperty> {
+public class ShortProperty extends BaseProperty<ShortProperty> {
 
-    public IntProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public ShortProperty(Class<? extends Model> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public IntProperty(Class<? extends Model> table, String columnName) {
+    public ShortProperty(Class<? extends Model> table, String columnName) {
         this(table, new NameAlias(columnName));
     }
 
-    public IntProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public ShortProperty(Class<? extends Model> table, String columnName, String aliasName) {
         this(table, new NameAlias(columnName, aliasName));
     }
 
     @Override
-    public IntProperty as(String aliasName) {
-        return new IntProperty(table, nameAlias.getAliasNameRaw(), aliasName);
+    public ShortProperty as(String aliasName) {
+        return new ShortProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }
 
     @Override
-    public IntProperty distinct() {
-        return new IntProperty(table, getDistinctAliasName());
+    public ShortProperty distinct() {
+        return new ShortProperty(table, getDistinctAliasName());
     }
 
     @Override
-    public IntProperty withTable(NameAlias tableNameAlias) {
+    public ShortProperty withTable() {
+        return withTable(new NameAlias(FlowManager.getTableName(table)));
+    }
+
+    @Override
+    public ShortProperty withTable(NameAlias tableNameAlias) {
         NameAlias alias = new NameAlias(tableNameAlias.getAliasName() + "." + nameAlias.getName(), nameAlias.getAliasName());
         alias.tickName(false);
-        return new IntProperty(table, alias);
+        return new ShortProperty(table, alias);
     }
 
-    public Condition is(int value) {
+    public Condition is(short value) {
         return column(nameAlias).is(value);
     }
 
-    public Condition eq(int value) {
+    public Condition eq(short value) {
         return column(nameAlias).eq(value);
     }
 
-    public Condition isNot(int value) {
+    public Condition isNot(short value) {
         return column(nameAlias).isNot(value);
     }
 
-    public Condition notEq(int value) {
+    public Condition notEq(short value) {
         return column(nameAlias).notEq(value);
     }
 
-    public Condition like(int value) {
+    public Condition like(short value) {
         return column(nameAlias).like(value);
     }
 
-    public Condition glob(int value) {
+    public Condition glob(short value) {
         return column(nameAlias).glob(value);
     }
 
-    public Condition greaterThan(int value) {
+    public Condition greaterThan(short value) {
         return column(nameAlias).greaterThan(value);
     }
 
-    public Condition greaterThanOrEq(int value) {
+    public Condition greaterThanOrEq(short value) {
         return column(nameAlias).greaterThanOrEq(value);
     }
 
-    public Condition lessThan(int value) {
+    public Condition lessThan(short value) {
         return column(nameAlias).lessThan(value);
     }
 
-    public Condition lessThanOrEq(int value) {
+    public Condition lessThanOrEq(short value) {
         return column(nameAlias).lessThanOrEq(value);
     }
 
-    public Condition.Between between(int value) {
+    public Condition.Between between(short value) {
         return column(nameAlias).between(value);
     }
 
-    public Condition.In in(int firstValue, int... values) {
+    public Condition.In in(short firstValue, short... values) {
         Condition.In in = column(nameAlias).in(firstValue);
-        for (int value : values) {
+        for (short value : values) {
             in.and(value);
         }
         return in;
     }
 
-    public Condition.In notIn(int firstValue, int... values) {
+    public Condition.In notIn(short firstValue, short... values) {
         Condition.In in = column(nameAlias).notIn(firstValue);
-        for (int value : values) {
+        for (short value : values) {
             in.and(value);
         }
         return in;
     }
 
-    public Condition concatenate(int value) {
+    public Condition concatenate(short value) {
         return column(nameAlias).concatenate(value);
     }
-
 }
