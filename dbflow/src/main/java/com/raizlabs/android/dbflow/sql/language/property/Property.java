@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
-import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
@@ -28,7 +27,6 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
             return nameAlias.getAliasNameRaw();
         }
     };
-
 
     public Property(Class<? extends Model> table, NameAlias nameAlias) {
         super(table, nameAlias);

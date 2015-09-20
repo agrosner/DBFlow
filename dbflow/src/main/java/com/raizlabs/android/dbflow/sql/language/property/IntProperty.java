@@ -1,20 +1,22 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
+import com.raizlabs.android.dbflow.sql.language.Condition;
+import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
-/**
- * Description:
- */
-public class IntProperty implements IProperty<IntProperty> {
+import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
-    private final Class<? extends Model> table;
-    protected final NameAlias nameAlias;
+/**
+ * Description: Basic {@link int} property. Accepts only int, {@link BaseModelQueriable}, and
+ * {@link ITypeConditional} objects.
+ */
+public class IntProperty extends BaseProperty<IntProperty> {
 
     public IntProperty(Class<? extends Model> table, NameAlias nameAlias) {
-        this.table = table;
-        this.nameAlias = nameAlias;
+        super(table, nameAlias);
     }
 
     public IntProperty(Class<? extends Model> table, String columnName) {
@@ -32,8 +34,7 @@ public class IntProperty implements IProperty<IntProperty> {
 
     @Override
     public IntProperty distinct() {
-        return new IntProperty(table, new NameAlias("DISTINCT " + nameAlias.getName(),
-                nameAlias.getAliasPropertyRaw()).tickName(false));
+        return new IntProperty(table, getDistinctAliasName());
     }
 
     @Override
@@ -48,18 +49,61 @@ public class IntProperty implements IProperty<IntProperty> {
         return new IntProperty(table, alias);
     }
 
-    @Override
-    public NameAlias getNameAlias() {
-        return null;
+    public Condition is(int value) {
+        return column(nameAlias).is(value);
+    }
+
+    public Condition eq(int value) {
+        return column(nameAlias).eq(value);
+    }
+
+    public Condition isNot(int value) {
+        return column(nameAlias).isNot(value);
+    }
+
+    public Condition notEq(int value) {
+        return column(nameAlias).notEq(value);
+    }
+
+    public Condition like(int value) {
+        return column(nameAlias).like(value);
+    }
+
+    public Condition glob(int value) {
+        return column(nameAlias).glob(value);
+    }
+
+    public Condition greaterThan(int value) {
+        return column(nameAlias).greaterThan(value);
+    }
+
+    public Condition greaterThanOrEq(int value) {
+        return column(nameAlias).greaterThanOrEq(value);
+    }
+
+    public Condition lessThan(int value) {
+        return column(nameAlias).lessThan(value);
+    }
+
+    public Condition lessThanOrEq(int value) {
+        return column(nameAlias).lessThanOrEq(value);
+    }
+
+    public Condition.Between between(int value) {
+        return column(nameAlias).between(value);
+    }
+
+    public Condition.In in(int firstValue, int... values) {
+        return column(nameAlias).in(firstValue, values);
+    }
+
+    public Condition.In notIn(T firstValue, T... values) {
+        return column(nameAlias).notIn(firstValue, values);
     }
 
     @Override
-    public Class<? extends Model> getTable() {
-        return null;
+    public Condition concatenate(T value) {
+        return column(nameAlias).concatenate(value);
     }
 
-    @Override
-    public String getQuery() {
-        return null;
-    }
 }
