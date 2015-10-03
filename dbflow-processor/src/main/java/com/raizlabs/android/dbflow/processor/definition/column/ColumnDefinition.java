@@ -250,7 +250,13 @@ public class ColumnDefinition extends BaseDefinition {
             if (columnAccess instanceof EnumColumnAccess) {
                 method = SQLiteType.getModelContainerMethod(ClassName.get(String.class));
             } else {
-                method = "get";
+                if (columnAccess instanceof TypeConverterAccess) {
+                    method = SQLiteType.getModelContainerMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
+                }
+                if (method == null) {
+                    manager.logError("ToModel typename: %1s", elementTypeName);
+                    method = "get";
+                }
             }
         }
         CodeBlock.Builder codeBuilder = CodeBlock.builder()
