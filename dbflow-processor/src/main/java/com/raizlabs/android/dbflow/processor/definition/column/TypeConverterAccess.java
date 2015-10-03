@@ -43,7 +43,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
         } else {
             codeBuilder.add(typeConverterFieldName);
         }
-        codeBuilder.add(".getDBValue($L)", getExistingColumnAccess()
+        codeBuilder.add(".getDBValue(($T) $L)", typeConverterDefinition.getModelTypeName(), getExistingColumnAccess()
                 .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter));
 
 
