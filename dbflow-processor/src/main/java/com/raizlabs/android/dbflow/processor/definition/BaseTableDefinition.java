@@ -22,6 +22,7 @@ public abstract class BaseTableDefinition extends BaseDefinition {
 
     protected List<ColumnDefinition> columnDefinitions;
     protected Map<ClassName, List<ColumnDefinition>> associatedTypeConverters = new HashMap<>();
+    protected Map<ClassName, List<ColumnDefinition>> globalTypeConverters = new HashMap<>();
 
     private String modelClassName;
     public DatabaseDefinition databaseDefinition;
@@ -47,7 +48,7 @@ public abstract class BaseTableDefinition extends BaseDefinition {
                 : elementClassName;
     }
 
-    public String addColumnForTypeConverter(ColumnDefinition columnDefinition, ClassName typeConverterName) {
+    public String addColumnForCustomTypeConverter(ColumnDefinition columnDefinition, ClassName typeConverterName) {
         List<ColumnDefinition> columnDefinitions = associatedTypeConverters.get(typeConverterName);
         if (columnDefinitions == null) {
             columnDefinitions = new ArrayList<>();
@@ -58,8 +59,24 @@ public abstract class BaseTableDefinition extends BaseDefinition {
         return "typeConverter" + typeConverterName.simpleName();
     }
 
+    public String addColumnForTypeConverter(ColumnDefinition columnDefinition, ClassName typeConverterName) {
+        List<ColumnDefinition> columnDefinitions = globalTypeConverters.get(typeConverterName);
+        if (columnDefinitions == null) {
+            columnDefinitions = new ArrayList<>();
+            globalTypeConverters.put(typeConverterName, columnDefinitions);
+        }
+        columnDefinitions.add(columnDefinition);
+
+        return "global_typeConverter" + typeConverterName.simpleName();
+    }
+
+
     public Map<ClassName, List<ColumnDefinition>> getAssociatedTypeConverters() {
         return associatedTypeConverters;
+    }
+
+    public Map<ClassName, List<ColumnDefinition>> getGlobalTypeConverters() {
+        return globalTypeConverters;
     }
 
     public boolean hasAutoIncrement() {

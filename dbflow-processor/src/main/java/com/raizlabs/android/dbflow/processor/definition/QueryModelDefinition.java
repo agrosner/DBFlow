@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -126,7 +127,16 @@ public class QueryModelDefinition extends BaseTableDefinition {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(ParameterizedTypeName.get(ClassNames.QUERY_MODEL_ADAPTER, elementClassName));
 
-        new CustomTypeConverterPropertyMethod(this).addToType(typeBuilder);
+        CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);
+        customTypeConverterPropertyMethod.addToType(typeBuilder);
+
+        CodeBlock.Builder constructorCode = CodeBlock.builder();
+
+        customTypeConverterPropertyMethod.addCode(constructorCode);
+
+        typeBuilder.addMethod(MethodSpec.constructorBuilder()
+                .addCode(constructorCode.build())
+                .addModifiers(Modifier.PUBLIC).build());
 
         for (MethodDefinition method : methods) {
             MethodSpec methodSpec = method.getMethodSpec();

@@ -70,7 +70,8 @@ public class ModelContainerDefinition extends BaseDefinition {
                 ClassName.get(String.class), ClassName.get(Class.class)), "columnMap", Modifier.PRIVATE, Modifier.FINAL)
                 .initializer("new $T()", ParameterizedTypeName.get(HashMap.class)).build());
 
-        new CustomTypeConverterPropertyMethod(tableDefinition).addToType(typeBuilder);
+        CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(tableDefinition);
+        customTypeConverterPropertyMethod.addToType(typeBuilder);
 
         CodeBlock.Builder constructorCode = CodeBlock.builder();
 
@@ -78,6 +79,8 @@ public class ModelContainerDefinition extends BaseDefinition {
             constructorCode.addStatement("$L.put($S, $T.class)", "columnMap", columnDefinition.columnName,
                     columnDefinition.erasedTypeName);
         }
+        customTypeConverterPropertyMethod.addCode(constructorCode);
+
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
                 .addCode(constructorCode.build())
                 .addModifiers(Modifier.PUBLIC).build());

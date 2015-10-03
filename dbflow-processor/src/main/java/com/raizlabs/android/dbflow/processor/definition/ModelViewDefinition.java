@@ -16,6 +16,7 @@ import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -179,7 +180,17 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
-        new CustomTypeConverterPropertyMethod(this).addToType(typeBuilder);
+
+        CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);
+        customTypeConverterPropertyMethod.addToType(typeBuilder);
+
+        CodeBlock.Builder constructorCode = CodeBlock.builder();
+
+        customTypeConverterPropertyMethod.addCode(constructorCode);
+
+        typeBuilder.addMethod(MethodSpec.constructorBuilder()
+                .addCode(constructorCode.build())
+                .addModifiers(Modifier.PUBLIC).build());
 
         for (MethodDefinition method : methods) {
             MethodSpec methodSpec = method.getMethodSpec();

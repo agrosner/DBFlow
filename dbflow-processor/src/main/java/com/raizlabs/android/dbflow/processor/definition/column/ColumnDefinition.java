@@ -158,7 +158,7 @@ public class ColumnDefinition extends BaseDefinition {
                         typeConverterDefinition.getModelTypeName(), typeConverterClassName, elementTypeName);
             } else {
                 hasCustomConverter = true;
-                String fieldName = baseTableDefinition.addColumnForTypeConverter(this, typeConverterClassName);
+                String fieldName = baseTableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName);
                 hasTypeConverter = true;
                 columnAccess = new TypeConverterAccess(manager, this, typeConverterDefinition, fieldName);
             }
@@ -183,10 +183,14 @@ public class ColumnDefinition extends BaseDefinition {
                     } else {
                         // Any annotated members, otherwise we will use the scanner to find other ones
                         final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
-                        if (typeConverterDefinition != null
-                                || (!hasTypeConverter && !SQLiteType.containsType(elementTypeName))) {
+                        if (typeConverterDefinition != null || (!SQLiteType.containsType(elementTypeName))) {
                             hasTypeConverter = true;
-                            columnAccess = new TypeConverterAccess(manager, this);
+                            if (typeConverterDefinition != null) {
+                                String fieldName = baseTableDefinition.addColumnForTypeConverter(this, typeConverterDefinition.getClassName());
+                                columnAccess = new TypeConverterAccess(manager, this, typeConverterDefinition, fieldName);
+                            } else {
+                                columnAccess = new TypeConverterAccess(manager, this);
+                            }
                         }
                     }
                 }

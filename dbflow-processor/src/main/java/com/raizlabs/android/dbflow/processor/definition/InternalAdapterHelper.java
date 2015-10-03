@@ -31,4 +31,5 @@ public class InternalAdapterHelper {
                 .returns(ClassName.get(String.class))
                 .build());
     }
+
 }
