@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -31,6 +33,10 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
      */
     public JSONModel(Class<ModelClass> table) {
         super(table, new JSONObject());
+    }
+
+    public JSONModel(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+        super(existingContainer);
     }
 
     @Override

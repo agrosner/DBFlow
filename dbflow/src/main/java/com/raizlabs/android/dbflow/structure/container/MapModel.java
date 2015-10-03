@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.HashMap;
@@ -14,6 +16,10 @@ public class MapModel<ModelClass extends Model> extends SimpleModelContainer<Mod
 
     public MapModel(Class<ModelClass> table) {
         this(new HashMap<String, Object>(), table);
+    }
+
+    public MapModel(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+        super(existingContainer);
     }
 
     @Override

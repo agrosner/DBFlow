@@ -1,12 +1,16 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
-import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Description: The base class that all ModelContainers should extend.
@@ -44,6 +48,22 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     public BaseModelContainer(Class<ModelClass> table, DataClass data) {
         this(table);
         this.data = data;
+    }
+
+    /**
+     * Copy constructor from one {@link ModelContainer} into this {@link ModelContainer}. It simply
+     * places the values from the container into this object.
+     *
+     * @param existingContainer The existing container to load into this one.
+     */
+    public BaseModelContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+        this(existingContainer.getTable());
+
+        Map<String, Class> columnMap = modelContainerAdapter.getColumnMap();
+        Set<String> keys = columnMap.keySet();
+        for (String key : keys) {
+            put(key, existingContainer.getValue(key));
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure.container;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.converter.TypeConverter;
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -15,6 +15,10 @@ public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> 
 
     public SimpleModelContainer(Class<ModelClass> table, DataClass data) {
         super(table, data);
+    }
+
+    public SimpleModelContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+        super(existingContainer);
     }
 
     @Override

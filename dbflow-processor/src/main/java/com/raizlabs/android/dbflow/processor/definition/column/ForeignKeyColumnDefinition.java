@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
-import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -301,52 +300,23 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             return super.getToModelMethod();
         } else {
             CodeBlock.Builder builder = CodeBlock.builder();
-            CodeBlock.Builder ifContains = CodeBlock.builder();
-            CodeBlock.Builder selectBuilder = CodeBlock.builder();
+            String statement = columnAccess
+                    .getColumnAccessString(elementTypeName, elementName, elementName,
+                            ModelUtils.getVariable(true), true);
+            String finalAccessStatement = getFinalAccessStatement(builder, true, statement);
 
-            for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
-                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
-                String method = SQLiteType.getModelContainerMethod(referenceDefinition.columnClassName);
-                if (method == null) {
-                    method = "get";
-                }
-                String accessStatement = getRefName() + referenceDefinition.columnName;
-                CodeBlock.Builder codeBuilder = CodeBlock.builder()
-                        .addStatement("$T $L = $L.$LValue($S)",
-                                referenceDefinition.columnClassName,
-                                accessStatement, ModelUtils.getVariable(true),
-                                method, referenceDefinition.foreignColumnName);
-
-                if (i > 0) {
-                    ifContains.add(" && ");
-                }
-                ifContains.add("$L != $L", accessStatement, referenceDefinition.columnClassName.isPrimitive() ? "0" : "null");
-
-                builder.add(codeBuilder.build());
-
-                selectBuilder.add("\n.and($L.$L.eq($L))",
-                        ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
-                        referenceDefinition.foreignColumnName, accessStatement);
-            }
-
-            builder.beginControlFlow("if ($L)", ifContains.build().toString());
-
-            CodeBlock.Builder initializer = CodeBlock.builder();
-
-            // need to cast to type we're initializing.
-            if (isModelContainer) {
-                initializer.add("($T)", elementTypeName);
-            }
-            initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
-                    .add(selectBuilder.build());
+            builder.beginControlFlow("if ($L != null)", finalAccessStatement);
             if (!isModelContainer) {
-                initializer.add(".querySingle()");
+                CodeBlock.Builder modelContainerRetrieval = CodeBlock.builder();
+                modelContainerRetrieval.add("$L.getContainerAdapter($T.class).toModel($L)", ClassNames.FLOW_MANAGER,
+                        referencedTableClassName, finalAccessStatement);
+                builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
+                        false, ModelUtils.getVariable(false), modelContainerRetrieval.build()));
             } else {
-                initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
+                builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
+                        false, ModelUtils.getVariable(false), CodeBlock.builder().add("new $T($L)",
+                                elementTypeName, finalAccessStatement).build()));
             }
-            builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                    false, ModelUtils.getVariable(false), initializer.build()));
-
             builder.endControlFlow();
             return builder.build();
         }
@@ -363,13 +333,13 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             if (columnAccess instanceof TypeConverterAccess) {
                 typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
             } else if (columnAccess instanceof ModelContainerAccess) {
-                typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
+                typeName = ModelUtils.getModelContainerType(manager, referencedTableClassName);
             } else {
                 if (isModelContainer || isModel) {
-                    typeName = ModelUtils.getModelContainerType(manager, elementTypeName);
+                    typeName = ModelUtils.getModelContainerType(manager, referencedTableClassName);
                     statement = ModelUtils.getVariable(isModelContainerAdapter) + ".getInstance(" + statement + ", " + referencedTableClassName + ".class)";
                 } else {
-                    typeName = elementTypeName;
+                    typeName = referencedTableClassName;
                 }
             }
 

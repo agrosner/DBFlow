@@ -66,10 +66,6 @@ public class ModelContainerDefinition extends BaseDefinition {
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
-        typeBuilder.addField(FieldSpec.builder(ParameterizedTypeName.get(ClassName.get(Map.class),
-                ClassName.get(String.class), ClassName.get(Class.class)), "columnMap", Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T()", ParameterizedTypeName.get(HashMap.class)).build());
-
         CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(tableDefinition);
         customTypeConverterPropertyMethod.addToType(typeBuilder);
 
@@ -84,14 +80,6 @@ public class ModelContainerDefinition extends BaseDefinition {
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
                 .addCode(constructorCode.build())
                 .addModifiers(Modifier.PUBLIC).build());
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getClassForColumn")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassName.get(String.class), "columnName")
-                .addStatement("return $L.get($L)", "columnMap", "columnName")
-                .returns(ClassName.get(Class.class))
-                .build());
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
         InternalAdapterHelper.writeGetTableName(typeBuilder, tableDefinition.tableName);
