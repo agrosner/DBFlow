@@ -257,7 +257,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     accessString = ModelUtils.getVariable(false) + "." + columnAccess.getShortAccessString(referenceDefinition.columnClassName, elementName, false) + "." +
                             referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.columnClassName, referenceDefinition.foreignColumnName, false);
                 } else {
-                    accessString = columnAccess.getColumnAccessString(referenceDefinition.columnClassName, elementName, elementName, ModelUtils.getVariable(true), true);
+                    accessString = columnAccess.getColumnAccessString(referenceDefinition.columnClassName, referenceDefinition.foreignColumnName, referenceDefinition.foreignColumnName, ModelUtils.getVariable(true), true);
                 }
 
                 // TODO: respect separator here.

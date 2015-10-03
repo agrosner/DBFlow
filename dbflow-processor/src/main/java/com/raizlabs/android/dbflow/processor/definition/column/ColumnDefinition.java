@@ -70,6 +70,7 @@ public class ColumnDefinition extends BaseDefinition {
     public boolean isBoolean = false;
 
     public BaseColumnAccess columnAccess;
+    public boolean hasCustomConverter;
 
     public ColumnDefinition(ProcessorManager processorManager, Element element, BaseTableDefinition baseTableDefinition) {
         super(element, processorManager);
@@ -149,7 +150,7 @@ public class ColumnDefinition extends BaseDefinition {
             }
         }
 
-        boolean hasCustomConverter = false;
+        hasCustomConverter = false;
         if (typeConverterClassName != null && !typeConverterClassName.equals(ClassNames.TYPE_CONVERTER)) {
             TypeConverterDefinition typeConverterDefinition = new TypeConverterDefinition(typeConverterElement, manager);
             if (!typeConverterDefinition.getModelTypeName().equals(elementTypeName)) {

@@ -117,6 +117,8 @@ public enum SQLiteType {
         put(TypeName.LONG.box(), "getLong");
         put(TypeName.SHORT, "getShrt");
         put(TypeName.SHORT.box(), "getShort");
+        put(TypeName.BOOLEAN.box(), "getBoolean");
+        put(TypeName.BOOLEAN, "getBool");
         put(ClassName.get(String.class), "getString");
         put(ClassName.get(Blob.class), "getBlb");
     }};
