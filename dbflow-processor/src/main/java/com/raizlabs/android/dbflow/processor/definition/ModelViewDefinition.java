@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery;
 import com.raizlabs.android.dbflow.processor.ClassNames;
@@ -60,6 +61,9 @@ public class ModelViewDefinition extends BaseTableDefinition {
     public ModelViewDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
 
+        ModelContainer containerKey = element.getAnnotation(ModelContainer.class);
+        boolean putDefaultValue = containerKey != null && containerKey.putDefault();
+
         ModelView modelView = element.getAnnotation(ModelView.class);
         try {
             modelView.database();
@@ -102,7 +106,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
                 ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), (TypeElement) element);
 
         methods = new MethodDefinition[]{
-                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener),
+                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue),
                 new ExistenceMethod(this, false),
                 new PrimaryConditionMethod(this, false)
         };

@@ -196,7 +196,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             CodeBlock.Builder elseBuilder = CodeBlock.builder();
             for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
                 builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter));
-                elseBuilder.addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, referenceDefinition.columnName);
+                elseBuilder.addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, QueryBuilder.quote(referenceDefinition.columnName));
             }
             builder.nextControlFlow("else")
                     .add(elseBuilder.build())
@@ -231,9 +231,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
+    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter) {
         if (nonModelColumn) {
-            return super.getLoadFromCursorMethod(isModelContainerAdapter);
+            return super.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter);
         } else {
             checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder()
@@ -288,6 +288,15 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
             builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
                     isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build()));
+
+            boolean putDefaultValue = putNullForContainerAdapter;
+            if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
+                putDefaultValue = putContainerDefaultValue;
+            }
+            if (putDefaultValue) {
+                builder.nextControlFlow("else");
+                builder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);
+            }
             builder.endControlFlow();
             return builder.build();
         }

@@ -108,7 +108,8 @@ public class DefinitionUtils {
 
     public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, String fullElementName,
                                                             TypeName elementTypeName, String columnName,
-                                                            boolean isModelContainerAdapter, BaseColumnAccess columnAccess) {
+                                                            boolean isModelContainerAdapter, boolean putDefaultValue,
+                                                            BaseColumnAccess columnAccess) {
         String method = "";
         if (SQLiteType.containsMethod(elementTypeName)) {
             method = SQLiteType.getMethod(elementTypeName);
@@ -125,6 +126,11 @@ public class DefinitionUtils {
 
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
                 isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build()));
+
+        if (putDefaultValue) {
+            codeBuilder.nextControlFlow("else");
+            codeBuilder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);
+        }
 
         codeBuilder.endControlFlow();
 

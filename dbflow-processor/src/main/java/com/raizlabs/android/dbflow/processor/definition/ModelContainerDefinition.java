@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.raizlabs.android.dbflow.annotation.ContainerKey;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
@@ -11,16 +13,11 @@ import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.ToModelMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -37,6 +34,10 @@ public class ModelContainerDefinition extends BaseDefinition {
 
     public ModelContainerDefinition(TypeElement classElement, ProcessorManager manager) {
         super(classElement, manager);
+
+        ModelContainer containerKey = classElement.getAnnotation(ModelContainer.class);
+        boolean putDefaultValue = containerKey.putDefault();
+
         tableDefinition = manager.getTableDefinition(manager.getDatabase(elementTypeName), elementTypeName);
 
         setOutputClassName(tableDefinition.databaseDefinition.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
@@ -49,7 +50,7 @@ public class ModelContainerDefinition extends BaseDefinition {
                 new ExistenceMethod(tableDefinition, true),
                 new PrimaryConditionMethod(tableDefinition, true),
                 new ToModelMethod(tableDefinition),
-                new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener)
+                new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener, putDefaultValue)
         };
 
     }

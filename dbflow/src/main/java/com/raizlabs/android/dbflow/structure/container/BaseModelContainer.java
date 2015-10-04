@@ -158,6 +158,22 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     @Override
+    public void putDefault(String columnName) {
+        Class columnClass = modelContainerAdapter.getColumnMap().get(columnName);
+        if (columnClass.isPrimitive()) {
+            if (columnClass.equals(boolean.class)) {
+                put(columnName, false);
+            } else if (columnClass.equals(char.class)) {
+                put(columnName, '\u0000');
+            } else {
+                put(columnName, 0);
+            }
+        } else {
+            put(columnName, null);
+        }
+    }
+
+    @Override
     public ModelAdapter<ModelClass> getModelAdapter() {
         return modelAdapter;
     }

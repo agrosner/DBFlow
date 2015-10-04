@@ -52,12 +52,15 @@ public class LoadFromCursorMethod implements MethodDefinition {
     private BaseTableDefinition baseTableDefinition;
     private final boolean isModelContainerAdapter;
     private final boolean implementsLoadFromCursorListener;
+    private final boolean putNullForContainerAdapter;
 
-    public LoadFromCursorMethod(BaseTableDefinition baseTableDefinition, boolean isModelContainerAdapter, boolean implementsLoadFromCursorListener) {
+    public LoadFromCursorMethod(BaseTableDefinition baseTableDefinition, boolean isModelContainerAdapter,
+                                boolean implementsLoadFromCursorListener, boolean putNullForContainerAdapter) {
 
         this.baseTableDefinition = baseTableDefinition;
         this.isModelContainerAdapter = isModelContainerAdapter;
         this.implementsLoadFromCursorListener = implementsLoadFromCursorListener;
+        this.putNullForContainerAdapter = putNullForContainerAdapter;
     }
 
     @Override
@@ -72,7 +75,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
 
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
-            methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod(isModelContainerAdapter));
+            methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter));
         }
 
         return methodBuilder.build();

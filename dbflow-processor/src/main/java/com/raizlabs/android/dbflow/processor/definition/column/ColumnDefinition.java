@@ -49,6 +49,7 @@ public class ColumnDefinition extends BaseDefinition {
     public String columnName;
 
     public String containerKeyName;
+    public boolean putContainerDefaultValue;
 
     public boolean hasTypeConverter = false;
     public boolean isPrimaryKey = false;
@@ -123,8 +124,13 @@ public class ColumnDefinition extends BaseDefinition {
         ContainerKey containerKey = element.getAnnotation(ContainerKey.class);
         if (containerKey != null) {
             containerKeyName = containerKey.value();
+            if (StringUtils.isNullOrEmpty(containerKeyName)) {
+                containerKeyName = elementName;
+            }
+            putContainerDefaultValue = containerKey.putDefault();
         } else {
             containerKeyName = elementName;
+            putContainerDefaultValue = true;
         }
 
         Index index = element.getAnnotation(Index.class);
@@ -243,9 +249,13 @@ public class ColumnDefinition extends BaseDefinition {
                 elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter)).build();
     }
 
-    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter) {
+    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter) {
+        boolean putDefaultValue = putNullForContainerAdapter;
+        if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
+            putDefaultValue = putContainerDefaultValue;
+        }
         return DefinitionUtils.getLoadFromCursorMethod(containerKeyName, elementName,
-                elementTypeName, columnName, isModelContainerAdapter, columnAccess).build();
+                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
     }
 
     public CodeBlock getToModelMethod() {

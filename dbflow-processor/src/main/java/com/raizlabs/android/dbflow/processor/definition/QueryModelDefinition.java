@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
@@ -51,6 +52,8 @@ public class QueryModelDefinition extends BaseTableDefinition {
                                 ProcessorManager processorManager) {
         super(typeElement, processorManager);
 
+        ModelContainer containerKey = element.getAnnotation(ModelContainer.class);
+        boolean putDefaultValue = containerKey != null && containerKey.putDefault();
 
         QueryModel queryModel = typeElement.getAnnotation(QueryModel.class);
         try {
@@ -72,7 +75,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
         setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
 
         methods = new MethodDefinition[]{
-                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener)
+                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue)
         };
 
         createColumnDefinitions(((TypeElement) typeElement));
