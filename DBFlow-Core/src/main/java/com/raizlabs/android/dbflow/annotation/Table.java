@@ -48,7 +48,6 @@ public @interface Table {
      */
     UniqueGroup[] uniqueColumnGroups() default {};
 
-
     /**
      * @return The set of INDEX clauses that specific columns can define to belong to, using the {@link Index} annotation.
      * The generated Index properties belong to the corresponding property class to this table.
