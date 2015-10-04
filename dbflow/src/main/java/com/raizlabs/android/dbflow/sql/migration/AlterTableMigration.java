@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.CallSuper;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -69,6 +70,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
     }
 
+    @CallSuper
     @Override
     public void onPostMigrate() {
         // cleanup and make fields eligible for garbage collection
@@ -95,7 +97,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * but it is recommended.
      *
      * @param columnType The type of column that pertains to an {@link com.raizlabs.android.dbflow.sql.SQLiteType}
-     * @param columnName The name of the column to add. Use the "$Table" class for the specified table.
+     * @param columnName The name of the column to add. Use the "_Table" class for the specified table.
      * @return This instance
      */
     public AlterTableMigration<ModelClass> addColumn(Class columnType, String columnName) {

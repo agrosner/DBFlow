@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.CallSuper;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -81,6 +82,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         database.execSQL(generateQuery());
     }
 
+    @CallSuper
     @Override
     public void onPostMigrate() {
         // make fields eligible for GC
