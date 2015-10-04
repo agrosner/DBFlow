@@ -3,10 +3,13 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 
@@ -76,6 +79,17 @@ public class LoadFromCursorMethod implements MethodDefinition {
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
             methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter));
+        }
+
+        if (baseTableDefinition instanceof TableDefinition && !isModelContainerAdapter) {
+            CodeBlock.Builder codeBuilder = CodeBlock.builder();
+            List<OneToManyDefinition> oneToManyDefinitions = ((TableDefinition) baseTableDefinition).oneToManyDefinitions;
+            for (OneToManyDefinition oneToMany : oneToManyDefinitions) {
+                if (oneToMany.isLoad()) {
+                    oneToMany.writeLoad(codeBuilder);
+                }
+            }
+            methodBuilder.addCode(codeBuilder.build());
         }
 
         return methodBuilder.build();

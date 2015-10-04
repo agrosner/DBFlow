@@ -58,12 +58,9 @@ public class OneToManyDefinition extends BaseDefinition {
     }
 
     /**
-     * Writes the method to the specified java writer for loading from DB.
-     *
-     * @param javaWriter
-     * @throws IOException
+     * Writes the method to the specified builder for loading from DB.
      */
-    public void writeLoad(CodeBlock.Builder codeBuilder) throws IOException {
+    public void writeLoad(CodeBlock.Builder codeBuilder) {
         if (isLoad()) {
             codeBuilder.addStatement(getMethodName());
         }
