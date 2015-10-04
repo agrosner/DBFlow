@@ -89,7 +89,21 @@ public class OneToManyDefinition extends BaseDefinition {
         }
     }
 
+    public void writeUpdate(CodeBlock.Builder codeBuilder) {
+        if (isSave()) {
+            codeBuilder.addStatement("new $T<>($T.withModels($L)).onExecute()",
+                    ClassNames.UPDATE_MODEL_LIST_TRANSACTION,
+                    ClassNames.PROCESS_MODEL_INFO, getMethodName());
+        }
+    }
 
+    public void writeInsert(CodeBlock.Builder codeBuilder) {
+        if (isSave()) {
+            codeBuilder.addStatement("new $T<>($T.withModels($L)).onExecute()",
+                    ClassNames.INSERT_MODEL_LIST_TRANSACTION,
+                    ClassNames.PROCESS_MODEL_INFO, getMethodName());
+        }
+    }
     private String getMethodName() {
         return String.format("%1s.%1s()", ModelUtils.getVariable(false), methodName);
     }

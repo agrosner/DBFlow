@@ -30,7 +30,17 @@ public class OneToManySaveMethod implements MethodDefinition {
     public MethodSpec getMethodSpec() {
         CodeBlock.Builder code = CodeBlock.builder();
         for (OneToManyDefinition oneToManyDefinition : tableDefinition.oneToManyDefinitions) {
-            oneToManyDefinition.writeSave(code);
+            switch (methodName) {
+                case METHOD_SAVE:
+                    oneToManyDefinition.writeSave(code);
+                    break;
+                case METHOD_UPDATE:
+                    oneToManyDefinition.writeUpdate(code);
+                    break;
+                case METHOD_INSERT:
+                    oneToManyDefinition.writeInsert(code);
+                    break;
+            }
         }
         code.addStatement("super.$L($L)", methodName, ModelUtils.getVariable(isModelContainerAdapter));
 
