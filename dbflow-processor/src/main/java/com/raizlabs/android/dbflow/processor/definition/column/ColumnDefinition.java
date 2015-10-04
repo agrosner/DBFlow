@@ -266,8 +266,14 @@ public class ColumnDefinition extends BaseDefinition {
         CodeBlock.Builder codeBuilder = CodeBlock.builder()
                 .add("$L.$LValue($S)", ModelUtils.getVariable(true), method, containerKeyName);
 
+        BaseColumnAccess columnAccessToUse = columnAccess;
+        if (columnAccess instanceof BooleanColumnAccess ||
+                (columnAccess instanceof TypeConverterAccess && ((TypeConverterAccess) columnAccess)
+                        .typeConverterDefinition.getModelTypeName().equals(TypeName.BOOLEAN.box()))) {
+            columnAccessToUse = ((TypeConverterAccess) columnAccess).existingColumnAccess;
+        }
         return CodeBlock.builder()
-                .addStatement(columnAccess.setColumnAccessString(elementTypeName, containerKeyName, elementName,
+                .addStatement(columnAccessToUse.setColumnAccessString(elementTypeName, containerKeyName, elementName,
                         false, ModelUtils.getVariable(false), codeBuilder.build()))
                 .build();
     }
