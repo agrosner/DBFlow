@@ -140,4 +140,50 @@ public class ForeignInteractionModel extends TestModel1 {
 }
 ```
 
-The result is _significantly_ cleaner and less overhead to maintain. 
+The result is _significantly_ cleaner and less overhead to maintain.
+
+## Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
+Perhaps the most significant internal changes to this library is making queries, conditions, and interactions with the database much stricter and more type-safe.
+
+### Properties
+Properties replace `String` column names generated in the "$Table" classes. They are also matching exact case to the column name.
+
+Properties are represented by the interface `IProperty` which are subclassed into `Property<T>`, `Method`, and the primitive properties (`IntProperty`, `CharProperty`, etc).
+
+It will become apparent why this change was necessary with some examples:
+
+A relatively simple query by SQLite standards:
+
+```sql
+SELECT `name` AS `employee_name`, AVG(`salary`) AS `average_salary`, `order`, SUM(`salary`) as `sum_salary`
+  FROM `SomeTable`
+  WHERE `salary` > 150000
+```
+
+Before:
+
+```java
+List<SomeQueryTable> items =
+  new Select(ColumnAlias.column(SomeTable$Table.NAME).as("employee_name"),
+    ColumnAlias.columnsWithFunction("AVG", SomeTable$Table.SALARY).as("average_salary"),
+    SomeTable$Table.ORDER,
+    ColumnAlias.columnsWithFunction("SUM", SomeTable$Table.SALARY).as("sum_salary"))
+  .from(SomeTable.class)
+  .where(Condition.column(SomeTable$Table.SALARY).greaterThan(150000))
+  .queryCustomList(SomeQueryTable.class);
+```
+
+Now (with static import on `SomeTable_Table` and `Method` ):
+
+```java
+List<SomeQueryTable> items =
+  new Select(name.as("employee_name"),
+    avg(salary).as("average_salary"),
+    order,
+    sum(salary).as("sum_salary"))
+  .from(SomeTable.class)
+  .where(salary.greaterThan(150000))
+  .queryCustomList(SomeQueryTable.class);
+```
+
+The code instantly becomes cleaner, and reads more like an actual query.
