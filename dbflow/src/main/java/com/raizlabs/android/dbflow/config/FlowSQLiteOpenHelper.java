@@ -63,21 +63,17 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                     null, flowManager.getDatabaseVersion()) {
                 @Override
                 public void onOpen(SQLiteDatabase db) {
-                    checkForeignKeySupport(db);
+                    FlowSQLiteOpenHelper.this.onOpen(db);
                 }
 
                 @Override
                 public void onCreate(SQLiteDatabase db) {
-                    checkForeignKeySupport(db);
-                    executeCreations(db);
-                    executeMigrations(db, -1, db.getVersion());
+                    FlowSQLiteOpenHelper.this.onCreate(db);
                 }
 
                 @Override
                 public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                    checkForeignKeySupport(db);
-                    executeCreations(db);
-                    executeMigrations(db, oldVersion, newVersion);
+                    FlowSQLiteOpenHelper.this.onUpgrade(db, oldVersion, newVersion);
                 }
             };
             restoreDatabase(getTempDbFileName(), databaseDefinition.getDatabaseFileName());
