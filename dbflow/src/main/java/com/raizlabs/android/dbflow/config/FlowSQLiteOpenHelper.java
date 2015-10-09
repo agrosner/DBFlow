@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -46,11 +47,13 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private DatabaseHelperListener databaseHelperListener;
     private BaseDatabaseDefinition databaseDefinition;
     private SQLiteOpenHelper backupHelper;
+    private final MigrationPreferences migrationPreferences;
 
     public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager, DatabaseHelperListener listener) {
         super(FlowManager.getContext(), flowManager.getDatabaseFileName(), null, flowManager.getDatabaseVersion());
         databaseHelperListener = listener;
         databaseDefinition = flowManager;
+        migrationPreferences = new MigrationPreferences(FlowManager.getContext());
 
         movePrepackagedDB(databaseDefinition.getDatabaseFileName(), databaseDefinition.getDatabaseFileName());
 
@@ -415,15 +418,19 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                             List<Migration> migrationsList = migrationMap.get(i);
                             if (migrationsList != null) {
                                 for (Migration migration : migrationsList) {
+                                    if (!migrationPreferences.hasMigrated(migration)) {
 
-                                    // before migration
-                                    migration.onPreMigrate();
+                                        // before migration
+                                        migration.onPreMigrate();
 
-                                    // migrate
-                                    migration.migrate(db);
+                                        // migrate
+                                        migration.migrate(db);
 
-                                    // after migration cleanup
-                                    migration.onPostMigrate();
+                                        // after migration cleanup
+                                        migration.onPostMigrate();
+
+                                        migrationPreferences.setHasMigrated(true, migration);
+                                    }
                                 }
                             }
                         }
@@ -476,6 +483,36 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             }
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to execute " + file, e);
+        }
+    }
+
+    private class MigrationPreferences {
+
+        private static final String NAME = "dbflow_migrations";
+
+        private SharedPreferences preferences;
+
+        public MigrationPreferences(Context context) {
+            preferences = context.getSharedPreferences(NAME, Context.MODE_PRIVATE);
+        }
+
+
+        private SharedPreferences.Editor edit() {
+            return preferences.edit();
+        }
+
+        /**
+         * Stores whether the migration completed or not.
+         *
+         * @param hasMigrated True if migrated.
+         * @param migration   The class to reference in migration.
+         */
+        void setHasMigrated(boolean hasMigrated, Migration migration) {
+            edit().putBoolean(migration.getClass().getCanonicalName(), hasMigrated).apply();
+        }
+
+        boolean hasMigrated(Migration migration) {
+            return preferences.getBoolean(migration.getClass().getCanonicalName(), false);
         }
     }
 }
