@@ -4,8 +4,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
+import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
+import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
@@ -23,7 +25,7 @@ import java.util.Map;
 /**
  * Author: andrewgrosner
  * Description: The main interface that all Flow Managers implement. This is for internal usage only
- * as it will be generated for every {@link com.raizlabs.android.dbflow.annotation.Database}.
+ * as it will be generated for every {@link Database}.
  */
 public abstract class BaseDatabaseDefinition {
 
@@ -75,7 +77,7 @@ public abstract class BaseDatabaseDefinition {
     }
 
     /**
-     * Returns the associated {@link com.raizlabs.android.dbflow.structure.ModelAdapter} within this database for
+     * Returns the associated {@link ModelAdapter} within this database for
      * the specified table. If the Model is missing the {@link com.raizlabs.android.dbflow.annotation.Table} annotation,
      * this will return null.
      *
@@ -88,7 +90,7 @@ public abstract class BaseDatabaseDefinition {
 
     /**
      * @param tableName The name of the table in this db.
-     * @return The associated {@link com.raizlabs.android.dbflow.structure.ModelAdapter} within this database for the specified table name.
+     * @return The associated {@link ModelAdapter} within this database for the specified table name.
      * If the Model is missing the {@link com.raizlabs.android.dbflow.annotation.Table} annotation, this will return null.
      */
     public Class<? extends Model> getModelClassForName(String tableName) {
@@ -106,7 +108,7 @@ public abstract class BaseDatabaseDefinition {
     }
 
     /**
-     * @return the {@link com.raizlabs.android.dbflow.structure.BaseModelView} list for this database.
+     * @return the {@link BaseModelView} list for this database.
      */
     List<Class<? extends BaseModelView>> getModelViews() {
         return modelViews;
@@ -114,14 +116,14 @@ public abstract class BaseDatabaseDefinition {
 
     /**
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
-     * @return the associated {@link com.raizlabs.android.dbflow.structure.ModelViewAdapter} for the specified table.
+     * @return the associated {@link ModelViewAdapter} for the specified table.
      */
     ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
         return modelViewAdapterMap.get(table);
     }
 
     /**
-     * @return The list of {@link com.raizlabs.android.dbflow.structure.ModelViewAdapter}. Internal method for
+     * @return The list of {@link ModelViewAdapter}. Internal method for
      * creating model views in the DB.
      */
     List<ModelViewAdapter> getModelViewAdapters() {
@@ -175,7 +177,7 @@ public abstract class BaseDatabaseDefinition {
     }
 
     /**
-     * @return The name of this database as defined in {@link com.raizlabs.android.dbflow.annotation.Database}
+     * @return The name of this database as defined in {@link Database}
      */
     public abstract String getDatabaseName();
 
@@ -192,22 +194,27 @@ public abstract class BaseDatabaseDefinition {
     public abstract int getDatabaseVersion();
 
     /**
-     * @return True if the {@link com.raizlabs.android.dbflow.annotation.Database#consistencyCheckEnabled()} annotation is true.
+     * @return True if the {@link Database#consistencyCheckEnabled()} annotation is true.
      */
     public abstract boolean areConsistencyChecksEnabled();
 
     /**
-     * @return True if the {@link com.raizlabs.android.dbflow.annotation.Database#foreignKeysSupported()} annotation is true.
+     * @return True if the {@link Database#foreignKeysSupported()} annotation is true.
      */
     public abstract boolean isForeignKeysSupported();
 
     /**
-     * @return True if the {@link com.raizlabs.android.dbflow.annotation.Database#backupEnabled()} annotation is true.
+     * @return True if the {@link Database#backupEnabled()} annotation is true.
      */
     public abstract boolean backupEnabled();
 
     /**
-     * Performs a full deletion of this database. Reopens the {@link com.raizlabs.android.dbflow.config.FlowSQLiteOpenHelper} as well.
+     * @return True if the {@link Database#attemptMigrationsAfterOnOpen()} is true.
+     */
+    public abstract boolean attemptMigrationsAfterOnOpen();
+
+    /**
+     * Performs a full deletion of this database. Reopens the {@link FlowSQLiteOpenHelper} as well.
      *
      * @param context Where the database resides
      */
@@ -229,11 +236,11 @@ public abstract class BaseDatabaseDefinition {
     }
 
     /**
-     * Saves the database as a backup on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. This will
+     * Saves the database as a backup on the {@link DBTransactionQueue}. This will
      * create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      *
-     * @throws java.lang.IllegalStateException if {@link com.raizlabs.android.dbflow.annotation.Database#backupEnabled()}
-     *                                         or {@link com.raizlabs.android.dbflow.annotation.Database#consistencyCheckEnabled()} is not enabled.
+     * @throws java.lang.IllegalStateException if {@link Database#backupEnabled()}
+     *                                         or {@link Database#consistencyCheckEnabled()} is not enabled.
      */
     public void backupDatabase() {
         getHelper().backupDB();

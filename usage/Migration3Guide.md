@@ -48,6 +48,36 @@ Why: We decided that referencing it directly by class name enforces type-safety 
 
 was a valid specifier.
 
+### Migration Changes
+A property was added to `@Database`:
+
+```java
+boolean attemptMigrationsAfterOnOpen() default true;
+```
+
+In some instances, migrations do _not_ get executed on a newly created database that you might expect. In the source for `SQLiteOpenHelper`:
+
+```java
+db.beginTransaction();
+try {
+    if (version == 0) {
+        onCreate(db);
+    } else {
+        if (version > mNewVersion) {
+            onDowngrade(db, version, mNewVersion);
+        } else {
+            onUpgrade(db, version, mNewVersion);
+        }
+    }
+    db.setVersion(mNewVersion);
+    db.setTransactionSuccessful();
+} finally {
+    db.endTransaction();
+}
+```
+
+The `onUpgrade()` method would never get called. In this release we in the `onOpen()` method attempt to execute the migrations. We check if the migrations have executed by storing a simple preference whether it has executed or not, so that we do not execute the same migration twice.
+
 ## Table Changes
 @Table have some significant changes. Added was an `IndexGroup[]` of `indexGroups()`.
 

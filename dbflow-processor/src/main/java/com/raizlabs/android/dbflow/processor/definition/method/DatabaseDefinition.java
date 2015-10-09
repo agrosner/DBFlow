@@ -48,6 +48,8 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
     boolean backupEnabled;
 
+    boolean attemptMigrationsAfterOpen;
+
     public ConflictAction insertConflict;
 
     public ConflictAction updateConflict;
@@ -89,6 +91,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
         consistencyChecksEnabled = database.consistencyCheckEnabled();
         backupEnabled = database.backupEnabled();
+        attemptMigrationsAfterOpen = database.attemptMigrationsAfterOnOpen();
 
         classSeparator = database.generatedClassSeparator();
 
@@ -201,6 +204,12 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
                 .addAnnotation(Override.class)
                 .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
                 .addStatement("return $L", backupEnabled)
+                .returns(TypeName.BOOLEAN).build());
+
+        typeBuilder.addMethod(MethodSpec.methodBuilder("attemptMigrationsAfterOnOpen")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $L", attemptMigrationsAfterOpen)
                 .returns(TypeName.BOOLEAN).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("areConsistencyChecksEnabled")
