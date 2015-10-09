@@ -409,8 +409,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                         List<String> migrationFiles = migrationFileMap.get(i);
                         if (migrationFiles != null) {
                             for (String migrationFile : migrationFiles) {
-                                executeSqlScript(db, migrationFile);
-                                FlowLog.log(FlowLog.Level.I, migrationFile + " executed succesfully.");
+                                if (!migrationPreferences.hasMigrated(migrationFile)) {
+                                    executeSqlScript(db, migrationFile);
+
+                                    migrationPreferences.setHasMigrated(true, migrationFile);
+                                    FlowLog.log(FlowLog.Level.I, migrationFile + " executed successfully.");
+                                }
                             }
                         }
 
@@ -428,6 +432,8 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
                                         // after migration cleanup
                                         migration.onPostMigrate();
+
+                                        FlowLog.log(FlowLog.Level.I, migration.getClass() + " executed successfully.");
 
                                         migrationPreferences.setHasMigrated(true, migration);
                                     }
@@ -489,6 +495,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private class MigrationPreferences {
 
         private static final String NAME = "dbflow_migrations";
+        private static final String PREF_FILE_PREFIX = "file_";
 
         private SharedPreferences preferences;
 
@@ -513,6 +520,14 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         boolean hasMigrated(Migration migration) {
             return preferences.getBoolean(migration.getClass().getCanonicalName(), false);
+        }
+
+        void setHasMigrated(boolean hasMigrated, String migrationFileName) {
+            edit().putBoolean(PREF_FILE_PREFIX + migrationFileName, hasMigrated).apply();
+        }
+
+        boolean hasMigrated(String migrationFileName) {
+            return preferences.getBoolean(PREF_FILE_PREFIX + migrationFileName, false);
         }
     }
 }
