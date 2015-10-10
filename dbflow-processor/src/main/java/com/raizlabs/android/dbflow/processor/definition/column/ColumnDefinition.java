@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.SQLiteType;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -91,7 +92,8 @@ public class ColumnDefinition extends BaseDefinition {
         boolean isPrivate = element.getModifiers()
                 .contains(Modifier.PRIVATE);
         if (isPrivate) {
-            columnAccess = new PrivateColumnAccess(column);
+            columnAccess = new PrivateColumnAccess(column, elementTypeName.box().equals(TypeName.BOOLEAN.box())
+                    && (baseTableDefinition instanceof TableDefinition) && ((TableDefinition) baseTableDefinition).useIsForPrivateBooleans);
         } else {
             columnAccess = new SimpleColumnAccess();
         }

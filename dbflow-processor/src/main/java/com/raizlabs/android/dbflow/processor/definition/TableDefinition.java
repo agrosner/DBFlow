@@ -90,6 +90,7 @@ public class TableDefinition extends BaseTableDefinition {
     public boolean hasCachingId = false;
 
     public boolean allFields = false;
+    public boolean useIsForPrivateBooleans;
 
     public Map<String, ColumnDefinition> mColumnMap = Maps.newHashMap();
 
@@ -136,6 +137,7 @@ public class TableDefinition extends BaseTableDefinition {
                 : updateConflict.name();
 
         allFields = table.allFields();
+        useIsForPrivateBooleans = table.useIsForPrivateBooleans();
 
         manager.addModelToDatabase(elementClassName, databaseTypeName);
 

@@ -14,22 +14,26 @@ public class PrivateColumnAccess extends BaseColumnAccess {
 
     private String getterName;
     private String setterName;
+    private final boolean useIsForGetter;
 
-    public PrivateColumnAccess(Column column) {
+    public PrivateColumnAccess(Column column, boolean useIsForGetter) {
         getterName = column.getterName();
         setterName = column.setterName();
+        this.useIsForGetter = useIsForGetter;
     }
 
     public PrivateColumnAccess(ForeignKeyReference reference) {
         getterName = reference.referencedGetterName();
         setterName = reference.referencedSetterName();
+        this.useIsForGetter = false;
     }
 
     @Override
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (!isModelContainerAdapter) {
             if (StringUtils.isNullOrEmpty(getterName)) {
-                return String.format("%1s.get%1s()", variableNameString, StringUtils.capitalize(elementName));
+                return String.format("%1s.%1s%1s()", variableNameString, useIsForGetter ? "is" : "get",
+                        StringUtils.capitalize(elementName));
             } else {
                 return String.format("%1s.%1s()", variableNameString, getterName);
             }
@@ -46,7 +50,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         if (!isModelContainerAdapter) {
             if (StringUtils.isNullOrEmpty(getterName)) {
-                return String.format("get%1s()", StringUtils.capitalize(elementName));
+                return String.format("%1s%1s()", useIsForGetter ? "is" : "get", StringUtils.capitalize(elementName));
             } else {
                 return String.format("%1s()", getterName);
             }
