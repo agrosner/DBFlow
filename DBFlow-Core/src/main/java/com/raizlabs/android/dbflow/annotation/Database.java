@@ -50,16 +50,6 @@ public @interface Database {
     boolean backupEnabled() default false;
 
     /**
-     * @return Default is true, where we attempt migrations if they have not executed yet after opening the DB.
-     * This case occurs if we create a new DB with a version higher than 0 and have migrations that need
-     * to potentially run. The old behavior would not attempt to execute migrations in this scenario. Turn
-     * this off with false if you expect that old behavior. The new behavior will store whether migrations
-     * have executed to prevent duplicating same migration. Old versions of lib do not have this information
-     * stored.
-     */
-    boolean attemptMigrationsAfterOnOpen() default true;
-
-    /**
      * @return A custom FlowSQLiteOpenHelper that you can define custom.
      */
     Class<?> sqlHelperClass() default Void.class;

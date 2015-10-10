@@ -209,11 +209,6 @@ public abstract class BaseDatabaseDefinition {
     public abstract boolean backupEnabled();
 
     /**
-     * @return True if the {@link Database#attemptMigrationsAfterOnOpen()} is true.
-     */
-    public abstract boolean attemptMigrationsAfterOnOpen();
-
-    /**
      * Performs a full deletion of this database. Reopens the {@link FlowSQLiteOpenHelper} as well.
      *
      * @param context Where the database resides
