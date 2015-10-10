@@ -92,8 +92,9 @@ public class ColumnDefinition extends BaseDefinition {
         boolean isPrivate = element.getModifiers()
                 .contains(Modifier.PRIVATE);
         if (isPrivate) {
-            columnAccess = new PrivateColumnAccess(column, elementTypeName.box().equals(TypeName.BOOLEAN.box())
-                    && (baseTableDefinition instanceof TableDefinition) && ((TableDefinition) baseTableDefinition).useIsForPrivateBooleans);
+            boolean useIs = elementTypeName.box().equals(TypeName.BOOLEAN.box())
+                    && (baseTableDefinition instanceof TableDefinition) && ((TableDefinition) baseTableDefinition).useIsForPrivateBooleans;
+            columnAccess = new PrivateColumnAccess(column, useIs);
         } else {
             columnAccess = new SimpleColumnAccess();
         }

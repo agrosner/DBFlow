@@ -51,7 +51,7 @@ public class ForeignKeyReferenceDefinition {
             isReferencedFieldPrivate = (referencedColumn.columnAccess instanceof PrivateColumnAccess);
         }
         if (isReferencedFieldPrivate && !foreignKeyColumnDefinition.isModelContainer) {
-            columnAccess = new PrivateColumnAccess(referencedColumn.column);
+            columnAccess = new PrivateColumnAccess(referencedColumn.column, false);
         } else {
             if (foreignKeyColumnDefinition.isModelContainer) {
                 columnAccess = new ModelContainerAccess(tableColumnAccess, foreignColumnName);

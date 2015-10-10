@@ -94,7 +94,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         // we need to recheck for this instance
         if (columnAccess instanceof TypeConverterAccess) {
             if (typeElement.getModifiers().contains(Modifier.PRIVATE)) {
-                columnAccess = new PrivateColumnAccess(typeElement.getAnnotation(Column.class));
+                boolean useIs = elementTypeName.box().equals(TypeName.BOOLEAN.box())
+                        && tableDefinition.useIsForPrivateBooleans;
+                columnAccess = new PrivateColumnAccess(typeElement.getAnnotation(Column.class), useIs);
             } else {
                 columnAccess = new SimpleColumnAccess();
             }

@@ -32,8 +32,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (!isModelContainerAdapter) {
             if (StringUtils.isNullOrEmpty(getterName)) {
-                return String.format("%1s.%1s%1s()", variableNameString, useIsForGetter ? "is" : "get",
-                        StringUtils.capitalize(elementName));
+                return String.format("%1s.%1s()", variableNameString, getGetterName(elementName));
             } else {
                 return String.format("%1s.%1s()", variableNameString, getterName);
             }
@@ -50,7 +49,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         if (!isModelContainerAdapter) {
             if (StringUtils.isNullOrEmpty(getterName)) {
-                return String.format("%1s%1s()", useIsForGetter ? "is" : "get", StringUtils.capitalize(elementName));
+                return String.format("%1s()", getGetterName(elementName));
             } else {
                 return String.format("%1s()", getterName);
             }
@@ -70,6 +69,16 @@ public class PrivateColumnAccess extends BaseColumnAccess {
                 return String.format("%1s.%1s(%1s)", variableNameString, setterName, formattedAccess);
             }
         }
+    }
+
+    private String getGetterName(String elementName) {
+        String finalName = elementName;
+        if (useIsForGetter && !finalName.startsWith("is")) {
+            finalName = "is" + StringUtils.capitalize(finalName);
+        } else if (!useIsForGetter && !finalName.startsWith("get")) {
+            finalName = "get" + StringUtils.capitalize(finalName);
+        }
+        return finalName;
     }
 
 }
