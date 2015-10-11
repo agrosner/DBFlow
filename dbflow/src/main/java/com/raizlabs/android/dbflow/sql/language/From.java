@@ -180,7 +180,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
             queryBuilder.append("FROM ");
         }
 
-        queryBuilder.appendQuoted(FlowManager.getTableName(table));
+        queryBuilder.append(FlowManager.getTableName(table));
 
         if (queryBase instanceof Select) {
             queryBuilder.appendSpace().appendQualifier("AS", tableAlias.getAliasName());
