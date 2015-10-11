@@ -166,7 +166,7 @@ public class ConditionGroup extends BaseCondition implements Query {
                 count++;
             }
         }
-        return query.toString();
+        return query == null ? "" : query.toString();
     }
 
     @Override
