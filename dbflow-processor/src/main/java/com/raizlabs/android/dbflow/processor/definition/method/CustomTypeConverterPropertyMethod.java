@@ -53,9 +53,9 @@ public class CustomTypeConverterPropertyMethod implements TypeAdder, CodeAdder {
         for (ClassName className : globalTypeConverters) {
             List<ColumnDefinition> def = baseTableDefinition.getGlobalTypeConverters().get(className);
             TypeName firstTypeName = def.get(0).elementTypeName;
-            code.addStatement("global_typeConverter$L = ($T) $T.getTypeConverterForClass($T.class)",
+            code.addStatement("global_typeConverter$L = ($T) $L.getTypeConverterForClass($T.class)",
                     className.simpleName(), className,
-                    ClassNames.FLOW_MANAGER, firstTypeName)
+                    "holder", firstTypeName)
                     .build();
         }
     }

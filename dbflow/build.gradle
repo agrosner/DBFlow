@@ -6,7 +6,7 @@ project.ext.artifactId = bt_name
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         minSdkVersion 4
@@ -31,7 +31,7 @@ android {
 
 dependencies {
     compile project("${dbflow_project_prefix}dbflow-core")
-    compile "com.android.support:support-annotations:23.0.0"
+    compile "com.android.support:support-annotations:23.0.1"
     androidTestApt project("${dbflow_project_prefix}dbflow-processor")
 }
 

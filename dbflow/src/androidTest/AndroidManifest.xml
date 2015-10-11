@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.raizlabs.android.dbflow.test">
+<manifest package="com.raizlabs.android.dbflow.test"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                >
+
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.raizlabs.android.dbflow.test" />
 
     <application android:name=".DBFlowTestApp">
         <provider

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.raizlabs.android.dbflow" >
+<manifest
+    package="com.raizlabs.android.dbflow"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <application />
+    <application/>
 
 </manifest>

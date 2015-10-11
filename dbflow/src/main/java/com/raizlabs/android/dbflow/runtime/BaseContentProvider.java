@@ -38,14 +38,13 @@ public abstract class BaseContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        database = FlowManager.getDatabase(getDatabaseName());
         return true;
     }
 
     @Override
     public int bulkInsert(@NonNull final Uri uri, @NonNull final ContentValues[] values) {
         final int[] count = {0};
-        TransactionManager.transact(database.getWritableDatabase(), new Runnable() {
+        TransactionManager.transact(getDatabase().getWritableDatabase(), new Runnable() {
             @Override
             public void run() {
                 for (ContentValues contentValues : values) {
@@ -61,5 +60,12 @@ public abstract class BaseContentProvider extends ContentProvider {
     protected abstract String getDatabaseName();
 
     protected abstract int bulkInsert(Uri uri, ContentValues contentValues);
+
+    protected BaseDatabaseDefinition getDatabase() {
+        if (database == null) {
+            database = FlowManager.getDatabase(getDatabaseName());
+        }
+        return database;
+    }
 
 }

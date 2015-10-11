@@ -29,15 +29,16 @@ public class FlowManagerHolderDefinition implements TypeDefinition {
 
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC);
-        for (DatabaseDefinition databaseDefinition : processorManager.getDatabaseDefinitionMap()) {
-            constructor.addStatement("new $T(this)", databaseDefinition.outputClassName);
-        }
+
         for (TypeConverterDefinition typeConverterDefinition : processorManager.getTypeConverters()) {
             constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
                     typeConverterDefinition.getModelTypeName(),
                     typeConverterDefinition.getClassName());
         }
 
+        for (DatabaseDefinition databaseDefinition : processorManager.getDatabaseDefinitionMap()) {
+            constructor.addStatement("new $T(this)", databaseDefinition.outputClassName);
+        }
 
         typeBuilder.addMethod(constructor.build());
 

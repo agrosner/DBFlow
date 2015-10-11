@@ -157,23 +157,23 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
         for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($S, $T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName);
-            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
+            constructor.addStatement("$L.put($T.class, new $T(holder))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
                     tableDefinition.elementClassName, tableDefinition.getAdapterClassName());
         }
 
         for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(elementClassName)) {
-            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
+            constructor.addStatement("$L.put($T.class, new $T(holder))", DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
                     modelContainerDefinition.elementClassName, modelContainerDefinition.outputClassName);
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName);
-            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
+            constructor.addStatement("$L.put($T.class, new $T(holder))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
                     modelViewDefinition.elementClassName, modelViewDefinition.outputClassName);
         }
 
         for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
-            constructor.addStatement("$L.put($T.class, new $T())", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
+            constructor.addStatement("$L.put($T.class, new $T(holder))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
                     queryModelDefinition.elementClassName, queryModelDefinition.getAdapterClassName());
         }
 
