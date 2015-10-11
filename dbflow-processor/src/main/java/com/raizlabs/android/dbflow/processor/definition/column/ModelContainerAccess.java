@@ -19,7 +19,7 @@ public class ModelContainerAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
+    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         String method = SQLiteType.getModelContainerMethod(fieldType);
         if (method == null) {
             method = "get";
@@ -33,7 +33,7 @@ public class ModelContainerAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         String method = SQLiteType.getModelContainerMethod(fieldType);
         if (method == null) {
             method = "get";
@@ -44,7 +44,7 @@ public class ModelContainerAccess extends BaseColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
         CodeBlock newFormattedAccess = CodeBlock.builder()
                 .add("$L.put($S, $L)", variableNameString, containerKeyName, formattedAccess)
                 .build();

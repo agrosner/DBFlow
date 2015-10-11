@@ -67,12 +67,11 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
      * this method will be overridden.
-     *
-     * @param modelContainer The model container object to store the key
+     *  @param modelContainer The model container object to store the key
      * @param id             The key to store
      */
     @Override
-    public void updateAutoIncrement(ModelContainer<ModelClass, ?> modelContainer, long id) {
+    public void updateAutoIncrement(ModelContainer<ModelClass, ?> modelContainer, Number id) {
 
     }
 
@@ -81,7 +80,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
      * @return The value of the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT} if there is one.
      */
     @Override
-    public long getAutoIncrementingId(ModelContainer<ModelClass, ?> modelContainer) {
+    public Number getAutoIncrementingId(ModelContainer<ModelClass, ?> modelContainer) {
         return 0;
     }
 

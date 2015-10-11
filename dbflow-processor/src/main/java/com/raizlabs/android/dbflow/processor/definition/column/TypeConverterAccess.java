@@ -33,7 +33,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
+    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         if (typeConverterFieldName == null) {
             codeBuilder.add("($T) $T.$L($T.class)", typeConverterDefinition.getDbTypeName(),
@@ -51,7 +51,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         if (typeConverterFieldName == null) {
             codeBuilder.add("($T) $T.$L($T.class)",
@@ -70,7 +70,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
         CodeBlock.Builder newFormattedAccess = CodeBlock.builder();
         if (typeConverterFieldName == null) {
             newFormattedAccess.add("($T) $T.$L($T.class)",

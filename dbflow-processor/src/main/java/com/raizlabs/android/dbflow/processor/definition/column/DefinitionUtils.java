@@ -137,6 +137,32 @@ public class DefinitionUtils {
         return codeBuilder;
     }
 
+    public static CodeBlock.Builder getUpdateAutoIncrementMethod(String elementName, String fullElementName,
+                                                                 TypeName elementTypeName,
+                                                                 boolean isModelContainerAdapter,
+                                                                 BaseColumnAccess columnAccess) {
+        String method = "";
+        boolean shouldCastUp = false;
+        if (SQLiteType.containsNumberMethod(elementTypeName.unbox())) {
+            method = elementTypeName.unbox().toString();
+
+            shouldCastUp = !elementTypeName.isPrimitive();
+        }
+
+        CodeBlock.Builder codeBuilder = CodeBlock.builder();
+
+        CodeBlock.Builder accessBuilder = CodeBlock.builder();
+        if (shouldCastUp) {
+            accessBuilder.add("($T)", elementTypeName);
+        }
+        accessBuilder.add("id.$LValue()", method);
+
+        codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
+                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), accessBuilder.build()));
+
+        return codeBuilder;
+    }
+
     public static CodeBlock.Builder getCreationStatement(TypeName elementTypeName, BaseColumnAccess columnAccess, String columnName) {
         String statement = null;
 

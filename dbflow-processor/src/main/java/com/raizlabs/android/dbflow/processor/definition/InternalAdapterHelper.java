@@ -1,12 +1,13 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-
-import java.io.IOException;
 
 import javax.lang.model.element.Modifier;
 
@@ -30,6 +31,15 @@ public class InternalAdapterHelper {
                 .addStatement("return $S", QueryBuilder.quote(tableName))
                 .returns(ClassName.get(String.class))
                 .build());
+    }
+
+    public static void writeUpdateAutoIncrement(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
+                                                ColumnDefinition autoIncrementDefinition, boolean isModelContainer) {
+        typeBuilder.addMethod(MethodSpec.methodBuilder("updateAutoIncrement")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
+                .addParameter(ClassName.get(Number.class), "id")
+                .addCode(autoIncrementDefinition.getUpdateAutoIncrementMethod(isModelContainer)).build());
     }
 
 }

@@ -85,12 +85,11 @@ public abstract class ModelAdapter<ModelClass extends Model>
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
      * this method will be overridden.
-     *
-     * @param model The model object to store the key
+     *  @param model The model object to store the key
      * @param id    The key to store
      */
     @Override
-    public void updateAutoIncrement(ModelClass model, long id) {
+    public void updateAutoIncrement(ModelClass model, Number id) {
 
     }
 
@@ -99,7 +98,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     @Override
-    public long getAutoIncrementingId(ModelClass model) {
+    public Number getAutoIncrementingId(ModelClass model) {
         throw new InvalidDBConfiguration(
                 String.format("This method may have been called in error. The model class %1s must contain" +
                                 "a single primary key (if used in a ModelCache, this method may be called)",

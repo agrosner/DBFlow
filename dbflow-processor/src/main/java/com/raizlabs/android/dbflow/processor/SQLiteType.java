@@ -5,8 +5,12 @@ import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Author: andrewgrosner
@@ -125,6 +129,19 @@ public enum SQLiteType {
 
     public static String getModelContainerMethod(TypeName typeName) {
         return sModelContainerMethodMap.get(typeName);
+    }
+
+    private static Set<TypeName> sNumberMethodList = new HashSet<TypeName>() {{
+        add(TypeName.BYTE);
+        add(TypeName.DOUBLE);
+        add(TypeName.FLOAT);
+        add(TypeName.LONG);
+        add(TypeName.SHORT);
+        add(TypeName.INT);
+    }};
+
+    public static boolean containsNumberMethod(TypeName typeName) {
+        return sNumberMethodList.contains(typeName);
     }
 
 }

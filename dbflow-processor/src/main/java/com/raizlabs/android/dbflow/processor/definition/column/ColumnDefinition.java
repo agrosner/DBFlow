@@ -261,6 +261,16 @@ public class ColumnDefinition extends BaseDefinition {
                 elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
     }
 
+    /**
+     * only used if {@link #isPrimaryKeyAutoIncrement} is true.
+     *
+     * @return The statement to use.
+     */
+    public CodeBlock getUpdateAutoIncrementMethod(boolean isModelContainerAdapter) {
+        return DefinitionUtils.getUpdateAutoIncrementMethod(containerKeyName, elementName, elementTypeName,
+                isModelContainerAdapter, columnAccess).build();
+    }
+
     public CodeBlock getToModelMethod() {
         String method = SQLiteType.getModelContainerMethod(elementTypeName);
         if (method == null) {

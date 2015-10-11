@@ -26,8 +26,10 @@ import com.raizlabs.android.dbflow.processor.definition.method.OneToManyDeleteMe
 import com.raizlabs.android.dbflow.processor.definition.method.OneToManySaveMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
@@ -336,6 +338,24 @@ public class TableDefinition extends BaseTableDefinition {
                 .superclass(ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName));
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
         InternalAdapterHelper.writeGetTableName(typeBuilder, tableName);
+
+        if (hasAutoIncrement) {
+            InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName,
+                    autoIncrementDefinition, false);
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingId")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(elementClassName, ModelUtils.getVariable(false))
+                    .addStatement("return $L", autoIncrementDefinition.getColumnAccessString(false))
+                    .returns(ClassName.get(Number.class)).build());
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingColumnName")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return $S", QueryBuilder.quote(autoIncrementDefinition.columnName))
+                    .returns(ClassName.get(String.class)).build());
+        }
 
         CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);
         customTypeConverterPropertyMethod.addToType(typeBuilder);

@@ -17,7 +17,7 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
+    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (isModelContainerAdapter) {
             return getExistingColumnAccess().getColumnAccessString(ArrayTypeName.of(TypeName.BYTE),
                     elementName, fullElementName, variableNameString, isModelContainerAdapter);
@@ -30,7 +30,7 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         if (isModelContainerAdapter) {
             return getExistingColumnAccess().getShortAccessString(ArrayTypeName.of(TypeName.BYTE),
                     elementName, isModelContainerAdapter);
@@ -43,7 +43,7 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
         CodeBlock newFormattedAccess = CodeBlock.builder()
                 .add("new $T($L)", ClassName.get(Blob.class), formattedAccess)
                 .build();

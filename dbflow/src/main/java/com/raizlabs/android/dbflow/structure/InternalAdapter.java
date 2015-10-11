@@ -83,13 +83,13 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      * @param model The model object to store the key
      * @param id    The key to store
      */
-    void updateAutoIncrement(ModelClass model, long id);
+    void updateAutoIncrement(ModelClass model, Number id);
 
     /**
      * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
-    long getAutoIncrementingId(ModelClass model);
+    Number getAutoIncrementingId(ModelClass model);
 
     /**
      * @param model The model to retrieve the caching id from.

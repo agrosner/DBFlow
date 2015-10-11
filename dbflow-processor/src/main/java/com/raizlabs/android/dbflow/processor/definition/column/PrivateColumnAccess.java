@@ -29,7 +29,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
+    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
         if (!isModelContainerAdapter) {
             if (StringUtils.isNullOrEmpty(getterName)) {
                 return String.format("%1s.%1s()", variableNameString, getGetterName(elementName));
@@ -46,7 +46,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
         if (!isModelContainerAdapter) {
             if (StringUtils.isNullOrEmpty(getterName)) {
                 return String.format("%1s()", getGetterName(elementName));
@@ -59,7 +59,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
