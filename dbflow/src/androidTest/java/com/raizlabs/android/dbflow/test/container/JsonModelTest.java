@@ -107,7 +107,7 @@ public class JsonModelTest extends FlowTestCase {
             assertTrue(firstModel.name.equals("testModel"));
 
             JSONModel<ParentModel> firstJsonModel = jsonArrayModel.getJsonModel(0);
-            assertTrue(firstJsonModel.getValue(TestModel1_Table.name.toString()).equals("testModel"));
+            assertTrue(firstJsonModel.getValue(TestModel1_Table.name).equals("testModel"));
 
             Delete.tables(ParentModel.class);
 

@@ -337,7 +337,7 @@ public class SqlUtils {
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void insert(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
-        adapter.bindToStatement(insertStatement, model);
+        adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
         adapter.updateAutoIncrement(model, id);
         notifyModelChanged(model, adapter, modelAdapter, Action.INSERT);

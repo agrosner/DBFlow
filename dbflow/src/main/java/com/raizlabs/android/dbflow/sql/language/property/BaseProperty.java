@@ -184,6 +184,11 @@ abstract class BaseProperty<P extends IProperty> implements IProperty<P>, ICondi
     }
 
     @Override
+    public String getContainerKey() {
+        return nameAlias.getAliasNameRaw();
+    }
+
+    @Override
     public String getQuery() {
         return nameAlias.getQuery();
     }

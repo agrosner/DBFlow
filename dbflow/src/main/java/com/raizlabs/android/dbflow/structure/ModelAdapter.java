@@ -5,13 +5,13 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 
 /**
  * Author: andrewgrosner
- * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
+ * Description: Internal adapter that gets extended when a {@link Table} gets used.
  */
 public abstract class ModelAdapter<ModelClass extends Model>
         implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
@@ -43,7 +43,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
     }
 
     /**
-     * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
+     * Saves the specified model to the DB using the specified saveMode in {@link SqlUtils}.
      *
      * @param model The model to save/insert/update
      */
@@ -128,7 +128,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
 
     /**
      * @return The name of the column used in caching. By default it uses the auto increment column,
-     * when specified in the {@link com.raizlabs.android.dbflow.annotation.Table}, it is overridden.
+     * when specified in the {@link Table}, it is overridden.
      */
     public String getCachingColumnName() {
         return getAutoIncrementingColumnName();
@@ -155,9 +155,14 @@ public abstract class ModelAdapter<ModelClass extends Model>
     public abstract String getCreationQuery();
 
     /**
-     * @return The query used to insert a model using a {@link android.database.sqlite.SQLiteStatement}
+     * @return The query used to insert a model using a {@link SQLiteStatement}
      */
     protected abstract String getInsertStatementQuery();
+
+    /**
+     * @return The normal query used in saving a model if we use a {@link SQLiteStatement}.
+     */
+    protected abstract String getCompiledStatementQuery();
 
     /**
      * @return The conflict algorithm to use when updating a row in this table.

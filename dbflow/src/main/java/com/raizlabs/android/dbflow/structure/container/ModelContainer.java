@@ -58,6 +58,12 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     Object getValue(String key);
 
     /**
+     * @param property The property to retrieve.
+     * @return The value with the specified property {@link IProperty#getContainerKey()}.
+     */
+    Object getValue(IProperty property);
+
+    /**
      * Converts the value into a safe value that's represented by the return type.
      * If the class has a type converter, it will use this method to upconvert the value
      * if its not already represented by its type-converter.

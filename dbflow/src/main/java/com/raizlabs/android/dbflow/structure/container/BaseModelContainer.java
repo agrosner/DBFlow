@@ -150,11 +150,16 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     public abstract Object getValue(String key);
 
     @Override
+    public Object getValue(IProperty property) {
+        return getValue(property.getContainerKey());
+    }
+
+    @Override
     public abstract void put(String columnName, Object value);
 
     @Override
     public void put(IProperty property, Object value) {
-        put(property.getQuery(), value);
+        put(property.getContainerKey(), value);
     }
 
     @Override

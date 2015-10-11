@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.method;
 
-import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -14,15 +14,17 @@ import javax.lang.model.element.Modifier;
  */
 public class InsertStatementQueryMethod implements MethodDefinition {
 
-    private TableDefinition tableDefinition;
+    private final TableDefinition tableDefinition;
+    private final boolean isInsert;
 
-    public InsertStatementQueryMethod(TableDefinition tableDefinition) {
+    public InsertStatementQueryMethod(TableDefinition tableDefinition, boolean isInsert) {
         this.tableDefinition = tableDefinition;
+        this.isInsert = isInsert;
     }
 
     @Override
     public MethodSpec getMethodSpec() {
-        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getInsertStatementQuery")
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(isInsert ? "getInsertStatementQuery" : "getCompiledStatementQuery")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .returns(ClassName.get(String.class));
@@ -39,7 +41,7 @@ public class InsertStatementQueryMethod implements MethodDefinition {
                 codeBuilder.add(",");
             }
 
-            if (!column.isPrimaryKeyAutoIncrement) {
+            if (!column.isPrimaryKeyAutoIncrement || !isInsert) {
                 codeBuilder.add(column.getInsertStatementColumnName());
                 columnCount++;
             }
@@ -56,7 +58,7 @@ public class InsertStatementQueryMethod implements MethodDefinition {
             }
 
             ColumnDefinition definition = tableDefinition.getColumnDefinitions().get(i);
-            if (!definition.isPrimaryKeyAutoIncrement) {
+            if (!definition.isPrimaryKeyAutoIncrement || !isInsert) {
                 codeBuilder.add(definition.getInsertStatementValuesString());
                 columnCount++;
             }
