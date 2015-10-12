@@ -374,7 +374,7 @@ public class TableDefinition extends BaseTableDefinition {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingColumnName")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return $S", QueryBuilder.quote(cachingColumn.columnName))
+                    .addStatement("return $S", QueryBuilder.stripQuotes(cachingColumn.columnName))
                     .returns(ClassName.get(String.class)).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingIdFromCursorIndex")

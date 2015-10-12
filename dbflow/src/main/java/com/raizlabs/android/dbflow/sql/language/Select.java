@@ -22,7 +22,7 @@ public class Select implements Query {
     /**
      * The select qualifier to append to the SELECT statement
      */
-    private int mSelectQualifier = ALL;
+    private int mSelectQualifier = NONE;
     /**
      * SELECT DISTINCT call
      */

@@ -53,7 +53,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         // "{oldName}  RENAME TO {newName}"
         // Since the structure has been updated already, the manager knows only the new name.
         if (renameQuery != null) {
-            String renameQuery = new QueryBuilder(sql).appendQuoted(oldTableName)
+            String renameQuery = new QueryBuilder(sql).appendQuotedIfNeeded(oldTableName)
                     .append(this.renameQuery.getQuery())
                     .append(tableName)
                     .toString();
@@ -138,7 +138,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return The query that renames the table.
      */
     public String getRenameQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder(getAlterTableQueryBuilder().getQuery()).appendQuoted(oldTableName)
+        QueryBuilder queryBuilder = new QueryBuilder(getAlterTableQueryBuilder().getQuery()).appendQuotedIfNeeded(oldTableName)
                 .append(renameQuery).append(FlowManager.getTableName(table));
         return queryBuilder.getQuery();
     }

@@ -183,7 +183,22 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
         if (string.equals("*"))
             return append(string);
 
-        append("`").append(string.replace(".", "`.`")).append("`");
+        append(quote(string));
+        return castThis();
+    }
+
+    /**
+     * Appends a quoted string if needed. If the string is the all symbol '*', we do not quote it.
+     *
+     * @param string The string to append
+     * @return This instance
+     */
+    @SuppressWarnings("unchecked")
+    public QueryClass appendQuotedIfNeeded(String string) {
+        if (string.equals("*"))
+            return append(string);
+
+        append(quoteIfNeeded(string));
         return castThis();
     }
 

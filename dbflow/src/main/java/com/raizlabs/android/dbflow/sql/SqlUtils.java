@@ -443,7 +443,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void dropIndex(Class<ModelClass> mOnTable, String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
-                .appendQuoted(indexName);
+                .append(QueryBuilder.quoteIfNeeded(indexName));
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 }

@@ -151,7 +151,7 @@ public class Index<ModelClass extends Model> implements Query {
         return new QueryBuilder("CREATE ")
                 .append(isUnique ? "UNIQUE " : "")
                 .append("INDEX IF NOT EXISTS ")
-                .appendQuoted(indexName)
+                .appendQuotedIfNeeded(indexName)
                 .append(" ON ").append(FlowManager.getTableName(table))
                 .append("(").appendList(columns).append(")").getQuery();
     }

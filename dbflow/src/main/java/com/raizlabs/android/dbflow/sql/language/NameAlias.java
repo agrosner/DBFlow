@@ -32,7 +32,7 @@ public class NameAlias implements Query {
     }
 
     public NameAlias as(@NonNull String aliasName) {
-        this.aliasName = aliasName;
+        this.aliasName = QueryBuilder.stripQuotes(aliasName);
         return this;
     }
 

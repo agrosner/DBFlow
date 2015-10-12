@@ -76,7 +76,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
             queryBuilder.appendSpaceSeparated("OF")
                     .appendArray(properties);
         }
-        queryBuilder.appendSpaceSeparated("ON").appendQuoted(FlowManager.getTableName(onTable));
+        queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(onTable));
 
         if (forEachRow) {
             queryBuilder.appendSpaceSeparated("FOR EACH ROW");
