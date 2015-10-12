@@ -35,27 +35,27 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     /**
      * The table class that this INSERT points to
      */
-    private Class<ModelClass> mTable;
+    private Class<ModelClass> table;
 
     /**
      * The database manager
      */
-    private BaseDatabaseDefinition mManager;
+    private BaseDatabaseDefinition baseDatabaseDefinition;
 
     /**
      * The columns to specify in this query (optional)
      */
-    private IProperty[] mColumns;
+    private IProperty[] columns;
 
     /**
      * The values to specify in this query
      */
-    private Object[] mValues;
+    private Object[] values;
 
     /**
      * The conflict algorithm to use to resolve inserts.
      */
-    private ConflictAction mConflictAction = ConflictAction.NONE;
+    private ConflictAction conflictAction = ConflictAction.NONE;
 
     /**
      * Constructs a new INSERT command
@@ -63,8 +63,8 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @param table The table to insert into
      */
     private Insert(Class<ModelClass> table) {
-        mTable = table;
-        mManager = FlowManager.getDatabaseForTable(table);
+        this.table = table;
+        baseDatabaseDefinition = FlowManager.getDatabaseForTable(table);
     }
 
     /**
@@ -75,11 +75,11 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return This INSERT statement
      */
     public Insert<ModelClass> columns(String... columns) {
-        this.mColumns = new IProperty[columns.length];
-        ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(mTable);
+        this.columns = new IProperty[columns.length];
+        ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(table);
         for (int i = 0; i < columns.length; i++) {
             String column = columns[i];
-            mColumns[i] = modelClassModelAdapter.getProperty(column);
+            this.columns[i] = modelClassModelAdapter.getProperty(column);
         }
         return this;
     }
@@ -92,7 +92,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return
      */
     public Insert<ModelClass> values(Object... values) {
-        mValues = values;
+        this.values = values;
         return this;
     }
 
@@ -160,7 +160,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return
      */
     public Insert<ModelClass> or(ConflictAction action) {
-        mConflictAction = action;
+        conflictAction = action;
         return this;
     }
 
@@ -215,33 +215,33 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return Exeuctes and returns the count of rows affected by this query.
      */
     public long count() {
-        return DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
+        return DatabaseUtils.longForQuery(baseDatabaseDefinition.getWritableDatabase(), getQuery(), null);
     }
 
     @Override
     public String getQuery() {
         ValueQueryBuilder queryBuilder = new ValueQueryBuilder("INSERT ");
-        if (mConflictAction != null && !mConflictAction.equals(ConflictAction.NONE)) {
-            queryBuilder.append("OR ").append(mConflictAction);
+        if (conflictAction != null && !conflictAction.equals(ConflictAction.NONE)) {
+            queryBuilder.append("OR ").append(conflictAction);
         }
         queryBuilder.appendSpaceSeparated("INTO")
-                .appendTableName(mTable);
+                .appendTableName(table);
 
-        if (mColumns != null) {
+        if (columns != null) {
             queryBuilder.append("(")
-                    .appendQuotedArray(mColumns)
+                    .appendArray(columns)
                     .append(")");
         }
 
-        if (mColumns != null && mValues != null && mColumns.length != mValues.length) {
-            throw new IllegalStateException("The Insert of " + FlowManager.getTableName(mTable) + " when specifying" +
+        if (columns != null && values != null && columns.length != values.length) {
+            throw new IllegalStateException("The Insert of " + FlowManager.getTableName(table) + " when specifying" +
                     "columns needs to have the same amount of values and columns");
-        } else if (mValues == null) {
-            throw new IllegalStateException("The insert of " + FlowManager.getTableName(mTable) + " should have" +
+        } else if (values == null) {
+            throw new IllegalStateException("The insert of " + FlowManager.getTableName(table) + " should have" +
                     "at least one value specified for the insert");
         }
 
-        queryBuilder.append(" VALUES(").appendModelArray(mValues).append(")");
+        queryBuilder.append(" VALUES(").appendModelArray(values).append(")");
 
         return queryBuilder.getQuery();
     }
@@ -250,12 +250,12 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return The table associated with this INSERT
      */
     public Class<ModelClass> getTable() {
-        return mTable;
+        return table;
     }
 
     @Override
     public Cursor query() {
-        FlowManager.getDatabaseForTable(mTable).getWritableDatabase().execSQL(getQuery());
+        FlowManager.getDatabaseForTable(table).getWritableDatabase().execSQL(getQuery());
         return null;
     }
 
