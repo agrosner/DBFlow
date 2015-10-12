@@ -102,13 +102,13 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      * @return
      */
-    public Insert<ModelClass> columnValues(Condition... conditions) {
+    public Insert<ModelClass> columnValues(SQLCondition... conditions) {
 
         String[] columns = new String[conditions.length];
         Object[] values = new Object[conditions.length];
 
         for (int i = 0; i < conditions.length; i++) {
-            Condition condition = conditions[i];
+            SQLCondition condition = conditions[i];
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }

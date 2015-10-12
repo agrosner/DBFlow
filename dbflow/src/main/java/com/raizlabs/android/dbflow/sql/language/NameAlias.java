@@ -90,7 +90,7 @@ public class NameAlias implements Query {
      */
     @NonNull
     public String getAliasName() {
-        return QueryBuilder.quote(getAliasNameRaw());
+        return aliasName != null ? QueryBuilder.quote(getAliasNameRaw()) : getName();
     }
 
     /**
@@ -113,7 +113,12 @@ public class NameAlias implements Query {
      */
     @NonNull
     public String getName() {
-        return QueryBuilder.quote(name);
+        String fullName = "";
+        if (prefixName != null) {
+            fullName += (tickName ? QueryBuilder.quoteIfNeeded(prefixName) : prefixName) + ".";
+        }
+        fullName += (tickName ? QueryBuilder.quote(name) : getNamePropertyRaw());
+        return fullName;
     }
 
     /**

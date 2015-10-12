@@ -52,7 +52,7 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
 
     @Override
     public Property<T> withTable(NameAlias tableNameAlias) {
-        return new Property<>(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
+        return new Property<>(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     @Override

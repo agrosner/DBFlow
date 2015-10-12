@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
@@ -162,15 +163,15 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Sets this statement to only specify that it EXISTS
+     * Specify that we use an EXISTS statement for this Where class.
      *
-     * @return
+     * @param where The query to use in the EXISTS clause. Such as SELECT * FROM `MyTable` WHERE ... etc.
+     * @return This where with an EXISTS clause.
      */
-    public Where<ModelClass> exists(Where where) {
+    public Where<ModelClass> exists(@NonNull Where where) {
         // TODO: // FIXME: 9/19/15 needs implementation
-        //conditionGroup.addCondition(Condition.exists()
-        //        .operation("")
-        //        .value(where));
+        conditionGroup.and(new ExistenceCondition()
+                .where(where));
         return this;
     }
 
@@ -191,7 +192,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
 
     @Override
     public String getQuery() {
-        String fromQuery = whereBase.getQuery();
+        String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
                 .appendQualifier("WHERE", conditionGroup.getQuery())
                 .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
