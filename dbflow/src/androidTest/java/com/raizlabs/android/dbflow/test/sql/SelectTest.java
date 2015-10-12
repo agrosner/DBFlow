@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
+import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class SelectTest extends FlowTestCase {
                 .where(name.is("test"),
                         type.is("test"));
 
-        assertEquals("SELECT `name`, `type` FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where1.getQuery().trim());
+        assertEquals("SELECT `name`,`type` FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where1.getQuery().trim());
 
         Where<TestModel3> where2 = new Select().distinct().from(TestModel3.class).where();
 
@@ -35,7 +36,7 @@ public class SelectTest extends FlowTestCase {
 
         Where<TestModel3> where3 = new Select(Method.count()).from(TestModel3.class).where();
 
-        assertEquals("SELECT COUNT(*)  FROM `TestModel32`", where3.getQuery().trim());
+        assertEquals("SELECT COUNT(*) FROM `TestModel32`", where3.getQuery().trim());
         where3.query();
 
 
@@ -69,7 +70,7 @@ public class SelectTest extends FlowTestCase {
         testModel2.save();
 
         From<TestModel1> baseFrom = new Select().from(TestModel1.class);
-        baseFrom.join(TestModel3.class, Join.JoinType.CROSS).on(name.withTable().eq(TestModel3_Table.name.withTable()));
+        baseFrom.join(TestModel3.class, Join.JoinType.CROSS).on(TestModel1_Table.name.withTable().eq(TestModel3_Table.name.withTable()));
 
         assertEquals("SELECT * FROM `TestModel1` CROSS JOIN `TestModel32` ON `TestModel1`.`name`=`TestModel32`.`name`", baseFrom.getQuery().trim());
 

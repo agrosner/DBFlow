@@ -184,6 +184,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
 
         if (queryBase instanceof Select) {
             for (Join join : joins) {
+                queryBuilder.appendSpace();
                 queryBuilder.append(join.getQuery());
             }
         } else {
