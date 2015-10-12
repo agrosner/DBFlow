@@ -169,7 +169,6 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return This where with an EXISTS clause.
      */
     public Where<ModelClass> exists(@NonNull Where where) {
-        // TODO: // FIXME: 9/19/15 needs implementation
         conditionGroup.and(new ExistenceCondition()
                 .where(where));
         return this;

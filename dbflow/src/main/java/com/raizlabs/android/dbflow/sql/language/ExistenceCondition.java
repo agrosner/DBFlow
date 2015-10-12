@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
- * Description:
+ * Description: The condition that represents EXISTS in a SQL statement.
  */
 public class ExistenceCondition implements SQLCondition {
 
@@ -13,7 +13,7 @@ public class ExistenceCondition implements SQLCondition {
 
     @Override
     public void appendConditionToQuery(QueryBuilder queryBuilder) {
-        queryBuilder.appendQualifier("EXISTS", innerWhere.getQuery());
+        queryBuilder.appendQualifier("EXISTS", "(" + innerWhere.getQuery() + ")");
     }
 
     @Override
