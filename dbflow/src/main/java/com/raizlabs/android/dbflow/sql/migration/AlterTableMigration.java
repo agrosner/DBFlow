@@ -105,10 +105,9 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
             columnDefinitions = new ArrayList<>();
         }
 
-        // TODO: put this back
-        //QueryBuilder queryBuilder = new QueryBuilder()
-        //        .appendQuoted(columnName).appendSpace().appendType(columnType.getName());
-        //columnDefinitions.add(queryBuilder);
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendType(columnType.getName());
+        columnDefinitions.add(queryBuilder);
 
         return this;
     }
@@ -127,11 +126,10 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
             columnDefinitions = new ArrayList<>();
         }
 
-        // TODO: put this back
-        //QueryBuilder queryBuilder = new QueryBuilder()
-        //        .appendQuoted(columnName).appendSpace().appendType(columnType.getName())
-        //        .appendSpace().append("REFERENCES ").append(referenceClause);
-        //columnDefinitions.add(queryBuilder);
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendType(columnType.getName())
+                .appendSpace().append("REFERENCES ").append(referenceClause);
+        columnDefinitions.add(queryBuilder);
 
         return this;
     }
@@ -149,7 +147,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return A List of column definitions that add column to a table in the DB.
      */
     public List<String> getColumnDefinitions() {
-        String sql = new QueryBuilder(getAlterTableQueryBuilder()).appendQuoted(FlowManager.getTableName(table)).toString();
+        String sql = new QueryBuilder(getAlterTableQueryBuilder()).append(FlowManager.getTableName(table)).toString();
         List<String> columnDefinitions = new ArrayList<>();
 
         if (this.columnDefinitions != null) {

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
-import com.raizlabs.android.dbflow.processor.SQLiteType;
+import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.CodeBlock;
@@ -90,7 +90,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    SQLiteType getSqliteTypeForTypeName(TypeName elementTypeName, boolean isModelContainerAdapter) {
+    SQLiteHelper getSqliteTypeForTypeName(TypeName elementTypeName, boolean isModelContainerAdapter) {
         if (typeConverterDefinition == null) {
             manager.logError(TypeConverterAccess.class, "No type converter definition found for %1s. Please register it via annotations.", elementTypeName);
             throw new RuntimeException("");

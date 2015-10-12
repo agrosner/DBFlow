@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.processor.SQLiteType;
+import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
@@ -37,7 +37,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
                 return String.format("%1s.%1s()", variableNameString, getterName);
             }
         } else {
-            String method = SQLiteType.getMethod(fieldType);
+            String method = SQLiteHelper.getMethod(fieldType);
             if (method == null) {
                 method = "get";
             }

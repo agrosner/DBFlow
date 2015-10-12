@@ -126,14 +126,12 @@ public class ConditionGroup extends BaseCondition implements Query {
 
     @Override
     public void appendConditionToQuery(QueryBuilder queryBuilder) {
-        queryBuilder.append("(");
         for (SQLCondition condition : conditionsList) {
             condition.appendConditionToQuery(queryBuilder);
             if (condition.hasSeparator()) {
                 queryBuilder.appendSpaceSeparated(condition.separator());
             }
         }
-        queryBuilder.append(")");
     }
 
     /**

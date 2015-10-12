@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.data.Blob;
-import com.raizlabs.android.dbflow.processor.SQLiteType;
+import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -52,7 +52,7 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    SQLiteType getSqliteTypeForTypeName(TypeName elementTypeName, boolean isModelContainerAdapter) {
-        return SQLiteType.BLOB;
+    SQLiteHelper getSqliteTypeForTypeName(TypeName elementTypeName, boolean isModelContainerAdapter) {
+        return SQLiteHelper.BLOB;
     }
 }

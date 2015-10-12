@@ -1,11 +1,10 @@
 package com.raizlabs.android.dbflow.sql;
 
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Description: This is used as a wrapper around {@link java.lang.StringBuilder} in order to provide more
+ * Description: This is used as a wrapper around {@link StringBuilder} in order to provide more
  * database focused methods and to assist in generating queries to the DB using our SQL wrappers.
  */
 public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
@@ -15,12 +14,12 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     private static final Pattern QUOTE_PATTERN = Pattern.compile(QUOTE + ".*" + QUOTE);
 
     /**
-     * This query is backed by a {@link java.lang.StringBuilder}
+     * This query is backed by a {@link StringBuilder}
      */
     protected StringBuilder query = new StringBuilder();
 
     /**
-     * Constructs this item with an empty {@link java.lang.StringBuilder}
+     * Constructs this item with an empty {@link StringBuilder}
      */
     public QueryBuilder() {
         super();
@@ -100,26 +99,26 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
         return (QueryClass) this;
     }
 
-    ///**
-    // * Appends an {@link com.raizlabs.android.dbflow.sql.SQLiteType} to this query based on the class
-    // * passed in.
-    // *
-    // * @param type The Class to look up from {@link com.raizlabs.android.dbflow.sql.SQLiteType}
-    // * @return This instance
-    // */
-    //public QueryClass appendType(String type) {
-    //    return appendSQLiteType(SQLiteType.get(type));
-    //}
+    /**
+     * Appends an {@link SQLiteType} to this query based on the class
+     * passed in.
+     *
+     * @param type The Class to look up from {@link SQLiteType}
+     * @return This instance
+     */
+    public QueryClass appendType(String type) {
+        return appendSQLiteType(SQLiteType.get(type));
+    }
 
-    ///**
-    // * Appends the {@link com.raizlabs.android.dbflow.sql.SQLiteType} to this query
-    // *
-    // * @param sqLiteType The {@link com.raizlabs.android.dbflow.sql.SQLiteType} to append
-    // * @return This instance
-    // */
-    //public QueryClass appendSQLiteType(SQLiteType sqLiteType) {
-    //    return append(sqLiteType.name());
-    //}
+    /**
+     * Appends the {@link SQLiteType} to this query
+     *
+     * @param sqLiteType The {@link SQLiteType} to append
+     * @return This instance
+     */
+    public QueryClass appendSQLiteType(SQLiteType sqLiteType) {
+        return append(sqLiteType.name());
+    }
 
     /**
      * Appends an array of these objects by joining them with a comma with

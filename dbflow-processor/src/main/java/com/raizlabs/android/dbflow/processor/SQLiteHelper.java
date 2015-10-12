@@ -5,18 +5,16 @@ import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Author: andrewgrosner
- * Description: Holds the mapping between SQL data types and java classes.
+ * Description: Holds the mapping between SQL data types and java classes used in the processor.
  */
-public enum SQLiteType {
+public enum SQLiteHelper {
 
     INTEGER {
         @Override
@@ -45,38 +43,38 @@ public enum SQLiteType {
 
     public abstract String getSQLiteStatementMethod();
 
-    private static final HashMap<TypeName, SQLiteType> sTypeMap = new HashMap<TypeName, SQLiteType>() {
+    private static final HashMap<TypeName, SQLiteHelper> sTypeMap = new HashMap<TypeName, SQLiteHelper>() {
         {
-            put(TypeName.BYTE, SQLiteType.INTEGER);
-            put(TypeName.SHORT, SQLiteType.INTEGER);
-            put(TypeName.INT, SQLiteType.INTEGER);
-            put(TypeName.LONG, SQLiteType.INTEGER);
-            put(TypeName.FLOAT, SQLiteType.REAL);
-            put(TypeName.DOUBLE, SQLiteType.REAL);
-            put(TypeName.BOOLEAN, SQLiteType.INTEGER);
-            put(TypeName.CHAR, SQLiteType.TEXT);
-            put(ArrayTypeName.of(TypeName.BYTE), SQLiteType.BLOB);
-            put(TypeName.BYTE.box(), SQLiteType.INTEGER);
-            put(TypeName.SHORT.box(), SQLiteType.INTEGER);
-            put(TypeName.INT.box(), SQLiteType.INTEGER);
-            put(TypeName.LONG.box(), SQLiteType.INTEGER);
-            put(TypeName.FLOAT.box(), SQLiteType.REAL);
-            put(TypeName.DOUBLE.box(), SQLiteType.REAL);
-            put(TypeName.BOOLEAN.box(), SQLiteType.INTEGER);
-            put(TypeName.CHAR.box(), SQLiteType.TEXT);
-            put(ClassName.get(String.class), SQLiteType.TEXT);
-            put(ArrayTypeName.of(TypeName.BYTE.box()), SQLiteType.BLOB);
+            put(TypeName.BYTE, SQLiteHelper.INTEGER);
+            put(TypeName.SHORT, SQLiteHelper.INTEGER);
+            put(TypeName.INT, SQLiteHelper.INTEGER);
+            put(TypeName.LONG, SQLiteHelper.INTEGER);
+            put(TypeName.FLOAT, SQLiteHelper.REAL);
+            put(TypeName.DOUBLE, SQLiteHelper.REAL);
+            put(TypeName.BOOLEAN, SQLiteHelper.INTEGER);
+            put(TypeName.CHAR, SQLiteHelper.TEXT);
+            put(ArrayTypeName.of(TypeName.BYTE), SQLiteHelper.BLOB);
+            put(TypeName.BYTE.box(), SQLiteHelper.INTEGER);
+            put(TypeName.SHORT.box(), SQLiteHelper.INTEGER);
+            put(TypeName.INT.box(), SQLiteHelper.INTEGER);
+            put(TypeName.LONG.box(), SQLiteHelper.INTEGER);
+            put(TypeName.FLOAT.box(), SQLiteHelper.REAL);
+            put(TypeName.DOUBLE.box(), SQLiteHelper.REAL);
+            put(TypeName.BOOLEAN.box(), SQLiteHelper.INTEGER);
+            put(TypeName.CHAR.box(), SQLiteHelper.TEXT);
+            put(ClassName.get(String.class), SQLiteHelper.TEXT);
+            put(ArrayTypeName.of(TypeName.BYTE.box()), SQLiteHelper.BLOB);
         }
     };
 
-    public static SQLiteType get(TypeName typeName) {
-        SQLiteType sqLiteType = sTypeMap.get(typeName);
+    public static SQLiteHelper get(TypeName typeName) {
+        SQLiteHelper sqLiteHelper = sTypeMap.get(typeName);
 
         // fix for enums
-        if (sqLiteType == null) {
-            sqLiteType = SQLiteType.TEXT;
+        if (sqLiteHelper == null) {
+            sqLiteHelper = SQLiteHelper.TEXT;
         }
-        return sqLiteType;
+        return sqLiteHelper;
     }
 
     public static boolean containsType(TypeName typeName) {

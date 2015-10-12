@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.ClassNames;
-import com.raizlabs.android.dbflow.processor.SQLiteType;
+import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
@@ -192,7 +192,7 @@ public class ColumnDefinition extends BaseDefinition {
                     } else {
                         // Any annotated members, otherwise we will use the scanner to find other ones
                         final TypeConverterDefinition typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName);
-                        if (typeConverterDefinition != null || (!SQLiteType.containsType(elementTypeName))) {
+                        if (typeConverterDefinition != null || (!SQLiteHelper.containsType(elementTypeName))) {
                             hasTypeConverter = true;
                             if (typeConverterDefinition != null) {
                                 String fieldName = baseTableDefinition.addColumnForTypeConverter(this, typeConverterDefinition.getClassName());
@@ -272,13 +272,13 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getToModelMethod() {
-        String method = SQLiteType.getModelContainerMethod(elementTypeName);
+        String method = SQLiteHelper.getModelContainerMethod(elementTypeName);
         if (method == null) {
             if (columnAccess instanceof EnumColumnAccess) {
-                method = SQLiteType.getModelContainerMethod(ClassName.get(String.class));
+                method = SQLiteHelper.getModelContainerMethod(ClassName.get(String.class));
             } else {
                 if (columnAccess instanceof TypeConverterAccess) {
-                    method = SQLiteType.getModelContainerMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
+                    method = SQLiteHelper.getModelContainerMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
                 }
                 if (method == null) {
                     manager.logError("ToModel typename: %1s", elementTypeName);

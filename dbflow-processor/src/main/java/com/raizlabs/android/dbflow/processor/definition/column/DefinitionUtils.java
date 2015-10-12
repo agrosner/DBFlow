@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
-import com.raizlabs.android.dbflow.processor.SQLiteType;
+import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
@@ -111,12 +111,12 @@ public class DefinitionUtils {
                                                             boolean isModelContainerAdapter, boolean putDefaultValue,
                                                             BaseColumnAccess columnAccess) {
         String method = "";
-        if (SQLiteType.containsMethod(elementTypeName)) {
-            method = SQLiteType.getMethod(elementTypeName);
+        if (SQLiteHelper.containsMethod(elementTypeName)) {
+            method = SQLiteHelper.getMethod(elementTypeName);
         } else if (columnAccess instanceof TypeConverterAccess) {
-            method = SQLiteType.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
+            method = SQLiteHelper.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
         } else if (columnAccess instanceof EnumColumnAccess) {
-            method = SQLiteType.getMethod(ClassName.get(String.class));
+            method = SQLiteHelper.getMethod(ClassName.get(String.class));
         }
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -143,7 +143,7 @@ public class DefinitionUtils {
                                                                  BaseColumnAccess columnAccess) {
         String method = "";
         boolean shouldCastUp = false;
-        if (SQLiteType.containsNumberMethod(elementTypeName.unbox())) {
+        if (SQLiteHelper.containsNumberMethod(elementTypeName.unbox())) {
             method = elementTypeName.unbox().toString();
 
             shouldCastUp = !elementTypeName.isPrimitive();
@@ -166,10 +166,10 @@ public class DefinitionUtils {
     public static CodeBlock.Builder getCreationStatement(TypeName elementTypeName, BaseColumnAccess columnAccess, String columnName) {
         String statement = null;
 
-        if (SQLiteType.containsType(elementTypeName)) {
-            statement = SQLiteType.get(elementTypeName).toString();
+        if (SQLiteHelper.containsType(elementTypeName)) {
+            statement = SQLiteHelper.get(elementTypeName).toString();
         } else if (columnAccess instanceof TypeConverterAccess) {
-            statement = SQLiteType.get(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName()).toString();
+            statement = SQLiteHelper.get(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName()).toString();
         }
 
 
