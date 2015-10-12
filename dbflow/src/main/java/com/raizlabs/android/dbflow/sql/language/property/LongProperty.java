@@ -38,15 +38,8 @@ public class LongProperty extends BaseProperty<LongProperty> {
     }
 
     @Override
-    public LongProperty withTable() {
-        return withTable(new NameAlias(FlowManager.getTableName(table)));
-    }
-
-    @Override
     public LongProperty withTable(NameAlias tableNameAlias) {
-        NameAlias alias = new NameAlias(tableNameAlias.getAliasName() + "." + nameAlias.getName(), nameAlias.getAliasName());
-        alias.tickName(false);
-        return new LongProperty(table, alias);
+        return new LongProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(long value) {

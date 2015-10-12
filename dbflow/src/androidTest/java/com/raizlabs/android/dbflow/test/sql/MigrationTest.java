@@ -97,7 +97,7 @@ public class MigrationTest extends AndroidTestCase {
         IndexMigration<TestModel3> indexMigration
                 = new IndexMigration<>("MyIndex", TestModel3.class)
                 .addColumn(TestModel3_Table.type);
-        assertEquals("CREATE INDEX IF NOT EXISTS `MyIndex` ON `TestModel3`(`type`)", indexMigration.getIndexQuery().trim());
+        assertEquals("CREATE INDEX IF NOT EXISTS `MyIndex` ON `TestModel32`(`type`)", indexMigration.getIndexQuery().trim());
     }
 
     @Override

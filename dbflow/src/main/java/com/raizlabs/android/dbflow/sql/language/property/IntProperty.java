@@ -38,9 +38,7 @@ public class IntProperty extends BaseProperty<IntProperty> {
 
     @Override
     public IntProperty withTable(NameAlias tableNameAlias) {
-        NameAlias alias = new NameAlias(tableNameAlias.getAliasName() + "." + nameAlias.getName(), nameAlias.getAliasName());
-        alias.tickName(false);
-        return new IntProperty(table, alias);
+        return new IntProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(int value) {

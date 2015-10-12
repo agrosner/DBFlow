@@ -38,15 +38,8 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
     }
 
     @Override
-    public ByteProperty withTable() {
-        return withTable(new NameAlias(FlowManager.getTableName(table)));
-    }
-
-    @Override
     public ByteProperty withTable(NameAlias tableNameAlias) {
-        NameAlias alias = new NameAlias(tableNameAlias.getAliasName() + "." + nameAlias.getName(), nameAlias.getAliasName());
-        alias.tickName(false);
-        return new ByteProperty(table, alias);
+        return new ByteProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(byte value) {

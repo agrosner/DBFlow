@@ -192,7 +192,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     @Override
     public String getQuery() {
         String fromQuery = whereBase.getQuery();
-        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery)
+        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
                 .appendQualifier("WHERE", conditionGroup.getQuery())
                 .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
                 .appendQualifier("HAVING", havingGroup.getQuery())

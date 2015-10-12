@@ -18,6 +18,8 @@ public class NameAlias implements Query {
 
     private boolean tickName = true;
 
+    private String prefixName;
+
     public NameAlias(@NonNull String name) {
         this.name = QueryBuilder.stripQuotes(name);
     }
@@ -27,12 +29,22 @@ public class NameAlias implements Query {
         as(aliasName);
     }
 
+    /**
+     * Copy constructor.
+     *
+     * @param existing
+     */
     public NameAlias(@NonNull NameAlias existing) {
         this(existing.name, existing.aliasName);
     }
 
     public NameAlias as(@NonNull String aliasName) {
         this.aliasName = QueryBuilder.stripQuotes(aliasName);
+        return this;
+    }
+
+    public NameAlias withTable(@NonNull String prefixName) {
+        this.prefixName = QueryBuilder.stripQuotes(prefixName);
         return this;
     }
 
@@ -61,7 +73,12 @@ public class NameAlias implements Query {
      */
     @NonNull
     public String getDefinition() {
-        StringBuilder definition = new StringBuilder(tickName ? getName() : getNamePropertyRaw());
+        StringBuilder definition = new StringBuilder();
+        if (prefixName != null) {
+            definition.append(tickName ? QueryBuilder.quoteIfNeeded(prefixName) : prefixName)
+                    .append(".");
+        }
+        definition.append(tickName ? getName() : getNamePropertyRaw());
         if (aliasName != null) {
             definition.append(" AS ").append(getAliasName());
         }

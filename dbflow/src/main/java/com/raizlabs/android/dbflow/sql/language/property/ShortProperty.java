@@ -38,15 +38,8 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
     }
 
     @Override
-    public ShortProperty withTable() {
-        return withTable(new NameAlias(FlowManager.getTableName(table)));
-    }
-
-    @Override
     public ShortProperty withTable(NameAlias tableNameAlias) {
-        NameAlias alias = new NameAlias(tableNameAlias.getAliasName() + "." + nameAlias.getName(), nameAlias.getAliasName());
-        alias.tickName(false);
-        return new ShortProperty(table, alias);
+        return new ShortProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(short value) {

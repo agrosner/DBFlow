@@ -35,15 +35,8 @@ public class CharProperty extends BaseProperty<CharProperty> {
     }
 
     @Override
-    public CharProperty withTable() {
-        return withTable(new NameAlias(FlowManager.getTableName(table)));
-    }
-
-    @Override
     public CharProperty withTable(NameAlias tableNameAlias) {
-        NameAlias alias = new NameAlias(tableNameAlias.getAliasName() + "." + nameAlias.getName(), nameAlias.getAliasName());
-        alias.tickName(false);
-        return new CharProperty(table, alias);
+        return new CharProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(char value) {
