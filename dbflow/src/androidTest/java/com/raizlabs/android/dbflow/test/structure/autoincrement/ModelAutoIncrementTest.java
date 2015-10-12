@@ -5,8 +5,6 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-import static com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI2_Table._id;
-
 public class ModelAutoIncrementTest extends FlowTestCase {
 
     public void testModelAutoIncrement() {
@@ -22,7 +20,7 @@ public class ModelAutoIncrementTest extends FlowTestCase {
         testModelAI2.update();
 
         TestModelAI testModelAI3 = new Select().from(TestModelAI.class)
-                .where(_id.is(testModelAI.id))
+                .where(TestModelAI_Table.id.is(testModelAI.id))
                 .querySingle();
         assertEquals(testModelAI3.name, testModelAI2.name);
 

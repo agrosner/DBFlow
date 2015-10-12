@@ -55,7 +55,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         if (renameQuery != null) {
             String renameQuery = new QueryBuilder(sql).appendQuoted(oldTableName)
                     .append(this.renameQuery.getQuery())
-                    .appendQuoted(tableName)
+                    .append(tableName)
                     .toString();
             database.execSQL(renameQuery);
         }
@@ -63,7 +63,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (columnDefinitions != null) {
-            sql = new QueryBuilder(sql).appendQuoted(tableName).toString();
+            sql = new QueryBuilder(sql).append(tableName).toString();
             for (QueryBuilder columnDefinition : columnDefinitions) {
                 database.execSQL(sql + " ADD COLUMN " + columnDefinition.getQuery());
             }
