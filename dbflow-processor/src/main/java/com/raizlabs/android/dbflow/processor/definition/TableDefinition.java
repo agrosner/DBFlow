@@ -356,7 +356,7 @@ public class TableDefinition extends BaseTableDefinition {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingColumnName")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return $S", QueryBuilder.quote(autoIncrementDefinition.columnName))
+                    .addStatement("return $S", QueryBuilder.stripQuotes(autoIncrementDefinition.columnName))
                     .returns(ClassName.get(String.class)).build());
         }
 
