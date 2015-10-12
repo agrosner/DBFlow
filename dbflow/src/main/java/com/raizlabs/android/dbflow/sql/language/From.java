@@ -51,7 +51,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
         super(table);
         queryBase = querybase;
         this.table = table;
-        tableAlias = new NameAlias(FlowManager.getTableName(table).replace("`", ""));
+        tableAlias = new NameAlias(FlowManager.getTableName(table));
     }
 
     /**
@@ -180,10 +180,9 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
             queryBuilder.append("FROM ");
         }
 
-        queryBuilder.append(FlowManager.getTableName(table));
+        queryBuilder.append(tableAlias);
 
         if (queryBase instanceof Select) {
-            queryBuilder.appendSpace().appendQualifier("AS", tableAlias.getAliasName());
             for (Join join : joins) {
                 queryBuilder.append(join.getQuery());
             }
