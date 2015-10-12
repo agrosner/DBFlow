@@ -141,7 +141,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      */
     public String getRenameQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(getAlterTableQueryBuilder().getQuery()).appendQuoted(oldTableName)
-                .append(renameQuery).appendQuoted(FlowManager.getTableName(table));
+                .append(renameQuery).append(FlowManager.getTableName(table));
         return queryBuilder.getQuery();
     }
 

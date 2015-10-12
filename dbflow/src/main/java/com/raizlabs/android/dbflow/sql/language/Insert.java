@@ -9,8 +9,10 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.Map;
 
@@ -43,7 +45,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     /**
      * The columns to specify in this query (optional)
      */
-    private String[] mColumns;
+    private IProperty[] mColumns;
 
     /**
      * The values to specify in this query
@@ -73,7 +75,12 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return This INSERT statement
      */
     public Insert<ModelClass> columns(String... columns) {
-        mColumns = columns;
+        this.mColumns = new IProperty[columns.length];
+        ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(mTable);
+        for (int i = 0; i < columns.length; i++) {
+            String column = columns[i];
+            mColumns[i] = modelClassModelAdapter.getProperty(column);
+        }
         return this;
     }
 
@@ -228,10 +235,10 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
 
         if (mColumns != null && mValues != null && mColumns.length != mValues.length) {
             throw new IllegalStateException("The Insert of " + FlowManager.getTableName(mTable) + " when specifying" +
-                                            "columns needs to have the same amount of values and columns");
+                    "columns needs to have the same amount of values and columns");
         } else if (mValues == null) {
             throw new IllegalStateException("The insert of " + FlowManager.getTableName(mTable) + " should have" +
-                                            "at least one value specified for the insert");
+                    "at least one value specified for the insert");
         }
 
         queryBuilder.append(" VALUES(").appendModelArray(mValues).append(")");
