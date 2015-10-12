@@ -23,9 +23,9 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
         super.save();
 
         if (exists()) {
-            update();
+            ContentUtils.update(getUpdateUri(), this);
         } else {
-            insert();
+            ContentUtils.insert(getInsertUri(), this);
         }
     }
 
