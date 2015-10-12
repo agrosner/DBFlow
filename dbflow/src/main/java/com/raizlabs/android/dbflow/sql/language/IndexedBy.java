@@ -78,7 +78,7 @@ public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(whereBase.getQuery())
-                .append("INDEXED BY ").appendQuoted(indexProperty.getIndexName()).appendSpace();
+                .append("INDEXED BY ").append(QueryBuilder.quoteIfNeeded(indexProperty.getIndexName())).appendSpace();
         return queryBuilder.getQuery();
     }
 

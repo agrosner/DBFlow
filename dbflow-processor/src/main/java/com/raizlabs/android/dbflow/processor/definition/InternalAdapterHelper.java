@@ -42,4 +42,14 @@ public class InternalAdapterHelper {
                 .addCode(autoIncrementDefinition.getUpdateAutoIncrementMethod(isModelContainer)).build());
     }
 
+    public static void writeGetCachingId(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
+                                         ColumnDefinition cachingDefinition, boolean isModelContainer) {
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingId")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
+                .addStatement("return $L", cachingDefinition.getColumnAccessString(isModelContainer))
+                .returns(cachingDefinition.elementTypeName.box()).build());
+    }
+
 }

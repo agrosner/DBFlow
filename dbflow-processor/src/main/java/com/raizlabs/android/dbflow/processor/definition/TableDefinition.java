@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -357,6 +358,34 @@ public class TableDefinition extends BaseTableDefinition {
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addStatement("return $S", QueryBuilder.quote(autoIncrementDefinition.columnName))
                     .returns(ClassName.get(String.class)).build());
+        }
+
+        if (hasCachingId) {
+            ColumnDefinition cachingColumn = getPrimaryColumnDefinitions().get(0);
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("hasCachingId")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return $L", true)
+                    .returns(TypeName.BOOLEAN).build());
+
+            InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, cachingColumn, false);
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingColumnName")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return $S", QueryBuilder.quote(cachingColumn.columnName))
+                    .returns(ClassName.get(String.class)).build());
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingIdFromCursorIndex")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
+                    .addParameter(ClassName.INT, "index")
+                    .addStatement("return $L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR,
+                            DefinitionUtils.getLoadFromCursorMethodString(cachingColumn.elementTypeName, cachingColumn.columnAccess),
+                            "index")
+                    .returns(cachingColumn.elementTypeName.box()).build());
         }
 
         CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);
