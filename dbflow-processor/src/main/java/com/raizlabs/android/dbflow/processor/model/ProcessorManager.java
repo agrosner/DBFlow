@@ -132,7 +132,11 @@ public class ProcessorManager implements Handler {
     public void addTableDefinition(TableDefinition tableDefinition) {
         DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(tableDefinition.databaseTypeName);
         databaseDefinition.tableDefinitionMap.put(tableDefinition.elementClassName, tableDefinition);
-        databaseDefinition.tableNameMap.put(tableDefinition.tableName, tableDefinition);
+        if (databaseDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
+            logError("Found duplicate table %1s for database %1s", tableDefinition.tableName, databaseDefinition.databaseName);
+        } else {
+            databaseDefinition.tableNameMap.put(tableDefinition.tableName, tableDefinition);
+        }
     }
 
     public TableDefinition getTableDefinition(TypeName databaseName, TypeName typeName) {
@@ -229,7 +233,7 @@ public class ProcessorManager implements Handler {
     }
 
     public void logError(String error, Object... args) {
-        getMessager().printMessage(Diagnostic.Kind.ERROR, String.format(error, args));
+        getMessager().printMessage(Diagnostic.Kind.ERROR, String.format("*==========*\n" + error + "\n*==========*", args));
     }
 
     public void logError(Class callingClass, String error, Object... args) {
