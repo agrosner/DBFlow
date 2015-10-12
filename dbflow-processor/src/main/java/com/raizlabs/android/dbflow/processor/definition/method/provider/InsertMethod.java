@@ -40,10 +40,10 @@ public class InsertMethod implements MethodDefinition {
                     code.beginControlFlow("case $L:", uriDefinition.name);
                     code.addStatement("$T adapter = $T.getModelAdapter($T.getTableClassForName($S, $S))",
                             ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
-                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                            contentProviderDefinition.databaseNameString, tableEndpointDefinition.tableName);
 
                     code.add("final long id = FlowManager.getDatabase($S).getWritableDatabase()",
-                            contentProviderDefinition.databaseName)
+                            contentProviderDefinition.databaseNameString)
                             .add(".insertWithOnConflict($S, null, values, " +
                                             "$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", tableEndpointDefinition.tableName,
                                     ClassNames.CONFLICT_ACTION);

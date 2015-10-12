@@ -40,6 +40,7 @@ public class ContentProviderDefinition extends BaseDefinition {
     private static final String AUTHORITY = "AUTHORITY";
 
     public TypeName databaseName;
+    public String databaseNameString;
 
     public String authority;
 
@@ -57,6 +58,7 @@ public class ContentProviderDefinition extends BaseDefinition {
             databaseName = TypeName.get(mte.getTypeMirror());
         }
         DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseName);
+        databaseNameString = databaseDefinition.databaseName;
         setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
 
         authority = provider.authority();

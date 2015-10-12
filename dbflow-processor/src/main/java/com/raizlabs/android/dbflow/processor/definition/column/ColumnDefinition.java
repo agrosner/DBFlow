@@ -225,7 +225,7 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {
-        methodBuilder.beginControlFlow("case $S: ", columnName);
+        methodBuilder.beginControlFlow("case $S: ", QueryBuilder.quote(columnName));
         methodBuilder.addStatement("return $L", columnName);
         methodBuilder.endControlFlow();
     }

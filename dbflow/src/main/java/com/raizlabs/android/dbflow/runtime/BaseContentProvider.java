@@ -29,7 +29,10 @@ public abstract class BaseContentProvider extends ContentProvider {
         IProperty[] properties = new IProperty[selection.length];
         for (int i = 0; i < selection.length; i++) {
             String columnName = selection[i];
-            properties[i] = propertyConverter.fromName(columnName);
+            String[] query = columnName.split("=");
+            if (query.length > 1) {
+                properties[i] = propertyConverter.fromName(query[0]);
+            }
         }
         return properties;
     }

@@ -312,6 +312,8 @@ public class TableDefinition extends BaseTableDefinition {
                 .addParameter(String.class, "columnName")
                 .returns(ClassNames.IPROPERTY);
 
+        getPropertyForNameMethod.addStatement("columnName = $T.quoteIfNeeded(columnName)", ClassName.get(QueryBuilder.class));
+
         getPropertyForNameMethod.beginControlFlow("switch ($L) ", "columnName");
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);

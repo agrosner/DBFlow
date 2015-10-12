@@ -52,7 +52,7 @@ public class UpdateMethod implements MethodDefinition {
                     method.beginControlFlow("case $L:", uriDefinition.name);
                     method.addStatement("$T adapter = $T.getModelAdapter($T.getTableClassForName($S, $S))",
                             ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
-                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
+                            contentProviderDefinition.databaseNameString, tableEndpointDefinition.tableName);
 
                     CodeBlock.Builder codeBuilder = CodeBlock.builder()
                             .add("final int count = (int) new $T", ClassNames.UPDATE);
