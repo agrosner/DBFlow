@@ -110,14 +110,7 @@ public class DefinitionUtils {
                                                             TypeName elementTypeName, String columnName,
                                                             boolean isModelContainerAdapter, boolean putDefaultValue,
                                                             BaseColumnAccess columnAccess) {
-        String method = "";
-        if (SQLiteHelper.containsMethod(elementTypeName)) {
-            method = SQLiteHelper.getMethod(elementTypeName);
-        } else if (columnAccess instanceof TypeConverterAccess) {
-            method = SQLiteHelper.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
-        } else if (columnAccess instanceof EnumColumnAccess) {
-            method = SQLiteHelper.getMethod(ClassName.get(String.class));
-        }
+        String method = getLoadFromCursorMethodString(elementTypeName, columnAccess);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         String indexName = "index" + columnName;
@@ -176,5 +169,17 @@ public class DefinitionUtils {
         return CodeBlock.builder()
                 .add("$L $L", QueryBuilder.quote(columnName), statement);
 
+    }
+
+    public static String getLoadFromCursorMethodString(TypeName elementTypeName, BaseColumnAccess columnAccess) {
+        String method = "";
+        if (SQLiteHelper.containsMethod(elementTypeName)) {
+            method = SQLiteHelper.getMethod(elementTypeName);
+        } else if (columnAccess instanceof TypeConverterAccess) {
+            method = SQLiteHelper.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
+        } else if (columnAccess instanceof EnumColumnAccess) {
+            method = SQLiteHelper.getMethod(ClassName.get(String.class));
+        }
+        return method;
     }
 }

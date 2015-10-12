@@ -267,7 +267,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 // TODO: respect separator here.
                 selectBuilder.add("\n.and($L.$L.eq($L))",
                         ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
-                        referenceDefinition.foreignColumnName, accessString);
+                        referenceDefinition.foreignColumnName,
+                        CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR,
+                                DefinitionUtils.getLoadFromCursorMethodString(referenceDefinition.columnClassName,
+                                        referenceDefinition.columnAccess), indexName).build());
             }
             ifNullBuilder.add(")");
             builder.beginControlFlow(ifNullBuilder.build().toString());
