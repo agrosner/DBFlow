@@ -71,6 +71,7 @@ public class ClassNames {
 
     public static final ClassName PROPERTY = ClassName.get(PROPERTY_PACKAGE, "Property");
     public static final ClassName IPROPERTY = ClassName.get(PROPERTY_PACKAGE, "IProperty");
+    public static final ClassName BASE_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "BaseProperty");
     public static final ClassName INDEX_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "IndexProperty");
     public static final ClassName CONDITION_GROUP = ClassName.get(LANGUAGE, "ConditionGroup");
     public static final ClassName SELECT = ClassName.get(LANGUAGE, "Select");

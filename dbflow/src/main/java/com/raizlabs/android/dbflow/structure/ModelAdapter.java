@@ -8,6 +8,8 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 
 /**
  * Author: andrewgrosner
@@ -85,7 +87,8 @@ public abstract class ModelAdapter<ModelClass extends Model>
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
      * this method will be overridden.
-     *  @param model The model object to store the key
+     *
+     * @param model The model object to store the key
      * @param id    The key to store
      */
     @Override
@@ -152,6 +155,12 @@ public abstract class ModelAdapter<ModelClass extends Model>
      * @return The query used to create this table.
      */
     public abstract String getCreationQuery();
+
+    /**
+     * @param columnName The column name of the property.
+     * @return The property from the corresponding Table class.
+     */
+    public abstract BaseProperty getProperty(String columnName);
 
     /**
      * @return The query used to insert a model using a {@link SQLiteStatement}

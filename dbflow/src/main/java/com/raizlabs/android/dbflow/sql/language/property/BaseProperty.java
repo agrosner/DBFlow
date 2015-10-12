@@ -13,7 +13,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 /**
  * Description: Helper class to consolidate logic for properties in one place.
  */
-abstract class BaseProperty<P extends IProperty> implements IProperty<P>, IConditional {
+public abstract class BaseProperty<P extends IProperty> implements IProperty<P>, IConditional {
 
     final Class<? extends Model> table;
     protected final NameAlias nameAlias;

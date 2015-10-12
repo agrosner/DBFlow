@@ -19,7 +19,7 @@ public class NameAlias implements Query {
     private boolean tickName = true;
 
     public NameAlias(@NonNull String name) {
-        this.name = name;
+        this.name = QueryBuilder.stripQuotes(name);
     }
 
     public NameAlias(@NonNull String name, @NonNull String aliasName) {

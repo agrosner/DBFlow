@@ -263,8 +263,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     public static String stripQuotes(String name) {
         String ret = name;
         if (ret != null && isQuoted(ret)) {
-            Matcher matcher = QUOTE_PATTERN.matcher(ret);
-            ret = matcher.replaceFirst(ret);
+            ret = ret.replace("`", "");
         }
         return ret;
     }

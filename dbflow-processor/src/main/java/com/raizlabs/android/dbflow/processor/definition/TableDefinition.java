@@ -310,7 +310,7 @@ public class TableDefinition extends BaseTableDefinition {
         MethodSpec.Builder getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String.class, "columnName")
-                .returns(ClassNames.IPROPERTY);
+                .returns(ClassNames.BASE_PROPERTY);
 
         getPropertyForNameMethod.addStatement("columnName = $T.quoteIfNeeded(columnName)", ClassName.get(QueryBuilder.class));
 
@@ -385,6 +385,13 @@ public class TableDefinition extends BaseTableDefinition {
                 .returns(elementClassName)
                 .build());
 
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getProperty")
+                .addAnnotation(Override.class)
+                .addParameter(ClassName.get(String.class), "name")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return $T.getProperty($L)", outputClassName, "name")
+                .returns(ClassNames.BASE_PROPERTY)
+                .build());
 
         if (!updateConflictActionName.isEmpty()) {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getUpdateOnConflictAction")
