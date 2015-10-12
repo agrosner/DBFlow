@@ -53,6 +53,52 @@ abstract class BaseCondition implements SQLCondition {
     }
 
     /**
+     * Returns a string containing the tokens joined by delimiters and converted into the property
+     * values for a query.
+     *
+     * @param delimiter The text to join the text with.
+     * @param tokens    an array objects to be joined. Strings will be formed from
+     *                  the objects by calling {@link #convertValueToString(Object)}.
+     * @return A joined string
+     */
+    public static String joinArguments(CharSequence delimiter, Object[] tokens) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token : tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(convertValueToString(token));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Returns a string containing the tokens joined by delimiters and converted into the property
+     * values for a query.
+     *
+     * @param delimiter The text to join the text with.
+     * @param tokens    an {@link Iterable} of objects to be joined. Strings will be formed from
+     *                  the objects by calling {@link #convertValueToString(Object)}.
+     * @return A joined string
+     */
+    public static String joinArguments(CharSequence delimiter, Iterable tokens) {
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token : tokens) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            sb.append(convertValueToString(token));
+        }
+        return sb.toString();
+    }
+
+    /**
      * The operation such as "=", "&lt;", and more
      */
     protected String operation = "";

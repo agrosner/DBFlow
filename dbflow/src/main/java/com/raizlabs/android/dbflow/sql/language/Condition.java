@@ -642,7 +642,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append("(").append(QueryBuilder.join(",", inArguments)).append(")");
+                    .append("(").append(ConditionGroup.joinArguments(",", inArguments)).append(")");
         }
     }
 
