@@ -213,7 +213,7 @@ Delete.tables(MyTable1.class, MyTable2.class);
 new Delete()
   .from(MyTable.class)
   .where(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
-    .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).query();
+    .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).queryClose();
 
 ```
 
