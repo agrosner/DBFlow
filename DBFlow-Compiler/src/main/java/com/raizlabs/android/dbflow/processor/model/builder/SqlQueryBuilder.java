@@ -23,11 +23,6 @@ public class SqlQueryBuilder extends QueryBuilder<SqlQueryBuilder> {
         return append("new Select(projection)");
     }
 
-    public SqlQueryBuilder appendUpdate(String databaseName, String tableName) {
-        return append(String.format("new Update(FlowManager.getTableClassForName(\"%1s\", \"%1s\"))",
-                databaseName, tableName));
-    }
-
     public SqlQueryBuilder appendDelete() {
         return append("new Delete()");
     }
@@ -42,14 +37,6 @@ public class SqlQueryBuilder extends QueryBuilder<SqlQueryBuilder> {
 
     public SqlQueryBuilder appendFromTable(String databaseName, String tableName) {
         return appendTable("from", databaseName, tableName);
-    }
-
-    public SqlQueryBuilder appendUpdateConflictAction() {
-        return append("\n.conflictAction(adapter.getUpdateOnConflictAction())");
-    }
-
-    public SqlQueryBuilder appendSet() {
-        return append("\n.set().conditionValues(values)");
     }
 
 
@@ -93,6 +80,11 @@ public class SqlQueryBuilder extends QueryBuilder<SqlQueryBuilder> {
 
     public SqlQueryBuilder appendInsertWithOnConflict(String tableName) {
         return append(String.format("\n.insertWithOnConflict(\"%1s\", null, values, " +
+                "ConflictAction.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()))", tableName));
+    }
+
+    public SqlQueryBuilder appendUpdateWithOnConflict(String tableName) {
+        return append(String.format("\n.updateWithOnConflict(\"%1s\",values, selection , selectionArgs, " +
                 "ConflictAction.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()))", tableName));
     }
 

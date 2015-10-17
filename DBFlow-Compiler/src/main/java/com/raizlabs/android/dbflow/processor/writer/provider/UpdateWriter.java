@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
-import com.raizlabs.android.dbflow.processor.definition.NotifyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.model.builder.SqlQueryBuilder;
@@ -13,8 +12,6 @@ import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 
@@ -45,12 +42,9 @@ public class UpdateWriter implements FlowWriter {
                                 if (uriDefinition.updateEnabled) {
                                     javaWriter.beginControlFlow("case %1s:", uriDefinition.name);
                                     javaWriter.emitStatement("ModelAdapter adapter = FlowManager.getModelAdapter(FlowManager.getTableClassForName(\"%1s\", \"%1s\"))", contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
-
                                     SqlQueryBuilder sqlQueryBuilder = new SqlQueryBuilder("final int count = (int) ")
-                                            .appendUpdate(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName).appendUpdateConflictAction()
-                                            .appendSet().appendWhere().appendPathSegments(manager, contentProviderDefinition.databaseName,
-                                                    tableEndpointDefinition.tableName, uriDefinition.segments)
-                                            .appendCount();
+                                            .appendGetDatabase(contentProviderDefinition.databaseName)
+                                            .appendUpdateWithOnConflict(tableEndpointDefinition.tableName);
                                     javaWriter.emitStatement(sqlQueryBuilder.getQuery());
 
                                     new NotifyWriter(tableEndpointDefinition, uriDefinition,
