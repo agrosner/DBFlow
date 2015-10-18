@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.writer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.Classes;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.ColumnDefinition;
@@ -101,7 +102,13 @@ public class CreationQueryWriter implements FlowWriter {
                             }
                             List<String> columnNames = Lists.newArrayList();
                             for (ColumnDefinition columnDefinition : columnDefinitions) {
-                                columnNames.add(columnDefinition.columnName);
+                                if (columnDefinition.isForeignKey) {
+                                    for (ForeignKeyReference foreignKeyReference: columnDefinition.foreignKeyReferences) {
+                                        columnNames.add(foreignKeyReference.columnName());
+                                    }
+                                } else {
+                                    columnNames.add(columnDefinition.columnName);
+                                }
 
                                 // without group found on table annotation, we take the first column we find.
                                 if (!columnDefinition.onUniqueConflict.equals(ConflictAction.FAIL)
