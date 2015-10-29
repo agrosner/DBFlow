@@ -58,6 +58,7 @@ public class Migration1 extends AlterTableMigration<TestModel> {
 
     @Override
     public void onPreMigrate() {
+      super.onPreMigrate();
       // Simple ALTER TABLE migration wraps the statements into a nice builder notation
       addColumn(Long.class, "timestamp");
     }
@@ -74,6 +75,7 @@ public class Migration1 extends UpdateTableMigration<TestModel> {
 
     @Override
     public void onPreMigrate() {
+      super.onPreMigrate();
       // UPDATE TestModel SET deviceType = "phablet" WHERE screenSize > 5.7 AND screenSize < 7;
       set(Condition.column(TestModel$Table.DEVICETYPE)
         .is("phablet"))
