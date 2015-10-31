@@ -62,10 +62,17 @@ public class NameAlias implements Query {
     @NonNull
     public String getDefinition() {
         StringBuilder definition = new StringBuilder(tickName ? getName() : getNamePropertyRaw());
-        if (aliasName != null) {
+        if (hasAlias()) {
             definition.append(" AS ").append(getAliasName());
         }
         return definition.toString();
+    }
+
+    /**
+     * @return True if this has an actual alias.
+     */
+    public boolean hasAlias() {
+        return aliasName != null;
     }
 
     /**
