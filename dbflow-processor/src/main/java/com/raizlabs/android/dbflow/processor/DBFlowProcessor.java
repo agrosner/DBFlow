@@ -51,15 +51,15 @@ public class DBFlowProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> supportedTypes = new LinkedHashSet<>();
-        supportedTypes.add(Table.class.getName());
-        supportedTypes.add(Column.class.getName());
-        supportedTypes.add(TypeConverter.class.getName());
-        supportedTypes.add(ModelContainer.class.getName());
-        supportedTypes.add(ModelView.class.getName());
-        supportedTypes.add(Migration.class.getName());
-        supportedTypes.add(ContentProvider.class.getName());
-        supportedTypes.add(TableEndpoint.class.getName());
-        supportedTypes.add(QueryModel.class.getName());
+        supportedTypes.add(Table.class.getCanonicalName());
+        supportedTypes.add(Column.class.getCanonicalName());
+        supportedTypes.add(TypeConverter.class.getCanonicalName());
+        supportedTypes.add(ModelContainer.class.getCanonicalName());
+        supportedTypes.add(ModelView.class.getCanonicalName());
+        supportedTypes.add(Migration.class.getCanonicalName());
+        supportedTypes.add(ContentProvider.class.getCanonicalName());
+        supportedTypes.add(TableEndpoint.class.getCanonicalName());
+        supportedTypes.add(QueryModel.class.getCanonicalName());
         return supportedTypes;
     }
 
