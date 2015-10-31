@@ -56,29 +56,36 @@ public class QueryModelDefinition extends BaseTableDefinition {
         boolean putDefaultValue = containerKey != null && containerKey.putDefault();
 
         QueryModel queryModel = typeElement.getAnnotation(QueryModel.class);
-        try {
-            queryModel.database();
-        } catch (MirroredTypeException mte) {
-            databaseTypeName = TypeName.get(mte.getTypeMirror());
-        }
+        if (queryModel != null) {
+            try {
+                queryModel.database();
+            } catch (MirroredTypeException mte) {
+                databaseTypeName = TypeName.get(mte.getTypeMirror());
+            }
 
-        databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
-        allFields = queryModel.allFields();
-        adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
+            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
+            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
+            allFields = queryModel.allFields();
+            adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
+
+        }
 
         processorManager.addModelToDatabase(elementClassName, databaseTypeName);
 
-        implementsLoadFromCursorListener = ProcessorUtils
-                .implementsClass(manager.getProcessingEnvironment(), ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
-                        (TypeElement) element);
+        if (element instanceof TypeElement) {
+            implementsLoadFromCursorListener = ProcessorUtils
+                    .implementsClass(manager.getProcessingEnvironment(), ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
+                            (TypeElement) element);
+        }
 
-        setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
 
         methods = new MethodDefinition[]{
                 new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue)
         };
 
-        createColumnDefinitions(((TypeElement) typeElement));
+        if (typeElement instanceof TypeElement) {
+            createColumnDefinitions(((TypeElement) typeElement));
+        }
     }
 
     @Override

@@ -20,6 +20,8 @@ public class QueryModelHandler extends BaseContainerHandler<QueryModel> {
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         QueryModelDefinition queryModelDefinition = new QueryModelDefinition(element, processorManager);
-        processorManager.addQueryModelDefinition(queryModelDefinition);
+        if (queryModelDefinition.databaseTypeName != null) {
+            processorManager.addQueryModelDefinition(queryModelDefinition);
+        }
     }
 }

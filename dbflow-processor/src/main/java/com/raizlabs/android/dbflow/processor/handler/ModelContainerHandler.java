@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.validator.ModelContainerValidator;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -14,6 +15,8 @@ import javax.lang.model.element.TypeElement;
  */
 public class ModelContainerHandler extends BaseContainerHandler<ModelContainer> {
 
+    private final ModelContainerValidator validator = new ModelContainerValidator();
+
     @Override
     protected Class<ModelContainer> getAnnotationClass() {
         return ModelContainer.class;
@@ -21,7 +24,11 @@ public class ModelContainerHandler extends BaseContainerHandler<ModelContainer> 
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        ModelContainerDefinition modelContainerDefinition = new ModelContainerDefinition((TypeElement) element, processorManager);
-        processorManager.addModelContainerDefinition(modelContainerDefinition);
+        if (element instanceof TypeElement) {
+            ModelContainerDefinition modelContainerDefinition = new ModelContainerDefinition((TypeElement) element, processorManager);
+            if (validator.validate(processorManager, modelContainerDefinition)) {
+                processorManager.addModelContainerDefinition(modelContainerDefinition);
+            }
+        }
     }
 }

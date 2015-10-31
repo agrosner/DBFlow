@@ -56,7 +56,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
     private MethodDefinition[] methods;
 
-    private String viewTableName;
+    public String viewTableName;
 
     public ModelViewDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
@@ -65,20 +65,23 @@ public class ModelViewDefinition extends BaseTableDefinition {
         boolean putDefaultValue = containerKey != null && containerKey.putDefault();
 
         ModelView modelView = element.getAnnotation(ModelView.class);
-        try {
-            modelView.database();
-        } catch (MirroredTypeException mte) {
-            this.databaseName = TypeName.get(mte.getTypeMirror());
-        }
+        if (modelView != null) {
+            try {
+                modelView.database();
+            } catch (MirroredTypeException mte) {
+                this.databaseName = TypeName.get(mte.getTypeMirror());
+            }
 
-        databaseDefinition = manager.getDatabaseWriter(databaseName);
-        this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;
+            databaseDefinition = manager.getDatabaseWriter(databaseName);
+            this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;
 
-        setOutputClassName(databaseDefinition.classSeparator + DBFLOW_MODEL_VIEW_TAG);
+            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_MODEL_VIEW_TAG);
 
-        this.name = modelView.name();
-        if (name == null || name.isEmpty()) {
-            name = getModelClassName();
+            this.name = modelView.name();
+            if (name == null || name.isEmpty()) {
+                name = getModelClassName();
+            }
+
         }
 
         DeclaredType typeAdapterInterface = null;
@@ -100,10 +103,14 @@ public class ModelViewDefinition extends BaseTableDefinition {
             modelReferenceClass = ClassName.get(manager.getElements().getTypeElement(typeArguments.get(0).toString()));
         }
 
-        createColumnDefinitions((TypeElement) element);
+        if (element instanceof TypeElement) {
+            createColumnDefinitions((TypeElement) element);
 
-        implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), (TypeElement) element);
+            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), (TypeElement) element);
+        } else {
+            implementsLoadFromCursorListener = false;
+        }
 
         methods = new MethodDefinition[]{
                 new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue),

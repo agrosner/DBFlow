@@ -38,10 +38,12 @@ public class TableEndpointDefinition extends BaseDefinition {
         super(typeElement, processorManager);
 
         TableEndpoint endpoint = typeElement.getAnnotation(TableEndpoint.class);
+        if (endpoint != null) {
 
-        tableName = endpoint.name();
+            tableName = endpoint.name();
 
-        contentProviderName = endpoint.contentProviderName();
+            contentProviderName = endpoint.contentProviderName();
+        }
 
         isTopLevel = typeElement.getEnclosingElement() instanceof PackageElement;
 

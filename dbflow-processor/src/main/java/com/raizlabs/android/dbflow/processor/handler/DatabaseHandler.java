@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.validator.DatabaseValidator;
 
 import java.util.Set;
 
@@ -34,6 +35,8 @@ public class DatabaseHandler extends BaseContainerHandler<Database> {
 
     public static final String MODEL_NAME_MAP = "modelTableNames";
 
+    private final DatabaseValidator validator = new DatabaseValidator();
+
     @Override
     protected Class<Database> getAnnotationClass() {
         return Database.class;
@@ -43,6 +46,8 @@ public class DatabaseHandler extends BaseContainerHandler<Database> {
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         DatabaseDefinition managerWriter = new DatabaseDefinition(processorManager, element);
-        processorManager.addFlowManagerWriter(managerWriter);
+        if (validator.validate(processorManager, managerWriter)) {
+            processorManager.addFlowManagerWriter(managerWriter);
+        }
     }
 }
