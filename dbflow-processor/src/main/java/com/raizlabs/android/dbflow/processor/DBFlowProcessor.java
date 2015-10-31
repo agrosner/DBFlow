@@ -1,10 +1,24 @@
 package com.raizlabs.android.dbflow.processor;
 
 import com.google.auto.service.AutoService;
-import com.raizlabs.android.dbflow.annotation.*;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.Migration;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
+import com.raizlabs.android.dbflow.annotation.ModelView;
+import com.raizlabs.android.dbflow.annotation.QueryModel;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.annotation.TypeConverter;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
-import com.raizlabs.android.dbflow.processor.handler.*;
+import com.raizlabs.android.dbflow.processor.handler.ContentProviderHandler;
+import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
+import com.raizlabs.android.dbflow.processor.handler.MigrationHandler;
+import com.raizlabs.android.dbflow.processor.handler.ModelContainerHandler;
+import com.raizlabs.android.dbflow.processor.handler.ModelViewHandler;
+import com.raizlabs.android.dbflow.processor.handler.QueryModelHandler;
+import com.raizlabs.android.dbflow.processor.handler.TableEndpointHandler;
+import com.raizlabs.android.dbflow.processor.handler.TableHandler;
+import com.raizlabs.android.dbflow.processor.handler.TypeConverterHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
 import java.util.LinkedHashSet;
@@ -15,7 +29,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 /**

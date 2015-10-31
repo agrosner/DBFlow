@@ -3,8 +3,6 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
 
 import javax.lang.model.element.Element;
 

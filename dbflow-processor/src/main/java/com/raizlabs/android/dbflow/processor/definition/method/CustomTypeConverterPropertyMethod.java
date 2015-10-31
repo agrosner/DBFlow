@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.processor.definition.method;
 
-import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.CodeAdder;
 import com.raizlabs.android.dbflow.processor.definition.TypeAdder;

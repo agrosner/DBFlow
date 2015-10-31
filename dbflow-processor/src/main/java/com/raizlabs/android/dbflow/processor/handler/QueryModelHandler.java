@@ -3,9 +3,6 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-
-import java.io.IOException;
 
 import javax.lang.model.element.Element;
 

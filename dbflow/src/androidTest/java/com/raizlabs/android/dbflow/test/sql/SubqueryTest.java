@@ -1,11 +1,9 @@
-
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.integerField;
 
 /**

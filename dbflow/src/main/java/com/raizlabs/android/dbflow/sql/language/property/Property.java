@@ -9,13 +9,13 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description: The main, immutable property class that gets generated from a {@link Table} definition.
- * <p>
+ * <p/>
  * This class delegates all of its {@link ITypeConditional} methods to a new {@link Condition} that's used
  * in the SQLite query language.
- * <p>
+ * <p/>
  * This ensures that the language is strictly type-safe and only declared
  * columns get used. Also any calls on the methods return a new {@link Property}.
- * <p>
+ * <p/>
  * This is type parametrized so that all values passed to this class remain proper.
  */
 public class Property<T> extends BaseProperty<Property<T>> implements ITypeConditional<T> {

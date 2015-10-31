@@ -24,9 +24,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-    packagingOptions {
-        exclude 'META-INF/services/javax.annotation.processing.Processor'
-    }
 }
 
 dependencies {

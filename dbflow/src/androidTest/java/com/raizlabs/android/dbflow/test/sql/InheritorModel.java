@@ -13,8 +13,8 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description:
  */
 @Table(database = TestDatabase.class,
-       inheritedColumns = {@InheritedColumn(column = @Column, fieldName = "name"),
-               @InheritedColumn(column = @Column, fieldName = "number")})
+        inheritedColumns = {@InheritedColumn(column = @Column, fieldName = "name"),
+                @InheritedColumn(column = @Column, fieldName = "number")})
 public class InheritorModel extends InheritedModel implements Model {
 
     private final ModelAdapter<InheritorModel> modelAdapter = FlowManager.getModelAdapter(InheritorModel.class);

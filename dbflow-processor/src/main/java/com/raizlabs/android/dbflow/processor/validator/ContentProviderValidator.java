@@ -11,7 +11,7 @@ public class ContentProviderValidator implements Validator<ContentProviderDefini
     public boolean validate(ProcessorManager processorManager, ContentProviderDefinition contentProviderDefinition) {
         boolean success = true;
 
-        if(contentProviderDefinition.endpointDefinitions.isEmpty()) {
+        if (contentProviderDefinition.endpointDefinitions.isEmpty()) {
             processorManager.logError("The content provider %1s must have at least 1 @TableEndpoint associated with it",
                     contentProviderDefinition.element.getSimpleName());
             success = false;

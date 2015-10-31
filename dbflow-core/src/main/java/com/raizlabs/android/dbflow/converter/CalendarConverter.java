@@ -15,7 +15,7 @@ public class CalendarConverter extends TypeConverter<Long, Calendar> {
 
     @Override
     public Calendar getModelValue(Long data) {
-        if(data != null) {
+        if (data != null) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(data);
             return calendar;

@@ -26,14 +26,14 @@ public class ProcessModelHelper {
                                                           final ProcessModel<ModelClass> processModel) {
         if (!collection.isEmpty()) {
             TransactionManager.transact(FlowManager.getDatabaseForTable(modelClass).getWritableDatabase(),
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                for (ModelClass collectionModel : collection) {
-                                                    processModel.processModel(collectionModel);
-                                                }
-                                            }
-                                        });
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            for (ModelClass collectionModel : collection) {
+                                processModel.processModel(collectionModel);
+                            }
+                        }
+                    });
         }
     }
 
@@ -50,13 +50,13 @@ public class ProcessModelHelper {
                                                           final ProcessModel<ModelClass> processModel,
                                                           final ModelClass... models) {
         TransactionManager.transact(FlowManager.getDatabaseForTable(modelClass).getWritableDatabase(),
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            for (ModelClass model : models) {
-                                                processModel.processModel(model);
-                                            }
-                                        }
-                                    });
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        for (ModelClass model : models) {
+                            processModel.processModel(model);
+                        }
+                    }
+                });
     }
 }

@@ -106,127 +106,145 @@ public class TableDefinition extends BaseTableDefinition {
     public TableDefinition(ProcessorManager manager, TypeElement element) {
         super(element, manager);
 
-        Table table = element.getAnnotation(Table.class);
-        this.tableName = table.name();
-        try {
-            table.database();
-        } catch (MirroredTypeException mte) {
-            databaseTypeName = TypeName.get(mte.getTypeMirror());
-        }
-
-        databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
-        if (databaseDefinition == null) {
-            manager.logError("Databasewriter was null for : " + tableName);
-        }
-
-        setOutputClassName(databaseDefinition.classSeparator + DBFLOW_TABLE_TAG);
-        this.adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
-
-
-        // globular default
-        ConflictAction insertConflict = table.insertConflict();
-        if (insertConflict.equals(ConflictAction.NONE) && !databaseDefinition.insertConflict.equals(ConflictAction.NONE)) {
-            insertConflict = databaseDefinition.insertConflict;
-        }
-
-        ConflictAction updateConflict = table.updateConflict();
-        if (updateConflict.equals(ConflictAction.NONE) && !databaseDefinition.updateConflict.equals(ConflictAction.NONE)) {
-            updateConflict = databaseDefinition.updateConflict;
-        }
-
-        insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
-                : insertConflict.name();
-        updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
-                : updateConflict.name();
-
-        allFields = table.allFields();
-        useIsForPrivateBooleans = table.useIsForPrivateBooleans();
-
-        manager.addModelToDatabase(elementClassName, databaseTypeName);
-
-        if (tableName == null || tableName.isEmpty()) {
-            tableName = element.getSimpleName().toString();
-        }
         primaryColumnDefinitions = new ArrayList<>();
         foreignKeyDefinitions = new ArrayList<>();
         uniqueGroupsDefinitions = new ArrayList<>();
         indexGroupsDefinitions = new ArrayList<>();
 
-        InheritedColumn[] inheritedColumns = table.inheritedColumns();
-        for (InheritedColumn inheritedColumn : inheritedColumns) {
-            if (inheritedColumnMap.containsKey(inheritedColumn.fieldName())) {
-                manager.logError("A duplicate inherited column with name %1s was found for %1s", inheritedColumn.fieldName(), tableName);
+        Table table = element.getAnnotation(Table.class);
+        if (table != null) {
+            this.tableName = table.name();
+            try {
+                table.database();
+            } catch (MirroredTypeException mte) {
+                databaseTypeName = TypeName.get(mte.getTypeMirror());
             }
-            inheritedColumnMap.put(inheritedColumn.fieldName(), inheritedColumn);
-        }
 
-        createColumnDefinitions(element);
-
-        UniqueGroup[] groups = table.uniqueColumnGroups();
-        Set<Integer> uniqueNumbersSet = new HashSet<>();
-        for (UniqueGroup uniqueGroup : groups) {
-            if (uniqueNumbersSet.contains(uniqueGroup.groupNumber())) {
-                manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber(), tableName);
+            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
+            if (databaseDefinition == null) {
+                manager.logError("Databasewriter was null for : " + tableName);
             }
-            UniqueGroupsDefinition definition = new UniqueGroupsDefinition(manager, uniqueGroup);
-            for (ColumnDefinition columnDefinition : getColumnDefinitions()) {
-                if (columnDefinition.uniqueGroups.contains(definition.number)) {
-                    definition.addColumnDefinition(columnDefinition);
+
+            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_TABLE_TAG);
+            this.adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
+
+
+            // globular default
+            ConflictAction insertConflict = table.insertConflict();
+            if (insertConflict.equals(ConflictAction.NONE) && !databaseDefinition.insertConflict.equals(ConflictAction.NONE)) {
+                insertConflict = databaseDefinition.insertConflict;
+            }
+
+            ConflictAction updateConflict = table.updateConflict();
+            if (updateConflict.equals(ConflictAction.NONE) && !databaseDefinition.updateConflict.equals(ConflictAction.NONE)) {
+                updateConflict = databaseDefinition.updateConflict;
+            }
+
+            insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
+                    : insertConflict.name();
+            updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
+                    : updateConflict.name();
+
+            allFields = table.allFields();
+            useIsForPrivateBooleans = table.useIsForPrivateBooleans();
+
+            manager.addModelToDatabase(elementClassName, databaseTypeName);
+
+            if (tableName == null || tableName.isEmpty()) {
+                tableName = element.getSimpleName().toString();
+            }
+
+            InheritedColumn[] inheritedColumns = table.inheritedColumns();
+            for (InheritedColumn inheritedColumn : inheritedColumns) {
+                if (inheritedColumnMap.containsKey(inheritedColumn.fieldName())) {
+                    manager.logError("A duplicate inherited column with name %1s was found for %1s", inheritedColumn.fieldName(), tableName);
                 }
+                inheritedColumnMap.put(inheritedColumn.fieldName(), inheritedColumn);
             }
-            uniqueGroupsDefinitions.add(definition);
-            uniqueNumbersSet.add(uniqueGroup.groupNumber());
-        }
 
-        IndexGroup[] indexGroups = table.indexGroups();
-        uniqueNumbersSet = new HashSet<>();
-        for (IndexGroup indexGroup : indexGroups) {
-            if (uniqueNumbersSet.contains(indexGroup.number())) {
-                manager.logError(TableDefinition.class, "A duplicate unique index number %1s was found for %1s", indexGroup.number(), elementName);
-            }
-            IndexGroupsDefinition definition = new IndexGroupsDefinition(manager, this, indexGroup);
-            for (ColumnDefinition columnDefinition : getColumnDefinitions()) {
-                if (columnDefinition.indexGroups.contains(definition.indexNumber)) {
-                    definition.columnDefinitionList.add(columnDefinition);
+            createColumnDefinitions(element);
+
+            UniqueGroup[] groups = table.uniqueColumnGroups();
+            Set<Integer> uniqueNumbersSet = new HashSet<>();
+            for (UniqueGroup uniqueGroup : groups) {
+                if (uniqueNumbersSet.contains(uniqueGroup.groupNumber())) {
+                    manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber(), tableName);
                 }
+                UniqueGroupsDefinition definition = new UniqueGroupsDefinition(manager, uniqueGroup);
+                for (ColumnDefinition columnDefinition : getColumnDefinitions()) {
+                    if (columnDefinition.uniqueGroups.contains(definition.number)) {
+                        definition.addColumnDefinition(columnDefinition);
+                    }
+                }
+                uniqueGroupsDefinitions.add(definition);
+                uniqueNumbersSet.add(uniqueGroup.groupNumber());
             }
-            indexGroupsDefinitions.add(definition);
-            uniqueNumbersSet.add(indexGroup.number());
+
+            IndexGroup[] indexGroups = table.indexGroups();
+            uniqueNumbersSet = new HashSet<>();
+            for (IndexGroup indexGroup : indexGroups) {
+                if (uniqueNumbersSet.contains(indexGroup.number())) {
+                    manager.logError(TableDefinition.class, "A duplicate unique index number %1s was found for %1s", indexGroup.number(), elementName);
+                }
+                IndexGroupsDefinition definition = new IndexGroupsDefinition(manager, this, indexGroup);
+                for (ColumnDefinition columnDefinition : getColumnDefinitions()) {
+                    if (columnDefinition.indexGroups.contains(definition.indexNumber)) {
+                        definition.columnDefinitionList.add(columnDefinition);
+                    }
+                }
+                indexGroupsDefinitions.add(definition);
+                uniqueNumbersSet.add(indexGroup.number());
+            }
+
+            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element);
+
+            implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                    ClassNames.CONTENT_VALUES_LISTENER.toString(), element);
+
+            implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                    ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element);
         }
 
-        implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element);
+        methods = new MethodDefinition[]
 
-        implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.CONTENT_VALUES_LISTENER.toString(), element);
+                {
+                        new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
+                        new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
+                        new BindToStatementMethod(this, true, false),
+                        new BindToStatementMethod(this, false, false),
+                        new InsertStatementQueryMethod(this, true),
+                        new InsertStatementQueryMethod(this, false),
+                        new CreationQueryMethod(this),
+                        new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
+                        new ExistenceMethod(this, false),
+                        new PrimaryConditionMethod(this, false),
+                        new OneToManyDeleteMethod(this, false),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE)
+                }
 
-        implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element);
-
-        methods = new MethodDefinition[]{
-                new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
-                new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
-                new BindToStatementMethod(this, true, false),
-                new BindToStatementMethod(this, false, false),
-                new InsertStatementQueryMethod(this, true),
-                new InsertStatementQueryMethod(this, false),
-                new CreationQueryMethod(this),
-                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
-                new ExistenceMethod(this, false),
-                new PrimaryConditionMethod(this, false),
-                new OneToManyDeleteMethod(this, false),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE)
-        };
+        ;
 
         // single primary key checking for a long or int valued column
-        if (getPrimaryColumnDefinitions().size() == 1) {
+        if (
+
+                getPrimaryColumnDefinitions()
+
+                        .
+
+                                size()
+
+                        == 1)
+
+        {
             ColumnDefinition columnDefinition = getPrimaryColumnDefinitions().get(0);
             if (columnDefinition.isPrimaryKey) {
                 hasCachingId = !columnDefinition.hasTypeConverter;
             }
         }
+
     }
 
     @Override

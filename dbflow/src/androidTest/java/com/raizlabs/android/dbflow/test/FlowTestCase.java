@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.test;
 
 import android.test.AndroidTestCase;
+
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 

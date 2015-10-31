@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
-import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 
 /**
  * Author: andrewgrosner

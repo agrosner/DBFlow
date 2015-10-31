@@ -37,7 +37,7 @@ public class TransactionManagerRuntime {
      */
     public static void restartManagers() {
         for (TransactionManager manager : getManagers()) {
-            if(manager.hasOwnQueue()) {
+            if (manager.hasOwnQueue()) {
                 manager.checkQueue();
             }
         }

@@ -46,7 +46,7 @@ public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableP
     public void load(ConditionGroup whereConditionGroup,
                      String orderBy, String... columns) {
         Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), whereConditionGroup, orderBy, columns);
-        if(cursor != null && cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             getModelAdapter().loadFromCursor(cursor, this);
             cursor.close();
         }

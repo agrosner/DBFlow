@@ -14,10 +14,11 @@ public interface ModelProvider<TableClass extends Model> {
     /**
      * Queries the {@link android.content.ContentResolver} of the app based on the passed parameters and
      * populates this object with the first row from the returned data.
-     *  @param whereConditions The set of {@link Condition} to filter the query by.
+     *
+     * @param whereConditions     The set of {@link Condition} to filter the query by.
      * @param whereConditionGroup
-     * @param orderBy         The order by without the ORDER BY
-     * @param columns         The list of columns to select. Leave blank for *
+     * @param orderBy             The order by without the ORDER BY
+     * @param columns             The list of columns to select. Leave blank for *
      */
     void load(ConditionGroup whereConditionGroup,
               String orderBy, String... columns);

@@ -13,8 +13,7 @@ import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-import static com.raizlabs.android.dbflow.test.structure.ListenerModel_Table.*;
+import static com.raizlabs.android.dbflow.test.structure.ListenerModel_Table.name;
 
 public class ListenerModelTest extends FlowTestCase {
 

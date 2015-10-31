@@ -2,8 +2,8 @@ package com.raizlabs.android.dbflow.processor.handler;
 
 import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.Database;
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
 import java.util.Set;
 

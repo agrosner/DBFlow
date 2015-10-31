@@ -15,14 +15,14 @@ public class TableValidator implements Validator<TableDefinition> {
     public boolean validate(ProcessorManager processorManager, TableDefinition tableDefinition) {
         boolean success = true;
 
-        if(tableDefinition.getColumnDefinitions() == null || tableDefinition.getColumnDefinitions().isEmpty()) {
+        if (tableDefinition.getColumnDefinitions() == null || tableDefinition.getColumnDefinitions().isEmpty()) {
             processorManager.logError("Table %1s needs to define at least one column", tableDefinition.tableName);
             success = false;
         }
 
         boolean hasTwoKinds = (tableDefinition.hasAutoIncrement && !tableDefinition.primaryColumnDefinitions.isEmpty());
 
-        if(hasTwoKinds) {
+        if (hasTwoKinds) {
             processorManager.logError("Table %1s cannot mix and match autoincrement and composite primary keys", tableDefinition.tableName);
             success = false;
         }
@@ -30,12 +30,12 @@ public class TableValidator implements Validator<TableDefinition> {
         boolean hasPrimary = (tableDefinition.hasAutoIncrement && tableDefinition.primaryColumnDefinitions.isEmpty()
                 || !tableDefinition.hasAutoIncrement && !tableDefinition.primaryColumnDefinitions.isEmpty());
 
-        if(!hasPrimary) {
+        if (!hasPrimary) {
             processorManager.logError("Table %1s needs to define at least one primary key", tableDefinition.tableName);
             success = false;
         }
 
-        if(!ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), ClassNames.MODEL.toString(), (TypeElement) tableDefinition.element)) {
+        if (!ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), ClassNames.MODEL.toString(), (TypeElement) tableDefinition.element)) {
             processorManager.logError("The @Table annotation can only apply to a class that implements Model");
             success = false;
         }

@@ -11,7 +11,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 
-import java.lang.Override;import java.lang.String;import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.Modifier;

@@ -24,12 +24,16 @@ public class MigrationDefinition extends BaseDefinition {
         setOutputClassName("");
 
         Migration migration = typeElement.getAnnotation(Migration.class);
-        try {
-            migration.database();
-        } catch (MirroredTypeException mte) {
-            databaseName = TypeName.get(mte.getTypeMirror());
+        if (migration == null) {
+            processorManager.logError("Migration was null for:" + typeElement);
+        } else {
+            try {
+                migration.database();
+            } catch (MirroredTypeException mte) {
+                databaseName = TypeName.get(mte.getTypeMirror());
+            }
+            version = migration.version();
+            priority = migration.priority();
         }
-        version = migration.version();
-        priority = migration.priority();
     }
 }

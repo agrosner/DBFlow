@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.structure.container.JSONModel;
 import com.raizlabs.android.dbflow.structure.container.MapModel;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.test.structure.TestModel1_Table.*;
+import static com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name;
 import static com.raizlabs.android.dbflow.test.structure.TestModel2_Table.model_order;
 
 public class ComplexModelTest extends FlowTestCase {
