@@ -135,7 +135,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
                     .appendSpace()
                     .append(on.getQuery())
                     .appendSpace();
-        } else if (using != null) {
+        } else if (!using.isEmpty()) {
             queryBuilder.append("USING (")
                     .appendArray(using)
                     .append(")").appendSpace();
