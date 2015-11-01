@@ -70,7 +70,7 @@ public class UpdateTest extends FlowTestCase {
                 .getQuery();
 
         String trimmed = query.trim().replaceFirst("UPDATE OR ABORT `NoteModel` SET ", "");
-        trimmed = trimmed.replace("WHERE `name` = 'test' AND `id`=1 AND `isOpen`=1", "");
+        trimmed = trimmed.replace("WHERE `name`='test' AND `id`=1 AND `isOpen`=1", "");
         trimmed = trimmed.replace("SET", "").trim();
         String[] values = trimmed.split(",");
         assertEquals(3, values.length);
