@@ -19,15 +19,6 @@ public class Update<ModelClass extends Model> implements Query {
     private final Class<ModelClass> table;
 
     /**
-     * @param table        The table to update.
-     * @param <ModelClass> The class that implements {@link Model}
-     * @return A new update object. Begins a generic UPDATE query.
-     */
-    public static <ModelClass extends Model> Update table(Class<ModelClass> table) {
-        return new Update<>(table);
-    }
-
-    /**
      * Constructs new instace of an UPDATE query with the specified table.
      *
      * @param table The table to use.

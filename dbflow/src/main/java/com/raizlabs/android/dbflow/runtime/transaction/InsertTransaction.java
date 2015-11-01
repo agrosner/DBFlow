@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.Insert;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -19,7 +20,7 @@ public class InsertTransaction<ModelClass extends Model> extends QueryTransactio
      * @param columnValues      The column and their corresponding values.
      */
     public InsertTransaction(DBTransactionInfo dbTransactionInfo, Class<ModelClass> insertTable, Condition... columnValues) {
-        super(dbTransactionInfo, Insert.into(insertTable).columnValues(columnValues), null);
+        super(dbTransactionInfo, SQLite.insert(insertTable).columnValues(columnValues), null);
     }
 
     /**

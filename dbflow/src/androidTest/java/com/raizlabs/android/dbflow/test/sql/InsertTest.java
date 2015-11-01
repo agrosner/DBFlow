@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.sql;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
@@ -17,7 +18,7 @@ public class InsertTest extends FlowTestCase {
 
         Delete.table(InsertModel.class);
 
-        Insert<InsertModel> insert = Insert.into(InsertModel.class).orFail()
+        Insert<InsertModel> insert = SQLite.insert(InsertModel.class).orFail()
                 .columnValues(InsertModel_Table.name.eq("Test"), InsertModel_Table.value.eq("Test1"));
 
         assertEquals("INSERT OR FAIL INTO `InsertModel`(`name`, `value`) VALUES('Test','Test1')", insert.getQuery());
@@ -29,7 +30,7 @@ public class InsertTest extends FlowTestCase {
         assertNotNull(model);
 
 
-        insert = Insert.into(InsertModel.class).orAbort()
+        insert = SQLite.insert(InsertModel.class).orAbort()
                 .values("Test2", "Test3");
         assertEquals("INSERT OR ABORT INTO `InsertModel` VALUES('Test2','Test3')", insert.getQuery());
 

@@ -22,17 +22,6 @@ import java.util.Map;
 public class Insert<ModelClass extends Model> implements Query, Queriable {
 
     /**
-     * Begins the INSERT statement of the query.
-     *
-     * @param table        The table to use.
-     * @param <ModelClass> The class that implements {@link Model}
-     * @return A new INSERT statement.
-     */
-    public static <ModelClass extends Model> Insert<ModelClass> into(Class<ModelClass> table) {
-        return new Insert<>(table);
-    }
-
-    /**
      * The table class that this INSERT points to
      */
     private Class<ModelClass> table;
@@ -62,7 +51,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      *
      * @param table The table to insert into
      */
-    private Insert(Class<ModelClass> table) {
+    public Insert(Class<ModelClass> table) {
         this.table = table;
         baseDatabaseDefinition = FlowManager.getDatabaseForTable(table);
     }
