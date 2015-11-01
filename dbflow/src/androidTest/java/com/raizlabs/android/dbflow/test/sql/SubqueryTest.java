@@ -32,7 +32,7 @@ public class SubqueryTest extends FlowTestCase {
 
         assertEquals(
                 "SELECT * FROM `BoxedModel` WHERE `integerField`>" +
-                        "(SELECT AVG(`integerField`)  FROM `BoxedModel` WHERE `integerField`=`BoxedModel`.`integerField`)",
+                        "(SELECT AVG(`integerField`) FROM `BoxedModel` WHERE `integerField`=`BoxedModel`.`integerField` )",
                 query.trim());
     }
 }

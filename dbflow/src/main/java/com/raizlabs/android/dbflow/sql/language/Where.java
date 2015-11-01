@@ -195,12 +195,8 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
                 .appendQualifier("WHERE", conditionGroup.getQuery())
                 .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-                .appendQualifier("HAVING", havingGroup.getQuery());
-
-        if (!orderByList.isEmpty()) {
-            //noinspection unchecked
-            queryBuilder.appendList(orderByList);
-        }
+                .appendQualifier("HAVING", havingGroup.getQuery())
+                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));

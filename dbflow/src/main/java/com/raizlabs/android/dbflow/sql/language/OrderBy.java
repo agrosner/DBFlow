@@ -40,7 +40,7 @@ public class OrderBy implements Query {
 
     @Override
     public String getQuery() {
-        StringBuilder query = new StringBuilder("ORDER BY ")
+        StringBuilder query = new StringBuilder()
                 .append(column)
                 .append(" ");
         if (collation != null) {
