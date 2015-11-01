@@ -1,10 +1,10 @@
-# Triggers, Indexes, and More
+    # Triggers, Indexes, and More
 
-This section contains more advance usage of SQLite. These features are very useful and can be used to improve DB and app performance.
+This section contains more advanced usage of SQLite. These features are very useful and can be used to improve DB and app performance.
 
 ## Triggers
 
-```Trigger``` are actions that are automatically performed before or after some action on the database. For example, we want to log changes for all updates to the name on the ```Friend``` table.
+A ```Trigger``` is an action that is automatically performed before or after some action on the database. For example, we want to log changes for all updates to the name column on the ```Friend``` table.
 
 ```java
 
@@ -25,8 +25,8 @@ CompletedTrigger<Friend> trigger = Trigger.create("NameTrigger")
 
 ## Indexes
 
-```Index``` are pointers to specific columns in a table that enable super-fast retrieval. The trade-off of using these is that the database
-size significantly increases, however if performance is more important, the tradeoff is worth it.
+An ```Index``` is a pointer to specific columns in a table that enables super-fast retrieval. The trade-off of using these is that the database
+size significantly increases, however if performance is more important, the trade-off is worth it.
 
 ```java
 
