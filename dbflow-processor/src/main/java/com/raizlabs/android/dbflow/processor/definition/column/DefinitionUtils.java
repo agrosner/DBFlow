@@ -122,7 +122,29 @@ public class DefinitionUtils {
 
         if (putDefaultValue) {
             codeBuilder.nextControlFlow("else");
-            codeBuilder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);
+            if (isModelContainerAdapter) {
+                codeBuilder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);
+            } else {
+                String defaultValue = "null";
+                if (elementTypeName.isPrimitive()) {
+                    if (elementTypeName.equals(TypeName.BOOLEAN)) {
+                        defaultValue = "false";
+                    } else if (elementTypeName.equals(TypeName.BYTE) || elementTypeName.equals(TypeName.INT)
+                            || elementTypeName.equals(TypeName.DOUBLE) || elementTypeName.equals(TypeName.FLOAT)
+                            || elementTypeName.equals(TypeName.LONG) || elementTypeName.equals(TypeName.SHORT)) {
+                        defaultValue = "0";
+                    } else if (elementTypeName.equals(TypeName.CHAR)) {
+                        defaultValue = "'\\u0000'";
+                    }
+                }
+                BaseColumnAccess baseColumnAccess = columnAccess;
+                if (columnAccess instanceof WrapperColumnAccess) {
+                    baseColumnAccess = ((WrapperColumnAccess) columnAccess).existingColumnAccess;
+                }
+                codeBuilder.addStatement(baseColumnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
+                        isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter),
+                        CodeBlock.builder().add(defaultValue).build()));
+            }
         }
 
         codeBuilder.endControlFlow();

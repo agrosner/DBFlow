@@ -256,6 +256,8 @@ public class ColumnDefinition extends BaseDefinition {
         boolean putDefaultValue = putNullForContainerAdapter;
         if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
             putDefaultValue = putContainerDefaultValue;
+        } else if (!isModelContainerAdapter) {
+            putDefaultValue = true;
         }
         return DefinitionUtils.getLoadFromCursorMethod(containerKeyName, elementName,
                 elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
