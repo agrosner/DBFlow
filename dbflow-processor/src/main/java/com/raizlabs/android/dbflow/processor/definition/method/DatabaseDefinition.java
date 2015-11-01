@@ -68,38 +68,39 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
         packageName = ClassNames.FLOW_MANAGER_PACKAGE;
 
         Database database = element.getAnnotation(Database.class);
-        databaseName = database.name();
-        if (databaseName == null || databaseName.isEmpty()) {
-            databaseName = element.getSimpleName().toString();
-        }
-        if (!isValidDatabaseName(databaseName)) {
-            throw new Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
-        }
+        if (database != null) {
+            databaseName = database.name();
+            if (databaseName == null || databaseName.isEmpty()) {
+                databaseName = element.getSimpleName().toString();
+            }
+            if (!isValidDatabaseName(databaseName)) {
+                throw new Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
+                        "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
+            }
 
-        TypeMirror openHelper = ProcessorUtils.getOpenHelperClass(database);
-        if (openHelper != null) {
-            sqliteOpenHelperClass = TypeName.get(openHelper);
-            if (sqliteOpenHelperClass.equals(TypeName.VOID.box())) {
+            TypeMirror openHelper = ProcessorUtils.getOpenHelperClass(database);
+            if (openHelper != null) {
+                sqliteOpenHelperClass = TypeName.get(openHelper);
+                if (sqliteOpenHelperClass.equals(TypeName.VOID.box())) {
+                    sqliteOpenHelperClass = ClassNames.FLOW_SQLITE_OPEN_HELPER;
+                }
+            } else {
                 sqliteOpenHelperClass = ClassNames.FLOW_SQLITE_OPEN_HELPER;
             }
-        } else {
-            sqliteOpenHelperClass = ClassNames.FLOW_SQLITE_OPEN_HELPER;
+
+            consistencyChecksEnabled = database.consistencyCheckEnabled();
+            backupEnabled = database.backupEnabled();
+
+            classSeparator = database.generatedClassSeparator();
+
+            setOutputClassName(databaseName + classSeparator + "Database");
+
+            databaseVersion = database.version();
+            foreignKeysSupported = database.foreignKeysSupported();
+
+            insertConflict = database.insertConflict();
+            updateConflict = database.updateConflict();
         }
-
-        consistencyChecksEnabled = database.consistencyCheckEnabled();
-        backupEnabled = database.backupEnabled();
-
-        classSeparator = database.generatedClassSeparator();
-
-        setOutputClassName(databaseName + classSeparator + "Database");
-
-        databaseVersion = database.version();
-        foreignKeysSupported = database.foreignKeysSupported();
-
-        insertConflict = database.insertConflict();
-        updateConflict = database.updateConflict();
-
     }
 
     @Override

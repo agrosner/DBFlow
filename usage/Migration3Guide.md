@@ -115,10 +115,10 @@ public class ForeignInteractionModel extends TestModel1 {
             onUpdate = ForeignKeyAction.CASCADE,
             references =
                     {@ForeignKeyReference(columnName = "testmodel_id",
-                                          foreignKeyColumnName = "name",
+                                          foreignColumnName = "name",
                                           columnType = String.class),
                             @ForeignKeyReference(columnName = "testmodel_type",
-                                                 foreignKeyColumnName = "type",
+                                                 foreignColumnName = "type",
                                                  columnType = String.class)},
             saveForeignKeyModel = false)
     ForeignKeyContainer<ParentModel> testModel1;
@@ -142,11 +142,13 @@ public class ForeignInteractionModel extends TestModel1 {
 
 The result is _significantly_ cleaner and less overhead to maintain.
 
+If you wish to keep old references, please keep in mind that `foreignColumnName` is now `foreignKeyColumnName`.
+
 ## Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
 Perhaps the most significant internal changes to this library is making queries, conditions, and interactions with the database much stricter and more type-safe.
 
 ### Properties
-Properties replace `String` column names generated in the "$Table" classes. They are also matching exact case to the column name.
+Properties replace `String` column names generated in the "$Table" classes. They are also matching exact case to the column name. They have methods that generate `Condition` that drastically simplify queries. (Please note the `Condition` class has moved to the .language package).
 
 Properties are represented by the interface `IProperty` which are subclassed into `Property<T>`, `Method`, and the primitive properties (`IntProperty`, `CharProperty`, etc).
 

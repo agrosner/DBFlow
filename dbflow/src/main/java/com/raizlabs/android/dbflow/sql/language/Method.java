@@ -15,7 +15,7 @@ import java.util.List;
 public class Method extends Property {
 
     /**
-     * @param properties
+     * @param properties Set of properties that the method acts on.
      * @return The average value of all properties within this group. The result is always a float from this statement
      * as long as there is at least one non-NULL input. The result may be NULL if there are no non-NULL columns.
      */
@@ -24,7 +24,7 @@ public class Method extends Property {
     }
 
     /**
-     * @param properties
+     * @param properties Set of properties that the method acts on.
      * @return A count of the number of times that specified properties are not NULL in a group. Leaving
      * the properties empty returns COUNT(*), which is the total number of rows in the query.
      */
@@ -33,31 +33,43 @@ public class Method extends Property {
     }
 
     /**
-     * @param properties
+     * @param properties Set of properties that the method acts on.
      * @return A string which is the concatenation of all non-NULL values of the properties.
      */
     public static Method group_concat(IProperty... properties) {
         return new Method("GROUP_CONCAT", properties);
     }
 
+    /**
+     * @param properties Set of properties that the method acts on.
+     * @return The method that represents the max of the specified columns/properties.
+     */
     public static Method max(IProperty... properties) {
         return new Method("MAX", properties);
     }
 
+    /**
+     * @param properties Set of properties that the method acts on.
+     * @return The method that represents the min of the specified columns/properties.
+     */
     public static Method min(IProperty... properties) {
         return new Method("MIN", properties);
     }
 
+    /**
+     * @param properties Set of properties that the method acts on.
+     * @return The method that represents the sum of the specified columns/properties.
+     */
     public static Method sum(IProperty... properties) {
         return new Method("SUM", properties);
     }
 
+    /**
+     * @param properties Set of properties that the method acts on.
+     * @return The method that represents the min of the specified columns/properties.
+     */
     public static Method total(IProperty... properties) {
         return new Method("TOTAL", properties);
-    }
-
-    public static Method date(IProperty... properties) {
-        return new Method("DATE", properties);
     }
 
     private final List<IProperty> propertyList = new ArrayList<>();

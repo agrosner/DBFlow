@@ -37,11 +37,11 @@ public class TestModelContainerClass extends TestModel1 {
             onDelete = ForeignKeyAction.CASCADE,
             onUpdate = ForeignKeyAction.CASCADE,
             references =
-            {@ForeignKeyReference(columnName = "testName",
-                    columnType = String.class,
-                    foreignKeyColumnName = "name"),
-            @ForeignKeyReference(columnName = "testType",
-                    columnType = String.class,
-                    foreignKeyColumnName = "type")})
+                    {@ForeignKeyReference(columnName = "testName",
+                            columnType = String.class,
+                            foreignKeyColumnName = "name"),
+                            @ForeignKeyReference(columnName = "testType",
+                                    columnType = String.class,
+                                    foreignKeyColumnName = "type")})
     ParentModel testModel;
 }

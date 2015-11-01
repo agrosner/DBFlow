@@ -2,13 +2,11 @@ package com.raizlabs.android.dbflow.structure.container;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Description: Holds onto {@link com.raizlabs.android.dbflow.annotation.ForeignKey} data so the {@link

@@ -1,4 +1,3 @@
-
 package com.raizlabs.android.dbflow.test.typeconverter;
 
 import android.location.Location;

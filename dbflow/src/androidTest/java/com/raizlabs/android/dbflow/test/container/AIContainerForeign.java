@@ -24,7 +24,7 @@ public class AIContainerForeign extends AutoIncrementContainer {
     @Column
     @ForeignKey(references = {
             @ForeignKeyReference(columnType = long.class, columnName = "ai_container_id_container",
-                                 foreignKeyColumnName = "id")})
+                    foreignKeyColumnName = "id")})
     ForeignKeyContainer<AutoIncrementContainer> container;
 
     public void setContainer(AutoIncrementContainer autoIncrementContainer) {

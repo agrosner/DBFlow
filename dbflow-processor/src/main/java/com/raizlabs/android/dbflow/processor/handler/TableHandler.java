@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.TableValidator;
 import com.raizlabs.android.dbflow.processor.validator.Validator;
 
@@ -29,9 +28,11 @@ public class TableHandler extends BaseContainerHandler<Table> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        TableDefinition tableDefinition = new TableDefinition(processorManager, (TypeElement) element);
-        if (definitionValidator.validate(processorManager, tableDefinition)) {
-            processorManager.addTableDefinition(tableDefinition);
+        if (element instanceof TypeElement) {
+            TableDefinition tableDefinition = new TableDefinition(processorManager, (TypeElement) element);
+            if (definitionValidator.validate(processorManager, tableDefinition)) {
+                processorManager.addTableDefinition(tableDefinition);
+            }
         }
     }
 }

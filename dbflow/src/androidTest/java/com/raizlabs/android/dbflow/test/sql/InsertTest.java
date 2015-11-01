@@ -1,4 +1,3 @@
-
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -7,8 +6,6 @@ import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
-
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description:

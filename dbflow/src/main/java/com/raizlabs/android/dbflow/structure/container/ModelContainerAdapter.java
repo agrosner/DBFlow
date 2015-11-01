@@ -67,7 +67,8 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
      * this method will be overridden.
-     *  @param modelContainer The model container object to store the key
+     *
+     * @param modelContainer The model container object to store the key
      * @param id             The key to store
      */
     @Override

@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 
-import java.lang.Override;import java.lang.String;import java.util.List;
+import java.util.List;
 
 import javax.lang.model.element.Modifier;
 

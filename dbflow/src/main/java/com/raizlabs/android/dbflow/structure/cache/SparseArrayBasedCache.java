@@ -37,13 +37,13 @@ public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<
 
     @Override
     public void addModel(Object id, ModelClass model) {
-        if(id instanceof Number) {
+        if (id instanceof Number) {
             synchronized (getCache()) {
                 getCache().put(((Number) id).intValue(), model);
             }
         } else {
             throw new IllegalArgumentException("A SparseArrayBasedCache must use an id that can cast to " +
-                                               "a Number to convert it into a int");
+                    "a Number to convert it into a int");
         }
     }
 
@@ -51,7 +51,7 @@ public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<
     public ModelClass removeModel(Object id) {
         ModelClass model = get(id);
         synchronized (getCache()) {
-            getCache().remove(((Number)id).intValue());
+            getCache().remove(((Number) id).intValue());
         }
         return model;
     }
@@ -70,11 +70,11 @@ public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<
 
     @Override
     public ModelClass get(Object id) {
-        if(id instanceof Number) {
+        if (id instanceof Number) {
             return getCache().get(((Number) id).intValue());
         } else {
             throw new IllegalArgumentException("A SparseArrayBasedCache uses an id that can cast to " +
-                                               "a Number to convert it into a int");
+                    "a Number to convert it into a int");
         }
     }
 }

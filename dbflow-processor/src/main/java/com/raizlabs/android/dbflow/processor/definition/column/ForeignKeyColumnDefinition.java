@@ -53,6 +53,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     public boolean nonModelColumn;
 
+    public boolean saveForeignKeyModel;
+
     public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition, Element typeElement) {
         super(manager, typeElement, tableDefinition);
         this.tableDefinition = tableDefinition;
@@ -90,6 +92,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), element);
         isModelContainer = isModelContainer || ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL_CONTAINER.toString(), element);
         nonModelColumn = !isModel && !isModelContainer;
+
+        saveForeignKeyModel = foreignKey.saveForeignKeyModel();
 
         // we need to recheck for this instance
         if (columnAccess instanceof TypeConverterAccess) {
@@ -193,13 +197,17 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     .getColumnAccessString(elementTypeName, elementName, elementName,
                             ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
             String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
-            builder.addStatement("// original statement: $L", statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
             CodeBlock.Builder elseBuilder = CodeBlock.builder();
             for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
                 builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter));
                 elseBuilder.addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, QueryBuilder.quote(referenceDefinition.columnName));
             }
+
+            if (saveForeignKeyModel) {
+                builder.addStatement("$L.save()", finalAccessStatement);
+            }
+
             builder.nextControlFlow("else")
                     .add(elseBuilder.build())
                     .endControlFlow();

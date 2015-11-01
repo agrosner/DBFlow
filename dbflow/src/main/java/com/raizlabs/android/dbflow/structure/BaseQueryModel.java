@@ -28,11 +28,11 @@ public class BaseQueryModel extends BaseFinalModel {
      */
     @SuppressWarnings("unchecked")
     public void loadFromCursor(Cursor cursor) {
-        if(cursor != null && cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             adapter.loadFromCursor(cursor, this);
         }
 
-        if(cursor != null) {
+        if (cursor != null) {
             cursor.close();
         }
     }

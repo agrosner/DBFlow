@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
@@ -30,29 +29,31 @@ public class ModelContainerDefinition extends BaseDefinition {
     public static final String DBFLOW_MODEL_CONTAINER_TAG = "Container";
 
     private MethodDefinition[] methods;
-    private TableDefinition tableDefinition;
+    public TableDefinition tableDefinition;
 
     public ModelContainerDefinition(TypeElement classElement, ProcessorManager manager) {
         super(classElement, manager);
 
         ModelContainer containerKey = classElement.getAnnotation(ModelContainer.class);
-        boolean putDefaultValue = containerKey.putDefault();
+        if (containerKey != null) {
+            boolean putDefaultValue = containerKey.putDefault();
 
-        tableDefinition = manager.getTableDefinition(manager.getDatabase(elementTypeName), elementTypeName);
+            tableDefinition = manager.getTableDefinition(manager.getDatabase(elementTypeName), elementTypeName);
 
-        setOutputClassName(tableDefinition.databaseDefinition.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
+            setOutputClassName(tableDefinition.databaseDefinition.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
-        methods = new MethodDefinition[]{
-                new BindToContentValuesMethod(tableDefinition, true, true, tableDefinition.implementsContentValuesListener),
-                new BindToContentValuesMethod(tableDefinition, false, true, tableDefinition.implementsContentValuesListener),
-                new BindToStatementMethod(tableDefinition, true, true),
-                new BindToStatementMethod(tableDefinition, false, true),
-                new ExistenceMethod(tableDefinition, true),
-                new PrimaryConditionMethod(tableDefinition, true),
-                new ToModelMethod(tableDefinition),
-                new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener, putDefaultValue)
-        };
 
+            methods = new MethodDefinition[]{
+                    new BindToContentValuesMethod(tableDefinition, true, true, tableDefinition.implementsContentValuesListener),
+                    new BindToContentValuesMethod(tableDefinition, false, true, tableDefinition.implementsContentValuesListener),
+                    new BindToStatementMethod(tableDefinition, true, true),
+                    new BindToStatementMethod(tableDefinition, false, true),
+                    new ExistenceMethod(tableDefinition, true),
+                    new PrimaryConditionMethod(tableDefinition, true),
+                    new ToModelMethod(tableDefinition),
+                    new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener, putDefaultValue)
+            };
+        }
     }
 
     public TypeName getDatabaseName() {

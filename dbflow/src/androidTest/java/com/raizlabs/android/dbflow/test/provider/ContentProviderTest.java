@@ -8,8 +8,6 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
 
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
 
 /**
  * Description:

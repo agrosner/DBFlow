@@ -38,10 +38,12 @@ public class TableEndpointDefinition extends BaseDefinition {
         super(typeElement, processorManager);
 
         TableEndpoint endpoint = typeElement.getAnnotation(TableEndpoint.class);
+        if (endpoint != null) {
 
-        tableName = endpoint.name();
+            tableName = endpoint.name();
 
-        contentProviderName = endpoint.contentProviderName();
+            contentProviderName = endpoint.contentProviderName();
+        }
 
         isTopLevel = typeElement.getEnclosingElement() instanceof PackageElement;
 
@@ -49,7 +51,7 @@ public class TableEndpointDefinition extends BaseDefinition {
         for (Element innerElement : elements) {
             if (innerElement.getAnnotation(ContentUri.class) != null) {
                 ContentUriDefinition contentUriDefinition = new ContentUriDefinition(innerElement, processorManager);
-                if(!pathValidationMap.containsKey(contentUriDefinition.path)) {
+                if (!pathValidationMap.containsKey(contentUriDefinition.path)) {
                     contentUriDefinitions.add(contentUriDefinition);
                 } else {
                     processorManager.logError("There must be unique paths for the specified @ContentUri" +

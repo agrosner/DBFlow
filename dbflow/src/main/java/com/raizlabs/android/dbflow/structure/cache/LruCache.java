@@ -49,7 +49,7 @@ public class LruCache<K, V> {
      *                cache. For all other caches, this is the maximum sum of the sizes of the entries in this cache.
      */
     public LruCache(int maxSize) {
-        if(maxSize <= 0) {
+        if (maxSize <= 0) {
             throw new IllegalArgumentException("maxSize <= 0");
         }
         this.maxSize = maxSize;
@@ -62,11 +62,11 @@ public class LruCache<K, V> {
      * @param maxSize The new maximum size.
      */
     public void resize(int maxSize) {
-        if(maxSize <= 0) {
+        if (maxSize <= 0) {
             throw new IllegalArgumentException("maxSize <= 0");
         }
 
-        synchronized(this) {
+        synchronized (this) {
             this.maxSize = maxSize;
         }
         trimToSize(maxSize);
@@ -78,14 +78,14 @@ public class LruCache<K, V> {
      * created.
      */
     public final V get(K key) {
-        if(key == null) {
+        if (key == null) {
             throw new NullPointerException("key == null");
         }
 
         V mapValue;
-        synchronized(this) {
+        synchronized (this) {
             mapValue = map.get(key);
-            if(mapValue != null) {
+            if (mapValue != null) {
                 hitCount++;
                 return mapValue;
             }
@@ -100,15 +100,15 @@ public class LruCache<K, V> {
          */
 
         V createdValue = create(key);
-        if(createdValue == null) {
+        if (createdValue == null) {
             return null;
         }
 
-        synchronized(this) {
+        synchronized (this) {
             createCount++;
             mapValue = map.put(key, createdValue);
 
-            if(mapValue != null) {
+            if (mapValue != null) {
                 // There was a conflict so undo that last put
                 map.put(key, mapValue);
             } else {
@@ -116,7 +116,7 @@ public class LruCache<K, V> {
             }
         }
 
-        if(mapValue != null) {
+        if (mapValue != null) {
             entryRemoved(false, key, createdValue, mapValue);
             return mapValue;
         } else {
@@ -131,21 +131,21 @@ public class LruCache<K, V> {
      * @return the previous value mapped by {@code key}.
      */
     public final V put(K key, V value) {
-        if(key == null || value == null) {
+        if (key == null || value == null) {
             throw new NullPointerException("key == null || value == null");
         }
 
         V previous;
-        synchronized(this) {
+        synchronized (this) {
             putCount++;
             size += safeSizeOf(key, value);
             previous = map.put(key, value);
-            if(previous != null) {
+            if (previous != null) {
                 size -= safeSizeOf(key, previous);
             }
         }
 
-        if(previous != null) {
+        if (previous != null) {
             entryRemoved(false, key, previous, value);
         }
 
@@ -159,15 +159,15 @@ public class LruCache<K, V> {
      * @param maxSize the maximum size of the cache before returning. May be -1 to evict even 0-sized elements.
      */
     public void trimToSize(int maxSize) {
-        while(true) {
+        while (true) {
             K key;
             V value;
-            synchronized(this) {
-                if(size < 0 || (map.isEmpty() && size != 0)) {
+            synchronized (this) {
+                if (size < 0 || (map.isEmpty() && size != 0)) {
                     throw new IllegalStateException(getClass().getName() + ".sizeOf() is reporting inconsistent results!");
                 }
 
-                if(size <= maxSize || map.isEmpty()) {
+                if (size <= maxSize || map.isEmpty()) {
                     break;
                 }
 
@@ -189,19 +189,19 @@ public class LruCache<K, V> {
      * @return the previous value mapped by {@code key}.
      */
     public final V remove(K key) {
-        if(key == null) {
+        if (key == null) {
             throw new NullPointerException("key == null");
         }
 
         V previous;
-        synchronized(this) {
+        synchronized (this) {
             previous = map.remove(key);
-            if(previous != null) {
+            if (previous != null) {
                 size -= safeSizeOf(key, previous);
             }
         }
 
-        if(previous != null) {
+        if (previous != null) {
             entryRemoved(false, key, previous, null);
         }
 
@@ -239,7 +239,7 @@ public class LruCache<K, V> {
 
     private int safeSizeOf(K key, V value) {
         int result = sizeOf(key, value);
-        if(result < 0) {
+        if (result < 0) {
             throw new IllegalStateException("Negative size: " + key + "=" + value);
         }
         return result;

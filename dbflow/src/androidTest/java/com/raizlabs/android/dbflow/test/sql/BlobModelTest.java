@@ -1,4 +1,3 @@
-
 package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.data.Blob;

@@ -85,7 +85,11 @@ public abstract class BaseDefinition implements TypeDefinition {
     }
 
     protected ClassName getElementClassName(Element element) {
-        return ClassName.bestGuess(element.asType().toString());
+        try {
+            return ClassName.bestGuess(element.asType().toString());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     protected void setOutputClassName(String postfix) {

@@ -12,10 +12,10 @@ public enum ConflictAction {
     NONE,
 
     /**
-     *  When an applicable constraint violation occurs, the ROLLBACK resolution algorithm aborts the
-     *  current SQL statement with an SQLITE_CONSTRAINT error and rolls back the current transaction.
-     *  If no transaction is active (other than the implied transaction that is created on every command)
-     *  then the ROLLBACK resolution algorithm works the same as the {@link #ABORT} algorithm.
+     * When an applicable constraint violation occurs, the ROLLBACK resolution algorithm aborts the
+     * current SQL statement with an SQLITE_CONSTRAINT error and rolls back the current transaction.
+     * If no transaction is active (other than the implied transaction that is created on every command)
+     * then the ROLLBACK resolution algorithm works the same as the {@link #ABORT} algorithm.
      */
     ROLLBACK,
 

@@ -52,6 +52,6 @@ public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelCl
     @Override
     public void setCacheSize(int size) {
         FlowLog.log(FlowLog.Level.I, "The cache size for " + SimpleMapCache.class.getSimpleName() +
-                                     " is not re-configurable.");
+                " is not re-configurable.");
     }
 }

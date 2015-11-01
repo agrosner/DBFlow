@@ -52,26 +52,29 @@ public class ContentProviderDefinition extends BaseDefinition {
         super(typeElement, processorManager);
 
         ContentProvider provider = element.getAnnotation(ContentProvider.class);
-        try {
-            provider.database();
-        } catch (MirroredTypeException mte) {
-            databaseName = TypeName.get(mte.getTypeMirror());
-        }
-        DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseName);
-        databaseNameString = databaseDefinition.databaseName;
-        setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
+        if (provider != null) {
+            try {
+                provider.database();
+            } catch (MirroredTypeException mte) {
+                databaseName = TypeName.get(mte.getTypeMirror());
+            }
+            DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseName);
+            databaseNameString = databaseDefinition.databaseName;
+            setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
 
-        authority = provider.authority();
+            authority = provider.authority();
 
-        TableEndpointValidator validator = new TableEndpointValidator();
-        List<? extends Element> elements = manager.getElements().getAllMembers((TypeElement) typeElement);
-        for (Element innerElement : elements) {
-            if (innerElement.getAnnotation(TableEndpoint.class) != null) {
-                TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, manager);
-                if (validator.validate(processorManager, endpointDefinition)) {
-                    endpointDefinitions.add(endpointDefinition);
+            TableEndpointValidator validator = new TableEndpointValidator();
+            List<? extends Element> elements = manager.getElements().getAllMembers((TypeElement) typeElement);
+            for (Element innerElement : elements) {
+                if (innerElement.getAnnotation(TableEndpoint.class) != null) {
+                    TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, manager);
+                    if (validator.validate(processorManager, endpointDefinition)) {
+                        endpointDefinitions.add(endpointDefinition);
+                    }
                 }
             }
+
         }
 
         methods = new MethodDefinition[]{

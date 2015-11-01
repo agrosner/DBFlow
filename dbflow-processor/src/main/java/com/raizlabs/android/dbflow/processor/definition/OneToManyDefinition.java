@@ -6,13 +6,10 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.ParameterizedTypeName;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 
 /**
@@ -104,6 +101,7 @@ public class OneToManyDefinition extends BaseDefinition {
                     ClassNames.PROCESS_MODEL_INFO, getMethodName());
         }
     }
+
     private String getMethodName() {
         return String.format("%1s.%1s()", ModelUtils.getVariable(false), methodName);
     }
