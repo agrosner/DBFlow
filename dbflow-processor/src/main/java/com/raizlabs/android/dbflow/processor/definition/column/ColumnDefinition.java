@@ -349,6 +349,10 @@ public class ColumnDefinition extends BaseDefinition {
             codeBlockBuilder.add(" UNIQUE");
         }
 
+        if (notNull) {
+            codeBlockBuilder.add(" NOT NULL");
+        }
+
         return codeBlockBuilder.build();
     }
 }
