@@ -21,7 +21,7 @@ public class SubqueryTest extends FlowTestCase {
                 .getQuery();
 
         assertEquals(
-                "SELECT * FROM `BoxedModel` WHERE EXISTS (SELECT * FROM `BoxedModel` WHERE `integerField`=integerFieldNotNull)",
+                "SELECT * FROM `BoxedModel` WHERE EXISTS (SELECT * FROM `BoxedModel` WHERE `integerField`=`integerFieldNotNull` )",
                 query.trim());
 
         query = new Select()
@@ -32,7 +32,7 @@ public class SubqueryTest extends FlowTestCase {
 
         assertEquals(
                 "SELECT * FROM `BoxedModel` WHERE `integerField`>" +
-                        "(SELECT AVG(`integerField`)  FROM `BoxedModel` WHERE `integerField`=BoxedModel.integerField)",
+                        "(SELECT AVG(`integerField`)  FROM `BoxedModel` WHERE `integerField`=`BoxedModel`.`integerField`)",
                 query.trim());
     }
 }
