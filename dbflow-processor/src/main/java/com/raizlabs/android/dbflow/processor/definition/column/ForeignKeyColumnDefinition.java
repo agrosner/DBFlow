@@ -236,6 +236,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 builder.add(referenceDefinition.getSQLiteStatementMethod(index, isModelContainerAdapter));
                 elseBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue());
             }
+
+            if (saveForeignKeyModel) {
+                builder.addStatement("$L.save()", finalAccessStatement);
+            }
+
             builder.nextControlFlow("else")
                     .add(elseBuilder.build())
                     .endControlFlow();
