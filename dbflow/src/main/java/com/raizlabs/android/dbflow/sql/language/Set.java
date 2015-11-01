@@ -6,11 +6,10 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
-
-import java.util.Map;
 
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
@@ -47,12 +46,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return This instance.
      */
     public Set<ModelClass> conditionValues(ContentValues contentValues) {
-        java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
-
-        for (Map.Entry<String, Object> entry : entries) {
-            String key = entry.getKey();
-            conditionGroup.and(Condition.column(new NameAlias(key)).is(contentValues.get(key)));
-        }
+        SqlUtils.addContentValues(contentValues, conditionGroup);
         return this;
     }
 

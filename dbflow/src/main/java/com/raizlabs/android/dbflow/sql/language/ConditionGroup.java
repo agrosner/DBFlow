@@ -5,12 +5,13 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Condition.Operation;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * Allows combining of {@link SQLCondition} into one condition.
  */
-public class ConditionGroup extends BaseCondition implements Query {
+public class ConditionGroup extends BaseCondition implements Query, Iterable<SQLCondition> {
 
     /**
      * @return Starts an arbitrary clause of conditions to use.
@@ -178,5 +179,10 @@ public class ConditionGroup extends BaseCondition implements Query {
 
     public List<SQLCondition> getConditions() {
         return conditionsList;
+    }
+
+    @Override
+    public Iterator<SQLCondition> iterator() {
+        return conditionsList.iterator();
     }
 }

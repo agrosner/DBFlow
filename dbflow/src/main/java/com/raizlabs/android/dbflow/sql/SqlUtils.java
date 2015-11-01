@@ -13,7 +13,10 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
+import com.raizlabs.android.dbflow.sql.language.Condition;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
@@ -27,6 +30,7 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Description: Provides some handy methods for dealing with SQL statements. It's purpose is to move the
@@ -445,5 +449,20 @@ public class SqlUtils {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
                 .append(QueryBuilder.quoteIfNeeded(indexName));
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
+    }
+
+    /**
+     * Adds {@link ContentValues} to the specified {@link ConditionGroup}.
+     *
+     * @param contentValues  The content values to convert.
+     * @param conditionGroup The group to put them into as {@link Condition}.
+     */
+    public static void addContentValues(@NonNull ContentValues contentValues, @NonNull ConditionGroup conditionGroup) {
+        java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
+
+        for (Map.Entry<String, Object> entry : entries) {
+            String key = entry.getKey();
+            conditionGroup.and(Condition.column(new NameAlias(key)).is(contentValues.get(key)));
+        }
     }
 }

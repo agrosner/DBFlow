@@ -3,8 +3,9 @@ package com.raizlabs.android.dbflow.test.sql;
 import android.content.ContentValues;
 import android.net.Uri;
 
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.sql.language.Where;
@@ -13,7 +14,6 @@ import com.raizlabs.android.dbflow.test.provider.TestContentProvider;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
-import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.isOpen;
 import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.note;
 import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.providerModel;
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.id;
@@ -61,23 +61,11 @@ public class UpdateTest extends FlowTestCase {
         contentValues.put(id.getQuery(), 1);
         contentValues.put(providerModel.getQuery(), 1);
 
-        query = new Update<>(FlowManager.getTableClassForName("content", "NoteModel"))
-                .conflictAction(ConflictAction.ABORT)
-                .set().conditionValues(contentValues)
-                .where(name.eq("test"))
-                .and(id.is(Long.valueOf(uri.getPathSegments().get(1))))
-                .and(isOpen.is(Boolean.valueOf(uri.getPathSegments().get(2))))
-                .getQuery();
-
-        String trimmed = query.trim().replaceFirst("UPDATE OR ABORT `NoteModel` SET ", "");
-        trimmed = trimmed.replace("WHERE `name`='test' AND `id`=1 AND `isOpen`=1", "");
-        trimmed = trimmed.replace("SET", "").trim();
-        String[] values = trimmed.split(",");
-        assertEquals(3, values.length);
-
-        for (String value : values) {
-            assertTrue(value.trim().equals("`id`=1") || value.trim().equals("`providerModel`=1") ||
-                    value.trim().equals("`note`='Test'"));
+        ConditionGroup group = ConditionGroup.clause();
+        SqlUtils.addContentValues(contentValues, group);
+        for (SQLCondition condition : group) {
+            assertTrue(condition.columnName().equals("`id`") || condition.columnName().equals("`providerModel`") ||
+                    condition.columnName().equals("`note`"));
         }
     }
 
