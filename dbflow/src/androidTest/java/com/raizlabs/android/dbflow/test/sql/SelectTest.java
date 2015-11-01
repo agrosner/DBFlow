@@ -56,7 +56,7 @@ public class SelectTest extends FlowTestCase {
                 .from(TestModel3.class)
                 .orderBy(name, true)
                 .orderBy(type, true);
-        assertEquals("SELECT COUNT(`type`) FROM `TestModel32` ORDER BY `name` ASC, `type` ASC", where6.getQuery().trim());
+        assertEquals("SELECT COUNT(`type`) FROM `TestModel32` ORDER BY `name` ASC,`type` ASC", where6.getQuery().trim());
     }
 
     public void testJoins() {

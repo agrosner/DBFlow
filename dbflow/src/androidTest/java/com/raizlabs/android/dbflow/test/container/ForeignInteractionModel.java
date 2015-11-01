@@ -10,9 +10,6 @@ import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Description:
  */
@@ -40,9 +37,7 @@ public class ForeignInteractionModel extends TestModel1 {
 
     public void setTestModel1(ParentModel model1) {
         testModel1 = new ForeignKeyContainer<>(ParentModel.class);
-        Map<String, Object> map = new HashMap<>();
-        //map.put(ParentModel_Table.NAME, model1.name);
-        //map.put(ParentModel_Table.TYPE, model1.type);
-        testModel1.setData(map);
+        testModel1.put(ParentModel_Table.name, model1.name);
+        testModel1.put(ParentModel_Table.type, model1.type);
     }
 }
