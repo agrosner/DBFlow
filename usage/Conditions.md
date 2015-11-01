@@ -86,3 +86,20 @@ A whole set of `Condition` operations are supported for `Property` including:
 The `ConditionGroup` is the successor to the `ConditionQueryBuilder`. It was flawed in that it conformed to `QueryBuilder`, yet contained `Condition`, and required a type-parameter that referenced the table it belonged in.
 
 `ConditionGroup` are arbitrary collections of `Condition` that can combine into one SQlite statement _or_ be used as `Condition` within another `ConditionGroup`.
+
+Any Sqlite wrapper class that takes in multiple `Condition` use this class to construct the query for it.
+
+```java
+
+SQLite.select()
+  .from(MyTable.class)
+  .where(MyTable_Table.someColumn.is("SomeValue"))
+  .and(MyTable_Table.anotherColumn.is("ThisValue"));
+
+  // or
+  SQLite.select()
+    .from(MyTable.class)
+    .where(ConditionGroup.clause()
+      .and(MyTable_Table.someColumn.is("SomeValue")
+      .and(MyTable_Table.anotherColumn.is("ThisValue"));
+```
