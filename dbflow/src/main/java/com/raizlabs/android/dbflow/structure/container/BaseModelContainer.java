@@ -190,46 +190,26 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public void save() {
-        if (model == null) {
-            modelContainerAdapter.save(this);
-        } else {
-            model.save();
-        }
+        modelContainerAdapter.save(this);
     }
 
     @Override
     public void delete() {
-        if (model == null) {
-            modelContainerAdapter.delete(this);
-        } else {
-            model.delete();
-        }
+        modelContainerAdapter.delete(this);
     }
 
     @Override
     public void update() {
-        if (model == null) {
-            modelContainerAdapter.update(this);
-        } else {
-            model.update();
-        }
+        modelContainerAdapter.update(this);
     }
 
     @Override
     public void insert() {
-        if (model == null) {
-            modelContainerAdapter.insert(this);
-        } else {
-            model.save();
-        }
+        modelContainerAdapter.insert(this);
     }
 
     @Override
     public boolean exists() {
-        if (model == null) {
-            return modelContainerAdapter.exists(this);
-        } else {
-            return model.exists();
-        }
+        return modelContainerAdapter.exists(this);
     }
 }

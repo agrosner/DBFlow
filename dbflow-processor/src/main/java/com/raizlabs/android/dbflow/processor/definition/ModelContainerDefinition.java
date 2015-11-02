@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValu
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.CustomTypeConverterPropertyMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.ExistenceMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.ForeignKeyContainerMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionMethod;
@@ -51,7 +52,8 @@ public class ModelContainerDefinition extends BaseDefinition {
                     new ExistenceMethod(tableDefinition, true),
                     new PrimaryConditionMethod(tableDefinition, true),
                     new ToModelMethod(tableDefinition),
-                    new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener, putDefaultValue)
+                    new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener, putDefaultValue),
+                    new ForeignKeyContainerMethod(tableDefinition)
             };
         }
     }

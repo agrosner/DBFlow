@@ -67,6 +67,13 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
         getData().put(columnName, value);
     }
 
+    @Override
+    public void setModel(ModelClass model) {
+        super.setModel(model);
+
+
+    }
+
     /**
      * Attemps to load the model from the DB using a {@link Select} query.
      *

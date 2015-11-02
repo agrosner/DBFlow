@@ -35,6 +35,7 @@ public class ExampleTest extends FlowTestCase {
         ant.associateQueen(queen);
         ant.save();
 
+        assertEquals(queen.getMyAnts().size(), 1);
         assertTrue(ant.exists());
 
         queen.delete();

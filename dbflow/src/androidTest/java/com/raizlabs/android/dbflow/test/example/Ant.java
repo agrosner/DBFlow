@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
 
@@ -30,7 +31,6 @@ public class Ant extends BaseModel {
     ForeignKeyContainer<Queen> queenForeignKeyContainer;
 
     public void associateQueen(Queen queen) {
-        queenForeignKeyContainer = new ForeignKeyContainer<>(Queen.class);
-        queenForeignKeyContainer.setModel(queen);
+        queenForeignKeyContainer = FlowManager.getContainerAdapter(Queen.class).toForeignKeyContainer(queen);
     }
 }

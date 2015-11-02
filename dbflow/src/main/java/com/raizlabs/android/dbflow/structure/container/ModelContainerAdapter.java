@@ -65,6 +65,15 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
     public abstract ModelClass toModel(ModelContainer<ModelClass, ?> modelContainer);
 
     /**
+     * Converts the {@link ModelClass} into a {@link ForeignKeyContainer} by appending only its primary
+     * keys to the container. This is mostly for convenience.
+     *
+     * @param model the model to convert.
+     * @return A new {@link ForeignKeyContainer} from the {@link ModelClass}.
+     */
+    public abstract ForeignKeyContainer<ModelClass> toForeignKeyContainer(ModelClass model);
+
+    /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
      * this method will be overridden.
      *

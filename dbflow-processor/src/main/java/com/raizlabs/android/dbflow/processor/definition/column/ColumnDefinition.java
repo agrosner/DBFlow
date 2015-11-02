@@ -357,4 +357,13 @@ public class ColumnDefinition extends BaseDefinition {
 
         return codeBlockBuilder.build();
     }
+
+    public CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
+
+        CodeBlock.Builder codeBuilder = CodeBlock.builder();
+        codeBuilder.addStatement("$L.put($T.$L, $L)", ModelUtils.getVariable(true), tableClassName, columnName,
+                columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+                        ModelUtils.getVariable(false), false));
+        return codeBuilder.build();
+    }
 }
