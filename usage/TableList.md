@@ -1,42 +1,32 @@
 # Queries as Lists
-
-
-In this library, we enable easy list and adapter-based operations using ```FlowCursorList``` and `FlowQueryList`. Both
-of these correspond (in order) to `BaseAdapter` and `List<? extends Model>`.
+In this library, we enable easy list and adapter-based operations using `FlowCursorList` and `FlowQueryList`. Both of these correspond (in order) to `BaseAdapter` and `List<? extends Model>`.
 
 ## Cursor List
+A read-only cursor-backed object that provides caching of retrieved models used to display in a list. It contains methods very similiar to `BaseAdapter` such as `getCount()` and `getItem(position)`.
 
-A read-only cursor-backed object that provides caching of retrieved models used to display in a list.
-It contains methods very similiar to `BaseAdapter` such as `getCount()` and `getItem(position)`.
-
-This class becomes useful when we have a very large dataset that we wish to display on screen without killing memory, or
-keep memory usage to a slim minimum by only loading items we need. This class is similar to `CursorAdapter` except it does
-not extend any adapter class and provides a simple yet effective API for retrieving and converted data from the database with ease.
+This class becomes useful when we have a very large dataset that we wish to display on screen without killing memory, or keep memory usage to a slim minimum by only loading items we need. This class is similar to `CursorAdapter` except it does not extend any adapter class and provides a simple yet effective API for retrieving and converted data from the database with ease.
 
 There are a few ways of defining it:
-  1. Using any valid `ModelQueriable` such as `From`, `StringQuery`, and `Where`
+- Using any valid `ModelQueriable` such as `From`, `StringQuery`, and `Where`
 
   ```java
   // true to cache models, false to not.
-  new FlowCursorList<>(true, new Select().from(TestModel.class)
-    .where(Condition.column(TestModel1$Table.NAME).like("pasta%")));
+  new FlowCursorList<>(true, SQLite.select().from(TestModel.class)
+  .where(TestModel1_Table.name.like("pasta%")));
 
-    // true to cache models, specifying a size of the cache (ignored if the cache does not support it)
-    new FlowCursorList<>(1000, new Select().from(TestModel.class)
-      .where(Condition.column(TestModel1$Table.NAME).like("pasta%")));
+  // true to cache models, specifying a size of the cache (ignored if the cache does not support it)
+  new FlowCursorList<>(1000, SQLite.select().from(TestModel.class)
+   .where(TestModel1_Table.NAME.like("pasta%")));
   ```
 
-  2. Same constructors but specify table and Conditions:
+- Same constructors but specify table and Conditions:
 
   ```java
 
-  new FlowCursorList<>(true, TestModel.class,
-    Condition.column(TestModel1$Table.NAME).like("pasta%"));
+  new FlowCursorList<>(true, TestModel.class, TestModel1_Table.NAME.like("pasta%"));
 
-    new FlowCursorList<>(1000, TestModel.class,
-      Condition.column(TestModel1$Table.NAME).like("pasta%"));
-
-    ```
+  new FlowCursorList<>(1000, TestModel.class, TestModel1_Table.name.like("pasta%"));
+  ```
 
 ### Example
 
@@ -49,7 +39,7 @@ There are a few ways of defining it:
 
     // retrieve and cache rows that have a name like pasta%
       mFlowCursorList = new FlowCursorList<>(true, TestModel.class,
-        Condition.column(TestModel1$Table.NAME).like("pasta%"));
+            TestModel1_Table.name.like("pasta%"));
     }
 
     @Override
@@ -72,11 +62,9 @@ There are a few ways of defining it:
       // Implement here
     }
   }
-
 ```
 
 ### Specifying custom caches
-
 To use a different cache than the default `LruCache`, override `getBackingCache()`:
 
 ```java
@@ -89,21 +77,19 @@ FlowCursorList<TestModel> list = new FlowCursorList<TestModel>(true, someWhere) 
     }
 
 }
-
 ```
 
 ## Query List
-
 A `FlowQueryList` is :
-  1. Java `List` implementation of managing a database table.
-  2. All modifications affect the table in real-time.
-  3. All modifications, by default, are immediate.
-  4. If you wish to not run these on the main thread, call `flowTableList.setTransact(true)`.
-Internally its backed by a `FlowCursorList` to include all of it's existing functionality.
+1. Java `List` implementation of managing a database table.
+2. All modifications affect the table in real-time.
+3. All modifications, by default, are immediate.
+4. If you wish to not run these on the main thread, call `flowTableList.setTransact(true)`.
+5. Internally its backed by a `FlowCursorList` to include all of it's existing functionality.
 
 ### Best Practices
+- Avoid multiple single operations in a loop and instead use the batch methods. Each operation calls the internal `refresh()`,
 
-  1. Avoid multiple single operations in a loop and instead use the batch methods. Each operation calls the internal `refresh()`,
   which reruns the query in the DB.
 
   ```java
@@ -112,26 +98,26 @@ Internally its backed by a `FlowCursorList` to include all of it's existing func
 
   // DONT
   for (int i = 0; i < 50; i++) {
-    TableModel object = anotherList.get(i);
-    flowQueryList.remove(object);
+  TableModel object = anotherList.get(i);
+  flowQueryList.remove(object);
   }
 
   // DO
   flowQueryList.removeAll(anotherList);
-
   ```
 
-  2. When making changes outside of the `FlowQueryList`, the data contained becomes stale.
+- When making changes outside of the `FlowQueryList`, the data contained becomes stale.
+
   You can either: A. call `refresh()` before querying its data again or B. Register
+
   self-refreshes:
 
   ```java
 
   flowQueryList.enableSelfRefreshes(context);
-
   ```
 
-  3. If you're making tons of single changes (using the FlowQueryList or not), it's much more efficient to use a transaction. In this instance we delay the notification of listeners until the
+- If you're making tons of single changes (using the FlowQueryList or not), it's much more efficient to use a transaction. In this instance we delay the notification of listeners until the
 
   ```java
 
@@ -142,9 +128,7 @@ Internally its backed by a `FlowCursorList` to include all of it's existing func
   // calls any listeners associated with it (including the listener we registered earlier)
   // refreshes the list here (if registered)
   flowQueryList.endTransactionAndNotify();
-
   ```
-
 
 ### Example
 
@@ -167,5 +151,4 @@ flowQueryList.set(model1);
 flowQueryList.clear();
 
 flowQueryList.endTransactionAndNotify();
-
 ```

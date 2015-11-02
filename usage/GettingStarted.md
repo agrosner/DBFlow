@@ -182,11 +182,11 @@ public class Queen extends BaseModel {
 
   @OneToMany(methods = {OneToMany.Method.SAVE, OneToMany.Method.DELETE}, variableName = "ants")
   public List<Ant> getMyAnts() {
-    if(ants == null) {
-      ants = new Select()
-              .from(Ant.class)
-              .where(Condition.column(Ant$Table.QUEENFOREIGNKEYCONTAINER_QUEEN_ID).is(id))
-              .queryList();
+    if (ants == null || ants.isEmpty()) {
+            ants = SQLite.select()
+                    .from(Ant.class)
+                    .where(Ant_Table.queenForeignKeyContainer_id.eq(id))
+                    .queryList();
     }
     return ants;
   }

@@ -8,24 +8,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Author: andrewgrosner
  * Description: An anonymous model object that operates just like a {@link java.util.Map}. It must correspond to
  * a {@link ModelClass} to get its blueprint.
  */
-public class MapModel<ModelClass extends Model> extends SimpleModelContainer<ModelClass, Map<String, Object>> implements Model {
+public class MapModelContainer<ModelClass extends Model> extends SimpleModelContainer<ModelClass, Map<String, Object>> implements Model {
 
-    public MapModel(Class<ModelClass> table) {
+    public MapModelContainer(Class<ModelClass> table) {
         this(new HashMap<String, Object>(), table);
     }
 
-    public MapModel(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+    public MapModelContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
         super(existingContainer);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
-        return new MapModel((Map<String, Object>) inValue, columnClass);
+        return new MapModelContainer((Map<String, Object>) inValue, columnClass);
     }
 
     @Override
@@ -34,11 +33,11 @@ public class MapModel<ModelClass extends Model> extends SimpleModelContainer<Mod
     }
 
     @Override
-    public Map newDataInstance() {
-        return new HashMap();
+    public Map<String, Object> newDataInstance() {
+        return new HashMap<>();
     }
 
-    public MapModel(Map<String, Object> map, Class<ModelClass> table) {
+    public MapModelContainer(Map<String, Object> map, Class<ModelClass> table) {
         super(table, map);
     }
 

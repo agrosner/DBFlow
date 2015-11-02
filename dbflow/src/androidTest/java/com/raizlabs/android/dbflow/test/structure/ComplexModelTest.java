@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.test.structure;
 
 import com.raizlabs.android.dbflow.structure.container.JSONModel;
-import com.raizlabs.android.dbflow.structure.container.MapModel;
+import com.raizlabs.android.dbflow.structure.container.MapModelContainer;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import static com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name;
@@ -19,11 +19,11 @@ public class ComplexModelTest extends FlowTestCase {
 
         complexModel.testModel1 = jsonModel;
 
-        MapModel<TestModel2> mapModel = new MapModel<>(TestModel2.class);
-        mapModel.put(name, "Test1");
-        mapModel.put(model_order, 1);
+        MapModelContainer<TestModel2> mapModelContainer = new MapModelContainer<>(TestModel2.class);
+        mapModelContainer.put(name, "Test1");
+        mapModelContainer.put(model_order, 1);
 
-        complexModel.mapModel = mapModel;
+        complexModel.mapModelContainer = mapModelContainer;
 
         complexModel.save();
 
@@ -34,10 +34,10 @@ public class ComplexModelTest extends FlowTestCase {
         assertTrue(!complexModel.exists());
 
         jsonModel.delete();
-        mapModel.delete();
+        mapModelContainer.delete();
 
         assertTrue(!jsonModel.exists());
-        assertTrue(!mapModel.exists());
+        assertTrue(!mapModelContainer.exists());
     }
 
 }

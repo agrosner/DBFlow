@@ -1,17 +1,14 @@
 # SQL Statements Using the Wrapper Classes
-
 In SQL with Android, writing SQL is not that _fun_, so to make it easy and useful,  this library provides a comprehensive set of SQLite statement wrappers.
 
 In the first section I describe how using the wrapper classes drastically simplify code writing.
 
-### Example
-
-For example, we want to find all ants from ```Ant``` that are of type "worker" and are female. Writing the SQL statement is easy enough:
+## Example
+For example, we want to find all ants from `Ant` that are of type "worker" and are female. Writing the SQL statement is easy enough:
 
 ```sql
 
 SELECT * FROM Ant where type = 'worker' AND isMale = 0;
-
 ```
 
 We want to write this in Android code, convert the SQL data into useful information:
@@ -37,69 +34,69 @@ if (cursor.moveToFirst()) {
   }
   while (cursor.moveToNext());
 }
-
 ```
 
 This is short and sweet for simple queries, but why do we have to keep writing these statements?
 
 What happens when:
-  1. We add or remove columns
-  2. Have to write more functions like this for other tables, queries, and other kinds of data?
+1. We add or remove columns
+2. Have to write more functions like this for other tables, queries, and other kinds of data?
 
-In short, we want our code to be maintainable, short, reusable, and still remain expressive
-of what actually is happening. In this library, this query becomes very easy:
+In short, we want our code to be maintainable, short, reusable, and still remain expressive of what actually is happening. In this library, this query becomes very easy:
 
 ```java
 
 // main thread retrieval
-List<Ant> devices = new Select().from(Ant.class)
-  .where(
-      Condition.column(Ant$Table.TYPE).eq("worker"),
-      Condition.column(Ant$Table.ISMALE).eq(false)).queryList();
+List<Ant> devices = SQLite.select().from(Ant.class)
+  .where(Ant_Table.type.eq("worker"))
+  .and(Ant_Table.isMale.eq(false)).queryList();
 
 // Async Transaction Queue Retrieval (Recommended)
 TransactionManager.getInstance().addTransaction(new SelectListTransaction<>(
-  new Select()
+  SQLite.select()
   .from(DeviceObject.class)
-  .where(
-      Condition.column(Ant$Table.TYPE).eq("worker"),
-      Condition.column(Ant$Table.ISMALE).eq(false))),
+  .where(Ant_Table.type.eq("worker"))
+  .and(Ant_Table.isMale.eq(false)),
   transactionListener);
-
 ```
 
 There are many kinds of queries that are supported in DBFlow including:
-  1. SELECT
-  2. UPDATE
-  3. DELETE
-  4. JOIN
+1. SELECT
+2. UPDATE
+3. INSERT
+4. DELETE
+5. JOIN
 
-### SELECT Statements and Retrieval Methods
-
+## SELECT Statements and Retrieval Methods
 A `SELECT` statement retrieves data from the database. We retrieve data via
-  1. Normal `Select` on the main thread
-  2. Running a `Transaction` using the `TransactionManager` (recommended for large
-  queries).
+1. Normal `Select` on the main thread
+2. Running a `Transaction` using the `TransactionManager` (recommended for large
+3. queries).
 
 ```java
 
 // Query a List
-new Select().from(SomeTable.class).queryList();
-new Select().from(SomeTable.class).where(conditions).queryList();
+SQLite.select().from(SomeTable.class).queryList();
+SQLite.select().from(SomeTable.class).where(conditions).queryList();
 
 // Query Single Model
-new Select().from(SomeTable.class).querySingle();
-new Select().from(SomeTable.class).where(conditions).querySingle();
+SQLite.select().from(SomeTable.class).querySingle();
+SQLite.select().from(SomeTable.class).where(conditions).querySingle();
 
 // Query a Table List and Cursor List
-new Select().from(SomeTable.class).where(conditions).queryTableList();
-new Select().from(SomeTable.class).where(conditions).queryCursorList();
+SQLite.select().from(SomeTable.class).where(conditions).queryTableList();
+SQLite.select().from(SomeTable.class).where(conditions).queryCursorList();
+
+// Query into a ModelContainer!
+SQLite.select().from(SomeTable.class).where(conditions).queryModelContainer(new MapModelContainer<>(SomeTable.class));
 
 // SELECT methods
-new Select().distinct().from(table).queryList();
-new Select().all().from(table).queryList();
-new Select().avg(SomeTable$Table.SALARY).from(SomeTable.class).queryList();
-new Select().method(SomeTable$Table.SALARY, "MAX").from(SomeTable.class).queryList();
+SQLite.select().distinct().from(table).queryList();
+SQLite.select().from(table).queryList();
+SQLite.select(Method.avg(SomeTable_Table.SALARY))
+  .from(SomeTable.class).queryList();
+SQLite.select(Method.max(SomeTable_Table.SALARY))
+  .from(SomeTable.class).queryList();
 
 // Transact a query on the DBTransactionQueue
 TransactionManager.getInstance().addTransaction(
@@ -111,77 +108,64 @@ TransactionManager.getInstance().addTransaction(
 });
 
 // Selects Count of Rows for the SELECT statment
-long count = new Select().count(SomeTable.class).where(conditions).count();
-
-
+long count = Query.select(Method.count())
+  .where(conditions).count();
 ```
 
-#### Order By
+### Order By
 
 ```java
 
 // true for 'ASC', false for 'DESC'
-new Select()
+SQLite.select()
   .from(table)
   .where()
-  .orderBy(true, Customer$Table.CUSTOMER_ID)
+  .orderBy(Customer_Table.customer_id, true)
   .queryList();
-
-// string order by as well
-new Select()
-  .from(table)
-  .where()
-  .orderBy(Customer$Table.CUSTOMER_ID + " ASC")
-  .queryList();
-
-
 ```
 
-#### Group By
+### Group By
 
 ```java
-new Select().from(table).where()
+SQLite.select().from(table).where()
   .groupBy(new QueryBuilder()
     .appendQuotedArray(Customer$Table.CUSTOMER_ID, Customer$Table.CUSTOMER_NAME))
   .queryList();
 ```
 
-#### HAVING
+### HAVING
 
 ```java
-new Select().from(table).where()
+SQLite.select().from(table).where()
   .groupBy(new QueryBuilder().appendQuotedArray(Customer$Table.CUSTOMER_ID, Customer$Table.CUSTOMER_NAME))
   .having(Condition.column(Customer$Table.CUSTOMER_ID).greaterThan(2))
   .queryList();
 ```
 
-#### LIMIT + OFFSET
+### LIMIT + OFFSET
 
 ```java
-new Select().from(table).where()
+SQLite.select().from(table).where()
   .limit(3)
   .offset(2)
   .queryList();
 ```
 
-### UPDATE statements
-
+## UPDATE statements
 There are two ways of updating data in the database:
-  1. Using the ```Update``` class
-  2. Running a `Transaction` using the `TransactionManager` (recommended for thread-safety,
-  however seeing changes are async).
+1. Using the `Update` class
+2. Running a `Transaction` using the `TransactionManager` (recommended for thread-safety,
+3. however seeing changes are async).
 
 In this section we will describe bulk updating data from the database.
 
-From our earlier example on ants, we want to change all of our current male "worker" ants
-into "other" ants because they became lazy and do not work anymore.
+From our earlier example on ants, we want to change all of our current male "worker" ants into "other" ants because they became lazy and do not work anymore.
 
 Using native SQL:
 
 ```sql
 
 UPDATE Ant SET type = 'other' WHERE male = 1 AND type = 'worker';
-
 ```
 
 Using DBFlow:
@@ -196,10 +180,9 @@ update.queryClose();
 
 // TransactionManager (more methods similar to this one)
 TransactionManager.getInstance().addTransaction(new UpdateTransaction<>(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI), update);
-
 ```
 
-### DELETE statements
+## DELETE statements
 
 ```java
 
@@ -214,14 +197,12 @@ new Delete()
   .from(MyTable.class)
   .where(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
     .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).query();
-
 ```
 
-### JOIN statements
+## JOIN statements
+`JOIN` statements are great for combining many-to-many relationships.
 
-```JOIN``` statements are great for combining many-to-many relationships.
-
-For example we have a table named ```Customer``` and another named ```Reservations```.
+For example we have a table named `Customer` and another named `Reservations`.
 
 ```java
 
@@ -231,5 +212,4 @@ List<CustomTable> customers = new Select()
   .join(Reservations.class, JoinType.INNER).as("R")
     .on(Condition.column(ColumnAlias.columnTable("C", Customer$Table.CUSTOMER_ID)
       .eq(ColumnAlias.columnTable("R", Reservations$Table.CUSTOMER_ID)).queryCustomList(CustomTable.class);
-
 ```
