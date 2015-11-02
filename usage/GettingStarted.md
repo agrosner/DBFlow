@@ -91,7 +91,7 @@ So we have a queen ant definition, and now we need to define a `Colony` for the 
 ### The Colony
 
 ```java
-
+@ModelContainer
 @Table(database = ColonyDatabase.class)
 public class Colony extends BaseModel {
 
@@ -151,14 +151,13 @@ public class Ant extends BaseModel {
 
   @Column
   @ForeignKey(saveForeignKeyModel = false)
-  ForeignKeyContainer<Queen> queenModelContainer;
+  ForeignKeyContainer<Queen> queenForeignKeyContainer;
 
   /**
   * Example of setting the model for the queen.
   */
   public void associateQueen(Queen queen) {
-    queenModelContainer = new ForeignKeyContainer<>(Queen.class);
-    queenModelContainer.setModel(queen);
+    queenForeignKeyContainer = FlowManager.getContainerAdapter(Queen.class).toForeignKeyContainer(queen);
   }
 }
 ```
