@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.test.example;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
-import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -27,10 +26,7 @@ public class Ant extends BaseModel {
     boolean isMale;
 
     @Column
-    @ForeignKey(references = {@ForeignKeyReference(columnName = "queen_id",
-            columnType = Long.class,
-            foreignKeyColumnName = "id")},
-            saveForeignKeyModel = false)
+    @ForeignKey(saveForeignKeyModel = false)
     ForeignKeyContainer<Queen> queenForeignKeyContainer;
 
     public void associateQueen(Queen queen) {

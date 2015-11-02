@@ -102,8 +102,8 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     /**
-     * Invalidates the underlying model. In the next {@link #toModel()} call, it will re-query the DB with
-     * the underlying data.
+     * Invalidates the underlying model. In the next {@link #toModel()} call, it will re-query the underlying data
+     * and recreate a {@link ModelClass}.
      */
     public void invalidateModel() {
         setModel(null);
@@ -190,26 +190,46 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Override
     public void save() {
-        modelContainerAdapter.save(this);
+        if (model == null) {
+            modelContainerAdapter.save(this);
+        } else {
+            model.save();
+        }
     }
 
     @Override
     public void delete() {
-        modelContainerAdapter.delete(this);
+        if (model == null) {
+            modelContainerAdapter.delete(this);
+        } else {
+            model.delete();
+        }
     }
 
     @Override
     public void update() {
-        modelContainerAdapter.update(this);
+        if (model == null) {
+            modelContainerAdapter.update(this);
+        } else {
+            model.update();
+        }
     }
 
     @Override
     public void insert() {
-        modelContainerAdapter.insert(this);
+        if (model == null) {
+            modelContainerAdapter.insert(this);
+        } else {
+            model.save();
+        }
     }
 
     @Override
     public boolean exists() {
-        return modelContainerAdapter.exists(this);
+        if (model == null) {
+            return modelContainerAdapter.exists(this);
+        } else {
+            return model.exists();
+        }
     }
 }

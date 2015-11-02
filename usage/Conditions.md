@@ -101,5 +101,5 @@ SQLite.select()
     .from(MyTable.class)
     .where(ConditionGroup.clause()
       .and(MyTable_Table.someColumn.is("SomeValue")
-      .and(MyTable_Table.anotherColumn.is("ThisValue"));
+      .or(MyTable_Table.anotherColumn.is("ThisValue"));
 ```

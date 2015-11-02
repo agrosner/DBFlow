@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.test.example;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
-import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -14,6 +14,7 @@ import java.util.List;
 /**
  * Description:
  */
+@ModelContainer
 @Table(database = ColonyDatabase.class)
 public class Queen extends BaseModel {
 
@@ -25,20 +26,17 @@ public class Queen extends BaseModel {
     String name;
 
     @Column
-    @ForeignKey(references = {@ForeignKeyReference(columnName = "colony_id",
-            columnType = long.class,
-            foreignKeyColumnName = "id")},
-            saveForeignKeyModel = false)
+    @ForeignKey(saveForeignKeyModel = false)
     Colony colony;
 
     List<Ant> ants;
 
     @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
     public List<Ant> getMyAnts() {
-        if (ants == null) {
+        if (ants == null || ants.isEmpty()) {
             ants = new Select()
                     .from(Ant.class)
-                    .where(Ant_Table.queen_id.eq(id))
+                    .where(Ant_Table.queenForeignKeyContainer_id.eq(id))
                     .queryList();
         }
         return ants;
