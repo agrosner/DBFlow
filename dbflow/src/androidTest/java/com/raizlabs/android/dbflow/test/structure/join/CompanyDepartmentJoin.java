@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 public class CompanyDepartmentJoin extends BaseQueryModel {
 
     @Column
-    String emp_id;
+    long emp_id;
 
     @Column
     String name;

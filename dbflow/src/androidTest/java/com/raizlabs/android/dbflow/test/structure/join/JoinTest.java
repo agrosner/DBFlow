@@ -109,6 +109,22 @@ public class JoinTest extends FlowTestCase {
 
         List<CompanyDepartmentJoin> companyDepartmentJoins = joinQuery.queryCustomList(CompanyDepartmentJoin.class);
 
+        assertEquals(companyDepartmentJoins.size(), 3);
+
+        CompanyDepartmentJoin departmentJoin = companyDepartmentJoins.get(0);
+        assertEquals(departmentJoin.dept, "IT Billing");
+        assertEquals(departmentJoin.emp_id, 1);
+        assertEquals(departmentJoin.name, "Paul");
+
+        departmentJoin = companyDepartmentJoins.get(1);
+        assertEquals(departmentJoin.dept, "Engineering");
+        assertEquals(departmentJoin.emp_id, 2);
+        assertEquals(departmentJoin.name, "Allen");
+
+        departmentJoin = companyDepartmentJoins.get(2);
+        assertEquals(departmentJoin.dept, "Finance");
+        assertEquals(departmentJoin.emp_id, 7);
+        assertEquals(departmentJoin.name, "James");
 
         Delete.tables(Company.class, Department.class);
     }
