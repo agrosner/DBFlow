@@ -108,7 +108,7 @@ TransactionManager.getInstance().addTransaction(
 });
 
 // Selects Count of Rows for the SELECT statment
-long count = Query.select(Method.count())
+long count = SQLite.select(Method.count())
   .where(conditions).count();
 ```
 
@@ -127,25 +127,27 @@ SQLite.select()
 ### Group By
 
 ```java
-SQLite.select().from(table).where()
-  .groupBy(new QueryBuilder()
-    .appendQuotedArray(Customer$Table.CUSTOMER_ID, Customer$Table.CUSTOMER_NAME))
+SQLite.select()
+  .from(table)
+  .groupBy(Customer_Table.customer_id, Customer_Table.customer_name)
   .queryList();
 ```
 
 ### HAVING
 
 ```java
-SQLite.select().from(table).where()
-  .groupBy(new QueryBuilder().appendQuotedArray(Customer$Table.CUSTOMER_ID, Customer$Table.CUSTOMER_NAME))
-  .having(Condition.column(Customer$Table.CUSTOMER_ID).greaterThan(2))
+SQLite.select()
+  .from(table)
+  .groupBy(Customer_Table.customer_id, Customer_Table.customer_name))
+  .having(Customer_Table.customer_id.greaterThan(2))
   .queryList();
 ```
 
 ### LIMIT + OFFSET
 
 ```java
-SQLite.select().from(table).where()
+SQLite.select()
+  .from(table)
   .limit(3)
   .offset(2)
   .queryList();
@@ -153,9 +155,8 @@ SQLite.select().from(table).where()
 
 ## UPDATE statements
 There are two ways of updating data in the database:
-1. Using the `Update` class
-2. Running a `Transaction` using the `TransactionManager` (recommended for thread-safety,
-3. however seeing changes are async).
+1. Calling `SQLite.update()`or Using the `Update` class
+2. Running a `Transaction` using the `TransactionManager` (recommended for thread-safety, however seeing changes are async).
 
 In this section we will describe bulk updating data from the database.
 
@@ -173,13 +174,14 @@ Using DBFlow:
 ```java
 
 // Native SQL wrapper
-Where update = new Update().table(Ant.class).set(Condition.column(Ant$Table.TYPE).eq("other"))
-  .where(Condition.column(Ant$Table.TYPE).is("worker"))
-  .and(Condition.column(Ant$Table.ISMALE).is(true));
+Where update = SQLite.update(Ant.class)
+  .set(Ant_Table.type.eq("other"))
+  .where(Ant_Table.type.is("worker"))
+    .and(Ant_Table.isMale.is(true));
 update.queryClose();
 
 // TransactionManager (more methods similar to this one)
-TransactionManager.getInstance().addTransaction(new UpdateTransaction<>(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI), update);
+TransactionManager.getInstance().addTransaction(new QueryTransaction(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI), update);
 ```
 
 ## DELETE statements
@@ -193,10 +195,10 @@ Delete.table(MyTable.class, conditions);
 Delete.tables(MyTable1.class, MyTable2.class);
 
 // Delete using query
-new Delete()
-  .from(MyTable.class)
-  .where(Condition.column(DeviceObject$Table.CARRIER).is("T-MOBILE"))
-    .and(Condition.column(DeviceObject$Table.DEVICE).is("Samsung-Galaxy-S5")).query();
+SQLite.delete(MyTable.class)
+  .where(DeviceObject_Table.carrier.is("T-MOBILE"))
+    .and(DeviceObject_Table.device.is("Samsung-Galaxy-S5"))
+  .query();
 ```
 
 ## JOIN statements

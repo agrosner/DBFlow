@@ -137,3 +137,10 @@ There are a few ways to create a specific transaction you wish:
   ```
 
 - `QueryTransaction` has you use a `Queriable` to retrieve a cursor in whatever way you what.
+
+```java
+
+// any Where, From, Insert, Set, and StringQuery all are valid parameters
+TransactionManager.getInstance().addTransaction(new QueryTransaction(DBTransactionInfo.create(),
+  SQLite.delete().from(MyTable.class).where(MyTable_Table.name.is("Deleters"))));
+```

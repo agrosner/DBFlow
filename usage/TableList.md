@@ -16,14 +16,14 @@ There are a few ways of defining it:
 
   // true to cache models, specifying a size of the cache (ignored if the cache does not support it)
   new FlowCursorList<>(1000, SQLite.select().from(TestModel.class)
-   .where(TestModel1_Table.NAME.like("pasta%")));
+   .where(TestModel1_Table.name.like("pasta%")));
   ```
 
 - Same constructors but specify table and Conditions:
 
   ```java
 
-  new FlowCursorList<>(true, TestModel.class, TestModel1_Table.NAME.like("pasta%"));
+  new FlowCursorList<>(true, TestModel.class, TestModel1_Table.name.like("pasta%"));
 
   new FlowCursorList<>(1000, TestModel.class, TestModel1_Table.name.like("pasta%"));
   ```
@@ -88,19 +88,25 @@ A `FlowQueryList` is :
 5. Internally its backed by a `FlowCursorList` to include all of it's existing functionality.
 
 ### Best Practices
-- Avoid multiple single operations in a loop and instead use the batch methods. Each operation calls the internal `refresh()`,
-
-  which reruns the query in the DB.
+- Avoid multiple single operations in a loop and instead use the batch methods. Each operation calls the internal `refresh()`, which reruns the query in the DB.
 
   ```java
 
   FlowQueryList<TableModel> flowQueryList = ...;
 
-  // DONT
+  // DON'T
   for (int i = 0; i < 50; i++) {
-  TableModel object = anotherList.get(i);
-  flowQueryList.remove(object);
+    TableModel object = anotherList.get(i);
+    flowQueryList.remove(object);
   }
+
+  // better
+  flowQueryList.beginTransaction();
+  for (int i = 0; i < 50; i++) {
+    TableModel object = anotherList.get(i);
+    flowQueryList.remove(object);
+  }
+  flowQueryList.endTransactionAndNotify();
 
   // DO
   flowQueryList.removeAll(anotherList);

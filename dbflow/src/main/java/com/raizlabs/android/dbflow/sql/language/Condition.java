@@ -4,6 +4,8 @@ import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +13,7 @@ import java.util.List;
 
 /**
  * Description: The class that contains a column name, operator, and value. The operator can be any Sqlite conditional
- * operator. The value is the {@link com.raizlabs.android.dbflow.structure.Model} value of the column and WILL be
+ * operator. The value is the {@link Model} value of the column and WILL be
  * converted into the database value when we run the query.
  */
 public class Condition extends BaseCondition implements ITypeConditional {
@@ -47,9 +49,8 @@ public class Condition extends BaseCondition implements ITypeConditional {
     /**
      * Assigns the operation to "="
      *
-     * @param value The value of the column from the {@link com.raizlabs.android.dbflow.structure.Model} Note
-     *              this value may be type converted if used in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
+     * @param value The value of the column from the {@link Model}
+     *              so a {@link Model} value is safe here.
      * @return This condition
      */
     @Override
@@ -61,9 +62,9 @@ public class Condition extends BaseCondition implements ITypeConditional {
     /**
      * Assigns the operation to "=" the equals operator.
      *
-     * @param value The value of the column from the {@link com.raizlabs.android.dbflow.structure.Model} Note
+     * @param value The value of the column from the {@link Model} Note
      *              this value may be type converted if used in a {@link ConditionGroup}
-     *              so a {@link com.raizlabs.android.dbflow.structure.Model} value is safe here.
+     *              so a {@link Model} value is safe here.
      * @return This condition
      */
     @Override
@@ -248,7 +249,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     /**
-     * Optional separator when chaining this Condition within a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
+     * Optional separator when chaining this Condition within a {@link ConditionGroup}
      *
      * @param separator The separator to use
      * @return This instance

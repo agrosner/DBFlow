@@ -40,4 +40,15 @@ public class SQLite {
     public static Delete delete() {
         return new Delete();
     }
+
+    /**
+     * Starts a DELETE statement on the specified table.
+     *
+     * @param table        The table to delete from.
+     * @param <ModelClass> The class that implements {@link Model}.
+     * @return A {@link From} with specified DELETE on table.
+     */
+    public static <ModelClass extends Model> From<ModelClass> delete(Class<ModelClass> table) {
+        return delete().from(table);
+    }
 }

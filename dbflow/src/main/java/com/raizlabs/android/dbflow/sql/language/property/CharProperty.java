@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
