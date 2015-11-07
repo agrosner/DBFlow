@@ -38,7 +38,7 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
 
     @Override
     public ShortProperty withTable(NameAlias tableNameAlias) {
-        return new ShortProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
+        return new ShortProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(short value) {

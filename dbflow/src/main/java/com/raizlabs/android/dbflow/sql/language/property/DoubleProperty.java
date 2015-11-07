@@ -38,7 +38,7 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
 
     @Override
     public DoubleProperty withTable(NameAlias tableNameAlias) {
-        return new DoubleProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
+        return new DoubleProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(double value) {

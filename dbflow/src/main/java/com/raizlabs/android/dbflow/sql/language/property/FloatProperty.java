@@ -38,7 +38,7 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
 
     @Override
     public FloatProperty withTable(NameAlias tableNameAlias) {
-        return new FloatProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
+        return new FloatProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(float value) {

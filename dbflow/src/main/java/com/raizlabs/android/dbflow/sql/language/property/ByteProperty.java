@@ -38,7 +38,7 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
 
     @Override
     public ByteProperty withTable(NameAlias tableNameAlias) {
-        return new ByteProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
+        return new ByteProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(byte value) {

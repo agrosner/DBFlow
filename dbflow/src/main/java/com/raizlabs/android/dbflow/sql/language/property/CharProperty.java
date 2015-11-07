@@ -35,7 +35,7 @@ public class CharProperty extends BaseProperty<CharProperty> {
 
     @Override
     public CharProperty withTable(NameAlias tableNameAlias) {
-        return new CharProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
+        return new CharProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(char value) {
