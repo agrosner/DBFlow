@@ -105,4 +105,36 @@ public class IntProperty extends BaseProperty<IntProperty> {
         return column(nameAlias).concatenate(value);
     }
 
+    public Condition is(IntProperty property) {
+        return column(nameAlias).is(property);
+    }
+
+    public Condition isNot(IntProperty property) {
+        return column(nameAlias).isNot(property);
+    }
+
+    public Condition eq(IntProperty property) {
+        return is(property);
+    }
+
+    public Condition notEq(IntProperty property) {
+        return isNot(property);
+    }
+
+    public Condition greaterThan(IntProperty property) {
+        return column(nameAlias).greaterThan(property);
+    }
+
+    public Condition greaterThanOrEq(IntProperty property) {
+        return column(nameAlias).greaterThanOrEq(property);
+    }
+
+    public Condition lessThan(IntProperty property) {
+        return column(nameAlias).lessThan(property);
+    }
+
+    public Condition lessThanOrEq(IntProperty property) {
+        return column(nameAlias).lessThanOrEq(property);
+    }
+
 }

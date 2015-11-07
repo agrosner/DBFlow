@@ -101,4 +101,36 @@ public class CharProperty extends BaseProperty<CharProperty> {
     public Condition concatenate(char value) {
         return column(nameAlias).concatenate(value);
     }
+
+    public Condition is(CharProperty property) {
+        return column(nameAlias).is(property);
+    }
+
+    public Condition isNot(CharProperty property) {
+        return column(nameAlias).isNot(property);
+    }
+
+    public Condition eq(CharProperty property) {
+        return is(property);
+    }
+
+    public Condition notEq(CharProperty property) {
+        return isNot(property);
+    }
+
+    public Condition greaterThan(CharProperty property) {
+        return column(nameAlias).greaterThan(property);
+    }
+
+    public Condition greaterThanOrEq(CharProperty property) {
+        return column(nameAlias).greaterThanOrEq(property);
+    }
+
+    public Condition lessThan(CharProperty property) {
+        return column(nameAlias).lessThan(property);
+    }
+
+    public Condition lessThanOrEq(CharProperty property) {
+        return column(nameAlias).lessThanOrEq(property);
+    }
 }

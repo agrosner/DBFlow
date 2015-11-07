@@ -104,4 +104,36 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
     public Condition concatenate(float value) {
         return column(nameAlias).concatenate(value);
     }
+
+    public Condition is(FloatProperty property) {
+        return column(nameAlias).is(property);
+    }
+
+    public Condition isNot(FloatProperty property) {
+        return column(nameAlias).isNot(property);
+    }
+
+    public Condition eq(FloatProperty property) {
+        return is(property);
+    }
+
+    public Condition notEq(FloatProperty property) {
+        return isNot(property);
+    }
+
+    public Condition greaterThan(FloatProperty property) {
+        return column(nameAlias).greaterThan(property);
+    }
+
+    public Condition greaterThanOrEq(FloatProperty property) {
+        return column(nameAlias).greaterThanOrEq(property);
+    }
+
+    public Condition lessThan(FloatProperty property) {
+        return column(nameAlias).lessThan(property);
+    }
+
+    public Condition lessThanOrEq(FloatProperty property) {
+        return column(nameAlias).lessThanOrEq(property);
+    }
 }

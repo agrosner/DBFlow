@@ -104,4 +104,36 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
     public Condition concatenate(byte value) {
         return column(nameAlias).concatenate(value);
     }
+
+    public Condition is(ByteProperty property) {
+        return column(nameAlias).is(property);
+    }
+
+    public Condition isNot(ByteProperty property) {
+        return column(nameAlias).isNot(property);
+    }
+
+    public Condition eq(ByteProperty property) {
+        return is(property);
+    }
+
+    public Condition notEq(ByteProperty property) {
+        return isNot(property);
+    }
+
+    public Condition greaterThan(ByteProperty property) {
+        return column(nameAlias).greaterThan(property);
+    }
+
+    public Condition greaterThanOrEq(ByteProperty property) {
+        return column(nameAlias).greaterThanOrEq(property);
+    }
+
+    public Condition lessThan(ByteProperty property) {
+        return column(nameAlias).lessThan(property);
+    }
+
+    public Condition lessThanOrEq(ByteProperty property) {
+        return column(nameAlias).lessThanOrEq(property);
+    }
 }

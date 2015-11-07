@@ -104,4 +104,36 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
     public Condition concatenate(short value) {
         return column(nameAlias).concatenate(value);
     }
+
+    public Condition is(ShortProperty property) {
+        return column(nameAlias).is(property);
+    }
+
+    public Condition isNot(ShortProperty property) {
+        return column(nameAlias).isNot(property);
+    }
+
+    public Condition eq(ShortProperty property) {
+        return is(property);
+    }
+
+    public Condition notEq(ShortProperty property) {
+        return isNot(property);
+    }
+
+    public Condition greaterThan(ShortProperty property) {
+        return column(nameAlias).greaterThan(property);
+    }
+
+    public Condition greaterThanOrEq(ShortProperty property) {
+        return column(nameAlias).greaterThanOrEq(property);
+    }
+
+    public Condition lessThan(ShortProperty property) {
+        return column(nameAlias).lessThan(property);
+    }
+
+    public Condition lessThanOrEq(ShortProperty property) {
+        return column(nameAlias).lessThanOrEq(property);
+    }
 }

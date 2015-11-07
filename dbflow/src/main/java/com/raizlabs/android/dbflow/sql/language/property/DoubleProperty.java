@@ -104,4 +104,36 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
     public Condition concatenate(double value) {
         return column(nameAlias).concatenate(value);
     }
+
+    public Condition is(DoubleProperty property) {
+        return column(nameAlias).is(property);
+    }
+
+    public Condition isNot(DoubleProperty property) {
+        return column(nameAlias).isNot(property);
+    }
+
+    public Condition eq(DoubleProperty property) {
+        return is(property);
+    }
+
+    public Condition notEq(DoubleProperty property) {
+        return isNot(property);
+    }
+
+    public Condition greaterThan(DoubleProperty property) {
+        return column(nameAlias).greaterThan(property);
+    }
+
+    public Condition greaterThanOrEq(DoubleProperty property) {
+        return column(nameAlias).greaterThanOrEq(property);
+    }
+
+    public Condition lessThan(DoubleProperty property) {
+        return column(nameAlias).lessThan(property);
+    }
+
+    public Condition lessThanOrEq(DoubleProperty property) {
+        return column(nameAlias).lessThanOrEq(property);
+    }
 }

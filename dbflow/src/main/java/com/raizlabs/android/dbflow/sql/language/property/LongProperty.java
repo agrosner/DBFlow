@@ -104,4 +104,37 @@ public class LongProperty extends BaseProperty<LongProperty> {
     public Condition concatenate(long value) {
         return column(nameAlias).concatenate(value);
     }
+
+    public Condition is(LongProperty property) {
+        return column(nameAlias).is(property);
+    }
+
+    public Condition isNot(LongProperty property) {
+        return column(nameAlias).isNot(property);
+    }
+
+    public Condition eq(LongProperty property) {
+        return is(property);
+    }
+
+    public Condition notEq(LongProperty property) {
+        return isNot(property);
+    }
+
+    public Condition greaterThan(LongProperty property) {
+        return column(nameAlias).greaterThan(property);
+    }
+
+    public Condition greaterThanOrEq(LongProperty property) {
+        return column(nameAlias).greaterThanOrEq(property);
+    }
+
+    public Condition lessThan(LongProperty property) {
+        return column(nameAlias).lessThan(property);
+    }
+
+    public Condition lessThanOrEq(LongProperty property) {
+        return column(nameAlias).lessThanOrEq(property);
+    }
+
 }
