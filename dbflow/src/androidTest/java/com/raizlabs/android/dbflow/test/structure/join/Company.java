@@ -26,5 +26,5 @@ public class Company extends BaseModel {
     String address;
 
     @Column
-    String salary;
+    double salary;
 }
