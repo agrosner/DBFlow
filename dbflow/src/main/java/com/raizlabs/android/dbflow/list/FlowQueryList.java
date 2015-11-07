@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
 import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
@@ -19,8 +19,9 @@ import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelpe
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
-import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -75,7 +76,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      * @param table      The table to load into this list.
      * @param conditions The set of conditions to use when querying the DB.
      */
-    public FlowQueryList(Class<ModelClass> table, Condition... conditions) {
+    public FlowQueryList(Class<ModelClass> table, SQLCondition... conditions) {
         super(null);
         internalCursorList = new FlowCursorList<ModelClass>(true, table, conditions) {
             @Override
@@ -305,8 +306,9 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     @Override
     public void clear() {
         if (transact) {
-            TransactionManager.getInstance().addTransaction(
-                    new DeleteTransaction<>(MODIFICATION_INFO, internalCursorList.getTable()));
+            TransactionManager.getInstance()
+                    .addTransaction(new QueryTransaction(MODIFICATION_INFO,
+                            SQLite.delete().from(internalCursorList.getTable())));
         } else {
             Delete.table(internalCursorList.getTable());
         }

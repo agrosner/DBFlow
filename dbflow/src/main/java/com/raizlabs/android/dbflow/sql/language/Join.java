@@ -98,7 +98,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @param onConditions The conditions it is on
      * @return The FROM that this JOIN came from
      */
-    public From<FromClass> on(Condition... onConditions) {
+    public From<FromClass> on(SQLCondition... onConditions) {
         on = new ConditionGroup();
         on.andAll(onConditions);
         return from;
