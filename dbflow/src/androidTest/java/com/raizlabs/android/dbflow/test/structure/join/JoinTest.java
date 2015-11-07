@@ -16,7 +16,7 @@ public class JoinTest extends FlowTestCase {
                 .join(Department.class, Join.JoinType.INNER)
                 .on(Company_Table.id.withTable().eq(Department_Table.emp_id.withTable())).getQuery();
 
-        assertEquals("SELECT `emp_id`, `name`, `dept` FROM `Company` INNER JOIN `Department` " +
-                "ON `Company`.`id` = `Department`.`emp_id`", query);
+        assertEquals("SELECT `emp_id`,`name`,`dept` FROM `Company` INNER JOIN `Department` " +
+                "ON `Company`.`id`=`Department`.`emp_id`", query.trim());
     }
 }

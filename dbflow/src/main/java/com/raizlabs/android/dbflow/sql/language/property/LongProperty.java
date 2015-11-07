@@ -38,7 +38,7 @@ public class LongProperty extends BaseProperty<LongProperty> {
 
     @Override
     public LongProperty withTable(NameAlias tableNameAlias) {
-        return new LongProperty(table, new NameAlias(tableNameAlias).withTable(tableNameAlias.getAliasName()));
+        return new LongProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
     }
 
     public Condition is(long value) {
