@@ -206,7 +206,7 @@ SQLite.delete(MyTable.class)
 
 For example we have a table named `Customer` and another named `Reservations`.
 
-```java
+`acaac
 
 // use the different QueryModel (instead of Table) if the result cannot be applied to existing Model classes.
 List<CustomTable> customers = new Select()

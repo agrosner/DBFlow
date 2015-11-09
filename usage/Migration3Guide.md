@@ -1,7 +1,7 @@
 # DBFlow 3.0 Migration Guide
-DBFlow has undergone the most _significant_ changes in its lifetime in 3.0. This guide is meant to assist you in migrating from 2.1.x and above and may not be fully inclusive of all changes. This doc will mention the most glaring and significant changes.
+DBFlow has undergone the most _significant_ changes in its lifetime in 3.0. This guide is meant to assist you in migrating from 2.1.x and above and _may not_ be fully inclusive of all changes. This doc will mention the most glaring and significant changes.
 
-The changes that are not visible to the app developer using this library is the _complete_ overhaul of the underlying annotation processor, leading to wonderful improvements in maintainability of that code, readability, and stability of the generated code. Now it uses the updated [JavaPoet](https://github.com/square/javapoet) vs the outdated JavaWriter. The changes in this library alone _significantly_ helps out the stability of the generated code.
+A significant portion of the changes include the _complete_ overhaul of the underlying annotation processor, leading to wonderful improvements in maintainability of the code, readability, and stability of the generated code. Now it uses the updated [JavaPoet](https://github.com/square/javapoet) vs the outdated JavaWriter. The changes in this library alone _significantly_ helps out the stability of the generated code.
 
 ## Table Of Contents
 1. Database + Table Structure
@@ -19,7 +19,7 @@ The default `generatedClassSeparator` is now `_` instead of `$` to play nice wit
 @Database(generatedClassSeparator = "$")
 ```
 
-will restore your generated "Table" and more classes to normalcy.
+will keep your generated "Table" and other classes the same name.
 
 Globally, we no longer reference what `@Database` any database-specific element (Table, Migration, etc) by `String` name, but by `Class` now.
 
@@ -49,7 +49,72 @@ Why: We decided that referencing it directly by class name enforces type-safety 
 was a valid specifier.
 
 ## Table Changes
-@Table have some significant changes. Added was an `IndexGroup[]` of `indexGroups()`.
+@Table have some significant changes.
+
+Instead of generating just `String` column name within a corresponding `$Table` class, it now generates `Property` fields. These fields are significantly smarter and more powerful. They considerably aid in the simplification of many complex queries and make the code in general more readable, type-safe, and just overall better. _NOTE: the properties are no longer capitalized, rather they match exact casing of  the Column name._
+
+Previously, when you defined a class as:
+
+```java
+
+@Table(databaseName = TestDatabase.NAME)
+@ModelContainer
+public class TestModel2 extends BaseModel {
+
+  @Column
+  @PrimaryKey
+  String name;
+
+  @Column(name = "model_order")
+  int order;
+}
+```
+
+It generated a `TestModel2$Table` class:
+
+```java
+
+public final class TestModel2_Table {
+
+  public static final String NAME = "name";
+
+  public static final String MODEL_ORDER = "model_order";
+}
+```
+
+Now when you define a class, it generates a definition as follows:
+
+```java
+public final class TestModel2_Table {
+  public static final Property<String> name = new Property<String>(TestModel2.class, "name");
+
+  public static final IntProperty model_order = new IntProperty(TestModel2.class, "model_order");
+
+  public static BaseProperty getProperty(String columnName) {
+    columnName = QueryBuilder.quoteIfNeeded(columnName);
+    switch (columnName)  {
+      case "`name`":  {
+        return name;
+      }
+      case "`model_order`":  {
+        return model_order;
+      }
+      default:  {
+        throw new IllegalArgumentException("Invalid column name passed. Ensure you are calling the correct table's column");
+      }
+    }
+  }
+}
+```
+
+Each `Property` now is used for each all references to a column in query statements.
+
+The `getProperty()` method allows to keep compatibility with the old format as well as solve some `ContentProvider` compatibility issues.
+
+To read on how these properties interact read "Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more".
+
+### Index changes
+Added was an `IndexGroup[]` of `indexGroups()`.
 
 Now we can generate `IndexProperty` (see properties for more information), which provide us a convenient generated `Index` to use for the table. This then is used in a queries that rely on indexes and make it dead simple to activate and deactivate indexes.
 
@@ -101,7 +166,9 @@ public final class IndexModel2_Table {
 ```
 
 ### Foreign Key Changes
-`@ForeignKey` fields no longer need to specify it's references!!! The old way still works, but is no longer necessary for `Model`-based FKs. The annotation processor takes the primary keys of the referenced table and generates a column with {fieldName}_{referencedColumnName} that represents the same SQLite Type of the field. Note that is not backwards compatible with apps already with references, however going forward its not necessary anymore.
+`@ForeignKey` fields no longer need to specify it's references!!! The old way still works, but is no longer necessary for `Model`-based ForeignKeys. The annotation processor takes the primary keys of the referenced table and generates a column with {fieldName}_{referencedColumnName} that represents the same SQLite Type of the field.<br>_Note: that is not backwards compatible_ with apps already with references.
+
+Going forward with new tables, you can leave them out.
 
 Previously:
 
@@ -145,10 +212,10 @@ The result is _significantly_ cleaner and less overhead to maintain.
 If you wish to keep old references, please keep in mind that `foreignColumnName` is now `foreignKeyColumnName`.
 
 ## Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
-Perhaps the most significant internal changes to this library is making queries, conditions, and interactions with the database much stricter and more type-safe.
+Perhaps the most significant external change to this library is making queries, conditions, and interactions with the database much stricter and more type-safe.
 
 ### Properties
-Properties replace `String` column names generated in the "$Table" classes. They are also matching exact case to the column name. They have methods that generate `Condition` that drastically simplify queries. (Please note the `Condition` class has moved to the .language package).
+Properties replace `String` column names generated in the "$Table" classes. They also match exact case to the column name. They have methods that generate `Condition` that drastically simplify queries. (Please note the `Condition` class has moved to the `.language` package).
 
 Properties are represented by the interface `IProperty` which are subclassed into `Property<T>`, `Method`, and the primitive properties (`IntProperty`, `CharProperty`, etc).
 
@@ -189,3 +256,10 @@ List<SomeQueryTable> items =
 ```
 
 The code instantly becomes cleaner, and reads more like an actual query.
+
+### Replacement of the ConditionQueryBuilder
+ConditionQueryBuilder was fundamentally flawed. It represented a group of `Condition`, required a `Table`, yet extended `QueryBuilder`, meaning arbitrary `String` information could be appended to it, leading to potential for messy piece of query.
+
+It has been replaced with the `ConditionGroup` class. This class represents an arbitrary group of `SQLCondition` in which it's sole purpose is to group together `SQLCondition`. Even better a `ConditionGroup` itself is a `SQLCondition`, meaning it can _nest_ inside of other `ConditionGroup` to allow complicated and insane queries.
+
+// INSERT EXAMPLE HERE
