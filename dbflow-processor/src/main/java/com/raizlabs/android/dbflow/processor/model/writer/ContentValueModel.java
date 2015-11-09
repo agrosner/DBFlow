@@ -60,7 +60,7 @@ public class ContentValueModel implements FlowWriter {
                 statement = StatementMap.getStatement(SQLiteType.TEXT);
             }
             if (statement == null) {
-                throw new RuntimeException(String.format("Writing insert statement failed for: %1s. A type converter" +
+                throw new RuntimeException(String.format("Writing insert statement failed for: %1s. A type converter " +
                                                     "must be defined for this type, or if this field is a Model, must be a foreign key definition.",
                                                     accessModel.castedClass));
             }
