@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql;
 
 import com.raizlabs.android.dbflow.data.Blob;
 
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -13,7 +14,8 @@ public enum SQLiteType {
     INTEGER,
     REAL,
     TEXT,
-    BLOB;
+    BLOB,
+    DATE;
 
     private static final HashMap<String, SQLiteType> sTypeMap = new HashMap<String, SQLiteType>() {
         {
@@ -37,6 +39,7 @@ public enum SQLiteType {
             put(String.class.getName(), SQLiteType.TEXT);
             put(Byte[].class.getName(), SQLiteType.BLOB);
             put(Blob.class.getName(), SQLiteType.BLOB);
+            put(Date.class.getName(), SQLiteType.DATE);
         }
     };
 
