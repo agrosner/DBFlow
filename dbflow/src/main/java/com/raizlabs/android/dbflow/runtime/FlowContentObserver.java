@@ -85,10 +85,10 @@ public class FlowContentObserver extends ContentObserver {
          *                      and up.
          * @param action        The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
          *                      the {@link Action#CHANGE} will always be called for any action.
-         * @param sqlConditions The list of primary {@link SQLCondition} of what changed. Call {@link SQLCondition#columnName()}
+         * @param sqlConditions The array of primary {@link SQLCondition} of what changed. Call {@link SQLCondition#columnName()}
          *                      and {@link SQLCondition#value()} to get each information.
          */
-        void onModelStateChanged(Class<? extends Model> table, Action action, SQLCondition... sqlConditions);
+        void onModelStateChanged(Class<? extends Model> table, Action action, SQLCondition[] sqlConditions);
     }
 
     private final List<OnModelStateChangedListener> modelChangeListeners = new ArrayList<>();
@@ -227,8 +227,6 @@ public class FlowContentObserver extends ContentObserver {
         if (!queryNames.isEmpty()) {
             int index = 0;
             for (String key : queryNames) {
-                // for now we get first key we find
-                // maybe in future we add multi-column support
                 param = Uri.decode(uri.getQueryParameter(key));
                 columnName = key;
                 columnsChanged[index] = Condition.column(new NameAlias(columnName)).value(param);
