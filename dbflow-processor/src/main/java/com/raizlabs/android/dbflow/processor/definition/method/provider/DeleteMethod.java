@@ -56,7 +56,7 @@ public class DeleteMethod implements MethodDefinition {
                     CodeBlock.Builder code = CodeBlock.builder();
                     code.add("long count = new $T().from", ClassNames.DELETE);
                     ProviderMethodUtils.appendTableName(code, databaseName, tableEndpointDefinition.tableName);
-                    code.add(".where()");
+                    code.add(".where(toConditions(selection, selectionArgs))");
                     ProviderMethodUtils.appendPathSegments(code, manager, uriDefinition.segments,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
                     code.add(".count();\n");

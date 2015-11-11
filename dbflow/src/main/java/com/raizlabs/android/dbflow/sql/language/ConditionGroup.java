@@ -24,6 +24,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
 
     private QueryBuilder query;
     private boolean isChanged;
+    private boolean allCommaSeparated;
 
     ConditionGroup(NameAlias columnName) {
         super(columnName);
@@ -34,6 +35,19 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
 
     public ConditionGroup() {
         this(null);
+    }
+
+    /**
+     * Will ignore all separators for the group and make them separated by comma. This is useful
+     * in {@link Set} statements.
+     *
+     * @param allCommaSeparated All become comma separated.
+     * @return This instance.
+     */
+    public ConditionGroup setAllCommaSeparated(boolean allCommaSeparated) {
+        this.allCommaSeparated = allCommaSeparated;
+        isChanged = true;
+        return this;
     }
 
     /**
@@ -158,9 +172,12 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
                 SQLCondition condition = conditionsList.get(i);
                 condition.appendConditionToQuery(query);
                 if (count < size - 1) {
-                    query.append(" ")
-                            .append(condition.hasSeparator() ? condition.separator() : separator)
-                            .append(" ");
+                    if (!allCommaSeparated) {
+                        query.appendSpace().append(condition.hasSeparator() ? condition.separator() : separator);
+                    } else {
+                        query.append(",");
+                    }
+                    query.appendSpace();
                 }
                 count++;
             }

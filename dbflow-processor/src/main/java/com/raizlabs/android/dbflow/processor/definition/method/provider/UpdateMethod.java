@@ -60,7 +60,7 @@ public class UpdateMethod implements MethodDefinition {
                             manager.getDatabaseName(contentProviderDefinition.databaseName),
                             tableEndpointDefinition.tableName);
                     codeBuilder.add(".conflictAction(adapter.getUpdateOnConflictAction()).set().conditionValues(values)");
-                    codeBuilder.add(".where()");
+                    codeBuilder.add(".where(toConditions(selection, selectionArgs))");
                     ProviderMethodUtils.appendPathSegments(codeBuilder, manager, uriDefinition.segments,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
                     codeBuilder.add(".count();\n");

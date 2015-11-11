@@ -26,6 +26,7 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
         this.update = update;
         this.table = table;
         conditionGroup = new ConditionGroup();
+        conditionGroup.setAllCommaSeparated(true);
     }
 
     /**
