@@ -214,9 +214,9 @@ public class ContentUtils {
      * @param columns         The list of columns to query.
      * @return A {@link android.database.Cursor}
      */
-    public static <TableClass extends Model> Cursor query(ContentResolver contentResolver, Uri queryUri,
-                                                          ConditionGroup whereConditions,
-                                                          String orderBy, String... columns) {
+    public static Cursor query(ContentResolver contentResolver, Uri queryUri,
+                               ConditionGroup whereConditions,
+                               String orderBy, String... columns) {
         return contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
     }
 

@@ -48,7 +48,7 @@ public class QueryMethod implements MethodDefinition {
                 if (uriDefinition.queryEnabled) {
                     method.beginControlFlow("case $L:", uriDefinition.name);
                     CodeBlock.Builder codeBuilder = CodeBlock.builder()
-                            .add("cursor = new $T(toProperties($L, selection))\n.from", ClassNames.SELECT,
+                            .add("cursor = new $T(toProperties($L, projection))\n.from", ClassNames.SELECT,
                                     CodeBlock.builder()
                                             .add("new $T(){ \n", ClassNames.PROPERTY_CONVERTER)
                                             .add("public $T fromName(String columnName) {\n", ClassNames.IPROPERTY)
