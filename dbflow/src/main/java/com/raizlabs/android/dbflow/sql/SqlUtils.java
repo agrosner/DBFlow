@@ -465,4 +465,23 @@ public class SqlUtils {
             conditionGroup.and(Condition.column(new NameAlias(key)).is(contentValues.get(key)));
         }
     }
+
+    /**
+     * @param contentValues The object to check existence of.
+     * @param key           The key to check.
+     * @return The key, whether it's quoted or not.
+     */
+    public static String getContentValuesKey(ContentValues contentValues, String key) {
+        String quoted = QueryBuilder.quoteIfNeeded(key);
+        if (contentValues.containsKey(quoted)) {
+            return quoted;
+        } else {
+            String stripped = QueryBuilder.stripQuotes(key);
+            if (contentValues.containsKey(stripped)) {
+                return stripped;
+            } else {
+                throw new IllegalArgumentException("Could not find the specified key in the Content Values object.");
+            }
+        }
+    }
 }

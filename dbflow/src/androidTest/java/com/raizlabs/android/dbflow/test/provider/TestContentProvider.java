@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
 import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 
 /**
  * Description:
@@ -90,7 +91,7 @@ public class TestContentProvider {
 
         @Notify(method = Notify.Method.INSERT, paths = ENDPOINT)
         public static Uri[] onInsert(ContentValues contentValues) {
-            final long listId = contentValues.getAsLong("providerModel");
+            final long listId = contentValues.getAsLong(SqlUtils.getContentValuesKey(contentValues, "providerModel"));
             return new Uri[]{
                     ContentProviderModel.withId(listId), fromList(listId),
             };
@@ -98,7 +99,7 @@ public class TestContentProvider {
 
         @Notify(method = Notify.Method.INSERT, paths = ENDPOINT)
         public static Uri onInsert2(ContentValues contentValues) {
-            final long listId = contentValues.getAsLong("providerModel");
+            final long listId = contentValues.getAsLong(SqlUtils.getContentValuesKey(contentValues, "providerModel"));
             return fromList(listId);
         }
 
