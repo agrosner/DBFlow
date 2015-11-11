@@ -228,21 +228,8 @@ public class TableDefinition extends BaseTableDefinition {
         ;
 
         // single primary key checking for a long or int valued column
-        if (
-
-                getPrimaryColumnDefinitions()
-
-                        .
-
-                                size()
-
-                        == 1)
-
-        {
-            ColumnDefinition columnDefinition = getPrimaryColumnDefinitions().get(0);
-            if (columnDefinition.isPrimaryKey) {
-                hasCachingId = !columnDefinition.hasTypeConverter;
-            }
+        if (getPrimaryColumnDefinitions().size() == 1) {
+            hasCachingId = !getPrimaryColumnDefinitions().get(0).hasTypeConverter;
         }
 
     }
