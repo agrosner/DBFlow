@@ -110,7 +110,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
         assertEquals(conditions1[0].value(), "Something");
         assertEquals(conditions1[1].value(), "3");
 
-        model.name = "Something2";
+        model.somethingElse = "SomethingElse2";
         model.update();
 
         await().atMost(10, TimeUnit.SECONDS).until(methodCalls[1]);
@@ -120,10 +120,10 @@ public class ContentObserverSpecificTest extends FlowTestCase {
         SQLCondition[] conditions2 = conditions[1];
         assertEquals(conditions2[0].columnName(), ContentObserverModel_Table.name.getQuery());
         assertEquals(conditions2[1].columnName(), ContentObserverModel_Table.id.getQuery());
-        assertEquals(conditions2[0].value(), "Something2");
+        assertEquals(conditions2[0].value(), "Something");
         assertEquals(conditions2[1].value(), "3");
 
-        model.name = "Something3";
+        model.somethingElse = "Something3";
         model.save();
         await().atMost(5, TimeUnit.SECONDS).until(methodCalls[2]);
 
@@ -132,7 +132,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
         SQLCondition[] conditions3 = conditions[2];
         assertEquals(conditions3[0].columnName(), ContentObserverModel_Table.name.getQuery());
         assertEquals(conditions3[1].columnName(), ContentObserverModel_Table.id.getQuery());
-        assertEquals(conditions3[0].value(), "Something3");
+        assertEquals(conditions3[0].value(), "Something");
         assertEquals(conditions3[1].value(), "3");
 
 
@@ -144,7 +144,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
         SQLCondition[] conditions4 = conditions[3];
         assertEquals(conditions4[0].columnName(), ContentObserverModel_Table.name.getQuery());
         assertEquals(conditions4[1].columnName(), ContentObserverModel_Table.id.getQuery());
-        assertEquals(conditions4[0].value(), "Something3");
+        assertEquals(conditions4[0].value(), "Something");
         assertEquals(conditions4[1].value(), "3");
 
 
