@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
+import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -433,7 +434,9 @@ public class SqlUtils {
         }
         if (conditions != null && conditions.length > 0) {
             for (SQLCondition condition : conditions) {
-                uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(String.valueOf(condition.value())));
+                if (condition != null) {
+                    uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(String.valueOf(condition.value())));
+                }
             }
         }
         return uriBuilder.build();
@@ -450,7 +453,11 @@ public class SqlUtils {
      */
 
     public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, String notifyKey, Object notifyValue) {
-        return getNotificationUri(modelClass, action, new SQLCondition[]{Condition.column(new NameAlias(notifyKey)).value(notifyValue)});
+        Condition condition = null;
+        if (StringUtils.isNotNullOrEmpty(notifyKey)) {
+            condition = Condition.column(new NameAlias(notifyKey)).value(notifyValue);
+        }
+        return getNotificationUri(modelClass, action, new SQLCondition[]{condition});
     }
 
     /**
