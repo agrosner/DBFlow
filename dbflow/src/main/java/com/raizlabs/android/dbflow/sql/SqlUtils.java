@@ -17,6 +17,7 @@ import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
@@ -368,14 +369,14 @@ public class SqlUtils {
      * @param action The {@link Action} enum
      * @param table  The table of the model
      */
-    public static void notifyModelChanged(Class<? extends Model> table, Action action, String notifyKey, Object notifyValue) {
-        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action, notifyKey, notifyValue), null, true);
+    public static void notifyModelChanged(Class<? extends Model> table, Action action, Iterable<SQLCondition> sqlConditions) {
+        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action, sqlConditions), null, true);
     }
 
     /**
      * Performs necessary logic to notify of {@link Model} changes.
      *
-     * @param model          The model to use to notify (if a caching id exists for that model).
+     * @param model          The model to use to notify.
      * @param adapter        The adapter to use thats either a {@link ModelAdapter} or {@link ModelContainerAdapter}
      *                       to handle interactions.
      * @param modelAdapter   The actual {@link ModelAdapter} associated with the {@link ModelClass}/
@@ -388,31 +389,68 @@ public class SqlUtils {
     private static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void notifyModelChanged(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter, Action action) {
         if (FlowContentObserver.shouldNotify()) {
-            if (modelAdapter.hasCachingId()) {
-                notifyModelChanged(modelAdapter.getModelClass(), action,
-                        modelAdapter.getCachingColumnName(), adapter.getCachingId(model));
-            } else {
-                notifyModelChanged(modelAdapter.getModelClass(), action, null, null);
-            }
+            notifyModelChanged(modelAdapter.getModelClass(), action,
+                    adapter.getPrimaryConditionClause(model).getConditions());
         }
     }
 
     /**
-     * Returns the uri for notifications  from model changes
+     * Constructs a {@link Uri} from a set of {@link SQLCondition} for specific table.
      *
-     * @param modelClass
-     * @return
+     * @param modelClass The class of table,
+     * @param action     The action to use.
+     * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
+     * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, String notifyKey, Object notifyValue) {
+    public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, Iterable<SQLCondition> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
                 .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
-        if (notifyKey != null) {
-            uriBuilder.appendQueryParameter(Uri.encode(notifyKey), Uri.encode(String.valueOf(notifyValue)));
+        if (conditions != null) {
+            for (SQLCondition condition : conditions) {
+                uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(String.valueOf(condition.value())));
+            }
         }
         return uriBuilder.build();
+    }
+
+
+    /**
+     * Constructs a {@link Uri} from a set of {@link SQLCondition} for specific table.
+     *
+     * @param modelClass The class of table,
+     * @param action     The action to use.
+     * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
+     * @return The {@link Uri}.
+     */
+    public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, SQLCondition[] conditions) {
+        Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
+                .authority(FlowManager.getTableName(modelClass));
+        if (action != null) {
+            uriBuilder.fragment(action.name());
+        }
+        if (conditions != null && conditions.length > 0) {
+            for (SQLCondition condition : conditions) {
+                uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(String.valueOf(condition.value())));
+            }
+        }
+        return uriBuilder.build();
+    }
+
+    /**
+     * Returns the uri for notifications from model changes
+     *
+     * @param modelClass  The class to get table from.
+     * @param action      the action changed.
+     * @param notifyKey   The column key.
+     * @param notifyValue The column value that gets turned into a String.
+     * @return Notification uri.
+     */
+
+    public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, String notifyKey, Object notifyValue) {
+        return getNotificationUri(modelClass, action, new SQLCondition[]{Condition.column(new NameAlias(notifyKey)).value(notifyValue)});
     }
 
     /**
