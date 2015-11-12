@@ -34,27 +34,61 @@ public class ContentObserverTest extends FlowTestCase {
         flowContentObserver.registerForContentChanges(getContext(), TestModel1.class);
 
         final Boolean[] methodcalled = {false, false, false, false};
+        final Callable<Boolean>[] methodCalls = new Callable[4];
+        for (int i = 0; i < methodCalls.length; i++) {
+            methodCalls[i] = new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return true;
+                }
+            };
+        }
 
         FlowContentObserver.OnModelStateChangedListener onModelStateChangedListener = new FlowContentObserver.OnModelStateChangedListener() {
             @Override
             public void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action) {
                 switch (action) {
                     case CHANGE:
-                        for (int i = 0; i < methodcalled.length; i++) {
-                            methodcalled[i] = true;
+                        for (int i = 0; i < methodCalls.length; i++) {
+                            try {
+                                methodcalled[i] = true;
+                                methodCalls[i].call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                         break;
                     case SAVE:
-                        methodcalled[0] = true;
+                        try {
+                            methodcalled[0] = true;
+                            methodCalls[0].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case DELETE:
-                        methodcalled[1] = true;
+                        try {
+                            methodcalled[1] = true;
+                            methodCalls[1].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case INSERT:
-                        methodcalled[2] = true;
+                        try {
+                            methodcalled[2] = true;
+                            methodCalls[2].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case UPDATE:
-                        methodcalled[3] = true;
+                        try {
+                            methodcalled[3] = true;
+                            methodCalls[3].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                 }
             }
@@ -73,16 +107,20 @@ public class ContentObserverTest extends FlowTestCase {
         flowContentObserver.removeModelChangeListener(onModelStateChangedListener);
 
         // saved
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[0]);
         assertTrue(methodcalled[0]);
 
 
         // deleted
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[1]);
         assertTrue(methodcalled[1]);
 
         // inserted
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[2]);
         assertTrue(methodcalled[2]);
 
         // updated
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[3]);
         assertTrue(methodcalled[3]);
 
         flowContentObserver.unregisterForContentChanges(getContext());
