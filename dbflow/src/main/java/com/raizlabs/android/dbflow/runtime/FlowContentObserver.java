@@ -228,7 +228,7 @@ public class FlowContentObserver extends ContentObserver {
             int index = 0;
             for (String key : queryNames) {
                 param = Uri.decode(uri.getQueryParameter(key));
-                columnName = key;
+                columnName = Uri.decode(key);
                 columnsChanged[index] = Condition.column(new NameAlias(columnName)).value(param);
                 index++;
             }
