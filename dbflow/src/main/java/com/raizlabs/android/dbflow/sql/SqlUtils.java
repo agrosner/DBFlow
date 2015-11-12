@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
@@ -309,28 +308,23 @@ public class SqlUtils {
      *
      * @param model        The model to update
      * @param modelAdapter The adapter to use
-     * @return true if model was inserted, false if not. Also false could mean that it is placed on the
-     * {@link DBTransactionQueue} using async to true.
+     * @return true if model updated successfully, false if not.
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     boolean update(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        boolean exists;
         SQLiteDatabase db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
-        exists = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
+        boolean successful = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
                 adapter.getPrimaryConditionClause(model).getQuery(), null,
                 ConflictAction.getSQLiteDatabaseAlgorithmInt(
                         modelAdapter.getUpdateOnConflictAction())) !=
                 0);
-        if (!exists) {
-            // insert
-            insert(model, adapter, modelAdapter);
-        } else {
+        if (successful) {
             notifyModelChanged(model, adapter, modelAdapter, Action.UPDATE);
         }
-        return exists;
+        return successful;
     }
 
     /**

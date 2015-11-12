@@ -12,6 +12,11 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import static com.jayway.awaitility.Awaitility.await;
+
 /**
  * Description:
  */
@@ -38,28 +43,52 @@ public class ContentObserverSpecificTest extends FlowTestCase {
         Delete.table(ContentObserverModel.class);
 
         FlowContentObserver contentObserver = new FlowContentObserver();
-        final boolean[] methodCalls = new boolean[4];
+        final Callable<Boolean>[] methodCalls = new Callable[4];
+        for (int i = 0; i < methodCalls.length; i++) {
+            methodCalls[i] = new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return true;
+                }
+            };
+        }
         final SQLCondition[][] conditions = new SQLCondition[4][2];
         contentObserver.addSpecificModelChangeListener(new FlowContentObserver.OnSpecificModelStateChangedListener() {
             @Override
             public void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action, SQLCondition[] sqlConditions) {
                 switch (action) {
-                    case SAVE:
-                        methodCalls[0] = true;
-                        conditions[0] = sqlConditions;
-                        break;
-                    case DELETE:
-                        methodCalls[1] = true;
-                        conditions[1] = sqlConditions;
-                        break;
                     case INSERT:
-                        methodCalls[2] = true;
-                        conditions[2] = sqlConditions;
+                        try {
+                            conditions[0] = sqlConditions;
+                            methodCalls[0].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case UPDATE:
+                        try {
+                            conditions[1] = sqlConditions;
+                            methodCalls[1].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case SAVE:
+                        try {
+                            methodCalls[2].call();
+                            conditions[2] = sqlConditions;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
 
-                    case UPDATE:
-                        methodCalls[3] = true;
-                        conditions[3] = sqlConditions;
+                    case DELETE:
+                        try {
+                            methodCalls[3].call();
+                            conditions[3] = sqlConditions;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                 }
             }
@@ -69,11 +98,55 @@ public class ContentObserverSpecificTest extends FlowTestCase {
         model.id = 3;
         model.name = "Something";
         model.somethingElse = "SomethingElse";
-        model.save();
+        model.insert();
 
-        assertTrue(methodCalls[0]);
+        await().atMost(10, TimeUnit.SECONDS).until(methodCalls[0]);
+
+        // inserting
         assertTrue(conditions[0].length == 2);
-        assertEquals(conditions[0][0].columnName(), ContentObserverModel_Table.name.getQuery());
-        assertEquals(conditions[0][1].columnName(), ContentObserverModel_Table.id.getQuery());
+        SQLCondition[] conditions1 = conditions[0];
+        assertEquals(conditions1[0].columnName(), ContentObserverModel_Table.name.getQuery());
+        assertEquals(conditions1[1].columnName(), ContentObserverModel_Table.id.getQuery());
+        assertEquals(conditions1[0].value(), "Something");
+        assertEquals(conditions1[1].value(), "3");
+
+        model.name = "Something2";
+        model.update();
+
+        await().atMost(10, TimeUnit.SECONDS).until(methodCalls[1]);
+
+        // updating
+        assertTrue(conditions[1].length == 2);
+        SQLCondition[] conditions2 = conditions[1];
+        assertEquals(conditions2[0].columnName(), ContentObserverModel_Table.name.getQuery());
+        assertEquals(conditions2[1].columnName(), ContentObserverModel_Table.id.getQuery());
+        assertEquals(conditions2[0].value(), "Something2");
+        assertEquals(conditions2[1].value(), "3");
+
+        model.name = "Something3";
+        model.save();
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[2]);
+
+        // save
+        assertTrue(conditions[2].length == 2);
+        SQLCondition[] conditions3 = conditions[2];
+        assertEquals(conditions3[0].columnName(), ContentObserverModel_Table.name.getQuery());
+        assertEquals(conditions3[1].columnName(), ContentObserverModel_Table.id.getQuery());
+        assertEquals(conditions3[0].value(), "Something3");
+        assertEquals(conditions3[1].value(), "3");
+
+
+        model.delete();
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[3]);
+
+        // delete
+        assertTrue(conditions[3].length == 2);
+        SQLCondition[] conditions4 = conditions[3];
+        assertEquals(conditions4[0].columnName(), ContentObserverModel_Table.name.getQuery());
+        assertEquals(conditions4[1].columnName(), ContentObserverModel_Table.id.getQuery());
+        assertEquals(conditions4[0].value(), "Something3");
+        assertEquals(conditions4[1].value(), "3");
+
+
     }
 }
