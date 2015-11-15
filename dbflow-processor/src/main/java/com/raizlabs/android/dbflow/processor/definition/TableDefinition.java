@@ -246,7 +246,6 @@ public class TableDefinition extends BaseTableDefinition {
                     !element.getModifiers().contains(Modifier.STATIC) &&
                     !element.getModifiers().contains(Modifier.PRIVATE) &&
                     !element.getModifiers().contains(Modifier.FINAL)));
-            inheritedColumnMap.containsKey(element.getSimpleName().toString());
             if (element.getAnnotation(Column.class) != null || isValidColumn) {
                 ColumnDefinition columnDefinition;
                 if (element.getAnnotation(ForeignKey.class) != null) {

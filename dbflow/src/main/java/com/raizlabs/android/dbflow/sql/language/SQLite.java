@@ -17,6 +17,17 @@ public class SQLite {
     }
 
     /**
+     * Starts a new SELECT COUNT(property1, property2, propertyn) (if properties specified) or
+     * SELECT COUNT(*).
+     *
+     * @param properties Optional, if specified returns the count of non-null ROWs from a specific single/group of columns.
+     * @return A new select statement SELECT COUNT(expression)
+     */
+    public static Select selectCountOf(IProperty... properties) {
+        return new Select(Method.count(properties));
+    }
+
+    /**
      * @param table        The tablet to update.
      * @param <ModelClass> The class that implements {@link Model}.
      * @return A new UPDATE statement.
