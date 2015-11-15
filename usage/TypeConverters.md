@@ -47,3 +47,20 @@ public class SomeTable extends BaseModel {
 
 }
 ```
+
+## Column Specific TypeConverters
+As of 3.0, `TypeConverter` can be used on a column-by-column basis.
+
+```java
+
+@Table(...)
+public class SomeTable extends BaseModel {
+
+
+  @Column(typeConverter = SomeTypeConverter.class)
+  Location location;
+
+}
+```
+
+_NOTE_: `enum` classes that want to change from the default enum conversion (from enum to String), you _must_ define a Custom Type Converter for the column.
