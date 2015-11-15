@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.sql;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
+import com.raizlabs.android.dbflow.sql.language.OperationalMethod;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Where;
@@ -63,6 +64,12 @@ public class SelectTest extends FlowTestCase {
                                 .where(TestModel2_Table.name.is("Test")))).getQuery();
         assertEquals("SELECT * FROM `TestModel32` WHERE `type` IN " +
                 "(SELECT `name` FROM `TestModel2` WHERE `name`='Test' )", query.trim());
+
+        String operationalQuery = SQLite.select(new OperationalMethod(Method.sum(TestModel3_Table.name))
+                .minus(Method.sum(TestModel3_Table.type)).as("troop"), TestModel3_Table.type)
+                .from(TestModel3.class).getQuery();
+
+        assertEquals("SELECT (SUM(`name`) - SUM(`type`)) AS `troop`,`type` FROM `TestModel23`", operationalQuery.trim());
     }
 
     public void testJoins() {

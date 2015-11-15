@@ -483,6 +483,11 @@ public class Condition extends BaseCondition implements ITypeConditional {
         public static final String PLUS = "+";
 
         /**
+         * Number subtraction
+         */
+        public static final String MINUS = "-";
+
+        /**
          * If something is LIKE another (a case insensitive search).
          * There are two wildcards: % and _
          * % represents [0,many) numbers or characters.

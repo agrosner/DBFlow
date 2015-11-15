@@ -16,7 +16,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 public abstract class BaseProperty<P extends IProperty> implements IProperty<P>, IConditional {
 
     final Class<? extends Model> table;
-    protected final NameAlias nameAlias;
+    protected NameAlias nameAlias;
 
     protected BaseProperty(Class<? extends Model> table, NameAlias nameAlias) {
         this.table = table;
@@ -30,147 +30,147 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
 
     @Override
     public Condition is(ITypeConditional conditional) {
-        return column(nameAlias).is(conditional);
+        return column(getNameAlias()).is(conditional);
     }
 
     @Override
     public Condition eq(ITypeConditional conditional) {
-        return column(nameAlias).eq(conditional);
+        return column(getNameAlias()).eq(conditional);
     }
 
     @Override
     public Condition isNot(ITypeConditional conditional) {
-        return column(nameAlias).isNot(conditional);
+        return column(getNameAlias()).isNot(conditional);
     }
 
     @Override
     public Condition notEq(ITypeConditional conditional) {
-        return column(nameAlias).notEq(conditional);
+        return column(getNameAlias()).notEq(conditional);
     }
 
     @Override
     public Condition like(ITypeConditional conditional) {
-        return column(nameAlias).like(conditional);
+        return column(getNameAlias()).like(conditional);
     }
 
     @Override
     public Condition glob(ITypeConditional conditional) {
-        return column(nameAlias).glob(conditional);
+        return column(getNameAlias()).glob(conditional);
     }
 
     @Override
     public Condition greaterThan(ITypeConditional conditional) {
-        return column(nameAlias).greaterThan(conditional);
+        return column(getNameAlias()).greaterThan(conditional);
     }
 
     @Override
     public Condition greaterThanOrEq(ITypeConditional conditional) {
-        return column(nameAlias).greaterThanOrEq(conditional);
+        return column(getNameAlias()).greaterThanOrEq(conditional);
     }
 
     @Override
     public Condition lessThan(ITypeConditional conditional) {
-        return column(nameAlias).lessThan(conditional);
+        return column(getNameAlias()).lessThan(conditional);
     }
 
     @Override
     public Condition lessThanOrEq(ITypeConditional conditional) {
-        return column(nameAlias).lessThanOrEq(conditional);
+        return column(getNameAlias()).lessThanOrEq(conditional);
     }
 
     @Override
     public Condition.Between between(ITypeConditional conditional) {
-        return column(nameAlias).between(conditional);
+        return column(getNameAlias()).between(conditional);
     }
 
     @Override
     public Condition.In in(ITypeConditional firstConditional, ITypeConditional... conditionals) {
-        return column(nameAlias).in(firstConditional, conditionals);
+        return column(getNameAlias()).in(firstConditional, conditionals);
     }
 
     @Override
     public Condition.In notIn(ITypeConditional firstConditional, ITypeConditional... conditionals) {
-        return column(nameAlias).notIn(firstConditional, conditionals);
+        return column(getNameAlias()).notIn(firstConditional, conditionals);
     }
 
     @Override
     public Condition is(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).is(baseModelQueriable);
+        return column(getNameAlias()).is(baseModelQueriable);
     }
 
     @Override
     public Condition isNull() {
-        return column(nameAlias).isNull();
+        return column(getNameAlias()).isNull();
     }
 
     @Override
     public Condition eq(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).eq(baseModelQueriable);
+        return column(getNameAlias()).eq(baseModelQueriable);
     }
 
     @Override
     public Condition isNot(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).isNot(baseModelQueriable);
+        return column(getNameAlias()).isNot(baseModelQueriable);
     }
 
     @Override
     public Condition isNotNull() {
-        return column(nameAlias).isNotNull();
+        return column(getNameAlias()).isNotNull();
     }
 
     @Override
     public Condition notEq(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).notEq(baseModelQueriable);
+        return column(getNameAlias()).notEq(baseModelQueriable);
     }
 
     @Override
     public Condition like(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).like(baseModelQueriable);
+        return column(getNameAlias()).like(baseModelQueriable);
     }
 
     @Override
     public Condition glob(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).glob(baseModelQueriable);
+        return column(getNameAlias()).glob(baseModelQueriable);
     }
 
     @Override
     public Condition greaterThan(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).greaterThan(baseModelQueriable);
+        return column(getNameAlias()).greaterThan(baseModelQueriable);
     }
 
     @Override
     public Condition greaterThanOrEq(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).greaterThanOrEq(baseModelQueriable);
+        return column(getNameAlias()).greaterThanOrEq(baseModelQueriable);
     }
 
     @Override
     public Condition lessThan(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).lessThan(baseModelQueriable);
+        return column(getNameAlias()).lessThan(baseModelQueriable);
     }
 
     @Override
     public Condition lessThanOrEq(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).lessThanOrEq(baseModelQueriable);
+        return column(getNameAlias()).lessThanOrEq(baseModelQueriable);
     }
 
     @Override
     public Condition.Between between(BaseModelQueriable baseModelQueriable) {
-        return column(nameAlias).between(baseModelQueriable);
+        return column(getNameAlias()).between(baseModelQueriable);
     }
 
     @Override
     public Condition.In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
-        return column(nameAlias).in(firstBaseModelQueriable, baseModelQueriables);
+        return column(getNameAlias()).in(firstBaseModelQueriable, baseModelQueriables);
     }
 
     @Override
     public Condition.In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
-        return column(nameAlias).notIn(firstBaseModelQueriable, baseModelQueriables);
+        return column(getNameAlias()).notIn(firstBaseModelQueriable, baseModelQueriables);
     }
 
     @Override
     public Condition concatenate(ITypeConditional conditional) {
-        return column(nameAlias).concatenate(conditional);
+        return column(getNameAlias()).concatenate(conditional);
     }
 
     @Override
@@ -185,27 +185,27 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
 
     @Override
     public String getContainerKey() {
-        return nameAlias.getAliasNameRaw();
+        return getNameAlias().getAliasNameRaw();
     }
 
     @Override
     public String getQuery() {
-        return nameAlias.getQuery();
+        return getNameAlias().getQuery();
     }
 
     public String getDefinition() {
-        return nameAlias.getDefinition();
+        return getNameAlias().getDefinition();
     }
 
     @Override
     public String toString() {
-        return nameAlias.toString();
+        return getNameAlias().toString();
     }
 
     /**
      * @return helper method to construct it in a {@link #distinct()} call.
      */
     protected NameAlias getDistinctAliasName() {
-        return new NameAlias("DISTINCT " + nameAlias.getName(), nameAlias.getAliasPropertyRaw()).tickName(false);
+        return new NameAlias("DISTINCT " + getNameAlias().getName(), getNameAlias().getAliasPropertyRaw()).tickName(false);
     }
 }

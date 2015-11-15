@@ -33,7 +33,10 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
     }
 
     public Property(Class<? extends Model> table, String columnName) {
-        this(table, new NameAlias(columnName));
+        super(table, null);
+        if (columnName != null) {
+            nameAlias = new NameAlias(columnName);
+        }
     }
 
     public Property(Class<? extends Model> table, String columnName, String aliasName) {
@@ -42,7 +45,7 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
 
     @Override
     public Property<T> as(String aliasName) {
-        return new Property<>(table, nameAlias.getAliasNameRaw(), aliasName);
+        return new Property<>(table, getNameAlias().getAliasNameRaw(), aliasName);
     }
 
     @Override
@@ -52,76 +55,76 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
 
     @Override
     public Property<T> withTable(NameAlias tableNameAlias) {
-        return new Property<>(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
+        return new Property<>(table, new NameAlias(getNameAlias()).withTable(tableNameAlias.getAliasName()));
     }
 
     @Override
     public Condition is(T value) {
-        return column(nameAlias).is(value);
+        return column(getNameAlias()).is(value);
     }
 
     @Override
     public Condition eq(T value) {
-        return column(nameAlias).eq(value);
+        return column(getNameAlias()).eq(value);
     }
 
     @Override
     public Condition isNot(T value) {
-        return column(nameAlias).isNot(value);
+        return column(getNameAlias()).isNot(value);
     }
 
     @Override
     public Condition notEq(T value) {
-        return column(nameAlias).notEq(value);
+        return column(getNameAlias()).notEq(value);
     }
 
     @Override
     public Condition like(T value) {
-        return column(nameAlias).like(value);
+        return column(getNameAlias()).like(value);
     }
 
     @Override
     public Condition glob(T value) {
-        return column(nameAlias).glob(value);
+        return column(getNameAlias()).glob(value);
     }
 
     @Override
     public Condition greaterThan(T value) {
-        return column(nameAlias).greaterThan(value);
+        return column(getNameAlias()).greaterThan(value);
     }
 
     @Override
     public Condition greaterThanOrEq(T value) {
-        return column(nameAlias).greaterThanOrEq(value);
+        return column(getNameAlias()).greaterThanOrEq(value);
     }
 
     @Override
     public Condition lessThan(T value) {
-        return column(nameAlias).lessThan(value);
+        return column(getNameAlias()).lessThan(value);
     }
 
     @Override
     public Condition lessThanOrEq(T value) {
-        return column(nameAlias).lessThanOrEq(value);
+        return column(getNameAlias()).lessThanOrEq(value);
     }
 
     @Override
     public Condition.Between between(T value) {
-        return column(nameAlias).between(value);
+        return column(getNameAlias()).between(value);
     }
 
     @Override
     public Condition.In in(T firstValue, T... values) {
-        return column(nameAlias).in(firstValue, values);
+        return column(getNameAlias()).in(firstValue, values);
     }
 
     @Override
     public Condition.In notIn(T firstValue, T... values) {
-        return column(nameAlias).notIn(firstValue, values);
+        return column(getNameAlias()).notIn(firstValue, values);
     }
 
     @Override
     public Condition concatenate(T value) {
-        return column(nameAlias).concatenate(value);
+        return column(getNameAlias()).concatenate(value);
     }
 }

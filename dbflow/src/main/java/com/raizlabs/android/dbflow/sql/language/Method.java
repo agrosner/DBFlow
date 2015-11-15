@@ -83,6 +83,20 @@ public class Method extends Property {
         }
     }
 
+    /**
+     * Allows adding a property to the {@link Method}. Will remove the {@link Property#ALL_PROPERTY}
+     * if it exists as first item.
+     *
+     * @param property The property to add.
+     */
+    protected void addProperty(IProperty property) {
+        propertyList.add(property);
+    }
+
+    protected List<IProperty> getPropertyList() {
+        return propertyList;
+    }
+
     @Override
     public String toString() {
         return nameAlias.getNamePropertyRaw() + "(" + QueryBuilder.join(",", propertyList) + ")";
