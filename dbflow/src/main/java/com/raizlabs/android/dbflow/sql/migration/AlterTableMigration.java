@@ -108,7 +108,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendType(sqLiteType.name());
+                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendSQLiteType(sqLiteType);
         columnDefinitions.add(queryBuilder);
 
         return this;
