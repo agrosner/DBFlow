@@ -6,13 +6,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Description:
+ * Description: Represents a type that SQLite understands.
  */
 public enum SQLiteType {
 
+    /**
+     * Represents an integer number in the DB.
+     */
     INTEGER,
+
+    /**
+     * Represents a floating-point, precise number.
+     */
     REAL,
+
+    /**
+     * Represents text.
+     */
     TEXT,
+
+    /**
+     * A column defined by {@link byte[]} data. Usually reserved for images or larger pieces of content.
+     */
     BLOB;
 
     private static final Map<String, SQLiteType> sTypeMap = new HashMap<String, SQLiteType>() {
