@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -60,9 +60,9 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param cacheModels For every call to {@link #getItem(long)}, do we want to keep a reference to it so
      *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
      * @param table       The table to query from
-     * @param conditions  The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query with
+     * @param conditions  The set of {@link SQLCondition} to query with
      */
-    public FlowCursorList(boolean cacheModels, Class<ModelClass> table, Condition... conditions) {
+    public FlowCursorList(boolean cacheModels, Class<ModelClass> table, SQLCondition... conditions) {
         this(cacheModels, new Select().from(table).where(conditions));
     }
 
@@ -71,9 +71,9 @@ public class FlowCursorList<ModelClass extends Model> {
      *
      * @param cacheSize  The size of models to cache.
      * @param table      The table to query from
-     * @param conditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query with
+     * @param conditions The set of {@link SQLCondition} to query with
      */
-    public FlowCursorList(int cacheSize, Class<ModelClass> table, Condition... conditions) {
+    public FlowCursorList(int cacheSize, Class<ModelClass> table, SQLCondition... conditions) {
         this(false, new Select().from(table).where(conditions));
         setCacheModels(true, cacheSize);
     }

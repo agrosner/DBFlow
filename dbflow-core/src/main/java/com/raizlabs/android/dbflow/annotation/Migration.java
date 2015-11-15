@@ -19,10 +19,9 @@ public @interface Migration {
     int version();
 
     /**
-     * @return Specify the database name that this migration belongs to. By default it will reference the main Db if only
-     * one DB is specified.
+     * @return Specify the database class that this migration belongs to.
      */
-    String databaseName();
+    Class<?> database();
 
     /**
      * @return If number greater than -1, the migrations from the same {@link #version()} get ordered from

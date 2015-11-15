@@ -20,7 +20,9 @@ public class MigrationHandler extends BaseContainerHandler<Migration> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        MigrationDefinition migrationDefinition = new MigrationDefinition(processorManager, (TypeElement) element);
-        processorManager.addMigrationDefinition(migrationDefinition);
+        if (element instanceof TypeElement) {
+            MigrationDefinition migrationDefinition = new MigrationDefinition(processorManager, (TypeElement) element);
+            processorManager.addMigrationDefinition(migrationDefinition);
+        }
     }
 }

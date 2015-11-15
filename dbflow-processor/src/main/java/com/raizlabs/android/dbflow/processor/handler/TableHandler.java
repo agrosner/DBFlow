@@ -3,13 +3,11 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.TableValidator;
 import com.raizlabs.android.dbflow.processor.validator.Validator;
-import com.squareup.javawriter.JavaWriter;
 
 import javax.lang.model.element.Element;
-import java.io.IOException;
+import javax.lang.model.element.TypeElement;
 
 /**
  * Description: Handles {@link com.raizlabs.android.dbflow.annotation.Table} annotations, writing ModelAdapters,
@@ -30,15 +28,11 @@ public class TableHandler extends BaseContainerHandler<Table> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        try {
-            TableDefinition tableDefinition = new TableDefinition(processorManager, element);
-            if(definitionValidator.validate(processorManager, tableDefinition)) {
-                WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
-                tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
+        if (element instanceof TypeElement) {
+            TableDefinition tableDefinition = new TableDefinition(processorManager, (TypeElement) element);
+            if (definitionValidator.validate(processorManager, tableDefinition)) {
                 processorManager.addTableDefinition(tableDefinition);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

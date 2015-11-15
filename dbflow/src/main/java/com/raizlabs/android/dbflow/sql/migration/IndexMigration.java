@@ -1,9 +1,11 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.sql.index.Index;
+import com.raizlabs.android.dbflow.sql.language.Index;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -31,6 +33,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
         this.name = name;
     }
 
+    @CallSuper
     @Override
     public void onPreMigrate() {
         index = getIndex();
@@ -41,6 +44,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
         database.execSQL(getIndex().getQuery());
     }
 
+    @CallSuper
     @Override
     public void onPostMigrate() {
         onTable = null;
@@ -51,11 +55,11 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
     /**
      * Adds a column to the underlying INDEX
      *
-     * @param columnName The name of the column to add to the Index
+     * @param property The name of the column to add to the Index
      * @return This migration
      */
-    public IndexMigration<ModelClass> addColumn(String columnName) {
-        getIndex().and(columnName);
+    public IndexMigration<ModelClass> addColumn(IProperty property) {
+        getIndex().and(property);
         return this;
     }
 
@@ -73,7 +77,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      * @return The index object based on the contents of this migration.
      */
     public Index<ModelClass> getIndex() {
-        if(index == null) {
+        if (index == null) {
             index = new Index<ModelClass>(name).on(onTable);
         }
         return index;

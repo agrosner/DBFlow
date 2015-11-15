@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.CallSuper;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -52,9 +53,9 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         // "{oldName}  RENAME TO {newName}"
         // Since the structure has been updated already, the manager knows only the new name.
         if (renameQuery != null) {
-            String renameQuery = new QueryBuilder(sql).appendQuoted(oldTableName)
+            String renameQuery = new QueryBuilder(sql).appendQuotedIfNeeded(oldTableName)
                     .append(this.renameQuery.getQuery())
-                    .appendQuoted(tableName)
+                    .append(tableName)
                     .toString();
             database.execSQL(renameQuery);
         }
@@ -62,13 +63,14 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (columnDefinitions != null) {
-            sql = new QueryBuilder(sql).appendQuoted(tableName).toString();
+            sql = new QueryBuilder(sql).append(tableName).toString();
             for (QueryBuilder columnDefinition : columnDefinitions) {
                 database.execSQL(sql + " ADD COLUMN " + columnDefinition.getQuery());
             }
         }
     }
 
+    @CallSuper
     @Override
     public void onPostMigrate() {
         // cleanup and make fields eligible for garbage collection
@@ -95,7 +97,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * but it is recommended.
      *
      * @param columnType The type of column that pertains to an {@link com.raizlabs.android.dbflow.sql.SQLiteType}
-     * @param columnName The name of the column to add. Use the "$Table" class for the specified table.
+     * @param columnName The name of the column to add. Use the "_Table" class for the specified table.
      * @return This instance
      */
     public AlterTableMigration<ModelClass> addColumn(Class columnType, String columnName) {
@@ -104,7 +106,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .appendQuoted(columnName).appendSpace().appendType(columnType.getName());
+                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendType(columnType.getName());
         columnDefinitions.add(queryBuilder);
 
         return this;
@@ -125,7 +127,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .appendQuoted(columnName).appendSpace().appendType(columnType.getName())
+                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendType(columnType.getName())
                 .appendSpace().append("REFERENCES ").append(referenceClause);
         columnDefinitions.add(queryBuilder);
 
@@ -136,8 +138,8 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return The query that renames the table.
      */
     public String getRenameQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder(getAlterTableQueryBuilder().getQuery()).appendQuoted(oldTableName)
-                .append(renameQuery).appendQuoted(FlowManager.getTableName(table));
+        QueryBuilder queryBuilder = new QueryBuilder(getAlterTableQueryBuilder().getQuery()).appendQuotedIfNeeded(oldTableName)
+                .append(renameQuery).append(FlowManager.getTableName(table));
         return queryBuilder.getQuery();
     }
 
@@ -145,7 +147,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @return A List of column definitions that add column to a table in the DB.
      */
     public List<String> getColumnDefinitions() {
-        String sql = new QueryBuilder(getAlterTableQueryBuilder()).appendQuoted(FlowManager.getTableName(table)).toString();
+        String sql = new QueryBuilder(getAlterTableQueryBuilder()).append(FlowManager.getTableName(table)).toString();
         List<String> columnDefinitions = new ArrayList<>();
 
         if (this.columnDefinitions != null) {

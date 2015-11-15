@@ -4,11 +4,6 @@ import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
-
-/**
- * Description:
- */
 public class BlobModelTest extends FlowTestCase {
 
     private static final String TEST_BLOB = "This is a test";
@@ -22,8 +17,7 @@ public class BlobModelTest extends FlowTestCase {
         assertTrue(blobModel.exists());
 
         BlobModel model = new Select().from(BlobModel.class)
-                .where(column(BlobModel$Table.KEY)
-                               .is(blobModel.key))
+                .where(BlobModel_Table.key.is(blobModel.key))
                 .querySingle();
 
         assertNotNull(model);

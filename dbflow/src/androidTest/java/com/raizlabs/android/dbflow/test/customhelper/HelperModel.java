@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 /**
  * Description:
  */
-@Table(databaseName = HelperDatabase.NAME)
+@Table(database = HelperDatabase.class)
 public class HelperModel extends BaseModel {
 
     @Column

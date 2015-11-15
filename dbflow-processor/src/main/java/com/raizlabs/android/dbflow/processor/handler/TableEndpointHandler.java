@@ -28,9 +28,9 @@ public class TableEndpointHandler extends BaseContainerHandler<TableEndpoint> {
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
 
         // top-level only
-        if(element.getEnclosingElement() instanceof PackageElement) {
+        if (element.getEnclosingElement() instanceof PackageElement) {
             TableEndpointDefinition tableEndpointDefinition = new TableEndpointDefinition(element, processorManager);
-            if(validator.validate(processorManager, tableEndpointDefinition)) {
+            if (validator.validate(processorManager, tableEndpointDefinition)) {
                 processorManager.putTableEndpointForProvider(tableEndpointDefinition);
             }
         }

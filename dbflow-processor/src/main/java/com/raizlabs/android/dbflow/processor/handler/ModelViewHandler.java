@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.handler;
 import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
+import com.raizlabs.android.dbflow.processor.validator.ModelViewValidator;
 
 import java.io.IOException;
 
@@ -15,16 +15,18 @@ import javax.lang.model.element.Element;
  */
 public class ModelViewHandler extends BaseContainerHandler<ModelView> {
 
+    private final ModelViewValidator viewValidator = new ModelViewValidator();
+
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         ModelViewDefinition modelViewDefinition = new ModelViewDefinition(processorManager, element);
-        processorManager.addModelViewDefinition(modelViewDefinition);
-
-        WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
-        try {
-            modelViewDefinition.writeViewTable();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (viewValidator.validate(processorManager, modelViewDefinition)) {
+            processorManager.addModelViewDefinition(modelViewDefinition);
+            try {
+                modelViewDefinition.writeViewTable();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.raizlabs.android.dbflow.test" >
+<manifest
+    package="com.raizlabs.android.dbflow.test"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.raizlabs.android.dbflow.test" />
+        android:targetPackage="com.raizlabs.android.dbflow.test"/>
 
-    <application
-        android:name=".DBFlowTestApp"
-        ><provider
-        android:authorities="com.raizlabs.android.dbflow.test.provider"
-        android:exported="true"
-        android:name=".provider.TestContentProvider$Provider"/>
-        
+    <application android:name=".DBFlowTestApp">
+        <provider
+            android:name=".provider.TestContentProvider_Provider"
+            android:authorities="com.raizlabs.android.dbflow.test.provider"
+            android:exported="true"/>
 
-        
-        </application>
+    </application>
 
 </manifest>

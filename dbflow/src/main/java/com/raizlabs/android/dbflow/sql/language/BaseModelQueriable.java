@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
@@ -11,6 +12,7 @@ import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 
 import java.util.List;
 
@@ -38,6 +40,11 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
     @Override
     public ModelClass querySingle() {
         return SqlUtils.querySingle(table, getQuery());
+    }
+
+    @Override
+    public ModelContainer<ModelClass, ?> queryModelContainer(@NonNull ModelContainer<ModelClass, ?> instance) {
+        return SqlUtils.convertToModelContainer(false, table, query(), instance);
     }
 
     @Override

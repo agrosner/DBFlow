@@ -1,9 +1,6 @@
 package com.raizlabs.android.dbflow.processor.model.builder;
 
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.SQLiteType;
-import com.raizlabs.android.dbflow.sql.StatementMap;
 
 /**
  * Description: Used for writing our adapter classes by providing some reuse and helper methods.
@@ -21,24 +18,6 @@ public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
         return append("\"").append(string).append("\"");
     }
 
-    /**
-     * Appends our variable name for containers or models
-     * @param isMCDefinition If true, append modelContainer, otherwise append model
-     * @return This instance
-     */
-    public AdapterQueryBuilder appendVariable(boolean isMCDefinition) {
-        return append(isMCDefinition ? "modelContainer" : "model");
-    }
-
-    public AdapterQueryBuilder appendBindSQLiteStatement(int index, String columnFieldType) {
-        return append("statement.bind").append(StatementMap.getStatement(SQLiteType.get(columnFieldType)))
-                .append("(").append(index).append(",");
-    }
-
-    public AdapterQueryBuilder appendContentValues() {
-        return append("contentValues");
-    }
-
     public AdapterQueryBuilder appendPut(String key) {
         return append(".put(").appendQuotesEnclosed(key).append(",");
     }
@@ -51,16 +30,4 @@ public class AdapterQueryBuilder extends QueryBuilder<AdapterQueryBuilder> {
         return append("(").appendParenthesisEnclosed(type);
     }
 
-    public AdapterQueryBuilder appendClass(String className) {
-        return append(className).append(".class");
-    }
-
-    public AdapterQueryBuilder appendTypeConverter(String fieldReturnType, String convertClass, boolean isLoading) {
-        if(fieldReturnType != null) {
-            appendCast(fieldReturnType);
-        }
-        return append("FlowManager.getTypeConverterForClass(")
-                .append(ModelUtils.getFieldClass(convertClass)).append(")")
-                .append(isLoading ? ".getModelValue(" : ".getDBValue(");
-    }
 }

@@ -7,10 +7,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-/**
- * Description:
- */
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 @ModelContainer
 public class EnumModel extends BaseModel {
 

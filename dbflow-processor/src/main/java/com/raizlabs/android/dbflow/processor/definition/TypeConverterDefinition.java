@@ -1,66 +1,61 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
+
+import java.util.List;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
-import java.util.List;
-
 /**
  * Description: Holds data about type converters in order to write them.
  */
 public class TypeConverterDefinition {
 
-    private TypeElement classElement;
+    private ClassName className;
 
-    private TypeElement modelElement;
+    private TypeName modelTypeName;
 
-    private TypeElement dbElement;
+    private TypeName dbTypeName;
 
-    public TypeConverterDefinition(TypeElement classElement, ProcessorManager manager) {
+    public TypeConverterDefinition(TypeElement className, ProcessorManager manager) {
 
-        this.classElement = classElement;
+        this.className = ClassName.get(className);
 
         Types types = manager.getTypeUtils();
 
         DeclaredType typeConverterSuper = null;
-        DeclaredType typeConverter = manager.getTypeUtils().getDeclaredType(manager.getElements().getTypeElement(Classes.TYPE_CONVERTER),
+        DeclaredType typeConverter = manager.getTypeUtils().getDeclaredType(manager.getElements().getTypeElement(ClassNames.TYPE_CONVERTER.toString()),
                 types.getWildcardType(null, null), types.getWildcardType(null, null));
 
-        for(TypeMirror superType: types.directSupertypes(classElement.asType())) {
-            if(types.isAssignable(superType, typeConverter)) {
+        for (TypeMirror superType : types.directSupertypes(className.asType())) {
+            if (types.isAssignable(superType, typeConverter)) {
                 typeConverterSuper = (DeclaredType) superType;
             }
         }
 
-        if(typeConverterSuper != null) {
+        if (typeConverterSuper != null) {
             List<? extends TypeMirror> typeArgs = typeConverterSuper.getTypeArguments();
-            dbElement = manager.getElements().getTypeElement(typeArgs.get(0).toString());
-            modelElement = manager.getElements().getTypeElement(typeArgs.get(1).toString());
+            dbTypeName = ClassName.get(typeArgs.get(0));
+            modelTypeName = ClassName.get(typeArgs.get(1));
         }
     }
 
-    public TypeElement getModelElement() {
-        return modelElement;
+    public TypeName getModelTypeName() {
+        return modelTypeName;
     }
 
-    public TypeElement getDbElement() {
-        return dbElement;
+    public TypeName getDbTypeName() {
+        return dbTypeName;
     }
 
-    public TypeElement getClassElement() {
-        return classElement;
+    public ClassName getClassName() {
+        return className;
     }
 
-    public String getModelClassQualifiedName() {
-        return modelElement.getQualifiedName().toString();
-    }
-
-    public String getQualifiedName() {
-        return classElement.getQualifiedName().toString();
-    }
 }

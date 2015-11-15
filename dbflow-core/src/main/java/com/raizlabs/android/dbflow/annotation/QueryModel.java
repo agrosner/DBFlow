@@ -14,9 +14,9 @@ import java.lang.annotation.Target;
 public @interface QueryModel {
 
     /**
-     * @return Specify the name of the database to use.
+     * @return Specify the class of the database to use.
      */
-    String databaseName();
+    Class<?> database();
 
     /**
      * @return If true, all accessible, non-static, and non-final fields are treated as valid fields.

@@ -5,18 +5,17 @@ import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
 
 /**
  * Author: andrewgrosner
- * Description: Internal adapter that gets extended when a {@link com.raizlabs.android.dbflow.annotation.Table} gets used.
+ * Description: Internal adapter that gets extended when a {@link Table} gets used.
  */
 public abstract class ModelAdapter<ModelClass extends Model>
         implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
-
-    private ConditionQueryBuilder<ModelClass> mPrimaryWhere;
 
     private SQLiteStatement mInsertStatement;
 
@@ -45,7 +44,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
     }
 
     /**
-     * Saves the specified model to the DB using the specified saveMode in {@link com.raizlabs.android.dbflow.sql.SqlUtils}.
+     * Saves the specified model to the DB using the specified saveMode in {@link SqlUtils}.
      *
      * @param model The model to save/insert/update
      */
@@ -92,7 +91,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
      * @param id    The key to store
      */
     @Override
-    public void updateAutoIncrement(ModelClass model, long id) {
+    public void updateAutoIncrement(ModelClass model, Number id) {
 
     }
 
@@ -101,11 +100,11 @@ public abstract class ModelAdapter<ModelClass extends Model>
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
     @Override
-    public long getAutoIncrementingId(ModelClass model) {
+    public Number getAutoIncrementingId(ModelClass model) {
         throw new InvalidDBConfiguration(
                 String.format("This method may have been called in error. The model class %1s must contain" +
-                              "a single primary key (if used in a ModelCache, this method may be called)",
-                              getModelClass()));
+                                "a single primary key (if used in a ModelCache, this method may be called)",
+                        getModelClass()));
     }
 
     /**
@@ -115,8 +114,8 @@ public abstract class ModelAdapter<ModelClass extends Model>
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
                 String.format("This method may have been called in error. The model class %1s must contain" +
-                              "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
-                              getModelClass()));
+                                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                        getModelClass()));
     }
 
     /**
@@ -130,7 +129,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
 
     /**
      * @return The name of the column used in caching. By default it uses the auto increment column,
-     * when specified in the {@link com.raizlabs.android.dbflow.annotation.Table}, it is overridden.
+     * when specified in the {@link Table}, it is overridden.
      */
     public String getCachingColumnName() {
         return getAutoIncrementingColumnName();
@@ -152,32 +151,25 @@ public abstract class ModelAdapter<ModelClass extends Model>
     }
 
     /**
-     * @return Only created once if doesn't exist, the extended class will return the builder to use.
-     */
-    protected abstract ConditionQueryBuilder<ModelClass> createPrimaryModelWhere();
-
-    /**
-     * Will create the where query only once that is used to check for existence in the DB.
-     *
-     * @return The WHERE query containing all primary key fields
-     */
-    public ConditionQueryBuilder<ModelClass> getPrimaryModelWhere() {
-        if (mPrimaryWhere == null) {
-            mPrimaryWhere = createPrimaryModelWhere();
-        }
-        mPrimaryWhere.setUseEmptyParams(true);
-        return mPrimaryWhere;
-    }
-
-    /**
      * @return The query used to create this table.
      */
     public abstract String getCreationQuery();
 
     /**
-     * @return The query used to insert a model using a {@link android.database.sqlite.SQLiteStatement}
+     * @param columnName The column name of the property.
+     * @return The property from the corresponding Table class.
+     */
+    public abstract BaseProperty getProperty(String columnName);
+
+    /**
+     * @return The query used to insert a model using a {@link SQLiteStatement}
      */
     protected abstract String getInsertStatementQuery();
+
+    /**
+     * @return The normal query used in saving a model if we use a {@link SQLiteStatement}.
+     */
+    protected abstract String getCompiledStatementQuery();
 
     /**
      * @return The conflict algorithm to use when updating a row in this table.

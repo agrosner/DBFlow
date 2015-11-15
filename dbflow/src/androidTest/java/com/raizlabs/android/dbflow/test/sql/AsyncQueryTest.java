@@ -9,9 +9,7 @@ import com.raizlabs.android.dbflow.structure.AsyncModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
-import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
-
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
+import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
 /**
  * Description:
@@ -24,7 +22,7 @@ public class AsyncQueryTest extends FlowTestCase {
         testModel1.save();
 
         new Select().from(TestModel1.class)
-                .where(column(TestModel1$Table.NAME).is("Async"))
+                .where(TestModel1_Table.name.is("Async"))
                 .async().querySingle(new TransactionListenerAdapter<TestModel1>() {
             @Override
             public void onResultReceived(TestModel1 testModel1) {
@@ -33,8 +31,8 @@ public class AsyncQueryTest extends FlowTestCase {
         });
 
         new Update<>(TestModel1.class)
-                .set(column(TestModel1$Table.NAME).is("Async2"))
-                .where(column(TestModel1$Table.NAME).is("Async"))
+                .set(TestModel1_Table.name.is("Async2"))
+                .where(TestModel1_Table.name.is("Async"))
                 .async().query(new TransactionListenerAdapter<Cursor>() {
             @Override
             public void onResultReceived(Cursor cursor) {

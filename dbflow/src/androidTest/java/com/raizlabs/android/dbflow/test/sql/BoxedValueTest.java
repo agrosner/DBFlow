@@ -8,8 +8,6 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
-
 /**
  * Description: Test to ensure that passing null to non-null fields does not cause a NPE and that it
  * will fail.
@@ -58,7 +56,7 @@ public class BoxedValueTest extends FlowTestCase {
     private void loadModel() {
         testObject = new Select()
                 .from(BoxedModel.class)
-                .where(column(BoxedModel$Table.ID).eq(testObject.id))
+                .where(BoxedModel_Table.id.eq(testObject.id))
                 .querySingle();
     }
 

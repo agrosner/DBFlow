@@ -3,10 +3,10 @@ package com.raizlabs.android.dbflow.sql;
 import com.raizlabs.android.dbflow.data.Blob;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Author: andrewgrosner
- * Description: Holds the mapping between SQL data types and java classes.
+ * Description:
  */
 public enum SQLiteType {
 
@@ -15,7 +15,7 @@ public enum SQLiteType {
     TEXT,
     BLOB;
 
-    private static final HashMap<String, SQLiteType> sTypeMap = new HashMap<String, SQLiteType>() {
+    private static final Map<String, SQLiteType> sTypeMap = new HashMap<String, SQLiteType>() {
         {
             put(byte.class.getName(), SQLiteType.INTEGER);
             put(short.class.getName(), SQLiteType.INTEGER);

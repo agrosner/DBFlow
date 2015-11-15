@@ -6,6 +6,6 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 /**
  * Description:
  */
-@Table(databaseName = MigrationDatabase.NAME)
+@Table(database = MigrationDatabase.class)
 public class MigrationModel extends TestModel1 {
 }

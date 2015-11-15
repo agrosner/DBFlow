@@ -21,7 +21,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
 
     public static final int DEFAULT_CACHE_SIZE = 1000;
 
-    private static Map<Class<? extends BaseCacheableModel>, ModelCache> mCacheMap = new HashMap<>();
+    private static Map<Class<? extends BaseCacheableModel>, ModelCache> CACHE_MAP = new HashMap<>();
 
     /**
      * @param table        The cacheable model class to use
@@ -31,10 +31,10 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
      */
     @SuppressWarnings("unchecked")
     public static <CacheClass extends BaseCacheableModel> ModelCache<CacheClass, ?> getCache(Class<CacheClass> table) {
-        ModelCache<CacheClass, ?> cache = mCacheMap.get(table);
+        ModelCache<CacheClass, ?> cache = CACHE_MAP.get(table);
         if (cache == null) {
             FlowManager.getModelAdapter(table).newInstance();
-            cache = mCacheMap.get(table);
+            cache = CACHE_MAP.get(table);
         }
         return cache;
     }
@@ -48,13 +48,13 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
      */
     static void putCache(Class<? extends BaseCacheableModel> table,
                          ModelCache<? extends BaseCacheableModel, ?> modelCache) {
-        mCacheMap.put(table, modelCache);
+        CACHE_MAP.put(table, modelCache);
     }
 
     /**
      * The cache to use
      */
-    private ModelCache mCache;
+    private ModelCache cache;
 
     /**
      * Constructs a new instance, instantiating the {@link com.raizlabs.android.dbflow.structure.cache.ModelCache}
@@ -62,10 +62,10 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
      */
     @SuppressWarnings("unchecked")
     public BaseCacheableModel() {
-        mCache = mCacheMap.get(getClass());
-        if (mCache == null) {
-            mCache = getBackingCache();
-            putCache(getClass(), mCache);
+        cache = CACHE_MAP.get(getClass());
+        if (cache == null) {
+            cache = getBackingCache();
+            putCache(getClass(), cache);
         }
     }
 
@@ -88,7 +88,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
     public void delete() {
         Object id = getModelAdapter().getCachingId(this);
         super.delete();
-        mCache.removeModel(id);
+        cache.removeModel(id);
     }
 
     @Override
@@ -110,7 +110,7 @@ public abstract class BaseCacheableModel extends BaseModel implements LoadFromCu
 
     @SuppressWarnings("unchecked")
     protected void addToCache() {
-        mCache.addModel(getModelAdapter().getCachingId(this), this);
+        cache.addModel(getModelAdapter().getCachingId(this), this);
     }
 
     /**

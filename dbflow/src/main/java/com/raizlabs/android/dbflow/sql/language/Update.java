@@ -4,8 +4,6 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -16,18 +14,9 @@ public class Update<ModelClass extends Model> implements Query {
     /**
      * The conflict action to resolve updates.
      */
-    private ConflictAction mConflictAction = ConflictAction.NONE;
+    private ConflictAction conflictAction = ConflictAction.NONE;
 
-    private final Class<ModelClass> mTable;
-
-    /**
-     * @param table        The table to update.
-     * @param <ModelClass> The class that implements {@link Model}
-     * @return A new update object. Begins a generic UPDATE query.
-     */
-    public static <ModelClass extends Model> Update table(Class<ModelClass> table) {
-        return new Update(table);
-    }
+    private final Class<ModelClass> table;
 
     /**
      * Constructs new instace of an UPDATE query with the specified table.
@@ -35,11 +24,11 @@ public class Update<ModelClass extends Model> implements Query {
      * @param table The table to use.
      */
     public Update(Class<ModelClass> table) {
-        mTable = table;
+        this.table = table;
     }
 
     public Update conflictAction(ConflictAction conflictAction) {
-        mConflictAction = conflictAction;
+        this.conflictAction = conflictAction;
         return this;
     }
 
@@ -89,38 +78,17 @@ public class Update<ModelClass extends Model> implements Query {
      * @param conditions The array of conditions that define this SET statement
      * @return A SET query piece of this statement
      */
-    public Set<ModelClass> set(Condition... conditions) {
-        return new Set<>(this, mTable).conditions(conditions);
-    }
-
-    /**
-     * Begins a SET piece of this query with a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} as its conditions.
-     *
-     * @param conditionQueryBuilder The builder of a specific set of conditions used in this query
-     * @return A SET query piece of this statement
-     */
-    public Set<ModelClass> set(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        return set().conditionQuery(conditionQueryBuilder);
-    }
-
-    /**
-     * Begins a SET piece of this query with a string clause with args
-     *
-     * @param setClause The clause to use as a string clause.
-     * @param args      The arguments to append that will get properly type-converted.
-     * @return A SET query piece of this statement.
-     */
-    public Set<ModelClass> set(String setClause, Object... args) {
-        return set().conditionClause(setClause, args);
+    public Set<ModelClass> set(SQLCondition... conditions) {
+        return new Set<>(this, table).conditions(conditions);
     }
 
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder("UPDATE ");
-        if (mConflictAction != null && !mConflictAction.equals(ConflictAction.NONE)) {
-            queryBuilder.append("OR").appendSpaceSeparated(mConflictAction.name());
+        if (conflictAction != null && !conflictAction.equals(ConflictAction.NONE)) {
+            queryBuilder.append("OR").appendSpaceSeparated(conflictAction.name());
         }
-        queryBuilder.appendQuoted(FlowManager.getTableName(mTable)).appendSpace();
+        queryBuilder.append(FlowManager.getTableName(table)).appendSpace();
         return queryBuilder.getQuery();
     }
 }

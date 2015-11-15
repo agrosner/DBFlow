@@ -1,15 +1,22 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Description: The base class that generated {@link ModelContainerAdapter} implement
  * to provide the necessary interactions.
  */
 public abstract class ModelContainerAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>>, RetrievalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
+
+    protected final Map<String, Class> columnMap = new HashMap<>();
 
     /**
      * Saves the container to the DB.
@@ -58,6 +65,15 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
     public abstract ModelClass toModel(ModelContainer<ModelClass, ?> modelContainer);
 
     /**
+     * Converts the {@link ModelClass} into a {@link ForeignKeyContainer} by appending only its primary
+     * keys to the container. This is mostly for convenience.
+     *
+     * @param model the model to convert.
+     * @return A new {@link ForeignKeyContainer} from the {@link ModelClass}.
+     */
+    public abstract ForeignKeyContainer<ModelClass> toForeignKeyContainer(ModelClass model);
+
+    /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
      * this method will be overridden.
      *
@@ -65,7 +81,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
      * @param id             The key to store
      */
     @Override
-    public void updateAutoIncrement(ModelContainer<ModelClass, ?> modelContainer, long id) {
+    public void updateAutoIncrement(ModelContainer<ModelClass, ?> modelContainer, Number id) {
 
     }
 
@@ -74,7 +90,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
      * @return The value of the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT} if there is one.
      */
     @Override
-    public long getAutoIncrementingId(ModelContainer<ModelClass, ?> modelContainer) {
+    public Number getAutoIncrementingId(ModelContainer<ModelClass, ?> modelContainer) {
         return 0;
     }
 
@@ -92,6 +108,11 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
         return false;
     }
 
+    @NonNull
+    public Map<String, Class> getColumnMap() {
+        return columnMap;
+    }
+
     /**
      * Returns the type of the column for this model container. It's useful for when we do not know the exact class of the column
      * when in a {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
@@ -99,6 +120,8 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
      * @param columnName The name of the column to look up
      * @return The class that corresponds to the specified columnName
      */
-    public abstract Class<?> getClassForColumn(String columnName);
+    public Class<?> getClassForColumn(String columnName) {
+        return columnMap.get(columnName);
+    }
 
 }

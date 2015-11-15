@@ -1,29 +1,30 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
-import com.raizlabs.android.dbflow.processor.Classes;
-import com.raizlabs.android.dbflow.processor.DBFlowProcessor;
+import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.provider.DeleteMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.provider.InsertMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.provider.QueryMethod;
+import com.raizlabs.android.dbflow.processor.definition.method.provider.UpdateMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator;
-import com.raizlabs.android.dbflow.processor.writer.DatabaseWriter;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.raizlabs.android.dbflow.processor.writer.provider.DeleteWriter;
-import com.raizlabs.android.dbflow.processor.writer.provider.InsertWriter;
-import com.raizlabs.android.dbflow.processor.writer.provider.QueryWriter;
-import com.raizlabs.android.dbflow.processor.writer.provider.UpdateWriter;
-import com.squareup.javawriter.JavaWriter;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 
-import java.io.IOException;
-import java.util.EnumSet;
 import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
 
 /**
  * Description:
@@ -38,135 +39,132 @@ public class ContentProviderDefinition extends BaseDefinition {
 
     private static final String AUTHORITY = "AUTHORITY";
 
-    public String databaseName;
+    public TypeName databaseName;
+    public String databaseNameString;
 
     public String authority;
 
     public List<TableEndpointDefinition> endpointDefinitions = Lists.newArrayList();
 
-    private FlowWriter[] mWriters;
+    private MethodDefinition[] methods;
 
     public ContentProviderDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
 
         ContentProvider provider = element.getAnnotation(ContentProvider.class);
-        databaseName = provider.databaseName();
-        DatabaseWriter databaseWriter = manager.getDatabaseWriter(databaseName);
-        setDefinitionClassName(databaseWriter.classSeparator + DEFINITION_NAME);
+        if (provider != null) {
+            try {
+                provider.database();
+            } catch (MirroredTypeException mte) {
+                databaseName = TypeName.get(mte.getTypeMirror());
+            }
+            DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseName);
+            databaseNameString = databaseDefinition.databaseName;
+            setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
 
-        authority = provider.authority();
+            authority = provider.authority();
 
-        TableEndpointValidator validator = new TableEndpointValidator();
-        List<? extends Element> elements = manager.getElements().getAllMembers((TypeElement) typeElement);
-        for (Element innerElement : elements) {
-            if (innerElement.getAnnotation(TableEndpoint.class) != null) {
-                TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, manager);
-                if (validator.validate(processorManager, endpointDefinition)) {
-                    endpointDefinitions.add(endpointDefinition);
+            TableEndpointValidator validator = new TableEndpointValidator();
+            List<? extends Element> elements = manager.getElements().getAllMembers((TypeElement) typeElement);
+            for (Element innerElement : elements) {
+                if (innerElement.getAnnotation(TableEndpoint.class) != null) {
+                    TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, manager);
+                    if (validator.validate(processorManager, endpointDefinition)) {
+                        endpointDefinitions.add(endpointDefinition);
+                    }
                 }
             }
+
         }
 
-        mWriters = new FlowWriter[]{
-                new QueryWriter(this, manager),
-                new InsertWriter(this),
-                new DeleteWriter(this, manager),
-                new UpdateWriter(this, manager)
+        methods = new MethodDefinition[]{
+                new QueryMethod(this, manager),
+                new InsertMethod(this, false),
+                new InsertMethod(this, true),
+                new DeleteMethod(this, manager),
+                new UpdateMethod(this, manager)
         };
     }
 
     @Override
-    protected String getExtendsClass() {
-        return "BaseContentProvider";
+    protected TypeName getExtendsClass() {
+        return ClassNames.BASE_CONTENT_PROVIDER;
     }
 
     @Override
-    protected String[] getImports() {
-        return new String[]{
-                Classes.CONTENT_PROVIDER,
-                Classes.FLOW_MANAGER,
-                Classes.SQLITE_DATABASE,
-                Classes.BASE_DATABASE_DEFINITION_NAME,
-                Classes.CURSOR,
-                Classes.URI,
-                Classes.URI_MATCHER,
-                Classes.BASE_CONTENT_PROVIDER,
-                Classes.SELECT,
-                Classes.CONTENT_VALUES,
-                Classes.CONTENT_URIS,
-                Classes.MODEL_ADAPTER,
-                Classes.CONFLICT_ACTION,
-                Classes.CONDITION,
-                Classes.DELETE,
-                Classes.UPDATE
-        };
-    }
+    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
-    @Override
-    public void onWriteDefinition(JavaWriter javaWriter) throws IOException {
+        typeBuilder.addField(FieldSpec.builder(ClassName.get(String.class), AUTHORITY, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                .initializer("$S", authority).build());
 
-        javaWriter.emitEmptyLine();
-        javaWriter.emitField("String", AUTHORITY, Sets.newHashSet(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL),
-                "\"" + authority + "\"");
-        javaWriter.emitEmptyLine();
         int code = 0;
         for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
             for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
-                javaWriter.emitField("int", contentUriDefinition.name,
-                        EnumSet.of(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL), String.valueOf(code));
+                typeBuilder.addField(FieldSpec.builder(TypeName.INT, contentUriDefinition.name,
+                        Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                        .initializer(String.valueOf(code)).build());
                 code++;
             }
         }
 
-        javaWriter.emitEmptyLine();
-        javaWriter.emitField("UriMatcher", URI_MATCHER, Sets.newHashSet(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL),
-                "new UriMatcher(UriMatcher.NO_MATCH)").beginInitializer(true);
+        FieldSpec.Builder uriField = FieldSpec.builder(ClassNames.URI_MATCHER, URI_MATCHER,
+                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+
+        CodeBlock.Builder initializer = CodeBlock.builder().addStatement("new $T($T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER)
+                .add("static {\n");
+
         for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
             for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
                 String path;
                 if (contentUriDefinition.path != null) {
                     path = "\"" + contentUriDefinition.path + "\"";
                 } else {
-                    path = String.format("%s.%s.getPath()", contentUriDefinition.classQualifiedName, contentUriDefinition.name);
+                    path = CodeBlock.builder().add("$L.$L.getPath()", contentUriDefinition.elementClassName, contentUriDefinition.name).build().toString();
                 }
-                javaWriter.emitStatement("%1s.addURI(%s, %s, %s)", URI_MATCHER, AUTHORITY, path, contentUriDefinition.name);
+                initializer.addStatement("$L.addURI($L, $L, $L)", URI_MATCHER, AUTHORITY, path, contentUriDefinition.name);
             }
         }
-        javaWriter.endInitializer();
+        initializer.add("}\n");
+        typeBuilder.addField(uriField.initializer(initializer.build()).build());
 
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return \"%1s\"", databaseName);
-            }
-        }, "String", "getDatabaseName", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL));
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return $S", databaseName)
+                .returns(ClassName.get(String.class)).build());
 
-        WriterUtils.emitOverriddenMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("String type = null");
-                javaWriter.beginControlFlow("switch(MATCHER.match(uri))");
+        MethodSpec.Builder getTypeBuilder = MethodSpec.methodBuilder("getType")
+                .addAnnotation(Override.class)
+                .addParameter(ClassNames.URI, "uri")
+                .returns(ClassName.get(String.class))
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-                for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
-                    for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
-                        javaWriter.beginControlFlow("case " + uriDefinition.name + ":")
-                                .emitStatement("type = \"%1s\"", uriDefinition.type)
-                                .emitStatement("break")
-                                .endControlFlow();
-                    }
-                }
+        CodeBlock.Builder getTypeCode = CodeBlock.builder()
+                .addStatement("$T type = null", ClassName.get(String.class))
+                .beginControlFlow("switch($L.match(uri))", URI_MATCHER);
 
-                javaWriter.beginControlFlow("default:")
-                        .emitStatement("throw new IllegalArgumentException(\"Unknown URI \" + uri)")
+        for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
+            for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
+                getTypeCode.beginControlFlow("case $L:", uriDefinition.name)
+                        .addStatement("type = $S", uriDefinition.type)
+                        .addStatement("break")
                         .endControlFlow();
-
-                javaWriter.endControlFlow();
-                javaWriter.emitStatement("return type");
             }
-        }, "String", "getType", Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL), "Uri", "uri");
+        }
+        getTypeCode.beginControlFlow("default:")
+                .addStatement("throw new $T($S + $L)", ClassName.get(IllegalArgumentException.class), "Unknown URI", "uri")
+                .endControlFlow();
+        getTypeCode.endControlFlow();
+        getTypeCode.addStatement("return type");
 
-        for (FlowWriter writer : mWriters) {
-            writer.write(javaWriter);
+        getTypeBuilder.addCode(getTypeCode.build());
+        typeBuilder.addMethod(getTypeBuilder.build());
+
+        for (MethodDefinition method : methods) {
+            MethodSpec methodSpec = method.getMethodSpec();
+            if (methodSpec != null) {
+                typeBuilder.addMethod(methodSpec);
+            }
         }
 
 

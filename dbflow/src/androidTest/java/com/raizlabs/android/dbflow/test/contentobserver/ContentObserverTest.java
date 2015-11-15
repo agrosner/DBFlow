@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.test.contentobserver;
 
 import android.net.Uri;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -9,19 +10,21 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
-import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
+import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
-/**
- * Description:
- */
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import static com.jayway.awaitility.Awaitility.await;
+
 public class ContentObserverTest extends FlowTestCase {
 
     public void testNotificationUri() {
 
-        Uri notificationUri = SqlUtils.getNotificationUri(TestModel1.class, BaseModel.Action.SAVE, TestModel1$Table.NAME, "this is a %test");
-        assertEquals(notificationUri.getAuthority(), TestModel1$Table.TABLE_NAME);
+        Uri notificationUri = SqlUtils.getNotificationUri(TestModel1.class, BaseModel.Action.SAVE, TestModel1_Table.name.getQuery(), "this is a %test");
+        assertEquals(notificationUri.getAuthority(), FlowManager.getTableName(TestModel1.class));
         assertEquals(notificationUri.getFragment(), BaseModel.Action.SAVE.name());
-        assertEquals(Uri.decode(notificationUri.getQueryParameter(TestModel1$Table.NAME)), "this is a %test");
+        assertEquals(Uri.decode(notificationUri.getQueryParameter(Uri.encode(TestModel1_Table.name.getQuery()))), "this is a %test");
     }
 
     public void testContentObserver() {
@@ -31,27 +34,61 @@ public class ContentObserverTest extends FlowTestCase {
         flowContentObserver.registerForContentChanges(getContext(), TestModel1.class);
 
         final Boolean[] methodcalled = {false, false, false, false};
+        final Callable<Boolean>[] methodCalls = new Callable[4];
+        for (int i = 0; i < methodCalls.length; i++) {
+            methodCalls[i] = new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return true;
+                }
+            };
+        }
 
         FlowContentObserver.OnModelStateChangedListener onModelStateChangedListener = new FlowContentObserver.OnModelStateChangedListener() {
             @Override
             public void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action) {
                 switch (action) {
                     case CHANGE:
-                        for (int i = 0; i < methodcalled.length; i++) {
-                            methodcalled[i] = true;
+                        for (int i = 0; i < methodCalls.length; i++) {
+                            try {
+                                methodcalled[i] = true;
+                                methodCalls[i].call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                         break;
                     case SAVE:
-                        methodcalled[0] = true;
+                        try {
+                            methodcalled[0] = true;
+                            methodCalls[0].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case DELETE:
-                        methodcalled[1] = true;
+                        try {
+                            methodcalled[1] = true;
+                            methodCalls[1].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case INSERT:
-                        methodcalled[2] = true;
+                        try {
+                            methodcalled[2] = true;
+                            methodCalls[2].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case UPDATE:
-                        methodcalled[3] = true;
+                        try {
+                            methodcalled[3] = true;
+                            methodCalls[3].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                 }
             }
@@ -70,16 +107,20 @@ public class ContentObserverTest extends FlowTestCase {
         flowContentObserver.removeModelChangeListener(onModelStateChangedListener);
 
         // saved
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[0]);
         assertTrue(methodcalled[0]);
 
 
         // deleted
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[1]);
         assertTrue(methodcalled[1]);
 
         // inserted
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[2]);
         assertTrue(methodcalled[2]);
 
         // updated
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[3]);
         assertTrue(methodcalled[3]);
 
         flowContentObserver.unregisterForContentChanges(getContext());
@@ -93,29 +134,62 @@ public class ContentObserverTest extends FlowTestCase {
         FlowContentObserver flowContentObserver = new FlowContentObserver();
         flowContentObserver.registerForContentChanges(getContext(), TestModel1.class);
         flowContentObserver.setNotifyAllUris(true);
+        final Callable<Boolean>[] methodCalls = new Callable[4];
+        for (int i = 0; i < methodCalls.length; i++) {
+            methodCalls[i] = new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return true;
+                }
+            };
+        }
 
-        final Boolean[] methodcalled = {false, false, false, false};
-
+        final boolean[] methodcalled = new boolean[]{false, false, false, false};
         FlowContentObserver.OnModelStateChangedListener onModelStateChangedListener = new FlowContentObserver.OnModelStateChangedListener() {
             @Override
             public void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action) {
                 switch (action) {
                     case CHANGE:
-                        for (int i = 0; i < methodcalled.length; i++) {
-                            methodcalled[i] = true;
+                        for (int i = 0; i < methodCalls.length; i++) {
+                            try {
+                                methodcalled[i] = true;
+                                methodCalls[i].call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                         break;
                     case SAVE:
-                        methodcalled[0] = true;
+                        try {
+                            methodcalled[0] = true;
+                            methodCalls[0].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case DELETE:
-                        methodcalled[1] = true;
+                        try {
+                            methodcalled[1] = true;
+                            methodCalls[1].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case INSERT:
-                        methodcalled[2] = true;
+                        try {
+                            methodcalled[2] = true;
+                            methodCalls[2].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case UPDATE:
-                        methodcalled[3] = true;
+                        try {
+                            methodcalled[3] = true;
+                            methodCalls[3].call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         break;
                 }
             }
@@ -147,16 +221,21 @@ public class ContentObserverTest extends FlowTestCase {
 
         flowContentObserver.endTransactionAndNotify();
 
+
         // saved
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[0]);
         assertTrue(methodcalled[0]);
 
         // deleted
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[1]);
         assertTrue(methodcalled[1]);
 
         // inserted
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[2]);
         assertTrue(methodcalled[2]);
 
         // updated
+        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[3]);
         assertTrue(methodcalled[3]);
 
         flowContentObserver.removeModelChangeListener(onModelStateChangedListener);

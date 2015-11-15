@@ -13,4 +13,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface ModelContainer {
+
+    /**
+     * @return True if you want to place a default value for all columns when loading from the Cursor.
+     * This overrides {@link ContainerKey#putDefault()} unless its the inverse of this value. So if this is
+     * true and {@link ContainerKey#putDefault()} is false, it will not put default for that specified column.
+     */
+    boolean putDefault() default true;
 }

@@ -8,7 +8,8 @@ import android.net.Uri;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Condition;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -156,7 +157,7 @@ public class ContentUtils {
 
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
-        int count = contentResolver.update(updateUri, contentValues, adapter.getPrimaryModelWhere(model).getQuery(), null);
+        int count = contentResolver.update(updateUri, contentValues, adapter.getPrimaryConditionClause(model).getQuery(), null);
         if (count == 0) {
             FlowLog.log(FlowLog.Level.W, "Updated failed of: " + model.getClass());
         }
@@ -165,7 +166,7 @@ public class ContentUtils {
 
     /**
      * Deletes the specified model through the {@link android.content.ContentResolver}. Uses the deleteUri
-     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryModelWhere(com.raizlabs.android.dbflow.structure.Model)}
+     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryConditions(com.raizlabs.android.dbflow.structure.Model)}
      *
      * @param deleteUri    A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
      * @param model        The model to delete
@@ -179,7 +180,7 @@ public class ContentUtils {
 
     /**
      * Deletes the specified model through the {@link android.content.ContentResolver}. Uses the deleteUri
-     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryModelWhere(com.raizlabs.android.dbflow.structure.Model)}
+     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryConditions(com.raizlabs.android.dbflow.structure.Model)}
      *
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param deleteUri       A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
@@ -191,7 +192,7 @@ public class ContentUtils {
     public static <TableClass extends Model> int delete(ContentResolver contentResolver, Uri deleteUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
 
-        int count = contentResolver.delete(deleteUri, adapter.getPrimaryModelWhere(model).getQuery(), null);
+        int count = contentResolver.delete(deleteUri, adapter.getPrimaryConditionClause(model).getQuery(), null);
 
         // reset autoincrement to 0
         if (count > 0) {
@@ -208,14 +209,14 @@ public class ContentUtils {
      *
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param queryUri        The URI of the query
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @return A {@link android.database.Cursor}
      */
-    public static <TableClass extends Model> Cursor query(ContentResolver contentResolver, Uri queryUri,
-                                                          ConditionQueryBuilder<TableClass> whereConditions,
-                                                          String orderBy, String... columns) {
+    public static Cursor query(ContentResolver contentResolver, Uri queryUri,
+                               ConditionGroup whereConditions,
+                               String orderBy, String... columns) {
         return contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
     }
 
@@ -225,14 +226,14 @@ public class ContentUtils {
      *
      * @param queryUri        The URI of the query
      * @param table           The table to get from.
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return A list of {@link TableClass}
      */
     public static <TableClass extends Model> List<TableClass> queryList(Uri queryUri, Class<TableClass> table,
-                                                                        ConditionQueryBuilder<TableClass> whereConditions,
+                                                                        ConditionGroup whereConditions,
                                                                         String orderBy, String... columns) {
         return queryList(FlowManager.getContext().getContentResolver(), queryUri, table, whereConditions, orderBy, columns);
     }
@@ -245,18 +246,18 @@ public class ContentUtils {
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param table           The table to get from.
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return A list of {@link TableClass}
      */
     public static <TableClass extends Model> List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
-                                                                        ConditionQueryBuilder<TableClass> whereConditions,
+                                                                        ConditionGroup whereConditions,
                                                                         String orderBy, String... columns) {
         Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
-	    List<TableClass> list = SqlUtils.convertToList(table, cursor);
-	    cursor.close();
+        List<TableClass> list = SqlUtils.convertToList(table, cursor);
+        cursor.close();
 
         return list;
     }
@@ -267,14 +268,14 @@ public class ContentUtils {
      *
      * @param queryUri        The URI of the query
      * @param table           The table to get from
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass extends Model> TableClass querySingle(Uri queryUri, Class<TableClass> table,
-                                                                    ConditionQueryBuilder<TableClass> whereConditions,
+                                                                    ConditionGroup whereConditions,
                                                                     String orderBy, String... columns) {
         return querySingle(FlowManager.getContext().getContentResolver(), queryUri, table, whereConditions, orderBy, columns);
     }
@@ -286,14 +287,14 @@ public class ContentUtils {
      * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param table           The table to get from
-     * @param whereConditions The set of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to query the content provider.
+     * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass extends Model> TableClass querySingle(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
-                                                                    ConditionQueryBuilder<TableClass> whereConditions,
+                                                                    ConditionGroup whereConditions,
                                                                     String orderBy, String... columns) {
         List<TableClass> list = queryList(contentResolver, queryUri, table, whereConditions, orderBy, columns);
         return list.size() > 0 ? list.get(0) : null;

@@ -32,6 +32,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
 
     /**
      * Constructs a new instance with an empty array and table.
+     *
      * @param table The table that corresponds to each model.
      */
     public JSONArrayModel(Class<ModelClass> table) {
@@ -40,6 +41,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
 
     /**
      * Dynamically adds another json object to this array. It should be of type {@link ModelClass}
+     *
      * @param jsonObject should correspond to a {@link ModelClass}
      */
     public void addJSONObject(JSONObject jsonObject) {
@@ -48,6 +50,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
 
     /**
      * Returns the {@link org.json.JSONObject} from within the json array.
+     *
      * @param index
      * @return
      */
@@ -63,6 +66,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
 
     /**
      * Returns the {@link ModelClass} representation of the object.
+     *
      * @param index The valid index
      * @return The {@link ModelClass}
      */

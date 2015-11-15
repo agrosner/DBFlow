@@ -4,14 +4,11 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.container.JSONArrayModel;
 import com.raizlabs.android.dbflow.structure.container.JSONModel;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
-import com.raizlabs.android.dbflow.test.structure.TestModel1$Table;
+import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Description:
- */
 public class JsonModelTest extends FlowTestCase {
 
     public void testJsonModel() {
@@ -20,9 +17,9 @@ public class JsonModelTest extends FlowTestCase {
 
         try {
             JSONObject jsonObject = new JSONObject("{" +
-                                                   "name: testModel," +
-                                                   "type: typeModel" +
-                                                   "}");
+                    "name: testModel," +
+                    "type: typeModel" +
+                    "}");
             JSONModel<ParentModel> testJsonModel1 = new JSONModel<>(jsonObject, ParentModel.class);
             testJsonModel1.save();
 
@@ -30,18 +27,18 @@ public class JsonModelTest extends FlowTestCase {
             assertNotNull(testJsonModel1.toModel());
 
             jsonObject = new JSONObject("{" +
-                                        "name: test," +
-                                        "party_type: club," +
-                                        "count1: 10," +
-                                        "isHappy: true," +
-                                        "testModel: {" +
-                                        "name: testModel" +
-                                        "}, " +
-                                        "party_name: null" +
-                                        "}");
+                    "name: test," +
+                    "party_type: club," +
+                    "count1: 10," +
+                    "isHappy: true," +
+                    "testModel: {" +
+                    "name: testModel" +
+                    "}, " +
+                    "party_name: null" +
+                    "}");
 
             JSONModel<TestModelContainerClass> testJsonModel = new JSONModel<>(jsonObject,
-                                                                               TestModelContainerClass.class);
+                    TestModelContainerClass.class);
             testJsonModel.save();
 
             assertTrue(testJsonModel.exists());
@@ -65,29 +62,29 @@ public class JsonModelTest extends FlowTestCase {
 
         try {
             JSONObject jsonObject = new JSONObject("{" +
-                                                   "name: testModel," +
-                                                   "type: typeModel" +
-                                                   "}");
+                    "name: testModel," +
+                    "type: typeModel" +
+                    "}");
             JSONArrayModel<ParentModel> jsonArrayModel = new JSONArrayModel<>(ParentModel.class);
             jsonArrayModel.addJSONObject(jsonObject);
 
             jsonObject = new JSONObject("{" +
-                                        "name: testModel1," +
-                                        "type: typeModel1" +
-                                        "}");
+                    "name: testModel1," +
+                    "type: typeModel1" +
+                    "}");
 
             jsonArrayModel.addJSONObject(jsonObject);
 
             jsonObject = new JSONObject("{" +
-                                        "name: testModel2," +
-                                        "type: typeModel2" +
-                                        "}");
+                    "name: testModel2," +
+                    "type: typeModel2" +
+                    "}");
             jsonArrayModel.addJSONObject(jsonObject);
 
             jsonObject = new JSONObject("{" +
-                                        "name: testModel3," +
-                                        "type: typeModel3" +
-                                        "}");
+                    "name: testModel3," +
+                    "type: typeModel3" +
+                    "}");
             jsonArrayModel.addJSONObject(jsonObject);
 
             jsonArrayModel.insert();
@@ -110,7 +107,7 @@ public class JsonModelTest extends FlowTestCase {
             assertTrue(firstModel.name.equals("testModel"));
 
             JSONModel<ParentModel> firstJsonModel = jsonArrayModel.getJsonModel(0);
-            assertTrue(firstJsonModel.getValue(TestModel1$Table.NAME).equals("testModel"));
+            assertTrue(firstJsonModel.getValue(TestModel1_Table.name).equals("testModel"));
 
             Delete.tables(ParentModel.class);
 
@@ -124,12 +121,12 @@ public class JsonModelTest extends FlowTestCase {
         Delete.tables(TestModelContainerClass.class, ParentModel.class);
 
         JSONObject jsonObject = new JSONObject("{" +
-                                               "name: test," +
-                                               "party_type: club," +
-                                               "count1: 10," +
-                                               "isHappy: true," +
-                                               "party_name: null" +
-                                               "}");
+                "name: test," +
+                "party_type: club," +
+                "count1: 10," +
+                "isHappy: true," +
+                "party_name: null" +
+                "}");
         JSONModel<TestModelContainerClass> jsonModel = new JSONModel<>(jsonObject, TestModelContainerClass.class);
         jsonModel.save();
     }

@@ -6,11 +6,6 @@ import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
-
-/**
- * Description:
- */
 public class CacheableModelTest extends FlowTestCase {
 
     public void testCacheableModel() {
@@ -30,7 +25,7 @@ public class CacheableModelTest extends FlowTestCase {
             assertNotNull(cacheableModel);
 
             assertEquals(new Select().from(CacheableModel.class).
-                    where(column(CacheableModel$Table.ID).is(id))
+                    where(CacheableModel_Table.id.is(id))
                     .querySingle(), cacheableModel);
 
             model.delete();
@@ -55,7 +50,7 @@ public class CacheableModelTest extends FlowTestCase {
             assertNotNull(cacheableModel);
 
             assertEquals(new Select().from(CacheableModel2.class)
-                    .where(column(CacheableModel2$Table.ID).is(id))
+                    .where(CacheableModel2_Table.id.is((int) id))
                     .querySingle(), cacheableModel);
 
             model.delete();
@@ -71,7 +66,7 @@ public class CacheableModelTest extends FlowTestCase {
         CacheableModel3 cacheableModel3 = new CacheableModel3();
 
         ModelCache<CacheableModel3, ?> modelCache = BaseCacheableModel.getCache(CacheableModel3.class);
-        for(int i = 0; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
             cacheableModel3.number = i;
             cacheableModel3.cache_id = "model" + i;
             cacheableModel3.save();
@@ -81,8 +76,8 @@ public class CacheableModelTest extends FlowTestCase {
             assertNotNull(cacheableModel);
 
             assertEquals(new Select().from(CacheableModel3.class)
-                                 .where(column(CacheableModel3$Table.CACHE_ID).is(id))
-                                 .querySingle(), cacheableModel);
+                    .where(CacheableModel3_Table.cache_id.is(id))
+                    .querySingle(), cacheableModel);
 
             cacheableModel3.delete();
             assertNull(modelCache.get(id));

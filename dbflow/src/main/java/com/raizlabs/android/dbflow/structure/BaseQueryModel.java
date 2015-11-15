@@ -17,7 +17,8 @@ public class BaseQueryModel extends BaseFinalModel {
 
     @Override
     public boolean exists() {
-        throw new InvalidSqlViewOperationException("View " + getClass().getName() + " does not exist");
+        throw new InvalidSqlViewOperationException("Query " + getClass().getName() + " does not exist as a table." +
+                "It's a convenient representation of a complex SQLite query.");
     }
 
     /**
@@ -28,11 +29,11 @@ public class BaseQueryModel extends BaseFinalModel {
      */
     @SuppressWarnings("unchecked")
     public void loadFromCursor(Cursor cursor) {
-        if(cursor != null && cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             adapter.loadFromCursor(cursor, this);
         }
 
-        if(cursor != null) {
+        if (cursor != null) {
             cursor.close();
         }
     }

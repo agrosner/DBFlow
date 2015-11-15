@@ -7,10 +7,7 @@ import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-/**
- * Description:
- */
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class CacheableModel3 extends BaseCacheableModel {
 
     @Column

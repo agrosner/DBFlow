@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 /**
  * Description:
  */
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class InsertModel extends TestModel1 {
 
     @Column

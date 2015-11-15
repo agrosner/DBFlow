@@ -4,8 +4,6 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
-
 /**
  * Description: Asserts values are handled same for container and adapter
  */
@@ -21,8 +19,8 @@ public class ContainerDifferenceTest extends FlowTestCase {
         autoIncrementContainer.container = null;
         autoIncrementContainer.save();
 
-        autoIncrementContainer = new Select().from(AIContainerForeign.class).where(
-                column(AIContainerForeign$Table.ID).is(autoIncrementContainer.id)).querySingle();
+        autoIncrementContainer = new Select().from(AIContainerForeign.class)
+                .where(AIContainerForeign_Table.id.is(autoIncrementContainer.id)).querySingle();
         assertNull(autoIncrementContainer.foreignModel);
         assertNull(autoIncrementContainer.container);
 

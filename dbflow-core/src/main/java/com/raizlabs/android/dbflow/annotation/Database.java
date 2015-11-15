@@ -70,5 +70,5 @@ public @interface Database {
      * @return Marks all generated classes within this database with this character. For example
      * "TestTable" becomes "TestTable$Table" for a "$" separator.
      */
-    String generatedClassSeparator() default "$";
+    String generatedClassSeparator() default "_";
 }

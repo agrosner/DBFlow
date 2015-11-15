@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.structure.provider.BaseSyncableProviderModel;
 /**
  * Description:
  */
-@Table(databaseName = ContentDatabase.NAME)
+@Table(database = ContentDatabase.class)
 public class TestSyncableModel extends BaseSyncableProviderModel<TestSyncableModel> {
 
     @Column

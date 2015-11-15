@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 
 import java.util.Date;
 
-@Table(databaseName = TestDatabase.NAME, allFields = true)
+@Table(database = TestDatabase.class, allFields = true)
 public class Activity extends BaseModel {
 
     @PrimaryKey(autoincrement = true)

@@ -8,8 +8,6 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import java.util.List;
 import java.util.UUID;
 
-import static com.raizlabs.android.dbflow.sql.language.ColumnAlias.column;
-
 /**
  * Description: Tests the {@link TestQueryModel} to ensure it works as expected.
  */
@@ -33,10 +31,10 @@ public class QueryModelTest extends FlowTestCase {
         salaryModel.department = "Developer";
         salaryModel.save();
 
-        Where<SalaryModel> selectQuery = new Select(column(SalaryModel$Table.DEPARTMENT),
-                                                    column(SalaryModel$Table.SALARY).as("average_salary"),
-                                                    column(SalaryModel$Table.NAME).as("newName"))
-                                            .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel$Table.DEPARTMENT);
+        Where<SalaryModel> selectQuery = new Select(SalaryModel_Table.department,
+                SalaryModel_Table.salary.as("average_salary"),
+                SalaryModel_Table.name.as("newName"))
+                .from(SalaryModel.class).where().limit(1).groupBy(SalaryModel_Table.department);
 
         TestQueryModel testQueryModel = selectQuery.queryCustomSingle(TestQueryModel.class);
 

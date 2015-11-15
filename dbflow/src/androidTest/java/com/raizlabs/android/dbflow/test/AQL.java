@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.test.sql.BoxedModel;
 
 import java.util.Date;
 
-@Table(databaseName = TestDatabase.NAME, tableName = AQL.ENDPOINT)
+@Table(database = TestDatabase.class, name = AQL.ENDPOINT)
 @ModelContainer
 public class AQL extends BaseModel {
 
@@ -40,8 +40,8 @@ public class AQL extends BaseModel {
 
     @ContainerKey("boxedLodo")
     @Column
-    @ForeignKey(references = {@ForeignKeyReference(columnName = "id1", columnType = long.class, foreignColumnName = "id"),
-    @ForeignKeyReference(columnName = "id2", columnType = String.class, foreignColumnName = "name")})
+    @ForeignKey(references = {@ForeignKeyReference(columnName = "id1", columnType = long.class, foreignKeyColumnName = "id"),
+            @ForeignKeyReference(columnName = "id2", columnType = String.class, foreignKeyColumnName = "name")})
     private BoxedModel boxedModel;
 
     public Long getAql_id() {

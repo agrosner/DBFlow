@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
  * Description:
  */
 @ContentProvider(authority = ContentDatabase.AUTHORITY,
-        databaseName = ContentDatabase.NAME,
+        database = ContentDatabase.class,
         baseContentUri = ContentDatabase.BASE_CONTENT_URI)
 @Database(version = ContentDatabase.VERSION,
         name = ContentDatabase.NAME)

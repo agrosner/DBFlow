@@ -1,14 +1,11 @@
 # Type Converters
-
-Type converters enable fields within a ```Model``` that are not necessarily database-typed.
-They convert the value of the field into a database type in the way that you can define.
-They also define the way that when a ```Model``` is loaded, we recreate the field using the converter.
+Type converters enable fields within a `Model` that are not necessarily database-typed. They convert the value of the field into a database type in the way that you can define. They also define the way that when a `Model` is loaded, we recreate the field using the converter. _Note_: `TypeConverter` can only be regular `Column`, not `PrimaryKey` or `ForeignKey` due  to the non-determinate mapping of data.
 
 These converters are shared across all databases.
 
-If we specify the model value as a ```Model``` class then, there may be some very unexpected behavior for fields that are defined as ```Column.FOREIGN_KEY```
+If we specify the model value as a `Model` class then, there may be some very unexpected behavior for fields that are defined as `Column.FOREIGN_KEY`
 
-Here is the implementation of ```LocationConverter```, converting Locations into Strings:
+Here is the implementation of `LocationConverter`, converting Locations into Strings:
 
 ```java
 
@@ -35,11 +32,9 @@ Here is the implementation of ```LocationConverter```, converting Locations into
         }
     }
   }
-
 ```
 
-To use the `LocationConverter`, using TypeConverters we simply add the class
-as a field in our table:
+To use the `LocationConverter`, using TypeConverters we simply add the class as a field in our table:
 
 ```java
 
@@ -51,6 +46,4 @@ public class SomeTable extends BaseModel {
   Location location;
 
 }
-
-
 ```

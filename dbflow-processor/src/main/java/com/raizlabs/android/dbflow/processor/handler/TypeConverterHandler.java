@@ -43,9 +43,11 @@ public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        TypeConverterDefinition converterDefinition = new TypeConverterDefinition((TypeElement) element, processorManager);
-        if(VALIDATOR.validate(processorManager, converterDefinition)) {
-            processorManager.addTypeConverterDefinition(converterDefinition);
+        if (element instanceof TypeElement) {
+            TypeConverterDefinition converterDefinition = new TypeConverterDefinition((TypeElement) element, processorManager);
+            if (VALIDATOR.validate(processorManager, converterDefinition)) {
+                processorManager.addTypeConverterDefinition(converterDefinition);
+            }
         }
     }
 }

@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -17,7 +16,7 @@ public class Delete implements Query {
      * @param conditions   The list of conditions to use to delete from the specified table
      * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void table(Class<ModelClass> table, Condition... conditions) {
+    public static <ModelClass extends Model> void table(Class<ModelClass> table, SQLCondition... conditions) {
         new Delete().from(table).where(conditions).query();
     }
 

@@ -13,6 +13,7 @@ public class Blob {
 
     /**
      * Sets the underlying blob data.
+     *
      * @param blob The set of bytes to use.
      */
     public void setBlob(byte[] blob) {

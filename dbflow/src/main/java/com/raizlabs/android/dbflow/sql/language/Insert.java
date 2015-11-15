@@ -8,12 +8,11 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.Map;
 
@@ -23,49 +22,38 @@ import java.util.Map;
 public class Insert<ModelClass extends Model> implements Query, Queriable {
 
     /**
-     * Begins the INSERT statement of the query.
-     *
-     * @param table        The table to use.
-     * @param <ModelClass> The class that implements {@link Model}
-     * @return A new INSERT statement.
-     */
-    public static <ModelClass extends Model> Insert<ModelClass> into(Class<ModelClass> table) {
-        return new Insert<>(table);
-    }
-
-    /**
      * The table class that this INSERT points to
      */
-    private Class<ModelClass> mTable;
+    private Class<ModelClass> table;
 
     /**
      * The database manager
      */
-    private BaseDatabaseDefinition mManager;
+    private BaseDatabaseDefinition baseDatabaseDefinition;
 
     /**
      * The columns to specify in this query (optional)
      */
-    private String[] mColumns;
+    private IProperty[] columns;
 
     /**
      * The values to specify in this query
      */
-    private Object[] mValues;
+    private Object[] values;
 
     /**
      * The conflict algorithm to use to resolve inserts.
      */
-    private ConflictAction mConflictAction = ConflictAction.NONE;
+    private ConflictAction conflictAction = ConflictAction.NONE;
 
     /**
      * Constructs a new INSERT command
      *
      * @param table The table to insert into
      */
-    private Insert(Class<ModelClass> table) {
-        mTable = table;
-        mManager = FlowManager.getDatabaseForTable(table);
+    public Insert(Class<ModelClass> table) {
+        this.table = table;
+        baseDatabaseDefinition = FlowManager.getDatabaseForTable(table);
     }
 
     /**
@@ -76,7 +64,12 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return This INSERT statement
      */
     public Insert<ModelClass> columns(String... columns) {
-        mColumns = columns;
+        this.columns = new IProperty[columns.length];
+        ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(table);
+        for (int i = 0; i < columns.length; i++) {
+            String column = columns[i];
+            this.columns[i] = modelClassModelAdapter.getProperty(column);
+        }
         return this;
     }
 
@@ -88,23 +81,23 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return
      */
     public Insert<ModelClass> values(Object... values) {
-        mValues = values;
+        this.values = values;
         return this;
     }
 
     /**
-     * Uses the {@link com.raizlabs.android.dbflow.sql.builder.Condition} pairs to fill this insert query.
+     * Uses the {@link Condition} pairs to fill this insert query.
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      * @return
      */
-    public Insert<ModelClass> columnValues(Condition... conditions) {
+    public Insert<ModelClass> columnValues(SQLCondition... conditions) {
 
         String[] columns = new String[conditions.length];
         Object[] values = new Object[conditions.length];
 
         for (int i = 0; i < conditions.length; i++) {
-            Condition condition = conditions[i];
+            SQLCondition condition = conditions[i];
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }
@@ -113,19 +106,19 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     }
 
     /**
-     * Uses the {@link com.raizlabs.android.dbflow.sql.builder.Condition} pairs to fill this insert query.
+     * Uses the {@link Condition} pairs to fill this insert query.
      *
      * @param conditionQueryBuilder The condition query builder to use
      * @return
      */
-    public Insert<ModelClass> columnValues(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
+    public Insert<ModelClass> columnValues(ConditionGroup conditionGroup) {
 
-        int size = conditionQueryBuilder.size();
+        int size = conditionGroup.size();
         String[] columns = new String[size];
         Object[] values = new Object[size];
 
         for (int i = 0; i < size; i++) {
-            SQLCondition condition = conditionQueryBuilder.getConditions().get(i);
+            SQLCondition condition = conditionGroup.getConditions().get(i);
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }
@@ -156,7 +149,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return
      */
     public Insert<ModelClass> or(ConflictAction action) {
-        mConflictAction = action;
+        conflictAction = action;
         return this;
     }
 
@@ -211,33 +204,33 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return Exeuctes and returns the count of rows affected by this query.
      */
     public long count() {
-        return DatabaseUtils.longForQuery(mManager.getWritableDatabase(), getQuery(), null);
+        return DatabaseUtils.longForQuery(baseDatabaseDefinition.getWritableDatabase(), getQuery(), null);
     }
 
     @Override
     public String getQuery() {
         ValueQueryBuilder queryBuilder = new ValueQueryBuilder("INSERT ");
-        if (mConflictAction != null && !mConflictAction.equals(ConflictAction.NONE)) {
-            queryBuilder.append("OR ").append(mConflictAction);
+        if (conflictAction != null && !conflictAction.equals(ConflictAction.NONE)) {
+            queryBuilder.append("OR ").append(conflictAction);
         }
         queryBuilder.appendSpaceSeparated("INTO")
-                .appendTableName(mTable);
+                .appendTableName(table);
 
-        if (mColumns != null) {
+        if (columns != null) {
             queryBuilder.append("(")
-                    .appendQuotedArray(mColumns)
+                    .appendArray(columns)
                     .append(")");
         }
 
-        if (mColumns != null && mValues != null && mColumns.length != mValues.length) {
-            throw new IllegalStateException("The Insert of " + FlowManager.getTableName(mTable) + " when specifying" +
-                                            "columns needs to have the same amount of values and columns");
-        } else if (mValues == null) {
-            throw new IllegalStateException("The insert of " + FlowManager.getTableName(mTable) + " should have" +
-                                            "at least one value specified for the insert");
+        if (columns != null && values != null && columns.length != values.length) {
+            throw new IllegalStateException("The Insert of " + FlowManager.getTableName(table) + " when specifying" +
+                    "columns needs to have the same amount of values and columns");
+        } else if (values == null) {
+            throw new IllegalStateException("The insert of " + FlowManager.getTableName(table) + " should have" +
+                    "at least one value specified for the insert");
         }
 
-        queryBuilder.append(" VALUES(").appendModelArray(mValues).append(")");
+        queryBuilder.append(" VALUES(").appendModelArray(values).append(")");
 
         return queryBuilder.getQuery();
     }
@@ -246,12 +239,12 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return The table associated with this INSERT
      */
     public Class<ModelClass> getTable() {
-        return mTable;
+        return table;
     }
 
     @Override
     public Cursor query() {
-        FlowManager.getDatabaseForTable(mTable).getWritableDatabase().execSQL(getQuery());
+        FlowManager.getDatabaseForTable(table).getWritableDatabase().execSQL(getQuery());
         return null;
     }
 

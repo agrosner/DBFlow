@@ -13,9 +13,9 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class ListenerModel extends TestModel1 implements LoadFromCursorListener,
-        SQLiteStatementListener, ContentValuesListener{
+        SQLiteStatementListener, ContentValuesListener {
 
     private LoadFromCursorListener loadFromCursorListener;
     private SQLiteStatementListener sqLiteStatementListener;
@@ -50,5 +50,10 @@ public class ListenerModel extends TestModel1 implements LoadFromCursorListener,
     @Override
     public void onBindToStatement(SQLiteStatement sqLiteStatement) {
         sqLiteStatementListener.onBindToStatement(sqLiteStatement);
+    }
+
+    @Override
+    public void onBindToInsertStatement(SQLiteStatement sqLiteStatement) {
+        sqLiteStatementListener.onBindToInsertStatement(sqLiteStatement);
     }
 }

@@ -1,11 +1,14 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 
 import java.util.List;
 
@@ -24,6 +27,15 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
      * @return Single model, the first of potentially many results
      */
     ModelClass querySingle();
+
+    /**
+     * Queries and populates the specified {@link ModelContainer} from the database.
+     *
+     * @param instance    A non-null instance to populate from the DB.
+     * @param <DataClass> The kind of data that the instance provides.
+     * @return The specified instance populated from the DB.
+     */
+    ModelContainer<ModelClass, ?> queryModelContainer(@NonNull ModelContainer<ModelClass, ?> instance);
 
     /**
      * @return the table that this query comes from.

@@ -10,14 +10,11 @@ import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Description:
  */
 @ModelContainer
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class ForeignInteractionModel extends TestModel1 {
 
     @Column
@@ -26,11 +23,11 @@ public class ForeignInteractionModel extends TestModel1 {
             onUpdate = ForeignKeyAction.CASCADE,
             references =
                     {@ForeignKeyReference(columnName = "testmodel_id",
-                                          foreignColumnName = "name",
-                                          columnType = String.class),
+                            foreignKeyColumnName = "name",
+                            columnType = String.class),
                             @ForeignKeyReference(columnName = "testmodel_type",
-                                                 foreignColumnName = "type",
-                                                 columnType = String.class)},
+                                    foreignKeyColumnName = "type",
+                                    columnType = String.class)},
             saveForeignKeyModel = false)
     ForeignKeyContainer<ParentModel> testModel1;
 
@@ -40,9 +37,7 @@ public class ForeignInteractionModel extends TestModel1 {
 
     public void setTestModel1(ParentModel model1) {
         testModel1 = new ForeignKeyContainer<>(ParentModel.class);
-        Map<String, Object> map = new HashMap<>();
-        map.put(ParentModel$Table.NAME, model1.name);
-        map.put(ParentModel$Table.TYPE, model1.type);
-        testModel1.setData(map);
+        testModel1.put(ParentModel_Table.name, model1.name);
+        testModel1.put(ParentModel_Table.type, model1.type);
     }
 }

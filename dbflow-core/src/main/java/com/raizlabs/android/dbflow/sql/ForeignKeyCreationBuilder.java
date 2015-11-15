@@ -25,13 +25,14 @@ public class ForeignKeyCreationBuilder extends QueryBuilder<ForeignKeyCreationBu
 
     /**
      * Adds a reference to this builder.
+     *
      * @param foreignKeyReference The reference to use.
-     * @param updateConflict The update cof
+     * @param updateConflict      The update cof
      * @param deleteConflict
      * @return
      */
-    public ForeignKeyCreationBuilder addReference(ForeignKeyReference foreignKeyReference, ForeignKeyAction updateConflict, ForeignKeyAction deleteConflict){
-        foreignColumns.add(foreignKeyReference.foreignColumnName());
+    public ForeignKeyCreationBuilder addReference(ForeignKeyReference foreignKeyReference, ForeignKeyAction updateConflict, ForeignKeyAction deleteConflict) {
+        foreignColumns.add(foreignKeyReference.foreignKeyColumnName());
         columns.add(foreignKeyReference.columnName());
         updateConflicts.add(updateConflict);
         deleteConflicts.add(deleteConflict);
