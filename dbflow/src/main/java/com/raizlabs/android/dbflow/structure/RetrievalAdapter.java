@@ -5,7 +5,7 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 
 /**
- * Description: Provides a base retrieval interface for all {@link com.raizlabs.android.dbflow.structure.Model} backed
+ * Description: Provides a base retrieval interface for all {@link Model} backed
  * adapters.
  */
 public interface RetrievalAdapter<TableClass extends Model, ModelClass extends Model> {

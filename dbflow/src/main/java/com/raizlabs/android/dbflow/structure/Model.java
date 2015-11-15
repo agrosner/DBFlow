@@ -16,7 +16,7 @@ public interface Model {
     void delete();
 
     /**
-     * Updates an object in the DB
+     * Updates an object in the DB. Does not insert on failure.
      */
     void update();
 
@@ -26,9 +26,8 @@ public interface Model {
     void insert();
 
     /**
-     * Returns whether this Model exists or not
-     *
-     * @return
+     * @return true if this object exists in the DB. It combines all of it's primary key fields
+     * into a SELECT query and checks to see if any results occur.
      */
     boolean exists();
 

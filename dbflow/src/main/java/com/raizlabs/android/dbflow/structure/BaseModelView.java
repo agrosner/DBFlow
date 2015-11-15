@@ -1,14 +1,15 @@
 package com.raizlabs.android.dbflow.structure;
 
+import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Description: Provides a base implementation for a ModelView. Use a {@link com.raizlabs.android.dbflow.annotation.ModelView}
+ * Description: Provides a base implementation for a ModelView. Use a {@link ModelView}
  * annotation to register it properly.
  */
 public abstract class BaseModelView<ModelClass extends Model> extends BaseFinalModel {
 
-    private ModelViewAdapter<? extends Model, BaseModelView<ModelClass>> adapter;
+    private transient ModelViewAdapter<? extends Model, BaseModelView<ModelClass>> adapter;
 
     @Override
     public boolean exists() {

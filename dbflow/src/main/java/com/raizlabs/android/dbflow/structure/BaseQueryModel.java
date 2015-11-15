@@ -2,14 +2,15 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Description:
+ * Description: Provides a base class for objects that represent {@link QueryModel}.
  */
 public class BaseQueryModel extends BaseFinalModel {
 
-    private QueryModelAdapter adapter;
+    private transient QueryModelAdapter adapter;
 
     public BaseQueryModel() {
         adapter = FlowManager.getQueryModelAdapter(getClass());

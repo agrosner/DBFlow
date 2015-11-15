@@ -42,7 +42,7 @@ public abstract class BaseModel implements Model {
         CHANGE
     }
 
-    private ModelAdapter modelAdapter;
+    private transient ModelAdapter modelAdapter;
 
     @SuppressWarnings("unchecked")
     @Override

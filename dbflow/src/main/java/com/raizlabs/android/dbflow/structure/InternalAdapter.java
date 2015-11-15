@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 
 /**
- * Description: Used for our internal Adapter classes such as generated {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
+ * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}
  * or {@link ModelContainerAdapter}
  */
 public interface InternalAdapter<TableClass extends Model, ModelClass extends Model> {
@@ -57,6 +57,13 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      */
     void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
 
+    /**
+     * Binds to a {@link SQLiteStatement}. It leaves out an autoincrementing primary key (if specified)
+     * to keep the true nature of AI keys.
+     *
+     * @param sqLiteStatement The statement to bind to.
+     * @param model           The model to read from.
+     */
     void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model);
 
     /**
