@@ -47,7 +47,11 @@ public class DefinitionUtils {
         }
 
         if (!elementTypeName.isPrimitive()) {
-            codeBuilder.beginControlFlow("if ($L != null)", finalAccessStatement);
+            if(!isModelContainerAdapter && (columnAccess instanceof EnumColumnAccess || columnAccess instanceof BlobColumnAccess)) {
+                codeBuilder.beginControlFlow("if (($L != null) && ($L != null))", variableNameString + "." + elementName, finalAccessStatement);
+            } else {
+                codeBuilder.beginControlFlow("if ($L != null)", finalAccessStatement);
+            }
         }
 
         codeBuilder.addStatement("$L.put($S, $L)",
