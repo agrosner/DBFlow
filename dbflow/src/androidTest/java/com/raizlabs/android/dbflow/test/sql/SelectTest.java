@@ -62,7 +62,7 @@ public class SelectTest extends FlowTestCase {
                                 .from(TestModel2.class)
                                 .where(TestModel2_Table.name.is("Test")))).getQuery();
         assertEquals("SELECT * FROM `TestModel32` WHERE `type` IN " +
-                "(SELECT FROM `TestModel2` WHERE `name`='Test')", query.trim());
+                "(SELECT `name` FROM `TestModel2` WHERE `name`='Test' )", query.trim());
     }
 
     public void testJoins() {
