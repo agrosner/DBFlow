@@ -3,11 +3,14 @@ package com.raizlabs.android.dbflow.test.sql;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
+import com.raizlabs.android.dbflow.test.structure.TestModel2;
+import com.raizlabs.android.dbflow.test.structure.TestModel2_Table;
 
 import java.util.List;
 
@@ -46,17 +49,20 @@ public class SelectTest extends FlowTestCase {
 
         assertEquals("SELECT * FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where4.getQuery().trim());
 
-        // TODO: reinstate byIds method.
-        //Where<TestModel3> where5 = new Select().from(TestModel3.class)
-        //        .byIds("Test");
-//
-        //assertEquals("SELECT * FROM `TestModel32` WHERE `name`='Test'", where5.getQuery().trim());
-
         Where<TestModel3> where6 = new Select(Method.count(type))
                 .from(TestModel3.class)
                 .orderBy(name, true)
                 .orderBy(type, true);
         assertEquals("SELECT COUNT(`type`) FROM `TestModel32` ORDER BY `name` ASC,`type` ASC", where6.getQuery().trim());
+
+        String query = SQLite.select()
+                .from(TestModel3.class)
+                .where(TestModel3_Table.type
+                        .in(SQLite.select(TestModel2_Table.name)
+                                .from(TestModel2.class)
+                                .where(TestModel2_Table.name.is("Test")))).getQuery();
+        assertEquals("SELECT * FROM `TestModel32` WHERE `type` IN " +
+                "(SELECT FROM `TestModel2` WHERE `name`='Test')", query.trim());
     }
 
     public void testJoins() {

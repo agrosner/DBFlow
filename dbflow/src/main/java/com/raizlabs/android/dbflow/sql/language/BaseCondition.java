@@ -31,9 +31,7 @@ abstract class BaseCondition implements SQLCondition {
         if (value instanceof Number) {
             stringVal = String.valueOf(value);
         } else {
-            if (value instanceof Where) {
-                stringVal = String.format("(%1s)", ((Where) value).getQuery().trim());
-            } else if (value instanceof NameAlias) {
+            if (value instanceof NameAlias) {
                 stringVal = ((NameAlias) value).getQuery();
             } else if (value instanceof SQLCondition) {
                 QueryBuilder queryBuilder = new QueryBuilder();
