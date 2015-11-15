@@ -68,7 +68,7 @@ All standard tables must use the `@Table` annotation and implement `Model`. As a
 3. Column names default to the field name as a convenience, but if the name of your fields change you will need to specify the column name.
 4. All fields must be `public` or package private as the `$Adapter` class needs access to them,
 5. or private ONLY when you specify `get{Name}()` and `set{Name}(columnType)` methods for a column named `{name}`. This can be configured.
-6. All model class definitions must be top-level (in their own file) and `public` or package private.
+6. All model class definitions must be top-level (in their own file) and `public`.
 
 ### Sample Model
 This is an example of a `Model` class with a primary key (at least one is required) and another field.
