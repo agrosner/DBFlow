@@ -6,6 +6,7 @@ import android.test.AndroidTestCase;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
 import com.raizlabs.android.dbflow.sql.migration.IndexMigration;
@@ -35,11 +36,11 @@ public class MigrationTest extends AndroidTestCase {
         renameMigration.onPostMigrate();
 
         AlterTableMigration<MigrationModel> alterTableMigration = new AlterTableMigration<>(MigrationModel.class);
-        alterTableMigration.addColumn(float.class, "fraction")
-                .addColumn(long.class, "time")
-                .addColumn(String.class, "name2")
-                .addColumn(int.class, "number")
-                .addColumn(byte[].class, "blobby");
+        alterTableMigration.addColumn(SQLiteType.REAL, "fraction")
+                .addColumn(SQLiteType.INTEGER, "time")
+                .addColumn(SQLiteType.TEXT, "name2")
+                .addColumn(SQLiteType.INTEGER, "number")
+                .addColumn(SQLiteType.BLOB, "blobby");
         alterTableMigration.onPreMigrate();
 
         List<String> columnDefinitions = alterTableMigration.getColumnDefinitions();

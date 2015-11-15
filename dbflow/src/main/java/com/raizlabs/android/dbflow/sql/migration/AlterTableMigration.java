@@ -2,9 +2,11 @@ package com.raizlabs.android.dbflow.sql.migration;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -86,7 +88,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @param oldName The new name to call the table.
      * @return This instance
      */
-    public AlterTableMigration<ModelClass> renameFrom(String oldName) {
+    public AlterTableMigration<ModelClass> renameFrom(@NonNull String oldName) {
         oldTableName = oldName;
         renameQuery = new QueryBuilder().append(" RENAME").appendSpaceSeparated("TO");
         return this;
@@ -96,17 +98,17 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * Add a column to the DB. This does not necessarily need to be reflected in the {@link ModelClass},
      * but it is recommended.
      *
-     * @param columnType The type of column that pertains to an {@link com.raizlabs.android.dbflow.sql.SQLiteType}
+     * @param sqLiteType The type of column represented in the DB.
      * @param columnName The name of the column to add. Use the "_Table" class for the specified table.
      * @return This instance
      */
-    public AlterTableMigration<ModelClass> addColumn(Class columnType, String columnName) {
+    public AlterTableMigration<ModelClass> addColumn(@NonNull SQLiteType sqLiteType, @NonNull String columnName) {
         if (columnDefinitions == null) {
             columnDefinitions = new ArrayList<>();
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendType(columnType.getName());
+                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendType(sqLiteType.name());
         columnDefinitions.add(queryBuilder);
 
         return this;
@@ -116,18 +118,18 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * Add a column to the DB. This does not necessarily need to be reflected in the {@link ModelClass},
      * but it is recommended.
      *
-     * @param columnType      The type of column that pertains to an {@link com.raizlabs.android.dbflow.sql.SQLiteType}
+     * @param columnType      The type of column that pertains to an {@link SQLiteType}
      * @param columnName      The name of the column to add. Use the "$Table" class for the specified table.
      * @param referenceClause The clause of the references that this foreign key points to.
      * @return This instance
      */
-    public AlterTableMigration<ModelClass> addForeignKeyColumn(Class columnType, String columnName, String referenceClause) {
+    public AlterTableMigration<ModelClass> addForeignKeyColumn(SQLiteType sqLiteType, String columnName, String referenceClause) {
         if (columnDefinitions == null) {
             columnDefinitions = new ArrayList<>();
         }
 
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendType(columnType.getName())
+                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendSQLiteType(sqLiteType)
                 .appendSpace().append("REFERENCES ").append(referenceClause);
         columnDefinitions.add(queryBuilder);
 
