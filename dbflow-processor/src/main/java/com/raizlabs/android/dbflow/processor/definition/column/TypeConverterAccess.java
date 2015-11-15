@@ -1,9 +1,11 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
+import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
@@ -81,9 +83,15 @@ public class TypeConverterAccess extends WrapperColumnAccess {
         } else {
             newFormattedAccess.add(typeConverterFieldName);
         }
+
+        String newCursorAccess = formattedAccess.toString();
+        if (typeConverterDefinition.getDbTypeName().equals(ClassName.get(Blob.class))) {
+            newCursorAccess = String.format("new Blob(%s)", newCursorAccess);
+        }
+
         newFormattedAccess.add(".getModelValue(($T) $L)",
                 typeConverterDefinition.getDbTypeName(),
-                formattedAccess);
+                newCursorAccess);
 
         return getExistingColumnAccess()
                 .setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess.build());
