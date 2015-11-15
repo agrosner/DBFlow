@@ -1,10 +1,13 @@
 package com.raizlabs.android.dbflow.test.structure.caching;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+
+import java.util.List;
 
 public class CacheableModelTest extends FlowTestCase {
 
@@ -85,5 +88,12 @@ public class CacheableModelTest extends FlowTestCase {
 
         Delete.table(CacheableModel3.class);
 
+    }
+
+    public void testCacheableModel4() {
+        List<CacheableModel4> model4s = SQLite.select()
+                .from(CacheableModel4.class)
+                .where(CacheableModel4_Table.id.eq(4))
+                .queryList();
     }
 }

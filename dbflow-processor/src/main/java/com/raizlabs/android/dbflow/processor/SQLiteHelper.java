@@ -64,6 +64,8 @@ public enum SQLiteHelper {
             put(TypeName.CHAR.box(), SQLiteHelper.TEXT);
             put(ClassName.get(String.class), SQLiteHelper.TEXT);
             put(ArrayTypeName.of(TypeName.BYTE.box()), SQLiteHelper.BLOB);
+            put(ArrayTypeName.of(TypeName.BYTE), SQLiteHelper.BLOB);
+            put(ClassName.get(Blob.class), SQLiteHelper.BLOB);
         }
     };
 

@@ -44,6 +44,9 @@ public class TestType extends TestModel1 {
     @Column(typeConverter = EnumOverriderConverter.class)
     private EnumOverriderConverter.TestEnum testEnum;
 
+    @Column
+    Blobable blobable;
+
     public EnumOverriderConverter.TestEnum getTestEnum() {
         return testEnum;
     }
