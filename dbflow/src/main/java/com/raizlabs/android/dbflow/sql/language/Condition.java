@@ -38,7 +38,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         // Do not use value for certain operators
         // If is raw, we do not want to convert the value to a string.
         if (isValueSet) {
-            queryBuilder.append(isRaw ? value() : BaseCondition.convertValueToString(value()));
+            queryBuilder.append(isRaw ? value() : BaseCondition.convertValueToString(value(), true));
         }
 
         if (postArgument() != null) {
@@ -597,9 +597,9 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append(isRaw ? value() : BaseCondition.convertValueToString(value()))
+                    .append(isRaw ? value() : BaseCondition.convertValueToString(value(), true))
                     .appendSpaceSeparated(Operation.AND)
-                    .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue()))
+                    .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue(), true))
                     .appendSpace().appendOptional(postArgument());
         }
 

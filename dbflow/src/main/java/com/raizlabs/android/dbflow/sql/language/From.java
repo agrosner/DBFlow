@@ -78,17 +78,6 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
         return join;
     }
 
-    // TODO: fix
-    ///**
-    // * @param ids A list of ids (in order of declaration) by which we replace into the primary WHERE query
-    // *            from a {@link ModelAdapter#createPrimaryModelWhere()}. The length and order MUST match
-    // *            the order defined in the corresponding {@link ModelAdapter} for this class.
-    // * @return A {@link Where} with a WHERE based on the primary keys specified.
-    // */
-    //public Where<ModelClass> byIds(Object... ids) {
-    //    return where().whereQuery(FlowManager.getPrimaryWhereQuery(table).replaceEmptyParams(ids));
-    //}
-
     /**
      * @return an empty {@link Where} statement
      */

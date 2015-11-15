@@ -15,11 +15,12 @@ abstract class BaseCondition implements SQLCondition {
     /**
      * Converts the given value for the column if it has a type converter. Then it turns that result into a string.
      *
-     * @param value The value of the column in Model format.
+     * @param value                       The value of the column in Model format.
+     * @param appendInnerQueryParenthesis if its an inner query value in a condition, we append paranthesis to the query.
      * @return Returns the result of converting and type converting the specified value.
      */
     @SuppressWarnings("unchecked")
-    public static String convertValueToString(Object value) {
+    public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
         String stringVal;
         if (value != null) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
@@ -31,7 +32,9 @@ abstract class BaseCondition implements SQLCondition {
         if (value instanceof Number) {
             stringVal = String.valueOf(value);
         } else {
-            if (value instanceof NameAlias) {
+            if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
+                stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
+            } else if (value instanceof NameAlias) {
                 stringVal = ((NameAlias) value).getQuery();
             } else if (value instanceof SQLCondition) {
                 QueryBuilder queryBuilder = new QueryBuilder();
@@ -68,7 +71,7 @@ abstract class BaseCondition implements SQLCondition {
             } else {
                 sb.append(delimiter);
             }
-            sb.append(convertValueToString(token));
+            sb.append(convertValueToString(token, false));
         }
         return sb.toString();
     }
@@ -79,7 +82,7 @@ abstract class BaseCondition implements SQLCondition {
      *
      * @param delimiter The text to join the text with.
      * @param tokens    an {@link Iterable} of objects to be joined. Strings will be formed from
-     *                  the objects by calling {@link #convertValueToString(Object)}.
+     *                  the objects by calling {@link #convertValueToString(Object, boolean)}.
      * @return A joined string
      */
     public static String joinArguments(CharSequence delimiter, Iterable tokens) {
@@ -91,7 +94,7 @@ abstract class BaseCondition implements SQLCondition {
             } else {
                 sb.append(delimiter);
             }
-            sb.append(convertValueToString(token));
+            sb.append(convertValueToString(token, false));
         }
         return sb.toString();
     }
