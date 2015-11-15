@@ -60,6 +60,7 @@ All standard tables must use the `@Table` annotation and implement `Model`. As a
 4. Nested `Model` defined as a `@ForeignKey`, enabling 1-1 relationships.
 5. Any `ModelContainer` as a `@ForeignKey`
 6. Composite `@ForeignKey`
+7. Custom `TypeConverter` via `@Column(typeConverter = SomeTypeConverter.class)`
 
 **Restrictions & Limitations**:
 1. All `Model` **MUST HAVE** an accessible default constructor. We will use the default constructor when querying the database.
@@ -89,6 +90,17 @@ public class TestModel extends BaseModel {
 ```
 
 ## Advanced Table Features
+### Custom Type Converter for a specific Column Only
+As of 3.0, you can now specify a `TypeConverter` for a specific `@Column` to provide a one-time or more-specific need on a case-by-case basis. To define a `TypeConverter` for a `Column` :
+
+```java
+
+@Column(typeConverter = SomeTypeConverter.class)
+SomeObject someObject;
+```
+
+It will override the usual conversion/access methods (EXCEPT for if the field is private, it retains the private-based access methods).
+
 ### All Fields as Columns
 As other libraries do, you can set `@Table(allFields = true)` to turn on the ability to use all public/package private, non-final, and non-static fields as `@Column`. You still are required to provide a primary key `@Column` field.
 
