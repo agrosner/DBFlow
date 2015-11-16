@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@QueryModel(databaseName = TestDatabase.NAME)
+@QueryModel(database = TestDatabase.class)
 public class TestQueryModel extends BaseQueryModel {
 
     @Column

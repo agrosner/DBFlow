@@ -1,11 +1,12 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.CallSuper;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -29,12 +30,12 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     /**
      * Builds the conditions for the WHERE part of our query
      */
-    private ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder;
+    private ConditionGroup whereConditionGroup;
 
     /**
      * The conditions to use to set fields in the update query
      */
-    private ConditionQueryBuilder<ModelClass> setConditionQueryBuilder;
+    private ConditionGroup setConditionGroup;
 
     /**
      * Creates an update migration.
@@ -52,27 +53,27 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      * @param conditions The conditions to append
      */
     public UpdateTableMigration<ModelClass> set(SQLCondition... conditions) {
-        if (setConditionQueryBuilder == null) {
-            setConditionQueryBuilder = new ConditionQueryBuilder<>(table);
+        if (setConditionGroup == null) {
+            setConditionGroup = new ConditionGroup();
         }
 
-        setConditionQueryBuilder.addConditions(conditions);
+        setConditionGroup.andAll(conditions);
         return this;
     }
 
     public UpdateTableMigration<ModelClass> where(SQLCondition... conditions) {
-        if (whereConditionQueryBuilder == null) {
-            whereConditionQueryBuilder = new ConditionQueryBuilder<>(table);
+        if (whereConditionGroup == null) {
+            whereConditionGroup = new ConditionGroup();
         }
 
-        whereConditionQueryBuilder.addConditions(conditions);
+        whereConditionGroup.andAll(conditions);
         return this;
     }
 
     private String generateQuery() {
         query = new QueryBuilder(new Update<>(table)
-                .set(setConditionQueryBuilder)
-                .where(whereConditionQueryBuilder).getQuery());
+                .set(setConditionGroup)
+                .where(whereConditionGroup).getQuery());
         return query.getQuery();
     }
 
@@ -81,12 +82,13 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         database.execSQL(generateQuery());
     }
 
+    @CallSuper
     @Override
     public void onPostMigrate() {
         // make fields eligible for GC
         query = null;
-        setConditionQueryBuilder = null;
-        whereConditionQueryBuilder = null;
+        setConditionGroup = null;
+        whereConditionGroup = null;
     }
 
     @Override

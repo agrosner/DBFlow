@@ -2,14 +2,15 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Description:
+ * Description: Provides a base class for objects that represent {@link QueryModel}.
  */
 public class BaseQueryModel extends BaseFinalModel {
 
-    private QueryModelAdapter adapter;
+    private transient QueryModelAdapter adapter;
 
     public BaseQueryModel() {
         adapter = FlowManager.getQueryModelAdapter(getClass());
@@ -17,7 +18,8 @@ public class BaseQueryModel extends BaseFinalModel {
 
     @Override
     public boolean exists() {
-        throw new InvalidSqlViewOperationException("View " + getClass().getName() + " does not exist");
+        throw new InvalidSqlViewOperationException("Query " + getClass().getName() + " does not exist as a table." +
+                "It's a convenient representation of a complex SQLite query.");
     }
 
     /**
@@ -28,11 +30,11 @@ public class BaseQueryModel extends BaseFinalModel {
      */
     @SuppressWarnings("unchecked")
     public void loadFromCursor(Cursor cursor) {
-        if(cursor != null && cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             adapter.loadFromCursor(cursor, this);
         }
 
-        if(cursor != null) {
+        if (cursor != null) {
             cursor.close();
         }
     }

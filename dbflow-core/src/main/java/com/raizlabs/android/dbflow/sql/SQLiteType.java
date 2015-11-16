@@ -4,20 +4,40 @@ import com.raizlabs.android.dbflow.data.Blob;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Author: andrewgrosner
- * Description: Holds the mapping between SQL data types and java classes.
+ * Description: Represents a type that SQLite understands.
  */
 public enum SQLiteType {
 
+    /**
+     * Represents an integer number in the DB.
+     */
     INTEGER,
-    REAL,
-    TEXT,
-    BLOB,
-    DATE;
 
-    private static final HashMap<String, SQLiteType> sTypeMap = new HashMap<String, SQLiteType>() {
+    /**
+     * Represents a floating-point, precise number.
+     */
+    REAL,
+
+    /**
+     * Represents text.
+     */
+    TEXT,
+
+    /**
+     * A column defined by {@link byte[]} data. Usually reserved for images or larger pieces of content.
+     */
+     BLOB,
+
+     /**
+      * Represent a Date.
+      */
+     DATE;
+     
+
+    private static final Map<String, SQLiteType> sTypeMap = new HashMap<String, SQLiteType>() {
         {
             put(byte.class.getName(), SQLiteType.INTEGER);
             put(short.class.getName(), SQLiteType.INTEGER);

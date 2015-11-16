@@ -18,9 +18,9 @@ public @interface ContentProvider {
     String authority();
 
     /**
-     * @return The name of the database this belongs to
+     * @return The class of the database this belongs to
      */
-    String databaseName();
+    Class<?> database();
 
     /**
      * @return The base content uri String to use for all paths

@@ -1,7 +1,7 @@
 # Observable Models
 
-When we want to listen for changes to a ```Model```, the ```FlowContentObserver``` was born. 
-It wraps around a standard ```ContentObserver``` by providing callbacks for model Uri events. 
+When we want to listen for changes to a ```Model```, the ```FlowContentObserver``` was born.
+It wraps around a standard ```ContentObserver``` by providing callbacks for model Uri events.
 You can create one observer and add as many ```ModelChangeListener``` as you need to respond to the model change events.
 
 ### How to use
@@ -45,22 +45,22 @@ And take this ```ModelChangeListener```
 
             @Override
             public void onModelSaved() {
-                
+
             }
 
             @Override
             public void onModelDeleted() {
-                
+
             }
 
             @Override
             public void onModelInserted() {
-               
+
             }
 
             @Override
             public void onModelUpdated() {
-                
+
             }
         };
 

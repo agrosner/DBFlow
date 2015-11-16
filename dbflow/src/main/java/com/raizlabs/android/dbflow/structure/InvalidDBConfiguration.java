@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
 /**
- * Author: andrewgrosner
  * Description: Thrown when a DB is incorrectly configured.
  */
 public class InvalidDBConfiguration extends RuntimeException {

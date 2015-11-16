@@ -1,9 +1,16 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Description: The base class that all ModelContainers should extend.
@@ -43,6 +50,38 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         this.data = data;
     }
 
+    /**
+     * Copy constructor from one {@link ModelContainer} into this {@link ModelContainer}. It simply
+     * places the values from the container into this object.
+     *
+     * @param existingContainer The existing container to load into this one.
+     */
+    public BaseModelContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+        this(existingContainer.getTable());
+
+        Map<String, Class> columnMap = modelContainerAdapter.getColumnMap();
+        Set<String> keys = columnMap.keySet();
+        for (String key : keys) {
+            put(key, existingContainer.getValue(key));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getTypeConvertedPropertyValue(Class<T> type, String key) {
+        Object value = getValue(key);
+        if (value != null && type.isAssignableFrom(value.getClass())) {
+            return (T) value;
+        } else {
+            TypeConverter<Object, T> converter = FlowManager.getTypeConverterForClass(type);
+            if (converter != null) {
+                return converter.getModelValue(value);
+            } else {
+                return null;
+            }
+        }
+    }
+
     @Override
     public ModelClass toModel() {
         if (model == null && data != null) {
@@ -63,8 +102,8 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     /**
-     * Invalidates the underlying model. In the next {@link #toModel()} call, it will re-query the DB with
-     * the underlying data.
+     * Invalidates the underlying model. In the next {@link #toModel()} call, it will re-query the underlying data
+     * and recreate a {@link ModelClass}.
      */
     public void invalidateModel() {
         setModel(null);
@@ -108,10 +147,36 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     @Override
-    public abstract Object getValue(String columnName);
+    public abstract Object getValue(String key);
+
+    @Override
+    public Object getValue(IProperty property) {
+        return getValue(property.getContainerKey());
+    }
 
     @Override
     public abstract void put(String columnName, Object value);
+
+    @Override
+    public void put(IProperty property, Object value) {
+        put(property.getContainerKey(), value);
+    }
+
+    @Override
+    public void putDefault(String columnName) {
+        Class columnClass = modelContainerAdapter.getColumnMap().get(columnName);
+        if (columnClass.isPrimitive()) {
+            if (columnClass.equals(boolean.class)) {
+                put(columnName, false);
+            } else if (columnClass.equals(char.class)) {
+                put(columnName, '\u0000');
+            } else {
+                put(columnName, 0);
+            }
+        } else {
+            put(columnName, null);
+        }
+    }
 
     @Override
     public ModelAdapter<ModelClass> getModelAdapter() {

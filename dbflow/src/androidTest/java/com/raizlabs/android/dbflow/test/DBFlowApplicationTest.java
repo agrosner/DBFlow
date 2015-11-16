@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.test;
 
 import android.test.ApplicationTestCase;
+
 import com.raizlabs.android.dbflow.test.list.ListDatabase;
 import com.raizlabs.android.dbflow.test.sql.MigrationDatabase;
 

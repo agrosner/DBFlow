@@ -14,7 +14,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 /**
  * Tests to ensure model containers
  */
-@Table(tableName = "TestModelContainer", databaseName = TestDatabase.NAME)
+@Table(name = "TestModelContainer", database = TestDatabase.class)
 @ModelContainer
 public class TestModelContainerClass extends TestModel1 {
 
@@ -37,11 +37,11 @@ public class TestModelContainerClass extends TestModel1 {
             onDelete = ForeignKeyAction.CASCADE,
             onUpdate = ForeignKeyAction.CASCADE,
             references =
-            {@ForeignKeyReference(columnName = "testName",
-                    columnType = String.class,
-                    foreignColumnName = "name"),
-            @ForeignKeyReference(columnName = "testType",
-                    columnType = String.class,
-                    foreignColumnName = "type")})
+                    {@ForeignKeyReference(columnName = "testName",
+                            columnType = String.class,
+                            foreignKeyColumnName = "name"),
+                            @ForeignKeyReference(columnName = "testType",
+                                    columnType = String.class,
+                                    foreignKeyColumnName = "type")})
     ParentModel testModel;
 }

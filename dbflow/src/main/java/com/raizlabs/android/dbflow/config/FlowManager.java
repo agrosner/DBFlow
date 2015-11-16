@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
@@ -94,7 +93,7 @@ public class FlowManager {
 
     /**
      * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
-     * @return the {@link com.raizlabs.android.dbflow.config.BaseDatabaseDefinition} for the specified databaseName
+     * @return the {@link com.raizlabs.android.dbflow.config.BaseDatabaseDefinition} for the specified database
      */
     public static BaseDatabaseDefinition getDatabase(String databaseName) {
         getDatabaseHolder();
@@ -121,18 +120,6 @@ public class FlowManager {
         }
 
         return mDatabaseHolder;
-    }
-
-    /**
-     * Returns the primary where query for a specific table. Its the WHERE statement containing columnName = ?.
-     *
-     * @param table The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
-     * @return The primary where query
-     */
-    @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ConditionQueryBuilder<ModelClass> getPrimaryWhereQuery(
-            Class<ModelClass> table) {
-        return getDatabaseForTable(table).getModelAdapterForTable(table).getPrimaryModelWhere();
     }
 
     /**

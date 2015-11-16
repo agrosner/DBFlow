@@ -1,39 +1,55 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.google.common.collect.Sets;
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
-import com.raizlabs.android.dbflow.processor.writer.FlowWriter;
-import com.squareup.javawriter.JavaWriter;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.io.IOException;
 
 /**
  * Description: Assists in writing methods for adapters
  */
 public class InternalAdapterHelper {
 
-    public static void writeGetModelClass(JavaWriter javaWriter, final String modelClassName) throws IOException {
-        javaWriter.emitEmptyLine()
-                .emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return " + ModelUtils.getFieldClass(modelClassName));
-            }
-        }, "Class<" + modelClassName + ">", "getModelClass", Sets.newHashSet(Modifier.PUBLIC));
+    public static void writeGetModelClass(TypeSpec.Builder typeBuilder, final ClassName modelClassName) {
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getModelClass")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return $T.class", modelClassName)
+                .returns(ParameterizedTypeName.get(ClassName.get(Class.class), modelClassName))
+                .build());
     }
 
-    public static void writeGetTableName(JavaWriter javaWriter, final String tableSourceClassName) throws IOException {
-        javaWriter
-                .emitEmptyLine()
-                .emitAnnotation(Override.class);
-        WriterUtils.emitMethod(javaWriter, new FlowWriter() {
-            @Override
-            public void write(JavaWriter javaWriter) throws IOException {
-                javaWriter.emitStatement("return " + ModelUtils.getStaticMember(tableSourceClassName, "TABLE_NAME"));
-            }
-        }, "String", "getTableName", Sets.newHashSet(Modifier.PUBLIC));
+    public static void writeGetTableName(TypeSpec.Builder typeBuilder, final String tableName) {
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getTableName")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return $S", QueryBuilder.quote(tableName))
+                .returns(ClassName.get(String.class))
+                .build());
     }
+
+    public static void writeUpdateAutoIncrement(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
+                                                ColumnDefinition autoIncrementDefinition, boolean isModelContainer) {
+        typeBuilder.addMethod(MethodSpec.methodBuilder("updateAutoIncrement")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
+                .addParameter(ClassName.get(Number.class), "id")
+                .addCode(autoIncrementDefinition.getUpdateAutoIncrementMethod(isModelContainer)).build());
+    }
+
+    public static void writeGetCachingId(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
+                                         ColumnDefinition cachingDefinition, boolean isModelContainer) {
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingId")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
+                .addStatement("return $L", cachingDefinition.getColumnAccessString(isModelContainer))
+                .returns(cachingDefinition.elementTypeName.box()).build());
+    }
+
 }

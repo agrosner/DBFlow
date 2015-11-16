@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class, useIsForPrivateBooleans = true)
 public class PrivateModelTest extends BaseModel {
 
     @Column
@@ -18,6 +18,9 @@ public class PrivateModelTest extends BaseModel {
 
     @Column(getterName = "getThisName", setterName = "setThisName")
     private String anotherName;
+
+    @Column
+    private boolean isOpen;
 
     public String getName() {
         return name;
@@ -33,5 +36,13 @@ public class PrivateModelTest extends BaseModel {
 
     public void setThisName(String thisName) {
         this.anotherName = thisName;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setIsOpen(boolean isOpen) {
+        this.isOpen = isOpen;
     }
 }

@@ -36,7 +36,7 @@ public class AsyncQuery<ModelClass extends Model> {
      * Runs the specified query in the background.
      */
     public void execute() {
-        transactionManager.addTransaction(new QueryTransaction<>(DBTransactionInfo.create(), modelQueriable));
+        transactionManager.addTransaction(new QueryTransaction(DBTransactionInfo.create(), modelQueriable));
     }
 
     /**
@@ -71,6 +71,6 @@ public class AsyncQuery<ModelClass extends Model> {
      */
     public void query(TransactionListener<Cursor> transactionListener) {
         transactionManager.addTransaction(
-                new QueryTransaction<>(DBTransactionInfo.create(), modelQueriable, transactionListener));
+                new QueryTransaction(DBTransactionInfo.create(), modelQueriable, transactionListener));
     }
 }

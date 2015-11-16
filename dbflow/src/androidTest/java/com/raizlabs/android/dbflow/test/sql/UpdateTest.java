@@ -3,21 +3,23 @@ package com.raizlabs.android.dbflow.test.sql;
 import android.content.ContentValues;
 import android.net.Uri;
 
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.language.ColumnAlias;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
-import com.raizlabs.android.dbflow.test.provider.NoteModel$Table;
 import com.raizlabs.android.dbflow.test.provider.TestContentProvider;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
+import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
-/**
- * Description:
- */
+import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.note;
+import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.providerModel;
+import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.id;
+import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.integerField;
+import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.name;
+
 public class UpdateTest extends FlowTestCase {
 
     public void testUpdateStatement() {
@@ -35,56 +37,35 @@ public class UpdateTest extends FlowTestCase {
 
         assertEquals("UPDATE `TestModel1`", from.getQuery().trim());
 
-        Where<TestModel1> where = from.set(Condition.column("name").is("newvalue"))
-                .where(Condition.column("name").is("oldvalue"));
+        Where<TestModel1> where = from.set(TestModel1_Table.name.is("newvalue"))
+                .where(TestModel1_Table.name.is("oldvalue"));
 
         assertEquals("UPDATE `TestModel1` SET `name`='newvalue' WHERE `name`='oldvalue'", where.getQuery().trim());
         where.query();
 
-        String query = new Update<>(BoxedModel.class).set(Condition.columnRaw(BoxedModel$Table.INTEGERFIELD).is(
-                BoxedModel$Table.INTEGERFIELD + " + 1")).getQuery();
-        assertEquals("UPDATE `BoxedModel` SET `integerField`=integerField + 1", query.trim());
-
-
-        query = new Update<>(BoxedModel.class).set(
-                Condition.column(BoxedModel$Table.INTEGERFIELD).concatenateToColumn(1)).getQuery();
+        String query = new Update<>(BoxedModel.class).set(integerField.concatenate(1)).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `integerField`=`integerField` + 1", query.trim());
 
-        query = new Update<>(BoxedModel.class).set(
-                Condition.column(BoxedModel$Table.NAME).concatenateToColumn("Test")).getQuery();
+        query = new Update<>(BoxedModel.class).set(name.concatenate("Test")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
 
-        query = new Update<>(BoxedModel.class).set(
-                Condition.column(ColumnAlias.column(BoxedModel$Table.NAME)).eq("Test"))
-                .where(Condition.columnRaw(BoxedModel$Table.NAME)
-                               .eq(ColumnAlias.columnWithTable(BoxedModel$Table.TABLE_NAME, BoxedModel$Table.NAME)))
+        query = new Update<>(BoxedModel.class).set(name.eq("Test"))
+                .where(name.eq(name.withTable()))
                 .getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`='Test' WHERE `name`=`BoxedModel`.`name`", query.trim());
 
         Uri uri = TestContentProvider.NoteModel.withOpenId(1, true);
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(NoteModel$Table.NOTE, "Test");
-        contentValues.put(NoteModel$Table.ID, 1);
-        contentValues.put(NoteModel$Table.CONTENTPROVIDERMODEL_PROVIDERMODEL, 1);
+        contentValues.put(note.getQuery(), "Test");
+        contentValues.put(id.getQuery(), 1);
+        contentValues.put(providerModel.getQuery(), 1);
 
-        query = new Update<>(FlowManager.getTableClassForName("content", "NoteModel"))
-                .conflictAction(ConflictAction.ABORT)
-                .set().conditionValues(contentValues)
-                .where("name = ?", "test")
-                .and(Condition.column("id").is(Long.valueOf(uri.getPathSegments().get(1))))
-                .and(Condition.column("isOpen").is(Boolean.valueOf(uri.getPathSegments().get(2))))
-                .getQuery();
-
-        String trimmed = query.trim().replaceFirst("UPDATE OR ABORT `NoteModel` SET ", "");
-        trimmed = trimmed.replace("WHERE name = 'test' AND `id`=1 AND `isOpen`=1", "");
-        trimmed = trimmed.replace("SET", "").trim();
-        String[] values = trimmed.split(",");
-        assertEquals(3, values.length);
-
-        for (String value : values) {
-            assertTrue(value.trim().equals("`id`=1") || value.trim().equals("`providerModel`=1") ||
-                       value.trim().equals("`note`='Test'"));
+        ConditionGroup group = ConditionGroup.clause();
+        SqlUtils.addContentValues(contentValues, group);
+        for (SQLCondition condition : group) {
+            assertTrue(condition.columnName().equals("`id`") || condition.columnName().equals("`providerModel`") ||
+                    condition.columnName().equals("`note`"));
         }
     }
 
@@ -94,13 +75,13 @@ public class UpdateTest extends FlowTestCase {
         testUpdateModel.value = "oldvalue";
         testUpdateModel.save();
 
-        assertNotNull(new Select().from(TestUpdateModel.class).where(
-                Condition.column(TestUpdateModel$Table.NAME).is("Test")));
+        assertNotNull(new Select().from(TestUpdateModel.class)
+                .where(TestUpdateModel_Table.name.is("Test")));
 
-        new Update<>(TestUpdateModel.class).set(Condition.column("value").is("newvalue")).where().count();
+        new Update<>(TestUpdateModel.class).set(TestUpdateModel_Table.value.is("newvalue")).where().count();
 
         TestUpdateModel newUpdateModel = new Select().from(TestUpdateModel.class)
-                .where(Condition.column(TestUpdateModel$Table.NAME).is("Test"))
+                .where(TestUpdateModel_Table.name.is("Test"))
                 .querySingle();
         assertEquals("newvalue", newUpdateModel.value);
 

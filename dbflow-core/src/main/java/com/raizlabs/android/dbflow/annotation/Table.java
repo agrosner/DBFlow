@@ -18,12 +18,12 @@ public @interface Table {
     /**
      * @return Specifies a different name for the table than the name of the Model class.
      */
-    String tableName() default "";
+    String name() default "";
 
     /**
-     * @return Specify the database name that this table belongs to. By default it will reference the main Db.
+     * @return Specify the database class that this table belongs to. It must have the {@link Database} annotation.
      */
-    String databaseName();
+    Class<?> database();
 
     /**
      * @return Specify the general conflict algorithm used by this table when updating records.
@@ -43,10 +43,21 @@ public @interface Table {
     boolean allFields() default false;
 
     /**
+     * @return If true, all private boolean fields will use "is" instead of "get" for its getter.
+     */
+    boolean useIsForPrivateBooleans() default false;
+
+    /**
      * @return Declares a set of UNIQUE columns with the corresponding {@link ConflictAction}. A {@link Column}
      * will point to this group using {@link Unique#uniqueGroups()}
      */
     UniqueGroup[] uniqueColumnGroups() default {};
+
+    /**
+     * @return The set of INDEX clauses that specific columns can define to belong to, using the {@link Index} annotation.
+     * The generated Index properties belong to the corresponding property class to this table.
+     */
+    IndexGroup[] indexGroups() default {};
 
     /**
      * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.

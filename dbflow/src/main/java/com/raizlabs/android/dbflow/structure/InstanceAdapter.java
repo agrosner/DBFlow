@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
 /**
- * Description: Provides a {@link #newInstance()} method to a {@link com.raizlabs.android.dbflow.structure.RetrievalAdapter}
+ * Description: Provides a {@link #newInstance()} method to a {@link RetrievalAdapter}
  */
 public interface InstanceAdapter<TableClass extends Model, ModelClass extends Model>
         extends RetrievalAdapter<TableClass, ModelClass> {

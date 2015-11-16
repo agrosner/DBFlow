@@ -2,27 +2,29 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
 public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelClass>
-        implements Query, ModelQueriable<ModelClass> {
+        implements Query, ModelQueriable<ModelClass>, Transformable<ModelClass> {
+
+    private static final int VALUE_UNSET = -1;
 
     /**
      * The first chunk of the SQL statement before this query.
@@ -32,30 +34,23 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * The database manager we run this query on
      */
     private final BaseDatabaseDefinition databaseDefinition;
+
     /**
      * Helps to build the where statement easily
      */
-    private ConditionQueryBuilder<ModelClass> conditionQueryBuilder;
+    private ConditionGroup conditionGroup;
+
+    private final List<NameAlias> groupByList = new ArrayList<>();
+
+    private final List<OrderBy> orderByList = new ArrayList<>();
+
     /**
-     * The SQL GROUP BY method
+     * The SQL HAVING statement
      */
-    private String groupBy;
-    /**
-     * The SQL HAVING
-     */
-    private ConditionQueryBuilder<ModelClass> having;
-    /**
-     * The SQL ORDER BY
-     */
-    private String orderBy;
-    /**
-     * The SQL LIMIT
-     */
-    private String limit;
-    /**
-     * The SQL OFFSET
-     */
-    private String offset;
+    private ConditionGroup havingGroup;
+
+    private int limit = VALUE_UNSET;
+    private int offset = VALUE_UNSET;
 
     /**
      * Constructs this class with the specified {@link com.raizlabs.android.dbflow.config.FlowManager}
@@ -63,221 +58,127 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      *
      * @param whereBase The FROM or SET statement chunk
      */
-    public Where(WhereBase<ModelClass> whereBase) {
+    Where(WhereBase<ModelClass> whereBase, SQLCondition... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
         databaseDefinition = FlowManager.getDatabaseForTable(this.whereBase.getTable());
-        conditionQueryBuilder = new ConditionQueryBuilder<>(this.whereBase.getTable());
-        having = new ConditionQueryBuilder<>(this.whereBase.getTable());
+        conditionGroup = new ConditionGroup();
+        havingGroup = new ConditionGroup();
+
+        conditionGroup.andAll(conditions);
     }
 
     /**
-     * Defines the full SQL clause for the WHERE statement
+     * Adds a param to the WHERE clause with the custom {@link SQLCondition}
      *
-     * @param whereClause The SQL after WHERE . ex: columnName = "name" AND ID = 0
-     * @param args        The optional arguments for the wher clause.
-     * @return
-     */
-    public Where<ModelClass> whereClause(String whereClause, Object... args) {
-        conditionQueryBuilder.append(whereClause, args);
-        return this;
-    }
-
-    /**
-     * Defines the {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder} that will build this SQL statement
-     *
-     * @param conditionQueryBuilder Helps build the SQL after WHERE
-     * @return
-     */
-    public Where<ModelClass> whereQuery(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        if (conditionQueryBuilder != null) {
-            this.conditionQueryBuilder = conditionQueryBuilder;
-        }
-        return this;
-    }
-
-    /**
-     * Adds a param to the WHERE clause with the "=" operator
-     *
-     * @param columnName The name of column
-     * @param value      the value of column
-     * @return
-     */
-    public Where<ModelClass> and(String columnName, Object value) {
-        conditionQueryBuilder.addCondition(columnName, value);
-        return this;
-    }
-
-    /**
-     * Adds a param to the WHERE clause with a custom operator.
-     *
-     * @param columnName The name of column
-     * @param operator   The operator to use. Ex: "=", "&lt;", etc.
-     * @param value      The value of the column
-     * @return
-     */
-    public Where<ModelClass> and(String columnName, String operator, Object value) {
-        conditionQueryBuilder.addCondition(columnName, operator, value);
-        return this;
-    }
-
-    /**
-     * Adds a param to the WHERE clause with the custom {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
-     *
-     * @param condition The {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition} to use
+     * @param condition The {@link SQLCondition} to use
      * @return
      */
     public Where<ModelClass> and(SQLCondition condition) {
-        conditionQueryBuilder.and(condition);
+        conditionGroup.and(condition);
         return this;
     }
 
     /**
-     * Appends an OR with a Condition to the WHERE clause with the specified {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
+     * Appends an OR with a Condition to the WHERE clause with the specified {@link SQLCondition}
      *
      * @param condition
      * @return
      */
     public Where<ModelClass> or(SQLCondition condition) {
-        conditionQueryBuilder.or(condition);
+        conditionGroup.or(condition);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.Condition} to this builder.
+     * Adds a bunch of {@link Condition} to this builder.
      *
-     * @param conditions The list of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
+     * @param conditions The list of {@link SQLCondition}
      * @return
      */
-    public Where<ModelClass> andThese(List<SQLCondition> conditions) {
-        conditionQueryBuilder.addConditions(conditions);
+    public Where<ModelClass> andAll(List<SQLCondition> conditions) {
+        conditionGroup.andAll(conditions);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition} to this builder.
+     * Adds a bunch of {@link SQLCondition} to this builder.
      *
-     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
+     * @param conditions The array of {@link SQLCondition}
      * @return
      */
-    public Where<ModelClass> andThese(SQLCondition... conditions) {
-        conditionQueryBuilder.addConditions(conditions);
+    public Where<ModelClass> andAll(SQLCondition... conditions) {
+        conditionGroup.andAll(conditions);
         return this;
     }
 
-    /**
-     * Defines a SQL GROUP BY statement without the GROUP BY.
-     *
-     * @param groupBy
-     * @return
-     */
-    public Where<ModelClass> groupBy(QueryBuilder groupBy) {
-        this.groupBy = groupBy.getQuery();
+    @Override
+    public Where<ModelClass> groupBy(NameAlias... columns) {
+        Collections.addAll(groupByList, columns);
         return this;
     }
 
-    /**
-     * Defines a SQL GROUP BY statement without the GROUP BY.
-     *
-     * @param columns The columns to groupby
-     * @return
-     */
-    public Where<ModelClass> groupBy(ColumnAlias... columns) {
-        groupBy = new QueryBuilder().appendArray(columns)
-                .getQuery();
-        return this;
-    }
-
-    /**
-     * Defines a SQL GROUP BY statement without the GROUP BY.
-     *
-     * @param columns The columns to groupby
-     * @return
-     */
-    public Where<ModelClass> groupBy(String... columns) {
-        groupBy = new QueryBuilder().appendArray(columns)
-                .getQuery();
+    @Override
+    public Where<ModelClass> groupBy(IProperty... properties) {
+        for (IProperty property : properties) {
+            groupByList.add(property.getNameAlias());
+        }
         return this;
     }
 
     /**
      * Defines a SQL HAVING statement without the HAVING.
      *
-     * @param conditions The array of {@link com.raizlabs.android.dbflow.sql.builder.SQLCondition}
+     * @param conditions The array of {@link SQLCondition}
      * @return
      */
+    @Override
     public Where<ModelClass> having(SQLCondition... conditions) {
-        having.addConditions(conditions);
+        havingGroup.andAll(conditions);
+        return this;
+    }
+
+    @Override
+    public Where<ModelClass> orderBy(NameAlias nameAlias, boolean ascending) {
+        orderByList.add(new OrderBy(nameAlias, ascending));
+        return this;
+    }
+
+    @Override
+    public Where<ModelClass> orderBy(IProperty property, boolean ascending) {
+        orderByList.add(new OrderBy(property.getNameAlias(), ascending));
+        return this;
+    }
+
+    @Override
+    public Where<ModelClass> limit(int count) {
+        this.limit = count;
+        return this;
+    }
+
+    @Override
+    public Where<ModelClass> offset(int offset) {
+        this.offset = offset;
         return this;
     }
 
     /**
-     * @param ascending If we should be in ascending order
-     * @param columns   the columns to specify.
-     * @return This WHERE query.
-     */
-    public Where<ModelClass> orderBy(boolean ascending, String... columns) {
-        orderBy = OrderBy.columns(columns).setAscending(ascending)
-                .getQuery();
-        return this;
-    }
-
-    /**
-     * @param orderby The orderBy string that we use.
-     * @return This WHERE query.
-     */
-    public Where<ModelClass> orderBy(String orderby) {
-        orderBy = OrderBy.fromString(orderby).getQuery();
-        return this;
-    }
-
-    /**
-     * @param orderby The {@link OrderBy}
-     * @return This WHERE query.
-     */
-    public Where<ModelClass> orderBy(OrderBy orderby) {
-        orderBy = orderby.getQuery();
-        return this;
-    }
-
-    /**
-     * Specify the limit value you wish to use..
+     * Specify that we use an EXISTS statement for this Where class.
      *
-     * @param limit The limit. E.g. 1
-     * @return This WHERE query.
+     * @param where The query to use in the EXISTS clause. Such as SELECT * FROM `MyTable` WHERE ... etc.
+     * @return This where with an EXISTS clause.
      */
-    public Where<ModelClass> limit(Object limit) {
-        this.limit = String.valueOf(limit);
+    public Where<ModelClass> exists(@NonNull Where where) {
+        conditionGroup.and(new ExistenceCondition()
+                .where(where));
         return this;
     }
 
     /**
-     * Add an OFFSET value to this query.
+     * Executes a SQL statement that retrieves the count of results in the DB. This may return the
+     * number of rows affected from a {@link Set} or {@link Delete} statement.
      *
-     * @param offset The offset value.
-     * @return This WHERE query.
-     */
-    public Where<ModelClass> offset(Object offset) {
-        this.offset = String.valueOf(offset);
-        return this;
-    }
-
-    /**
-     * Sets this statement to only specify that it EXISTS
-     *
-     * @return
-     */
-    public Where<ModelClass> exists(Where where) {
-        conditionQueryBuilder.addCondition(Condition.exists()
-                .operation("")
-                .value(where));
-        return this;
-    }
-
-    /**
-     * Executes a SQL statement that retrieves the count of results in the DB.
-     *
-     * @return The number of rows this query returns
+     * @return The number of rows this query returns or affects.
      */
     public long count() {
         long count;
@@ -291,19 +192,18 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
 
     @Override
     public String getQuery() {
-        String fromQuery = whereBase.getQuery();
-        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery)
-                .appendQualifier("WHERE", conditionQueryBuilder.getQuery())
-                .appendQualifier("GROUP BY", groupBy)
-                .appendQualifier("HAVING", having.getQuery())
-                .appendQualifier(null, orderBy)
-                .appendQualifier("LIMIT", limit)
-                .appendQualifier("OFFSET", offset);
+        String fromQuery = whereBase.getQuery().trim();
+        QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
+                .appendQualifier("WHERE", conditionGroup.getQuery())
+                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+                .appendQualifier("HAVING", havingGroup.getQuery())
+                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
-        // Don't wast time building the string
-        // unless we're going to log it.
-        if (FlowLog.isEnabled(FlowLog.Level.V)) {
-            FlowLog.log(FlowLog.Level.V, queryBuilder.getQuery());
+        if (limit > VALUE_UNSET) {
+            queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
+        }
+        if (offset > VALUE_UNSET) {
+            queryBuilder.appendQualifier("OFFSET", String.valueOf(offset));
         }
 
         return queryBuilder.getQuery();

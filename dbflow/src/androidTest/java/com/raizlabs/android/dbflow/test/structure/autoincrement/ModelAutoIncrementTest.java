@@ -5,13 +5,7 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
-
-/**
- * Description:
- */
 public class ModelAutoIncrementTest extends FlowTestCase {
-
 
     public void testModelAutoIncrement() {
         TestModelAI testModelAI = new TestModelAI();
@@ -26,7 +20,7 @@ public class ModelAutoIncrementTest extends FlowTestCase {
         testModelAI2.update();
 
         TestModelAI testModelAI3 = new Select().from(TestModelAI.class)
-                .where(column(TestModelAI$Table.ID).is(testModelAI.id))
+                .where(TestModelAI_Table.id.is(testModelAI.id))
                 .querySingle();
         assertEquals(testModelAI3.name, testModelAI2.name);
 

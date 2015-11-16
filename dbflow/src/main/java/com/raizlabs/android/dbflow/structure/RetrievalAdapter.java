@@ -2,10 +2,10 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
 
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 
 /**
- * Description: Provides a base retrieval interface for all {@link com.raizlabs.android.dbflow.structure.Model} backed
+ * Description: Provides a base retrieval interface for all {@link Model} backed
  * adapters.
  */
 public interface RetrievalAdapter<TableClass extends Model, ModelClass extends Model> {
@@ -24,6 +24,10 @@ public interface RetrievalAdapter<TableClass extends Model, ModelClass extends M
      */
     boolean exists(ModelClass model);
 
-    ConditionQueryBuilder<TableClass> getPrimaryModelWhere(ModelClass model);
+    /**
+     * @param model
+     * @return The clause that contains necessary
+     */
+    ConditionGroup getPrimaryConditionClause(ModelClass model);
 
 }

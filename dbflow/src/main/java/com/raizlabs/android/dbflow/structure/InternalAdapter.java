@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 
 /**
- * Description: Used for our internal Adapter classes such as generated {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
+ * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}
  * or {@link ModelContainerAdapter}
  */
 public interface InternalAdapter<TableClass extends Model, ModelClass extends Model> {
@@ -58,6 +58,15 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
     void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
 
     /**
+     * Binds to a {@link SQLiteStatement}. It leaves out an autoincrementing primary key (if specified)
+     * to keep the true nature of AI keys.
+     *
+     * @param sqLiteStatement The statement to bind to.
+     * @param model           The model to read from.
+     */
+    void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model);
+
+    /**
      * Binds a {@link ModelClass} to the specified db statement
      *
      * @param contentValues The content values to fill.
@@ -81,13 +90,13 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      * @param model The model object to store the key
      * @param id    The key to store
      */
-    void updateAutoIncrement(ModelClass model, long id);
+    void updateAutoIncrement(ModelClass model, Number id);
 
     /**
      * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
      * if it has the field. This method is overridden when its specified for the {@link ModelClass}
      */
-    long getAutoIncrementingId(ModelClass model);
+    Number getAutoIncrementingId(ModelClass model);
 
     /**
      * @param model The model to retrieve the caching id from.

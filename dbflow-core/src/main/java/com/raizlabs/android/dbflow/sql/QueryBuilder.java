@@ -1,20 +1,25 @@
 package com.raizlabs.android.dbflow.sql;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
- * Description: This is used as a wrapper around {@link java.lang.StringBuilder} in order to provide more
+ * Description: This is used as a wrapper around {@link StringBuilder} in order to provide more
  * database focused methods and to assist in generating queries to the DB using our SQL wrappers.
  */
 public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
 
+    private static final char QUOTE = '`';
+
+    private static final Pattern QUOTE_PATTERN = Pattern.compile(QUOTE + ".*" + QUOTE);
+
     /**
-     * This query is backed by a {@link java.lang.StringBuilder}
+     * This query is backed by a {@link StringBuilder}
      */
     protected StringBuilder query = new StringBuilder();
 
     /**
-     * Constructs this item with an empty {@link java.lang.StringBuilder}
+     * Constructs this item with an empty {@link StringBuilder}
      */
     public QueryBuilder() {
         super();
@@ -95,10 +100,10 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     /**
-     * Appends an {@link com.raizlabs.android.dbflow.sql.SQLiteType} to this query based on the class
+     * Appends an {@link SQLiteType} to this query based on the class
      * passed in.
      *
-     * @param type The Class to look up from {@link com.raizlabs.android.dbflow.sql.SQLiteType}
+     * @param type The Class to look up from {@link SQLiteType}
      * @return This instance
      */
     public QueryClass appendType(String type) {
@@ -106,9 +111,9 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     }
 
     /**
-     * Appends the {@link com.raizlabs.android.dbflow.sql.SQLiteType} to this query
+     * Appends the {@link SQLiteType} to this query
      *
-     * @param sqLiteType The {@link com.raizlabs.android.dbflow.sql.SQLiteType} to append
+     * @param sqLiteType The {@link SQLiteType} to append
      * @return This instance
      */
     public QueryClass appendSQLiteType(SQLiteType sqLiteType) {
@@ -146,7 +151,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      */
     public QueryClass appendQualifier(String name, String value) {
         if (value != null && value.length() > 0) {
-            if(name != null) {
+            if (name != null) {
                 append(name);
             }
             appendSpaceSeparated(value);
@@ -178,7 +183,22 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
         if (string.equals("*"))
             return append(string);
 
-        append("`").append(string.replace(".", "`.`")).append("`");
+        append(quote(string));
+        return castThis();
+    }
+
+    /**
+     * Appends a quoted string if needed. If the string is the all symbol '*', we do not quote it.
+     *
+     * @param string The string to append
+     * @return This instance
+     */
+    @SuppressWarnings("unchecked")
+    public QueryClass appendQuotedIfNeeded(String string) {
+        if (string.equals("*"))
+            return append(string);
+
+        append(quoteIfNeeded(string));
         return castThis();
     }
 
@@ -221,7 +241,45 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * of clashing.
      */
     public static String quote(String columnName) {
-        return "`" + columnName.replace(".", "`.`") + "`";
+        return QUOTE + columnName.replace(".", "`.`") + QUOTE;
+    }
+
+    /**
+     * Quotes the identifier if its not already quoted.
+     *
+     * @param name The name of the column or table.
+     * @return Quoted only once.
+     */
+    public static String quoteIfNeeded(String name) {
+        if (name != null && !isQuoted(name)) {
+            return quote(name);
+        } else {
+            return name;
+        }
+    }
+
+    /**
+     * Helper method to check if name is quoted.
+     *
+     * @param name The name of a column or table.
+     * @return true if the name is quoted. We may not want to quote something if its already so.
+     */
+    public static boolean isQuoted(String name) {
+        return (QUOTE_PATTERN.matcher(name).find());
+    }
+
+    /**
+     * Strips quotes out of a identifier if need to do so.
+     *
+     * @param name The name ot strip the quotes from.
+     * @return A non-quoted name.
+     */
+    public static String stripQuotes(String name) {
+        String ret = name;
+        if (ret != null && isQuoted(ret)) {
+            ret = ret.replace("`", "");
+        }
+        return ret;
     }
 
     /**

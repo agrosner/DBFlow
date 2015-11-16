@@ -1,22 +1,16 @@
 # Content Provider Generation
-
-This library includes a very fast, easy way to use ```ContentProvider```!
-Using annotations, you can generate ```ContentProvider``` with ease.
-
+This library includes a very fast, easy way to use `ContentProvider`! Using annotations, you can generate `ContentProvider` with ease.
 
 ## Getting Started
-
 This feature is largely based off of [schematic](https://github.com/SimonVT/schematic), while leveraging DBFlow's power.
 
 ### Placeholder ContentProvider
-
-In order to define a ```ContentProvider```, you must define a placeholder class:
-
+In order to define a `ContentProvider`, you must define a placeholder class:
 
 ```java
 
 @ContentProvider(authority = TestContentProvider.AUTHORITY,
-        databaseName = TestDatabase.NAME,
+        database = TestDatabase.class,
         baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 public class TestContentProvider {
 
@@ -25,17 +19,14 @@ public class TestContentProvider {
     public static final String BASE_CONTENT_URI = "content://";
 
 }
-
 ```
 
-or you can use the annotation in any class you wish. The recommended place would
-be in a ```@Database``` placeholder class. This is to simplify some of the declarations and
-keep it all in one place.
+or you can use the annotation in any class you wish. The recommended place would be in a `@Database` placeholder class. This is to simplify some of the declarations and keep it all in one place.
 
 ```java
 
 @ContentProvider(authority = TestDatabase.AUTHORITY,
-        databaseName = TestDatabase.NAME,
+        database = TestDatabase.class,
         baseContentUri = TestDatabase.BASE_CONTENT_URI)
 @Database(name = TestDatabase.NAME, version = TestDatabase.VERSION)
 public class TestDatabase {
@@ -49,13 +40,10 @@ public class TestDatabase {
     public static final String BASE_CONTENT_URI = "content://";
 
 }
-
 ```
 
 ### Adding To Manifest
-
-
-In other applications or your current's ```AndroidManifest.xml``` add the **generated $Provider** class:
+In other applications or your current's `AndroidManifest.xml` add the **generated $Provider** class:
 
 ```xml
 
@@ -63,30 +51,25 @@ In other applications or your current's ```AndroidManifest.xml``` add the **gene
             android:authorities="com.raizlabs.android.dbflow.test.provider"
             android:exported="true|false"
             android:name=".provider.TestContentProvider$Provider"/>
-
 ```
 
-```android:exported```: setting this to true, enables other applications to make use of it.
+`android:exported`: setting this to true, enables other applications to make use of it.
 
 **True** is recommended for outside application access.
 
-**Note you must have at least one ```@TableEndpoint``` for it to compile/pass error checking**
+**Note you must have at least one `@TableEndpoint` for it to compile/pass error checking**
 
 ### Adding endpoints into the data
+There are two ways of defining `@TableEndpoint`:
+1. Create an inner class within the `@ContentProvider` annotation.
+2. Or Add the annotation to a `@Table` and specify the content provider class name (ex. TestContentProvider)
 
-There are two ways of defining ```@TableEndpoint```:
-
-  1. Create an inner class within the ```@ContentProvider``` annotation.
-  2. Or Add the annotation to a ```@Table``` and specify the content provider class name (ex. TestContentProvider)
-
-
-```@TableEndpoint```: links up a query, insert, delete, and update
-to a specific table in the ```ContentProvider``` local database.
+`@TableEndpoint`: links up a query, insert, delete, and update to a specific table in the `ContentProvider` local database.
 
 Some recommendations:
-  1. (if inside a ```@ContentProvider``` class) Name the inner class same as the table it's referencing
-  2. Create a ```public static final String ENDPOINT = "{tableName}"``` field for reusability
-  3. Create ```buildUri()``` method (see below) to aid in creating other ones.
+1. (if inside a `@ContentProvider` class) Name the inner class same as the table it's referencing
+2. Create a `public static final String ENDPOINT = "{tableName}"` field for reusability
+3. Create `buildUri()` method (see below) to aid in creating other ones.
 
 To define one:
 
@@ -110,8 +93,6 @@ public static class ContentProviderModel {
     public static Uri CONTENT_URI = buildUri(ENDPOINT);
 
 }
-
-
 ```
 
 or via the table it belongs to
@@ -120,7 +101,7 @@ or via the table it belongs to
 
 
 @TableEndpoint(name = ContentProviderModel.NAME, contentProviderName = "ContentDatabase")
-@Table(databaseName = ContentDatabase.NAME, tableName = ContentProviderModel.NAME)
+@Table(database = ContentDatabase.class, tableName = ContentProviderModel.NAME)
 public class ContentProviderModel extends BaseProviderModel<ContentProviderModel> {
 
     public static final String NAME = "ContentProviderModel";
@@ -158,24 +139,19 @@ public class ContentProviderModel extends BaseProviderModel<ContentProviderModel
         return TestContentProvider.ContentProviderModel.CONTENT_URI;
     }
 }
-
 ```
 
-There are much more detailed usages of the ```@ContentUri``` annotation. Those will be in a later section.
+There are much more detailed usages of the `@ContentUri` annotation. Those will be in a later section.
 
 ### Connect Model operations to the newly created ContentProvider
+There are two kinds of `Model` that connect your application to a ContentProvider that was defined in your app, or another app. Extend these for convenience, however they are not required.
 
-There are two kinds of ```Model``` that connect your application to a ContentProvider
-that was defined in your app, or another app. Extend these for convenience, however they are not required.
+`BaseProviderModel`: Overrides all `Model` methods and performs them on the `ContentProvider`
 
-```BaseProviderModel```: Overrides all ```Model``` methods and performs them on the ```ContentProvider```
-
-```BaseSyncableProviderModel```: same as above, except it will synchronize the data changes with the local app database as well!
+`BaseSyncableProviderModel`: same as above, except it will synchronize the data changes with the local app database as well!
 
 #### Interacting with the Content Provider
-
-You can use the ```ContentUtils``` methods:
-
+You can use the `ContentUtils` methods:
 
 ```java
 
@@ -186,11 +162,9 @@ int count = ContentUtils.update(getContentResolver(), ContentProviderModel.CONTE
 Uri uri = ContentUtils.insert(getContentResolver(), ContentProviderModel.CONTENT_URI, contentProviderModel);
 
 int count = ContentUtils.delete(getContentResolver(), someContentUri, contentProviderModel);
-
 ```
 
-**Recommended** usage is extending ```BaseSyncableProviderModel``` (for inter-app usage) so the local database
-contains the same data. Otherwise ```BaseProviderModel``` works just as well.
+**Recommended** usage is extending `BaseSyncableProviderModel` (for inter-app usage) so the local database contains the same data. Otherwise `BaseProviderModel` works just as well.
 
 ```java
 
@@ -202,19 +176,16 @@ model.someProp = "Hello"
 model.update(false); // runs an update on the CP
 
 model.insert(false); // inserts the data into the CP
-
 ```
+
 ## Advanced Usage
-
 ### Notify Methods
-
-You can define ```@Notify``` method to specify a custom interaction with the  ```ContentProvider``` and return a custom ```Uri[]``` that notifies the contained ```ContentResolver```. These methods can have any valid parameter from the ```ContentProvider``` methods.
+You can define `@Notify` method to specify a custom interaction with the  `ContentProvider` and return a custom `Uri[]` that notifies the contained `ContentResolver`. These methods can have any valid parameter from the `ContentProvider` methods.
 
 Supported kinds include:
-  1. Update
-  2. Insert
-  3. Delete
-
+1. Update
+2. Insert
+3. Delete
 
 #### Example
 
@@ -228,22 +199,17 @@ public static Uri[] onUpdate(Context context, Uri uri) {
     // return custom uris here
   };
 }
-
-
 ```
 
 ### ContentUri Advanced
-
 #### Path Segments
-
 Path segments enable you to "filter" the uri query, update, insert, and deletion by a specific column and a value define by '#'.
 
-To specify one, this is an example ```path```
+To specify one, this is an example `path`
 
 ```java
 
 path = "Friends/#/#"
-
 ```
 
 then match up the segments as:
@@ -252,7 +218,6 @@ then match up the segments as:
 
 segments = {@PathSegment(segment = 1, column = "id"),
     @PathSegment(segment = 2, column = "name")}
-
 ```
 
 And to put it all together:
@@ -266,6 +231,4 @@ segments = {@PathSegment(segment = 1, column = "id"),
 public static Uri withIdAndName(int id, String name) {
   return buildUri(id, name);
 }
-
-
 ```

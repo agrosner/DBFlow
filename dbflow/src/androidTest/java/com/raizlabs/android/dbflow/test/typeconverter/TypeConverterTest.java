@@ -13,8 +13,6 @@ import org.json.JSONObject;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.raizlabs.android.dbflow.sql.builder.Condition.column;
-
 /**
  * Description:
  */
@@ -57,7 +55,7 @@ public class TypeConverterTest extends FlowTestCase {
         testType.save();
 
         TestType retrieved = new Select().from(TestType.class)
-                .where(column(TestType$Table.NAME).is("Name"))
+                .where(TestType_Table.name.is("Name"))
                 .querySingle();
 
         assertNotNull(retrieved);
@@ -82,6 +80,9 @@ public class TypeConverterTest extends FlowTestCase {
 
     /**
      * Nullable database columns need to be allowed to receive null values.
+     * <p/>
+     * Type converters that autobox to native types need to have their behavior checked
+     * when null values are present in the database.
      */
     public void testConvertersNullValues() {
         new Delete().from(TestType.class).where().query();
@@ -91,7 +92,7 @@ public class TypeConverterTest extends FlowTestCase {
         testType.save();
 
         TestType retrieved = new Select().from(TestType.class)
-                .where(column(TestType$Table.NAME).is("Name"))
+                .where(TestType_Table.name.is("Name"))
                 .querySingle();
 
         assertNotNull(retrieved);
@@ -120,13 +121,14 @@ public class TypeConverterTest extends FlowTestCase {
          * the read behavior of pre-existing null database values and not the write behavior of
          * the type converter.
          */
+
         new Update<>(TestType.class)
-                .set(TestType$Table.NATIVEBOOLEAN + " = null")
-                .where(column(TestType$Table.NAME).eq(testType.name))
+                .set(TestType_Table.nativeBoolean.is((Boolean) null))
+                .where(TestType_Table.name.eq(testType.name))
                 .queryClose();
 
         TestType retrieved = new Select().from(TestType.class)
-                .where(column(TestType$Table.NAME).is("Name"))
+                .where(TestType_Table.name.is("Name"))
                 .querySingle();
         assertNotNull(retrieved);
 
@@ -134,3 +136,4 @@ public class TypeConverterTest extends FlowTestCase {
     }
 
 }
+

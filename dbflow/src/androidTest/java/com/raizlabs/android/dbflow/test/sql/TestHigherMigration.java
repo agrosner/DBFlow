@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@com.raizlabs.android.dbflow.annotation.Migration(version = 1, databaseName = TestDatabase.NAME, priority = 2)
+@com.raizlabs.android.dbflow.annotation.Migration(version = 1, database = TestDatabase.class, priority = 2)
 public class TestHigherMigration implements Migration {
     @Override
     public void onPreMigrate() {

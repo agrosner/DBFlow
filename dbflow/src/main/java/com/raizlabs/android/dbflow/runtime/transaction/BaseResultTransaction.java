@@ -25,8 +25,8 @@ public abstract class BaseResultTransaction<ResultClass> extends BaseTransaction
     /**
      * Constructs this transaction
      *
-     * @param dbTransactionInfo The information about this transaction
-     * @param transactionListener    Will be called when the transaction completes.
+     * @param dbTransactionInfo   The information about this transaction
+     * @param transactionListener Will be called when the transaction completes.
      */
     public BaseResultTransaction(DBTransactionInfo dbTransactionInfo, TransactionListener<ResultClass> transactionListener) {
         super(dbTransactionInfo);

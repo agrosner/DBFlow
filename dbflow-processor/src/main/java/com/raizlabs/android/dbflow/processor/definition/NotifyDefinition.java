@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.annotation.provider.Notify;
-import com.raizlabs.android.dbflow.processor.Classes;
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.ClassName;
 
 import java.util.List;
 
@@ -74,12 +75,17 @@ public class NotifyDefinition extends BaseDefinition {
         params = paramsBuilder.toString();
 
         TypeMirror typeMirror = executableElement.getReturnType();
-        if ((Classes.URI + "[]").equals(typeMirror.toString())) {
+        if ((ClassNames.URI + "[]").equals(typeMirror.toString())) {
             returnsArray = true;
-        } else if (Classes.URI.equals(typeMirror.toString())) {
+        } else if (ClassNames.URI.toString().equals(typeMirror.toString())) {
             returnsSingle = true;
         } else {
             processorManager.logError("Notify method returns wrong type. It must return Uri or Uri[]");
         }
+    }
+
+    @Override
+    protected ClassName getElementClassName(Element element) {
+        return null;
     }
 }

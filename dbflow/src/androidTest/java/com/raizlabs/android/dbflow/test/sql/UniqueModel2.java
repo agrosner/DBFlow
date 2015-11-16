@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-@Table(databaseName = TestDatabase.NAME,
+@Table(database = TestDatabase.class,
         uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.FAIL),
                 @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.ROLLBACK)})
 public class UniqueModel2 extends BaseModel {

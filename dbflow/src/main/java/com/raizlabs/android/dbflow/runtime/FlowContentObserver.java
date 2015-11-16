@@ -10,6 +10,9 @@ import android.os.Handler;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.language.Condition;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -78,14 +81,14 @@ public class FlowContentObserver extends ContentObserver {
          * Notifies that the state of a {@link Model}
          * has changed for the table this is registered for.
          *
-         * @param table      The table that this change occurred on. This is ONLY available on {@link VERSION_CODES#JELLY_BEAN}
-         *                   and up.
-         * @param action     The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
-         *                   the {@link Action#CHANGE} will always be called for any action.
-         * @param columnName The name of the primary column with the id that's changed.
-         * @param value      the value from the primary key thats changed converted to String.
+         * @param table         The table that this change occurred on. This is ONLY available on {@link VERSION_CODES#JELLY_BEAN}
+         *                      and up.
+         * @param action        The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
+         *                      the {@link Action#CHANGE} will always be called for any action.
+         * @param sqlConditions The array of primary {@link SQLCondition} of what changed. Call {@link SQLCondition#columnName()}
+         *                      and {@link SQLCondition#value()} to get each information.
          */
-        void onModelStateChanged(Class<? extends Model> table, Action action, String columnName, String value);
+        void onModelStateChanged(Class<? extends Model> table, Action action, SQLCondition[] sqlConditions);
     }
 
     private final List<OnModelStateChangedListener> modelChangeListeners = new ArrayList<>();
@@ -220,13 +223,14 @@ public class FlowContentObserver extends ContentObserver {
         String param = null;
 
         Set<String> queryNames = uri.getQueryParameterNames();
+        SQLCondition[] columnsChanged = new SQLCondition[queryNames.size()];
         if (!queryNames.isEmpty()) {
+            int index = 0;
             for (String key : queryNames) {
-                // for now we get first key we find
-                // maybe in future we add multi-column support
                 param = Uri.decode(uri.getQueryParameter(key));
-                columnName = key;
-                break;
+                columnName = Uri.decode(key);
+                columnsChanged[index] = Condition.column(new NameAlias(columnName)).value(param);
+                index++;
             }
         }
 
@@ -241,7 +245,7 @@ public class FlowContentObserver extends ContentObserver {
 
                 if (columnName != null && param != null) {
                     for (OnSpecificModelStateChangedListener modelChangeListener : specificModelChangeListeners) {
-                        modelChangeListener.onModelStateChanged(table, action, columnName, param);
+                        modelChangeListener.onModelStateChanged(table, action, columnsChanged);
                     }
                 }
             }

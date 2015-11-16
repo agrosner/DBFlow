@@ -1,63 +1,68 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import android.support.annotation.NonNull;
-
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: The INDEXED BY part of a SELECT/UPDATE/DELETE
  */
-public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass> {
+public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass>, Transformable<ModelClass> {
 
-    private final String indexName;
+    private final IndexProperty<ModelClass> indexProperty;
 
     private final WhereBase<ModelClass> whereBase;
 
     /**
      * Creates the INDEXED BY part of the clause.
      *
-     * @param indexName The name of the index
-     * @param whereBase  The base piece of this query
+     * @param indexProperty The index property generated.
+     * @param whereBase     The base piece of this query
      */
-    IndexedBy(@NonNull String indexName, WhereBase<ModelClass> whereBase) {
-        this.indexName = indexName;
+    IndexedBy(IndexProperty<ModelClass> indexProperty, WhereBase<ModelClass> whereBase) {
+        this.indexProperty = indexProperty;
         this.whereBase = whereBase;
     }
 
-    /**
-     * @return a WHERE piece of this query
-     */
-    public Where<ModelClass> where() {
-        return new Where<>(this);
+    public Where<ModelClass> where(SQLCondition... conditions) {
+        return new Where<>(this, conditions);
     }
 
-    /**
-     * @param whereClause The string part of where
-     * @param args        The argument bindings for the whereClause
-     * @return a WHERE query with the specified string
-     */
-    public Where<ModelClass> where(String whereClause, Object... args) {
-        return where().whereClause(whereClause, args);
+    @Override
+    public Where<ModelClass> groupBy(NameAlias... nameAliases) {
+        return where().groupBy(nameAliases);
     }
 
-    /**
-     * @param conditionQueryBuilder The set of conditions used to build a WHERE query.
-     * @return a WHERE query with the specified {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}
-     */
-    public Where<ModelClass> where(ConditionQueryBuilder<ModelClass> conditionQueryBuilder) {
-        return where().whereQuery(conditionQueryBuilder);
+    @Override
+    public Where<ModelClass> groupBy(IProperty... properties) {
+        return where().groupBy(properties);
     }
 
-    /**
-     * @param conditions the list of conditions used to build a WHERE query.
-     * @return a WHERE query with the specified {@link com.raizlabs.android.dbflow.sql.builder.Condition}
-     */
-    public Where<ModelClass> where(Condition... conditions) {
-        return where().andThese(conditions);
+    @Override
+    public Where<ModelClass> orderBy(NameAlias nameAlias, boolean ascending) {
+        return where().orderBy(nameAlias, ascending);
+    }
+
+    @Override
+    public Where<ModelClass> orderBy(IProperty property, boolean ascending) {
+        return where().orderBy(property, ascending);
+    }
+
+    @Override
+    public Where<ModelClass> limit(int count) {
+        return where().limit(count);
+    }
+
+    @Override
+    public Where<ModelClass> offset(int offset) {
+        return where().offset(offset);
+    }
+
+    @Override
+    public Where<ModelClass> having(SQLCondition... conditions) {
+        return where().having(conditions);
     }
 
     @Override
@@ -73,7 +78,8 @@ public class IndexedBy<ModelClass extends Model> implements WhereBase<ModelClass
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(whereBase.getQuery())
-                .append("INDEXED BY ").appendQuoted(indexName).appendSpace();
+                .append("INDEXED BY ").append(QueryBuilder.quoteIfNeeded(indexProperty.getIndexName())).appendSpace();
         return queryBuilder.getQuery();
     }
+
 }

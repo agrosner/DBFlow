@@ -5,6 +5,7 @@ import android.database.DatabaseUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -101,7 +102,7 @@ public class ValueQueryBuilder extends QueryBuilder<ValueQueryBuilder> {
      * @return
      */
     public ValueQueryBuilder appendTableName(Class<? extends Model> table) {
-        return appendQuoted(FlowManager.getTableName(table));
+        return append(FlowManager.getTableName(table));
     }
 
     /**

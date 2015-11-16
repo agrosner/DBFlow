@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.provider.BaseProviderModel;
 /**
  * Description:
  */
-@Table(databaseName = ContentDatabase.NAME)
+@Table(database = ContentDatabase.class)
 public class NoteModel extends BaseProviderModel<NoteModel> {
 
 
@@ -22,7 +22,7 @@ public class NoteModel extends BaseProviderModel<NoteModel> {
 
     @Column
     @ForeignKey(references = {@ForeignKeyReference(columnName = "providerModel",
-            columnType = long.class, foreignColumnName = "id")})
+            columnType = long.class, foreignKeyColumnName = "id")})
     ContentProviderModel contentProviderModel;
 
     @Column

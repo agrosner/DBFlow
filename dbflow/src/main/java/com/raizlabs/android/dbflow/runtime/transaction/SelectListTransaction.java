@@ -1,10 +1,11 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
      * @param whereConditions     The conditions to use in a SELECT query.
      */
     public SelectListTransaction(TransactionListener<List<ModelClass>> transactionListener,
-                                 Class<ModelClass> tableClass, Condition... whereConditions) {
+                                 Class<ModelClass> tableClass, SQLCondition... whereConditions) {
         this(new Select().from(tableClass).where(whereConditions), transactionListener);
     }
 
@@ -44,11 +45,11 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
      *
      * @param transactionListener        The result that returns from this query.
      * @param whereConditionQueryBuilder The query builder used to SELECT.
-     * @param columns                    The columns to select.
+     * @param properties                 The columns to select.
      */
     public SelectListTransaction(TransactionListener<List<ModelClass>> transactionListener,
-                                 ConditionQueryBuilder<ModelClass> whereConditionQueryBuilder, String... columns) {
-        this(new Select(columns).from(whereConditionQueryBuilder.getTableClass()).where(whereConditionQueryBuilder), transactionListener);
+                                 Class<ModelClass> table, ConditionGroup conditionGroup, IProperty... properties) {
+        this(new Select(properties).from(table).where(conditionGroup), transactionListener);
     }
 
     /**
@@ -59,7 +60,7 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
      * @param columns             The columns to project the selection on.
      */
     public SelectListTransaction(TransactionListener<List<ModelClass>> transactionListener,
-                                 Class<ModelClass> table, String... columns) {
+                                 Class<ModelClass> table, IProperty... columns) {
         this(new Select(columns).from(table), transactionListener);
     }
 

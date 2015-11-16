@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 
 import java.sql.Date;
 
-@Table(databaseName = TestDatabase.NAME)
+@Table(database = TestDatabase.class)
 public class TestModel3 extends BaseModel {
 
     @Column
@@ -25,6 +25,6 @@ public class TestModel3 extends BaseModel {
     public Date date;
 
     @Column
-    @ForeignKey(references = {@ForeignKeyReference(columnName = "testAI_name", foreignColumnName = "name", columnType = String.class)})
+    @ForeignKey(references = {@ForeignKeyReference(columnName = "testAI_name", foreignKeyColumnName = "name", columnType = String.class)})
     public TestModel1 testAutoIncrement;
 }
