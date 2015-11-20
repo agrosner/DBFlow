@@ -27,27 +27,36 @@ public class DefinitionUtils {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
         String finalAccessStatement = statement;
-        if (columnAccess instanceof TypeConverterAccess ||
+        if (columnAccess instanceof WrapperColumnAccess ||
                 isModelContainerAdapter) {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
                 typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
-            } else if (columnAccess instanceof EnumColumnAccess) {
-                typeName = ClassName.get(String.class);
-            } else if (columnAccess instanceof BlobColumnAccess) {
-                typeName = ArrayTypeName.of(TypeName.BYTE);
+                codeBuilder.addStatement("$T $L = $L", typeName,
+                        finalAccessStatement, statement);
             } else {
-                typeName = elementTypeName;
+                if (columnAccess instanceof EnumColumnAccess) {
+                    typeName = ClassName.get(String.class);
+                } else if (columnAccess instanceof BlobColumnAccess) {
+                    typeName = ArrayTypeName.of(TypeName.BYTE);
+                } else {
+                    typeName = elementTypeName;
+                }
+                if (!isModelContainerAdapter) {
+                    String shortAccess = ((WrapperColumnAccess) columnAccess).existingColumnAccess.getShortAccessString(elementTypeName, elementName, isModelContainerAdapter);
+                    codeBuilder.addStatement("$T $L = model.$L != null ? $L : null", typeName,
+                            finalAccessStatement, shortAccess, statement);
+                } else {
+                    codeBuilder.addStatement("$T $L = $L", typeName,
+                            finalAccessStatement, statement);
+                }
             }
-
-            codeBuilder.addStatement("$T $L = $L", typeName,
-                    finalAccessStatement, statement);
         }
 
         if (!elementTypeName.isPrimitive()) {
-            if(!isModelContainerAdapter && (columnAccess instanceof EnumColumnAccess || columnAccess instanceof BlobColumnAccess)) {
+            if (!isModelContainerAdapter && (columnAccess instanceof EnumColumnAccess || columnAccess instanceof BlobColumnAccess)) {
                 codeBuilder.beginControlFlow("if (($L != null) && ($L != null))", variableNameString + "." + elementName, finalAccessStatement);
             } else {
                 codeBuilder.beginControlFlow("if ($L != null)", finalAccessStatement);
@@ -75,23 +84,32 @@ public class DefinitionUtils {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
         String finalAccessStatement = statement;
-        if (columnAccess instanceof TypeConverterAccess
+        if (columnAccess instanceof WrapperColumnAccess
                 || isModelContainerAdapter) {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
                 typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
-            } else if (columnAccess instanceof EnumColumnAccess) {
-                typeName = ClassName.get(String.class);
-            } else if (columnAccess instanceof BlobColumnAccess) {
-                typeName = ArrayTypeName.of(TypeName.BYTE);
+                codeBuilder.addStatement("$T $L = $L", typeName,
+                        finalAccessStatement, statement);
             } else {
-                typeName = elementTypeName;
+                if (columnAccess instanceof EnumColumnAccess) {
+                    typeName = ClassName.get(String.class);
+                } else if (columnAccess instanceof BlobColumnAccess) {
+                    typeName = ArrayTypeName.of(TypeName.BYTE);
+                } else {
+                    typeName = elementTypeName;
+                }
+                if (!isModelContainerAdapter) {
+                    String shortAccess = ((WrapperColumnAccess) columnAccess).existingColumnAccess.getShortAccessString(elementTypeName, elementName, isModelContainerAdapter);
+                    codeBuilder.addStatement("$T $L = model.$L != null ? $L : null", typeName,
+                            finalAccessStatement, shortAccess, statement);
+                } else {
+                    codeBuilder.addStatement("$T $L = $L", typeName,
+                            finalAccessStatement, statement);
+                }
             }
-
-            codeBuilder.addStatement("$T $L = $L", typeName,
-                    finalAccessStatement, statement);
         }
 
         if (!elementTypeName.isPrimitive()) {
