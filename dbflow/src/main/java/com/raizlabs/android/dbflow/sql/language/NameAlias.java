@@ -20,14 +20,21 @@ public class NameAlias implements Query {
 
     private String prefixName;
 
+    boolean shouldStripTicks;
+
     /**
      * Internal usage only. We don't strip out ticks in a name ot preserve its compound name state.
      *
-     * @param name                 The name of this {@link NameAlias}.
-     * @param unusedDontStripTicks Not used.
+     * @param name             The name of this {@link NameAlias}.
+     * @param shouldStripTicks True we strip ticks from name, false we preserve them.
      */
-    NameAlias(@NonNull String name, boolean unusedDontStripTicks) {
-        this.name = name;
+    public NameAlias(@NonNull String name, boolean shouldStripTicks) {
+        this.shouldStripTicks = shouldStripTicks;
+        if (shouldStripTicks) {
+            this.name = QueryBuilder.stripQuotes(name);
+        } else {
+            this.name = name;
+        }
     }
 
     public NameAlias(@NonNull String name) {
@@ -109,6 +116,10 @@ public class NameAlias implements Query {
     @NonNull
     public String getAliasName() {
         return aliasName != null ? QueryBuilder.quote(getAliasNameRaw()) : getName();
+    }
+
+    public boolean shouldStripTicks() {
+        return shouldStripTicks;
     }
 
     /**

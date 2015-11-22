@@ -39,13 +39,14 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
         }
     }
 
-    public Property(Class<? extends Model> table, String columnName, String aliasName, boolean shouldTickName) {
-        this(table, new NameAlias(columnName, aliasName).tickName(shouldTickName));
+    Property(Class<? extends Model> table, String columnName, String aliasName, boolean shouldTickName, boolean shouldStripTicks) {
+        this(table, new NameAlias(columnName, shouldStripTicks).as(aliasName).tickName(shouldTickName));
     }
 
     @Override
     public Property<T> as(String aliasName) {
-        return new Property<>(table, getNameAlias().getAliasNameRaw(), aliasName, getNameAlias().shouldTickName());
+        return new Property<>(table, getNameAlias().getAliasNameRaw(), aliasName,
+                getNameAlias().shouldTickName(), getNameAlias().shouldStripTicks());
     }
 
     @Override
