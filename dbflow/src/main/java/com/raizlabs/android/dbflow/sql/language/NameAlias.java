@@ -20,6 +20,16 @@ public class NameAlias implements Query {
 
     private String prefixName;
 
+    /**
+     * Internal usage only. We don't strip out ticks in a name ot preserve its compound name state.
+     *
+     * @param name                 The name of this {@link NameAlias}.
+     * @param unusedDontStripTicks Not used.
+     */
+    NameAlias(@NonNull String name, boolean unusedDontStripTicks) {
+        this.name = name;
+    }
+
     public NameAlias(@NonNull String name) {
         this.name = QueryBuilder.stripQuotes(name);
     }

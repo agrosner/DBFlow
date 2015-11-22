@@ -47,7 +47,7 @@ public class OperationalMethod extends Method {
 
             }
             query += ")";
-            nameAlias = new NameAlias(query).tickName(false);
+            nameAlias = new NameAlias(query, false).tickName(false);
         }
         return nameAlias;
     }

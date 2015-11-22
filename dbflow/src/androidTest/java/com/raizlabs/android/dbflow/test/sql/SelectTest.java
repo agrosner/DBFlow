@@ -69,7 +69,7 @@ public class SelectTest extends FlowTestCase {
                 .minus(Method.sum(TestModel3_Table.type)).as("troop"), TestModel3_Table.type)
                 .from(TestModel3.class).getQuery();
 
-        assertEquals("SELECT (SUM(`name`) - SUM(`type`)) AS `troop`,`type` FROM `TestModel23`", operationalQuery.trim());
+        assertEquals("SELECT (SUM(`name`) - SUM(`type`)) AS `troop`,`type` FROM `TestModel32`", operationalQuery.trim());
     }
 
     public void testJoins() {
