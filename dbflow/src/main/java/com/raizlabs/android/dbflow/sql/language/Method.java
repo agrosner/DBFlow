@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
@@ -89,10 +91,11 @@ public class Method extends Property {
      *
      * @param property The property to add.
      */
-    protected void addProperty(IProperty property) {
+    protected void addProperty(@NonNull IProperty property) {
         propertyList.add(property);
     }
 
+    @NonNull
     protected List<IProperty> getPropertyList() {
         return propertyList;
     }

@@ -27,7 +27,7 @@ public class OperationalMethod extends Method {
         return append(property, Condition.Operation.MINUS);
     }
 
-    private OperationalMethod append(IProperty property, String operation) {
+    public OperationalMethod append(IProperty property, String operation) {
         addProperty(property);
         operationsList.add(operation);
         return this;

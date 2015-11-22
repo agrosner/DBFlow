@@ -36,6 +36,7 @@ public class NameAlias implements Query {
      */
     public NameAlias(@NonNull NameAlias existing) {
         this(existing.name, existing.aliasName);
+        tickName(existing.shouldTickName());
     }
 
     public NameAlias as(@NonNull String aliasName) {
@@ -113,6 +114,10 @@ public class NameAlias implements Query {
      */
     public String getAliasNameRaw() {
         return aliasName != null ? aliasName : name;
+    }
+
+    public boolean shouldTickName() {
+        return tickName;
     }
 
     /**

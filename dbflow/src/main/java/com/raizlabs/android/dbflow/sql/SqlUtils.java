@@ -311,7 +311,9 @@ public class SqlUtils {
     }
 
     /**
-     * Updates the model if it exists. If the model does not exist and no rows are changed, we will attempt an insert into the DB.
+     * Updates the model if it exists. Returns false if fails. NOTE: this no longer will attempt to
+     * insert {@link Model} in the database. If you need to do either update or insert, call {@link #save(Model, RetrievalAdapter, ModelAdapter)}
+     * or more  simply {@link Model#save()}
      *
      * @param model        The model to update
      * @param modelAdapter The adapter to use
