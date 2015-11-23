@@ -135,6 +135,10 @@ public class ProcessModelInfo<ModelClass extends Model> {
         return transactionInfo;
     }
 
+    public List<ModelClass> getModels() {
+        return models;
+    }
+
     /**
      * @return True if there are models in this class
      */
