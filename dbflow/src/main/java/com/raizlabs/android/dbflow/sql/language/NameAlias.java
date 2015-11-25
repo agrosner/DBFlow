@@ -36,9 +36,9 @@ public class NameAlias implements Query {
         String newName = "";
         for (int i = 0; i < names.length; i++) {
             if (i > 0) {
-                newName += operation + " ";
+                newName += " " + operation + " ";
             }
-            newName += names[i] + " ";
+            newName += names[i];
         }
         return new NameAlias(newName, false).tickName(false);
     }
