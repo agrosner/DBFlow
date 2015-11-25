@@ -100,7 +100,7 @@ public class SelectTest extends FlowTestCase {
 
         Where<TestModel2> delete = SQLite.delete(TestModel2.class)
                 .where(TestModel2_Table.model_order.plus(PropertyFactory.from(5)).lessThan((int) time));
-        assertEquals("DELETE `TestModel2` WHERE `model_order`+5 <" + (int) time, delete.getQuery().trim());
+        assertEquals("DELETE `TestModel2` WHERE `model_order`+ 5 <" + (int) time, delete.getQuery().trim());
     }
 
 }
