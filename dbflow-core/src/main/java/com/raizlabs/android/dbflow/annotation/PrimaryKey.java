@@ -18,4 +18,10 @@ public @interface PrimaryKey {
      * @return the columnType int
      */
     boolean autoincrement() default false;
+
+    /**
+     * @return When true, we simple do {columnName} > 0 when checking for it's existence if {@link #autoincrement()}
+     * is true. If not, we do a full database SELECT exists.
+     */
+    boolean quickCheckAutoIncrement() default false;
 }

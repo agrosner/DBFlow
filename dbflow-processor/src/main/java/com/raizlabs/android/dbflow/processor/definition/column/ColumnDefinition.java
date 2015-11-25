@@ -52,9 +52,10 @@ public class ColumnDefinition extends BaseDefinition {
     public String containerKeyName;
     public boolean putContainerDefaultValue;
 
-    public boolean hasTypeConverter = false;
-    public boolean isPrimaryKey = false;
-    public boolean isPrimaryKeyAutoIncrement = false;
+    public boolean hasTypeConverter;
+    public boolean isPrimaryKey;
+    public boolean isPrimaryKeyAutoIncrement;
+    public boolean isQuickCheckPrimaryKeyAutoIncrement;
 
     public Column column;
     public int length = -1;
@@ -103,6 +104,7 @@ public class ColumnDefinition extends BaseDefinition {
         if (primaryKey != null) {
             if (primaryKey.autoincrement()) {
                 isPrimaryKeyAutoIncrement = true;
+                isQuickCheckPrimaryKeyAutoIncrement = primaryKey.quickCheckAutoIncrement();
             } else {
                 isPrimaryKey = true;
             }

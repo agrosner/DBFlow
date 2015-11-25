@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -35,7 +34,8 @@ public class ExistenceMethod implements MethodDefinition {
                         ModelUtils.getVariable(isModelContainerAdapter))
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .returns(TypeName.BOOLEAN);
-        if (tableDefinition.hasAutoIncrement()) {
+        // only quick check if enabled.
+        if (tableDefinition.hasAutoIncrement() && tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
             ColumnDefinition columnDefinition = tableDefinition.getAutoIncrementColumn();
             methodBuilder.addStatement("return $L > 0", columnDefinition.getColumnAccessString(isModelContainerAdapter));
         } else {
