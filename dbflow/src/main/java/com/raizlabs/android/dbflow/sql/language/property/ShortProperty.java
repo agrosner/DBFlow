@@ -27,6 +27,18 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
     }
 
     @Override
+    public ShortProperty plus(IProperty iProperty) {
+        return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public ShortProperty minus(IProperty iProperty) {
+        return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public ShortProperty as(String aliasName) {
         return new ShortProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }

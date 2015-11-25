@@ -19,10 +19,12 @@ public class OperationalMethod extends Method {
         super(null, firstProperty);
     }
 
+    @Override
     public OperationalMethod plus(IProperty property) {
         return append(property, Condition.Operation.PLUS);
     }
 
+    @Override
     public OperationalMethod minus(IProperty property) {
         return append(property, Condition.Operation.MINUS);
     }

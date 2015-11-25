@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.test.sql;
 
-import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
@@ -8,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.language.OperationalMethod;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Where;
+import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
@@ -98,8 +98,9 @@ public class SelectTest extends FlowTestCase {
 
         long time = System.currentTimeMillis();
 
-        Where<TestModel1> delete = SQLite.delete(TestModel2.class)
-                .where(new OperationalMethod(TestModel2_Table.model_order).plus(5).lessThan(System.currentTimeMillis()));
+        Where<TestModel2> delete = SQLite.delete(TestModel2.class)
+                .where(TestModel2_Table.model_order.plus(PropertyFactory.from(5)).lessThan((int) time));
+        assertEquals("DELETE `TestModel2` WHERE `model_order`+5 < " + time, delete.getQuery().trim());
     }
 
 }
