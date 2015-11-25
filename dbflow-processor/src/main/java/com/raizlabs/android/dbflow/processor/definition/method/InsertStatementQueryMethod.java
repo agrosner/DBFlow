@@ -41,7 +41,7 @@ public class InsertStatementQueryMethod implements MethodDefinition {
                 codeBuilder.add(",");
             }
 
-            if (!column.isPrimaryKeyAutoIncrement || !isInsert) {
+            if (!column.isPrimaryKeyAutoIncrement || isInsert) {
                 codeBuilder.add(column.getInsertStatementColumnName());
                 columnCount++;
             }
