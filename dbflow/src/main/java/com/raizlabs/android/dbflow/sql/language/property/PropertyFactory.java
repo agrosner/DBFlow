@@ -89,4 +89,16 @@ public class PropertyFactory {
     public static <T> Property<T> from(@Nullable T type) {
         return new Property<>(null, new NameAlias(type + "", false).tickName(false));
     }
+
+    /**
+     * Creates a new type-parameterized {@link Property} to be used as its value represented by the string passed in.
+     *
+     * @param type                 The object with value to use.
+     * @param stringRepresentation The string representation of the object you wish to use.
+     * @param <T>                  The parameter of its type.
+     * @return A new property with its type.
+     */
+    public static <T> Property<T> from(@Nullable Class<T> type, String stringRepresentation) {
+        return new Property<>(null, new NameAlias(stringRepresentation, false).tickName(false));
+    }
 }
