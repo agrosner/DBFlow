@@ -146,7 +146,7 @@ public class DefinitionUtils {
                 index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""), putAccess);
         if (!finalTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else")
-                    .addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue())
+                    .addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""))
                     .endControlFlow();
         }
 

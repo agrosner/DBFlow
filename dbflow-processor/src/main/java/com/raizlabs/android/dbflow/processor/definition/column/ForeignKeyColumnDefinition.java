@@ -234,7 +234,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 }
                 ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
                 builder.add(referenceDefinition.getSQLiteStatementMethod(index, isModelContainerAdapter));
-                elseBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue());
+                elseBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue() + " + " + BindToStatementMethod.PARAM_START);
             }
 
             if (saveForeignKeyModel) {
