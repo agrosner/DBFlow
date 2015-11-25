@@ -18,6 +18,10 @@ import java.util.List;
  */
 public class Condition extends BaseCondition implements ITypeConditional {
 
+    public static String convertValueToString(Object value) {
+        return BaseCondition.convertValueToString(value, false);
+    }
+
     public static Condition column(NameAlias column) {
         return new Condition(column);
     }

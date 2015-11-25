@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language.property;
 
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 
 /**
@@ -16,7 +17,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static CharProperty from(char c) {
-        return new CharProperty(null, new NameAlias(c + "", false).tickName(false));
+        return new CharProperty(null, new NameAlias("'" + c + "'", false).tickName(false));
     }
 
     /**
@@ -80,20 +81,21 @@ public class PropertyFactory {
     }
 
     /**
-     * Creates a new type-parameterized {@link Property} to be used as its value represented by a string.
+     * Creates a new type-parameterized {@link Property} to be used as its value represented by a string
+     * using {@link Condition#convertValueToString(Object)}.
      *
      * @param type The object with value to use.
      * @param <T>  The parameter of its type.
      * @return A new property with its type.
      */
     public static <T> Property<T> from(@Nullable T type) {
-        return new Property<>(null, new NameAlias(type + "", false).tickName(false));
+        return new Property<>(null, new NameAlias(Condition.convertValueToString(type)).tickName(false));
     }
 
     /**
      * Creates a new type-parameterized {@link Property} to be used as its value represented by the string passed in.
      *
-     * @param type                 The object with value to use.
+     * @param type                 The type to return.
      * @param stringRepresentation The string representation of the object you wish to use.
      * @param <T>                  The parameter of its type.
      * @return A new property with its type.
