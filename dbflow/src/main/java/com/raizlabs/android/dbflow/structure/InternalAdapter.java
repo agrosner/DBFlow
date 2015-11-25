@@ -66,7 +66,7 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      * @param model           The model to retrieve data from.
      * @param start           The starting index for this bind.
      */
-    void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model,
+    void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model,
                          @IntRange(from = 0, to = 1) int start);
 
     /**

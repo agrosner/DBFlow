@@ -43,7 +43,7 @@ public class BindToStatementMethod implements MethodDefinition {
                 .returns(TypeName.VOID);
 
         // write the reference method
-        if (!isInsert) {
+        if (isInsert) {
             methodBuilder.addParameter(TypeName.INT, PARAM_START);
             List<ColumnDefinition> columnDefinitionList = tableDefinition.getColumnDefinitions();
             AtomicInteger realCount = new AtomicInteger(1);
@@ -65,7 +65,11 @@ public class BindToStatementMethod implements MethodDefinition {
                 methodBuilder.addCode(autoIncrement.getSQLiteStatementMethod(new AtomicInteger(++start), isModelContainerAdapter));
             }
 
-            methodBuilder.addStatement("bindToStatement($L, $L, $L)", PARAM_STATEMENT, ModelUtils.getVariable(isModelContainerAdapter), start);
+            methodBuilder.addStatement("bindToInsertStatement($L, $L, $L)", PARAM_STATEMENT, ModelUtils.getVariable(isModelContainerAdapter), start);
+            if (tableDefinition.implementsSqlStatementListener) {
+                methodBuilder.addStatement("$L.onBindTo$LStatement($L)",
+                        ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "", PARAM_STATEMENT);
+            }
         }
 
         return methodBuilder.build();

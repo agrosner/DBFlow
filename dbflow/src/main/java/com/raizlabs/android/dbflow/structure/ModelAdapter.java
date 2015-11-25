@@ -152,8 +152,8 @@ public abstract class ModelAdapter<ModelClass extends Model>
     }
 
     @Override
-    public void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model) {
-        bindToStatement(sqLiteStatement, model, 0);
+    public void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model) {
+        bindToInsertStatement(sqLiteStatement, model, 0);
     }
 
     /**

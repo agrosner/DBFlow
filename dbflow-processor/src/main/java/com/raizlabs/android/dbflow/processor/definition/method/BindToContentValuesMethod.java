@@ -42,7 +42,7 @@ public class BindToContentValuesMethod implements MethodDefinition {
                         ModelUtils.getVariable(isModelContainerAdapter))
                 .returns(TypeName.VOID);
 
-        if (!isInsert) {
+        if (isInsert) {
             List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
             for (ColumnDefinition columnDefinition : columnDefinitionList) {
                 if (!columnDefinition.isPrimaryKeyAutoIncrement){
@@ -61,7 +61,11 @@ public class BindToContentValuesMethod implements MethodDefinition {
                 methodBuilder.addCode(autoIncrement.getContentValuesStatement(isModelContainerAdapter));
             }
 
-            methodBuilder.addStatement("bindToContentValues($L, $L)", PARAM_CONTENT_VALUES, ModelUtils.getVariable(isModelContainerAdapter));
+            methodBuilder.addStatement("bindToInsertValues($L, $L)", PARAM_CONTENT_VALUES, ModelUtils.getVariable(isModelContainerAdapter));
+            if (implementsContentValuesListener) {
+                methodBuilder.addStatement("$L.onBindTo$LValues($L)",
+                        ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
+            }
         }
 
         return methodBuilder.build();

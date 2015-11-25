@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.structure.container;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -87,8 +88,8 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
     }
 
     /**
-     * @param modelContainer The model container object to read primary key from
-     * @return The value of the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT} if there is one.
+     * @param modelContainer The model container object to read primary key autoincrement from
+     * @return The value of the {@link PrimaryKey#autoincrement()} if there is one.
      */
     @Override
     public Number getAutoIncrementingId(ModelContainer<ModelClass, ?> modelContainer) {
@@ -110,8 +111,8 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
     }
 
     @Override
-    public void bindToStatement(SQLiteStatement sqLiteStatement, ModelContainer<ModelClass, ?> model) {
-        bindToStatement(sqLiteStatement, model, 0);
+    public void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelContainer<ModelClass, ?> model) {
+        bindToInsertStatement(sqLiteStatement, model, 0);
     }
 
     @NonNull

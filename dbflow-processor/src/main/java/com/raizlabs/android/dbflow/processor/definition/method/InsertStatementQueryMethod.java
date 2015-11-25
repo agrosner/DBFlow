@@ -41,7 +41,7 @@ public class InsertStatementQueryMethod implements MethodDefinition {
                 codeBuilder.add(",");
             }
 
-            if (!column.isPrimaryKeyAutoIncrement || isInsert) {
+            if (!column.isPrimaryKeyAutoIncrement || !isInsert) {
                 codeBuilder.add(column.getInsertStatementColumnName());
                 columnCount++;
             }
@@ -58,7 +58,7 @@ public class InsertStatementQueryMethod implements MethodDefinition {
             }
 
             ColumnDefinition definition = tableDefinition.getColumnDefinitions().get(i);
-            if (!definition.isPrimaryKeyAutoIncrement || isInsert) {
+            if (!definition.isPrimaryKeyAutoIncrement || !isInsert) {
                 codeBuilder.add(definition.getInsertStatementValuesString());
                 columnCount++;
             }
