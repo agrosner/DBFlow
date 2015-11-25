@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
+import android.support.annotation.IntRange;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -148,6 +149,11 @@ public abstract class ModelAdapter<ModelClass extends Model>
     @Override
     public boolean hasCachingId() {
         return false;
+    }
+
+    @Override
+    public void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model) {
+        bindToStatement(sqLiteStatement, model, 0);
     }
 
     /**

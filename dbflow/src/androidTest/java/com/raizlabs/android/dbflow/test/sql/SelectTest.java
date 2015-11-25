@@ -94,6 +94,6 @@ public class SelectTest extends FlowTestCase {
         assertEquals("SELECT * FROM `TestModel1` NATURAL INNER JOIN `TestModel32`", where.getQuery().trim());
 
         where.query();
-    }
+   }
 
 }

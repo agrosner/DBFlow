@@ -249,7 +249,7 @@ public class ColumnDefinition extends BaseDefinition {
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         return DefinitionUtils.getSQLiteStatementMethod(index, containerKeyName, elementName,
-                elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter)).build();
+                elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter), isPrimaryKeyAutoIncrement).build();
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter) {

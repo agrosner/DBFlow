@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
+import android.support.annotation.IntRange;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
@@ -56,6 +57,17 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      * @param sqLiteStatement The statement to fill
      */
     void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
+
+    /**
+     * Provides common logic and a starting value for insert statements. So we can property compile
+     * and bind statements without generating duplicate code.
+     *
+     * @param sqLiteStatement The statement to bind.
+     * @param model           The model to retrieve data from.
+     * @param start           The starting index for this bind.
+     */
+    void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model,
+                         @IntRange(from = 0, to = 1) int start);
 
     /**
      * Binds to a {@link SQLiteStatement}. It leaves out an autoincrementing primary key (if specified)

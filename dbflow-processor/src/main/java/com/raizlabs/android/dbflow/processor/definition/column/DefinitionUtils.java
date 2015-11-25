@@ -88,7 +88,7 @@ public class DefinitionUtils {
     public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName,
                                                              String fullElementName, TypeName elementTypeName,
                                                              boolean isModelContainerAdapter, BaseColumnAccess columnAccess,
-                                                             String variableNameString) {
+                                                             String variableNameString, boolean isAutoIncrement) {
         String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -143,7 +143,7 @@ public class DefinitionUtils {
         codeBuilder.addStatement("$L.bind$L($L, $L)",
                 BindToStatementMethod.PARAM_STATEMENT,
                 columnAccess.getSqliteTypeForTypeName(elementTypeName, isModelContainerAdapter).getSQLiteStatementMethod(),
-                index.intValue(), putAccess);
+                index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""), putAccess);
         if (!finalTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else")
                     .addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue())

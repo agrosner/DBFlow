@@ -115,7 +115,8 @@ public class ForeignKeyReferenceDefinition {
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getSQLiteStatementMethod(
                 index, columnShortAccess, combined,
-                columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter)).build();
+                columnClassName, isModelContainerAdapter, simpleColumnAccess,
+                getForeignKeyColumnVariable(isModelContainerAdapter), false).build();
     }
 
     private String getForeignKeyColumnVariable(boolean isModelContainerAdapter) {

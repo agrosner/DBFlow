@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -106,6 +107,11 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
     @Override
     public boolean hasCachingId() {
         return false;
+    }
+
+    @Override
+    public void bindToStatement(SQLiteStatement sqLiteStatement, ModelContainer<ModelClass, ?> model) {
+        bindToStatement(sqLiteStatement, model, 0);
     }
 
     @NonNull

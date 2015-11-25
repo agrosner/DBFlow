@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.MethodSpec;
@@ -41,16 +42,26 @@ public class BindToContentValuesMethod implements MethodDefinition {
                         ModelUtils.getVariable(isModelContainerAdapter))
                 .returns(TypeName.VOID);
 
-        List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
-        for (ColumnDefinition columnDefinition : columnDefinitionList) {
-            if (!isInsert || (isInsert && !columnDefinition.isPrimaryKeyAutoIncrement)) {
-                methodBuilder.addCode(columnDefinition.getContentValuesStatement(isModelContainerAdapter));
+        if (!isInsert) {
+            List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
+            for (ColumnDefinition columnDefinition : columnDefinitionList) {
+                if (!columnDefinition.isPrimaryKeyAutoIncrement){
+                    methodBuilder.addCode(columnDefinition.getContentValuesStatement(isModelContainerAdapter));
+                }
             }
-        }
 
-        if (implementsContentValuesListener) {
-            methodBuilder.addStatement("$L.onBindTo$LValues($L)",
-                    ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
+            if (implementsContentValuesListener) {
+                methodBuilder.addStatement("$L.onBindTo$LValues($L)",
+                        ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
+            }
+        } else if (baseTableDefinition instanceof TableDefinition) {
+            TableDefinition tableDefinition = ((TableDefinition) baseTableDefinition);
+            if (tableDefinition.hasAutoIncrement) {
+                ColumnDefinition autoIncrement = tableDefinition.autoIncrementDefinition;
+                methodBuilder.addCode(autoIncrement.getContentValuesStatement(isModelContainerAdapter));
+            }
+
+            methodBuilder.addStatement("bindToContentValues($L, $L)", PARAM_CONTENT_VALUES, ModelUtils.getVariable(isModelContainerAdapter));
         }
 
         return methodBuilder.build();
