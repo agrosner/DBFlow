@@ -83,6 +83,10 @@ public abstract class BaseTableDefinition extends BaseDefinition {
         return false;
     }
 
+    public ColumnDefinition getAutoIncrementColumn() {
+        return null;
+    }
+
     public String getModelClassName() {
         return modelClassName;
     }

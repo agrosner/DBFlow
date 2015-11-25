@@ -235,6 +235,16 @@ public class TableDefinition extends BaseTableDefinition {
     }
 
     @Override
+    public boolean hasAutoIncrement() {
+        return hasAutoIncrement;
+    }
+
+    @Override
+    public ColumnDefinition getAutoIncrementColumn() {
+        return autoIncrementDefinition;
+    }
+
+    @Override
     protected void createColumnDefinitions(TypeElement typeElement) {
         List<? extends Element> elements = manager.getElements().getAllMembers(typeElement);
         ColumnValidator columnValidator = new ColumnValidator();
