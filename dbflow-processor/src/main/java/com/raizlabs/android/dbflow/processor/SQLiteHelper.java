@@ -86,6 +86,7 @@ public enum SQLiteHelper {
     private static final Map<TypeName, String> sMethodMap = new HashMap<TypeName, String>() {{
         put(ArrayTypeName.of(TypeName.BYTE), "getBlob");
         put(ArrayTypeName.of(TypeName.BYTE.box()), "getBlob");
+        put(TypeName.BOOLEAN, "getInt");
         put(TypeName.BYTE, "getInt");
         put(TypeName.BYTE.box(), "getInt");
         put(TypeName.CHAR, "getString");

@@ -10,7 +10,7 @@ import com.squareup.javapoet.TypeName;
 public class SimpleColumnAccess extends BaseColumnAccess {
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
+    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (isModelContainerAdapter) {
             String method = SQLiteHelper.getModelContainerMethod(fieldType);
             if (method == null) {
@@ -23,16 +23,16 @@ public class SimpleColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         return elementName;
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
-            return getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, false) + " = " + formattedAccess;
+            return getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, false, false) + " = " + formattedAccess;
         }
     }
 }

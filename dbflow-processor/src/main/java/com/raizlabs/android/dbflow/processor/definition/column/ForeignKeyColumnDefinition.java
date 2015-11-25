@@ -195,7 +195,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             CodeBlock.Builder builder = CodeBlock.builder();
             String statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
-                            ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+                            ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false);
             String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
             CodeBlock.Builder elseBuilder = CodeBlock.builder();
@@ -224,7 +224,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             CodeBlock.Builder builder = CodeBlock.builder();
             String statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
-                            ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter);
+                            ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, true);
             String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
             CodeBlock.Builder elseBuilder = CodeBlock.builder();
@@ -268,15 +268,6 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 }
                 ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
-                String accessString;
-
-                if (!isModelContainerAdapter) {
-                    accessString = ModelUtils.getVariable(false) + "." + columnAccess.getShortAccessString(referenceDefinition.columnClassName, elementName, false) + "." +
-                            referenceDefinition.columnAccess.getShortAccessString(referenceDefinition.columnClassName, referenceDefinition.foreignColumnName, false);
-                } else {
-                    accessString = columnAccess.getColumnAccessString(referenceDefinition.columnClassName, referenceDefinition.foreignColumnName, referenceDefinition.foreignColumnName, ModelUtils.getVariable(true), true);
-                }
-
                 // TODO: respect separator here.
                 selectBuilder.add("\n.and($L.$L.eq($L))",
                         ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
@@ -308,7 +299,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             }
 
             builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                    isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build()));
+                    isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), initializer.build(), false));
 
             boolean putDefaultValue = putNullForContainerAdapter;
             if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
@@ -332,7 +323,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             CodeBlock.Builder builder = CodeBlock.builder();
             String statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
-                            ModelUtils.getVariable(true), true);
+                            ModelUtils.getVariable(true), true, true);
             String finalAccessStatement = getFinalAccessStatement(builder, true, statement);
 
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
@@ -341,11 +332,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 modelContainerRetrieval.add("$L.getContainerAdapter($T.class).toModel($L)", ClassNames.FLOW_MANAGER,
                         referencedTableClassName, finalAccessStatement);
                 builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                        false, ModelUtils.getVariable(false), modelContainerRetrieval.build()));
+                        false, ModelUtils.getVariable(false), modelContainerRetrieval.build(), true));
             } else {
                 builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
                         false, ModelUtils.getVariable(false), CodeBlock.builder().add("new $T($L)",
-                                elementTypeName, finalAccessStatement).build()));
+                                elementTypeName, finalAccessStatement).build(), true));
             }
             builder.endControlFlow();
             return builder.build();

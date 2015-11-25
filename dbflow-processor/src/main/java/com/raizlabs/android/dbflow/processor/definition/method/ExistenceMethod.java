@@ -37,7 +37,7 @@ public class ExistenceMethod implements MethodDefinition {
         // only quick check if enabled.
         if (tableDefinition.hasAutoIncrement()) {
             ColumnDefinition columnDefinition = tableDefinition.getAutoIncrementColumn();
-            methodBuilder.addCode("return $L > 0", columnDefinition.getColumnAccessString(isModelContainerAdapter));
+            methodBuilder.addCode("return $L > 0", columnDefinition.getColumnAccessString(isModelContainerAdapter, false));
         }
 
         if (!tableDefinition.hasAutoIncrement() || !tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {

@@ -364,7 +364,7 @@ public class TableDefinition extends BaseTableDefinition {
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(elementClassName, ModelUtils.getVariable(false))
-                    .addStatement("return $L", autoIncrementDefinition.getColumnAccessString(false))
+                    .addStatement("return $L", autoIncrementDefinition.getColumnAccessString(false, false))
                     .returns(ClassName.get(Number.class)).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingColumnName")

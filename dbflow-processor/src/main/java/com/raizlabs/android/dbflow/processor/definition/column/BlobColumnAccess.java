@@ -17,38 +17,38 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
+    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (isModelContainerAdapter) {
             return getExistingColumnAccess().getColumnAccessString(ArrayTypeName.of(TypeName.BYTE),
-                    elementName, fullElementName, variableNameString, isModelContainerAdapter);
+                    elementName, fullElementName, variableNameString, isModelContainerAdapter, isSqliteStatement);
         } else {
             return CodeBlock.builder()
                     .add("$L.getBlob()", getExistingColumnAccess()
-                            .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter))
+                            .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter, isSqliteStatement))
                     .build().toString();
         }
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (isModelContainerAdapter) {
             return getExistingColumnAccess().getShortAccessString(ArrayTypeName.of(TypeName.BYTE),
-                    elementName, isModelContainerAdapter);
+                    elementName, isModelContainerAdapter, isSqliteStatement);
         } else {
             return CodeBlock.builder()
                     .add("$L.getBlob()", getExistingColumnAccess()
-                            .getShortAccessString(fieldType, elementName, isModelContainerAdapter))
+                            .getShortAccessString(fieldType, elementName, isModelContainerAdapter, isSqliteStatement))
                     .build().toString();
         }
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
         CodeBlock newFormattedAccess = CodeBlock.builder()
                 .add("new $T($L)", ClassName.get(Blob.class), formattedAccess)
                 .build();
         return getExistingColumnAccess()
-                .setColumnAccessString(ArrayTypeName.of(TypeName.BYTE), elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess);
+                .setColumnAccessString(ArrayTypeName.of(TypeName.BYTE), elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess, toModel);
     }
 
     @Override

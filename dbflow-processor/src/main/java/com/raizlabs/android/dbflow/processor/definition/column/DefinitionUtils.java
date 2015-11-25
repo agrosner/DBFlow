@@ -23,7 +23,7 @@ public class DefinitionUtils {
                                                               String columnName, TypeName elementTypeName,
                                                               boolean isModelContainerAdapter, BaseColumnAccess columnAccess,
                                                               String variableNameString) {
-        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter);
+        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter, false);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -31,8 +31,8 @@ public class DefinitionUtils {
         boolean isBlobRaw = false;
 
         TypeName finalTypeName = elementTypeName;
-        if (columnAccess instanceof WrapperColumnAccess
-                || isModelContainerAdapter) {
+        if (columnAccess instanceof WrapperColumnAccess && !(columnAccess instanceof BooleanTypeColumnAccess)
+                || isModelContainerAdapter && !elementTypeName.isPrimitive()) {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             if (columnAccess instanceof TypeConverterAccess) {
@@ -49,7 +49,7 @@ public class DefinitionUtils {
             }
 
             if (!isModelContainerAdapter && !elementTypeName.isPrimitive()) {
-                String shortAccess = ((WrapperColumnAccess) columnAccess).existingColumnAccess.getShortAccessString(elementTypeName, elementName, isModelContainerAdapter);
+                String shortAccess = ((WrapperColumnAccess) columnAccess).existingColumnAccess.getShortAccessString(elementTypeName, elementName, isModelContainerAdapter, false);
                 codeBuilder.addStatement("$T $L = model.$L != null ? $L : null", finalTypeName,
                         finalAccessStatement, shortAccess, statement);
             } else {
@@ -58,20 +58,8 @@ public class DefinitionUtils {
             }
         }
 
-        String putAccess = finalAccessStatement;
-        if (isBlobRaw) {
-            putAccess += ".getBlob()";
-        } else if (elementTypeName.box().equals(TypeName.CHAR.box())) {
-            // wrap char in string.
-            putAccess = "new String(new char[]{" + putAccess + "})";
-        }
-        if (!finalTypeName.isPrimitive()) {
-            if (!isModelContainerAdapter && (columnAccess instanceof EnumColumnAccess || columnAccess instanceof BlobColumnAccess)) {
-                codeBuilder.beginControlFlow("if (($L != null) && ($L != null))", variableNameString + "." + elementName, finalAccessStatement);
-            } else {
-                codeBuilder.beginControlFlow("if ($L != null)", putAccess);
-            }
-        }
+        String putAccess = applyAndGetPutAccess(finalAccessStatement, isBlobRaw, elementTypeName, finalTypeName,
+                isModelContainerAdapter, columnAccess, codeBuilder, variableNameString, elementName);
 
         codeBuilder.addStatement("$L.put($S, $L)",
                 BindToContentValuesMethod.PARAM_CONTENT_VALUES,
@@ -89,7 +77,7 @@ public class DefinitionUtils {
                                                              String fullElementName, TypeName elementTypeName,
                                                              boolean isModelContainerAdapter, BaseColumnAccess columnAccess,
                                                              String variableNameString, boolean isAutoIncrement) {
-        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter);
+        String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter, true);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 
@@ -97,8 +85,8 @@ public class DefinitionUtils {
         boolean isBlobRaw = false;
 
         TypeName finalTypeName = elementTypeName;
-        if (columnAccess instanceof WrapperColumnAccess
-                || isModelContainerAdapter) {
+        if (columnAccess instanceof WrapperColumnAccess && !(columnAccess instanceof BooleanTypeColumnAccess)
+                || isModelContainerAdapter && !elementTypeName.isPrimitive()) {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             if (columnAccess instanceof TypeConverterAccess) {
@@ -115,7 +103,7 @@ public class DefinitionUtils {
             }
 
             if (!isModelContainerAdapter && !elementTypeName.isPrimitive()) {
-                String shortAccess = ((WrapperColumnAccess) columnAccess).existingColumnAccess.getShortAccessString(elementTypeName, elementName, isModelContainerAdapter);
+                String shortAccess = ((WrapperColumnAccess) columnAccess).existingColumnAccess.getShortAccessString(elementTypeName, elementName, isModelContainerAdapter, true);
                 codeBuilder.addStatement("$T $L = model.$L != null ? $L : null", finalTypeName,
                         finalAccessStatement, shortAccess, statement);
             } else {
@@ -124,6 +112,25 @@ public class DefinitionUtils {
             }
         }
 
+        String putAccess = applyAndGetPutAccess(finalAccessStatement, isBlobRaw, elementTypeName, finalTypeName,
+                isModelContainerAdapter, columnAccess, codeBuilder, variableNameString, elementName);
+
+        codeBuilder.addStatement("$L.bind$L($L, $L)",
+                BindToStatementMethod.PARAM_STATEMENT,
+                columnAccess.getSqliteTypeForTypeName(elementTypeName, isModelContainerAdapter).getSQLiteStatementMethod(),
+                index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""), putAccess);
+        if (!finalTypeName.isPrimitive()) {
+            codeBuilder.nextControlFlow("else")
+                    .addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""))
+                    .endControlFlow();
+        }
+
+        return codeBuilder;
+    }
+
+    private static String applyAndGetPutAccess(String finalAccessStatement, boolean isBlobRaw, TypeName elementTypeName, TypeName finalTypeName,
+                                               boolean isModelContainerAdapter, BaseColumnAccess columnAccess, CodeBlock.Builder codeBuilder,
+                                               String variableNameString, String elementName) {
         String putAccess = finalAccessStatement;
         if (isBlobRaw) {
             putAccess += ".getBlob()";
@@ -140,17 +147,7 @@ public class DefinitionUtils {
                 codeBuilder.beginControlFlow("if ($L != null)", putAccess);
             }
         }
-        codeBuilder.addStatement("$L.bind$L($L, $L)",
-                BindToStatementMethod.PARAM_STATEMENT,
-                columnAccess.getSqliteTypeForTypeName(elementTypeName, isModelContainerAdapter).getSQLiteStatementMethod(),
-                index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""), putAccess);
-        if (!finalTypeName.isPrimitive()) {
-            codeBuilder.nextControlFlow("else")
-                    .addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""))
-                    .endControlFlow();
-        }
-
-        return codeBuilder;
+        return putAccess;
     }
 
     public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, String fullElementName,
@@ -174,7 +171,7 @@ public class DefinitionUtils {
         }
 
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), cursorAssignment.build()));
+                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), cursorAssignment.build(), false));
 
         if (putDefaultValue) {
             codeBuilder.nextControlFlow("else");
@@ -199,7 +196,7 @@ public class DefinitionUtils {
                 }
                 codeBuilder.addStatement(baseColumnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
                         isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter),
-                        CodeBlock.builder().add(defaultValue).build()));
+                        CodeBlock.builder().add(defaultValue).build(), false));
             }
         }
 
@@ -229,7 +226,7 @@ public class DefinitionUtils {
         accessBuilder.add("id.$LValue()", method);
 
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), accessBuilder.build()));
+                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), accessBuilder.build(), false));
 
         return codeBuilder;
     }

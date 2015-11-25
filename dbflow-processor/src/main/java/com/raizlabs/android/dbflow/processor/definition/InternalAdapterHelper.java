@@ -48,7 +48,7 @@ public class InternalAdapterHelper {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
-                .addStatement("return $L", cachingDefinition.getColumnAccessString(isModelContainer))
+                .addStatement("return $L", cachingDefinition.getColumnAccessString(isModelContainer, false))
                 .returns(cachingDefinition.elementTypeName.box()).build());
     }
 

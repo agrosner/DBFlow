@@ -19,21 +19,21 @@ public class ModelContainerAccess extends BaseColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter) {
+    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         String method = SQLiteHelper.getModelContainerMethod(fieldType);
         if (method == null) {
             method = "get";
         }
         return CodeBlock.builder()
                 .add("$L.$LValue($S)",
-                        existingColumnAccess.getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter),
+                        existingColumnAccess.getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter, isSqliteStatement),
                         method,
                         containerKeyName)
                 .build().toString();
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter) {
+    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         String method = SQLiteHelper.getModelContainerMethod(fieldType);
         if (method == null) {
             method = "get";
@@ -44,10 +44,10 @@ public class ModelContainerAccess extends BaseColumnAccess {
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
         CodeBlock newFormattedAccess = CodeBlock.builder()
                 .add("$L.put($S, $L)", variableNameString, containerKeyName, formattedAccess)
                 .build();
-        return existingColumnAccess.setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess);
+        return existingColumnAccess.setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess, toModel);
     }
 }
