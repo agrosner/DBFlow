@@ -8,14 +8,14 @@ import com.raizlabs.android.dbflow.structure.Model;
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
- * Description: The main, immutable property class that gets generated from a {@link Table} definition.
- * <p/>
+ * Description: The main, immutable property class that gets generated from a table definition.
+ * <p>
  * This class delegates all of its {@link ITypeConditional} methods to a new {@link Condition} that's used
  * in the SQLite query language.
- * <p/>
+ * <p>
  * This ensures that the language is strictly type-safe and only declared
  * columns get used. Also any calls on the methods return a new {@link Property}.
- * <p/>
+ * <p>
  * This is type parametrized so that all values passed to this class remain proper.
  */
 public class Property<T> extends BaseProperty<Property<T>> implements ITypeConditional<T> {
@@ -41,6 +41,18 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
 
     Property(Class<? extends Model> table, String columnName, String aliasName, boolean shouldTickName, boolean shouldStripTicks) {
         this(table, new NameAlias(columnName, shouldStripTicks).as(aliasName).tickName(shouldTickName));
+    }
+
+    @Override
+    public Property<T> plus(IProperty iProperty) {
+        return new Property<>(table, NameAlias.joinNames(Condition.Operation.PLUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public Property<T> minus(IProperty iProperty) {
+        return new Property<>(table, NameAlias.joinNames(Condition.Operation.MINUS,
+                nameAlias.getName(), iProperty.toString()));
     }
 
     @Override

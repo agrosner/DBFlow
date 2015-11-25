@@ -27,6 +27,18 @@ public class IntProperty extends BaseProperty<IntProperty> {
     }
 
     @Override
+    public IntProperty plus(IProperty iProperty) {
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public IntProperty minus(IProperty iProperty) {
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public IntProperty as(String aliasName) {
         return new IntProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }

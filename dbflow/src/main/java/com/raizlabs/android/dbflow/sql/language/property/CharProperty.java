@@ -24,6 +24,18 @@ public class CharProperty extends BaseProperty<CharProperty> {
     }
 
     @Override
+    public CharProperty plus(IProperty iProperty) {
+        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public CharProperty minus(IProperty iProperty) {
+        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public CharProperty as(String aliasName) {
         return new CharProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }

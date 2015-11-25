@@ -32,6 +32,18 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
     }
 
     @Override
+    public ByteProperty plus(IProperty iProperty) {
+        return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public ByteProperty minus(IProperty iProperty) {
+        return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public ByteProperty distinct() {
         return new ByteProperty(table, getDistinctAliasName());
     }

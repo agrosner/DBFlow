@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test.sql;
 
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
@@ -94,6 +95,11 @@ public class SelectTest extends FlowTestCase {
         assertEquals("SELECT * FROM `TestModel1` NATURAL INNER JOIN `TestModel32`", where.getQuery().trim());
 
         where.query();
+
+        long time = System.currentTimeMillis();
+
+        Where<TestModel1> delete = SQLite.delete(TestModel2.class)
+                .where(new OperationalMethod(TestModel2_Table.model_order).plus(5).lessThan(System.currentTimeMillis()));
     }
 
 }

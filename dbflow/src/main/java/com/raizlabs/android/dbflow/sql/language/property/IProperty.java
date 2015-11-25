@@ -19,6 +19,22 @@ public interface IProperty<P extends IProperty> extends Query {
     P as(String aliasName);
 
     /**
+     * Adds another property and returns as a new property.
+     *
+     * @param iProperty the property to add.
+     * @return A new instance.
+     */
+    P plus(IProperty iProperty);
+
+    /**
+     * Subtracts another property and returns as a new property.
+     *
+     * @param iProperty the property to add.
+     * @return A new instance.
+     */
+    P minus(IProperty iProperty);
+
+    /**
      * @return Appends DISTINCT to the property name. This is handy in {@link Method} queries.
      * This distinct {@link P} can only be used with one column within a {@link Method}.
      */

@@ -27,6 +27,18 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
     }
 
     @Override
+    public DoubleProperty plus(IProperty iProperty) {
+        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public DoubleProperty minus(IProperty iProperty) {
+        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public DoubleProperty as(String aliasName) {
         return new DoubleProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }

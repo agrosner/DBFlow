@@ -27,6 +27,18 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
     }
 
     @Override
+    public FloatProperty plus(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty minus(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public FloatProperty as(String aliasName) {
         return new FloatProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }
