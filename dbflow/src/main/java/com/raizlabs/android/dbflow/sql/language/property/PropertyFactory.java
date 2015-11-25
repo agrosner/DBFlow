@@ -84,6 +84,9 @@ public class PropertyFactory {
      * Creates a new type-parameterized {@link Property} to be used as its value represented by a string
      * using {@link Condition#convertValueToString(Object)}.
      *
+     * It will not convert a String column name
+     * into a property, rather it assumes its database value represented by the String.
+     *
      * @param type The object with value to use.
      * @param <T>  The parameter of its type.
      * @return A new property with its type.
