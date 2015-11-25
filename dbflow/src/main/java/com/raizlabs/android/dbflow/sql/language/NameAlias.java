@@ -40,7 +40,7 @@ public class NameAlias implements Query {
             }
             newName += names[i] + " ";
         }
-        return new NameAlias(newName, false);
+        return new NameAlias(newName, false).tickName(false);
     }
 
     /**
