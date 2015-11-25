@@ -166,6 +166,18 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     byte[] getBlbValue(String key);
 
     /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link Byte}.
+     */
+    Byte getByteValue(String key);
+
+    /**
+     * @param key The key in the container.
+     * @return The value evaluated as a {@link byte}.
+     */
+    byte getBytValue(String key);
+
+    /**
      * Puts the value with the specified key and value to the object
      *
      * @param columnName The name of the column

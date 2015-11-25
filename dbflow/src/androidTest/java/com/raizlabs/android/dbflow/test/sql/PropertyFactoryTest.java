@@ -5,6 +5,8 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.sql.language.property.ByteProperty;
 import com.raizlabs.android.dbflow.sql.language.property.CharProperty;
+import com.raizlabs.android.dbflow.sql.language.property.DoubleProperty;
+import com.raizlabs.android.dbflow.sql.language.property.FloatProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IntProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
@@ -48,6 +50,17 @@ public class PropertyFactoryTest extends FlowTestCase {
         queryBuilder = new QueryBuilder();
         intProperty.greaterThan(TestModel2_Table.model_order).appendConditionToQuery(queryBuilder);
         assertEquals("5>`model_order`", queryBuilder.getQuery().trim());
+
+        DoubleProperty doubleProperty = PropertyFactory.from(10d);
+        assertEquals("10.0", doubleProperty.getQuery());
+        queryBuilder = new QueryBuilder();
+        doubleProperty.plus(ConditionModel_Table.fraction).lessThan(ConditionModel_Table.fraction).appendConditionToQuery(queryBuilder);
+        assertEquals("10.0 + `fraction`<`fraction`", queryBuilder.getQuery().trim());
+
+        FloatProperty floatProperty = PropertyFactory.from(20f);
+        assertEquals("20.0", floatProperty.getQuery());
+        queryBuilder = new QueryBuilder();
+        floatProperty.minus(ConditionModel_Table.floatie).minus(ConditionModel_Table.floatie).eq(5f).appendConditionToQuery(queryBuilder);
     }
 
 

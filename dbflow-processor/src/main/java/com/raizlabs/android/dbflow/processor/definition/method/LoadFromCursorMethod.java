@@ -27,6 +27,10 @@ public class LoadFromCursorMethod implements MethodDefinition {
     private static final Map<TypeName, String> sMethodMap = new HashMap<TypeName, String>() {{
         put(ArrayTypeName.of(TypeName.BYTE), "getBlob");
         put(ArrayTypeName.of(TypeName.BYTE.box()), "getBlob");
+        put(TypeName.BYTE, "getInt");
+        put(TypeName.BYTE.box(), "getInt");
+        put(TypeName.CHAR, "getString");
+        put(TypeName.CHAR.box(), "getString");
         put(TypeName.DOUBLE, "getDouble");
         put(TypeName.DOUBLE.box(), "getDouble");
         put(TypeName.FLOAT, "getFloat");

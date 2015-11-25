@@ -214,6 +214,26 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     }
 
     @Override
+    public Byte getByteValue(String key) {
+        try {
+            return getData() != null ? (byte) getData().getInt(key) : null;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return 0;
+        }
+    }
+
+    @Override
+    public byte getBytValue(String key) {
+        try {
+            return getData() != null ? (byte) getData().getInt(key) : 0;
+        } catch (JSONException e) {
+            FlowLog.logError(e);
+            return 0;
+        }
+    }
+
+    @Override
     public void put(String columnName, Object value) {
         if (getData() == null) {
             setData(newDataInstance());

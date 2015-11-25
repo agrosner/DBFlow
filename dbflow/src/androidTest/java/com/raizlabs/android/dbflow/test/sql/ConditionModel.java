@@ -15,4 +15,16 @@ public class ConditionModel extends TestModel1 {
 
     @Column
     double fraction;
+
+    @Column
+    float floatie;
+
+    @Column
+    short shortie;
+
+    @Column
+    byte bytie;
+
+    @Column
+    char charie;
 }

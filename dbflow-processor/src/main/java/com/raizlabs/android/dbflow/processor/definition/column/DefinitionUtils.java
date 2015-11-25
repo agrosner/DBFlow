@@ -60,7 +60,10 @@ public class DefinitionUtils {
 
         String putAccess = finalAccessStatement;
         if (isBlobRaw) {
-            putAccess = finalAccessStatement + ".getBlob()";
+            putAccess += ".getBlob()";
+        } else if (elementTypeName.box().equals(TypeName.CHAR.box())) {
+            // wrap char in string.
+            putAccess = "new String(new char[]{" + putAccess + "})";
         }
         if (!finalTypeName.isPrimitive()) {
             if (!isModelContainerAdapter && (columnAccess instanceof EnumColumnAccess || columnAccess instanceof BlobColumnAccess)) {
@@ -123,7 +126,10 @@ public class DefinitionUtils {
 
         String putAccess = finalAccessStatement;
         if (isBlobRaw) {
-            putAccess = finalAccessStatement + ".getBlob()";
+            putAccess += ".getBlob()";
+        } else if (elementTypeName.box().equals(TypeName.CHAR.box())) {
+            // wrap char in string.
+            putAccess = "new String(new char[]{" + putAccess + "})";
         }
         if (!finalTypeName.isPrimitive()) {
             if (!isModelContainerAdapter && (columnAccess instanceof EnumColumnAccess
@@ -158,8 +164,17 @@ public class DefinitionUtils {
         codeBuilder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, columnName);
         codeBuilder.beginControlFlow("if ($L != -1 && !$L.isNull($L))", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
+        CodeBlock.Builder cursorAssignment = CodeBlock.builder();
+        if (elementTypeName.box().equals(TypeName.BYTE.box())) {
+            cursorAssignment.add("($T)", TypeName.BYTE);
+        }
+        cursorAssignment.add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName);
+        if (elementTypeName.box().equals(TypeName.CHAR.box())) {
+            cursorAssignment.add(".charAt(0)");
+        }
+
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName).build()));
+                isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), cursorAssignment.build()));
 
         if (putDefaultValue) {
             codeBuilder.nextControlFlow("else");

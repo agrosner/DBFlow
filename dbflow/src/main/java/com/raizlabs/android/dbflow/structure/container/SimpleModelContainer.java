@@ -131,4 +131,20 @@ public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> 
         Short value = getShortValue(key);
         return value == null ? 0 : value;
     }
+
+    @Override
+    public Byte getByteValue(String key) {
+        Object value = getValue(key);
+        if (value instanceof String) {
+            return Byte.valueOf((String) value);
+        } else {
+            return (Byte) value;
+        }
+    }
+
+    @Override
+    public byte getBytValue(String key) {
+        Byte value = getByteValue(key);
+        return value == null ? 0 : value;
+    }
 }
