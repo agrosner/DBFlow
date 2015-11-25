@@ -1,13 +1,17 @@
 package com.raizlabs.android.dbflow.test.structure.autoincrement;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
+import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
 public class ModelAutoIncrementTest extends FlowTestCase {
 
     public void testModelAutoIncrement() {
+        Delete.table(TestModel1.class);
+
         TestModelAI testModelAI = new TestModelAI();
         testModelAI.name = "Test";
         testModelAI.insert();
@@ -26,6 +30,8 @@ public class ModelAutoIncrementTest extends FlowTestCase {
 
         testModelAI.delete();
         assertTrue(!testModelAI.exists());
+
+        Delete.table(TestModel1.class);
     }
 
     @Override

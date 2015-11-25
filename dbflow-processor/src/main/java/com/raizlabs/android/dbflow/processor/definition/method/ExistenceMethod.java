@@ -35,10 +35,12 @@ public class ExistenceMethod implements MethodDefinition {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .returns(TypeName.BOOLEAN);
         // only quick check if enabled.
-        if (tableDefinition.hasAutoIncrement() && tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
+        if (tableDefinition.hasAutoIncrement()) {
             ColumnDefinition columnDefinition = tableDefinition.getAutoIncrementColumn();
-            methodBuilder.addStatement("return $L > 0", columnDefinition.getColumnAccessString(isModelContainerAdapter));
-        } else {
+            methodBuilder.addCode("return $L > 0", columnDefinition.getColumnAccessString(isModelContainerAdapter));
+        }
+
+        if (!tableDefinition.hasAutoIncrement() || !tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
             CodeBlock.Builder selectBuilder = CodeBlock.builder();
             java.util.List<ColumnDefinition> primaryDefinitionList = tableDefinition.getPrimaryColumnDefinitions();
             for (int i = 0; i < primaryDefinitionList.size(); i++) {
@@ -48,9 +50,15 @@ public class ExistenceMethod implements MethodDefinition {
                 }
                 selectBuilder.add("$L.$L", tableDefinition.getPropertyClassName(), columnDefinition.columnName);
             }
-            methodBuilder.addStatement("return new $T($L).from($T.class).where(getPrimaryConditionClause($L)).hasData()",
+            if (tableDefinition.hasAutoIncrement()) {
+                methodBuilder.addCode(" && ");
+            } else {
+                methodBuilder.addCode("return ");
+            }
+            methodBuilder.addCode("new $T($L).from($T.class).where(getPrimaryConditionClause($L)).hasData()",
                     ClassNames.SELECT, selectBuilder.build(), tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
         }
+        methodBuilder.addCode(";\n");
 
         return methodBuilder.build();
     }
