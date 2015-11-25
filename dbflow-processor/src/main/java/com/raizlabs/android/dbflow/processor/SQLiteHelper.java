@@ -87,6 +87,7 @@ public enum SQLiteHelper {
         put(ArrayTypeName.of(TypeName.BYTE), "getBlob");
         put(ArrayTypeName.of(TypeName.BYTE.box()), "getBlob");
         put(TypeName.BOOLEAN, "getInt");
+        put(TypeName.BOOLEAN.box(), "getInt");
         put(TypeName.BYTE, "getInt");
         put(TypeName.BYTE.box(), "getInt");
         put(TypeName.CHAR, "getString");

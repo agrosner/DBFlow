@@ -188,10 +188,8 @@ public class ColumnDefinition extends BaseDefinition {
                     processorManager.getMessager()
                             .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
                 } else {
-                    if (elementTypeName.equals(TypeName.BOOLEAN.box())) {
+                    if (elementTypeName.box().equals(TypeName.BOOLEAN.box())) {
                         isBoolean = true;
-                        columnAccess = new BooleanColumnAccess(manager, this);
-                    } else if (elementTypeName.equals(TypeName.BOOLEAN)) {
                         // lower case boolean, we don't box up and down, we just check true or false.
                         columnAccess = new BooleanTypeColumnAccess(this);
                     } else {
