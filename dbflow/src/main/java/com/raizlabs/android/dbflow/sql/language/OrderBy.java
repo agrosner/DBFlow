@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 
 /**
  * Description: Class that represents a SQL order-by.
@@ -13,6 +14,14 @@ public class OrderBy implements Query {
     private boolean isAscending;
 
     private Collate collation;
+
+    public static OrderBy fromProperty(IProperty property) {
+        return new OrderBy(property.getNameAlias());
+    }
+
+    public static OrderBy fromNameAlias(NameAlias nameAlias) {
+        return new OrderBy(nameAlias);
+    }
 
     OrderBy(NameAlias column) {
         this.column = column;

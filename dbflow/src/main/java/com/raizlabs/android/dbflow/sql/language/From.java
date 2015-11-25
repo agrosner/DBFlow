@@ -212,6 +212,11 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     @Override
+    public Where<ModelClass> orderBy(OrderBy orderBy) {
+        return where().orderBy(orderBy);
+    }
+
+    @Override
     public Where<ModelClass> limit(int count) {
         return where().limit(count);
     }

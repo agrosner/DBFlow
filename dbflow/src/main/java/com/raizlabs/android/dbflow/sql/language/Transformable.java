@@ -17,6 +17,8 @@ interface Transformable<T extends Model> {
 
     Where<T> orderBy(IProperty property, boolean ascending);
 
+    Where<T> orderBy(OrderBy orderBy);
+
     Where<T> limit(int count);
 
     Where<T> offset(int offset);

@@ -151,6 +151,12 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     @Override
+    public Where<ModelClass> orderBy(OrderBy orderBy) {
+        orderByList.add(orderBy);
+        return this;
+    }
+
+    @Override
     public Where<ModelClass> limit(int count) {
         this.limit = count;
         return this;

@@ -82,6 +82,11 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     }
 
     @Override
+    public Where<ModelClass> orderBy(OrderBy orderBy) {
+        return where().orderBy(orderBy);
+    }
+
+    @Override
     public Where<ModelClass> limit(int count) {
         return where().limit(count);
     }
