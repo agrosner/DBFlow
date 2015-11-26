@@ -41,6 +41,11 @@ public class ModelContainerDefinition extends BaseDefinition {
 
             tableDefinition = manager.getTableDefinition(manager.getDatabase(elementTypeName), elementTypeName);
 
+            if (tableDefinition == null) {
+                manager.logError("Could not find a table definition for " + elementClassName + " ensure" +
+                        "that you have added a @Table definition for it.");
+                return;
+            }
             setOutputClassName(tableDefinition.databaseDefinition.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
 

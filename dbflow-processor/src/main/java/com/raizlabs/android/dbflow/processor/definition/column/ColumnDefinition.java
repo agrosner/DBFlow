@@ -75,7 +75,8 @@ public class ColumnDefinition extends BaseDefinition {
     public BaseColumnAccess columnAccess;
     public boolean hasCustomConverter;
 
-    public ColumnDefinition(ProcessorManager processorManager, Element element, BaseTableDefinition baseTableDefinition) {
+    public ColumnDefinition(ProcessorManager processorManager, Element element,
+                            BaseTableDefinition baseTableDefinition, boolean isPackagePrivate) {
         super(element, processorManager);
 
         column = element.getAnnotation(Column.class);
@@ -90,14 +91,18 @@ public class ColumnDefinition extends BaseDefinition {
                     .toString();
         }
 
-        boolean isPrivate = element.getModifiers()
-                .contains(Modifier.PRIVATE);
-        if (isPrivate) {
-            boolean useIs = elementTypeName.box().equals(TypeName.BOOLEAN.box())
-                    && (baseTableDefinition instanceof TableDefinition) && ((TableDefinition) baseTableDefinition).useIsForPrivateBooleans;
-            columnAccess = new PrivateColumnAccess(column, useIs);
+        if (isPackagePrivate) {
+            columnAccess = new PackagePrivateAccess();
         } else {
-            columnAccess = new SimpleColumnAccess();
+            boolean isPrivate = element.getModifiers()
+                    .contains(Modifier.PRIVATE);
+            if (isPrivate) {
+                boolean useIs = elementTypeName.box().equals(TypeName.BOOLEAN.box())
+                        && (baseTableDefinition instanceof TableDefinition) && ((TableDefinition) baseTableDefinition).useIsForPrivateBooleans;
+                columnAccess = new PrivateColumnAccess(column, useIs);
+            } else {
+                columnAccess = new SimpleColumnAccess();
+            }
         }
 
         PrimaryKey primaryKey = element.getAnnotation(PrimaryKey.class);

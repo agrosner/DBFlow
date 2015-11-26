@@ -27,6 +27,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.OneToManyDeleteMe
 import com.raizlabs.android.dbflow.processor.definition.method.OneToManySaveMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionMethod;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
@@ -246,7 +247,8 @@ public class TableDefinition extends BaseTableDefinition {
 
     @Override
     protected void createColumnDefinitions(TypeElement typeElement) {
-        List<? extends Element> elements = manager.getElements().getAllMembers(typeElement);
+        List<? extends Element> elements = ElementUtility.getAllElements(typeElement, manager);
+
         ColumnValidator columnValidator = new ColumnValidator();
         OneToManyValidator oneToManyValidator = new OneToManyValidator();
         for (Element element : elements) {
@@ -257,11 +259,16 @@ public class TableDefinition extends BaseTableDefinition {
                     !element.getModifiers().contains(Modifier.PRIVATE) &&
                     !element.getModifiers().contains(Modifier.FINAL)));
             if (element.getAnnotation(Column.class) != null || isValidColumn) {
+
+                // package private
+                boolean isPackagePrivate = (ElementUtility.isPackagePrivate(element)
+                        && !ElementUtility.isInSamePackage(manager, element, this.element));
+
                 ColumnDefinition columnDefinition;
                 if (element.getAnnotation(ForeignKey.class) != null) {
                     columnDefinition = new ForeignKeyColumnDefinition(manager, this, element);
                 } else {
-                    columnDefinition = new ColumnDefinition(manager, element, this);
+                    columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivate);
                 }
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
@@ -296,6 +303,7 @@ public class TableDefinition extends BaseTableDefinition {
                 }
             }
         }
+
     }
 
     public ColumnDefinition getAutoIncrementPrimaryKey() {
