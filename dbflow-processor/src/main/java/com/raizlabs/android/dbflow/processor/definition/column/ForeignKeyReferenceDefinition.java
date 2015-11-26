@@ -3,11 +3,13 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 
@@ -24,6 +26,7 @@ public class ForeignKeyReferenceDefinition {
     public final TypeName columnClassName;
 
     private boolean isReferencedFieldPrivate;
+    private boolean isReferencedFieldPackagePrivate;
 
     public BaseColumnAccess columnAccess;
 
@@ -47,11 +50,17 @@ public class ForeignKeyReferenceDefinition {
 
         if (referencedColumn.columnAccess instanceof WrapperColumnAccess) {
             isReferencedFieldPrivate = (((WrapperColumnAccess) referencedColumn.columnAccess).existingColumnAccess instanceof PrivateColumnAccess);
+            isReferencedFieldPackagePrivate = ((WrapperColumnAccess) referencedColumn.columnAccess).existingColumnAccess instanceof PackagePrivateAccess;
         } else {
             isReferencedFieldPrivate = (referencedColumn.columnAccess instanceof PrivateColumnAccess);
+            isReferencedFieldPackagePrivate = referencedColumn.columnAccess instanceof PackagePrivateAccess;
         }
         if (isReferencedFieldPrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PrivateColumnAccess(referencedColumn.column, false);
+        } else if (isReferencedFieldPackagePrivate && !foreignKeyColumnDefinition.isModelContainer) {
+            columnAccess = new PackagePrivateAccess(referencedColumn.packageName,
+                    foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
+                    ClassName.get((TypeElement) referencedColumn.element.getEnclosingElement()).simpleName());
         } else {
             if (foreignKeyColumnDefinition.isModelContainer) {
                 columnAccess = new ModelContainerAccess(tableColumnAccess, foreignColumnName);
