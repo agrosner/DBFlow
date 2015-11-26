@@ -463,7 +463,7 @@ public class TableDefinition extends BaseTableDefinition {
         if (!insertConflictActionName.isEmpty()) {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getInsertOnConflictAction")
                     .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
                     .returns(ClassNames.CONFLICT_ACTION).build());
         }
@@ -481,11 +481,19 @@ public class TableDefinition extends BaseTableDefinition {
 
             for (ColumnDefinition columnDefinition : packagePrivateList) {
                 MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
-                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                         .addParameter(elementTypeName, ModelUtils.getVariable(false))
                         .returns(columnDefinition.elementTypeName);
                 method.addStatement("return $L.$L", ModelUtils.getVariable(false), columnDefinition.elementName);
 
+                typeBuilder.addMethod(method.build());
+
+                method = MethodSpec.methodBuilder("set" + StringUtils.capitalize(columnDefinition.columnName))
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .addParameter(elementTypeName, ModelUtils.getVariable(false))
+                        .addParameter(columnDefinition.elementTypeName, "var");
+
+                method.addStatement("$L.$L = $L", ModelUtils.getVariable(false), columnDefinition.elementName, "var");
                 typeBuilder.addMethod(method.build());
             }
 

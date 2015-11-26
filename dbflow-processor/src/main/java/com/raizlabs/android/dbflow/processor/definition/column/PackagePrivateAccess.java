@@ -28,7 +28,7 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (!isModelContainerAdapter) {
             return CodeBlock.builder().add("$T.get$L($L.$L)", helperClassName, StringUtils.capitalize(elementName),
-                    variableNameString, ModelUtils.getVariable(isModelContainerAdapter)).build().toString();
+                    variableNameString, fullElementName).build().toString();
         } else {
             String method = SQLiteHelper.getMethod(fieldType);
             if (method == null) {
@@ -42,7 +42,7 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (!isModelContainerAdapter) {
             return CodeBlock.builder().add("$T.get$L($L)", helperClassName, StringUtils.capitalize(elementName),
-                    ModelUtils.getVariable(isModelContainerAdapter)).build().toString();
+                    elementName).build().toString();
         } else {
             return elementName;
         }
