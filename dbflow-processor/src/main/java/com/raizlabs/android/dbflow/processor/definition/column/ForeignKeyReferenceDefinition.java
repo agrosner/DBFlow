@@ -33,7 +33,7 @@ public class ForeignKeyReferenceDefinition {
     private final BaseColumnAccess tableColumnAccess;
     private final ForeignKeyColumnDefinition foreignKeyColumnDefinition;
 
-    private final BaseColumnAccess simpleColumnAccess = new SimpleColumnAccess();
+    private final BaseColumnAccess simpleColumnAccess;
 
     public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
                                          ColumnDefinition referencedColumn,
@@ -68,6 +68,8 @@ public class ForeignKeyReferenceDefinition {
                 columnAccess = new SimpleColumnAccess();
             }
         }
+
+        simpleColumnAccess = new SimpleColumnAccess(columnAccess instanceof PackagePrivateAccess);
     }
 
     public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
@@ -89,8 +91,13 @@ public class ForeignKeyReferenceDefinition {
         }
         columnClassName = TypeName.get(columnClass);
         isReferencedFieldPrivate = foreignKeyReference.referencedFieldIsPrivate();
+        isReferencedFieldPackagePrivate = foreignKeyReference.referencedFieldIsPackagePrivate();
         if (isReferencedFieldPrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PrivateColumnAccess(foreignKeyReference);
+        } else if (isReferencedFieldPackagePrivate && !foreignKeyColumnDefinition.isModelContainer) {
+            columnAccess = new PackagePrivateAccess(foreignKeyColumnDefinition.referencedTableClassName.packageName(),
+                    foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
+                    foreignKeyColumnDefinition.referencedTableClassName.simpleName());
         } else {
             if (foreignKeyColumnDefinition.isModelContainer) {
                 columnAccess = new ModelContainerAccess(tableColumnAccess, foreignColumnName);
@@ -98,6 +105,8 @@ public class ForeignKeyReferenceDefinition {
                 columnAccess = new SimpleColumnAccess();
             }
         }
+
+        simpleColumnAccess = new SimpleColumnAccess(columnAccess instanceof PackagePrivateAccess);
     }
 
     CodeBlock getCreationStatement() {
@@ -111,7 +120,12 @@ public class ForeignKeyReferenceDefinition {
 
         String columnShortAccess = getShortColumnAccess(isModelContainerAdapter, false);
 
-        String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
+        String combined;
+        if (!(columnAccess instanceof PackagePrivateAccess)) {
+            combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
+        } else {
+            combined = columnShortAccess;
+        }
         return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
                 columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter)).build();
     }

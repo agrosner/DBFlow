@@ -37,6 +37,13 @@ public @interface ForeignKeyReference {
     boolean referencedFieldIsPrivate() default false;
 
     /**
+     * @return True here if the referenced field is package private. It will use the "_Helper" class
+     * generated automatically to access the value of the field. Also, its required that the {@link ForeignKey#tableClass()}
+     * is set or known at compile time via a Model object.
+     */
+    boolean referencedFieldIsPackagePrivate() default false;
+
+    /**
      * @return sets the name of the referenced field getter.
      * @see Column#getterName() for more information.
      */

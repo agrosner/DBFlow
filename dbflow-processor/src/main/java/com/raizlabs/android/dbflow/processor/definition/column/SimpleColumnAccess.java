@@ -9,6 +9,17 @@ import com.squareup.javapoet.TypeName;
  */
 public class SimpleColumnAccess extends BaseColumnAccess {
 
+    private final boolean dontAppendModel;
+
+    public SimpleColumnAccess() {
+        this(false);
+    }
+
+    public SimpleColumnAccess(boolean dontAppendModel) {
+
+        this.dontAppendModel = dontAppendModel;
+    }
+
     @Override
     public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (isModelContainerAdapter) {
@@ -18,7 +29,7 @@ public class SimpleColumnAccess extends BaseColumnAccess {
             }
             return variableNameString + "." + method + "Value(\"" + elementName + "\")";
         } else {
-            return variableNameString + "." + fullElementName;
+            return dontAppendModel ? elementName : (variableNameString + ".") + fullElementName;
         }
     }
 
