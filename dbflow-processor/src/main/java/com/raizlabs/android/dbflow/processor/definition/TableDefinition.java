@@ -265,7 +265,6 @@ public class TableDefinition extends BaseTableDefinition {
                 // package private, will generate helper
                 boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
                 boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
-                boolean isPackagePrivateMember = isPackagePrivate && ElementUtility.isInSamePackage(manager, element, this.element);
 
                 ColumnDefinition columnDefinition;
                 if (element.getAnnotation(ForeignKey.class) != null) {
@@ -299,7 +298,7 @@ public class TableDefinition extends BaseTableDefinition {
                         }
                     }
 
-                    if (isPackagePrivateMember) {
+                    if (isPackagePrivate) {
                         packagePrivateList.add(columnDefinition);
                     }
                 }
@@ -484,7 +483,15 @@ public class TableDefinition extends BaseTableDefinition {
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                         .addParameter(elementTypeName, ModelUtils.getVariable(false))
                         .returns(columnDefinition.elementTypeName);
-                method.addStatement("return $L.$L", ModelUtils.getVariable(false), columnDefinition.elementName);
+                boolean samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element);
+                String helperClassName = manager.getElements().getPackageOf(columnDefinition.element).toString() + "." + ClassName.get((TypeElement) columnDefinition.element.getEnclosingElement()).simpleName()
+                        + databaseDefinition.classSeparator + "Helper";
+
+                if (samePackage) {
+                    method.addStatement("return $L.$L", ModelUtils.getVariable(false), columnDefinition.elementName);
+                } else {
+                    method.addStatement("return $L.get$L($L)", helperClassName, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false));
+                }
 
                 typeBuilder.addMethod(method.build());
 
@@ -493,7 +500,12 @@ public class TableDefinition extends BaseTableDefinition {
                         .addParameter(elementTypeName, ModelUtils.getVariable(false))
                         .addParameter(columnDefinition.elementTypeName, "var");
 
-                method.addStatement("$L.$L = $L", ModelUtils.getVariable(false), columnDefinition.elementName, "var");
+                if (samePackage) {
+                    method.addStatement("$L.$L = $L", ModelUtils.getVariable(false), columnDefinition.elementName, "var");
+                } else {
+
+                    method.addStatement("$L.set$L($L, $L)", helperClassName, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false), "var");
+                }
                 typeBuilder.addMethod(method.build());
             }
 

@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.support.annotation.IntRange;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -162,6 +161,9 @@ public abstract class ModelAdapter<ModelClass extends Model>
     public abstract String getCreationQuery();
 
     /**
+     * Retrieves a property by name from the table via the corresponding generated "_Table" class. Useful
+     * when you want to dynamically get a property from an {@link ModelAdapter} and do an operation on it.
+     *
      * @param columnName The column name of the property.
      * @return The property from the corresponding Table class.
      */

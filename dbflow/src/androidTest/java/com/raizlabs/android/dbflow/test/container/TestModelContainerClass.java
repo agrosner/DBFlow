@@ -39,6 +39,7 @@ public class TestModelContainerClass extends TestModel1 {
             references =
                     {@ForeignKeyReference(columnName = "testName",
                             columnType = String.class,
+                            referencedFieldIsPackagePrivate = true,
                             foreignKeyColumnName = "name"),
                             @ForeignKeyReference(columnName = "testType",
                                     columnType = String.class,

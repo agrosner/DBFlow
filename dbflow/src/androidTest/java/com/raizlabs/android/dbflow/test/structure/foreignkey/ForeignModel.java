@@ -13,6 +13,7 @@ public class ForeignModel extends TestModel1 {
     @ForeignKey(references =
             {@ForeignKeyReference(columnName = "testmodel_id",
                     foreignKeyColumnName = "name",
+                    referencedFieldIsPackagePrivate = true,
                     columnType = String.class)})
     ForeignParentModel testModel1;
 }

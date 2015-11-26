@@ -118,7 +118,7 @@ public class ForeignKeyReferenceDefinition {
         String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, isModelContainerAdapter, false);
         shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(isModelContainerAdapter, shortAccess);
 
-        String columnShortAccess = getShortColumnAccess(isModelContainerAdapter, false);
+        String columnShortAccess = getShortColumnAccess(isModelContainerAdapter, false, shortAccess);
 
         String combined;
         if (!(columnAccess instanceof PackagePrivateAccess)) {
@@ -134,7 +134,7 @@ public class ForeignKeyReferenceDefinition {
         String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, isModelContainerAdapter, true);
         shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(isModelContainerAdapter, shortAccess);
 
-        String columnShortAccess = getShortColumnAccess(isModelContainerAdapter, true);
+        String columnShortAccess = getShortColumnAccess(isModelContainerAdapter, true, shortAccess);
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getSQLiteStatementMethod(
                 index, columnShortAccess, combined,
@@ -146,9 +146,16 @@ public class ForeignKeyReferenceDefinition {
         return isModelContainerAdapter ? foreignKeyColumnDefinition.getRefName() : ModelUtils.getVariable(isModelContainerAdapter);
     }
 
-    private String getShortColumnAccess(boolean isModelContainerAdapter, boolean isSqliteMethod) {
-        return isModelContainerAdapter ? foreignColumnName
-                : columnAccess.getShortAccessString(columnClassName, foreignColumnName, isModelContainerAdapter, isSqliteMethod);
+    private String getShortColumnAccess(boolean isModelContainerAdapter, boolean isSqliteMethod, String shortAccess) {
+        if (isModelContainerAdapter) {
+            return foreignColumnName;
+        } else {
+            if (columnAccess instanceof PackagePrivateAccess) {
+                return columnAccess.getColumnAccessString(columnClassName, foreignColumnName, "", ModelUtils.getVariable(isModelContainerAdapter) + "." + shortAccess, isModelContainerAdapter, isSqliteMethod);
+            } else {
+                return columnAccess.getShortAccessString(columnClassName, foreignColumnName, isModelContainerAdapter, isSqliteMethod);
+            }
+        }
     }
 
 }

@@ -1,11 +1,15 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.processor.SQLiteHelper;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 
 /**
  * Description: Wraps the get call in a package-private access class so it can reference the field properly.
@@ -17,6 +21,11 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     private final String elementPackageName;
 
     private final ClassName helperClassName;
+
+    public static PackagePrivateAccess from(ProcessorManager processorManager, Element columnElement, String classSeparator) {
+        return new PackagePrivateAccess(processorManager.getElements().getPackageOf(columnElement).toString(),
+                classSeparator, ClassName.get((TypeElement) columnElement.getEnclosingElement()).simpleName());
+    }
 
     public PackagePrivateAccess(String elementPackageName, String separator, String className) {
 
