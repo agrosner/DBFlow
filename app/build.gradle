@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
-apply plugin: 'com.raizlabs.griddle'
 repositories {
     mavenCentral()
 }
@@ -37,10 +36,9 @@ android {
 }
 
 dependencies {
-    jars()
-    mod 'dbflow-processor', 'apt'
-    mod 'dbflow'
-    nsMod 'com.android.support:appcompat-v7:23.0.0'
+    apt project(':dbflow-processor')
+    compile project(':dbflow')
+    compile 'com.android.support:appcompat-v7:23.1.1'
 }
 
 android.applicationVariants.all { variant ->
