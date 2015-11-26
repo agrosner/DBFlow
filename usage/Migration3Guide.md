@@ -246,7 +246,7 @@ Now (with static import on `SomeTable_Table` and `Method` ):
 
 ```java
 List<SomeQueryTable> items =
-  new Select(name.as("employee_name"),
+  SQLite.select(name.as("employee_name"),
     avg(salary).as("average_salary"),
     order,
     sum(salary).as("sum_salary"))
@@ -262,4 +262,20 @@ ConditionQueryBuilder was fundamentally flawed. It represented a group of `Condi
 
 It has been replaced with the `ConditionGroup` class. This class represents an arbitrary group of `SQLCondition` in which it's sole purpose is to group together `SQLCondition`. Even better a `ConditionGroup` itself is a `SQLCondition`, meaning it can _nest_ inside of other `ConditionGroup` to allow complicated and insane queries.
 
-// INSERT EXAMPLE HERE
+Now you can take this:
+
+```sql
+SELECT FROM `SomeTable` WHERE `latitude` > 0 AND (`longitude` > 50 OR `longitude` < 25) AND `name`='MyHome'
+```
+
+and turn it into:
+
+```java
+SQLite.select()
+  .from(SomeTable.class)
+  .where(SomeTable_Table.latitude.greaterThan(0))
+  .and(ConditionGroup.clause()
+    .and(SomeTable_Table.longitude.greaterThan(50))
+    .or(SomeTable_Table.longitude.lessThan(25)))
+  .and(SomeTable_Table.name.eq("MyHome"))
+```
