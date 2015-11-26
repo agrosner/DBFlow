@@ -35,7 +35,7 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
      * @param <DataClass> The kind of data that the instance provides.
      * @return The specified instance populated from the DB.
      */
-    ModelContainer<ModelClass, ?> queryModelContainer(@NonNull ModelContainer<ModelClass, ?> instance);
+    <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance);
 
     /**
      * @return the table that this query comes from.

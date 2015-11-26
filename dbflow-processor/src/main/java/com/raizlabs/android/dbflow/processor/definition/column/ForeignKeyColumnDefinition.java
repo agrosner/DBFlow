@@ -281,10 +281,6 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
             CodeBlock.Builder initializer = CodeBlock.builder();
 
-            // need to cast to type we're initializing.
-            if (isModelContainer) {
-                initializer.add("($T)", elementTypeName);
-            }
             initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                     .add(selectBuilder.build());
             if (!isModelContainerAdapter && !isModelContainer) {

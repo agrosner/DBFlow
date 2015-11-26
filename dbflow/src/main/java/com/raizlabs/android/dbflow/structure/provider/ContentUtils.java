@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -256,10 +257,13 @@ public class ContentUtils {
                                                                         ConditionGroup whereConditions,
                                                                         String orderBy, String... columns) {
         Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
-        List<TableClass> list = SqlUtils.convertToList(table, cursor);
-        cursor.close();
+        if (cursor != null) {
+            List<TableClass> list = SqlUtils.convertToList(table, cursor);
+            cursor.close();
+            return list;
+        }
 
-        return list;
+        return new ArrayList<>();
     }
 
     /**

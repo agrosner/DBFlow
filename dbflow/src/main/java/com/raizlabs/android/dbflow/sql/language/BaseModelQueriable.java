@@ -43,7 +43,7 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
     }
 
     @Override
-    public ModelContainer<ModelClass, ?> queryModelContainer(@NonNull ModelContainer<ModelClass, ?> instance) {
+    public <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {
         return SqlUtils.convertToModelContainer(false, table, query(), instance);
     }
 

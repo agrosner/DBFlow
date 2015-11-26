@@ -5,7 +5,8 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Description:
+ * Description: Provides a simple implementation of most of the value conversion methods. This simplifies other
+ * model containers that use {@link #getValue(String)} as a retrieval and will coerce its values into proper types.
  */
 public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> extends BaseModelContainer<ModelClass, DataClass> {
 

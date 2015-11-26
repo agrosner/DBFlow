@@ -3,6 +3,8 @@ DBFlow has undergone the most _significant_ changes in its lifetime in 3.0. This
 
 A significant portion of the changes include the _complete_ overhaul of the underlying annotation processor, leading to wonderful improvements in maintainability of the code, readability, and stability of the generated code. Now it uses the updated [JavaPoet](https://github.com/square/javapoet) vs the outdated JavaWriter. The changes in this library alone _significantly_ helps out the stability of the generated code.
 
+_note:_ `update` no longer attempts to `insert` if it fails.
+
 ## Table Of Contents
 1. Database + Table Structure
 2. Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
@@ -278,4 +280,25 @@ SQLite.select()
     .and(SomeTable_Table.longitude.greaterThan(50))
     .or(SomeTable_Table.longitude.lessThan(25)))
   .and(SomeTable_Table.name.eq("MyHome"))
+```
+
+## ModelContainer Changes
+Now `ModelContainer` objects have a multitude of type-safe methods to ensure that they  can convert their contained object's data into the field they associate with. What  this means is that if our `Model` has a `long` field, while the data object for  the `ModelContainer` has a `Integer` object. Previously, we would get a classcastexception. Now what it does is "coerce" the value into the type you need.  Supported Types:
+1. Integer/int
+2. Double/Double
+3. Boolean/boolean
+4. Short/short
+5. Long/long
+6. Float/Float
+7. String
+8. Blob/byte[]/Byte[]
+9. Byte/byte
+10. Using TypeConverter to retrieve value safely.
+
+You can now `queryModelContainer` from the database to retrieve a single `Model` into `ModelContainer` format instead of into `Model` and then `ModelContainer`:
+
+```java
+
+JSONModel model = SQLite.select().from(SomeTable.class).where(SomeTable_Table.id.eq(5)).queryModelContainer(new JSONModel());
+// has data now
 ```

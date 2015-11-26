@@ -193,14 +193,18 @@ public class SqlUtils {
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ModelContainer<ModelClass, ?>
-    convertToModelContainer(boolean dontMoveToFirst, @NonNull Class<ModelClass> table, @NonNull Cursor cursor,
-                            @NonNull ModelContainer<ModelClass, ?> modelContainer) {
-        if (dontMoveToFirst || cursor.moveToFirst()) {
-            ModelContainerAdapter modelAdapter = FlowManager.getContainerAdapter(table);
-            if (modelAdapter != null) {
-                modelAdapter.loadFromCursor(cursor, modelContainer);
+    public static <ModelClass extends Model, ModelContainerClass extends ModelContainer<ModelClass, ?>>
+    ModelContainerClass convertToModelContainer(boolean dontMoveToFirst, @NonNull Class<ModelClass> table,
+                                                          @NonNull Cursor cursor, @NonNull ModelContainerClass modelContainer) {
+        try {
+            if (dontMoveToFirst || cursor.moveToFirst()) {
+                ModelContainerAdapter modelAdapter = FlowManager.getContainerAdapter(table);
+                if (modelAdapter != null) {
+                    modelAdapter.loadFromCursor(cursor, modelContainer);
+                }
             }
+        } finally {
+            cursor.close();
         }
 
         return modelContainer;
