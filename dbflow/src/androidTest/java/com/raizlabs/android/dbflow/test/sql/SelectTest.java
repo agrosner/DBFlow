@@ -75,11 +75,11 @@ public class SelectTest extends FlowTestCase {
     public void testJoins() {
 
         TestModel1 testModel1 = new TestModel1();
-        testModel1.name = "Test";
+        testModel1.setName("Test");
         testModel1.save();
 
         TestModel3 testModel2 = new TestModel3();
-        testModel2.name = "Test";
+        testModel2.setName("Test");
         testModel2.save();
 
         From<TestModel1> baseFrom = new Select().from(TestModel1.class);

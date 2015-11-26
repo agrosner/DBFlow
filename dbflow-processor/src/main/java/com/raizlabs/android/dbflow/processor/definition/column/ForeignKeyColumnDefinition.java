@@ -55,8 +55,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     public boolean saveForeignKeyModel;
 
-    public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition, Element typeElement) {
-        super(manager, typeElement, tableDefinition);
+    public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition, Element typeElement, boolean isPackagePrivate) {
+        super(manager, typeElement, tableDefinition, isPackagePrivate);
         this.tableDefinition = tableDefinition;
 
         ForeignKey foreignKey = typeElement.getAnnotation(ForeignKey.class);

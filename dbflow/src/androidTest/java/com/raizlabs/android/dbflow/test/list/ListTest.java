@@ -50,7 +50,7 @@ public class ListTest extends FlowTestCase {
 
         FlowQueryList<ListModel> flowQueryList = new FlowQueryList<>(ListModel.class);
         ListModel listModel = new ListModel();
-        listModel.name = "Test";
+        listModel.setName("Test");
         flowQueryList.add(listModel);
 
         assertTrue(flowQueryList.size() == 1);

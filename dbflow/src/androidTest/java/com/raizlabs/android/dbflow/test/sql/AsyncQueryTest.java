@@ -18,7 +18,7 @@ public class AsyncQueryTest extends FlowTestCase {
 
     public void testAsyncQuery() {
         TestModel1 testModel1 = new TestModel1();
-        testModel1.name = "Async";
+        testModel1.setName("Async");
         testModel1.save();
 
         new Select().from(TestModel1.class)

@@ -124,7 +124,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
         List<? extends Element> variableElements = manager.getElements().getAllMembers(typeElement);
         for (Element variableElement : variableElements) {
             if (variableElement.getAnnotation(Column.class) != null) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this);
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this, false);
                 columnDefinitions.add(columnDefinition);
 
                 if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition || columnDefinition.isPrimaryKeyAutoIncrement) {

@@ -71,7 +71,7 @@ public class UpdateTest extends FlowTestCase {
 
     public void testUpdateEffect() {
         TestUpdateModel testUpdateModel = new TestUpdateModel();
-        testUpdateModel.name = "Test";
+        testUpdateModel.setName("Test");
         testUpdateModel.value = "oldvalue";
         testUpdateModel.save();
 

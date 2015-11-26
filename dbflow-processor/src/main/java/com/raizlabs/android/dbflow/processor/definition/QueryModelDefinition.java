@@ -108,7 +108,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
                     !variableElement.getModifiers().contains(Modifier.FINAL));
 
             if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this);
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this, false);
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
                 }

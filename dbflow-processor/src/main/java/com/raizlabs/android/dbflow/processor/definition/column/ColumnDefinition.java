@@ -92,7 +92,8 @@ public class ColumnDefinition extends BaseDefinition {
         }
 
         if (isPackagePrivate) {
-            columnAccess = new PackagePrivateAccess();
+            columnAccess = new PackagePrivateAccess(processorManager.getElements().getPackageOf(element).toString(),
+                    baseTableDefinition.databaseDefinition.classSeparator, baseTableDefinition.elementClassName.simpleName());
         } else {
             boolean isPrivate = element.getModifiers()
                     .contains(Modifier.PRIVATE);

@@ -25,6 +25,14 @@ public class TestModel1 extends BaseModel {
 
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;

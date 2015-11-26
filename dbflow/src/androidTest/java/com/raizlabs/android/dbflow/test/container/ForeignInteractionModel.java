@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
@@ -36,8 +37,6 @@ public class ForeignInteractionModel extends TestModel1 {
     }
 
     public void setTestModel1(ParentModel model1) {
-        testModel1 = new ForeignKeyContainer<>(ParentModel.class);
-        testModel1.put(ParentModel_Table.name, model1.name);
-        testModel1.put(ParentModel_Table.type, model1.type);
+        testModel1 = FlowManager.getContainerAdapter(ParentModel.class).toForeignKeyContainer(model1);
     }
 }

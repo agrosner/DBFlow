@@ -12,12 +12,12 @@ public class ForeignKeyTest extends FlowTestCase {
 
     public void testForeignKey() {
         ForeignParentModel parentModel = new ForeignParentModel();
-        parentModel.name = "Test";
+        parentModel.setName("Test");
         parentModel.save();
 
         ForeignModel foreignModel = new ForeignModel();
         foreignModel.testModel1 = parentModel;
-        foreignModel.name = "Test";
+        foreignModel.setName("Test");
         foreignModel.save();
 
         ForeignModel retrieved = new Select().from(ForeignModel.class)
@@ -36,7 +36,7 @@ public class ForeignKeyTest extends FlowTestCase {
 
         ForeignModel2 foreignModel2 = new ForeignModel2();
         foreignModel2.testModelAI = testModelAI;
-        foreignModel2.name = "Test";
+        foreignModel2.setName("Test");
         foreignModel2.save();
 
         ForeignModel2 retrieved = new Select().from(ForeignModel2.class)

@@ -96,7 +96,8 @@ public class TableDefinition extends BaseTableDefinition {
     public boolean allFields = false;
     public boolean useIsForPrivateBooleans;
 
-    public Map<String, ColumnDefinition> mColumnMap = Maps.newHashMap();
+    public final Map<String, ColumnDefinition> mColumnMap = Maps.newHashMap();
+    private final List<ColumnDefinition> packagePrivateList = Lists.newArrayList();
 
     public Map<Integer, List<ColumnDefinition>> columnUniqueMap = Maps.newHashMap();
 
@@ -266,7 +267,7 @@ public class TableDefinition extends BaseTableDefinition {
 
                 ColumnDefinition columnDefinition;
                 if (element.getAnnotation(ForeignKey.class) != null) {
-                    columnDefinition = new ForeignKeyColumnDefinition(manager, this, element);
+                    columnDefinition = new ForeignKeyColumnDefinition(manager, this, element, isPackagePrivate);
                 } else {
                     columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivate);
                 }
@@ -294,6 +295,10 @@ public class TableDefinition extends BaseTableDefinition {
                                 groupList.add(columnDefinition);
                             }
                         }
+                    }
+
+                    if (isPackagePrivate) {
+                        packagePrivateList.add(columnDefinition);
                     }
                 }
             } else if (element.getAnnotation(OneToMany.class) != null) {
@@ -466,4 +471,5 @@ public class TableDefinition extends BaseTableDefinition {
         javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
 
     }
+
 }

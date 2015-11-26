@@ -13,13 +13,13 @@ public class ForeignKeyModelTest extends FlowTestCase {
 
         ForeignInteractionModel foreignInteractionModel = new ForeignInteractionModel();
         ParentModel parentModel = new ParentModel();
-        parentModel.name = "Test";
+        parentModel.setName("Test");
         parentModel.type = "Type";
         parentModel.save();
         assertTrue(parentModel.exists());
 
         foreignInteractionModel.setTestModel1(parentModel);
-        foreignInteractionModel.name = "Test2";
+        foreignInteractionModel.setName("Test2");
         foreignInteractionModel.save();
 
 
@@ -34,7 +34,7 @@ public class ForeignKeyModelTest extends FlowTestCase {
         assertNotNull(foreignInteractionModel.testModel1);
         TestModel1 testModel11 = foreignInteractionModel.getTestModel1();
         assertNotNull(parentModel);
-        assertEquals("Test", testModel11.name);
+        assertEquals("Test", testModel11.getName());
 
         Delete.tables(ForeignInteractionModel.class, ParentModel.class);
     }

@@ -23,7 +23,7 @@ public class TypeConverterTest extends FlowTestCase {
         Delete.table(TestType.class);
 
         TestType testType = new TestType();
-        testType.name = "Name";
+        testType.setName("Name");
 
         long testTime = System.currentTimeMillis();
 
@@ -88,7 +88,7 @@ public class TypeConverterTest extends FlowTestCase {
         new Delete().from(TestType.class).where().query();
 
         TestType testType = new TestType();
-        testType.name = "Name";
+        testType.setName("Name");
         testType.save();
 
         TestType retrieved = new Select().from(TestType.class)
@@ -113,7 +113,7 @@ public class TypeConverterTest extends FlowTestCase {
         new Delete().from(TestType.class).where().query();
 
         TestType testType = new TestType();
-        testType.name = "Name";
+        testType.setName("Name");
         testType.save();
 
         /*
@@ -124,7 +124,7 @@ public class TypeConverterTest extends FlowTestCase {
 
         new Update<>(TestType.class)
                 .set(TestType_Table.nativeBoolean.is((Boolean) null))
-                .where(TestType_Table.name.eq(testType.name))
+                .where(TestType_Table.name.eq(testType.getName()))
                 .queryClose();
 
         TestType retrieved = new Select().from(TestType.class)

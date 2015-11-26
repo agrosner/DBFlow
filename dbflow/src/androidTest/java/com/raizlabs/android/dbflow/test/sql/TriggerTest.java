@@ -42,14 +42,14 @@ public class TriggerTest extends FlowTestCase {
                         .set(value.is("Fired")));
 
         TestUpdateModel model = new TestUpdateModel();
-        model.name = "Test";
+        model.setName("Test");
         model.value = "NotFired";
         model.save();
 
         trigger.enable();
 
         ConditionModel conditionModel = new ConditionModel();
-        conditionModel.name = "Test";
+        conditionModel.setName("Test");
         conditionModel.fraction = 0.6d;
         conditionModel.insert();
 

@@ -97,7 +97,7 @@ public class ContentObserverTest extends FlowTestCase {
         flowContentObserver.addModelChangeListener(onModelStateChangedListener);
 
         TestModel1 testModel1 = new TestModel1();
-        testModel1.name = "Name";
+        testModel1.setName("Name");
 
         testModel1.insert();
         testModel1.update();
@@ -198,7 +198,7 @@ public class ContentObserverTest extends FlowTestCase {
         flowContentObserver.addModelChangeListener(onModelStateChangedListener);
 
         TestModel1 testModel1 = new TestModel1();
-        testModel1.name = "Name";
+        testModel1.setName("Name");
 
         flowContentObserver.beginTransaction();
 
