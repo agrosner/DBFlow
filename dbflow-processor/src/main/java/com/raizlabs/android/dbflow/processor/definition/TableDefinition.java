@@ -29,6 +29,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionM
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -261,15 +262,16 @@ public class TableDefinition extends BaseTableDefinition {
                     !element.getModifiers().contains(Modifier.FINAL)));
             if (element.getAnnotation(Column.class) != null || isValidColumn) {
 
-                // package private
-                boolean isPackagePrivate = (ElementUtility.isPackagePrivate(element)
-                        && !ElementUtility.isInSamePackage(manager, element, this.element));
+                // package private, will generate helper
+                boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
+                boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
+                boolean isPackagePrivateMember = isPackagePrivate && ElementUtility.isInSamePackage(manager, element, this.element);
 
                 ColumnDefinition columnDefinition;
                 if (element.getAnnotation(ForeignKey.class) != null) {
-                    columnDefinition = new ForeignKeyColumnDefinition(manager, this, element, isPackagePrivate);
+                    columnDefinition = new ForeignKeyColumnDefinition(manager, this, element, isPackagePrivateNotInSamePackage);
                 } else {
-                    columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivate);
+                    columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage);
                 }
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
@@ -297,7 +299,7 @@ public class TableDefinition extends BaseTableDefinition {
                         }
                     }
 
-                    if (isPackagePrivate) {
+                    if (isPackagePrivateMember) {
                         packagePrivateList.add(columnDefinition);
                     }
                 }
@@ -461,7 +463,7 @@ public class TableDefinition extends BaseTableDefinition {
         if (!insertConflictActionName.isEmpty()) {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getInsertOnConflictAction")
                     .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                     .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
                     .returns(ClassNames.CONFLICT_ACTION).build());
         }
@@ -472,4 +474,23 @@ public class TableDefinition extends BaseTableDefinition {
 
     }
 
+    public void writePackageHelper(ProcessingEnvironment processingEnvironment) throws IOException {
+        if (!packagePrivateList.isEmpty()) {
+            TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(elementClassName.simpleName() + databaseDefinition.classSeparator + "Helper")
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+
+            for (ColumnDefinition columnDefinition : packagePrivateList) {
+                MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addParameter(elementTypeName, ModelUtils.getVariable(false))
+                        .returns(columnDefinition.elementTypeName);
+                method.addStatement("return $L.$L", ModelUtils.getVariable(false), columnDefinition.elementName);
+
+                typeBuilder.addMethod(method.build());
+            }
+
+            JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
+            javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
+        }
+    }
 }

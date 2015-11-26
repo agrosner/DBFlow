@@ -262,6 +262,7 @@ public class ProcessorManager implements Handler {
                 Collection<TableDefinition> tableDefinitions = databaseDefinition.tableDefinitionMap.values();
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
+                    tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
                 }
 
