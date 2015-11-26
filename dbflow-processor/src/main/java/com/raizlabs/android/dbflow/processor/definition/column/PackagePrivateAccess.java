@@ -23,8 +23,6 @@ public class PackagePrivateAccess extends BaseColumnAccess {
 
     public static final String classSuffix = "Helper";
 
-    private final String elementPackageName;
-
     private final ClassName helperClassName;
 
     private static final Map<ClassName, List<String>> helperUsedMethodMap = Maps.newHashMap();
@@ -61,8 +59,6 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     }
 
     public PackagePrivateAccess(String elementPackageName, String separator, String className) {
-
-        this.elementPackageName = elementPackageName;
         helperClassName = ClassName.get(elementPackageName, className + separator + classSuffix);
     }
 
