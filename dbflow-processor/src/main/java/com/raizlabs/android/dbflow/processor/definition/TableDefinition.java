@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateAccess;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.CreationQueryMethod;
@@ -474,43 +475,51 @@ public class TableDefinition extends BaseTableDefinition {
     }
 
     public void writePackageHelper(ProcessingEnvironment processingEnvironment) throws IOException {
+        int count = 0;
         if (!packagePrivateList.isEmpty()) {
             TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(elementClassName.simpleName() + databaseDefinition.classSeparator + "Helper")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             for (ColumnDefinition columnDefinition : packagePrivateList) {
-                MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
-                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                        .addParameter(elementTypeName, ModelUtils.getVariable(false))
-                        .returns(columnDefinition.elementTypeName);
-                boolean samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element);
                 String helperClassName = manager.getElements().getPackageOf(columnDefinition.element).toString() + "." + ClassName.get((TypeElement) columnDefinition.element.getEnclosingElement()).simpleName()
                         + databaseDefinition.classSeparator + "Helper";
+                ClassName className = ClassName.bestGuess(helperClassName);
+                if (PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
+                    MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
+                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                            .addParameter(elementTypeName, ModelUtils.getVariable(false))
+                            .returns(columnDefinition.elementTypeName);
+                    boolean samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element);
 
-                if (samePackage) {
-                    method.addStatement("return $L.$L", ModelUtils.getVariable(false), columnDefinition.elementName);
-                } else {
-                    method.addStatement("return $L.get$L($L)", helperClassName, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false));
+                    if (samePackage) {
+                        method.addStatement("return $L.$L", ModelUtils.getVariable(false), columnDefinition.elementName);
+                    } else {
+                        method.addStatement("return $T.get$L($L)", className, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false));
+                    }
+
+                    typeBuilder.addMethod(method.build());
+
+                    method = MethodSpec.methodBuilder("set" + StringUtils.capitalize(columnDefinition.columnName))
+                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                            .addParameter(elementTypeName, ModelUtils.getVariable(false))
+                            .addParameter(columnDefinition.elementTypeName, "var");
+
+                    if (samePackage) {
+                        method.addStatement("$L.$L = $L", ModelUtils.getVariable(false), columnDefinition.elementName, "var");
+                    } else {
+
+                        method.addStatement("$T.set$L($L, $L)", className, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false), "var");
+                    }
+                    typeBuilder.addMethod(method.build());
+                    count++;
                 }
-
-                typeBuilder.addMethod(method.build());
-
-                method = MethodSpec.methodBuilder("set" + StringUtils.capitalize(columnDefinition.columnName))
-                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                        .addParameter(elementTypeName, ModelUtils.getVariable(false))
-                        .addParameter(columnDefinition.elementTypeName, "var");
-
-                if (samePackage) {
-                    method.addStatement("$L.$L = $L", ModelUtils.getVariable(false), columnDefinition.elementName, "var");
-                } else {
-
-                    method.addStatement("$L.set$L($L, $L)", helperClassName, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false), "var");
-                }
-                typeBuilder.addMethod(method.build());
             }
 
-            JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
-            javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
+            // only write class if we have referenced fields.
+            if (count > 0) {
+                JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
+                javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
+            }
         }
     }
 }
