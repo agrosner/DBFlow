@@ -41,22 +41,13 @@ public class ExistenceMethod implements MethodDefinition {
         }
 
         if (!tableDefinition.hasAutoIncrement() || !tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
-            CodeBlock.Builder selectBuilder = CodeBlock.builder();
-            java.util.List<ColumnDefinition> primaryDefinitionList = tableDefinition.getPrimaryColumnDefinitions();
-            for (int i = 0; i < primaryDefinitionList.size(); i++) {
-                ColumnDefinition columnDefinition = primaryDefinitionList.get(i);
-                if (i > 0) {
-                    selectBuilder.add(", ");
-                }
-                selectBuilder.add("$L.$L", tableDefinition.getPropertyClassName(), columnDefinition.columnName);
-            }
             if (tableDefinition.hasAutoIncrement()) {
                 methodBuilder.addCode(" && ");
             } else {
                 methodBuilder.addCode("return ");
             }
-            methodBuilder.addCode("new $T($L).from($T.class).where(getPrimaryConditionClause($L)).hasData()",
-                    ClassNames.SELECT, selectBuilder.build(), tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
+            methodBuilder.addCode("new $T($T.count()).from($T.class).where(getPrimaryConditionClause($L)).count() > 0",
+                    ClassNames.SELECT, ClassNames.METHOD, tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
         }
         methodBuilder.addCode(";\n");
 

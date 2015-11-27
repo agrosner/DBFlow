@@ -77,6 +77,7 @@ public class ClassNames {
     public static final ClassName SELECT = ClassName.get(LANGUAGE, "Select");
     public static final ClassName UPDATE = ClassName.get(LANGUAGE, "Update");
     public static final ClassName DELETE = ClassName.get(LANGUAGE, "Delete");
+    public static final ClassName METHOD = ClassName.get(LANGUAGE, "Method");
 
     public static final ClassName BASE_CONTENT_PROVIDER = ClassName.get(RUNTIME, "BaseContentProvider");
     public static final ClassName PROPERTY_CONVERTER = ClassName.get(RUNTIME + ".BaseContentProvider", "PropertyConverter");
