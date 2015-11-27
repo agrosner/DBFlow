@@ -485,6 +485,7 @@ public class TableDefinition extends BaseTableDefinition {
                         + databaseDefinition.classSeparator + "Helper";
                 ClassName className = ClassName.bestGuess(helperClassName);
                 if (PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
+
                     MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                             .addParameter(elementTypeName, ModelUtils.getVariable(false))

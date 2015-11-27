@@ -93,6 +93,7 @@ public class PackagePrivateAccess extends BaseColumnAccess {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
+            putElement(helperClassName, elementName);
             return CodeBlock.builder().add("$T.set$L($L, $L)", helperClassName,
                     StringUtils.capitalize(elementName), ModelUtils.getVariable(isModelContainerAdapter),
                     formattedAccess).build().toString();

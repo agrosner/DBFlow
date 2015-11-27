@@ -41,6 +41,16 @@ import javax.tools.Diagnostic;
  */
 public class ProcessorManager implements Handler {
 
+    private static ProcessorManager manager;
+
+    public static ProcessorManager getManager() {
+        return manager;
+    }
+
+    public static void setManager(ProcessorManager manager) {
+        ProcessorManager.manager = manager;
+    }
+
     private ProcessingEnvironment processingEnvironment;
     private List<TypeName> uniqueDatabases = Lists.newArrayList();
     private Map<TypeName, TypeName> modelToDatabaseMap = Maps.newHashMap();
@@ -53,6 +63,7 @@ public class ProcessorManager implements Handler {
 
     public ProcessorManager(ProcessingEnvironment processingEnv) {
         processingEnvironment = processingEnv;
+        setManager(this );
     }
 
     public void addHandlers(BaseContainerHandler... containerHandlers) {
