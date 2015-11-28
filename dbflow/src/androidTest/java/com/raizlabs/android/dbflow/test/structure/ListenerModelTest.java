@@ -22,12 +22,12 @@ public class ListenerModelTest extends FlowTestCase {
 
         ListenerModel listenerModel = new ListenerModel();
         listenerModel.name = "This is a test";
-        final boolean[] called = new boolean[]{false, false, false};
+        final boolean[] called = new boolean[]{false, false, false, false, false};
         listenerModel.registerListeners(
                 new SQLiteStatementListener() {
                     @Override
                     public void onBindToStatement(SQLiteStatement sqLiteStatement) {
-                        called[1] = true;
+                        called[0] = true;
                     }
 
                     @Override
@@ -43,13 +43,13 @@ public class ListenerModelTest extends FlowTestCase {
 
                     @Override
                     public void onBindToInsertValues(ContentValues contentValues) {
-                        called[2] = true;
+                        called[3] = true;
                     }
                 });
         listenerModel.registerLoadFromCursorListener(new LoadFromCursorListener() {
             @Override
             public void onLoadFromCursor(Cursor cursor) {
-                called[0] = true;
+                called[4] = true;
             }
         });
         listenerModel.insert();
