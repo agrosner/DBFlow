@@ -59,6 +59,16 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     @Override
+    public Condition like(String value) {
+        return column(getNameAlias()).like(value);
+    }
+
+    @Override
+    public Condition glob(String value) {
+        return column(getNameAlias()).glob(value);
+    }
+
+    @Override
     public Condition greaterThan(ITypeConditional conditional) {
         return column(getNameAlias()).greaterThan(conditional);
     }

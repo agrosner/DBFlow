@@ -36,6 +36,10 @@ public interface IConditional {
 
     Condition glob(BaseModelQueriable baseModelQueriable);
 
+    Condition like(String value);
+
+    Condition glob(String value);
+
     Condition greaterThan(ITypeConditional conditional);
 
     Condition greaterThan(BaseModelQueriable baseModelQueriable);
