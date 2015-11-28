@@ -153,7 +153,7 @@ public class DefinitionUtils {
     public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, String fullElementName,
                                                             TypeName elementTypeName, String columnName,
                                                             boolean isModelContainerAdapter, boolean putDefaultValue,
-                                                            BaseColumnAccess columnAccess) {
+                                                            BaseColumnAccess columnAccess, boolean implementsLoadFromCursorListener) {
         String method = getLoadFromCursorMethodString(elementTypeName, columnAccess);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -201,6 +201,10 @@ public class DefinitionUtils {
         }
 
         codeBuilder.endControlFlow();
+
+        if (implementsLoadFromCursorListener) {
+            codeBuilder.addStatement("((com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener) $L).onLoadFromCursor($L)", ModelUtils.getVariable(isModelContainerAdapter), LoadFromCursorMethod.PARAM_CURSOR);
+        }
 
         return codeBuilder;
     }

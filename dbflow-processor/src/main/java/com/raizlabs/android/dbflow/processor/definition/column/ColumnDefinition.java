@@ -267,7 +267,7 @@ public class ColumnDefinition extends BaseDefinition {
                 elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter), isPrimaryKeyAutoIncrement).build();
     }
 
-    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter) {
+    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter, boolean implementsLoadFromCursorListener) {
         boolean putDefaultValue = putNullForContainerAdapter;
         if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
             putDefaultValue = putContainerDefaultValue;
@@ -275,7 +275,7 @@ public class ColumnDefinition extends BaseDefinition {
             putDefaultValue = true;
         }
         return DefinitionUtils.getLoadFromCursorMethod(containerKeyName, elementName,
-                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
+                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess, implementsLoadFromCursorListener).build();
     }
 
     /**

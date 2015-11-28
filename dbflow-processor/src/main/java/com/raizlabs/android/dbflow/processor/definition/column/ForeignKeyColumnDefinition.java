@@ -249,9 +249,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter) {
+    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter, boolean implementsLoadFromCursorListener) {
         if (nonModelColumn) {
-            return super.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter);
+            return super.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter, implementsLoadFromCursorListener);
         } else {
             checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder()
