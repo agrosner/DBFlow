@@ -94,11 +94,15 @@ public class SqlUtils {
                 // Ensure that we aren't iterating over this cursor concurrently from different threads
                 if (cursor.moveToFirst()) {
                     do {
-                        Object id = instanceAdapter.getCachingIdFromCursorIndex(cursor,
-                                cursor.getColumnIndex(instanceAdapter.getCachingColumnName()));
+                        Object[] values = instanceAdapter.getCachingColumnValuesFromCursor(cursor);
+                        CacheableClass cacheable;
+                        if (values.length == 1) {
+                            // if it exists in cache no matter the query we will use that one
+                            cacheable = modelCache.get(values[0]);
+                        } else {
+                            cacheable = modelCache.get(instanceAdapter.getCacheConverter().getCachingKey(values));
+                        }
 
-                        // if it exists in cache no matter the query we will use that one
-                        CacheableClass cacheable = modelCache.get(id);
                         if (cacheable != null) {
                             entities.add(cacheable);
                         } else {
@@ -195,7 +199,7 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, ModelContainerClass extends ModelContainer<ModelClass, ?>>
     ModelContainerClass convertToModelContainer(boolean dontMoveToFirst, @NonNull Class<ModelClass> table,
-                                                          @NonNull Cursor cursor, @NonNull ModelContainerClass modelContainer) {
+                                                @NonNull Cursor cursor, @NonNull ModelContainerClass modelContainer) {
         try {
             if (dontMoveToFirst || cursor.moveToFirst()) {
                 ModelContainerAdapter modelAdapter = FlowManager.getContainerAdapter(table);
@@ -227,9 +231,14 @@ public class SqlUtils {
             ModelAdapter<CacheableClass> modelAdapter = FlowManager.getModelAdapter(table);
 
             if (modelAdapter != null) {
-                Object id = modelAdapter.getCachingIdFromCursorIndex(cursor,
-                        cursor.getColumnIndex(modelAdapter.getCachingColumnName()));
-                model = BaseCacheableModel.getCache(table).get(id);
+                ModelCache<CacheableClass, ?> modelCache = BaseCacheableModel.getCache(table);
+                Object[] values = modelAdapter.getCachingColumnValuesFromCursor(cursor);
+                if (values.length == 1) {
+                    // if it exists in cache no matter the query we will use that one
+                    model = modelCache.get(values[0]);
+                } else {
+                    model = modelCache.get(modelAdapter.getCacheConverter().getCachingKey(values));
+                }
                 if (model == null) {
                     model = modelAdapter.newInstance();
                     modelAdapter.loadFromCursor(cursor, model);
