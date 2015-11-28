@@ -29,7 +29,7 @@ public class ProcessorUtils {
             return false;
         } else {
             TypeMirror classMirror = typeElement.asType();
-            return processingEnvironment.getTypeUtils().isAssignable(element.asType(), classMirror);
+            return classMirror != null && element != null && element.asType() != null && processingEnvironment.getTypeUtils().isAssignable(element.asType(), classMirror);
         }
     }
 
