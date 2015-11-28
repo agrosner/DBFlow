@@ -48,6 +48,12 @@ public @interface Table {
     boolean useIsForPrivateBooleans() default false;
 
     /**
+     * @return If true, caching mechanism is enabled. This works for single primary key tables. For
+     * multi-primary key tables, IMultiKeyCacheModel interface is required to specify the caching key.
+     */
+    boolean cachingEnabled() default false;
+
+    /**
      * @return Declares a set of UNIQUE columns with the corresponding {@link ConflictAction}. A {@link Column}
      * will point to this group using {@link Unique#uniqueGroups()}
      */

@@ -17,6 +17,7 @@ import java.util.Map;
  * primary key. The corresponding {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
  * describes how to retrieve the Id field so that is why its required.
  */
+@Deprecated
 public abstract class BaseCacheableModel extends BaseModel implements LoadFromCursorListener {
 
     public static final int DEFAULT_CACHE_SIZE = 1000;
