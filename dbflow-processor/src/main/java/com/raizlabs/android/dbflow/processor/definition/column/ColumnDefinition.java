@@ -51,6 +51,7 @@ public class ColumnDefinition extends BaseDefinition {
 
     public String containerKeyName;
     public boolean putContainerDefaultValue;
+    public boolean excludeFromToModelMethod;
 
     public boolean hasTypeConverter;
     public boolean isPrimaryKey;
@@ -86,6 +87,7 @@ public class ColumnDefinition extends BaseDefinition {
             length = column.length();
             collate = column.collate();
             defaultValue = column.defaultValue();
+            excludeFromToModelMethod = column.excludeFromToModelMethod();
         } else {
             this.columnName = element.getSimpleName()
                     .toString();

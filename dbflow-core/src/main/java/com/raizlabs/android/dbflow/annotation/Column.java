@@ -48,6 +48,12 @@ public @interface Column {
     String setterName() default "";
 
     /**
+     * @return If true, this column does not get altered or referenced during toModel() method parse from
+     * ModelContainer into Model.
+     */
+    boolean excludeFromToModelMethod() default false;
+
+    /**
      * @return A custom type converter that's only used for this field. It will be created and used in
      * the Adapter associated with this table.
      */

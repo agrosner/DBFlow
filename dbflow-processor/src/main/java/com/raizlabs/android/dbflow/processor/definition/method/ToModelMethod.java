@@ -30,7 +30,9 @@ public class ToModelMethod implements MethodDefinition {
                 .addStatement("$T $L = new $T()", tableDefinition.elementClassName, ModelUtils.getVariable(false),
                         tableDefinition.elementClassName);
         for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
-            codeBuilder.add(columnDefinition.getToModelMethod());
+            if (!columnDefinition.excludeFromToModelMethod) {
+                codeBuilder.add(columnDefinition.getToModelMethod());
+            }
         }
         for (ContainerKeyDefinition containerKeyDefinition : tableDefinition.containerKeyDefinitions) {
             codeBuilder.add(containerKeyDefinition.getToModelMethod());
