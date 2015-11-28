@@ -74,7 +74,7 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
     }
 
     public Condition glob(float value) {
-        return column(nameAlias).glob(value);
+        return column(nameAlias).glob(String.valueOf(value));
     }
 
     public Condition greaterThan(float value) {

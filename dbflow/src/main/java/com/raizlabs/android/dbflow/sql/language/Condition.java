@@ -125,7 +125,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @return This condition
      */
     @Override
-    public Condition glob(Object value) {
+    public Condition glob(String value) {
         operation = String.format(" %1s ", Operation.GLOB);
         return value(value);
     }
@@ -290,7 +290,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     @Override
     public Condition glob(ITypeConditional conditional) {
-        return glob((Object) conditional);
+        return glob(conditional.getQuery());
     }
 
     @Override
@@ -360,7 +360,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     @Override
     public Condition glob(BaseModelQueriable baseModelQueriable) {
-        return glob((Object) baseModelQueriable);
+        return glob(baseModelQueriable.getQuery());
     }
 
     @Override

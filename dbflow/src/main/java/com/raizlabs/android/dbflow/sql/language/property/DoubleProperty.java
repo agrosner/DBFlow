@@ -74,7 +74,7 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
     }
 
     public Condition glob(double value) {
-        return column(nameAlias).glob(value);
+        return column(nameAlias).glob(String.valueOf(value));
     }
 
     public Condition greaterThan(double value) {

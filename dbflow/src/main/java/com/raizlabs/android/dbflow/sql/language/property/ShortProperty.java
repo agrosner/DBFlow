@@ -74,7 +74,7 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
     }
 
     public Condition glob(short value) {
-        return column(nameAlias).glob(value);
+        return column(nameAlias).glob(String.valueOf(value));
     }
 
     public Condition greaterThan(short value) {

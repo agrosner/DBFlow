@@ -74,7 +74,7 @@ public class LongProperty extends BaseProperty<LongProperty> {
     }
 
     public Condition glob(long value) {
-        return column(nameAlias).glob(value);
+        return column(nameAlias).glob(String.valueOf(value));
     }
 
     public Condition greaterThan(long value) {

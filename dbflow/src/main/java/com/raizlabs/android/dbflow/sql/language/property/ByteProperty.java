@@ -74,7 +74,7 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
     }
 
     public Condition glob(byte value) {
-        return column(nameAlias).glob(value);
+        return column(nameAlias).glob(String.valueOf(value));
     }
 
     public Condition greaterThan(byte value) {

@@ -74,7 +74,7 @@ public class IntProperty extends BaseProperty<IntProperty> {
     }
 
     public Condition glob(int value) {
-        return column(nameAlias).glob(value);
+        return column(nameAlias).glob(String.valueOf(value));
     }
 
     public Condition greaterThan(int value) {

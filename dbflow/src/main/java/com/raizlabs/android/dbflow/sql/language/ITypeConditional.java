@@ -19,7 +19,7 @@ public interface ITypeConditional<ValueType> extends Query, IConditional {
 
     Condition like(String value);
 
-    Condition glob(ValueType value);
+    Condition glob(String value);
 
     Condition greaterThan(ValueType value);
 

@@ -71,7 +71,7 @@ public class CharProperty extends BaseProperty<CharProperty> {
     }
 
     public Condition glob(char value) {
-        return column(nameAlias).glob(value);
+        return column(nameAlias).glob(String.valueOf(value));
     }
 
     public Condition greaterThan(char value) {

@@ -97,7 +97,7 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
     }
 
     @Override
-    public Condition glob(T value) {
+    public Condition glob(String value) {
         return column(getNameAlias()).glob(value);
     }
 
