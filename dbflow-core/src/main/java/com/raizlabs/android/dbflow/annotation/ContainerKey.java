@@ -25,4 +25,9 @@ public @interface ContainerKey {
      * @return True if you want to place a default value for the column when loading from the Cursor.
      */
     boolean putDefault() default true;
+
+    /**
+     * @return True if you want to mark this field for parsing within {@link ModelContainer}, but not for db operations.
+     */
+    boolean parseOnly() default false;
 }

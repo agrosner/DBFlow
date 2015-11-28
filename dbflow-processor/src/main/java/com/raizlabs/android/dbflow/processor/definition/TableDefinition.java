@@ -99,7 +99,6 @@ public class TableDefinition extends BaseTableDefinition {
     public boolean useIsForPrivateBooleans;
 
     public final Map<String, ColumnDefinition> mColumnMap = Maps.newHashMap();
-    private final List<ColumnDefinition> packagePrivateList = Lists.newArrayList();
 
     public Map<Integer, List<ColumnDefinition>> columnUniqueMap = Maps.newHashMap();
 
@@ -472,55 +471,5 @@ public class TableDefinition extends BaseTableDefinition {
         JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
         javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
 
-    }
-
-    public void writePackageHelper(ProcessingEnvironment processingEnvironment) throws IOException {
-        int count = 0;
-        if (!packagePrivateList.isEmpty()) {
-            TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(elementClassName.simpleName() + databaseDefinition.classSeparator + "Helper")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-
-            for (ColumnDefinition columnDefinition : packagePrivateList) {
-                String helperClassName = manager.getElements().getPackageOf(columnDefinition.element).toString() + "." + ClassName.get((TypeElement) columnDefinition.element.getEnclosingElement()).simpleName()
-                        + databaseDefinition.classSeparator + "Helper";
-                ClassName className = ClassName.bestGuess(helperClassName);
-                if (PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
-
-                    MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
-                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.getVariable(false))
-                            .returns(columnDefinition.elementTypeName);
-                    boolean samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element);
-
-                    if (samePackage) {
-                        method.addStatement("return $L.$L", ModelUtils.getVariable(false), columnDefinition.elementName);
-                    } else {
-                        method.addStatement("return $T.get$L($L)", className, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false));
-                    }
-
-                    typeBuilder.addMethod(method.build());
-
-                    method = MethodSpec.methodBuilder("set" + StringUtils.capitalize(columnDefinition.columnName))
-                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.getVariable(false))
-                            .addParameter(columnDefinition.elementTypeName, "var");
-
-                    if (samePackage) {
-                        method.addStatement("$L.$L = $L", ModelUtils.getVariable(false), columnDefinition.elementName, "var");
-                    } else {
-
-                        method.addStatement("$T.set$L($L, $L)", className, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false), "var");
-                    }
-                    typeBuilder.addMethod(method.build());
-                    count++;
-                }
-            }
-
-            // only write class if we have referenced fields.
-            if (count > 0) {
-                JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
-                javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
-            }
-        }
     }
 }

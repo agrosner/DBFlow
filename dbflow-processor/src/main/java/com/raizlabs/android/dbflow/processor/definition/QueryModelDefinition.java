@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.CustomTypeConvert
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -97,7 +98,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
     @Override
     protected void createColumnDefinitions(TypeElement typeElement) {
-        List<? extends Element> variableElements = manager.getElements().getAllMembers(typeElement);
+        List<? extends Element> variableElements = ElementUtility.getAllElements(typeElement, manager);
         ColumnValidator columnValidator = new ColumnValidator();
         for (Element variableElement : variableElements) {
 
@@ -108,9 +109,18 @@ public class QueryModelDefinition extends BaseTableDefinition {
                     !variableElement.getModifiers().contains(Modifier.FINAL));
 
             if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
-                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this, false);
+
+                // package private, will generate helper
+                boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
+                boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
+
+                ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage);
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
+
+                    if (isPackagePrivate) {
+                        packagePrivateList.add(columnDefinition);
+                    }
                 }
             }
         }
