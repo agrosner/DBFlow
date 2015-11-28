@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -110,7 +109,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @return This condition
      */
     @Override
-    public Condition like(Object value) {
+    public Condition like(String value) {
         operation = String.format(" %1s ", Operation.LIKE);
         return value(value);
     }
@@ -286,7 +285,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     @Override
     public Condition like(ITypeConditional conditional) {
-        return like((Object) conditional);
+        return like(conditional.getQuery());
     }
 
     @Override
@@ -356,7 +355,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     @Override
     public Condition like(BaseModelQueriable baseModelQueriable) {
-        return like((Object) baseModelQueriable);
+        return like(baseModelQueriable.getQuery());
     }
 
     @Override

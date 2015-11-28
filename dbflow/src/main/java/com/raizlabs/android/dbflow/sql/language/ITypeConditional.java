@@ -17,7 +17,7 @@ public interface ITypeConditional<ValueType> extends Query, IConditional {
 
     Condition notEq(ValueType value);
 
-    Condition like(ValueType value);
+    Condition like(String value);
 
     Condition glob(ValueType value);
 

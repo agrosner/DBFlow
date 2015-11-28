@@ -70,7 +70,7 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
     }
 
     public Condition like(double value) {
-        return column(nameAlias).like(value);
+        return column(nameAlias).like(String.valueOf(value));
     }
 
     public Condition glob(double value) {

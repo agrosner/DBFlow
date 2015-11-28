@@ -70,7 +70,7 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
     }
 
     public Condition like(short value) {
-        return column(nameAlias).like(value);
+        return column(nameAlias).like(String.valueOf(value));
     }
 
     public Condition glob(short value) {
