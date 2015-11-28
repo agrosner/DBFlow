@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
@@ -33,5 +34,11 @@ public class AModel extends BaseModel {
 
     @Column
     Date date;
+
+    @ContainerKey
+    String parseOnly;
+
+    @ContainerKey
+    long parseOnly2;
 
 }

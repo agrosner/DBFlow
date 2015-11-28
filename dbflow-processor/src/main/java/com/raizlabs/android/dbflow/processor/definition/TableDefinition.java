@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
@@ -13,9 +14,9 @@ import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ContainerKeyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
-import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateAccess;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.CreationQueryMethod;
@@ -30,7 +31,6 @@ import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionM
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -103,6 +103,7 @@ public class TableDefinition extends BaseTableDefinition {
     public Map<Integer, List<ColumnDefinition>> columnUniqueMap = Maps.newHashMap();
 
     public List<OneToManyDefinition> oneToManyDefinitions = new ArrayList<>();
+    public List<ContainerKeyDefinition> containerKeyDefinitions = new ArrayList<>();
 
     public Map<String, InheritedColumn> inheritedColumnMap = new HashMap<>();
 
@@ -260,11 +261,13 @@ public class TableDefinition extends BaseTableDefinition {
                     !element.getModifiers().contains(Modifier.STATIC) &&
                     !element.getModifiers().contains(Modifier.PRIVATE) &&
                     !element.getModifiers().contains(Modifier.FINAL)));
+
+            // package private, will generate helper
+            boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
+            boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
+
             if (element.getAnnotation(Column.class) != null || isValidColumn) {
 
-                // package private, will generate helper
-                boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
-                boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
 
                 ColumnDefinition columnDefinition;
                 if (element.getAnnotation(ForeignKey.class) != null) {
@@ -307,6 +310,9 @@ public class TableDefinition extends BaseTableDefinition {
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition);
                 }
+            } else if (element.getAnnotation(ContainerKey.class) != null) {
+                ContainerKeyDefinition containerKeyDefinition = new ContainerKeyDefinition(element, manager, this, isPackagePrivateNotInSamePackage);
+                containerKeyDefinitions.add(containerKeyDefinition);
             }
         }
 

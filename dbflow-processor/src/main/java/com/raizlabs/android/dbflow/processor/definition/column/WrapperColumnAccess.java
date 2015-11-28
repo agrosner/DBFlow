@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 /**
  * Description:
  */
-abstract class WrapperColumnAccess extends BaseColumnAccess {
+public abstract class WrapperColumnAccess extends BaseColumnAccess {
 
     protected ColumnDefinition columnDefinition;
     protected BaseColumnAccess existingColumnAccess;

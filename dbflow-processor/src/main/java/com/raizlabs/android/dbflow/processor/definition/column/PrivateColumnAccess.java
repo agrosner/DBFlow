@@ -28,6 +28,10 @@ public class PrivateColumnAccess extends BaseColumnAccess {
         this.useIsForGetter = false;
     }
 
+    public PrivateColumnAccess(boolean useIsForGetter) {
+        this.useIsForGetter = useIsForGetter;
+    }
+
     @Override
     public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (!isModelContainerAdapter) {

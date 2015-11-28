@@ -22,12 +22,8 @@ public @interface ContainerKey {
     String value() default "";
 
     /**
-     * @return True if you want to place a default value for the column when loading from the Cursor.
+     * @return True if you want to place a default value for the column when loading from the Cursor. Only
+     * valid for {@link Column} annotated fields.
      */
     boolean putDefault() default true;
-
-    /**
-     * @return True if you want to mark this field for parsing within {@link ModelContainer}, but not for db operations.
-     */
-    boolean parseOnly() default false;
 }
