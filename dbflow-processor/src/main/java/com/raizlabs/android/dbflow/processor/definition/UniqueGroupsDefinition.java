@@ -3,6 +3,8 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyReferenceDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.CodeBlock;
@@ -41,7 +43,13 @@ public class UniqueGroupsDefinition {
             if (count > 0) {
                 codeBuilder.add(",");
             }
-            codeBuilder.add(QueryBuilder.quote(columnDefinition.columnName));
+            if (columnDefinition instanceof ForeignKeyColumnDefinition) {
+                for (ForeignKeyReferenceDefinition reference : ((ForeignKeyColumnDefinition) columnDefinition).getForeignKeyReferenceDefinitionList()) {
+                    codeBuilder.add(QueryBuilder.quote(reference.columnName));
+                }
+            } else {
+                codeBuilder.add(QueryBuilder.quote(columnDefinition.columnName));
+            }
             count++;
         }
         codeBuilder.add(") ON CONFLICT $L", uniqueConflict);

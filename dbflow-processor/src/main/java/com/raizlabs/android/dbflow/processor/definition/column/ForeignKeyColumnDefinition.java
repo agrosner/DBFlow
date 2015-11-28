@@ -380,6 +380,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         return "ref" + elementName;
     }
 
+    public List<ForeignKeyReferenceDefinition> getForeignKeyReferenceDefinitionList() {
+        checkNeedsReferences();
+        return foreignKeyReferenceDefinitionList;
+    }
+
     /**
      * If {@link ForeignKey} has no {@link ForeignKeyReference}s, we use the primary key the referenced
      * table. We do this post-evaluation so all of the {@link TableDefinition} can be generated.
