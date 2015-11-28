@@ -280,11 +280,13 @@ public class TableDefinition extends BaseTableDefinition {
                     mColumnMap.put(columnDefinition.columnName, columnDefinition);
                     if (columnDefinition.isPrimaryKey) {
                         primaryColumnDefinitions.add(columnDefinition);
-                    } else if (columnDefinition instanceof ForeignKeyColumnDefinition) {
-                        foreignKeyDefinitions.add((ForeignKeyColumnDefinition) columnDefinition);
                     } else if (columnDefinition.isPrimaryKeyAutoIncrement) {
                         autoIncrementDefinition = columnDefinition;
                         hasAutoIncrement = true;
+                    }
+
+                    if (columnDefinition instanceof ForeignKeyColumnDefinition) {
+                        foreignKeyDefinitions.add((ForeignKeyColumnDefinition) columnDefinition);
                     }
 
                     if (!columnDefinition.uniqueGroups.isEmpty()) {

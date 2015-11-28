@@ -44,7 +44,11 @@ public class ForeignKeyReferenceDefinition {
         this.tableColumnAccess = tableColumnAccess;
         this.foreignKeyFieldName = foreignKeyFieldName;
 
-        columnName = foreignKeyFieldName + "_" + referencedColumn.columnName;
+        if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement) {
+            columnName = foreignKeyFieldName + "_" + referencedColumn.columnName;
+        } else {
+            columnName = foreignKeyFieldName;
+        }
         foreignColumnName = referencedColumn.columnName;
         columnClassName = referencedColumn.elementTypeName;
 

@@ -46,26 +46,11 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                         columnDefinition.elementTypeName);
             }
 
-            //if (references != null && references.size() > 1 &&
-            //        (!columnDefinition.isModel && !columnDefinition.fieldIsModelContainer)) {
-            //    success = false;
-            //    processorManager.logError(
-            //            "Foreign key %1s cannot specify more than 1 reference for a non-model field. Column: %1s and type: %1s",
-            //            columnDefinition.columnFieldName, columnDefinition.columnName,
-            //            columnDefinition.columnFieldType);
-            //}
-
         } else {
             if (autoIncrementingPrimaryKey != null && columnDefinition.isPrimaryKey) {
                 processorManager.logError("You cannot mix and match autoincrementing and composite primary keys.");
                 success = false;
             }
-
-            //if (columnDefinition.isModel) {
-            //    processorManager.logError("Primary keys cannot be Model objects for Column: %1s and type: %1s",
-            //            columnDefinition.columnName, columnDefinition.columnFieldType);
-            //    success = false;
-            //}
 
             if (columnDefinition.isPrimaryKeyAutoIncrement) {
                 if (autoIncrementingPrimaryKey == null) {
@@ -78,12 +63,6 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                 }
             }
         }
-
-        //if (!(columnDefinition instanceof ForeignKeyColumnDefinition)  && (columnDefinition.isModel || columnDefinition.fieldIsModelContainer)) {
-        //    processorManager.logError(
-        //            "A Model or ModelContainer field must be a @ForeignKeyReference. Found Column: %1s and type: %1s",
-        //            columnDefinition.columnName, columnDefinition.columnFieldType);
-        //}
 
         return success;
     }
