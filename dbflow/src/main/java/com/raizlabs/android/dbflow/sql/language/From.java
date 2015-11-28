@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
@@ -72,10 +73,43 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @param joinType The type of join to use
      * @return The join contained in this FROM statement
      */
-    public <JoinType extends Model> Join<JoinType, ModelClass> join(Class<JoinType> table, Join.JoinType joinType) {
+    public <JoinType extends Model> Join<JoinType, ModelClass> join(Class<JoinType> table, @NonNull Join.JoinType joinType) {
         Join<JoinType, ModelClass> join = new Join<>(this, table, joinType);
         joins.add(join);
         return join;
+    }
+
+    /**
+     * Adds a {@link Join.JoinType#CROSS} join on a specific table for this query.
+     *
+     * @param table       The table to join on.
+     * @param <JoinClass> The class of the join table.
+     * @return The join contained in this FROM statement.
+     */
+    public <JoinClass extends Model> Join<JoinClass, ModelClass> crossJoin(Class<JoinClass> table) {
+        return join(table, Join.JoinType.CROSS);
+    }
+
+    /**
+     * Adds a {@link Join.JoinType#INNER} join on a specific table for this query.
+     *
+     * @param table       The table to join on.
+     * @param <JoinClass> The class of the join table.
+     * @return The join contained in this FROM statement.
+     */
+    public <JoinClass extends Model> Join<JoinClass, ModelClass> innerJoin(Class<JoinClass> table) {
+        return join(table, Join.JoinType.INNER);
+    }
+
+    /**
+     * Adds a {@link Join.JoinType#LEFT_OUTER} join on a specific table for this query.
+     *
+     * @param table       The table to join on.
+     * @param <JoinClass> The class of the join table.
+     * @return The join contained in this FROM statement.
+     */
+    public <JoinClass extends Model> Join<JoinClass, ModelClass> leftOuterJoin(Class<JoinClass> table) {
+        return join(table, Join.JoinType.LEFT_OUTER);
     }
 
     /**

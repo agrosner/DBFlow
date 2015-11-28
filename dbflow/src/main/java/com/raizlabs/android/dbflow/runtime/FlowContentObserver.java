@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -52,9 +54,8 @@ public class FlowContentObserver extends ContentObserver {
     }
 
     /**
-     * Called when the {@link FlowContentObserver} receives a URI from a model change event. This event
-     * is generalized to not include specific model keys. To get more specific events, register a
-     * {@link OnSpecificModelStateChangedListener}.
+     * Listens for specific model changes. This is only available in {@link VERSION_CODES#JELLY_BEAN}
+     * or higher due to the api of {@link ContentObserver}.
      */
     public interface OnModelStateChangedListener {
 
@@ -62,37 +63,17 @@ public class FlowContentObserver extends ContentObserver {
          * Notifies that the state of a {@link Model}
          * has changed for the table this is registered for.
          *
-         * @param table  The table that this change occurred on. This is ONLY available on {@link VERSION_CODES#JELLY_BEAN}
-         *               and up.
-         * @param action The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
-         *               the {@link Action#CHANGE} will always be called for any action.
+         * @param table            The table that this change occurred on. This is ONLY available on {@link VERSION_CODES#JELLY_BEAN}
+         *                         and up.
+         * @param action           The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
+         *                         the {@link Action#CHANGE} will always be called for any action.
+         * @param primaryKeyValues The array of primary {@link SQLCondition} of what changed. Call {@link SQLCondition#columnName()}
+         *                         and {@link SQLCondition#value()} to get each information.
          */
-        void onModelStateChanged(Class<? extends Model> table, Action action);
-    }
-
-    /**
-     * Listens for specific model changes. This is only available in {@link VERSION_CODES#JELLY_BEAN}
-     * or higher due to the api of {@link ContentObserver}.
-     */
-    @TargetApi(VERSION_CODES.JELLY_BEAN)
-    public interface OnSpecificModelStateChangedListener {
-
-        /**
-         * Notifies that the state of a {@link Model}
-         * has changed for the table this is registered for.
-         *
-         * @param table         The table that this change occurred on. This is ONLY available on {@link VERSION_CODES#JELLY_BEAN}
-         *                      and up.
-         * @param action        The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
-         *                      the {@link Action#CHANGE} will always be called for any action.
-         * @param sqlConditions The array of primary {@link SQLCondition} of what changed. Call {@link SQLCondition#columnName()}
-         *                      and {@link SQLCondition#value()} to get each information.
-         */
-        void onModelStateChanged(Class<? extends Model> table, Action action, SQLCondition[] sqlConditions);
+        void onModelStateChanged(@Nullable Class<? extends Model> table, Action action, @NonNull SQLCondition[] primaryKeyValues);
     }
 
     private final List<OnModelStateChangedListener> modelChangeListeners = new ArrayList<>();
-    private final List<OnSpecificModelStateChangedListener> specificModelChangeListeners = new ArrayList<>();
     private final Map<String, Class<? extends Model>> registeredTables = new HashMap<>();
     private final Set<Uri> notificationUris = new HashSet<>();
 
@@ -167,24 +148,6 @@ public class FlowContentObserver extends ContentObserver {
     }
 
     /**
-     * Add a specific listener for model changes
-     *
-     * @param modelChangeListener Listens for specific model change events.
-     */
-    public void addSpecificModelChangeListener(OnSpecificModelStateChangedListener modelChangeListener) {
-        specificModelChangeListeners.add(modelChangeListener);
-    }
-
-    /**
-     * Removes a specific listener for model changes
-     *
-     * @param modelChangeListener Listens for specific model change events.
-     */
-    public void removeSpecificModelChangeListener(OnSpecificModelStateChangedListener modelChangeListener) {
-        specificModelChangeListeners.remove(modelChangeListener);
-    }
-
-    /**
      * Registers the observer for model change events for specific class.
      */
     public void registerForContentChanges(Context context, Class<? extends Model> table) {
@@ -209,7 +172,7 @@ public class FlowContentObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange) {
         for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
-            modelChangeListener.onModelStateChanged(null, Action.CHANGE);
+            modelChangeListener.onModelStateChanged(null, Action.CHANGE, new SQLCondition[0]);
         }
     }
 
@@ -219,8 +182,8 @@ public class FlowContentObserver extends ContentObserver {
         String fragment = uri.getFragment();
         String tableName = uri.getAuthority();
 
-        String columnName = null;
-        String param = null;
+        String columnName;
+        String param;
 
         Set<String> queryNames = uri.getQueryParameterNames();
         SQLCondition[] columnsChanged = new SQLCondition[queryNames.size()];
@@ -240,13 +203,7 @@ public class FlowContentObserver extends ContentObserver {
             Action action = Action.valueOf(fragment);
             if (action != null) {
                 for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
-                    modelChangeListener.onModelStateChanged(table, action);
-                }
-
-                if (columnName != null && param != null) {
-                    for (OnSpecificModelStateChangedListener modelChangeListener : specificModelChangeListeners) {
-                        modelChangeListener.onModelStateChanged(table, action, columnsChanged);
-                    }
+                    modelChangeListener.onModelStateChanged(table, action, columnsChanged);
                 }
             }
         } else {

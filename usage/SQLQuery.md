@@ -1,5 +1,5 @@
 # SQL Statements Using the Wrapper Classes
-In SQL with Android, writing SQL is not that _fun_, so to make it easy and useful,  this library provides a comprehensive set of SQLite statement wrappers.
+In SQL with Android, writing SQL is not that _fun_, so to make it easy and useful,  this library provides a comprehensive set of SQLite statement wrappers that attempt to make the java code as similar to SQLite as possible.
 
 In the first section I describe how using the wrapper classes drastically simplify code writing.
 
@@ -51,13 +51,12 @@ List<Ant> devices = SQLite.select().from(Ant.class)
   .where(Ant_Table.type.eq("worker"))
   .and(Ant_Table.isMale.eq(false)).queryList();
 
-// Async Transaction Queue Retrieval (Recommended)
-TransactionManager.getInstance().addTransaction(new SelectListTransaction<>(
+// Async Transaction Queue Retrieval (Recommended for large queries)
   SQLite.select()
   .from(DeviceObject.class)
   .where(Ant_Table.type.eq("worker"))
-  .and(Ant_Table.isMale.eq(false)),
-  transactionListener);
+  .and(Ant_Table.isMale.eq(false))
+  .async().queryList(transactionListener);
 ```
 
 There are many kinds of queries that are supported in DBFlow including:
@@ -93,9 +92,9 @@ SQLite.select().from(SomeTable.class).where(conditions).queryModelContainer(new 
 // SELECT methods
 SQLite.select().distinct().from(table).queryList();
 SQLite.select().from(table).queryList();
-SQLite.select(Method.avg(SomeTable_Table.SALARY))
+SQLite.select(Method.avg(SomeTable_Table.salary))
   .from(SomeTable.class).queryList();
-SQLite.select(Method.max(SomeTable_Table.SALARY))
+SQLite.select(Method.max(SomeTable_Table.salary))
   .from(SomeTable.class).queryList();
 
 // Transact a query on the DBTransactionQueue
@@ -108,7 +107,7 @@ TransactionManager.getInstance().addTransaction(
 });
 
 // Selects Count of Rows for the SELECT statment
-long count = SQLite.select(Method.count())
+long count = SQLite.selectCountOf()
   .where(conditions).count();
 ```
 
@@ -174,7 +173,7 @@ Using DBFlow:
 ```java
 
 // Native SQL wrapper
-Where update = SQLite.update(Ant.class)
+Where<Ant> update = SQLite.update(Ant.class)
   .set(Ant_Table.type.eq("other"))
   .where(Ant_Table.type.is("worker"))
     .and(Ant_Table.isMale.is(true));
@@ -202,16 +201,40 @@ SQLite.delete(MyTable.class)
 ```
 
 ## JOIN statements
+For reference, ([JOIN examples](http://www.tutorialspoint.com/sqlite/sqlite_using_joins.htm)).
+
 `JOIN` statements are great for combining many-to-many relationships.
 
 For example we have a table named `Customer` and another named `Reservations`.
 
-`acaac
+```SQL
+SELECT FROM `Customer` AS `C` INNER JOIN `Reservations` AS `R` ON `C`.`customerId`=`R`.`customerId`
+```
 
+```java
 // use the different QueryModel (instead of Table) if the result cannot be applied to existing Model classes.
-List<CustomTable> customers = new Select()
-  .from(Customer.class).as("C")
-  .join(Reservations.class, JoinType.INNER).as("R")
-    .on(Condition.column(ColumnAlias.columnTable("C", Customer$Table.CUSTOMER_ID)
-      .eq(ColumnAlias.columnTable("R", Reservations$Table.CUSTOMER_ID)).queryCustomList(CustomTable.class);
+List<CustomTable> customers = new Select()   
+  .from(Customer.class).as("C")   
+  .join(Reservations.class, JoinType.INNER).as("R")    
+  .on(Customer_Table.customerId
+      .withTable(new NameAlias("C"))
+    .eq(Reservations_Table.customerId.withTable("R"))
+    .queryCustomList(CustomTable.class);
+```
+
+The `IProperty.withTable()` method will prepend a `NameAlias` or the `Table` alias  to the `IProperty` in the query, convenient for JOIN queries:
+
+```sqlite
+SELECT EMP_ID, NAME, DEPT FROM COMPANY LEFT OUTER JOIN DEPARTMENT
+      ON COMPANY.ID = DEPARTMENT.EMP_ID
+```
+
+in DBFlow:
+
+```java
+SQLite.select(Company_Table.EMP_ID, Company_Table.DEPT)
+  .from(Company.class)
+  .leftOuterJoin(Department.class)
+  .on(Company_Table.ID.withTable().eq(Department_Table.EMP_ID.withTable()))
+  .queryList();
 ```

@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -20,12 +22,30 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      */
     public enum JoinType {
 
-        LEFT,
+        /**
+         * an extension of the INNER JOIN. Though SQL standard defines three types of OUTER JOINs: LEFT, RIGHT,
+         * and FULL but SQLite only supports the LEFT OUTER JOIN.
+         * <p/>
+         * The OUTER JOINs have a condition that is identical to INNER JOINs, expressed using an ON, USING, or NATURAL keyword.
+         * The initial results table is calculated the same way. Once the primary JOIN is calculated,
+         * an OUTER join will take any unjoined rows from one or both tables, pad them out with NULLs,
+         * and append them to the resulting table.
+         */
+        LEFT_OUTER,
 
-        OUTER,
-
+        /**
+         * creates a new result table by combining column values of two tables (table1 and table2) based upon the join-predicate.
+         * The query compares each row of table1 with each row of table2 to find all pairs of rows which satisfy the join-predicate.
+         * When the join-predicate is satisfied, column values for each matched pair of rows of A and B are combined into a result row
+         */
         INNER,
 
+        /**
+         * matches every row of the first table with every row of the second table. If the input tables
+         * have x and y columns, respectively, the resulting table will have x*y columns.
+         * Because CROSS JOINs have the potential to generate extremely large tables,
+         * care must be taken to only use them when appropriate.
+         */
         CROSS,
     }
 
@@ -64,7 +84,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      */
     private boolean isNatural = false;
 
-    Join(From<FromClass> from, Class<ModelClass> table, JoinType joinType) {
+    Join(From<FromClass> from, Class<ModelClass> table, @NonNull JoinType joinType) {
         this.from = from;
         this.table = table;
         type = joinType;
@@ -123,7 +143,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
             queryBuilder.append("NATURAL ");
         }
 
-        queryBuilder.append(type.toString()).appendSpace();
+        queryBuilder.append(type.name().replace("_", "")).appendSpace();
 
         queryBuilder.append("JOIN")
                 .appendSpace()

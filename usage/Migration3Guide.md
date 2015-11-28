@@ -5,7 +5,8 @@ A significant portion of the changes include the _complete_ overhaul of the unde
 
 _note:_
 1. `update` no longer attempts to `insert` if it fails.
-2. Package private fields from other packages are now automatically accessible via generated `_Helper` classes. The referenced fields must be annotated with `@Column`. if its a legacy `ForeignKeyReference`, `referendFieldIsPackagePrivate()` must be set to true.
+2. Package private fields from other packages are now automatically accessible via generated `_Helper` classes. The referenced fields must be annotated with `@Column`, `@PrimaryKey`, or `@ForeignKey`. if its a legacy `ForeignKeyReference`, `referendFieldIsPackagePrivate()` must be set to true.
+3. `@Column` no longer required in conjunction with `@PrimaryKey` or `@ForeignKey`
 
 ## Table Of Contents
 1. Database + Table Structure
@@ -135,7 +136,6 @@ public class IndexModel2 extends BaseModel {
 
     @Index(indexGroups = {1, 2, 3})
     @PrimaryKey
-    @Column
     int id;
 
     @Index(indexGroups = 1)
@@ -170,7 +170,7 @@ public final class IndexModel2_Table {
 ```
 
 ### Foreign Key Changes
-`@ForeignKey` fields no longer need to specify it's references!!! The old way still works, but is no longer necessary for `Model`-based ForeignKeys. The annotation processor takes the primary keys of the referenced table and generates a column with {fieldName}_{referencedColumnName} that represents the same SQLite Type of the field.<br>_Note: that is not backwards compatible_ with apps already with references.
+`@ForeignKey` fields no longer need to specify it's references or the `@Column` annotation!!! The old way still works, but is no longer necessary for `Model`-based ForeignKeys. The annotation processor takes the primary keys of the referenced table and generates a column with {fieldName}_{referencedColumnName} that represents the same SQLite Type of the field.<br>_Note: that is not backwards compatible_ with apps already with references.
 
 Going forward with new tables, you can leave them out.
 
@@ -202,7 +202,6 @@ Now:
 @Table(database = TestDatabase.class)
 public class ForeignInteractionModel extends TestModel1 {
 
-    @Column
     @ForeignKey(
             onDelete = ForeignKeyAction.CASCADE,
             onUpdate = ForeignKeyAction.CASCADE,
@@ -223,9 +222,18 @@ Properties replace `String` column names generated in the "$Table" classes. They
 
 Properties are represented by the interface `IProperty` which are subclassed into `Property<T>`, `Method`, and the primitive properties (`IntProperty`, `CharProperty`, etc).
 
+Properties can also be represented by values via the `PropertyFactory` class, enabling  values to appear first in queries:
+
+```java
+PropertyFactory.from(5l) // generates LongProperty
+PropertyFactory.from(5d) // generates DoubleProperty
+PropertyFactory.from("Hello") // generates Property<String>
+PropertyFactory.from(Date.class, someDate) // generates Property<Date>
+```
+
 It will become apparent why this change was necessary with some examples:
 
-A relatively simple query by SQLite standards:
+A non-simple query by SQLite standards:
 
 ```sql
 SELECT `name` AS `employee_name`, AVG(`salary`) AS `average_salary`, `order`, SUM(`salary`) as `sum_salary`
@@ -269,7 +277,7 @@ It has been replaced with the `ConditionGroup` class. This class represents an a
 Now you can take this:
 
 ```sql
-SELECT FROM `SomeTable` WHERE `latitude` > 0 AND (`longitude` > 50 OR `longitude` < 25) AND `name`='MyHome'
+SELECT FROM `SomeTable` WHERE 0 < `latitude` AND (`longitude` > 50 OR `longitude` < 25) AND `name`='MyHome'
 ```
 
 and turn it into:
@@ -277,7 +285,7 @@ and turn it into:
 ```java
 SQLite.select()
   .from(SomeTable.class)
-  .where(SomeTable_Table.latitude.greaterThan(0))
+  .where(PropertyFactory.from(0).lessThan(SomeTable_Table.latitude))
   .and(ConditionGroup.clause()
     .and(SomeTable_Table.longitude.greaterThan(50))
     .or(SomeTable_Table.longitude.lessThan(25)))
@@ -302,5 +310,10 @@ You can now `queryModelContainer` from the database to retrieve a single `Model`
 ```java
 
 JSONModel model = SQLite.select().from(SomeTable.class).where(SomeTable_Table.id.eq(5)).queryModelContainer(new JSONModel());
+JSONObject json = model.getData();
 // has data now
 ```
+
+For the `toModel()` conversion/parse method from `ModelContainer` to `Model`, you can now:
+1. Have `@Column` excluded from it via `excludeFromToModelMethod()`
+2. include other fields in the method as well by adding the `@ContainerKey` annotation to them.

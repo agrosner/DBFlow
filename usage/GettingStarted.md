@@ -146,7 +146,6 @@ public class Ant extends BaseModel {
   @Column
   boolean isMale;
 
-  @Column
   @ForeignKey(saveForeignKeyModel = false)
   ForeignKeyContainer<Queen> queenForeignKeyContainer;
 

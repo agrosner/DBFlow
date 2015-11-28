@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.test.contentobserver;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
@@ -53,13 +55,13 @@ public class ContentObserverSpecificTest extends FlowTestCase {
             };
         }
         final SQLCondition[][] conditions = new SQLCondition[4][2];
-        contentObserver.addSpecificModelChangeListener(new FlowContentObserver.OnSpecificModelStateChangedListener() {
+        contentObserver.addModelChangeListener(new FlowContentObserver.OnModelStateChangedListener() {
             @Override
-            public void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action, SQLCondition[] sqlConditions) {
+            public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
                 switch (action) {
                     case INSERT:
                         try {
-                            conditions[0] = sqlConditions;
+                            conditions[0] = primaryKeyValues;
                             methodCalls[0].call();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -67,7 +69,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
                         break;
                     case UPDATE:
                         try {
-                            conditions[1] = sqlConditions;
+                            conditions[1] = primaryKeyValues;
                             methodCalls[1].call();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -76,7 +78,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
                     case SAVE:
                         try {
                             methodCalls[2].call();
-                            conditions[2] = sqlConditions;
+                            conditions[2] = primaryKeyValues;
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -85,7 +87,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
                     case DELETE:
                         try {
                             methodCalls[3].call();
-                            conditions[3] = sqlConditions;
+                            conditions[3] = primaryKeyValues;
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
@@ -201,7 +202,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         registerForContentChanges(context);
         addModelChangeListener(new OnModelStateChangedListener() {
             @Override
-            public void onModelStateChanged(Class<? extends Model> table, BaseModel.Action action) {
+            public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
                 if (internalCursorList.getTable().equals(table)) {
                     refresh();
                 }
