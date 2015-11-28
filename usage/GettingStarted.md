@@ -76,7 +76,6 @@ The basic definition we can use is:
 @Table(database = ColonyDatabase.class)
 public class Queen extends BaseModel {
 
-  @Column
   @PrimaryKey(autoincrement = true)
   long id;
 
@@ -95,7 +94,6 @@ So we have a queen ant definition, and now we need to define a `Colony` for the 
 @Table(database = ColonyDatabase.class)
 public class Colony extends BaseModel {
 
-  @Column
   @PrimaryKey(autoincrement = true)
   long id;
 
@@ -139,7 +137,6 @@ Now that we have a `Colony` with a `Queen` that belongs to it, we need some ants
 @Table(database = ColonyDatabase.class)
 public class Ant extends BaseModel {
 
-  @Column
   @PrimaryKey(autoincrement = true)
   long id;
 

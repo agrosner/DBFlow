@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.ClassNames;
@@ -266,12 +267,14 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
             boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
 
-            if (element.getAnnotation(Column.class) != null ||
-                    element.getAnnotation(ForeignKey.class) != null || isValidColumn) {
+            boolean isForeign = element.getAnnotation(ForeignKey.class) != null;
+            boolean isPrimary = element.getAnnotation(PrimaryKey.class) != null;
+            if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
+                    || isValidColumn) {
 
 
                 ColumnDefinition columnDefinition;
-                if (element.getAnnotation(ForeignKey.class) != null) {
+                if (isForeign) {
                     columnDefinition = new ForeignKeyColumnDefinition(manager, this, element, isPackagePrivateNotInSamePackage);
                 } else {
                     columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage);
