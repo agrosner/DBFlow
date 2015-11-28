@@ -15,13 +15,11 @@ import com.raizlabs.android.dbflow.test.structure.TestModel2;
 @Table(database = TestDatabase.class)
 public class PrimaryForeign extends BaseModel {
 
-    @Column
     @PrimaryKey
     @ForeignKey(tableClass = TestModel2.class, references = {@ForeignKeyReference(columnName = "name",
             columnType = String.class, foreignKeyColumnName = "name")})
     String name;
 
-    @Column
     @PrimaryKey
     @ForeignKey(tableClass = TestModel2.class, references = {@ForeignKeyReference(columnName = "order",
             columnType = int.class, foreignKeyColumnName = "order")})

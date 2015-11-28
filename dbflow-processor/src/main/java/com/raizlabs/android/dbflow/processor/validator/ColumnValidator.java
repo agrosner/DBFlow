@@ -37,7 +37,7 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
         }
 
         if (columnDefinition instanceof ForeignKeyColumnDefinition) {
-            if (columnDefinition.column.name()
+            if (columnDefinition.column != null && columnDefinition.column.name()
                     .length() > 0) {
                 success = false;
                 processorManager.logError("Foreign Key %1s cannot specify the column() field. " +

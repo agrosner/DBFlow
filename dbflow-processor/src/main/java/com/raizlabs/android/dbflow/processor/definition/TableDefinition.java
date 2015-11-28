@@ -266,7 +266,8 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
             boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
 
-            if (element.getAnnotation(Column.class) != null || isValidColumn) {
+            if (element.getAnnotation(Column.class) != null ||
+                    element.getAnnotation(ForeignKey.class) != null || isValidColumn) {
 
 
                 ColumnDefinition columnDefinition;
