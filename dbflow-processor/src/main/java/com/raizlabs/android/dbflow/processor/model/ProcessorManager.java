@@ -63,7 +63,7 @@ public class ProcessorManager implements Handler {
 
     public ProcessorManager(ProcessingEnvironment processingEnv) {
         processingEnvironment = processingEnv;
-        setManager(this );
+        setManager(this);
     }
 
     public void addHandlers(BaseContainerHandler... containerHandlers) {
@@ -274,6 +274,10 @@ public class ProcessorManager implements Handler {
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
                     tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
+                }
+
+                tableDefinitions = databaseDefinition.tableDefinitionMap.values();
+                for (TableDefinition tableDefinition : tableDefinitions) {
                     tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
                 }
 
@@ -285,11 +289,14 @@ public class ProcessorManager implements Handler {
                 Collection<ModelViewDefinition> modelViewDefinitions = databaseDefinition.modelViewDefinitionMap.values();
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
                     WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
+                    modelViewDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
+                    modelViewDefinition.writeViewTable();
                 }
 
                 Collection<QueryModelDefinition> queryModelDefinitions = databaseDefinition.queryModelDefinitionMap.values();
                 for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
                     WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
+                    queryModelDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     queryModelDefinition.writeAdapter(processorManager.getProcessingEnvironment());
                 }
             } catch (IOException e) {

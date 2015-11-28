@@ -22,11 +22,6 @@ public class ModelViewHandler extends BaseContainerHandler<ModelView> {
         ModelViewDefinition modelViewDefinition = new ModelViewDefinition(processorManager, element);
         if (viewValidator.validate(processorManager, modelViewDefinition)) {
             processorManager.addModelViewDefinition(modelViewDefinition);
-            try {
-                modelViewDefinition.writeViewTable();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 

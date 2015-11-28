@@ -84,6 +84,7 @@ public abstract class BaseTableDefinition extends BaseDefinition {
 
     public void writePackageHelper(ProcessingEnvironment processingEnvironment) throws IOException {
         int count = 0;
+
         if (!packagePrivateList.isEmpty()) {
             TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(elementClassName.simpleName() + databaseDefinition.classSeparator + "Helper")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);

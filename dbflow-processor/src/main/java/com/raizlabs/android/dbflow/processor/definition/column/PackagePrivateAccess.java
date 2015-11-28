@@ -23,7 +23,7 @@ public class PackagePrivateAccess extends BaseColumnAccess {
 
     public static final String classSuffix = "Helper";
 
-    private final ClassName helperClassName;
+    public final ClassName helperClassName;
 
     private static final Map<ClassName, List<String>> helperUsedMethodMap = Maps.newHashMap();
 
@@ -42,7 +42,7 @@ public class PackagePrivateAccess extends BaseColumnAccess {
      * @param className
      * @param elementName
      */
-    private static void putElement(ClassName className, String elementName) {
+    public static void putElement(ClassName className, String elementName) {
         List<String> list = helperUsedMethodMap.get(className);
         if (list == null) {
             list = new ArrayList<>();
@@ -65,7 +65,6 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     @Override
     public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (!isModelContainerAdapter) {
-            putElement(helperClassName, elementName);
             return CodeBlock.builder().add("$T.get$L($L)", helperClassName, StringUtils.capitalize(elementName),
                     variableNameString).build().toString();
         } else {
@@ -80,7 +79,6 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     @Override
     public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (!isModelContainerAdapter) {
-            putElement(helperClassName, elementName);
             return CodeBlock.builder().add("$T.get$L($L)", helperClassName, StringUtils.capitalize(elementName),
                     elementName).build().toString();
         } else {
@@ -93,7 +91,6 @@ public class PackagePrivateAccess extends BaseColumnAccess {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
-            putElement(helperClassName, elementName);
             return CodeBlock.builder().add("$T.set$L($L, $L)", helperClassName,
                     StringUtils.capitalize(elementName), ModelUtils.getVariable(isModelContainerAdapter),
                     formattedAccess).build().toString();
