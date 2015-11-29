@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
+import com.raizlabs.android.dbflow.annotation.ModelCacheField;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -31,6 +32,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.PrimaryConditionM
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -42,6 +44,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,6 +60,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.WildcardType;
 
 /**
  * Description: Used in writing ModelAdapters
@@ -95,6 +99,8 @@ public class TableDefinition extends BaseTableDefinition {
     private final MethodDefinition[] methods;
 
     public boolean cachingEnabled = false;
+    public int cacheSize;
+    public String customCacheFieldName;
 
     public boolean allFields = false;
     public boolean useIsForPrivateBooleans;
@@ -126,7 +132,7 @@ public class TableDefinition extends BaseTableDefinition {
             }
 
             cachingEnabled = table.cachingEnabled();
-
+            cacheSize = table.cacheSize();
             databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
             if (databaseDefinition == null) {
                 manager.logError("Databasewriter was null for : " + tableName);
@@ -316,6 +322,8 @@ public class TableDefinition extends BaseTableDefinition {
             } else if (element.getAnnotation(ContainerKey.class) != null) {
                 ContainerKeyDefinition containerKeyDefinition = new ContainerKeyDefinition(element, manager, this, isPackagePrivateNotInSamePackage);
                 containerKeyDefinitions.add(containerKeyDefinition);
+            } else if (element.getAnnotation(ModelCacheField.class) != null) {
+                customCacheFieldName = element.getSimpleName().toString();
             }
         }
 
@@ -424,6 +432,22 @@ public class TableDefinition extends BaseTableDefinition {
                     .returns(ArrayTypeName.of(ClassName.get(String.class)));
 
             typeBuilder.addMethod(cachingbuilder.build());
+
+            if (cacheSize != Table.DEFAULT_CACHE_SIZE) {
+                typeBuilder.addMethod(MethodSpec.methodBuilder("getCacheSize")
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addStatement("return $L", cacheSize)
+                        .returns(TypeName.INT).build());
+            }
+
+            if (!StringUtils.isNullOrEmpty(customCacheFieldName)) {
+                typeBuilder.addMethod(MethodSpec.methodBuilder("createModelCache")
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addStatement("return $T.$L", elementClassName, customCacheFieldName)
+                        .returns(ParameterizedTypeName.get(ClassNames.MODEL_CACHE, elementClassName, WildcardTypeName.subtypeOf(Object.class))).build());
+            }
         }
 
         CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);

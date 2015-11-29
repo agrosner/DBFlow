@@ -5,7 +5,6 @@ import com.raizlabs.android.dbflow.annotation.ModelCacheField;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
@@ -13,7 +12,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 public class CacheableModel3 extends BaseModel {
 
     @ModelCacheField
-    public static ModelCache<? extends Model, ?> modelCache = new SimpleMapCache<>();
+    public static ModelCache<CacheableModel3, ?> modelCache = new SimpleMapCache<>();
 
     @Column
     @PrimaryKey

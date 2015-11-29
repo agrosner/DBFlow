@@ -156,6 +156,10 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return false;
     }
 
+    public int getCacheSize() {
+        return Table.DEFAULT_CACHE_SIZE;
+    }
+
     @Override
     public void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
@@ -167,7 +171,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
     }
 
     public ModelCache<ModelClass, ?> createModelCache() {
-        return new SimpleMapCache<>(Table.DEFAULT_CACHE_SIZE);
+        return new SimpleMapCache<>(getCacheSize());
     }
 
     /**
