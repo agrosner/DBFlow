@@ -19,11 +19,11 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 public class MultipleCacheableModel extends BaseModel {
 
     @MultiCacheField
-    public static IMultiKeyCacheConverter<String, MultipleCacheableModel> multiKeyCacheModel = new IMultiKeyCacheConverter<String, MultipleCacheableModel>() {
+    public static IMultiKeyCacheConverter<String> multiKeyCacheModel = new IMultiKeyCacheConverter<String>() {
 
         @Override
         @NonNull
-        public String getCachingKey(Object[] values) {
+        public String getCachingKey(@NonNull Object[] values) {
             return "(" + values[0] + "," + values[1] + ")";
         }
     };

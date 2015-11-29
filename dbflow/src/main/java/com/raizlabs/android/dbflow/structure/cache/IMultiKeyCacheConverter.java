@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  * interface "zips" the complex primary keys into one "representative" key. Also this can be used to
  * override the default caching key and provide a custom key.
  */
-public interface IMultiKeyCacheConverter<CacheKeyType, ModelClass extends Model> {
+public interface IMultiKeyCacheConverter<CacheKeyType> {
 
     /**
      * Converts the array of values into a singular representative key. The values are in order
@@ -19,5 +19,5 @@ public interface IMultiKeyCacheConverter<CacheKeyType, ModelClass extends Model>
      * @return The non-null
      */
     @NonNull
-    CacheKeyType getCachingKey(Object[] values);
+    CacheKeyType getCachingKey(@NonNull Object[] values);
 }

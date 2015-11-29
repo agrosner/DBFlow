@@ -213,7 +213,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return Table.DEFAULT_CACHE_SIZE;
     }
 
-    public IMultiKeyCacheConverter<?, ModelClass> getCacheConverter() {
+    public IMultiKeyCacheConverter<?> getCacheConverter() {
         throw new InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
                 "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
                 "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
