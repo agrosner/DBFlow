@@ -165,6 +165,16 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
     }
 
+    /**
+     * Reloads relationships when loading from {@link Cursor} in a model that's cacheable. By having
+     * relationships with cached models, the retrieval will be very fast.
+     *
+     * @param cursor The cursor to reload from.
+     */
+    public void reloadRelationships(@NonNull ModelClass model, Cursor cursor) {
+        throwCachingError();
+    }
+
     @Override
     public boolean cachingEnabled() {
         return false;

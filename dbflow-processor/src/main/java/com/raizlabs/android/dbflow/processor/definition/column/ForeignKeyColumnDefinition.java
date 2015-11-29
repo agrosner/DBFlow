@@ -249,9 +249,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter) {
+    public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter,
+                                             boolean endNonPrimitiveIf) {
         if (nonModelColumn) {
-            return super.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter);
+            return super.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter, endNonPrimitiveIf);
         } else {
             checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder()
@@ -305,7 +306,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 builder.nextControlFlow("else");
                 builder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);
             }
-            builder.endControlFlow();
+            if (endNonPrimitiveIf) {
+                builder.endControlFlow();
+            }
             return builder.build();
         }
     }
