@@ -96,4 +96,28 @@ public class CacheableModelTest extends FlowTestCase {
                 .where(CacheableModel4_Table.id.eq(4))
                 .queryList();
     }
+
+    public void testMultiplePrimaryKey() {
+        Delete.table(MultipleCacheableModel.class);
+
+        MultipleCacheableModel cacheableModel = new MultipleCacheableModel();
+        ModelCache<MultipleCacheableModel, ?> modelCache = FlowManager.getModelAdapter(MultipleCacheableModel.class).getModelCache();
+        for (int i = 0; i < 25; i++) {
+            cacheableModel.latitude = i;
+            cacheableModel.longitude = 25;
+            cacheableModel.save();
+
+            MultipleCacheableModel model = modelCache.get(MultipleCacheableModel.multiKeyCacheModel.getCachingKey(cacheableModel));
+            assertNotNull(model);
+            assertEquals(cacheableModel, model);
+            assertEquals(SQLite.select().from(MultipleCacheableModel.class)
+                    .where(MultipleCacheableModel_Table.latitude.eq(cacheableModel.latitude))
+                    .and(MultipleCacheableModel_Table.longitude.eq(cacheableModel.longitude)).querySingle(), model);
+
+            model.delete();
+            assertNull(modelCache.get(MultipleCacheableModel.multiKeyCacheModel.getCachingKey(model)));
+        }
+
+        Delete.table(MultipleCacheableModel.class);
+    }
 }

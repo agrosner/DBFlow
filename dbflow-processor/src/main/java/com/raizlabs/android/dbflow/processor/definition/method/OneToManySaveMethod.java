@@ -44,12 +44,12 @@ public class OneToManySaveMethod implements MethodDefinition {
                 }
             }
 
+            code.addStatement("super.$L($L)", methodName, ModelUtils.getVariable(isModelContainerAdapter));
+
             if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
                 code.addStatement("getModelCache().addModel(getCachingId($L), $L)", ModelUtils.getVariable(isModelContainerAdapter),
                         ModelUtils.getVariable(isModelContainerAdapter));
             }
-
-            code.addStatement("super.$L($L)", methodName, ModelUtils.getVariable(isModelContainerAdapter));
 
             return MethodSpec.methodBuilder(methodName)
                     .addAnnotation(Override.class)
