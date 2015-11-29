@@ -190,10 +190,9 @@ public abstract class ModelAdapter<ModelClass extends Model>
     }
 
     public IMultiKeyCacheConverter<?, ModelClass> getCacheConverter() {
-        throw new InvalidDBConfiguration("For multiple primary keys, a IMultiKeyCacheConverter field must" +
+        throw new InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
                 "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
                 "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
-        return null;
     }
 
     public ModelCache<ModelClass, ?> createModelCache() {
