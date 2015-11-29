@@ -1,6 +1,9 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils;
+import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ArrayTypeName;
@@ -47,7 +50,7 @@ public class InternalAdapterHelper {
 
     public static void writeGetCachingId(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
                                          List<ColumnDefinition> primaryColumns, boolean isModelContainer) {
-        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromCursor")
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromModel")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ArrayTypeName.of(Object.class), "inValues")
@@ -55,6 +58,21 @@ public class InternalAdapterHelper {
         for (int i = 0; i < primaryColumns.size(); i++) {
             ColumnDefinition column = primaryColumns.get(i);
             methodBuilder.addStatement("inValues[$L] = $L", i, column.getColumnAccessString(isModelContainer, false));
+        }
+        methodBuilder.addStatement("return $L", "inValues")
+                .returns(ArrayTypeName.of(Object.class));
+        typeBuilder.addMethod(methodBuilder.build());
+
+        methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromCursor")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(ArrayTypeName.of(Object.class), "inValues")
+                .addParameter(ClassNames.CURSOR, "cursor");
+        for (int i = 0; i < primaryColumns.size(); i++) {
+            ColumnDefinition column = primaryColumns.get(i);
+            String method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.columnAccess);
+            methodBuilder.addStatement("inValues[$L] = $L.$L($L.getColumnIndex($S))", i, LoadFromCursorMethod.PARAM_CURSOR,
+                    method, LoadFromCursorMethod.PARAM_CURSOR, column.columnName);
         }
         methodBuilder.addStatement("return $L", "inValues")
                 .returns(ArrayTypeName.of(Object.class));

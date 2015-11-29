@@ -16,7 +16,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ContainerKeyDefinition;
-import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -35,6 +34,7 @@ import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
@@ -409,9 +409,19 @@ public class TableDefinition extends BaseTableDefinition {
 
             MethodSpec.Builder cachingbuilder = MethodSpec.methodBuilder("createCachingColumns")
                     .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return new String[]{$L}", QueryBuilder.join(",", columnDefinitions))
-                    .returns(ClassName.get(String.class));
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+            String columns = "return new String[]{";
+            for (int i = 0; i < columnDefinitions.size(); i++) {
+                ColumnDefinition column = columnDefinitions.get(i);
+                if (i > 0) {
+                    columns += ",";
+                }
+                columns += "\"" + QueryBuilder.quoteIfNeeded(column.columnName) + "\"";
+            }
+            columns += "}";
+
+            cachingbuilder.addStatement(columns)
+                    .returns(ArrayTypeName.of(ClassName.get(String.class)));
 
             typeBuilder.addMethod(cachingbuilder.build());
         }

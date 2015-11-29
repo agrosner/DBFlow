@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-@Table(database = TestDatabase.class, cachingEnabled = true)
+@Table(database = TestDatabase.class, cachingEnabled = true, cacheSize = 1000)
 public class CacheableModel extends BaseModel {
 
     @Column
@@ -15,9 +15,4 @@ public class CacheableModel extends BaseModel {
 
     @Column
     String name;
-
-    @Override
-    public int getCacheSize() {
-        return 1000;
-    }
 }

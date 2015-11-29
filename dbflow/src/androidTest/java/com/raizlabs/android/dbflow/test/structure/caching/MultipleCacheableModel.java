@@ -20,6 +20,11 @@ public class MultipleCacheableModel extends BaseModel {
         public String getCachingKey(MultipleCacheableModel cacheableModel) {
             return "(" + cacheableModel.latitude + "," + cacheableModel.longitude + ")";
         }
+
+        @Override
+        public String getCachingKey(Object[] values) {
+            return "(" + values[0] + "," + values[1] + ")";
+        }
     };
 
     @PrimaryKey

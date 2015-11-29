@@ -57,7 +57,7 @@ public class SqlUtils {
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = null;
         try {
-            if (FlowManager.getModelAdapter(modelClass).hasCachingId()) {
+            if (FlowManager.getModelAdapter(modelClass).cachingEnabled()) {
                 list = convertToCacheableList(modelClass, cursor);
             } else {
                 list = convertToList(modelClass, cursor);
@@ -84,7 +84,7 @@ public class SqlUtils {
         final List<CacheableClass> entities = new ArrayList<>();
         ModelAdapter<CacheableClass> instanceAdapter = FlowManager.getModelAdapter(modelClass);
         if (instanceAdapter != null) {
-            if (!instanceAdapter.hasCachingId()) {
+            if (!instanceAdapter.cachingEnabled()) {
                 throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
                         "use one Primary Key or call convertToList()");
             } else if (modelCache == null) {
@@ -269,7 +269,7 @@ public class SqlUtils {
         Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
         ModelClass retModel = null;
         try {
-            if (FlowManager.getModelAdapter(modelClass).hasCachingId()) {
+            if (FlowManager.getModelAdapter(modelClass).cachingEnabled()) {
                 retModel = convertToCacheableModel(false, modelClass, cursor);
             } else {
                 retModel = convertToModel(false, modelClass, cursor);

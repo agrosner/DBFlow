@@ -227,6 +227,11 @@ public class ColumnDefinition extends BaseDefinition {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return QueryBuilder.quoteIfNeeded(columnName);
+    }
+
     public void addPropertyDefinition(TypeSpec.Builder typeBuilder, TypeName tableClass) {
         TypeName propParam;
         if (elementTypeName.isPrimitive() && !elementTypeName.equals(TypeName.BOOLEAN)) {

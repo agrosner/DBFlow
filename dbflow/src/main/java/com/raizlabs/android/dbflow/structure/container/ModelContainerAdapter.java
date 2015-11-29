@@ -98,7 +98,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
     }
 
     @Override
-    public boolean hasCachingId() {
+    public boolean cachingEnabled() {
         return false;
     }
 

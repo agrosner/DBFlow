@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
 
 /**
  * Author: andrewgrosner
@@ -138,6 +139,11 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return null;
     }
 
+    public Object[] getCachingColumnValuesFromModel(Object[] inValues, ModelClass modelClass) {
+        throwCachingError();
+        return null;
+    }
+
     public ModelCache<ModelClass, ?> getModelCache() {
         if (modelCache == null) {
             modelCache = createModelCache();
@@ -146,7 +152,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
     }
 
     @Override
-    public boolean hasCachingId() {
+    public boolean cachingEnabled() {
         return false;
     }
 
@@ -160,7 +166,9 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return null;
     }
 
-    public abstract ModelCache<ModelClass, ?> createModelCache();
+    public ModelCache<ModelClass, ?> createModelCache() {
+        return new SimpleMapCache<>(Table.DEFAULT_CACHE_SIZE);
+    }
 
     /**
      * @return The query used to create this table.

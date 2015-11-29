@@ -113,5 +113,5 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
     /**
      * @return true if the {@link InternalAdapter} can be cached.
      */
-    boolean hasCachingId();
+    boolean cachingEnabled();
 }
