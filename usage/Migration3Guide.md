@@ -13,7 +13,7 @@ _note:_
 2. Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
 3. ModelContainers
 4. ModelViews
-5. Indexes
+5. Caching
 
 ## Database + Table Structure
 ### Database changes
@@ -317,3 +317,53 @@ JSONObject json = model.getData();
 For the `toModel()` conversion/parse method from `ModelContainer` to `Model`, you can now:
 1. Have `@Column` excluded from it via `excludeFromToModelMethod()`
 2. include other fields in the method as well by adding the `@ContainerKey` annotation to them.
+
+## ModelView changes
+No longer do we need to specify the query for the `ModelView` in the annotation without ability to use the wrappper classes. We define a `@ModelViewQuery` field to use and then it simply becomes:
+
+```java
+@ModelViewQuery
+    public static final Query QUERY = new Select(AModel_Table.time)
+            .from(AModel.class).where(AModel_Table.time.greaterThan(0l));
+```
+
+What this means is that its easier than before to use Views.
+
+## Caching Changes
+I significantly revamped model caching in this release to make it easier, support more tables, and more consistent. Some of the significant changes:
+
+Previously you needed to extend `BaseCacheableModel` to enable model caching. No longer! The code that was there now generates in the corresponding `ModelAdapter` by setting `cachingEnabled = true` in the `@Table` annotation.
+
+Before
+
+```java
+@Table(databaseName = TestDatabase.NAME)
+public class CacheableModel extends BaseCacheableModel {
+
+    @Column
+    @PrimaryKey(autoincrement = true)
+    long id;
+
+    @Column
+    String name;
+
+    @Override
+    public int getCacheSize() {
+        return 1000;
+    }
+}
+```
+
+After:
+
+```java
+@Table(database = TestDatabase.class, cachingEnabled = true, cacheSize = 1000)
+public class CacheableModel extends BaseModel {
+
+    @PrimaryKey(autoincrement = true)
+    long id;
+
+    @Column
+    String name;
+}
+```

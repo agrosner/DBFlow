@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.StringUtils;
@@ -196,16 +197,18 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, ModelContainerClass extends ModelContainer<ModelClass, ?>>
     ModelContainerClass convertToModelContainer(boolean dontMoveToFirst, @NonNull Class<ModelClass> table,
-                                                @NonNull Cursor cursor, @NonNull ModelContainerClass modelContainer) {
-        try {
-            if (dontMoveToFirst || cursor.moveToFirst()) {
-                ModelContainerAdapter modelAdapter = FlowManager.getContainerAdapter(table);
-                if (modelAdapter != null) {
-                    modelAdapter.loadFromCursor(cursor, modelContainer);
+                                                @Nullable Cursor cursor, @NonNull ModelContainerClass modelContainer) {
+        if (cursor != null) {
+            try {
+                if (dontMoveToFirst || cursor.moveToFirst()) {
+                    ModelContainerAdapter modelAdapter = FlowManager.getContainerAdapter(table);
+                    if (modelAdapter != null) {
+                        modelAdapter.loadFromCursor(cursor, modelContainer);
+                    }
                 }
+            } finally {
+                cursor.close();
             }
-        } finally {
-            cursor.close();
         }
 
         return modelContainer;
