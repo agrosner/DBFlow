@@ -106,6 +106,7 @@ public class SqlUtils {
                         }
 
                         if (cacheable != null) {
+                            instanceAdapter.reloadRelationships(cacheable, cursor);
                             entities.add(cacheable);
                         } else {
                             cacheable = instanceAdapter.newInstance();
@@ -245,6 +246,8 @@ public class SqlUtils {
                 if (model == null) {
                     model = modelAdapter.newInstance();
                     modelAdapter.loadFromCursor(cursor, model);
+                } else {
+                    modelAdapter.reloadRelationships(model, cursor);
                 }
             }
         }
