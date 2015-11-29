@@ -33,19 +33,24 @@ public class OneToManyDeleteMethod implements MethodDefinition {
             }
         }
 
-        if (shouldWrite) {
+        if (shouldWrite || !isModelContainerAdapter && tableDefinition.cachingEnabled) {
 
-            CodeBlock.Builder oneToManyDefs = CodeBlock.builder();
+            CodeBlock.Builder builder = CodeBlock.builder();
             for (OneToManyDefinition oneToManyDefinition : tableDefinition.oneToManyDefinitions) {
-                oneToManyDefinition.writeDelete(oneToManyDefs);
+                oneToManyDefinition.writeDelete(builder);
             }
-            oneToManyDefs.addStatement("super.delete($L)", ModelUtils.getVariable(isModelContainerAdapter));
+
+            if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
+                builder.addStatement("getModelCache().removeModel(getCachingId($L))", ModelUtils.getVariable(isModelContainerAdapter));
+            }
+
+            builder.addStatement("super.delete($L)", ModelUtils.getVariable(isModelContainerAdapter));
 
             return MethodSpec.methodBuilder("delete")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter))
-                    .addCode(oneToManyDefs.build())
+                    .addCode(builder.build())
                     .returns(TypeName.VOID).build();
         }
         return null;
