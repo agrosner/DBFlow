@@ -32,7 +32,7 @@ As of 3.0, DBFlow now will smartly reload `@ForeignKey` relationships when loadi
 1.Each `@Table`/`Model` class has its own cache, they are not shared between tables or subclasses.
 1. It "intercepts" the query running and references the cache (explained next).
 2. Using any wrapper `Insert`, `Update`, or `Delete` SQLite-builder method are **strongly discouraged** when caching a `Model` as the cache will not update (due to efficiency and performance reasons). If you need to run these queries, a simple `FlowManager.getModelAdapter(MyTable.class).getModelCache().clear()` after running the query will invalidate the cache and it will update its information going forward.
-3. Modifying objects from the cache follows Java-reference rules: changing field values in one thread may result in an inconsistent state on in your application that may be loading from the DB until you `save()`, `insert()` or `update()`. Changing any fields are directly modifying objects from the cache (when loaded directly from it), so take note. 
+3. Modifying objects from the cache follows Java-reference rules: changing field values in one thread may result in an inconsistent state on in your application that may be loading from the DB until you `save()`, `insert()` or `update()`. Changing any fields are directly modifying objects from the cache (when loaded directly from it), so take note.
 
 When running a query via the wrapper language, DBFlow will:
 1. Run the query, resulting in a `Cursor`
@@ -76,7 +76,7 @@ public class MultipleCacheableModel extends BaseModel {
 The return type can be anything, as long as the `ModelCache` you define for the class supports the return type as a key.
 
 ### FlowCursorList + FlowQueryList
-With a `ModelCache`, the `FlowCursorList` and `FlowQueryList` are much more powerful than before. You can now decide how to cache models in these classes by overriding:
+`FlowCursorList` and `FlowQueryList` utilize a separate `ModelCache` from the caches associated with `@Table`/`Model` classes. To override the default caching mechanism:
 
 ```java
 
@@ -86,7 +86,7 @@ protected ModelCache<? extends BaseCacheableModel, ?> getBackingCache() {
 }
 ```
 
-### Custom
+### Custom Caches
 You can create your own cache and use it wherever you want.
 
 An example cache is using a copied `LruCache` from the support library:
