@@ -324,9 +324,29 @@ public class TableDefinition extends BaseTableDefinition {
                 ContainerKeyDefinition containerKeyDefinition = new ContainerKeyDefinition(element, manager, this, isPackagePrivateNotInSamePackage);
                 containerKeyDefinitions.add(containerKeyDefinition);
             } else if (element.getAnnotation(ModelCacheField.class) != null) {
-                customCacheFieldName = element.getSimpleName().toString();
+                if (!element.getModifiers().contains(Modifier.PUBLIC)) {
+                    manager.logError("ModelCacheField must be public");
+                }
+                if (!element.getModifiers().contains(Modifier.STATIC)) {
+                    manager.logError("ModelCacheField must be static");
+                }
+                if (!StringUtils.isNullOrEmpty(customCacheFieldName)) {
+                    manager.logError("ModelCacheField can only be declared once");
+                } else {
+                    customCacheFieldName = element.getSimpleName().toString();
+                }
             } else if (element.getAnnotation(MultiCacheField.class) != null) {
-                customMultiCacheFieldName = element.getSimpleName().toString();
+                if (!element.getModifiers().contains(Modifier.PUBLIC)) {
+                    manager.logError("MultiCacheField must be public");
+                }
+                if (!element.getModifiers().contains(Modifier.STATIC)) {
+                    manager.logError("MultiCacheField must be static");
+                }
+                if (!StringUtils.isNullOrEmpty(customMultiCacheFieldName)) {
+                    manager.logError("MultiCacheField can only be declared once");
+                } else {
+                    customMultiCacheFieldName = element.getSimpleName().toString();
+                }
             }
         }
 
@@ -461,7 +481,7 @@ public class TableDefinition extends BaseTableDefinition {
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         .addStatement("return $T.$L", elementClassName, customMultiCacheFieldName)
-                        .returns(ParameterizedTypeName.get(ClassNames.MULTI_KEY_CACHE_CONVERTER, WildcardTypeName.subtypeOf(Object.class), elementClassName)).build());
+                        .returns(ParameterizedTypeName.get(ClassNames.MULTI_KEY_CACHE_CONVERTER, WildcardTypeName.subtypeOf(Object.class))).build());
             }
 
             if (foreignKeyDefinitions.size() > 0) {
