@@ -60,7 +60,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
-import javax.lang.model.type.WildcardType;
 
 /**
  * Description: Used in writing ModelAdapters
@@ -413,14 +412,18 @@ public class TableDefinition extends BaseTableDefinition {
                     .addStatement("return $L", true)
                     .returns(TypeName.BOOLEAN).build());
 
-            InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, primaryColumnDefinitions, false);
+            List<ColumnDefinition> primaries = primaryColumnDefinitions;
+            if (primaries == null || primaries.isEmpty()) {
+                primaries = Lists.newArrayList(autoIncrementDefinition);
+            }
+            InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, primaries, false);
 
             MethodSpec.Builder cachingbuilder = MethodSpec.methodBuilder("createCachingColumns")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
             String columns = "return new String[]{";
-            for (int i = 0; i < columnDefinitions.size(); i++) {
-                ColumnDefinition column = columnDefinitions.get(i);
+            for (int i = 0; i < primaries.size(); i++) {
+                ColumnDefinition column = primaries.get(i);
                 if (i > 0) {
                     columns += ",";
                 }
