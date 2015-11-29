@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.ModelCacheField;
+import com.raizlabs.android.dbflow.annotation.MultiCacheField;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -100,6 +101,7 @@ public class TableDefinition extends BaseTableDefinition {
     public boolean cachingEnabled = false;
     public int cacheSize;
     public String customCacheFieldName;
+    public String customMultiCacheFieldName;
 
     public boolean allFields = false;
     public boolean useIsForPrivateBooleans;
@@ -323,6 +325,8 @@ public class TableDefinition extends BaseTableDefinition {
                 containerKeyDefinitions.add(containerKeyDefinition);
             } else if (element.getAnnotation(ModelCacheField.class) != null) {
                 customCacheFieldName = element.getSimpleName().toString();
+            } else if (element.getAnnotation(MultiCacheField.class) != null) {
+                customMultiCacheFieldName = element.getSimpleName().toString();
             }
         }
 
@@ -450,6 +454,14 @@ public class TableDefinition extends BaseTableDefinition {
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         .addStatement("return $T.$L", elementClassName, customCacheFieldName)
                         .returns(ParameterizedTypeName.get(ClassNames.MODEL_CACHE, elementClassName, WildcardTypeName.subtypeOf(Object.class))).build());
+            }
+
+            if (!StringUtils.isNullOrEmpty(customMultiCacheFieldName)) {
+                typeBuilder.addMethod(MethodSpec.methodBuilder("getCacheConverter")
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addStatement("return $T.$L", elementClassName, customMultiCacheFieldName)
+                        .returns(ParameterizedTypeName.get(ClassNames.MULTI_KEY_CACHE_CONVERTER, WildcardTypeName.subtypeOf(Object.class), elementClassName)).build());
             }
         }
 
