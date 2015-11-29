@@ -77,10 +77,9 @@ public class ColumnDefinition extends BaseDefinition {
     public boolean hasCustomConverter;
 
     public ColumnDefinition(ProcessorManager processorManager, Element element,
-                            BaseTableDefinition baseTableDefinition, boolean isPackagePrivate) {
+                            BaseTableDefinition baseTableDefinition, boolean isPackagePrivate,
+                            Column column, PrimaryKey primaryKey) {
         super(element, processorManager);
-
-        column = element.getAnnotation(Column.class);
         if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName()
                     .toString() : column.name();
@@ -110,7 +109,6 @@ public class ColumnDefinition extends BaseDefinition {
             }
         }
 
-        PrimaryKey primaryKey = element.getAnnotation(PrimaryKey.class);
         if (primaryKey != null) {
             if (primaryKey.autoincrement()) {
                 isPrimaryKeyAutoIncrement = true;
@@ -220,6 +218,13 @@ public class ColumnDefinition extends BaseDefinition {
                 }
             }
         }
+    }
+
+    public ColumnDefinition(ProcessorManager processorManager, Element element,
+                            BaseTableDefinition baseTableDefinition, boolean isPackagePrivate) {
+        this(processorManager, element, baseTableDefinition, isPackagePrivate,
+                element.getAnnotation(Column.class), element.getAnnotation(PrimaryKey.class));
+
     }
 
     @Override

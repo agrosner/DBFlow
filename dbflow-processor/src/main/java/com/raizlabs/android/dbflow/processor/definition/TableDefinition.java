@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
+import com.raizlabs.android.dbflow.annotation.InheritedPrimaryKey;
 import com.raizlabs.android.dbflow.annotation.ModelCacheField;
 import com.raizlabs.android.dbflow.annotation.MultiCacheField;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
@@ -114,6 +115,8 @@ public class TableDefinition extends BaseTableDefinition {
     public List<ContainerKeyDefinition> containerKeyDefinitions = new ArrayList<>();
 
     public Map<String, InheritedColumn> inheritedColumnMap = new HashMap<>();
+    public List<String> inheritedFieldNameList = new ArrayList<>();
+    public Map<String, InheritedPrimaryKey> inheritedPrimaryKeyMap = new HashMap<>();
 
     public TableDefinition(ProcessorManager manager, TypeElement element) {
         super(element, manager);
@@ -170,10 +173,20 @@ public class TableDefinition extends BaseTableDefinition {
 
             InheritedColumn[] inheritedColumns = table.inheritedColumns();
             for (InheritedColumn inheritedColumn : inheritedColumns) {
-                if (inheritedColumnMap.containsKey(inheritedColumn.fieldName())) {
+                if (inheritedFieldNameList.contains(inheritedColumn.fieldName())) {
                     manager.logError("A duplicate inherited column with name %1s was found for %1s", inheritedColumn.fieldName(), tableName);
                 }
+                inheritedFieldNameList.add(inheritedColumn.fieldName());
                 inheritedColumnMap.put(inheritedColumn.fieldName(), inheritedColumn);
+            }
+
+            InheritedPrimaryKey[] inheritedPrimaryKeys = table.inheritedPrimaryKeys();
+            for (InheritedPrimaryKey inheritedColumn : inheritedPrimaryKeys) {
+                if (inheritedFieldNameList.contains(inheritedColumn.fieldName())) {
+                    manager.logError("A duplicate inherited column with name %1s was found for %1s", inheritedColumn.fieldName(), tableName);
+                }
+                inheritedFieldNameList.add(inheritedColumn.fieldName());
+                inheritedPrimaryKeyMap.put(inheritedColumn.fieldName(), inheritedColumn);
             }
 
             createColumnDefinitions(element);
@@ -273,16 +286,27 @@ public class TableDefinition extends BaseTableDefinition {
 
             boolean isForeign = element.getAnnotation(ForeignKey.class) != null;
             boolean isPrimary = element.getAnnotation(PrimaryKey.class) != null;
+            boolean isInherited = inheritedColumnMap.containsKey(element.getSimpleName().toString());
+            boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
             if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
-                    || isValidColumn) {
+                    || isValidColumn || isInherited || isInheritedPrimaryKey) {
 
 
                 ColumnDefinition columnDefinition;
-                if (isForeign) {
+                if (isInheritedPrimaryKey) {
+                    InheritedPrimaryKey inherited = inheritedPrimaryKeyMap.get(element.getSimpleName().toString());
+                    columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
+                            inherited.column(), inherited.primaryKey());
+                } else if (isInherited) {
+                    InheritedColumn inherited = inheritedColumnMap.get(element.getSimpleName().toString());
+                    columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
+                            inherited.column(), null);
+                } else if (isForeign) {
                     columnDefinition = new ForeignKeyColumnDefinition(manager, this, element, isPackagePrivateNotInSamePackage);
                 } else {
                     columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage);
                 }
+
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition);
                     mColumnMap.put(columnDefinition.columnName, columnDefinition);

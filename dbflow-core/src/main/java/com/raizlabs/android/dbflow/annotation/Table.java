@@ -74,8 +74,14 @@ public @interface Table {
 
     /**
      * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.
-     * Each must be accessible via: public, package private, or protected.
+     * Each must be accessible via: public, package private, or protected or getter/setters.
      */
     InheritedColumn[] inheritedColumns() default {};
+
+    /**
+     * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.
+     * Each must be accessible via: public, package private, or protected or getter/setters.
+     */
+    InheritedPrimaryKey[] inheritedPrimaryKeys() default {};
 
 }
