@@ -131,17 +131,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return cachingColumns;
     }
 
-    /**
-     * @param cursor      The cursor to retrieve data from.
-     * @param columnIndex The column index to retrieve data from.
-     * @return The cache id value from the {@link Cursor}. This is generated since not all
-     * columns have the same value.
-     */
-    public Object getCachingIdFromCursorIndex(Cursor cursor, int columnIndex, String columnName) {
-        return cursor.getLong(columnIndex);
-    }
-
-    public Object[] getCachingColumnValuesFromCursor(Cursor cursor) {
+    public Object[] getCachingColumnValuesFromCursor(Object[] inValues, Cursor cursor) {
         throwCachingError();
         return null;
     }

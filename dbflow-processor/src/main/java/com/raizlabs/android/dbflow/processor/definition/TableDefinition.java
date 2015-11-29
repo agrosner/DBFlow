@@ -94,7 +94,7 @@ public class TableDefinition extends BaseTableDefinition {
 
     private final MethodDefinition[] methods;
 
-    public boolean hasCachingId = false;
+    public boolean cachingEnabled = false;
 
     public boolean allFields = false;
     public boolean useIsForPrivateBooleans;
@@ -124,6 +124,8 @@ public class TableDefinition extends BaseTableDefinition {
             } catch (MirroredTypeException mte) {
                 databaseTypeName = TypeName.get(mte.getTypeMirror());
             }
+
+            cachingEnabled = table.cachingEnabled();
 
             databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
             if (databaseDefinition == null) {
@@ -231,11 +233,6 @@ public class TableDefinition extends BaseTableDefinition {
                 }
 
         ;
-
-        // single primary key checking for a long or int valued column
-        if (getPrimaryColumnDefinitions().size() == 1) {
-            hasCachingId = !getPrimaryColumnDefinitions().get(0).hasTypeConverter;
-        }
 
     }
 
@@ -400,32 +397,23 @@ public class TableDefinition extends BaseTableDefinition {
                     .returns(ClassName.get(String.class)).build());
         }
 
-        if (hasCachingId) {
-            ColumnDefinition cachingColumn = getPrimaryColumnDefinitions().get(0);
+        if (cachingEnabled) {
 
-            typeBuilder.addMethod(MethodSpec.methodBuilder("hasCachingId")
+            typeBuilder.addMethod(MethodSpec.methodBuilder("cachingEnabled")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addStatement("return $L", true)
                     .returns(TypeName.BOOLEAN).build());
 
-            InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, cachingColumn, false);
+            InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, primaryColumnDefinitions, false);
 
-            typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingColumnName")
+            MethodSpec.Builder cachingbuilder = MethodSpec.methodBuilder("createCachingColumns")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return $S", QueryBuilder.stripQuotes(cachingColumn.columnName))
-                    .returns(ClassName.get(String.class)).build());
+                    .addStatement("return new String[]{$L}", QueryBuilder.join(",", columnDefinitions))
+                    .returns(ClassName.get(String.class));
 
-            typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingIdFromCursorIndex")
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
-                    .addParameter(ClassName.INT, "index")
-                    .addStatement("return $L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR,
-                            DefinitionUtils.getLoadFromCursorMethodString(cachingColumn.elementTypeName, cachingColumn.columnAccess),
-                            "index")
-                    .returns(cachingColumn.elementTypeName.box()).build());
+            typeBuilder.addMethod(cachingbuilder.build());
         }
 
         CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);

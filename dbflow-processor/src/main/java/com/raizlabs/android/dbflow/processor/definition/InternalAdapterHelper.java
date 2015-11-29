@@ -3,11 +3,14 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+
+import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
@@ -43,13 +46,19 @@ public class InternalAdapterHelper {
     }
 
     public static void writeGetCachingId(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
-                                         ColumnDefinition cachingDefinition, boolean isModelContainer) {
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getCachingId")
+                                         List<ColumnDefinition> primaryColumns, boolean isModelContainer) {
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromCursor")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
-                .addStatement("return $L", cachingDefinition.getColumnAccessString(isModelContainer, false))
-                .returns(cachingDefinition.elementTypeName.box()).build());
+                .addParameter(ArrayTypeName.of(Object.class), "inValues")
+                .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer));
+        for (int i = 0; i < primaryColumns.size(); i++) {
+            ColumnDefinition column = primaryColumns.get(i);
+            methodBuilder.addStatement("inValues[$L] = $L", i, column.getColumnAccessString(isModelContainer, false));
+        }
+        methodBuilder.addStatement("return $L", "inValues")
+                .returns(ArrayTypeName.of(Object.class));
+        typeBuilder.addMethod(methodBuilder.build());
     }
 
 }

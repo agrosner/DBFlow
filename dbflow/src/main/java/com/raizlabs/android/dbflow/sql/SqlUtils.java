@@ -90,11 +90,12 @@ public class SqlUtils {
             } else if (modelCache == null) {
                 throw new IllegalArgumentException("ModelCache specified in convertToCacheableList() must not be null.");
             }
+            Object[] cacheValues = new Object[instanceAdapter.getCachingColumns().length];
             synchronized (cursor) {
                 // Ensure that we aren't iterating over this cursor concurrently from different threads
                 if (cursor.moveToFirst()) {
                     do {
-                        Object[] values = instanceAdapter.getCachingColumnValuesFromCursor(cursor);
+                        Object[] values = instanceAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor);
                         CacheableClass cacheable;
                         if (values.length == 1) {
                             // if it exists in cache no matter the query we will use that one
@@ -232,7 +233,8 @@ public class SqlUtils {
 
             if (modelAdapter != null) {
                 ModelCache<CacheableClass, ?> modelCache = BaseCacheableModel.getCache(table);
-                Object[] values = modelAdapter.getCachingColumnValuesFromCursor(cursor);
+                Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
+                        new Object[modelAdapter.getCachingColumns().length], cursor);
                 if (values.length == 1) {
                     // if it exists in cache no matter the query we will use that one
                     model = modelCache.get(values[0]);
