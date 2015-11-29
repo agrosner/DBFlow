@@ -92,19 +92,13 @@ public class SqlUtils {
                 throw new IllegalArgumentException("ModelCache specified in convertToCacheableList() must not be null.");
             }
             Object[] cacheValues = new Object[instanceAdapter.getCachingColumns().length];
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (cursor) {
                 // Ensure that we aren't iterating over this cursor concurrently from different threads
                 if (cursor.moveToFirst()) {
                     do {
                         Object[] values = instanceAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor);
-                        CacheableClass cacheable;
-                        if (values.length == 1) {
-                            // if it exists in cache no matter the query we will use that one
-                            cacheable = modelCache.get(values[0]);
-                        } else {
-                            cacheable = modelCache.get(instanceAdapter.getCacheConverter().getCachingKey(values));
-                        }
-
+                        CacheableClass cacheable = modelCache.get(instanceAdapter.getCachingId(values));
                         if (cacheable != null) {
                             instanceAdapter.reloadRelationships(cacheable, cursor);
                             entities.add(cacheable);
@@ -237,12 +231,7 @@ public class SqlUtils {
                 ModelCache<CacheableClass, ?> modelCache = modelAdapter.getModelCache();
                 Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
                         new Object[modelAdapter.getCachingColumns().length], cursor);
-                if (values.length == 1) {
-                    // if it exists in cache no matter the query we will use that one
-                    model = modelCache.get(values[0]);
-                } else {
-                    model = modelCache.get(modelAdapter.getCacheConverter().getCachingKey(values));
-                }
+                model = modelCache.get(modelAdapter.getCachingId(values));
                 if (model == null) {
                     model = modelAdapter.newInstance();
                     modelAdapter.loadFromCursor(cursor, model);
