@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
+import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 
 /**
  * Author: andrewgrosner
@@ -20,6 +21,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
 
     private SQLiteStatement mInsertStatement;
     private String[] cachingColumns;
+    private ModelCache<ModelClass, ?> modelCache;
 
     /**
      * @return The precompiled insert statement for this table model adapter
@@ -136,6 +138,13 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return null;
     }
 
+    public ModelCache<ModelClass, ?> getModelCache() {
+        if (modelCache == null) {
+            modelCache = createModelCache();
+        }
+        return modelCache;
+    }
+
     @Override
     public boolean hasCachingId() {
         return false;
@@ -150,6 +159,8 @@ public abstract class ModelAdapter<ModelClass extends Model>
         throwCachingError();
         return null;
     }
+
+    public abstract ModelCache<ModelClass, ?> createModelCache();
 
     /**
      * @return The query used to create this table.

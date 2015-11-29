@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
@@ -24,7 +25,6 @@ import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
-import com.raizlabs.android.dbflow.structure.cache.BaseCacheableModel;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
@@ -57,8 +57,8 @@ public class SqlUtils {
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = null;
         try {
-            if (BaseCacheableModel.class.isAssignableFrom(modelClass)) {
-                list = (List<ModelClass>) convertToCacheableList((Class<? extends BaseCacheableModel>) modelClass, cursor);
+            if (FlowManager.getModelAdapter(modelClass).hasCachingId()) {
+                list = convertToCacheableList(modelClass, cursor);
             } else {
                 list = convertToList(modelClass, cursor);
             }
@@ -76,10 +76,10 @@ public class SqlUtils {
      * @param modelClass       The class to convert the cursor into {@link CacheableClass}
      * @param cursor           The cursor from a query.
      * @param modelCache       The model cache to use when retrieving {@link CacheableClass}.
-     * @param <CacheableClass> The class that extends {@link BaseCacheableModel}
+     * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
      */
-    public static <CacheableClass extends BaseCacheableModel> List<CacheableClass> convertToCacheableList(
+    public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
             Class<CacheableClass> modelClass, Cursor cursor, ModelCache<CacheableClass, ?> modelCache) {
         final List<CacheableClass> entities = new ArrayList<>();
         ModelAdapter<CacheableClass> instanceAdapter = FlowManager.getModelAdapter(modelClass);
@@ -124,12 +124,12 @@ public class SqlUtils {
      *
      * @param modelClass       The class to convert the cursor into {@link CacheableClass}
      * @param cursor           The cursor from a query.
-     * @param <CacheableClass> The class that extends {@link BaseCacheableModel}
+     * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
      */
-    public static <CacheableClass extends BaseCacheableModel> List<CacheableClass> convertToCacheableList(
+    public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
             Class<CacheableClass> modelClass, Cursor cursor) {
-        return convertToCacheableList(modelClass, cursor, BaseCacheableModel.getCache(modelClass));
+        return convertToCacheableList(modelClass, cursor, FlowManager.getModelAdapter(modelClass).getModelCache());
     }
 
     /**
@@ -225,14 +225,14 @@ public class SqlUtils {
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
-    public static <CacheableClass extends BaseCacheableModel> CacheableClass convertToCacheableModel(
+    public static <CacheableClass extends Model> CacheableClass convertToCacheableModel(
             boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
         CacheableClass model = null;
         if (dontMoveToFirst || cursor.moveToFirst()) {
             ModelAdapter<CacheableClass> modelAdapter = FlowManager.getModelAdapter(table);
 
             if (modelAdapter != null) {
-                ModelCache<CacheableClass, ?> modelCache = BaseCacheableModel.getCache(table);
+                ModelCache<CacheableClass, ?> modelCache = modelAdapter.getModelCache();
                 Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
                         new Object[modelAdapter.getCachingColumns().length], cursor);
                 if (values.length == 1) {
@@ -269,9 +269,8 @@ public class SqlUtils {
         Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
         ModelClass retModel = null;
         try {
-            if (BaseCacheableModel.class.isAssignableFrom(modelClass)) {
-                retModel = (ModelClass) convertToCacheableModel(false, (Class<? extends BaseCacheableModel>) modelClass,
-                        cursor);
+            if (FlowManager.getModelAdapter(modelClass).hasCachingId()) {
+                retModel = convertToCacheableModel(false, modelClass, cursor);
             } else {
                 retModel = convertToModel(false, modelClass, cursor);
             }
@@ -547,4 +546,14 @@ public class SqlUtils {
             }
         }
     }
+
+    public static Object getCachingId(@NonNull Object[] inValues, ModelAdapter modelAdapter) {
+        if (inValues.length == 1) {
+            // if it exists in cache no matter the query we will use that one
+            return inValues[0];
+        } else {
+            return modelAdapter.getCacheConverter().getCachingKey(inValues);
+        }
+    }
 }
+
