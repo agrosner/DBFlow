@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -149,6 +150,19 @@ public abstract class ModelAdapter<ModelClass extends Model>
             modelCache = createModelCache();
         }
         return modelCache;
+    }
+
+    public Object getCachingId(@NonNull Object[] inValues) {
+        if (inValues.length == 1) {
+            // if it exists in cache no matter the query we will use that one
+            return inValues[0];
+        } else {
+            return getCacheConverter().getCachingKey(inValues);
+        }
+    }
+
+    public Object getCachingId(@NonNull ModelClass model) {
+        return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
     }
 
     @Override

@@ -57,7 +57,8 @@ public class SqlUtils {
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = null;
         try {
-            if (FlowManager.getModelAdapter(modelClass).cachingEnabled()) {
+            ModelAdapter modelAdapter = FlowManager.getModelAdapter(modelClass);
+            if (modelAdapter != null && modelAdapter.cachingEnabled()) {
                 list = convertToCacheableList(modelClass, cursor);
             } else {
                 list = convertToList(modelClass, cursor);
@@ -269,7 +270,8 @@ public class SqlUtils {
         Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
         ModelClass retModel = null;
         try {
-            if (FlowManager.getModelAdapter(modelClass).cachingEnabled()) {
+            ModelAdapter modelAdapter = FlowManager.getModelAdapter(modelClass);
+            if (modelAdapter != null && modelAdapter.cachingEnabled()) {
                 retModel = convertToCacheableModel(false, modelClass, cursor);
             } else {
                 retModel = convertToModel(false, modelClass, cursor);
@@ -547,13 +549,5 @@ public class SqlUtils {
         }
     }
 
-    public static Object getCachingId(@NonNull Object[] inValues, ModelAdapter modelAdapter) {
-        if (inValues.length == 1) {
-            // if it exists in cache no matter the query we will use that one
-            return inValues[0];
-        } else {
-            return modelAdapter.getCacheConverter().getCachingKey(inValues);
-        }
-    }
 }
 
