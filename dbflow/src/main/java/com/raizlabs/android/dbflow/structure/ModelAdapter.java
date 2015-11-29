@@ -89,6 +89,12 @@ public abstract class ModelAdapter<ModelClass extends Model>
         SqlUtils.delete(model, this, this);
     }
 
+
+    @Override
+    public void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model) {
+        bindToInsertStatement(sqLiteStatement, model, 0);
+    }
+
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
      * this method will be overridden.
@@ -124,10 +130,16 @@ public abstract class ModelAdapter<ModelClass extends Model>
                         getModelClass()));
     }
 
+    /**
+     * @return A set of columns that represent the caching columns.
+     */
     public String[] createCachingColumns() {
         return new String[]{getAutoIncrementingColumnName()};
     }
 
+    /**
+     * @return The array of columns (in order) that represent what are cached.
+     */
     public String[] getCachingColumns() {
         if (cachingColumns == null) {
             cachingColumns = createCachingColumns();
@@ -135,11 +147,28 @@ public abstract class ModelAdapter<ModelClass extends Model>
         return cachingColumns;
     }
 
+    /**
+     * Loads all primary keys from the {@link Cursor} into the inValues. The size of the array must
+     * match all primary keys. This method gets generated when caching is enabled.
+     *
+     * @param inValues The reusable array of values to populate.
+     * @param cursor   The cursor to load from.
+     * @return The populated set of values to load from cache.
+     */
     public Object[] getCachingColumnValuesFromCursor(Object[] inValues, Cursor cursor) {
         throwCachingError();
         return null;
     }
 
+    /**
+     * Loads all primary keys from the {@link ModelClass} into the inValues. The size of the array must
+     * match all primary keys. This method gets generated when caching is enabled. It converts the primary fields
+     * of the {@link ModelClass} into the array of values the caching mechanism uses.
+     *
+     * @param inValues   The reusable array of values to populate.
+     * @param modelClass The model to load from.
+     * @return The populated set of values to load from cache.
+     */
     public Object[] getCachingColumnValuesFromModel(Object[] inValues, ModelClass modelClass) {
         throwCachingError();
         return null;
@@ -182,11 +211,6 @@ public abstract class ModelAdapter<ModelClass extends Model>
 
     public int getCacheSize() {
         return Table.DEFAULT_CACHE_SIZE;
-    }
-
-    @Override
-    public void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model) {
-        bindToInsertStatement(sqLiteStatement, model, 0);
     }
 
     public IMultiKeyCacheConverter<?, ModelClass> getCacheConverter() {

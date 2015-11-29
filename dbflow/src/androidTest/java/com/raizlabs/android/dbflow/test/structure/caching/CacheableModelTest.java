@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
@@ -101,13 +102,16 @@ public class CacheableModelTest extends FlowTestCase {
         Delete.table(MultipleCacheableModel.class);
 
         MultipleCacheableModel cacheableModel = new MultipleCacheableModel();
-        ModelCache<MultipleCacheableModel, ?> modelCache = FlowManager.getModelAdapter(MultipleCacheableModel.class).getModelCache();
+        ModelAdapter<MultipleCacheableModel> modelAdapter = FlowManager.getModelAdapter(MultipleCacheableModel.class);
+        ModelCache<MultipleCacheableModel, ?> modelCache = modelAdapter.getModelCache();
+        Object[] values = new Object[modelAdapter.getCachingColumns().length];
         for (int i = 0; i < 25; i++) {
             cacheableModel.latitude = i;
             cacheableModel.longitude = 25;
             cacheableModel.save();
 
-            MultipleCacheableModel model = modelCache.get(MultipleCacheableModel.multiKeyCacheModel.getCachingKey(cacheableModel));
+            MultipleCacheableModel model = modelCache.get(MultipleCacheableModel.multiKeyCacheModel
+                    .getCachingKey(modelAdapter.getCachingColumnValuesFromModel(values, cacheableModel)));
             assertNotNull(model);
             assertEquals(cacheableModel, model);
             assertEquals(SQLite.select().from(MultipleCacheableModel.class)
@@ -115,7 +119,8 @@ public class CacheableModelTest extends FlowTestCase {
                     .and(MultipleCacheableModel_Table.longitude.eq(cacheableModel.longitude)).querySingle(), model);
 
             model.delete();
-            assertNull(modelCache.get(MultipleCacheableModel.multiKeyCacheModel.getCachingKey(model)));
+            assertNull(modelCache.get(MultipleCacheableModel.multiKeyCacheModel
+                    .getCachingKey(modelAdapter.getCachingColumnValuesFromModel(values, model))));
         }
 
         Delete.table(MultipleCacheableModel.class);

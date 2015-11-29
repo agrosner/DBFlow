@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -9,7 +11,13 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public interface IMultiKeyCacheConverter<CacheKeyType, ModelClass extends Model> {
 
-    CacheKeyType getCachingKey(ModelClass model);
-
+    /**
+     * Converts the array of values into a singular representative key. The values are in order
+     * of the primary key declaration and are the same length.
+     *
+     * @param values The values to convert into a singular key.
+     * @return The non-null
+     */
+    @NonNull
     CacheKeyType getCachingKey(Object[] values);
 }

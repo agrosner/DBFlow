@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.test.structure.caching;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.MultiCacheField;
@@ -20,11 +22,7 @@ public class MultipleCacheableModel extends BaseModel {
     public static IMultiKeyCacheConverter<String, MultipleCacheableModel> multiKeyCacheModel = new IMultiKeyCacheConverter<String, MultipleCacheableModel>() {
 
         @Override
-        public String getCachingKey(MultipleCacheableModel cacheableModel) {
-            return "(" + cacheableModel.latitude + "," + cacheableModel.longitude + ")";
-        }
-
-        @Override
+        @NonNull
         public String getCachingKey(Object[] values) {
             return "(" + values[0] + "," + values[1] + ")";
         }
