@@ -508,26 +508,24 @@ public class TableDefinition extends BaseTableDefinition {
                         .returns(ParameterizedTypeName.get(ClassNames.MULTI_KEY_CACHE_CONVERTER, WildcardTypeName.subtypeOf(Object.class))).build());
             }
 
-            if (foreignKeyDefinitions.size() > 0) {
-                MethodSpec.Builder reloadMethod = MethodSpec.methodBuilder("reloadRelationships")
-                        .addAnnotation(Override.class)
-                        .addParameter(elementClassName, ModelUtils.getVariable(false))
-                        .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
-                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-                CodeBlock.Builder loadStatements = CodeBlock.builder();
-                for (ColumnDefinition foreignColumn : foreignKeyDefinitions) {
-                    CodeBlock.Builder codeBuilder = foreignColumn.getLoadFromCursorMethod(false, false,
-                            false).toBuilder();
-                    if (!foreignColumn.elementTypeName.isPrimitive()) {
-                        codeBuilder.nextControlFlow("else");
-                        codeBuilder.addStatement(foreignColumn.setColumnAccessString(CodeBlock.builder().add("null").build(), false));
-                        codeBuilder.endControlFlow();
-                    }
-                    loadStatements.add(codeBuilder.build());
+            MethodSpec.Builder reloadMethod = MethodSpec.methodBuilder("reloadRelationships")
+                    .addAnnotation(Override.class)
+                    .addParameter(elementClassName, ModelUtils.getVariable(false))
+                    .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+            CodeBlock.Builder loadStatements = CodeBlock.builder();
+            for (ColumnDefinition foreignColumn : foreignKeyDefinitions) {
+                CodeBlock.Builder codeBuilder = foreignColumn.getLoadFromCursorMethod(false, false,
+                        false).toBuilder();
+                if (!foreignColumn.elementTypeName.isPrimitive()) {
+                    codeBuilder.nextControlFlow("else");
+                    codeBuilder.addStatement(foreignColumn.setColumnAccessString(CodeBlock.builder().add("null").build(), false));
+                    codeBuilder.endControlFlow();
                 }
-                reloadMethod.addCode(loadStatements.build());
-                typeBuilder.addMethod(reloadMethod.build());
+                loadStatements.add(codeBuilder.build());
             }
+            reloadMethod.addCode(loadStatements.build());
+            typeBuilder.addMethod(reloadMethod.build());
         }
 
         CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);
