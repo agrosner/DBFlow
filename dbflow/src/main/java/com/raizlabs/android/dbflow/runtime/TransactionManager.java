@@ -173,6 +173,10 @@ public class TransactionManager {
         getQueue().add(transaction);
     }
 
+    public void cancelTransaction(BaseTransaction transaction) {
+        getQueue().cancel(transaction);
+    }
+
     /**
      * Saves the passed in model to the {@link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}.
      * This method is recommended for saving large amounts of continuous data as to batch up as much data as possible in a save.

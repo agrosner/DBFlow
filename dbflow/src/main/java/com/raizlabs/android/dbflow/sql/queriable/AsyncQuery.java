@@ -5,6 +5,7 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.SelectSingleModelTransaction;
@@ -20,6 +21,7 @@ public class AsyncQuery<ModelClass extends Model> {
 
     private final ModelQueriable<ModelClass> modelQueriable;
     private final TransactionManager transactionManager;
+    private BaseTransaction currentTransaction;
 
     /**
      * Constructs an instance of this async query.
@@ -36,7 +38,8 @@ public class AsyncQuery<ModelClass extends Model> {
      * Runs the specified query in the background.
      */
     public void execute() {
-        transactionManager.addTransaction(new QueryTransaction(DBTransactionInfo.create(), modelQueriable));
+        cancel();
+        transactionManager.addTransaction(currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable));
     }
 
     /**
@@ -45,7 +48,8 @@ public class AsyncQuery<ModelClass extends Model> {
      * @param transactionListener Listens for transaction events.
      */
     public void queryList(TransactionListener<List<ModelClass>> transactionListener) {
-        transactionManager.addTransaction(new SelectListTransaction<>(modelQueriable, transactionListener));
+        cancel();
+        transactionManager.addTransaction(currentTransaction = new SelectListTransaction<>(modelQueriable, transactionListener));
     }
 
     /**
@@ -54,7 +58,8 @@ public class AsyncQuery<ModelClass extends Model> {
      * @param transactionListener Listens for transaction events.
      */
     public void querySingle(TransactionListener<ModelClass> transactionListener) {
-        transactionManager.addTransaction(new SelectSingleModelTransaction<>(modelQueriable, transactionListener));
+        cancel();
+        transactionManager.addTransaction(currentTransaction = new SelectSingleModelTransaction<>(modelQueriable, transactionListener));
     }
 
     /**
@@ -70,7 +75,15 @@ public class AsyncQuery<ModelClass extends Model> {
      * @param transactionListener Listens for transaction events.
      */
     public void query(TransactionListener<Cursor> transactionListener) {
+        cancel();
         transactionManager.addTransaction(
-                new QueryTransaction(DBTransactionInfo.create(), modelQueriable, transactionListener));
+                currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable, transactionListener));
+    }
+
+    public void cancel() {
+        if (currentTransaction != null) {
+            transactionManager.cancelTransaction(currentTransaction);
+            currentTransaction = null;
+        }
     }
 }
