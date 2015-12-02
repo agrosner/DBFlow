@@ -219,6 +219,7 @@ public abstract class BaseDatabaseDefinition {
             context.deleteDatabase(getDatabaseFileName());
             flowSQLiteOpenHelper = new FlowSQLiteOpenHelper(this, internalHelperListener);
             isResetting = false;
+            flowSQLiteOpenHelper.getWritableDatabase();
         }
     }
 

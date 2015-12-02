@@ -171,6 +171,7 @@ public class FlowManager {
      */
     public static synchronized void destroy() {
         context = null;
+        mDatabaseHolder = null;
     }
 
     /**
