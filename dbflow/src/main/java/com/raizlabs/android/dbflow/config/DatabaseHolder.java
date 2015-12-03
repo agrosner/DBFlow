@@ -11,12 +11,11 @@ import java.util.Map;
  * between them.
  */
 public abstract class DatabaseHolder {
+    protected final Map<Class<? extends Model>, BaseDatabaseDefinition> managerMap = new HashMap<>();
 
-    static final Map<Class<? extends Model>, BaseDatabaseDefinition> managerMap = new HashMap<>();
+    protected final Map<String, BaseDatabaseDefinition> managerNameMap = new HashMap<>();
 
-    static final Map<String, BaseDatabaseDefinition> managerNameMap = new HashMap<>();
-
-    protected static final Map<Class<?>, TypeConverter> typeConverters = new HashMap<>();
+    protected final Map<Class<?>, TypeConverter> typeConverters = new HashMap<>();
 
     /**
      * @param clazz The model value class to get a {@link com.raizlabs.android.dbflow.converter.TypeConverter}
