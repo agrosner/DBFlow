@@ -41,8 +41,8 @@ FlowManager.initModule("Test");
 ```
 
 Ideally, the module containing the databases should execute the line of code above. This
-can easily be done by providing an initialization method for the module that the application
-must invoke before it can be used. For example:
+can easily be done by exporting an initialization method from the module that the application
+must invoke before it can be used, similar to DBFlow. For example:
 
 ```java
 public class Test {
