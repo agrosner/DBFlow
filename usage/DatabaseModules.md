@@ -1,4 +1,4 @@
-# Databases Modules
+# Database Modules
 
 When you use DBFlow as is, DBFlow assumes the application defines all the databases
 it needs. There, however, are scenarios where an application needs to load a module,
