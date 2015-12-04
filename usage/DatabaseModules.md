@@ -56,4 +56,4 @@ public class Test {
 
 Otherwise, the application must be aware that is needs to manually instruct DBFlow to load
 a database module. Lastly, ```FlowManager.initModule(moduleName)``` can be invoked multiple
-times without causing any extra side-effects.
+times without causing any additional side-effects after the first invocation.
