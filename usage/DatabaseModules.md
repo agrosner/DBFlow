@@ -3,7 +3,12 @@
 When you use DBFlow as is, DBFlow assumes the application defines all the databases
 it needs. There, however, are scenarios where an application needs to load a module,
 or library, that uses DBFlow to manage its databases. This is an important scenario
-because it allows you to reuse a database across multiple applications.
+because it allows you to reuse a database across multiple applications. Unfortunately,
+if you try this with DBFlow, then there will be duplicate symbols in the application and
+the module and the application will not build.
+
+To get around this problem, you must enable database module support for the module
+intended to be loaded by an application. Fortunately, this is a very easy process.
 
 To add databases to a module, first update the ```build.config``` with the ```apt```
 section. In the example below, all databases will be in the ```Test``` module.
