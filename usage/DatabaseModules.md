@@ -45,7 +45,7 @@ can easily be done by providing an initialization method for the module that the
 must invoke before it can be used. For example:
 
 ```java
-class Test {
+public class Test {
     public static void initialize(Context context) {
         FlowManager.initModule("Test");
 
