@@ -365,15 +365,18 @@ public class ColumnDefinition extends BaseDefinition {
 
             if (this instanceof ForeignKeyColumnDefinition && isPrimaryKey
                     && ((ForeignKeyColumnDefinition) this).isModelContainer) {
+                ForeignKeyColumnDefinition foreignKeyColumnDefinition = (ForeignKeyColumnDefinition) this;
+                TableDefinition referenced = manager.getTableDefinition(tableDefinition.databaseDefinition.elementTypeName,
+                        foreignKeyColumnDefinition.referencedTableClassName);
+                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.getForeignKeyReferenceDefinitionList().get(0);
                 // check for null and retrieve proper value
-                String method = SQLiteHelper.getModelContainerMethod(((ForeignKeyColumnDefinition) this)
-                        .getForeignKeyReferenceDefinitionList().get(0).columnClassName);
+                String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
                 if (method == null) {
                     method = "get";
                 }
                 statement = String
                         .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
-                                statement, statement, method, tableDefinition.outputClassName, columnName);
+                                statement, statement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
             }
             return statement;
         }
