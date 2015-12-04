@@ -42,5 +42,18 @@ FlowManager.initModule("Test");
 
 Ideally, the module containing the databases should execute the line of code above. This
 can easily be done by providing an initialization method for the module that the application
-must invoke before it can be used. Otherwise, the application must be aware that is needs
-to manually instruct DBFlow to load a database module.
+must invoke before it can be used. For example:
+
+```java
+class Test {
+    public static void initialize(Context context) {
+        FlowManager.initModule("Test");
+
+        // Perform other initialization steps
+    }
+}
+```
+
+Otherwise, the application must be aware that is needs to manually instruct DBFlow to load
+a database module. Lastly, ```FlowManager.initModule(moduleName)``` can be invoked multiple
+times without causing any extra side-effects.
