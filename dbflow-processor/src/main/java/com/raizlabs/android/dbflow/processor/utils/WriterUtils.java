@@ -18,7 +18,7 @@ public class WriterUtils {
             javaFile.writeTo(processorManager.getProcessingEnvironment().getFiler());
             success = true;
         } catch (IOException e) {
-            e.printStackTrace();
+            // ignore
         }
         return success;
     }

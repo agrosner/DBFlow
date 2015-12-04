@@ -75,11 +75,13 @@ public class ColumnDefinition extends BaseDefinition {
 
     public BaseColumnAccess columnAccess;
     public boolean hasCustomConverter;
+    private BaseTableDefinition tableDefinition;
 
     public ColumnDefinition(ProcessorManager processorManager, Element element,
                             BaseTableDefinition baseTableDefinition, boolean isPackagePrivate,
                             Column column, PrimaryKey primaryKey) {
         super(element, processorManager);
+        this.tableDefinition = baseTableDefinition;
         if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName()
                     .toString() : column.name();
@@ -358,8 +360,22 @@ public class ColumnDefinition extends BaseDefinition {
                         .build().toString();
             }
         } else {
-            return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+            String statement = columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
                     ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false);
+
+            if (this instanceof ForeignKeyColumnDefinition && isPrimaryKey
+                    && ((ForeignKeyColumnDefinition) this).isModelContainer) {
+                // check for null and retrieve proper value
+                String method = SQLiteHelper.getModelContainerMethod(((ForeignKeyColumnDefinition) this)
+                        .getForeignKeyReferenceDefinitionList().get(0).columnClassName);
+                if (method == null) {
+                    method = "get";
+                }
+                statement = String
+                        .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
+                                statement, statement, method, tableDefinition.outputClassName, columnName);
+            }
+            return statement;
         }
     }
 
