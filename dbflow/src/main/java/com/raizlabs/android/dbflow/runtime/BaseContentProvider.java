@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.config.DatabaseHolder;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.OrderBy;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
@@ -89,6 +90,36 @@ public abstract class BaseContentProvider extends ContentProvider {
         }
 
         return conditions.toArray(new SQLCondition[conditions.size()]);
+    }
+
+    protected static List<OrderBy> toOrderBy(String sort, PropertyConverter propertyConverter) {
+        List<OrderBy> orderBies = new ArrayList<>();
+        if (StringUtils.isNotNullOrEmpty(sort)) {
+            String[] sortArray = sort.split(",");
+            for (String s : sortArray) {
+                String columnName;
+                String ordering;
+                if (s.endsWith(OrderBy.ASCENDING)) {
+                    ordering = OrderBy.ASCENDING;
+                    columnName = s.replace(OrderBy.ASCENDING, "");
+                } else if (s.endsWith(OrderBy.DESCENDING)) {
+                    ordering = OrderBy.DESCENDING;
+                    columnName = s.replace(OrderBy.DESCENDING, "");
+                } else {
+                    // default SQLite is ascending order, we will crash if the s is not a valid column name.
+                    ordering = OrderBy.ASCENDING;
+                    columnName = s;
+                }
+                OrderBy orderBy = OrderBy.fromProperty(propertyConverter.fromName(columnName));
+                if (ordering.equals(OrderBy.ASCENDING)) {
+                    orderBy.ascending();
+                } else {
+                    orderBy.descending();
+                }
+                orderBies.add(orderBy);
+            }
+        }
+        return orderBies;
     }
 
     protected BaseDatabaseDefinition database;
