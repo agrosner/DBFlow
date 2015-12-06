@@ -24,7 +24,7 @@ public class CacheableModelTest extends FlowTestCase {
             model.save();
             assertTrue(model.exists());
 
-            long id = model.id;
+            Long id = model.id;
             CacheableModel cacheableModel = modelCache.get(id);
             assertNotNull(cacheableModel);
 
@@ -49,7 +49,7 @@ public class CacheableModelTest extends FlowTestCase {
             model.id = i;
             model.save();
 
-            long id = model.id;
+            Integer id = model.id;
             CacheableModel2 cacheableModel = modelCache.get(id);
             assertNotNull(cacheableModel);
 
