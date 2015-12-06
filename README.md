@@ -14,11 +14,12 @@ What sets this library apart:
 3. Built-in model caching for blazing-fast retrieval and very flexible customization.
 4. Powerful and fluid SQL-wrapping statements that mimic real SQLite queries
 5. Triggers, Views, Indexes, and many more SQLite features.
-6. Seamless multi-database support.
-7. Direct-to-database parsing for data such as JSON
+6. Seamless multi-database support and sharing DBFlow between your application modules and libraries.
+7. Direct-to-database parsing for data such as JSON via `@ModelContainer`
 8. Flexibility in the API enabling you to override functionality to suit your needs.
 9. `ContentProvider` generation using annotations
 10. Content Observing using `Uri`
+11. Many more features that you never knew you could not code Databases without
 
 # Applications That Use DBFlow
 If you wish to have your application featured here, please file an [issue](https://github.com/Raizlabs/DBFlow/issues).
@@ -63,10 +64,6 @@ For more detailed usage, check out these sections:
 
 [Triggers, Indexes, and More](https://github.com/Raizlabs/DBFlow/blob/master/usage/TriggersIndexesAndMore.md)
 
-## Screencasts
-Listed here are tutorial screen casts for DBFlow. If more are created, they may go into the usage docs.
-1. [DFlow-Installing](https://www.youtube.com/watch?v=UveI8_wfEoU) by @tsuharesu
-
 # Including in your project
 We need to include the [apt plugin](https://bitbucket.org/hvisser/android-apt) in our classpath to enable Annotation Processing:
 
@@ -78,8 +75,18 @@ buildscript {
         jcenter()
     }
     dependencies {
-         'com.neenbedankt.gradle.plugins:android-apt:1.7'
+         'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
+}
+```
+
+Add this maven url to your project.
+
+```groovy
+allProjects {
+  repositories {
+    maven { url "https://jitpack.io" }
+  }
 }
 ```
 
@@ -95,13 +102,6 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
     compile "com.raizlabs.android:dbflow:3.0.0"
   }
 ```
-
-We only use reflection pretty much one time throughout the whole library, so this class is the only one needed.
-
-## Gotchas/Compatibility
-For `GSON` and `RetroFit` compatibility check out [#121](https://github.com/Raizlabs/DBFlow/issues/121).
-
-Due to this library using a custom maven repo, to speed up build times when using this library, you should run in `--offline` mode except for when updating dependencies. To enable this setting in Android Studio, ensure the option is checked in: `Preferences->Build,Executor,Deployment->Build Tools->Gradle->Offline Work`
 
 # Pull Requests
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
