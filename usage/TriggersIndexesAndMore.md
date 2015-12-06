@@ -11,7 +11,7 @@ This section contains more advance usage of SQLite. These features are very usef
 CompletedTrigger<Friend> trigger = Trigger.create("NameTrigger")
                                     .after().update(Friend.class, Friend$Table.NAME)
                                     .begin(
-                                        new Insert<FriendLog>(FriendLog.class)
+                                        Insert.into(FriendLog.class)
                                           .columns(FriendLog$Table.OLDNAME, FriendLog$Table.NEWNAME, FriendLog$Table.DATE)
                                           .values("old.Name", "new.Name", System.currentTimeMillis())
                                           };
