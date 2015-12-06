@@ -47,17 +47,17 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     private BaseDatabaseDefinition databaseDefinition;
     private SQLiteOpenHelper backupHelper;
 
-    public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager, DatabaseHelperListener listener) {
-        super(FlowManager.getContext(), flowManager.getDatabaseFileName(), null, flowManager.getDatabaseVersion());
+    public FlowSQLiteOpenHelper(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
+        super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(), null, databaseDefinition.getDatabaseVersion());
         databaseHelperListener = listener;
-        databaseDefinition = flowManager;
+        this.databaseDefinition = databaseDefinition;
 
-        movePrepackagedDB(databaseDefinition.getDatabaseFileName(), databaseDefinition.getDatabaseFileName());
+        movePrepackagedDB(this.databaseDefinition.getDatabaseFileName(), this.databaseDefinition.getDatabaseFileName());
 
-        if (flowManager.backupEnabled()) {
+        if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new SQLiteOpenHelper(FlowManager.getContext(), getTempDbFileName(),
-                    null, flowManager.getDatabaseVersion()) {
+                null, databaseDefinition.getDatabaseVersion()) {
                 @Override
                 public void onOpen(SQLiteDatabase db) {
                     FlowSQLiteOpenHelper.this.onOpen(db);
@@ -73,7 +73,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                     FlowSQLiteOpenHelper.this.onUpgrade(db, oldVersion, newVersion);
                 }
             };
-            restoreDatabase(getTempDbFileName(), databaseDefinition.getDatabaseFileName());
+            restoreDatabase(getTempDbFileName(), this.databaseDefinition.getDatabaseFileName());
             backupHelper.getWritableDatabase();
         }
     }
@@ -142,7 +142,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             InputStream inputStream;
             // if it exists and the integrity is ok
             if (existingDb.exists() && (databaseDefinition.backupEnabled() && FlowManager.isDatabaseIntegrityOk(
-                    backupHelper))) {
+                backupHelper))) {
                 inputStream = new FileInputStream(existingDb);
             } else {
                 inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
@@ -223,7 +223,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
             InputStream inputStream;
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
             if (existingDb.exists() && (!databaseDefinition.backupEnabled() || databaseDefinition.backupEnabled() && FlowManager.isDatabaseIntegrityOk(
-                    backupHelper))) {
+                backupHelper))) {
                 inputStream = new FileInputStream(existingDb);
             } else {
                 inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
@@ -242,7 +242,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
     public void backupDB() {
         if (!databaseDefinition.backupEnabled() || !databaseDefinition.areConsistencyChecksEnabled()) {
             throw new IllegalStateException("Backups are not enabled for : " + databaseDefinition.getDatabaseName() + ". Please consider adding " +
-                    "both backupEnabled and consistency checks enabled to the Database annotation");
+                "both backupEnabled and consistency checks enabled to the Database annotation");
         }
         // highest priority ever!
         TransactionManager.getInstance().addTransaction(new BaseTransaction(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI + 1)) {
@@ -352,10 +352,10 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
                 List<ModelViewAdapter> modelViews = databaseDefinition.getModelViewAdapters();
                 for (ModelViewAdapter modelView : modelViews) {
                     QueryBuilder queryBuilder = new QueryBuilder()
-                            .append("CREATE VIEW")
-                            .appendSpaceSeparated(modelView.getViewName())
-                            .append("AS ")
-                            .append(modelView.getCreationQuery());
+                        .append("CREATE VIEW")
+                        .appendSpaceSeparated(modelView.getViewName())
+                        .append("AS ")
+                        .append(modelView.getCreationQuery());
                     try {
                         database.execSQL(queryBuilder.getQuery());
                     } catch (SQLiteException e) {
@@ -371,7 +371,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
         // will try migrations file or execute migrations from code
         try {
             final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(
-                    MIGRATION_PATH + "/" + databaseDefinition.getDatabaseName()));
+                MIGRATION_PATH + "/" + databaseDefinition.getDatabaseName()));
             Collections.sort(files, new NaturalOrderComparator());
 
             final Map<Integer, List<String>> migrationFileMap = new HashMap<>();

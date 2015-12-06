@@ -50,6 +50,11 @@ public @interface Database {
     boolean backupEnabled() default false;
 
     /**
+     * @return true if you want it to be in-memory, false if not.
+     */
+    boolean inMemory() default false;
+
+    /**
      * @return A custom FlowSQLiteOpenHelper that you can define custom.
      */
     Class<?> sqlHelperClass() default Void.class;

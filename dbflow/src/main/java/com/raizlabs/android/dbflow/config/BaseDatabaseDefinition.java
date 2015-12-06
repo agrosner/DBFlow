@@ -189,6 +189,11 @@ public abstract class BaseDatabaseDefinition {
     }
 
     /**
+     * @return True if the database will reside in memory.
+     */
+    public abstract boolean isInMemory();
+
+    /**
      * @return The version of the database currently.
      */
     public abstract int getDatabaseVersion();
