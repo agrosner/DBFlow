@@ -30,26 +30,7 @@ import java.util.Map;
  * used in this application.
  */
 public class FlowManager {
-    /**
-     * Exception thrown when a database holder cannot load the database holder
-     * for a module.
-     */
-    public static class ModuleNotFoundException extends RuntimeException {
-        public ModuleNotFoundException() {
-        }
 
-        public ModuleNotFoundException(String detailMessage) {
-            super(detailMessage);
-        }
-
-        public ModuleNotFoundException(String detailMessage, Throwable throwable) {
-            super(detailMessage, throwable);
-        }
-
-        public ModuleNotFoundException(Throwable throwable) {
-            super(throwable);
-        }
-    }
 
     private static class GlobalDatabaseHolder extends DatabaseHolder {
         public void add(DatabaseHolder holder) {
@@ -63,7 +44,7 @@ public class FlowManager {
 
     private static GlobalDatabaseHolder globalDatabaseHolder = new GlobalDatabaseHolder();
 
-    private static HashSet<String> loadedModules = new HashSet<>();
+    private static HashSet<Class<? extends DatabaseHolder>> loadedModules = new HashSet<>();
 
 
     private static final String DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder";
@@ -148,23 +129,23 @@ public class FlowManager {
     /**
      * @return The database holder, creating if necessary using reflection.
      */
-    protected static void loadDatabaseHolder(String className) {
-        if (loadedModules.contains(className)) {
+    protected static void loadDatabaseHolder(Class<? extends DatabaseHolder> holderClass) {
+        if (loadedModules.contains(holderClass)) {
             return;
         }
 
         try {
             // Load the database holder, and add it to the global collection.
-            DatabaseHolder dbHolder = (DatabaseHolder) Class.forName(className).newInstance();
+            DatabaseHolder dbHolder = holderClass.newInstance();
 
             if (dbHolder != null) {
                 globalDatabaseHolder.add(dbHolder);
 
                 // Cache the holder for future reference.
-                loadedModules.add(className);
+                loadedModules.add(holderClass);
             }
         } catch (Throwable e) {
-            throw new ModuleNotFoundException("Cannot load " + className, e);
+            throw new ModuleNotFoundException("Cannot load " + holderClass, e);
         }
     }
 
@@ -191,30 +172,37 @@ public class FlowManager {
         initContext(context);
 
         try {
-            loadDatabaseHolder(DEFAULT_DATABASE_HOLDER_CLASSNAME);
+            //noinspection unchecked
+            Class<? extends DatabaseHolder> defaultHolderClass = (Class<? extends DatabaseHolder>) Class.forName(DEFAULT_DATABASE_HOLDER_CLASSNAME);
+            loadDatabaseHolder(defaultHolderClass);
         } catch (ModuleNotFoundException e) {
             // Ignore this exception since it means the application does not have its
             // own database. The initialization happens because the application is using
             // a module that has a database.
+            FlowLog.log(FlowLog.Level.W, e.getMessage());
+        } catch (ClassNotFoundException e) {
+            // warning if a library uses DBFlow with module support but the app you're using doesn't support it.
+            FlowLog.log(FlowLog.Level.W, "Could not find the default GeneratedDatabaseHolder");
         }
     }
 
     /**
      * Loading the module Database holder via reflection. This will trigger all creations,
      * updates, and instantiation for each database defined.
-     * <p>
+     * <p/>
      * It is assumed FlowManager.init() is called by the application that uses the
      * module database. This method should only be called if you need to load databases
-     * that are part of a module.
+     * that are part of a module. Building once will give you the ability to add the class.
      */
-    public static void initModule(String moduleName) {
-        loadDatabaseHolder(DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + moduleName + DEFAULT_DATABASE_HOLDER_NAME);
+    public static void initModule(Class<? extends DatabaseHolder> generatedClassName) {
+        loadDatabaseHolder(generatedClassName);
     }
 
     private static void initContext(Context context) {
-        // QUESTION Should we throw an exception if context is not null? In other
-        // words, should we allow the client to initialize the context more than once?!
-        FlowManager.context = context;
+        // only initialize Context once.
+        if (FlowManager.context == null) {
+            FlowManager.context = context;
+        }
     }
 
     /**
@@ -367,5 +355,26 @@ public class FlowManager {
     }
 
     // endregion
+
+    /**
+     * Exception thrown when a database holder cannot load the database holder
+     * for a module.
+     */
+    public static class ModuleNotFoundException extends RuntimeException {
+        public ModuleNotFoundException() {
+        }
+
+        public ModuleNotFoundException(String detailMessage) {
+            super(detailMessage);
+        }
+
+        public ModuleNotFoundException(String detailMessage, Throwable throwable) {
+            super(detailMessage, throwable);
+        }
+
+        public ModuleNotFoundException(Throwable throwable) {
+            super(throwable);
+        }
+    }
 
 }
