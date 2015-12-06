@@ -34,6 +34,8 @@ public class TableEndpointDefinition extends BaseDefinition {
 
     public boolean isTopLevel = false;
 
+    public TableDefinition tableDefinition;
+
     public TableEndpointDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
 

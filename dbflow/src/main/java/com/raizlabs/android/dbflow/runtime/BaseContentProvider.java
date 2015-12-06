@@ -15,10 +15,13 @@ import com.raizlabs.android.dbflow.sql.language.OrderBy;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
+import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Description: The base provider class that {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
@@ -27,6 +30,8 @@ import java.util.List;
 public abstract class BaseContentProvider extends ContentProvider {
 
     protected Class<? extends DatabaseHolder> moduleClass;
+
+    protected final Map<Class<? extends Model>, PropertyConverter> propertyConverterMap = new HashMap<>();
 
     /**
      * Converts the column into a {@link Property}. This exists since the property method is static and cannot

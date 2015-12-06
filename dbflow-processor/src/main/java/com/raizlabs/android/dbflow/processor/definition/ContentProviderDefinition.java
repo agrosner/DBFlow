@@ -78,11 +78,11 @@ public class ContentProviderDefinition extends BaseDefinition {
         }
 
         methods = new MethodDefinition[]{
-                new QueryMethod(this, manager),
-                new InsertMethod(this, false),
-                new InsertMethod(this, true),
-                new DeleteMethod(this, manager),
-                new UpdateMethod(this, manager)
+            new QueryMethod(this, manager),
+            new InsertMethod(this, false),
+            new InsertMethod(this, true),
+            new DeleteMethod(this, manager),
+            new UpdateMethod(this, manager)
         };
     }
 
@@ -95,23 +95,23 @@ public class ContentProviderDefinition extends BaseDefinition {
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
         typeBuilder.addField(FieldSpec.builder(ClassName.get(String.class), AUTHORITY, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$S", authority).build());
+            .initializer("$S", authority).build());
 
         int code = 0;
         for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
             for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
                 typeBuilder.addField(FieldSpec.builder(TypeName.INT, contentUriDefinition.name,
-                        Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                        .initializer(String.valueOf(code)).build());
+                    Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                    .initializer(String.valueOf(code)).build());
                 code++;
             }
         }
 
         FieldSpec.Builder uriField = FieldSpec.builder(ClassNames.URI_MATCHER, URI_MATCHER,
-                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+            Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
 
         CodeBlock.Builder initializer = CodeBlock.builder().addStatement("new $T($T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER)
-                .add("static {\n");
+            .add("static {\n");
 
         for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
             for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
@@ -123,37 +123,41 @@ public class ContentProviderDefinition extends BaseDefinition {
                 }
                 initializer.addStatement("$L.addURI($L, $L, $L)", URI_MATCHER, AUTHORITY, path, contentUriDefinition.name);
             }
+            initializer.add("propertyConverterMap.put($T.class, ")
+                .add("new $T(){ \n", ClassNames.PROPERTY_CONVERTER)
+                .add("public $T fromName(String columnName) {\n", ClassNames.IPROPERTY)
+                .add("return $L.getProperty(columnName); \n}\n}", endpointDefinition..getPropertyClassName());
         }
         initializer.add("}\n");
         typeBuilder.addField(uriField.initializer(initializer.build()).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $S", databaseName)
-                .returns(ClassName.get(String.class)).build());
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addStatement("return $S", databaseName)
+            .returns(ClassName.get(String.class)).build());
 
         MethodSpec.Builder getTypeBuilder = MethodSpec.methodBuilder("getType")
-                .addAnnotation(Override.class)
-                .addParameter(ClassNames.URI, "uri")
-                .returns(ClassName.get(String.class))
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+            .addAnnotation(Override.class)
+            .addParameter(ClassNames.URI, "uri")
+            .returns(ClassName.get(String.class))
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
         CodeBlock.Builder getTypeCode = CodeBlock.builder()
-                .addStatement("$T type = null", ClassName.get(String.class))
-                .beginControlFlow("switch($L.match(uri))", URI_MATCHER);
+            .addStatement("$T type = null", ClassName.get(String.class))
+            .beginControlFlow("switch($L.match(uri))", URI_MATCHER);
 
         for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
             for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
                 getTypeCode.beginControlFlow("case $L:", uriDefinition.name)
-                        .addStatement("type = $S", uriDefinition.type)
-                        .addStatement("break")
-                        .endControlFlow();
+                    .addStatement("type = $S", uriDefinition.type)
+                    .addStatement("break")
+                    .endControlFlow();
             }
         }
         getTypeCode.beginControlFlow("default:")
-                .addStatement("throw new $T($S + $L)", ClassName.get(IllegalArgumentException.class), "Unknown URI", "uri")
-                .endControlFlow();
+            .addStatement("throw new $T($S + $L)", ClassName.get(IllegalArgumentException.class), "Unknown URI", "uri")
+            .endControlFlow();
         getTypeCode.endControlFlow();
         getTypeCode.addStatement("return type");
 
