@@ -36,8 +36,9 @@ public class InsertTest extends FlowTestCase {
 
         FlowManager.getDatabase(TestDatabase.NAME).getWritableDatabase().execSQL(insert.getQuery());
 
+
         model = new Select().from(InsertModel.class)
-                .where(InsertModel_Table.name.is("Test2")).querySingle();
+                .where(InsertModel_Table.name.is("Test3")).querySingle();
         assertNotNull(model);
     }
 }
