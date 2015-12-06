@@ -39,6 +39,8 @@ public class Classes {
 
     public static final String SELECT = SQL + "language.Select";
 
+    public static final String WHERE = SQL + "language.Where";
+
     public static final String FLOW_MANAGER = CONFIG + "FlowManager";
 
     public static final String SQL_UTILS = SQL + "SqlUtils";

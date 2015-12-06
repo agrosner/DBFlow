@@ -57,6 +57,10 @@ public class SqlQueryBuilder extends QueryBuilder<SqlQueryBuilder> {
         return append("\n.where(selection, selectionArgs)");
     }
 
+    public SqlQueryBuilder appendOrderBy() {
+        return append("\n.orderBy(sortOrder)");
+    }
+
     public SqlQueryBuilder appendPathSegments(ProcessorManager processorManager, String databaseName, String tableName, ContentUri.PathSegment[] pathSegments) {
         TableDefinition tableDefinition = processorManager.getTableDefinition(databaseName, tableName);
         if (tableDefinition == null) {

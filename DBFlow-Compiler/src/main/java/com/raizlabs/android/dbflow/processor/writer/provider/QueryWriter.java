@@ -41,12 +41,20 @@ public class QueryWriter implements FlowWriter {
                                 if (uriDefinition.queryEnabled) {
                                     javaWriter.beginControlFlow("case %1s:", uriDefinition.name);
 
-                                    SqlQueryBuilder select = new SqlQueryBuilder("cursor = ")
+                                    SqlQueryBuilder where = new SqlQueryBuilder("Where where = ")
                                             .appendSelect()
                                             .appendFromTable(contentProviderDefinition.databaseName, tableEndpointDefinition.tableName)
                                             .appendWhere().appendPathSegments(manager, contentProviderDefinition.databaseName,
-                                                    tableEndpointDefinition.tableName, uriDefinition.segments)
-                                            .appendQuery();
+                                                    tableEndpointDefinition.tableName, uriDefinition.segments);
+                                    javaWriter.emitStatement(where.getQuery());
+
+                                    javaWriter.beginControlFlow("if (sortOrder != null && !sortOrder.isEmpty())");
+                                    SqlQueryBuilder orderBy = new SqlQueryBuilder("where = ");
+                                    javaWriter.emitStatement(orderBy.append("where").appendOrderBy().getQuery());
+                                    javaWriter.endControlFlow();
+
+                                    SqlQueryBuilder select = new SqlQueryBuilder("cursor = ")
+                                            .append("where").appendQuery();
                                     javaWriter.emitStatement(select.getQuery());
                                     javaWriter.emitStatement("break");
                                     javaWriter.endControlFlow();

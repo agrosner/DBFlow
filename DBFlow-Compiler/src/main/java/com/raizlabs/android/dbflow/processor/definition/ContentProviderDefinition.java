@@ -92,6 +92,7 @@ public class ContentProviderDefinition extends BaseDefinition {
                 Classes.URI_MATCHER,
                 Classes.BASE_CONTENT_PROVIDER,
                 Classes.SELECT,
+                Classes.WHERE,
                 Classes.CONTENT_VALUES,
                 Classes.CONTENT_URIS,
                 Classes.MODEL_ADAPTER,
