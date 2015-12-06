@@ -23,14 +23,22 @@ import java.util.List;
  * extend when generated.
  */
 public abstract class BaseContentProvider extends ContentProvider {
+    protected String moduleName;
 
     /**
-     * Converts the column into a {@link Property}. This exists since the propery method is static and cannot
+     * Converts the column into a {@link Property}. This exists since the property method is static and cannot
      * be referenced easily.
      */
     public interface PropertyConverter {
-
         IProperty fromName(String columnName);
+    }
+
+    protected BaseContentProvider() {
+
+    }
+
+    protected BaseContentProvider(String moduleName) {
+        this.moduleName = moduleName;
     }
 
     /**
@@ -57,8 +65,8 @@ public abstract class BaseContentProvider extends ContentProvider {
             String[] stringConditions = selection.split(" AND ");
             if (selectionArgs != null && selectionArgs.length > 0 && selectionArgs.length > stringConditions.length) {
                 throw new IllegalArgumentException("Too many bind arguments.  "
-                        + selectionArgs.length + " arguments were provided but the selection query needs "
-                        + stringConditions.length + " arguments.");
+                    + selectionArgs.length + " arguments were provided but the selection query needs "
+                    + stringConditions.length + " arguments.");
             }
             List<String> copySelectionArgs = selectionArgs != null ? new ArrayList<>(Arrays.asList(selectionArgs)) : new ArrayList<String>();
             for (int i = 0; i < stringConditions.length; i++) {
@@ -85,6 +93,13 @@ public abstract class BaseContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        // If this is a module, then we need to initialize the module as part
+        // of the creation process. We can assume the framework has been general
+        // framework has been initialized.
+        if (moduleName != null) {
+            FlowManager.initModule(moduleName);
+        }
+
         return true;
     }
 
