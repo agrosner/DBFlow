@@ -68,7 +68,6 @@ public class Migration1 extends UpdateTableMigration<TestModel> {
 
     @Override
     public void onPreMigrate() {
-      super.onPreMigrate();
       // UPDATE TestModel SET deviceType = "phablet" WHERE screenSize > 5.7 AND screenSize < 7;
       set(TestModel_Table.deviceType.is("phablet"))
         .where(TestModel_Table.screenSize.greaterThan(5.7), TestModel_Table.screenSize.lessThan(7));
