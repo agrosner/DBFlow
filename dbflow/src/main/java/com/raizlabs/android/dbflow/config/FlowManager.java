@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.config;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
@@ -162,12 +163,12 @@ public class FlowManager {
     }
 
     /**
-     * Initializes DBFlow, loading the main application Database holder via reflection. This will
-     * trigger all creations, updates, and instantiation for each database defined.
+     * Initializes DBFlow, loading the main application Database holder via reflection one time only.
+     * This will trigger all creations, updates, and instantiation for each database defined.
      *
      * @param context The shared context for database usage.
      */
-    public static void init(Context context) {
+    public static void init(@NonNull Context context) {
         // Initialize the context, then load the default database holder.
         initContext(context);
 
@@ -198,10 +199,10 @@ public class FlowManager {
         loadDatabaseHolder(generatedClassName);
     }
 
-    private static void initContext(Context context) {
+    private static void initContext(@NonNull Context context) {
         // only initialize Context once.
         if (FlowManager.context == null) {
-            FlowManager.context = context;
+            FlowManager.context = context.getApplicationContext();
         }
     }
 
