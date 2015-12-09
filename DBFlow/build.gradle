@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'android-apt'
-apply plugin: 'com.github.dcendents.android-maven'
 
 project.ext.artifactId = bt_name
 
