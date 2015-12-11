@@ -16,7 +16,7 @@ public class BoxedModel extends TestModel1 {
     @Column
     @PrimaryKey
     @NotNull
-    public Long id = 1L;
+    Long id = 1L;
 
     @Column
     @NotNull

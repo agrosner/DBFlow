@@ -40,7 +40,7 @@ public class AQL extends BaseModel {
 
     @ContainerKey("boxedLodo")
     @Column
-    @ForeignKey(references = {@ForeignKeyReference(columnName = "id1", columnType = long.class, foreignKeyColumnName = "id"),
+    @ForeignKey(references = {@ForeignKeyReference(columnName = "id1", columnType = long.class, foreignKeyColumnName = "id", referencedFieldIsPackagePrivate = true),
             @ForeignKeyReference(columnName = "id2", columnType = String.class, foreignKeyColumnName = "name", referencedFieldIsPackagePrivate = true)})
     private BoxedModel boxedModel;
 
