@@ -32,5 +32,5 @@ dependencies {
     androidTestCompile 'com.jayway.awaitility:awaitility:1.6.5'
 }
 
-//apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
-//apply from: '../android-artifacts.gradle'
+apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
+apply from: '../android-artifacts.gradle'
