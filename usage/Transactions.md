@@ -96,7 +96,7 @@ There are two concepts to learn about retrieval: **fetching** vs. **selecting**.
 
   // Just get all items from the table
   // You can even use Select and Where statements instead
-  TransactionManager.getInstance().addTransaction(new SelectListTransaction<>(new TransactionListenerAdapter<TestModel.class>() {
+  TransactionManager.getInstance().addTransaction(new SelectListTransaction<>(new TransactionListenerAdapter<List<TestModel>>() {
      @Override
     public void onResultReceived(List<TestModel> testModels) {
         // on the UI thread, do something here
