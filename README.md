@@ -97,9 +97,20 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android:dbflow-processor:3.0.0'
-    compile "com.raizlabs.android:dbflow-core:3.0.0"
-    compile "com.raizlabs.android:dbflow:3.0.0"
+    apt 'com.raizlabs.android:dbflow-processor:3.0.0-beta1'
+    compile "com.raizlabs.android:dbflow-core:3.0.0-beta1"
+    compile "com.raizlabs.android:dbflow:3.0.0-beta1"
+  }
+```
+
+or if you wish to grab the latest develop commit in your project, specify the first 10 digits of the long commit hash:
+
+```groovy
+
+  dependencies {
+    apt 'com.raizlabs.android:dbflow-processor:{commit_hash}'
+    compile "com.raizlabs.android:dbflow-core:{commit_hash}"
+    compile "com.raizlabs.android:dbflow:{commit_hash}"
   }
 ```
 
