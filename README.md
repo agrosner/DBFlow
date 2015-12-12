@@ -28,7 +28,7 @@ If you wish to have your application featured here, please file an [issue](https
 3. [University of Oslo DHIS2 Android SDK](https://github.com/dhis2/dhis2-android-sdk)
 
 # Changelog
-# 3.0
+# 3.0-beta1
 Many large updates to the library. Probably the most significant changes since the library  was written. Most major changes are [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migration3Guide.md)
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
