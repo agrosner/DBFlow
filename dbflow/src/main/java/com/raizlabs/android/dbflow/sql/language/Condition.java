@@ -320,17 +320,17 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     @Override
     public In in(ITypeConditional firstConditional, ITypeConditional... conditionals) {
-        return in((Object) firstConditional, conditionals);
+        return in(firstConditional, (Object[]) conditionals);
     }
 
     @Override
     public In notIn(ITypeConditional firstConditional, ITypeConditional... conditionals) {
-        return notIn((Object) firstConditional, conditionals);
+        return notIn(firstConditional, (Object[]) conditionals);
     }
 
     @Override
     public In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable[] baseModelQueriables) {
-        return notIn((Object) firstBaseModelQueriable, baseModelQueriables);
+        return notIn(firstBaseModelQueriable, (Object[]) baseModelQueriables);
     }
 
     @Override
@@ -390,7 +390,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     @Override
     public In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable[] baseModelQueriables) {
-        return in((Object) firstBaseModelQueriable, baseModelQueriables);
+        return in(firstBaseModelQueriable, (Object[]) baseModelQueriables);
     }
 
     @Override

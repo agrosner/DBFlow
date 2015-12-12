@@ -218,7 +218,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
 
         if (columns != null) {
             queryBuilder.append("(")
-                    .appendArray(columns)
+                    .appendArray((Object[]) columns)
                     .append(")");
         }
 
