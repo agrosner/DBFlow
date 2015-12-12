@@ -3,6 +3,8 @@ apply plugin: 'android-apt'
 
 project.ext.artifactId = bt_name
 
+group= 'com.raizlabs.android'
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"

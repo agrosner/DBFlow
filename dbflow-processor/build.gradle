@@ -2,6 +2,8 @@ apply plugin: 'java'
 
 project.ext.artifactId = bt_name
 
+group= 'com.raizlabs.android'
+
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 

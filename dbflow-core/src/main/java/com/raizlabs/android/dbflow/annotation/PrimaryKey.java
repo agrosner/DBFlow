@@ -20,7 +20,7 @@ public @interface PrimaryKey {
     boolean autoincrement() default false;
 
     /**
-     * @return When true, we simple do {columnName} > 0 when checking for it's existence if {@link #autoincrement()}
+     * @return When true, we simple do {columnName} &gt; 0 when checking for it's existence if {@link #autoincrement()}
      * is true. If not, we do a full database SELECT exists.
      */
     boolean quickCheckAutoIncrement() default false;
