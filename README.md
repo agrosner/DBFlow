@@ -10,13 +10,14 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on writi
 
 # Why Use DBFlow vs other solutions
 DBFlow was built with the intention of bringing the best of all features from other ORM database libraries and to do it even better. It was also built to not limit how you can code your problems, but make it _significantly_ easier to make amazing applications. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
-1. **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages. _Also, subclass objects in this library to suit your needs_.
-2. **Speed**: Built with java's annotation processing code generation, there's zero runtime performance hit by using this library. This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
-3. **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
-4. **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
-5. **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in database request queue to perform operations on same thread, and many more features.
-6. **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, database modules using DBFlow in other dependencies, simultaneously.
-7. **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
+
+  1. **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages. _Also, subclass objects in this library to suit your needs_.
+  2. **Speed**: Built with java's annotation processing code generation, there's zero runtime performance hit by using this library. This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
+  3. **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
+  4. **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
+  5. **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in database request queue to perform operations on same thread, and many more features.
+  6. **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, database modules using DBFlow in other dependencies, simultaneously.
+  7. **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
 
 ## Applications That Use DBFlow
 If you wish to have your application featured here, please file a [ticket](https://github.com/Raizlabs/DBFlow/issues).
