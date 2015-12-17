@@ -1,13 +1,12 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
-apply plugin: 'com.raizlabs.griddle'
 repositories {
     mavenCentral()
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.0"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -16,7 +15,7 @@ android {
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -30,19 +29,18 @@ android {
     }
 
     buildTypes {
-        debug{
+        debug {
             minifyEnabled true
         }
     }
 }
 
 dependencies {
-    jars()
-    mod 'DBFlow-Compiler', 'apt'
-    mod 'DBFlow'
-    nsMod 'com.android.support:appcompat-v7:21.0.3'
+    apt project(':dbflow-processor')
+    compile project(':dbflow')
+    compile 'com.android.support:appcompat-v7:23.1.1'
 }
 
 android.applicationVariants.all { variant ->
-    variant.javaCompile.dependsOn ':DBFlow-Compiler:jar'
+    variant.javaCompile.dependsOn ':dbflow-processor:jar'
 }
