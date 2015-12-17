@@ -37,7 +37,7 @@ As of 3.0, DBFlow now will smartly reload `@ForeignKey` relationships when loadi
 When running a query via the wrapper language, DBFlow will:
   1. Run the query, resulting in a `Cursor`
   2. Retrieve the primary key column values from the `Cursor`
-  3 If the combo from the keys is in the cache, we:
+  3. If the combo from the keys is in the cache, we:
     1. Reload relationships such as `@ForeignKey` (if any exist). _TIP:_ Make this faster by enabling caching on this object's table too.
     2. Then return the cached object.
 
