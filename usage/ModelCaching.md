@@ -9,9 +9,9 @@ To enabled caching, simply add `cachingEnabled = true` to your `@Table` annotati
 When a query runs on the DB, it will store the instance of the `Model` in the cache, and the cache is solely responsible for managing memory efficiently.
 
 There are a few kinds of caches supported out the box:
-1. `ModelLruCache` -> using an LruCache, this cache will evict members as it adds items that go past a predefined limit.
-2. `SimpleMapCache` -> simply stores models in a `Map` (default is `HashMap`) with a predefined capacity on the `Map`.
-3. `SparseArrayBasedCache` -> an int->object key/value based object that uses a `SparseArray` underneath. It works with any _Number_ descendant or primitive counterpart (Integer, Double, Long, etc.), or `MulitCacheConverter` that returns the same key type.
+  1. `ModelLruCache` -> using an LruCache, this cache will evict members as it adds items that go past a predefined limit.
+  2. `SimpleMapCache` -> simply stores models in a `Map` (default is `HashMap`) with a predefined capacity on the `Map`.
+  3. `SparseArrayBasedCache` -> an int->object key/value based object that uses a `SparseArray` underneath. It works with any _Number_ descendant or primitive counterpart (Integer, Double, Long, etc.), or `MulitCacheConverter` that returns the same key type.
 
 **Note** if you run a `SELECT` with columns specified, it may cache partial `Model` classes if they're loaded before the full counterparts. It is highly recommended to just load the full models in this case, since the caching mechanism will make up most efficiency problems.
 
@@ -29,19 +29,19 @@ The `@ModelCacheField` must be `public static`.
 As of 3.0, DBFlow now will smartly reload `@ForeignKey` relationships when loading from the cache.
 
 ### How Caching Actually works
-1.Each `@Table`/`Model` class has its own cache, they are not shared between tables or subclasses.
-1. It "intercepts" the query running and references the cache (explained next).
-2. Using any wrapper `Insert`, `Update`, or `Delete` SQLite-builder method are **strongly discouraged** when caching a `Model` as the cache will not update (due to efficiency and performance reasons). If you need to run these queries, a simple `FlowManager.getModelAdapter(MyTable.class).getModelCache().clear()` after running the query will invalidate the cache and it will update its information going forward.
-3. Modifying objects from the cache follows Java-reference rules: changing field values in one thread may result in an inconsistent state on in your application that may be loading from the DB until you `save()`, `insert()` or `update()`. Changing any fields are directly modifying objects from the cache (when loaded directly from it), so take note.
+  1.Each `@Table`/`Model` class has its own cache, they are not shared between tables or subclasses.
+  2. It "intercepts" the query running and references the cache (explained next).
+  3. Using any wrapper `Insert`, `Update`, or `Delete` SQLite-builder method are **strongly discouraged** when caching a `Model` as the cache will not update (due to efficiency and performance reasons). If you need to run these queries, a simple `FlowManager.getModelAdapter(MyTable.class).getModelCache().clear()` after running the query will invalidate the cache and it will update its information going forward.
+  4. Modifying objects from the cache follows Java-reference rules: changing field values in one thread may result in an inconsistent state on in your application that may be loading from the DB until you `save()`, `insert()` or `update()`. Changing any fields are directly modifying objects from the cache (when loaded directly from it), so take note.
 
 When running a query via the wrapper language, DBFlow will:
-1. Run the query, resulting in a `Cursor`
-2. Retrieve the primary key column values from the `Cursor`
-- If the combo from the keys is in the cache, we:
-  1. Reload relationships such as `@ForeignKey` (if any exist). _TIP:_ Make this faster by enabling caching on this object's table too.
-  2. Then return the cached object.
+  1. Run the query, resulting in a `Cursor`
+  2. Retrieve the primary key column values from the `Cursor`
+  3 If the combo from the keys is in the cache, we:
+    1. Reload relationships such as `@ForeignKey` (if any exist). _TIP:_ Make this faster by enabling caching on this object's table too.
+    2. Then return the cached object.
 
-- If the object does not exist, we load the full object from the DB, and subsequent queries to the same object will return the object from the cache (until it's evicted or cleared from the cache.)
+  4. If the object does not exist, we load the full object from the DB, and subsequent queries to the same object will return the object from the cache (until it's evicted or cleared from the cache.)
 
 ### Multiple Primary key caching
 As of 3.0, DBFlow supports multiple primary keys in a cache. It is _required_ that any `Model` with more than one primary key define a `@MultiCacheField`:
