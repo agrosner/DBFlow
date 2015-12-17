@@ -101,16 +101,18 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
   }
 ```
 
-or if you wish to grab the latest develop commit in your project, specify the first 10 digits of the long commit hash:
+If you wish to grab the latest develop branch in your project, use JitPack dependencies:
 
 ```groovy
 
   dependencies {
-    apt 'com.raizlabs.android:dbflow-processor:{commit_hash}'
-    compile "com.raizlabs.android:dbflow-core:{commit_hash}"
-    compile "com.raizlabs.android:dbflow:{commit_hash}"
+    apt 'com.github.Raizlabs.DBFlow:dbflow-processor:develop-SNAPSHOT'
+    compile "com.github.Raizlabs.DBFlow:dbflow-core:develop-SNAPSHOT"
+    compile "com.github.Raizlabs.DBFlow:dbflow:develop-SNAPSHOT"
   }
 ```
+
+You can also specify a commit hash instead of `develop-SNAPSHOT` to grab a specific commit.
 
 # Pull Requests
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
