@@ -4,18 +4,18 @@ DBFlow has undergone the most _significant_ changes in its lifetime in 3.0. This
 A significant portion of the changes include the _complete_ overhaul of the underlying annotation processor, leading to wonderful improvements in maintainability of the code, readability, and stability of the generated code. Now it uses the updated [JavaPoet](https://github.com/square/javapoet) vs the outdated JavaWriter. The changes in this library alone _significantly_ helps out the stability of the generated code.
 
 _note:_
-1. `update` no longer attempts to `insert` if it fails.
-2. Package private fields from other packages are now automatically accessible via generated `_Helper` classes. The referenced fields must be annotated with `@Column`, `@PrimaryKey`, or `@ForeignKey`. if its a legacy `ForeignKeyReference`, `referendFieldIsPackagePrivate()` must be set to true.
-3. `@Column` no longer required in conjunction with `@PrimaryKey` or `@ForeignKey`
-4. Can now have DBFlow in multiple modules, libraries, etc via "Modules"!
+  1. `update` no longer attempts to `insert` if it fails.
+  2. Package private fields from other packages are now automatically accessible via generated `_Helper` classes. The referenced fields must be annotated with `@Column`, `@PrimaryKey`, or `@ForeignKey`. if its a legacy `ForeignKeyReference`, `referendFieldIsPackagePrivate()` must be set to true.
+  3. `@Column` no longer required in conjunction with `@PrimaryKey` or `@ForeignKey`
+  4. Can now have DBFlow in multiple modules, libraries, etc via "Modules"!
 
 ## Table Of Contents
-1. Database + Table Structure
-2. Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
-3. ModelContainers
-4. ModelViews
-5. Caching
-6. Database Modules
+  1. Database + Table Structure
+  2. Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
+  3. ModelContainers
+  4. ModelViews
+  5. Caching
+  6. Database Modules
 
 ## Database + Table Structure
 ### Database changes
@@ -296,16 +296,16 @@ SQLite.select()
 
 ## ModelContainer Changes
 Now `ModelContainer` objects have a multitude of type-safe methods to ensure that they  can convert their contained object's data into the field they associate with. What  this means is that if our `Model` has a `long` field, while the data object for  the `ModelContainer` has a `Integer` object. Previously, we would get a classcastexception. Now what it does is "coerce" the value into the type you need.  Supported Types:
-1. Integer/int
-2. Double/Double
-3. Boolean/boolean
-4. Short/short
-5. Long/long
-6. Float/Float
-7. String
-8. Blob/byte[]/Byte[]
-9. Byte/byte
-10. Using TypeConverter to retrieve value safely.
+  1. Integer/int
+  2. Double/Double
+  3. Boolean/boolean
+  4. Short/short
+  5. Long/long
+  6. Float/Float
+  7. String
+  8. Blob/byte[]/Byte[]
+  9. Byte/byte
+  10. Using TypeConverter to retrieve value safely.
 
 You can now `queryModelContainer` from the database to retrieve a single `Model` into `ModelContainer` format instead of into `Model` and then `ModelContainer`:
 
