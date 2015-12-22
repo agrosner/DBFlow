@@ -73,7 +73,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-         'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 ```
