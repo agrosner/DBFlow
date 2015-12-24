@@ -73,7 +73,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-         'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 ```
@@ -95,9 +95,9 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
   apply plugin: 'com.neenbedankt.android-apt'
 
   dependencies {
-    apt 'com.raizlabs.android.DBFlow:dbflow-processor:3.0.0-beta1'
-    compile "com.raizlabs.android.DBFlow:dbflow-core:3.0.0-beta1"
-    compile "com.raizlabs.android.DBFlow:dbflow:3.0.0-beta1"
+    apt 'com.github.Raizlabs.DBFlow:dbflow-processor:3.0.0-beta1'
+    compile "com.github.Raizlabs.DBFlow:dbflow-core:3.0.0-beta1"
+    compile "com.github.Raizlabs.DBFlow:dbflow:3.0.0-beta1"
   }
 ```
 
