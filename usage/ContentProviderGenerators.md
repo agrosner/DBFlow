@@ -10,7 +10,7 @@ In order to define a `ContentProvider`, you must define a placeholder class:
 ```java
 
 @ContentProvider(authority = TestContentProvider.AUTHORITY,
-        database = TestDatabase.class,
+        databaseName = TestDatabase.NAME,
         baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 public class TestContentProvider {
 
@@ -26,14 +26,14 @@ or you can use the annotation in any class you wish. The recommended place would
 ```java
 
 @ContentProvider(authority = TestDatabase.AUTHORITY,
-        database = TestDatabase.class,
+        databaseName = TestDatabase.NAME,
         baseContentUri = TestDatabase.BASE_CONTENT_URI)
 @Database(name = TestDatabase.NAME, version = TestDatabase.VERSION)
 public class TestDatabase {
 
     public static final String NAME = "TestDatabase";
 
-    public static final int VERSION = "1";
+    public static final int VERSION = 1;
 
     public static final String AUTHORITY = "com.raizlabs.android.dbflow.test.provider";
 
@@ -107,7 +107,7 @@ public class ContentProviderModel extends BaseProviderModel<ContentProviderModel
     public static final String NAME = "ContentProviderModel";
 
     @ContentUri(path = NAME, type = ContentUri.ContentType.VND_MULTIPLE + NAME)
-    public static final Uri CONTENT_URI = ContentUtils.buildUri(ContentDatabase.AUTHORITY);
+    public static final Uri CONTENT_URI = ContentUtils.buildUri(ContentDatabase.AUTHORITY,new String[]{NAME});
 
     @Column
     @PrimaryKey(autoincrement = true)
@@ -121,22 +121,22 @@ public class ContentProviderModel extends BaseProviderModel<ContentProviderModel
 
     @Override
     public Uri getDeleteUri() {
-        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+        return ContentProviderModel.CONTENT_URI;
     }
 
     @Override
     public Uri getInsertUri() {
-        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+        return ContentProviderModel.CONTENT_URI;
     }
 
     @Override
     public Uri getUpdateUri() {
-        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+        return ContentProviderModel.CONTENT_URI;
     }
 
     @Override
     public Uri getQueryUri() {
-        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+        return ContentProviderModel.CONTENT_URI;
     }
 }
 ```
