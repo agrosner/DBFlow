@@ -17,8 +17,10 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     private final boolean useIsForGetter;
 
     public PrivateColumnAccess(Column column, boolean useIsForGetter) {
-        getterName = column.getterName();
-        setterName = column.setterName();
+        if (column != null) {
+            getterName = column.getterName();
+            setterName = column.setterName();
+        }
         this.useIsForGetter = useIsForGetter;
     }
 

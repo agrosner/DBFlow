@@ -63,7 +63,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
             methodBuilder.addCode(codeBuilder.build());
         }
 
-        if (((TableDefinition) baseTableDefinition).implementsLoadFromCursorListener) {
+        if (baseTableDefinition instanceof TableDefinition && ((TableDefinition) baseTableDefinition).implementsLoadFromCursorListener) {
             methodBuilder.addStatement("$L.onLoadFromCursor($L)", ModelUtils.getVariable(isModelContainerAdapter), LoadFromCursorMethod.PARAM_CURSOR);
         }
 
