@@ -78,7 +78,7 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
     }
 
     @Override
-    public void queryClose() {
+    public void execute() {
         Cursor cursor = query();
         if (cursor != null) {
             cursor.close();

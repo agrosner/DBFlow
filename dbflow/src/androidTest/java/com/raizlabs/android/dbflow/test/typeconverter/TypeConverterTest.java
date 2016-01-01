@@ -125,7 +125,7 @@ public class TypeConverterTest extends FlowTestCase {
         new Update<>(TestType.class)
                 .set(TestType_Table.nativeBoolean.is((Boolean) null))
                 .where(TestType_Table.name.eq(testType.getName()))
-                .queryClose();
+                .execute();
 
         TestType retrieved = new Select().from(TestType.class)
                 .where(TestType_Table.name.is("Name"))

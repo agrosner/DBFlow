@@ -249,7 +249,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     }
 
     @Override
-    public void queryClose() {
+    public void execute() {
         query();
     }
 }

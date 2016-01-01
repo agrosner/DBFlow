@@ -249,7 +249,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     @Override
-    public void queryClose() {
+    public void execute() {
         Cursor query = query();
         if (query != null) {
             query.close();
