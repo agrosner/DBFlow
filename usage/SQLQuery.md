@@ -39,6 +39,7 @@ if (cursor.moveToFirst()) {
 This is short and sweet for simple queries, but why do we have to keep writing these statements?
 
 What happens when:
+
 1. We add or remove columns
 2. Have to write more functions like this for other tables, queries, and other kinds of data?
 
@@ -60,6 +61,7 @@ List<Ant> devices = SQLite.select().from(Ant.class)
 ```
 
 There are many kinds of queries that are supported in DBFlow including:
+
 1. SELECT
 2. UPDATE
 3. INSERT
@@ -154,6 +156,7 @@ SQLite.select()
 
 ## UPDATE statements
 There are two ways of updating data in the database:
+
 1. Calling `SQLite.update()`or Using the `Update` class
 2. Running a `Transaction` using the `TransactionManager` (recommended for thread-safety, however seeing changes are async).
 
