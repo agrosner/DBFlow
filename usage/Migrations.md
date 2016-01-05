@@ -5,6 +5,8 @@ You can specify a migration to run when database is first created by using versi
 
 **Note** any provided subclass such as `AlterTableMigration`, `UpdateTableMigration`, and `IndexMigration` should only override `onPreMigrate()` and **call super.onPreMigrate()** so it's instantiated properly.
 
+**Note** All `Migration` must only have a `public` default constructor.
+
 ## Migration Classes
 The base class, `BaseMigration` provides a very simple class to execute your migration:
 
