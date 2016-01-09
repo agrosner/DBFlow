@@ -82,6 +82,7 @@ public class ColumnDefinition extends BaseDefinition {
                             Column column, PrimaryKey primaryKey) {
         super(element, processorManager);
         this.tableDefinition = baseTableDefinition;
+        this.column = column;
         if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName()
                     .toString() : column.name();

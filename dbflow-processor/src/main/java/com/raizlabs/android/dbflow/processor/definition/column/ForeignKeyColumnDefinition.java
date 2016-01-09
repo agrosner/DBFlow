@@ -63,13 +63,6 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         onUpdate = foreignKey.onUpdate();
         onDelete = foreignKey.onDelete();
 
-        if (column != null) {
-            if (column.name() != null) {
-                manager.logError(ForeignKeyColumnDefinition.class, "Foreign Key Columns cannot specify a name() for it's column. " +
-                        "You have to manually define a Foreign Key's references() to use a custom name.");
-            }
-        }
-
         try {
             foreignKey.tableClass();
         } catch (MirroredTypeException mte) {
