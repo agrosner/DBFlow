@@ -297,7 +297,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper {
 
         checkForeignKeySupport(db);
         executeCreations(db);
-        executeMigrations(db, -1, db.getVersion());
+        executeMigrations(db, -1, databaseDefinition.getDatabaseVersion());
     }
 
     @Override
