@@ -22,5 +22,13 @@ public class EnumModel extends BaseModel {
     long id;
 
     @Column
-    Difficulty difficulty;
+    private Difficulty difficulty;
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
 }

@@ -13,11 +13,11 @@ public class EnumModelTest extends FlowTestCase {
         Delete.table(EnumModel.class);
 
         EnumModel enumModel = new EnumModel();
-        enumModel.difficulty = EnumModel.Difficulty.EASY;
+        enumModel.setDifficulty(EnumModel.Difficulty.EASY);
         enumModel.save();
 
         enumModel = new Select().from(EnumModel.class).querySingle();
-        assertEquals(EnumModel.Difficulty.EASY, enumModel.difficulty);
+        assertEquals(EnumModel.Difficulty.EASY, enumModel.getDifficulty());
 
         Delete.table(EnumModel.class);
     }
