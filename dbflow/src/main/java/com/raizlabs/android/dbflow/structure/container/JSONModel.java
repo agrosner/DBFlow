@@ -45,6 +45,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
         return new JSONModel((JSONObject) inValue, columnClass);
     }
 
+    @NonNull
     @Override
     public JSONObject newDataInstance() {
         return new JSONObject();

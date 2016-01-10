@@ -44,6 +44,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
         super(existingContainer);
     }
 
+    @NonNull
     @Override
     public Map<String, Object> newDataInstance() {
         return new LinkedHashMap<>();

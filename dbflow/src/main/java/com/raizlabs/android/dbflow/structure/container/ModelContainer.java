@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
@@ -16,9 +17,10 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 public interface ModelContainer<ModelClass extends Model, DataClass> extends Model {
 
     /**
-     * Will convert the object into {@link ModelClass}
+     * Will convert the object into {@link ModelClass}. It simply converts whatever is stored in this object
+     * into a {@link ModelClass} representation of it. If fields are missing, they will be empty or null.
      *
-     * @return The model from this object's data.
+     * @return A model from this object's data. This will be cached for performance. To force a reload call {@link #toModelForce()}.
      */
     @Nullable
     ModelClass toModel();
@@ -40,6 +42,7 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     /**
      * @return The underlying data object that this container uses to imitate a model.
      */
+    @Nullable
     DataClass getData();
 
     /**
@@ -52,6 +55,7 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     /**
      * @return New instance of underlying data for parsing
      */
+    @NonNull
     DataClass newDataInstance();
 
     /**
