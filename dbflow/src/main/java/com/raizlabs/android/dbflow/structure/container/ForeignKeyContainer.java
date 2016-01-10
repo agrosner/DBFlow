@@ -86,6 +86,14 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
         return model;
     }
 
+    /**
+     * @return forces a reload of the underlying model and returns it.
+     */
+    public ModelClass reload() {
+        model = null;
+        return load();
+    }
+
     @Override
     public boolean exists() {
         ModelClass model = toModel();
