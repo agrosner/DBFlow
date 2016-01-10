@@ -55,7 +55,7 @@ All standard tables must use the `@Table` annotation and implement `Model`. As a
 
 **Models Support**:
   1. Any default java class is supported such as the primitives, boxed primitives, and `String`.
-  2. A non-default object with a `TypeConverter` is also save-able (leave out parameterized classes such as List<T>, Map<U,V> and use List and Map. However `List` or any complicated column is not recommended for best practices).
+  2. A non-default object with a `TypeConverter` is also save-able. Objects with type-parameters are _not_ supported. Also `List`, `Map` or multi-value fields are not recommended. If you must, you have to leave out the type parameters.
   3. Composite primary keys
   4. Nested `Model` defined as a `@ForeignKey`, enabling 1-1 relationships.
   5. Any `ModelContainer` as a `@ForeignKey`
