@@ -22,8 +22,16 @@ public class BlobModel extends BaseModel {
     int key;
 
     @Column(name = "image_blob")
-    Blob blob;
+    private Blob blob;
 
     @Column
     Date date;
+
+    public Blob getBlob() {
+        return blob;
+    }
+
+    public void setBlob(Blob blob) {
+        this.blob = blob;
+    }
 }

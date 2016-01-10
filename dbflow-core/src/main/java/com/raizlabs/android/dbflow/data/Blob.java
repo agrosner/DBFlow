@@ -7,6 +7,9 @@ public class Blob {
 
     private byte[] blob;
 
+    public Blob() {
+    }
+
     public Blob(byte[] blob) {
         this.blob = blob;
     }

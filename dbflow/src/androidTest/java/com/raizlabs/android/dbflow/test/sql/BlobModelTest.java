@@ -11,7 +11,7 @@ public class BlobModelTest extends FlowTestCase {
     public void testBlob() {
 
         BlobModel blobModel = new BlobModel();
-        blobModel.blob = new Blob(TEST_BLOB.getBytes());
+        blobModel.setBlob(new Blob(TEST_BLOB.getBytes()));
         blobModel.save();
 
         assertTrue(blobModel.exists());
@@ -21,7 +21,7 @@ public class BlobModelTest extends FlowTestCase {
                 .querySingle();
 
         assertNotNull(model);
-        assertNotNull(model.blob);
-        assertEquals(new String(model.blob.getBlob()), TEST_BLOB);
+        assertNotNull(model.getBlob());
+        assertEquals(new String(model.getBlob().getBlob()), TEST_BLOB);
     }
 }
