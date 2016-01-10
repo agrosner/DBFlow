@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.support.annotation.Nullable;
+
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -16,9 +18,24 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     /**
      * Will convert the object into {@link ModelClass}
      *
-     * @return The model from this json.
+     * @return The model from this object's data.
      */
+    @Nullable
     ModelClass toModel();
+
+    /**
+     * Forces a re-conversion of the underlying data into a {@link ModelClass}/
+     *
+     * @return The model from this object's data.
+     */
+    @Nullable
+    ModelClass toModelForce();
+
+    /**
+     * @return The model object contained (if converted).
+     */
+    @Nullable
+    ModelClass getModel();
 
     /**
      * @return The underlying data object that this container uses to imitate a model.
