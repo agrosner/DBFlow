@@ -54,24 +54,24 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
 
     @Override
     public boolean containsValue(String key) {
-        return getData() != null && getData().containsKey(key) && getData().get(key) != null;
+        Map<String, Object> data = getData();
+        return data != null && data.containsKey(key) && data.get(key) != null;
     }
 
     @Override
     public Object getValue(String key) {
-        return getData().get(key);
+        Map<String, Object> data = getData();
+        return data != null ? data.get(key) : null;
     }
 
     @Override
     public void put(String columnName, Object value) {
-        getData().put(columnName, value);
-    }
-
-    @Override
-    public void setModel(ModelClass model) {
-        super.setModel(model);
-
-
+        Map<String, Object> data = getData();
+        if (data == null) {
+            data = new LinkedHashMap<>();
+            setData(data);
+        }
+        data.put(columnName, value);
     }
 
     /**
