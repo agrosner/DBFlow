@@ -3,12 +3,12 @@ package com.raizlabs.android.dbflow.structure;
 /**
  * Description: Provides a {@link #newInstance()} method to a {@link RetrievalAdapter}
  */
-public interface InstanceAdapter<TableClass extends Model, ModelClass extends Model>
-        extends RetrievalAdapter<TableClass, ModelClass> {
+public abstract class InstanceAdapter<ModelClass extends Model>
+        extends RetrievalAdapter<ModelClass> {
 
     /**
      * @return A new model using its default constructor. This is why default is required so that
      * we don't use reflection to create objects = faster.
      */
-    ModelClass newInstance();
+    public abstract ModelClass newInstance();
 }

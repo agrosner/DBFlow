@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.structure.container;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
@@ -17,7 +16,7 @@ import java.util.Map;
  * Description: The base class that generated {@link ModelContainerAdapter} implement
  * to provide the necessary interactions.
  */
-public abstract class ModelContainerAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>>, RetrievalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
+public abstract class ModelContainerAdapter<ModelClass extends Model> extends RetrievalAdapter<ModelContainer<ModelClass, ?>> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
 
     protected final Map<String, Class> columnMap = new HashMap<>();
 

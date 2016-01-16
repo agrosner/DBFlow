@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
  * Description: The baseclass for adapters to {@link QueryModel} that defines how it interacts with the DB. The
  * where query is not defined here, rather its determined by the query used.
  */
-public abstract class QueryModelAdapter<ModelClass extends Model> implements InstanceAdapter<ModelClass, ModelClass> {
+public abstract class QueryModelAdapter<ModelClass extends Model> extends InstanceAdapter<ModelClass> {
 
     @Override
     public ConditionGroup getPrimaryConditionClause(ModelClass model) {
