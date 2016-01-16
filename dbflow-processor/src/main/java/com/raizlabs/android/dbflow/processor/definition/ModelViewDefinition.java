@@ -224,6 +224,8 @@ public class ModelViewDefinition extends BaseTableDefinition {
             }
         }
 
+        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
+
         typeBuilder.addMethod(MethodSpec.methodBuilder("getCreationQuery")
                 .addAnnotation(Override.class)
                 .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
