@@ -10,10 +10,10 @@ import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
  * Description: Provides a base retrieval class for all {@link Model} backed
  * adapters.
  */
-public abstract class RetrievalAdapter<ModelClass extends Model> {
+public abstract class RetrievalAdapter<ModelClass extends Model, TableClass extends Model> {
 
-    private SingleModelLoader<ModelClass> singleModelLoader;
-    private ListModelLoader<ModelClass> listModelLoader;
+    private SingleModelLoader<TableClass> singleModelLoader;
+    private ListModelLoader<TableClass> listModelLoader;
 
     /**
      * Assigns the {@link android.database.Cursor} data into the specified {@link ModelClass}
@@ -38,28 +38,28 @@ public abstract class RetrievalAdapter<ModelClass extends Model> {
     /**
      * @return the model class this adapter corresponds to
      */
-    public abstract Class<ModelClass> getModelClass();
+    public abstract Class<TableClass> getModelClass();
 
 
-    public ListModelLoader<ModelClass> getListModelLoader() {
+    public ListModelLoader<TableClass> getListModelLoader() {
         if (listModelLoader == null) {
             listModelLoader = createListModelLoader();
         }
         return listModelLoader;
     }
 
-    protected ListModelLoader<ModelClass> createListModelLoader() {
+    protected ListModelLoader<TableClass> createListModelLoader() {
         return new ListModelLoader<>(getModelClass());
     }
 
-    public SingleModelLoader<ModelClass> getSingleModelLoader() {
+    public SingleModelLoader<TableClass> getSingleModelLoader() {
         if (singleModelLoader == null) {
             singleModelLoader = createSingleModelLoader();
         }
         return singleModelLoader;
     }
 
-    protected SingleModelLoader<ModelClass> createSingleModelLoader() {
+    protected SingleModelLoader<TableClass> createSingleModelLoader() {
         return new SingleModelLoader<>(getModelClass());
     }
 }

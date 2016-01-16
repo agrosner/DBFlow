@@ -16,7 +16,7 @@ import java.util.Map;
  * Description: The base class that generated {@link ModelContainerAdapter} implement
  * to provide the necessary interactions.
  */
-public abstract class ModelContainerAdapter<ModelClass extends Model> extends RetrievalAdapter<ModelContainer<ModelClass, ?>> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
+public abstract class ModelContainerAdapter<ModelClass extends Model> extends RetrievalAdapter<ModelContainer<ModelClass, ?>, ModelClass> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
 
     protected final Map<String, Class> columnMap = new HashMap<>();
 
