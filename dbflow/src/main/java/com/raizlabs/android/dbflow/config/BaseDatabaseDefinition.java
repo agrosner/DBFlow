@@ -63,7 +63,7 @@ public abstract class BaseDatabaseDefinition {
     /**
      * @return a list of all model classes in this database.
      */
-    List<Class<? extends Model>> getModelClasses() {
+    public List<Class<? extends Model>> getModelClasses() {
         return models;
     }
 
@@ -72,7 +72,7 @@ public abstract class BaseDatabaseDefinition {
      *
      * @return List of Model Adapters
      */
-    List<ModelAdapter> getModelAdapters() {
+    public List<ModelAdapter> getModelAdapters() {
         return new ArrayList<>(modelAdapters.values());
     }
 
@@ -84,7 +84,7 @@ public abstract class BaseDatabaseDefinition {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    ModelAdapter getModelAdapterForTable(Class<? extends Model> table) {
+    public ModelAdapter getModelAdapterForTable(Class<? extends Model> table) {
         return modelAdapters.get(table);
     }
 
@@ -110,7 +110,7 @@ public abstract class BaseDatabaseDefinition {
     /**
      * @return the {@link BaseModelView} list for this database.
      */
-    List<Class<? extends BaseModelView>> getModelViews() {
+    public List<Class<? extends BaseModelView>> getModelViews() {
         return modelViews;
     }
 
@@ -118,7 +118,7 @@ public abstract class BaseDatabaseDefinition {
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated {@link ModelViewAdapter} for the specified table.
      */
-    ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
+    public ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
         return modelViewAdapterMap.get(table);
     }
 
@@ -126,14 +126,14 @@ public abstract class BaseDatabaseDefinition {
      * @return The list of {@link ModelViewAdapter}. Internal method for
      * creating model views in the DB.
      */
-    List<ModelViewAdapter> getModelViewAdapters() {
+    public List<ModelViewAdapter> getModelViewAdapters() {
         return new ArrayList<>(modelViewAdapterMap.values());
     }
 
     /**
      * @return The list of {@link QueryModelAdapter}. Internal method for creating query models in the DB.
      */
-    List<QueryModelAdapter> getModelQueryAdapters() {
+    public List<QueryModelAdapter> getModelQueryAdapters() {
         return new ArrayList<>(queryModelAdapterMap.values());
     }
 
@@ -141,14 +141,14 @@ public abstract class BaseDatabaseDefinition {
      * @param queryModel The {@link QueryModel} class
      * @return The adapter that corresponds to the specified class.
      */
-    QueryModelAdapter getQueryModelAdapterForQueryClass(Class<? extends BaseQueryModel> queryModel) {
+    public QueryModelAdapter getQueryModelAdapterForQueryClass(Class<? extends BaseQueryModel> queryModel) {
         return queryModelAdapterMap.get(queryModel);
     }
 
     /**
      * @return The map of migrations to DB version
      */
-    Map<Integer, List<Migration>> getMigrations() {
+    public Map<Integer, List<Migration>> getMigrations() {
         return migrationMap;
     }
 
