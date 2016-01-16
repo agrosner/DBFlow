@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
@@ -17,6 +18,8 @@ import java.util.Map;
  * to provide the necessary interactions.
  */
 public abstract class ModelContainerAdapter<ModelClass extends Model> extends RetrievalAdapter<ModelContainer<ModelClass, ?>, ModelClass> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
+
+    private ModelContainerLoader<ModelContainer<ModelClass, ?>, ModelClass> modelContainerLoader;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
 
@@ -122,4 +125,14 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
         return columnMap.get(columnName);
     }
 
+    public ModelContainerLoader<ModelContainer<ModelClass, ?>, ModelClass> getModelContainerLoader() {
+        if (modelContainerLoader == null) {
+            modelContainerLoader = createModelContainerLoader();
+        }
+        return modelContainerLoader;
+    }
+
+    protected ModelContainerLoader<ModelContainer<ModelClass, ?>, ModelClass> createModelContainerLoader() {
+        return new ModelContainerLoader<>(getModelClass());
+    }
 }

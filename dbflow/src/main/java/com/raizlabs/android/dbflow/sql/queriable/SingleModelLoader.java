@@ -18,12 +18,13 @@ public class SingleModelLoader<TModel extends Model> extends ModelLoader<TModel,
     @SuppressWarnings("unchecked")
     @Override
     @Nullable
-    protected TModel convertToData(@NonNull final Cursor cursor) {
-        TModel model = null;
+    protected TModel convertToData(@NonNull final Cursor cursor, @Nullable TModel data) {
         if (cursor.moveToFirst()) {
-            model = (TModel) getInstanceAdapter().newInstance();
-            getInstanceAdapter().loadFromCursor(cursor, model);
+            if (data == null) {
+                data = (TModel) getInstanceAdapter().newInstance();
+            }
+            getInstanceAdapter().loadFromCursor(cursor, data);
         }
-        return model;
+        return data;
     }
 }

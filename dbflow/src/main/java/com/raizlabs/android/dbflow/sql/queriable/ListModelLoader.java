@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -19,15 +20,20 @@ public class ListModelLoader<TModel extends Model> extends ModelLoader<TModel, L
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<TModel> convertToData(@NonNull Cursor cursor) {
-        final List<TModel> modelList = new ArrayList<>();
+    protected List<TModel> convertToData(@NonNull Cursor cursor, @Nullable List<TModel> data) {
+        if (data == null) {
+            data = new ArrayList<>();
+        } else {
+            data.clear();
+        }
+
         if (cursor.moveToFirst()) {
             do {
                 TModel model = (TModel) getInstanceAdapter().newInstance();
                 getInstanceAdapter().loadFromCursor(cursor, model);
-                modelList.add(model);
+                data.add(model);
             } while (cursor.moveToNext());
         }
-        return modelList;
+        return data;
     }
 }

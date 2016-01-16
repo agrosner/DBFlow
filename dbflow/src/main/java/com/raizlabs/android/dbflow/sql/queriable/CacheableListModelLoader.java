@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -39,8 +40,10 @@ public class CacheableListModelLoader<TModel extends Model> extends ListModelLoa
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<TModel> convertToData(@NonNull Cursor cursor) {
-        final List<TModel> modelList = new ArrayList<>();
+    protected List<TModel> convertToData(@NonNull Cursor cursor, @Nullable List<TModel> data) {
+        if (data == null) {
+            data = new ArrayList<>();
+        }
         Object[] cacheValues = new Object[modelAdapter.getCachingColumns().length];
         // Ensure that we aren't iterating over this cursor concurrently from different threads
         if (cursor.moveToFirst()) {
@@ -49,15 +52,16 @@ public class CacheableListModelLoader<TModel extends Model> extends ListModelLoa
                 TModel model = modelCache.get(modelAdapter.getCachingId(values));
                 if (model != null) {
                     modelAdapter.reloadRelationships(model, cursor);
-                    modelList.add(model);
+                    data.add(model);
                 } else {
                     model = modelAdapter.newInstance();
                     modelAdapter.loadFromCursor(cursor, model);
-                    modelList.add(model);
+                    modelCache.addModel(modelAdapter.getCachingId(values), model);
+                    data.add(model);
                 }
             } while (cursor.moveToNext());
         }
-        return modelList;
+        return data;
     }
 
 }

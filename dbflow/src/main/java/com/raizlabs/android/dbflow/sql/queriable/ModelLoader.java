@@ -34,11 +34,15 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
      */
     @Nullable
     public TReturn load(String query) {
+        return load(query, null);
+    }
+
+    @Nullable
+    public TReturn load(String query, @Nullable TReturn data) {
         final Cursor cursor = databaseDefinition.getWritableDatabase().rawQuery(query, null);
-        TReturn data = null;
         if (cursor != null) {
             try {
-                data = convertToData(cursor);
+                data = convertToData(cursor, data);
             } finally {
                 cursor.close();
             }
@@ -55,5 +59,9 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
         return instanceAdapter;
     }
 
-    protected abstract TReturn convertToData(@NonNull final Cursor cursor);
+    public BaseDatabaseDefinition getDatabaseDefinition() {
+        return databaseDefinition;
+    }
+
+    protected abstract TReturn convertToData(@NonNull final Cursor cursor, @Nullable TReturn data);
 }
