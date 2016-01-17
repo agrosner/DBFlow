@@ -35,21 +35,25 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
     @Nullable
     @Override
     protected TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data) {
-        ModelCache<TModel, ?> modelCache = modelAdapter.getModelCache();
-        Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
-                new Object[modelAdapter.getCachingColumns().length], cursor);
-        TModel model = modelCache.get(modelAdapter.getCachingId(values));
-        if (model == null) {
-            if (data == null) {
-                model = modelAdapter.newInstance();
+        if (cursor.moveToFirst()) {
+            ModelCache<TModel, ?> modelCache = modelAdapter.getModelCache();
+            Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
+                    new Object[modelAdapter.getCachingColumns().length], cursor);
+            TModel model = modelCache.get(modelAdapter.getCachingId(values));
+            if (model == null) {
+                if (data == null) {
+                    model = modelAdapter.newInstance();
+                } else {
+                    model = data;
+                }
+                modelAdapter.loadFromCursor(cursor, model);
+                modelCache.addModel(modelAdapter.getCachingId(values), model);
             } else {
-                model = data;
+                modelAdapter.reloadRelationships(model, cursor);
             }
-            modelAdapter.loadFromCursor(cursor, model);
-            modelCache.addModel(modelAdapter.getCachingId(values), model);
+            return model;
         } else {
-            modelAdapter.reloadRelationships(model, cursor);
+            return null;
         }
-        return model;
     }
 }
