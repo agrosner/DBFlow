@@ -20,6 +20,7 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
 
 import java.util.HashSet;
 import java.util.List;
@@ -331,15 +332,15 @@ public class FlowManager {
     /**
      * Checks a standard database helper for integrity using quick_check(1).
      *
-     * @param helper The helper to user to look up integrity.
+     * @param helperDelegate The helper to user to look up integrity.
      * @return true if it's integrity is OK.
      */
-    public static boolean isDatabaseIntegrityOk(SQLiteOpenHelper helper) {
+    public static boolean isDatabaseIntegrityOk(DatabaseHelperDelegate helperDelegate) {
         boolean integrityOk = true;
 
         SQLiteStatement prog = null;
         try {
-            prog = helper.getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
+            prog = helperDelegate.getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
             String rslt = prog.simpleQueryForString();
             if (!rslt.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases

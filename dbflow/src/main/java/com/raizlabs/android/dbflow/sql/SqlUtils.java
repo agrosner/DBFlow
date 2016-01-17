@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -29,6 +28,8 @@ import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -341,7 +342,7 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     boolean update(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        SQLiteDatabase db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
+        DatabaseWrapper db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         boolean successful = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
@@ -552,5 +553,13 @@ public class SqlUtils {
         }
     }
 
+    public static long longForQuery(DatabaseWrapper wrapper, String query) {
+        DatabaseStatement statement = wrapper.compileStatement(query);
+        try {
+            return statement.simpleQueryForLong();
+        } finally {
+            statement.close();
+        }
+    }
 }
 

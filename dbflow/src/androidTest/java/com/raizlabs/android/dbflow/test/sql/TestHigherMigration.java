@@ -1,8 +1,7 @@
 package com.raizlabs.android.dbflow.test.sql;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import com.raizlabs.android.dbflow.sql.migration.Migration;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
 /**
@@ -16,7 +15,7 @@ public class TestHigherMigration implements Migration {
     }
 
     @Override
-    public void migrate(SQLiteDatabase database) {
+    public void migrate(DatabaseWrapper database) {
 
     }
 

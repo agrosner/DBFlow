@@ -1,12 +1,12 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.Index;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Defines and enables an Index structurally through a migration.
@@ -40,7 +40,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
     }
 
     @Override
-    public final void migrate(SQLiteDatabase database) {
+    public final void migrate(DatabaseWrapper database) {
         database.execSQL(getIndex().getQuery());
     }
 

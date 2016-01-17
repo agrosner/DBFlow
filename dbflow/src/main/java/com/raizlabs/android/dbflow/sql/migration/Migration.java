@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
-import android.database.sqlite.SQLiteDatabase;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Called when the Database is migrating. We can perform custom migrations here. A {@link com.raizlabs.android.dbflow.annotation.Migration}
@@ -18,7 +18,7 @@ public interface Migration {
      *
      * @param database The database to operate on
      */
-    void migrate(SQLiteDatabase database);
+    void migrate(DatabaseWrapper database);
 
     /**
      * Called after the migration completes. Release migration data here.

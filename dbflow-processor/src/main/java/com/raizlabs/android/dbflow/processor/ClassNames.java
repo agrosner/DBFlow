@@ -27,7 +27,7 @@ public class ClassNames {
     public static final String PROCESS = TRANSACTION + ".process";
 
     public static final ClassName DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder");
-    public static final ClassName FLOW_SQLITE_OPEN_HELPER = ClassName.get(CONFIG, "FlowSQLiteOpenHelper");
+    public static final ClassName FLOW_SQLITE_OPEN_HELPER = ClassName.get(STRUCTURE, "FlowSQLiteOpenHelper");
     public static final ClassName FLOW_MANAGER = ClassName.get(CONFIG, "FlowManager");
     public static final ClassName BASE_DATABASE_DEFINITION_CLASSNAME = ClassName.get(CONFIG, "BaseDatabaseDefinition");
 

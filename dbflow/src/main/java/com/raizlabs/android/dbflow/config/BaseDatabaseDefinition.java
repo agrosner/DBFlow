@@ -16,6 +16,9 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowSQLiteOpenHelper;
+import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +51,7 @@ public abstract class BaseDatabaseDefinition {
     /**
      * The helper that manages database changes and initialization
      */
-    private FlowSQLiteOpenHelper flowSQLiteOpenHelper;
+    private OpenHelper openHelper;
 
     /**
      * Allows for the app to listen for database changes.
@@ -152,18 +155,18 @@ public abstract class BaseDatabaseDefinition {
         return migrationMap;
     }
 
-    FlowSQLiteOpenHelper getHelper() {
-        if (flowSQLiteOpenHelper == null) {
-            flowSQLiteOpenHelper = createHelper();
+    OpenHelper getHelper() {
+        if (openHelper == null) {
+            openHelper = createHelper();
         }
-        return flowSQLiteOpenHelper;
+        return openHelper;
     }
 
-    protected FlowSQLiteOpenHelper createHelper() {
+    protected OpenHelper createHelper() {
         return new FlowSQLiteOpenHelper(this, internalHelperListener);
     }
 
-    public SQLiteDatabase getWritableDatabase() {
+    public DatabaseWrapper getWritableDatabase() {
         return getHelper().getWritableDatabase();
     }
 
@@ -222,9 +225,9 @@ public abstract class BaseDatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(getDatabaseFileName());
-            flowSQLiteOpenHelper = new FlowSQLiteOpenHelper(this, internalHelperListener);
+            openHelper = new FlowSQLiteOpenHelper(this, internalHelperListener);
             isResetting = false;
-            flowSQLiteOpenHelper.getWritableDatabase();
+            openHelper.getWritableDatabase();
         }
     }
 
@@ -249,21 +252,21 @@ public abstract class BaseDatabaseDefinition {
 
     protected final DatabaseHelperListener internalHelperListener = new DatabaseHelperListener() {
         @Override
-        public void onOpen(SQLiteDatabase database) {
+        public void onOpen(DatabaseWrapper database) {
             if (helperListener != null) {
                 helperListener.onOpen(database);
             }
         }
 
         @Override
-        public void onCreate(SQLiteDatabase database) {
+        public void onCreate(DatabaseWrapper database) {
             if (helperListener != null) {
                 helperListener.onCreate(database);
             }
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
+        public void onUpgrade(DatabaseWrapper database, int oldVersion, int newVersion) {
             if (helperListener != null) {
                 helperListener.onUpgrade(database, oldVersion, newVersion);
             }
