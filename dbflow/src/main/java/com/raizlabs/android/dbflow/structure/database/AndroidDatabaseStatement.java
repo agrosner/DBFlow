@@ -87,4 +87,14 @@ public class AndroidDatabaseStatement implements DatabaseStatement {
     public void bindLong(int index, long aLong) {
         statement.bindLong(index, aLong);
     }
+
+    @Override
+    public void bindDouble(int index, double aDouble) {
+        statement.bindDouble(index, aDouble);
+    }
+
+    @Override
+    public void bindBlob(int index, byte[] bytes) {
+        statement.bindBlob(index, bytes);
+    }
 }

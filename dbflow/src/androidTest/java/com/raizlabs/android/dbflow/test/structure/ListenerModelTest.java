@@ -2,12 +2,12 @@ package com.raizlabs.android.dbflow.test.structure;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.listener.ContentValuesListener;
 import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener;
@@ -26,12 +26,12 @@ public class ListenerModelTest extends FlowTestCase {
         listenerModel.registerListeners(
                 new SQLiteStatementListener() {
                     @Override
-                    public void onBindToStatement(SQLiteStatement sqLiteStatement) {
+                    public void onBindToStatement(DatabaseStatement databaseStatement) {
                         called[1] = true;
                     }
 
                     @Override
-                    public void onBindToInsertStatement(SQLiteStatement sqLiteStatement) {
+                    public void onBindToInsertStatement(DatabaseStatement databaseStatement) {
                         called[1] = true;
                     }
                 },

@@ -22,4 +22,8 @@ public interface DatabaseStatement {
     void bindNull(int index);
 
     void bindLong(int index, long aLong);
+
+    void bindDouble(int index, double aDouble);
+
+    void bindBlob(int index, byte[] bytes);
 }

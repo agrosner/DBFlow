@@ -2,9 +2,9 @@ package com.raizlabs.android.dbflow.test.structure;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.listener.ContentValuesListener;
 import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener;
@@ -48,12 +48,12 @@ public class ListenerModel extends TestModel1 implements LoadFromCursorListener,
     }
 
     @Override
-    public void onBindToStatement(SQLiteStatement sqLiteStatement) {
-        sqLiteStatementListener.onBindToStatement(sqLiteStatement);
+    public void onBindToStatement(DatabaseStatement databaseStatement) {
+        sqLiteStatementListener.onBindToStatement(databaseStatement);
     }
 
     @Override
-    public void onBindToInsertStatement(SQLiteStatement sqLiteStatement) {
-        sqLiteStatementListener.onBindToInsertStatement(sqLiteStatement);
+    public void onBindToInsertStatement(DatabaseStatement databaseStatement) {
+        sqLiteStatementListener.onBindToInsertStatement(databaseStatement);
     }
 }
