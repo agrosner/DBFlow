@@ -2,9 +2,12 @@
 <manifest
     package="com.raizlabs.android.dbflow.test"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-sdk tools:overrideLibrary="com.raizlabs.dbflow.sqlcipher, net.sqlcipher"/>
 
     <instrumentation
+        tools:replace="android:targetPackage"
         android:name="android.test.InstrumentationTestRunner"
         android:targetPackage="com.raizlabs.android.dbflow.test"/>
 
