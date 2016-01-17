@@ -5,7 +5,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import net.sqlcipher.database.SQLiteStatement;
 
 /**
- * Description:
+ * Description: Implements the methods necessary for {@link DatabaseStatement}. Delegates calls to
+ * the contained {@link SQLiteStatement}.
  */
 public class SQLCipherStatement implements DatabaseStatement {
 
