@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
@@ -57,6 +58,26 @@ public abstract class RetrievalAdapter<ModelClass extends Model, TableClass exte
             singleModelLoader = createSingleModelLoader();
         }
         return singleModelLoader;
+    }
+
+    /**
+     * Overrides the default implementation and allows you to provide your own implementation. Defines
+     * how a single {@link TableClass} is loaded.
+     *
+     * @param singleModelLoader The loader to use.
+     */
+    public void setSingleModelLoader(@NonNull SingleModelLoader<TableClass> singleModelLoader) {
+        this.singleModelLoader = singleModelLoader;
+    }
+
+    /**
+     * Overrides the default implementation and allows you to provide your own implementation. Defines
+     * how a list of {@link TableClass} are loaded.
+     *
+     * @param listModelLoader The loader to use.
+     */
+    public void setListModelLoader(@NonNull ListModelLoader<TableClass> listModelLoader) {
+        this.listModelLoader = listModelLoader;
     }
 
     protected SingleModelLoader<TableClass> createSingleModelLoader() {
