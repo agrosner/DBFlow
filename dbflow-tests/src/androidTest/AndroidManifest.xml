@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-sdk tools:overrideLibrary="com.raizlabs.dbflow.sqlcipher, net.sqlcipher"/>
+    <uses-sdk tools:overrideLibrary="com.raizlabs.dbflow.android.sqlcipher, net.sqlcipher"/>
 
     <instrumentation
         tools:replace="android:targetPackage"

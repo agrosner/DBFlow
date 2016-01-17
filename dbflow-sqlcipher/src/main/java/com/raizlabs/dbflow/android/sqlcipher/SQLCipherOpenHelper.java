@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow.sqlcipher;
+package com.raizlabs.dbflow.android.sqlcipher;
 
 import android.content.Context;
 
@@ -14,8 +14,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 /**
- * Description: The replacement {@link OpenHelper} for SQLCipher. Specify this is {@link Database#sqlHelperClass()}
- * of your database to get it to work.
+ * Description: The replacement {@link OpenHelper} for SQLCipher. Specify a subclass of this is {@link Database#sqlHelperClass()}
+ * of your database to get it to work with specifying the secret you use for the database.
  */
 public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements OpenHelper {
 

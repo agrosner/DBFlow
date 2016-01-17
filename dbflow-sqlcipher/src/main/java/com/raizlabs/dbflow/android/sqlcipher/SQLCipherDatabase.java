@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow.sqlcipher;
+package com.raizlabs.dbflow.android.sqlcipher;
 
 import android.content.ContentValues;
 import android.database.Cursor;
