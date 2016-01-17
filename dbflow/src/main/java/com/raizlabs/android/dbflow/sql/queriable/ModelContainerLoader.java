@@ -14,7 +14,7 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
  * Description: loads data into a {@link ModelContainer}. Only works when the passed {@link ModelContainer} is non-null,
  * since we don't know the type of object to create or return.
  */
-public class ModelContainerLoader<TModelContainer extends ModelContainer<TModel, ?>, TModel extends Model> extends ModelLoader<TModel, ModelContainer<TModel, ?>> {
+public class ModelContainerLoader<TModel extends Model> extends ModelLoader<TModel, ModelContainer<TModel, ?>> {
 
     private ModelContainerAdapter<TModel> modelContainerAdapter;
 
