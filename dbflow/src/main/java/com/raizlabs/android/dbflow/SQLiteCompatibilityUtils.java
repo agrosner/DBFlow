@@ -59,13 +59,7 @@ public class SQLiteCompatibilityUtils {
      * @return The count of rows changed.
      */
     public static long updateWithOnConflict(DatabaseWrapper database, String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm) {
-        long count;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            count = database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
-        } else {
-            count = database.update(tableName, contentValues, where, whereArgs);
-        }
-        return count;
+        return database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
     }
 
 }

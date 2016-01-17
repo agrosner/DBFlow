@@ -150,7 +150,7 @@ public class DatabaseHelperDelegate {
     public boolean isDatabaseIntegrityOk() {
         boolean integrityOk = true;
 
-        SQLiteStatement prog = null;
+        DatabaseStatement prog = null;
         try {
             prog = getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
             String rslt = prog.simpleQueryForString();

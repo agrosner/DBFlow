@@ -42,7 +42,7 @@ public class InsertMethod implements MethodDefinition {
                             ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
                             contentProviderDefinition.databaseNameString, tableEndpointDefinition.tableName);
 
-                    code.add("final long id = FlowManager.getDatabase($S).getWritableDatabase()",
+                    code.add("final long id = FlowManager.getDatabase($S).getDatabase()",
                             contentProviderDefinition.databaseNameString)
                             .add(".insertWithOnConflict($S, null, values, " +
                                             "$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", tableEndpointDefinition.tableName,

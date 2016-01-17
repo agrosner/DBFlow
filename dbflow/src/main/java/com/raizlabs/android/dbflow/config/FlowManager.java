@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
@@ -21,6 +20,7 @@ import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 
 import java.util.HashSet;
 import java.util.List;
@@ -52,10 +52,10 @@ public class FlowManager {
     private static final String DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder";
 
     private static final String DEFAULT_DATABASE_HOLDER_PACKAGE_NAME =
-        FlowManager.class.getPackage().getName();
+            FlowManager.class.getPackage().getName();
 
     private static final String DEFAULT_DATABASE_HOLDER_CLASSNAME =
-        DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
+            DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
 
     /**
      * Returns the table name for the specific model class
@@ -70,7 +70,7 @@ public class FlowManager {
         String tableName = null;
         if (modelAdapter == null) {
             ModelViewAdapter modelViewAdapter = getDatabaseForTable(table).getModelViewAdapterForTable(
-                (Class<? extends BaseModelView>) table);
+                    (Class<? extends BaseModelView>) table);
             if (modelViewAdapter != null) {
                 tableName = modelViewAdapter.getViewName();
             }
@@ -89,13 +89,13 @@ public class FlowManager {
         BaseDatabaseDefinition databaseDefinition = getDatabase(databaseName);
         if (databaseDefinition == null) {
             throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
-                "Did you forget to add the @Database?", databaseName));
+                    "Did you forget to add the @Database?", databaseName));
         }
         Class<? extends Model> modelClass = databaseDefinition.getModelClassForName(tableName);
         if (modelClass == null) {
             throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
-                    "Did you forget to add the @Table annotation and point it to %1s?",
-                tableName, databaseName));
+                            "Did you forget to add the @Table annotation and point it to %1s?",
+                    tableName, databaseName));
         }
         return modelClass;
     }
@@ -108,7 +108,7 @@ public class FlowManager {
         BaseDatabaseDefinition flowManager = globalDatabaseHolder.getDatabaseForTable(table);
         if (flowManager == null) {
             throw new InvalidDBConfiguration("Table: " + table.getName() + " is not registered with a Database. " +
-                "Did you forget the @Table annotation?");
+                    "Did you forget the @Table annotation?");
         }
         return flowManager;
     }
@@ -125,7 +125,7 @@ public class FlowManager {
         }
 
         throw new InvalidDBConfiguration("The specified database" + databaseName + " was not found. " +
-            "Did you forget the @Database annotation?");
+                "Did you forget the @Database annotation?");
     }
 
     /**
@@ -250,10 +250,10 @@ public class FlowManager {
         if (internalAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getModelViewAdapter(
-                    (Class<? extends BaseModelView<? extends Model>>) modelClass);
+                        (Class<? extends BaseModelView<? extends Model>>) modelClass);
             } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getQueryModelAdapter(
-                    (Class<? extends BaseQueryModel>) modelClass);
+                        (Class<? extends BaseQueryModel>) modelClass);
             }
         }
 
@@ -280,7 +280,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ModelContainerAdapter<ModelClass> getContainerAdapter(
-        Class<ModelClass> modelClass) {
+            Class<ModelClass> modelClass) {
         return FlowManager.getDatabaseForTable(modelClass).getModelContainerAdapterForTable(modelClass);
     }
 
@@ -293,7 +293,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <ModelViewClass extends BaseModelView<? extends Model>> ModelViewAdapter<? extends Model, ModelViewClass> getModelViewAdapter(
-        Class<ModelViewClass> modelViewClass) {
+            Class<ModelViewClass> modelViewClass) {
         return FlowManager.getDatabaseForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
     }
 
@@ -306,7 +306,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <QueryModel extends BaseQueryModel> QueryModelAdapter<QueryModel> getQueryModelAdapter(
-        Class<QueryModel> queryModel) {
+            Class<QueryModel> queryModel) {
         return FlowManager.getDatabaseForTable(queryModel).getQueryModelAdapterForQueryClass(queryModel);
     }
 
@@ -325,7 +325,7 @@ public class FlowManager {
      * @return true if it's integrity is OK.
      */
     public static boolean isDatabaseIntegrityOk(String databaseName) {
-        return isDatabaseIntegrityOk(getDatabase(databaseName).getHelper());
+        return isDatabaseIntegrityOk(getDatabase(databaseName).getHelper().getDelegate());
     }
 
 
@@ -338,7 +338,7 @@ public class FlowManager {
     public static boolean isDatabaseIntegrityOk(DatabaseHelperDelegate helperDelegate) {
         boolean integrityOk = true;
 
-        SQLiteStatement prog = null;
+        DatabaseStatement prog = null;
         try {
             prog = helperDelegate.getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
             String rslt = prog.simpleQueryForString();

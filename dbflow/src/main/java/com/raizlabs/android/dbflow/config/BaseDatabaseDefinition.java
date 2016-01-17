@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.Database;
@@ -167,7 +166,7 @@ public abstract class BaseDatabaseDefinition {
     }
 
     public DatabaseWrapper getWritableDatabase() {
-        return getHelper().getWritableDatabase();
+        return getHelper().getDatabase();
     }
 
     /**
@@ -227,7 +226,7 @@ public abstract class BaseDatabaseDefinition {
             context.deleteDatabase(getDatabaseFileName());
             openHelper = new FlowSQLiteOpenHelper(this, internalHelperListener);
             isResetting = false;
-            openHelper.getWritableDatabase();
+            openHelper.getDatabase();
         }
     }
 

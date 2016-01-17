@@ -1,6 +1,9 @@
 package com.raizlabs.android.dbflow.structure.database;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.support.annotation.NonNull;
 
 /**
@@ -42,4 +45,26 @@ public class AndroidDatabase implements DatabaseWrapper {
     public int getVersion() {
         return database.getVersion();
     }
+
+    @Override
+    public DatabaseStatement compileStatement(String rawQuery) {
+        return AndroidDatabaseStatement.from(database.compileStatement(rawQuery), database);
+    }
+
+    @Override
+    public Cursor rawQuery(String query, String[] selectionArgs) {
+        return database.rawQuery(query, selectionArgs);
+    }
+
+    @Override
+    public long updateWithOnConflict(String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm) {
+        long count;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            count = database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
+        } else {
+            count = database.update(tableName, contentValues, where, whereArgs);
+        }
+        return count;
+    }
+
 }

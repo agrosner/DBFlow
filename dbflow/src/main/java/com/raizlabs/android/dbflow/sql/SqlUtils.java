@@ -365,7 +365,7 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void insert(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
+        DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
         adapter.updateAutoIncrement(model, id);

@@ -48,7 +48,22 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
     }
 
     @Override
-    public DatabaseWrapper getWriteableDatabase() {
+    public DatabaseHelperDelegate getDelegate() {
+        return databaseHelperDelegate;
+    }
+
+    @Override
+    public boolean isDatabaseIntegrityOk() {
+        return databaseHelperDelegate.isDatabaseIntegrityOk();
+    }
+
+    @Override
+    public void backupDB() {
+        databaseHelperDelegate.backupDB();
+    }
+
+    @Override
+    public DatabaseWrapper getDatabase() {
         return AndroidDatabase.from(getWritableDatabase());
     }
 

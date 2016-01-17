@@ -7,5 +7,11 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public interface OpenHelper {
 
-    DatabaseWrapper getWritableDatabase();
+    DatabaseWrapper getDatabase();
+
+    DatabaseHelperDelegate getDelegate();
+
+    boolean isDatabaseIntegrityOk();
+
+    void backupDB();
 }

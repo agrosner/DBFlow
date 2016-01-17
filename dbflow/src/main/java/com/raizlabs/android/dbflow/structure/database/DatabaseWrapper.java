@@ -26,5 +26,4 @@ public interface DatabaseWrapper {
 
     long updateWithOnConflict(String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm);
 
-    long update(String tableName, ContentValues contentValues, String where, String[] whereArgs);
 }
