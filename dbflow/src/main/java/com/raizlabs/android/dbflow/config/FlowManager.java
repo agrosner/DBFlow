@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
@@ -19,8 +18,8 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -332,15 +331,15 @@ public class FlowManager {
     /**
      * Checks a standard database helper for integrity using quick_check(1).
      *
-     * @param helperDelegate The helper to user to look up integrity.
+     * @param openHelper The helper to user to look up integrity.
      * @return true if it's integrity is OK.
      */
-    public static boolean isDatabaseIntegrityOk(DatabaseHelperDelegate helperDelegate) {
+    public static boolean isDatabaseIntegrityOk(OpenHelper openHelper) {
         boolean integrityOk = true;
 
         DatabaseStatement prog = null;
         try {
-            prog = helperDelegate.getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
+            prog = openHelper.getDatabase().compileStatement("PRAGMA quick_check(1)");
             String rslt = prog.simpleQueryForString();
             if (!rslt.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases

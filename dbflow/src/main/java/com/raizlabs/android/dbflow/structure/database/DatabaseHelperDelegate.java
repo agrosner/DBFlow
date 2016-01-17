@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
@@ -45,21 +44,29 @@ public class DatabaseHelperDelegate {
      */
     public static final String MIGRATION_PATH = "migrations";
 
+    static String getTempDbFileName(BaseDatabaseDefinition databaseDefinition) {
+        return TEMP_DB_NAME + databaseDefinition.getDatabaseName() + ".db";
+    }
+
     private DatabaseHelperListener databaseHelperListener;
     private BaseDatabaseDefinition databaseDefinition;
-    @Nullable private final DatabaseHelperDelegate backupHelper;
+
+    @Nullable private final OpenHelper backupHelper;
 
     public DatabaseHelperDelegate(DatabaseHelperListener databaseHelperListener,
-                                  BaseDatabaseDefinition databaseDefinition, @Nullable DatabaseHelperDelegate backupHelper) {
+                                  BaseDatabaseDefinition databaseDefinition, @Nullable OpenHelper backupHelper) {
         this.databaseHelperListener = databaseHelperListener;
         this.databaseDefinition = databaseDefinition;
         this.backupHelper = backupHelper;
         movePrepackagedDB(this.databaseDefinition.getDatabaseFileName(), this.databaseDefinition.getDatabaseFileName());
 
-
         if (databaseDefinition.backupEnabled()) {
             restoreDatabase(getTempDbFileName(), this.databaseDefinition.getDatabaseFileName());
-            backupHelper.getWritableDatabase();
+            if (backupHelper == null) {
+                throw new IllegalStateException("the passed backup helper was null, even though backup is enabled. " +
+                        "Ensure that its passed in.");
+            }
+            backupHelper.getDatabase();
         }
     }
 
@@ -99,7 +106,7 @@ public class DatabaseHelperDelegate {
      * @return the temporary database file name for when we have backups enabled {@link BaseDatabaseDefinition#backupEnabled()}
      */
     private String getTempDbFileName() {
-        return TEMP_DB_NAME + databaseDefinition.getDatabaseName() + ".db";
+        return getTempDbFileName(databaseDefinition);
     }
 
     /**
