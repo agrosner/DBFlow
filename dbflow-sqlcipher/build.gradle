@@ -1,5 +1,9 @@
 apply plugin: 'com.android.library'
 
+project.ext.artifactId = bt_name
+
+group= 'com.raizlabs.android'
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
@@ -9,6 +13,11 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
