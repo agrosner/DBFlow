@@ -52,6 +52,7 @@ public class SqlUtils {
      * @return a list of {@link ModelClass}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql,
                                                                         String... args) {
         BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
@@ -81,6 +82,7 @@ public class SqlUtils {
      * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
      */
+    @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
             Class<CacheableClass> modelClass, Cursor cursor, ModelCache<CacheableClass, ?> modelCache) {
         final List<CacheableClass> entities = new ArrayList<>();
@@ -124,6 +126,7 @@ public class SqlUtils {
      * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
      */
+    @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
             Class<CacheableClass> modelClass, Cursor cursor) {
         return convertToCacheableList(modelClass, cursor, FlowManager.getModelAdapter(modelClass).getModelCache());
@@ -138,6 +141,7 @@ public class SqlUtils {
      * @return An non-null {@link List}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
         final List<ModelClass> entities = new ArrayList<>();
         InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
@@ -168,6 +172,7 @@ public class SqlUtils {
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table,
                                                                        Cursor cursor) {
         ModelClass model = null;
@@ -195,6 +200,7 @@ public class SqlUtils {
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model, ModelContainerClass extends ModelContainer<ModelClass, ?>>
     ModelContainerClass convertToModelContainer(boolean dontMoveToFirst, @NonNull Class<ModelClass> table,
                                                 @Nullable Cursor cursor, @NonNull ModelContainerClass modelContainer) {
@@ -224,6 +230,7 @@ public class SqlUtils {
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <CacheableClass extends Model> CacheableClass convertToCacheableModel(
             boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
         CacheableClass model = null;
@@ -260,6 +267,7 @@ public class SqlUtils {
      * @return a single {@link ModelClass}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql,
                                                                     String... args) {
         Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);

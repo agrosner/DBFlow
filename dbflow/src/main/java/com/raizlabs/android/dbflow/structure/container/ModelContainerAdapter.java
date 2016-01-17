@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
@@ -17,7 +18,9 @@ import java.util.Map;
  * Description: The base class that generated {@link ModelContainerAdapter} implement
  * to provide the necessary interactions.
  */
-public abstract class ModelContainerAdapter<ModelClass extends Model> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>>, RetrievalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
+public abstract class ModelContainerAdapter<ModelClass extends Model> extends RetrievalAdapter<ModelContainer<ModelClass, ?>, ModelClass> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
+
+    private ModelContainerLoader<ModelClass> modelContainerLoader;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
 
@@ -123,4 +126,23 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
         return columnMap.get(columnName);
     }
 
+    public ModelContainerLoader<ModelClass> getModelContainerLoader() {
+        if (modelContainerLoader == null) {
+            modelContainerLoader = createModelContainerLoader();
+        }
+        return modelContainerLoader;
+    }
+
+    protected ModelContainerLoader<ModelClass> createModelContainerLoader() {
+        return new ModelContainerLoader<>(getModelClass());
+    }
+
+    /**
+     * Override the {@link ModelContainerLoader} with your own implementation (if necessary).
+     *
+     * @param modelContainerLoader The loader used to load {@link Cursor} data into a {@link ModelContainer}.
+     */
+    public void setModelContainerLoader(ModelContainerLoader<ModelClass> modelContainerLoader) {
+        this.modelContainerLoader = modelContainerLoader;
+    }
 }

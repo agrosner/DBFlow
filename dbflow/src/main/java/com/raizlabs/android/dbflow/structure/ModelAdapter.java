@@ -18,8 +18,8 @@ import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model>
-        implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAdapter<ModelClass, ModelClass>
+        implements InternalAdapter<ModelClass, ModelClass> {
 
     private SQLiteStatement mInsertStatement;
     private String[] cachingColumns;
@@ -222,6 +222,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
     public ModelCache<ModelClass, ?> createModelCache() {
         return new SimpleMapCache<>(getCacheSize());
     }
+
 
     /**
      * @return The query used to create this table.

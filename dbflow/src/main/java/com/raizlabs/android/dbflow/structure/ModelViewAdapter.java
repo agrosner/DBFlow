@@ -6,7 +6,7 @@ import android.database.Cursor;
  * Description: The base class for a {@link ModelViewClass} adapter that defines how it interacts with the DB.
  */
 public abstract class ModelViewAdapter<ModelClass extends Model, ModelViewClass extends BaseModelView<ModelClass>>
-        implements InstanceAdapter<ModelViewClass, ModelViewClass> {
+        extends InstanceAdapter<ModelViewClass, ModelViewClass> {
 
     /**
      * Creates a new {@link ModelViewClass} and loads the cursor into it.

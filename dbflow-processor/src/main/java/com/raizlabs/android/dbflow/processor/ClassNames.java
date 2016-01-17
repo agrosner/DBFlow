@@ -89,4 +89,8 @@ public class ClassNames {
     public static final ClassName BASE_MODEL = ClassName.get(STRUCTURE, "BaseModel");
     public static final ClassName MODEL_CACHE = ClassName.get(STRUCTURE + ".cache", "ModelCache");
     public static final ClassName MULTI_KEY_CACHE_CONVERTER = ClassName.get(STRUCTURE + ".cache", "IMultiKeyCacheConverter");
+    public static final ClassName CACHEABLE_MODEL_LOADER = ClassName.get(SQL + ".queriable", "CacheableModelLoader");
+    public static final ClassName SINGLE_MODEL_LOADER = ClassName.get(SQL + ".queriable", "SingleModelLoader");
+    public static final ClassName CACHEABLE_LIST_MODEL_LOADER = ClassName.get(SQL + ".queriable", "CacheableListModelLoader");
+    public static final ClassName LIST_MODEL_LOADER = ClassName.get(SQL + ".queriable", "ListModelLoader");
 }

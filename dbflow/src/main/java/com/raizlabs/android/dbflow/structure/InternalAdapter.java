@@ -14,11 +14,6 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 public interface InternalAdapter<TableClass extends Model, ModelClass extends Model> {
 
     /**
-     * @return the model class this adapter corresponds to
-     */
-    Class<TableClass> getModelClass();
-
-    /**
      * @return The table name of this adapter.
      */
     String getTableName();
