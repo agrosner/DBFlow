@@ -98,13 +98,13 @@ public class JoinTest extends FlowTestCase {
         assertEquals(SQLite.select(Method.count()).from(Department.class).count(), 3);
 
         From<Company> joinQuery =
-                SQLite.select(Department_Table.emp_id, Company_Table.name, Department_Table.dept)
+                SQLite.select(Department_Table.emp_id.withTable(), Company_Table.name, Department_Table.dept)
                         .from(Company.class)
                         .join(Department.class, Join.JoinType.INNER)
                         .on(Company_Table.id.withTable().eq(Department_Table.emp_id.withTable()));
         String query = joinQuery.getQuery();
 
-        assertEquals("SELECT `emp_id`,`name`,`dept` FROM `Company` INNER JOIN `Department` " +
+        assertEquals("SELECT `Department`.`emp_id`,`name`,`dept` FROM `Company` INNER JOIN `Department` " +
                 "ON `Company`.`id`=`Department`.`emp_id`", query.trim());
 
         List<CompanyDepartmentJoin> companyDepartmentJoins = joinQuery.queryCustomList(CompanyDepartmentJoin.class);
