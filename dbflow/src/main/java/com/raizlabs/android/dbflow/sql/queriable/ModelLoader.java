@@ -63,5 +63,13 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
         return databaseDefinition;
     }
 
+    /**
+     * Specify how to convert the {@link Cursor} data into a {@link TReturn}. Can be null.
+     *
+     * @param cursor The cursor resulting from a query passed into {@link #load(String)}
+     * @param data   The data (if not null) that we can reuse without need to create new object.
+     * @return A new (or reused) instance that represents the {@link Cursor}.
+     */
+    @Nullable
     protected abstract TReturn convertToData(@NonNull final Cursor cursor, @Nullable TReturn data);
 }
