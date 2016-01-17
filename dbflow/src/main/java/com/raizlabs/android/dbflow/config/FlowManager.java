@@ -324,7 +324,7 @@ public class FlowManager {
      * @return true if it's integrity is OK.
      */
     public static boolean isDatabaseIntegrityOk(String databaseName) {
-        return isDatabaseIntegrityOk(getDatabase(databaseName).getHelper().getDelegate());
+        return isDatabaseIntegrityOk(getDatabase(databaseName).getHelper());
     }
 
 
