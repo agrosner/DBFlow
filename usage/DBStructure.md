@@ -42,7 +42,7 @@ Please Note: This creates a temporary _third_ database in case of a failed backu
 
 **Turn on Foreign Key Constrants**: use the `foreignKeysSupported()=true` to have the database enforce foreign keys. By default this is turned off. We can still define `@ForeignKey`, but their relationships aren't enforced.
 
-**Custom Subclasses of FlowSQLiteOpenHelper**: They must match the constructor of the `FlowSQLiteOpenHelper`:
+**Custom Implementation of OpenHelper**: They must match the constructor params of the `FlowSQLiteOpenHelper`:
 
 ```java
 public FlowSQLiteOpenHelper(BaseDatabaseDefinition flowManager, DatabaseHelperListener listener)

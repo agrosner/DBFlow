@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.structure.container;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -10,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -106,7 +106,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
     }
 
     @Override
-    public void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelContainer<ModelClass, ?> model) {
+    public void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelContainer<ModelClass, ?> model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
     }
 

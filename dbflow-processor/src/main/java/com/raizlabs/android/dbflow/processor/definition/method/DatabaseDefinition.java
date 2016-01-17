@@ -192,7 +192,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
                 .addAnnotation(Override.class)
                 .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
                 .addStatement("return new $T(this, internalHelperListener)", sqliteOpenHelperClass)
-                .returns(ClassNames.FLOW_SQLITE_OPEN_HELPER).build());
+                .returns(ClassNames.OPEN_HELPER).build());
         }
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("isForeignKeysSupported")
