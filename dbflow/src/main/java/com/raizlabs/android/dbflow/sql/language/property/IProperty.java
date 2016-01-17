@@ -13,13 +13,13 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 public interface IProperty<P extends IProperty> extends Query {
 
     /**
-     * @param aliasName The fileName of the alias.
+     * @param aliasName The name of the alias.
      * @return A new {@link P} that expresses the current column name with the specified Alias name.
      */
     P as(String aliasName);
 
     /**
-     * Adds another property and returns as a new property.
+     * Adds another property and returns as a new property. i.e p1 + p2
      *
      * @param iProperty the property to add.
      * @return A new instance.
@@ -27,7 +27,7 @@ public interface IProperty<P extends IProperty> extends Query {
     P plus(IProperty iProperty);
 
     /**
-     * Subtracts another property and returns as a new property.
+     * Subtracts another property and returns as a new property. i.e p1 - p2
      *
      * @param iProperty the property to add.
      * @return A new instance.
@@ -42,17 +42,19 @@ public interface IProperty<P extends IProperty> extends Query {
 
     /**
      * @return A property that represents the {@link Model} from which it belongs to. This is useful
-     * in {@link Join} queries to represent this property. The resulting column name becomes a
-     * tableName.columnName.
+     * in {@link Join} queries to represent this property.
+     * <p/>
+     * The resulting {@link P} becomes `tableName`.`columnName`.
      */
     P withTable();
 
     /**
      * @param tableNameAlias The name of the table to append. This may be different because of complex queries
-     *                       that use a {@link NameAlias} for the table Name.
+     *                       that use a {@link NameAlias} for the table name.
      * @return A property that represents the {@link Model} from which it belongs to. This is useful
-     * in {@link Join} queries to represent this property. The resulting column name becomes a
-     * tableName.columnName.
+     * in {@link Join} queries to represent this property.
+     * <p/>
+     * The resulting column name becomes `tableName`.`columnName`.
      */
     P withTable(NameAlias tableNameAlias);
 

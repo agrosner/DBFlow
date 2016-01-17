@@ -13,28 +13,29 @@ import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 
 /**
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model>
-        implements InternalAdapter<ModelClass, ModelClass>, InstanceAdapter<ModelClass, ModelClass> {
+public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAdapter<ModelClass, ModelClass>
+        implements InternalAdapter<ModelClass, ModelClass> {
 
-    private SQLiteStatement mInsertStatement;
+    private DatabaseStatement insertStatement;
     private String[] cachingColumns;
     private ModelCache<ModelClass, ?> modelCache;
 
     /**
      * @return The precompiled insert statement for this table model adapter
      */
-    public SQLiteStatement getInsertStatement() {
-        if (mInsertStatement == null) {
-            mInsertStatement = FlowManager.getDatabaseForTable(getModelClass())
+    public DatabaseStatement getInsertStatement() {
+        if (insertStatement == null) {
+            insertStatement = FlowManager.getDatabaseForTable(getModelClass())
                     .getWritableDatabase().compileStatement(getInsertStatementQuery());
         }
 
-        return mInsertStatement;
+        return insertStatement;
     }
 
     /**
@@ -91,7 +92,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
 
 
     @Override
-    public void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model) {
+    public void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelClass model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
     }
 
@@ -222,6 +223,7 @@ public abstract class ModelAdapter<ModelClass extends Model>
     public ModelCache<ModelClass, ?> createModelCache() {
         return new SimpleMapCache<>(getCacheSize());
     }
+
 
     /**
      * @return The query used to create this table.

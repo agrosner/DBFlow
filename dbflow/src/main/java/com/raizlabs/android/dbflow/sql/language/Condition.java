@@ -49,50 +49,23 @@ public class Condition extends BaseCondition implements ITypeConditional {
         }
     }
 
-    /**
-     * Assigns the operation to "="
-     *
-     * @param value The value of the column from the {@link Model}
-     *              so a {@link Model} value is safe here.
-     * @return This condition
-     */
     @Override
     public Condition is(Object value) {
         operation = Operation.EQUALS;
         return value(value);
     }
 
-    /**
-     * Assigns the operation to "=" the equals operator.
-     *
-     * @param value The value of the column from the {@link Model} Note
-     *              this value may be type converted if used in a {@link ConditionGroup}
-     *              so a {@link Model} value is safe here.
-     * @return This condition
-     */
     @Override
     public Condition eq(Object value) {
         return is(value);
     }
 
-    /**
-     * Assigns the operation to "!="
-     *
-     * @param value The value of the column in the DB
-     * @return This condition
-     */
     @Override
     public Condition isNot(Object value) {
         operation = Operation.NOT_EQUALS;
         return value(value);
     }
 
-    /**
-     * Assigns the operation to "!="
-     *
-     * @param value The value of the column in the DB
-     * @return This condition
-     */
     @Override
     public Condition notEq(Object value) {
         return isNot(value);
@@ -142,48 +115,24 @@ public class Condition extends BaseCondition implements ITypeConditional {
         return this;
     }
 
-    /**
-     * Assigns operation to "&gt;"
-     *
-     * @param value The value of the column in the DB
-     * @return This condition
-     */
     @Override
     public Condition greaterThan(Object value) {
         operation = Operation.GREATER_THAN;
         return value(value);
     }
 
-    /**
-     * Assigns operation to "&gt;="
-     *
-     * @param value The value of the column in the DB
-     * @return This condition
-     */
     @Override
     public Condition greaterThanOrEq(Object value) {
         operation = Operation.GREATER_THAN_OR_EQUALS;
         return value(value);
     }
 
-    /**
-     * Assigns operation to "&lt;"
-     *
-     * @param value The value of the column in the DB
-     * @return This condition
-     */
     @Override
     public Condition lessThan(Object value) {
         operation = Operation.LESS_THAN;
         return value(value);
     }
 
-    /**
-     * Assigns operation to "&lt;="
-     *
-     * @param value The value of the column in the DB
-     * @return This condition
-     */
     @Override
     public Condition lessThanOrEq(Object value) {
         operation = Operation.LESS_THAN_OR_EQUALS;
@@ -389,7 +338,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     @Override
-    public In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable[] baseModelQueriables) {
+    public In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
         return in(firstBaseModelQueriable, (Object[]) baseModelQueriables);
     }
 
@@ -438,24 +387,12 @@ public class Condition extends BaseCondition implements ITypeConditional {
         return new Between(this, value);
     }
 
-    /**
-     * Turns this condition into a SQL IN operation.
-     *
-     * @param firstArgument The first value in the IN query as one is required.
-     * @param arguments     The 2nd to N values in the IN query. Not required.
-     * @return In operator
-     */
+    @Override
     public In in(Object firstArgument, Object... arguments) {
         return new In(this, firstArgument, true, arguments);
     }
 
-    /**
-     * Turns this condition into a SQL NOT IN operation.
-     *
-     * @param firstArgument The first value in the NOT IN query as one is required.
-     * @param arguments     The 2nd to N values in the IN query. Not required.
-     * @return Not In operator
-     */
+    @Override
     public In notIn(Object firstArgument, Object... arguments) {
         return new In(this, firstArgument, false, arguments);
     }

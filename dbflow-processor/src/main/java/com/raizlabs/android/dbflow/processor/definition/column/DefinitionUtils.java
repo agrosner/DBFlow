@@ -139,9 +139,7 @@ public class DefinitionUtils {
             putAccess = "new String(new char[]{" + putAccess + "})";
         }
         if (!finalTypeName.isPrimitive()) {
-            if (!isModelContainerAdapter && (columnAccess instanceof EnumColumnAccess
-                    || columnAccess instanceof BlobColumnAccess
-                    || isBlobRaw)) {
+            if (!isModelContainerAdapter && isBlobRaw) {
                 codeBuilder.beginControlFlow("if (($L != null) && ($L != null))", variableNameString + "." + elementName, putAccess);
             } else {
                 codeBuilder.beginControlFlow("if ($L != null)", putAccess);

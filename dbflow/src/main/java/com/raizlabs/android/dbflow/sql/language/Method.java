@@ -68,7 +68,7 @@ public class Method extends Property {
 
     /**
      * @param properties Set of properties that the method acts on.
-     * @return The method that represents the min of the specified columns/properties.
+     * @return The method that represents the total of the specified columns/properties.
      */
     public static Method total(IProperty... properties) {
         return new Method("TOTAL", properties);

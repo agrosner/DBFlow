@@ -16,7 +16,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  * This ensures that the language is strictly type-safe and only declared
  * columns get used. Also any calls on the methods return a new {@link Property}.
  * <p>
- * This is type parametrized so that all values passed to this class remain proper.
+ * This is type parametrized so that all values passed to this class remain properly typed.
  */
 public class Property<T> extends BaseProperty<Property<T>> implements ITypeConditional<T> {
 

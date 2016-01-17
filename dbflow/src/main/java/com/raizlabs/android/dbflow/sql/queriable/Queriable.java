@@ -20,6 +20,6 @@ public interface Queriable {
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */
-    void queryClose();
+    void execute();
 
 }

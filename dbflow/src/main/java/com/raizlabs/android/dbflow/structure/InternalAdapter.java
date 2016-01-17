@@ -6,17 +6,13 @@ import android.support.annotation.IntRange;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 
 /**
  * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}
  * or {@link ModelContainerAdapter}
  */
 public interface InternalAdapter<TableClass extends Model, ModelClass extends Model> {
-
-    /**
-     * @return the model class this adapter corresponds to
-     */
-    Class<TableClass> getModelClass();
 
     /**
      * @return The table name of this adapter.
@@ -56,27 +52,25 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
      *
      * @param sqLiteStatement The statement to fill
      */
-    void bindToStatement(SQLiteStatement sqLiteStatement, ModelClass model);
+    void bindToStatement(DatabaseStatement sqLiteStatement, ModelClass model);
 
     /**
      * Provides common logic and a starting value for insert statements. So we can property compile
      * and bind statements without generating duplicate code.
-     *
-     * @param sqLiteStatement The statement to bind.
+     *  @param sqLiteStatement The statement to bind.
      * @param model           The model to retrieve data from.
      * @param start           The starting index for this bind.
      */
-    void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model,
+    void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelClass model,
                                @IntRange(from = 0, to = 1) int start);
 
     /**
      * Binds to a {@link SQLiteStatement}. It leaves out an autoincrementing primary key (if specified)
      * to keep the true nature of AI keys.
-     *
-     * @param sqLiteStatement The statement to bind to.
+     *  @param sqLiteStatement The statement to bind to.
      * @param model           The model to read from.
      */
-    void bindToInsertStatement(SQLiteStatement sqLiteStatement, ModelClass model);
+    void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelClass model);
 
     /**
      * Binds a {@link ModelClass} to the specified db statement

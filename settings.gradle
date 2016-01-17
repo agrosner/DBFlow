@@ -1,1 +1,1 @@
-include ':app', ':dbflow', ':dbflow-processor', ':dbflow-core'
+include ':app', ':dbflow', ':dbflow-processor', ':dbflow-core', ':dbflow-sqlcipher', ':dbflow-tests'

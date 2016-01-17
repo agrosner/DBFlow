@@ -37,7 +37,7 @@ public class BindToStatementMethod implements MethodDefinition {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(isInsert ? "bindToInsertStatement" : "bindToStatement")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.SQLITE_STATEMENT, PARAM_STATEMENT)
+                .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
                 .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
                         ModelUtils.getVariable(isModelContainerAdapter))
                 .returns(TypeName.VOID);

@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
@@ -23,7 +22,7 @@ import java.util.List;
  * Description: Defines the SQL WHERE statement of the query.
  */
 public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelClass>
-    implements Query, ModelQueriable<ModelClass>, Transformable<ModelClass> {
+        implements Query, ModelQueriable<ModelClass>, Transformable<ModelClass> {
 
     private static final int VALUE_UNSET = -1;
 
@@ -190,7 +189,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      */
     public Where<ModelClass> exists(@NonNull Where where) {
         conditionGroup.and(new ExistenceCondition()
-            .where(where));
+                .where(where));
         return this;
     }
 
@@ -205,7 +204,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         if ((whereBase instanceof Set) || whereBase.getQueryBuilderBase() instanceof Delete) {
             count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseDefinition.getWritableDatabase(), getQuery());
         } else {
-            count = DatabaseUtils.longForQuery(databaseDefinition.getWritableDatabase(), getQuery(), null);
+            count = SqlUtils.longForQuery(databaseDefinition.getWritableDatabase(), getQuery());
         }
         return count;
     }
@@ -214,10 +213,10 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-            .appendQualifier("WHERE", conditionGroup.getQuery())
-            .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-            .appendQualifier("HAVING", havingGroup.getQuery())
-            .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
+                .appendQualifier("WHERE", conditionGroup.getQuery())
+                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+                .appendQualifier("HAVING", havingGroup.getQuery())
+                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
@@ -239,17 +238,17 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         String query = getQuery();
         if (whereBase.getQueryBuilderBase() instanceof Select) {
             cursor = databaseDefinition.getWritableDatabase()
-                .rawQuery(query, null);
+                    .rawQuery(query, null);
         } else {
             databaseDefinition.getWritableDatabase()
-                .execSQL(query);
+                    .execSQL(query);
         }
 
         return cursor;
     }
 
     @Override
-    public void queryClose() {
+    public void execute() {
         Cursor query = query();
         if (query != null) {
             query.close();

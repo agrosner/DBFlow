@@ -32,6 +32,7 @@ public class MapModelContainer<ModelClass extends Model> extends SimpleModelCont
         return getData() != null && getData().containsKey(key) && getData().get(key) != null;
     }
 
+    @NonNull
     @Override
     public Map<String, Object> newDataInstance() {
         return new HashMap<>();
