@@ -130,7 +130,7 @@ public class ContentProviderDefinition extends BaseDefinition {
         typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $S", databaseName)
+                .addStatement("return $S", databaseNameString)
                 .returns(ClassName.get(String.class)).build());
 
         MethodSpec.Builder getTypeBuilder = MethodSpec.methodBuilder("getType")
