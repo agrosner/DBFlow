@@ -224,7 +224,7 @@ public abstract class BaseDatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(getDatabaseFileName());
-            openHelper = new FlowSQLiteOpenHelper(this, internalHelperListener);
+            openHelper = createHelper();
             isResetting = false;
             openHelper.getDatabase();
         }
