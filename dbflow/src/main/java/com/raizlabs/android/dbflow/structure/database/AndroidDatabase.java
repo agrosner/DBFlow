@@ -67,4 +67,14 @@ public class AndroidDatabase implements DatabaseWrapper {
         return count;
     }
 
+    @Override
+    public long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values, int sqLiteDatabaseAlgorithmInt) {
+        long count;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            count = database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt);
+        } else {
+            count = database.insert(tableName, nullColumnHack, values);
+        }
+        return count;
+    }
 }
