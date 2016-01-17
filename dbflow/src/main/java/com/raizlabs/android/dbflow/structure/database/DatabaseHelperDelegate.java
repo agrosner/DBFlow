@@ -44,7 +44,7 @@ public class DatabaseHelperDelegate {
      */
     public static final String MIGRATION_PATH = "migrations";
 
-    static String getTempDbFileName(BaseDatabaseDefinition databaseDefinition) {
+    public static String getTempDbFileName(BaseDatabaseDefinition databaseDefinition) {
         return TEMP_DB_NAME + databaseDefinition.getDatabaseName() + ".db";
     }
 
