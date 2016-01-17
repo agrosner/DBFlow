@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure.container;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
@@ -134,5 +135,14 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
 
     protected ModelContainerLoader<ModelClass> createModelContainerLoader() {
         return new ModelContainerLoader<>(getModelClass());
+    }
+
+    /**
+     * Override the {@link ModelContainerLoader} with your own implementation (if necessary).
+     *
+     * @param modelContainerLoader The loader used to load {@link Cursor} data into a {@link ModelContainer}.
+     */
+    public void setModelContainerLoader(ModelContainerLoader<ModelClass> modelContainerLoader) {
+        this.modelContainerLoader = modelContainerLoader;
     }
 }
