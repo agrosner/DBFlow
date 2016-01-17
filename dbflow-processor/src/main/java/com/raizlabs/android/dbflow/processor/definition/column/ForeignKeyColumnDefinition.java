@@ -139,7 +139,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {
         checkNeedsReferences();
         for (ForeignKeyReferenceDefinition reference : foreignKeyReferenceDefinitionList) {
-            methodBuilder.beginControlFlow("case $S: ", reference.columnName);
+            methodBuilder.beginControlFlow("case $S: ", QueryBuilder.quoteIfNeeded(reference.columnName));
             methodBuilder.addStatement("return $L", reference.columnName);
             methodBuilder.endControlFlow();
         }
