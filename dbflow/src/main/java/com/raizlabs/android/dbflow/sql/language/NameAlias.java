@@ -113,11 +113,7 @@ public class NameAlias implements Query {
     @NonNull
     public String getDefinition() {
         StringBuilder definition = new StringBuilder();
-        if (prefixName != null) {
-            definition.append(tickName ? QueryBuilder.quoteIfNeeded(prefixName) : prefixName)
-                    .append(".");
-        }
-        definition.append(tickName ? getName() : getNamePropertyRaw());
+        definition.append(getName());
         if (hasAlias()) {
             definition.append(" AS ").append(getAliasName());
         }
