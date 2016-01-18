@@ -227,6 +227,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                             ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, true);
             String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
+
+            if (saveForeignKeyModel) {
+                builder.addStatement("$L.save()", finalAccessStatement);
+            }
+
             CodeBlock.Builder elseBuilder = CodeBlock.builder();
             for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
                 if (i > 0) {
@@ -235,10 +240,6 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
                 builder.add(referenceDefinition.getSQLiteStatementMethod(index, isModelContainerAdapter));
                 elseBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue() + " + " + BindToStatementMethod.PARAM_START);
-            }
-
-            if (saveForeignKeyModel) {
-                builder.addStatement("$L.save()", finalAccessStatement);
             }
 
             builder.nextControlFlow("else")
