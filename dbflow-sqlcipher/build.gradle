@@ -11,8 +11,11 @@ android {
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode = version_code
+    }
+
+    lintOptions {
+        abortOnError false
     }
 
     compileOptions {
@@ -25,3 +28,6 @@ dependencies {
     compile "net.zetetic:android-database-sqlcipher:3.3.1-2"
     compile project("${dbflow_project_prefix}dbflow")
 }
+
+apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
+apply from: '../android-artifacts.gradle'
