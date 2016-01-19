@@ -53,6 +53,10 @@ public class SQLCipherDatabase implements DatabaseWrapper {
         return SQLCipherStatement.from(database.compileStatement(rawQuery));
     }
 
+    public SQLiteDatabase getDatabase() {
+        return database;
+    }
+
     @Override
     public Cursor rawQuery(String query, String[] selectionArgs) {
         return database.rawQuery(query, selectionArgs);

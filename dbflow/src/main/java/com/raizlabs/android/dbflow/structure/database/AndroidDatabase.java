@@ -46,6 +46,10 @@ public class AndroidDatabase implements DatabaseWrapper {
         return database.getVersion();
     }
 
+    public SQLiteDatabase getDatabase() {
+        return database;
+    }
+
     @Override
     public DatabaseStatement compileStatement(String rawQuery) {
         return AndroidDatabaseStatement.from(database.compileStatement(rawQuery), database);
