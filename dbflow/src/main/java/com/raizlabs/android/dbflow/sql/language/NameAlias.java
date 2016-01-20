@@ -167,7 +167,9 @@ public class NameAlias implements Query {
         if (prefixName != null) {
             fullName += (tickName ? QueryBuilder.quoteIfNeeded(prefixName) : prefixName) + ".";
         }
-        fullName += (tickName ? QueryBuilder.quote(name) : getNamePropertyRaw());
+        if (name != null) {
+            fullName += (tickName ? QueryBuilder.quote(name) : getNamePropertyRaw());
+        }
         return fullName;
     }
 
