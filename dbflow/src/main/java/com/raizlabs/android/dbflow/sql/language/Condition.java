@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -365,7 +366,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
             operation = String.format("%1s %1s ", operation, Operation.PLUS);
         } else {
             throw new IllegalArgumentException(
-                    String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
+                String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
         }
         this.value = value;
         isValueSet = true;
@@ -395,6 +396,18 @@ public class Condition extends BaseCondition implements ITypeConditional {
     @Override
     public In notIn(Object firstArgument, Object... arguments) {
         return new In(this, firstArgument, false, arguments);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public In in(Collection values) {
+        return new In(this, values, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public In notIn(Collection values) {
+        return new In(this, values, false);
     }
 
     /**
@@ -542,10 +555,10 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append(isRaw ? value() : BaseCondition.convertValueToString(value(), true))
-                    .appendSpaceSeparated(Operation.AND)
-                    .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue(), true))
-                    .appendSpace().appendOptional(postArgument());
+                .append(isRaw ? value() : BaseCondition.convertValueToString(value(), true))
+                .appendSpaceSeparated(Operation.AND)
+                .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue(), true))
+                .appendSpace().appendOptional(postArgument());
         }
 
     }
@@ -573,6 +586,12 @@ public class Condition extends BaseCondition implements ITypeConditional {
             operation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
         }
 
+        private In(Condition condition, Collection<Object> args, boolean isIn) {
+            super(condition.columnAlias());
+            inArguments.addAll(args);
+            operation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
+        }
+
         /**
          * Appends another value to this In statement
          *
@@ -588,7 +607,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append("(").append(ConditionGroup.joinArguments(",", inArguments)).append(")");
+                .append("(").append(ConditionGroup.joinArguments(",", inArguments)).append(")");
         }
     }
 

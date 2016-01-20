@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.Query;
 
+import java.util.Collection;
+
 /**
  * Description: Interface for objects that can be used as {@link Condition} that have a type parameter.
  */
@@ -105,5 +107,26 @@ public interface ITypeConditional<ValueType> extends Query, IConditional {
      * @return A new {@link Condition.In} (not) built from this {@link ITypeConditional}.
      */
     Condition.In notIn(ValueType firstValue, ValueType... values);
+
+    /**
+     * Turns this {@link ITypeConditional} into an {@link Condition.In}. It means that this object should
+     * be represented by the set of {@link ValueType} provided to follow.
+     *
+     * @param firstValue The first value (required to enforce >= 1)
+     * @param values     The rest of the values to pass optionally.
+     * @return A new {@link Condition.In} built from this {@link ITypeConditional}.
+     */
+    Condition.In in(Collection<ValueType> values);
+
+    /**
+     * Turns this {@link ITypeConditional} into an {@link Condition.In} (not). It means that this object should NOT
+     * be represented by the set of {@link ValueType} provided to follow.
+     *
+     * @param firstValue The first value (required to enforce >= 1)
+     * @param values     The rest of the values to pass optionally.
+     * @return A new {@link Condition.In} (not) built from this {@link ITypeConditional}.
+     */
+    Condition.In notIn(Collection<ValueType> values);
+
 
 }
