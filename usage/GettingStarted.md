@@ -192,3 +192,32 @@ public class Queen extends BaseModel {
 ```
 
 If you wish to lazy-load the relationship yourself, specify `OneToMany.Method.DELETE` and `SAVE` instead of `ALL`. If you wish not to save them whenever the `Queen`'s data changes, specify `DELETE` and `LOAD` only.
+
+### Creating the Colony
+
+Use this code to create and populate a colony:
+
+```java
+Queen queen = new Queen();
+queen.name = "Queenie";
+
+Colony colony = new Colony();
+colony.name = "USOfAnts";
+
+// Start a colony.
+colony.save();
+
+// Associate queen with colony
+queen.colony = colony;
+queen.save();
+
+// Add an ant
+Ant ant = new Ant();
+ant.isMale = true;
+ant.type = "Worker";
+ant.associateQueen(queen);
+ant.save();
+```
+
+Note that `associateQueen` must be called after the `Queen` has been saved.
+
