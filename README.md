@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.0.0beta1-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.0.0beta2-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
@@ -10,15 +10,13 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on writi
 
 # Why Use DBFlow vs other solutions
 DBFlow was built with the intention of bringing the best of all features from other ORM database libraries and to do it even better. It was also built to not limit how you can code your problems, but make it _significantly_ easier to make amazing applications. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
-
-  1. **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages. _Also, subclass objects in this library to suit your needs_.
-
-  2. **Speed**: Built with java's annotation processing code generation, there's zero runtime performance hit by using this library. This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
-  3. **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
-  4. **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
-  5. **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in database request queue to perform operations on same thread, and many more features.
-  6. **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, database modules using DBFlow in other dependencies, simultaneously.
-  7. **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
+- **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages. _Also, subclass objects in this library to suit your needs_.
+- **Speed**: Built with java's annotation processing code generation, there's zero runtime performance hit by using this library. This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
+- **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
+- **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
+- **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in database request queue to perform operations on same thread, and many more features.
+- **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, database modules using DBFlow in other dependencies, simultaneously.
+- **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
 
 # Changelog
 # 3.0-beta1
@@ -91,7 +89,7 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
 
   apply plugin: 'com.neenbedankt.android-apt'
 
-  def dbflow_version = "3.0.0-beta1"
+  def dbflow_version = "3.0.0-beta2"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
 
   dependencies {
@@ -105,11 +103,11 @@ You can also specify a commit hash instead of `develop-SNAPSHOT` to grab a speci
 
 # Pull Requests
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
-  1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
-  2. If its a feature, bugfix, or anything please only change code to what you specify.
-  3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :)
-  4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.
-  5. Have fun!
+1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
+2. If its a feature, bugfix, or anything please only change code to what you specify.
+3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :)
+4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.
+5. Have fun!
 
 # Maintainers
 [agrosner](https://github.com/agrosner) ([@agrosner](https://www.twitter.com/agrosner))
