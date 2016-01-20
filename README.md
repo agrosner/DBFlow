@@ -19,8 +19,8 @@ DBFlow was built with the intention of bringing the best of all features from ot
 - **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
 
 # Changelog
-# 3.0-beta1
-Many large updates to the library. Probably the most significant changes since the library  was written. Most major changes are [here](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migration3Guide.md)
+
+Going forward, changes between versions exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases)
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
