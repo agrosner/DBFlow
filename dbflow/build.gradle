@@ -13,7 +13,6 @@ android {
         minSdkVersion 4
         targetSdkVersion 23
         versionCode = version_code
-        testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
     lintOptions {
@@ -30,8 +29,8 @@ android {
 dependencies {
     compile project("${dbflow_project_prefix}dbflow-core")
     compile "com.android.support:support-annotations:23.1.1"
-    androidTestApt project("${dbflow_project_prefix}dbflow-processor")
-    androidTestCompile 'com.jayway.awaitility:awaitility:1.6.5'
+
+
 }
 
 apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'

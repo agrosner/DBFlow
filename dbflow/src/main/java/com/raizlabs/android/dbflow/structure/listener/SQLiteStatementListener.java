@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.structure.listener;
 
-import android.database.sqlite.SQLiteStatement;
+import com.raizlabs.android.dbflow.structure.InternalAdapter;
+import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 
 /**
  * Description: Marks a {@link com.raizlabs.android.dbflow.structure.Model} as suscribing to
@@ -10,12 +12,18 @@ import android.database.sqlite.SQLiteStatement;
 public interface SQLiteStatementListener {
 
     /**
-     * Called at the end of {@link com.raizlabs.android.dbflow.structure.ModelAdapter#bindToStatement(android.database.sqlite.SQLiteStatement, com.raizlabs.android.dbflow.structure.Model)}
+     * Called at the end of {@link InternalAdapter#bindToStatement(com.raizlabs.android.dbflow.structure.database.DatabaseStatement, com.raizlabs.android.dbflow.structure.Model)}
      * Perform a custom manipulation of the statement as willed.
      *
-     * @param sqLiteStatement The insert statement from the {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
+     * @param databaseStatement The statement from the {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
      */
-    void onBindToStatement(SQLiteStatement sqLiteStatement);
+    void onBindToStatement(DatabaseStatement databaseStatement);
 
-    void onBindToInsertStatement(SQLiteStatement sqLiteStatement);
+    /**
+     * Called at the end of {@link InternalAdapter#bindToInsertStatement(DatabaseStatement, Model)} (com.raizlabs.android.dbflow.structure.database.DatabaseStatement, com.raizlabs.android.dbflow.structure.Model)}
+     * Perform a custom manipulation of the statement as willed.
+     *
+     * @param databaseStatement The insert statement from the {@link com.raizlabs.android.dbflow.structure.ModelAdapter}
+     */
+    void onBindToInsertStatement(DatabaseStatement databaseStatement);
 }

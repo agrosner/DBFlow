@@ -19,7 +19,7 @@ public class UniqueGroupsDefinition {
 
     private final ProcessorManager manager;
 
-    private List<ColumnDefinition> columnDefinitionList = new ArrayList<>();
+    public List<ColumnDefinition> columnDefinitionList = new ArrayList<>();
 
     public int number;
 

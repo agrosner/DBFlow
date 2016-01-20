@@ -45,6 +45,7 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
         return new JSONModel((JSONObject) inValue, columnClass);
     }
 
+    @NonNull
     @Override
     public JSONObject newDataInstance() {
         return new JSONObject();
@@ -243,23 +244,6 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
         } catch (JSONException e) {
             FlowLog.logError(e);
         }
-    }
-
-    /**
-     * Loads a model from the DB into the json stored in this class. It also will recreate the JSON stored in this object
-     *
-     * @param primaryKeys The keys to reference (in order of the {@link ModelAdapter#getPrimaryConditions(Model)})
-     */
-    public void load(Object... primaryKeys) {
-        setData(new JSONObject());
-        //Cursor cursor = new Select().from(modelAdapter.getModelClass())
-        //        .where(FlowManager.getPrimaryWhereQuery(getTable()).replaceEmptyParams(primaryKeys)).limit(1).query();
-//
-        //if(cursor != null && cursor.moveToFirst()) {
-        //    modelContainerAdapter.loadFromCursor(cursor, this);
-        //    cursor.close();
-        //}
-        // TODO: put this back
     }
 
 }

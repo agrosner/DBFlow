@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow;
 
-import android.database.sqlite.SQLiteDatabase;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Provides callbacks for {@link android.database.sqlite.SQLiteOpenHelper} methods
@@ -12,23 +12,22 @@ public interface DatabaseHelperListener {
      *
      * @param database The database that is opened
      */
-    void onOpen(SQLiteDatabase database);
+    void onOpen(DatabaseWrapper database);
 
     /**
      * Called when the DB is created
      *
      * @param database The database that is created
      */
-    void onCreate(SQLiteDatabase database);
+    void onCreate(DatabaseWrapper database);
 
     /**
      * Called when the DB is upgraded.
-     *
-     * @param database   The database that is upgraded
+     *  @param database   The database that is upgraded
      * @param oldVersion The previous DB version
      * @param newVersion The new DB version
      */
-    void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion);
+    void onUpgrade(DatabaseWrapper database, int oldVersion, int newVersion);
 
 
 }

@@ -2,12 +2,10 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,21 +66,42 @@ public class Method extends Property {
 
     /**
      * @param properties Set of properties that the method acts on.
-     * @return The method that represents the min of the specified columns/properties.
+     * @return The method that represents the total of the specified columns/properties.
      */
     public static Method total(IProperty... properties) {
         return new Method("TOTAL", properties);
     }
 
     private final List<IProperty> propertyList = new ArrayList<>();
+    private List<String> operationsList = new ArrayList<>();
+    private final IProperty methodProperty;
+
+    public Method(IProperty... properties) {
+        this(null, properties);
+    }
 
     public Method(String methodName, IProperty... properties) {
-        super(null, methodName);
-        Collections.addAll(propertyList, properties);
+        super(null, (String) null);
 
-        if (propertyList.isEmpty()) {
+        methodProperty = new Property(null, new NameAlias(methodName, false).tickName(false));
+
+        if (properties.length == 0) {
             propertyList.add(Property.ALL_PROPERTY);
+        } else {
+            for (IProperty property : properties) {
+                addProperty(property);
+            }
         }
+    }
+
+    @Override
+    public Method plus(IProperty property) {
+        return append(property, Condition.Operation.PLUS);
+    }
+
+    @Override
+    public Method minus(IProperty property) {
+        return append(property, Condition.Operation.MINUS);
     }
 
     /**
@@ -91,8 +110,21 @@ public class Method extends Property {
      *
      * @param property The property to add.
      */
-    protected void addProperty(@NonNull IProperty property) {
+    public Method addProperty(@NonNull IProperty property) {
+        if (propertyList.size() == 1 && propertyList.get(0) == Property.ALL_PROPERTY) {
+            propertyList.remove(0);
+        }
+        return append(property, ",");
+    }
+
+    /**
+     * Appends a property with the specified operation that separates it. The operation will appear before
+     * the property specified.
+     */
+    public Method append(IProperty property, String operation) {
         propertyList.add(property);
+        operationsList.add(operation);
+        return this;
     }
 
     @NonNull
@@ -101,7 +133,30 @@ public class Method extends Property {
     }
 
     @Override
-    public String toString() {
-        return nameAlias.getNamePropertyRaw() + "(" + QueryBuilder.join(",", propertyList) + ")";
+    public NameAlias getNameAlias() {
+        if (nameAlias == null) {
+            String query = methodProperty.getQuery();
+            if (query == null) {
+                query = "";
+            }
+            query += "(";
+            List<IProperty> propertyList = getPropertyList();
+            for (int i = 0; i < propertyList.size(); i++) {
+                IProperty property = propertyList.get(i);
+                if (i > 0) {
+                    query += " " + operationsList.get(i) + " ";
+                }
+                query += property.toString();
+
+            }
+            query += ")";
+            nameAlias = new NameAlias(query, false).tickName(false);
+        }
+        return nameAlias;
     }
+
+    //@Override
+    //public String toString() {
+    //    return getNameAlias().toString();
+    //}
 }

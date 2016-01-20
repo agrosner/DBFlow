@@ -5,18 +5,20 @@ import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
+import java.util.Collection;
+
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description: The main, immutable property class that gets generated from a table definition.
- * <p>
+ * <p/>
  * This class delegates all of its {@link ITypeConditional} methods to a new {@link Condition} that's used
  * in the SQLite query language.
- * <p>
+ * <p/>
  * This ensures that the language is strictly type-safe and only declared
  * columns get used. Also any calls on the methods return a new {@link Property}.
- * <p>
- * This is type parametrized so that all values passed to this class remain proper.
+ * <p/>
+ * This is type parametrized so that all values passed to this class remain properly typed.
  */
 public class Property<T> extends BaseProperty<Property<T>> implements ITypeConditional<T> {
 
@@ -46,19 +48,19 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
     @Override
     public Property<T> plus(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public Property<T> minus(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public Property<T> as(String aliasName) {
         return new Property<>(table, getNameAlias().getAliasNameRaw(), aliasName,
-                getNameAlias().shouldTickName(), getNameAlias().shouldStripTicks());
+            getNameAlias().shouldTickName(), getNameAlias().shouldStripTicks());
     }
 
     @Override
@@ -134,6 +136,16 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
     @Override
     public Condition.In notIn(T firstValue, T... values) {
         return column(getNameAlias()).notIn(firstValue, values);
+    }
+
+    @Override
+    public Condition.In in(Collection<T> values) {
+        return column(getNameAlias()).in(values);
+    }
+
+    @Override
+    public Condition.In notIn(Collection<T> values) {
+        return column(getNameAlias()).notIn(values);
     }
 
     @Override

@@ -93,7 +93,17 @@ public abstract class BaseDefinition implements TypeDefinition {
     }
 
     protected void setOutputClassName(String postfix) {
-        outputClassName = ClassName.get(packageName, elementClassName.simpleName() + postfix);
+        String outputName;
+        if (elementClassName == null) {
+            if (elementTypeName instanceof ClassName) {
+                outputName = ((ClassName) elementTypeName).simpleName();
+            } else {
+                outputName = elementTypeName.toString();
+            }
+        } else {
+            outputName = elementClassName.simpleName();
+        }
+        outputClassName = ClassName.get(packageName, outputName + postfix);
     }
 
     @Override

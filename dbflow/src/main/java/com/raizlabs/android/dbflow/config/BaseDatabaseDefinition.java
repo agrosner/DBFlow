@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.Database;
@@ -16,6 +15,9 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowSQLiteOpenHelper;
+import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +50,7 @@ public abstract class BaseDatabaseDefinition {
     /**
      * The helper that manages database changes and initialization
      */
-    private FlowSQLiteOpenHelper flowSQLiteOpenHelper;
+    private OpenHelper openHelper;
 
     /**
      * Allows for the app to listen for database changes.
@@ -63,7 +65,7 @@ public abstract class BaseDatabaseDefinition {
     /**
      * @return a list of all model classes in this database.
      */
-    List<Class<? extends Model>> getModelClasses() {
+    public List<Class<? extends Model>> getModelClasses() {
         return models;
     }
 
@@ -72,7 +74,7 @@ public abstract class BaseDatabaseDefinition {
      *
      * @return List of Model Adapters
      */
-    List<ModelAdapter> getModelAdapters() {
+    public List<ModelAdapter> getModelAdapters() {
         return new ArrayList<>(modelAdapters.values());
     }
 
@@ -84,7 +86,7 @@ public abstract class BaseDatabaseDefinition {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    ModelAdapter getModelAdapterForTable(Class<? extends Model> table) {
+    public ModelAdapter getModelAdapterForTable(Class<? extends Model> table) {
         return modelAdapters.get(table);
     }
 
@@ -110,7 +112,7 @@ public abstract class BaseDatabaseDefinition {
     /**
      * @return the {@link BaseModelView} list for this database.
      */
-    List<Class<? extends BaseModelView>> getModelViews() {
+    public List<Class<? extends BaseModelView>> getModelViews() {
         return modelViews;
     }
 
@@ -118,7 +120,7 @@ public abstract class BaseDatabaseDefinition {
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated {@link ModelViewAdapter} for the specified table.
      */
-    ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
+    public ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
         return modelViewAdapterMap.get(table);
     }
 
@@ -126,14 +128,14 @@ public abstract class BaseDatabaseDefinition {
      * @return The list of {@link ModelViewAdapter}. Internal method for
      * creating model views in the DB.
      */
-    List<ModelViewAdapter> getModelViewAdapters() {
+    public List<ModelViewAdapter> getModelViewAdapters() {
         return new ArrayList<>(modelViewAdapterMap.values());
     }
 
     /**
      * @return The list of {@link QueryModelAdapter}. Internal method for creating query models in the DB.
      */
-    List<QueryModelAdapter> getModelQueryAdapters() {
+    public List<QueryModelAdapter> getModelQueryAdapters() {
         return new ArrayList<>(queryModelAdapterMap.values());
     }
 
@@ -141,30 +143,30 @@ public abstract class BaseDatabaseDefinition {
      * @param queryModel The {@link QueryModel} class
      * @return The adapter that corresponds to the specified class.
      */
-    QueryModelAdapter getQueryModelAdapterForQueryClass(Class<? extends BaseQueryModel> queryModel) {
+    public QueryModelAdapter getQueryModelAdapterForQueryClass(Class<? extends BaseQueryModel> queryModel) {
         return queryModelAdapterMap.get(queryModel);
     }
 
     /**
      * @return The map of migrations to DB version
      */
-    Map<Integer, List<Migration>> getMigrations() {
+    public Map<Integer, List<Migration>> getMigrations() {
         return migrationMap;
     }
 
-    FlowSQLiteOpenHelper getHelper() {
-        if (flowSQLiteOpenHelper == null) {
-            flowSQLiteOpenHelper = createHelper();
+    OpenHelper getHelper() {
+        if (openHelper == null) {
+            openHelper = createHelper();
         }
-        return flowSQLiteOpenHelper;
+        return openHelper;
     }
 
-    protected FlowSQLiteOpenHelper createHelper() {
+    protected OpenHelper createHelper() {
         return new FlowSQLiteOpenHelper(this, internalHelperListener);
     }
 
-    public SQLiteDatabase getWritableDatabase() {
-        return getHelper().getWritableDatabase();
+    public DatabaseWrapper getWritableDatabase() {
+        return getHelper().getDatabase();
     }
 
     /**
@@ -222,9 +224,9 @@ public abstract class BaseDatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(getDatabaseFileName());
-            flowSQLiteOpenHelper = new FlowSQLiteOpenHelper(this, internalHelperListener);
+            openHelper = createHelper();
             isResetting = false;
-            flowSQLiteOpenHelper.getWritableDatabase();
+            openHelper.getDatabase();
         }
     }
 
@@ -249,21 +251,21 @@ public abstract class BaseDatabaseDefinition {
 
     protected final DatabaseHelperListener internalHelperListener = new DatabaseHelperListener() {
         @Override
-        public void onOpen(SQLiteDatabase database) {
+        public void onOpen(DatabaseWrapper database) {
             if (helperListener != null) {
                 helperListener.onOpen(database);
             }
         }
 
         @Override
-        public void onCreate(SQLiteDatabase database) {
+        public void onCreate(DatabaseWrapper database) {
             if (helperListener != null) {
                 helperListener.onCreate(database);
             }
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
+        public void onUpgrade(DatabaseWrapper database, int oldVersion, int newVersion) {
             if (helperListener != null) {
                 helperListener.onUpgrade(database, oldVersion, newVersion);
             }

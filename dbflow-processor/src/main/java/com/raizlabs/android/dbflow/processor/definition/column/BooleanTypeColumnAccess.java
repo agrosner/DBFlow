@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 

@@ -39,6 +39,12 @@ public class ProviderMethodUtils {
                         if ("char".equals(name)) {
                             name = "character";
                         }
+
+                        // handle integer
+                        if ("int".equals(name)) {
+                            name = "integer";
+                        }
+
                         name = name.substring(0, 1).toUpperCase() + name.substring(1);
                         codeBuilder.add("$L.valueOf(uri.getPathSegments().get($L))", name, pathSegment.segment());
                     } else {

@@ -16,7 +16,7 @@ The base class, `BaseMigration` provides a very simple class to execute your mig
 public class Migration1 extends BaseMigration {
 
     @Override
-    public void migrate(SQLiteDatabase database) {
+    public void migrate(DatabaseWrapper database) {
 
     }
 }
