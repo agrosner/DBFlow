@@ -93,7 +93,7 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
 
   dependencies {
-    apt 'com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}'
+    apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
     
