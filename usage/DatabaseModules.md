@@ -5,7 +5,7 @@ However, there are scenarios where an application has a library or subproject th
 
 To get around this problem, you must enable database module support for the module intended to be loaded by an application. Fortunately, this is a very easy process.
 
-To add databases to a module, first update your `build.gradle` of the library to define a custom `apt` argument that will place the `GeneratedDatabaseHolder` class-like definition in a different class file (in same package) so that the classes will not get duplicated.
+To add databases to a module, first update your `build.gradle` of the library to define a custom `apt` argument that will place the `GeneratedDatabaseHolder` class-like definition in a different class file (in same package) so that the classes will not get duplicated.  After you have called "apply plugin: 'com.neenbedankt.android-apt'" but before your depencies, add this:
 
 ```groovy
 apt {
