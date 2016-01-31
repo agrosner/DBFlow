@@ -70,8 +70,6 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
     @Override
     public void setModel(ModelClass model) {
         super.setModel(model);
-
-
     }
 
     /**

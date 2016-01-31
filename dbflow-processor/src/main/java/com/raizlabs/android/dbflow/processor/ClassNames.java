@@ -86,6 +86,7 @@ public class ClassNames {
     public static final ClassName MODEL_CONTAINER = ClassName.get(CONTAINER, "ModelContainer");
     public static final ClassName MODEL_CONTAINER_ADAPTER = ClassName.get(CONTAINER, "ModelContainerAdapter");
     public static final ClassName FOREIGN_KEY_CONTAINER = ClassName.get(CONTAINER, "ForeignKeyContainer");
+    public static final ClassName EXTERNAL_FOREIGN_KEY_CONTAINER = ClassName.get(CONTAINER, "ExternalForeignKeyContainer");
     public static final ClassName BASE_MODEL = ClassName.get(STRUCTURE, "BaseModel");
     public static final ClassName MODEL_CACHE = ClassName.get(STRUCTURE + ".cache", "ModelCache");
     public static final ClassName MULTI_KEY_CACHE_CONVERTER = ClassName.get(STRUCTURE + ".cache", "IMultiKeyCacheConverter");

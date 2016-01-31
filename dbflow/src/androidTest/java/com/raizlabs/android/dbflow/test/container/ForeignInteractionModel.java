@@ -20,16 +20,13 @@ public class ForeignInteractionModel extends TestModel1 {
 
     @Column
     @ForeignKey(
-            onDelete = ForeignKeyAction.CASCADE,
-            onUpdate = ForeignKeyAction.CASCADE,
-            references =
-                    {@ForeignKeyReference(columnName = "testmodel_id",
-                            foreignKeyColumnName = "name",
-                            columnType = String.class),
-                            @ForeignKeyReference(columnName = "testmodel_type",
-                                    foreignKeyColumnName = "type",
-                                    columnType = String.class)},
-            saveForeignKeyModel = false)
+        onDelete = ForeignKeyAction.CASCADE,
+        onUpdate = ForeignKeyAction.CASCADE,
+        references = {
+            @ForeignKeyReference(columnName = "testmodel_id", foreignKeyColumnName = "name", columnType = String.class),
+            @ForeignKeyReference(columnName = "testmodel_type", foreignKeyColumnName = "type", columnType = String.class)
+        },
+        saveForeignKeyModel = true)
     ForeignKeyContainer<ParentModel> testModel1;
 
     public TestModel1 getTestModel1() {

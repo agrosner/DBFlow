@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
+import com.raizlabs.android.dbflow.annotation.ExternalForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
@@ -19,6 +20,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ContainerKeyDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ExternalForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -285,10 +287,11 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
 
             boolean isForeign = element.getAnnotation(ForeignKey.class) != null;
+            boolean isExternalForeign = element.getAnnotation(ExternalForeignKey.class) != null;
             boolean isPrimary = element.getAnnotation(PrimaryKey.class) != null;
             boolean isInherited = inheritedColumnMap.containsKey(element.getSimpleName().toString());
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
-            if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
+            if (element.getAnnotation(Column.class) != null || isForeign || isExternalForeign || isPrimary
                     || isValidColumn || isInherited || isInheritedPrimaryKey) {
 
 
@@ -303,6 +306,8 @@ public class TableDefinition extends BaseTableDefinition {
                             inherited.column(), null);
                 } else if (isForeign) {
                     columnDefinition = new ForeignKeyColumnDefinition(manager, this, element, isPackagePrivateNotInSamePackage);
+                } else if (isExternalForeign) {
+                    columnDefinition = new ExternalForeignKeyColumnDefinition(manager, this, element, isPackagePrivateNotInSamePackage);
                 } else {
                     columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage);
                 }

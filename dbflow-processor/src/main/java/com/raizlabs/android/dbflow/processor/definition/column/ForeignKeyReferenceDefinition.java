@@ -31,14 +31,15 @@ public class ForeignKeyReferenceDefinition {
     public BaseColumnAccess columnAccess;
 
     private final BaseColumnAccess tableColumnAccess;
-    private final ForeignKeyColumnDefinition foreignKeyColumnDefinition;
+    private final BaseForeignKeyColumnDefinition foreignKeyColumnDefinition;
 
     private final BaseColumnAccess simpleColumnAccess;
 
-    public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
+    public ForeignKeyReferenceDefinition(ProcessorManager manager,
+                                         String foreignKeyFieldName,
                                          ColumnDefinition referencedColumn,
                                          BaseColumnAccess tableColumnAccess,
-                                         ForeignKeyColumnDefinition foreignKeyColumnDefinition) {
+                                         BaseForeignKeyColumnDefinition foreignKeyColumnDefinition) {
         this.manager = manager;
         this.foreignKeyColumnDefinition = foreignKeyColumnDefinition;
         this.tableColumnAccess = tableColumnAccess;
@@ -76,9 +77,11 @@ public class ForeignKeyReferenceDefinition {
         simpleColumnAccess = new SimpleColumnAccess(columnAccess instanceof PackagePrivateAccess);
     }
 
-    public ForeignKeyReferenceDefinition(ProcessorManager manager, String foreignKeyFieldName,
-                                         ForeignKeyReference foreignKeyReference, BaseColumnAccess tableColumnAccess,
-                                         ForeignKeyColumnDefinition foreignKeyColumnDefinition) {
+    public ForeignKeyReferenceDefinition(ProcessorManager manager,
+                                         String foreignKeyFieldName,
+                                         ForeignKeyReference foreignKeyReference,
+                                         BaseColumnAccess tableColumnAccess,
+                                         BaseForeignKeyColumnDefinition foreignKeyColumnDefinition) {
         this.manager = manager;
         this.tableColumnAccess = tableColumnAccess;
         this.foreignKeyColumnDefinition = foreignKeyColumnDefinition;

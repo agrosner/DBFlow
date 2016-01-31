@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.structure.container;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
@@ -75,6 +74,8 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> implements
      * @return A new {@link ForeignKeyContainer} from the {@link ModelClass}.
      */
     public abstract ForeignKeyContainer<ModelClass> toForeignKeyContainer(ModelClass model);
+
+    public abstract ExternalForeignKeyContainer<ModelClass> toExternalForeignKeyContainer(ModelClass model);
 
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
