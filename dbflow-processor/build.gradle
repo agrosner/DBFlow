@@ -1,7 +1,8 @@
 apply plugin: 'java'
-apply plugin: 'maven'
 
 project.ext.artifactId = bt_name
+
+group= 'com.raizlabs.android'
 
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
@@ -12,5 +13,5 @@ dependencies {
     compile 'com.google.auto.service:auto-service:1.0-rc2'
 }
 
-//apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
-//apply from: '../java-artifacts.gradle'
+apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
+apply from: '../java-artifacts.gradle'

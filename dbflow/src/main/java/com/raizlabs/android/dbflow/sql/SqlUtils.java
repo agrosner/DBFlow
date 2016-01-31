@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -29,6 +28,8 @@ import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ public class SqlUtils {
      * @return a list of {@link ModelClass}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql,
                                                                         String... args) {
         BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
@@ -81,6 +83,7 @@ public class SqlUtils {
      * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
      */
+    @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
             Class<CacheableClass> modelClass, Cursor cursor, ModelCache<CacheableClass, ?> modelCache) {
         final List<CacheableClass> entities = new ArrayList<>();
@@ -124,6 +127,7 @@ public class SqlUtils {
      * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
      */
+    @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
             Class<CacheableClass> modelClass, Cursor cursor) {
         return convertToCacheableList(modelClass, cursor, FlowManager.getModelAdapter(modelClass).getModelCache());
@@ -138,6 +142,7 @@ public class SqlUtils {
      * @return An non-null {@link List}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
         final List<ModelClass> entities = new ArrayList<>();
         InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
@@ -168,6 +173,7 @@ public class SqlUtils {
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table,
                                                                        Cursor cursor) {
         ModelClass model = null;
@@ -195,6 +201,7 @@ public class SqlUtils {
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model, ModelContainerClass extends ModelContainer<ModelClass, ?>>
     ModelContainerClass convertToModelContainer(boolean dontMoveToFirst, @NonNull Class<ModelClass> table,
                                                 @Nullable Cursor cursor, @NonNull ModelContainerClass modelContainer) {
@@ -224,6 +231,7 @@ public class SqlUtils {
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <CacheableClass extends Model> CacheableClass convertToCacheableModel(
             boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
         CacheableClass model = null;
@@ -260,6 +268,7 @@ public class SqlUtils {
      * @return a single {@link ModelClass}
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql,
                                                                     String... args) {
         Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
@@ -333,7 +342,7 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     boolean update(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        SQLiteDatabase db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
+        DatabaseWrapper db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         boolean successful = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
@@ -356,7 +365,7 @@ public class SqlUtils {
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void insert(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        SQLiteStatement insertStatement = modelAdapter.getInsertStatement();
+        DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
         adapter.updateAutoIncrement(model, id);
@@ -373,7 +382,7 @@ public class SqlUtils {
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void delete(final TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         SQLite.delete((Class<TableClass>) adapter.getModelClass()).where(
-                adapter.getPrimaryConditionClause(model)).queryClose();
+                adapter.getPrimaryConditionClause(model)).execute();
         adapter.updateAutoIncrement(model, 0);
         notifyModelChanged(model, adapter, modelAdapter, Action.DELETE);
     }
@@ -544,5 +553,13 @@ public class SqlUtils {
         }
     }
 
+    public static long longForQuery(DatabaseWrapper wrapper, String query) {
+        DatabaseStatement statement = wrapper.compileStatement(query);
+        try {
+            return statement.simpleQueryForLong();
+        } finally {
+            statement.close();
+        }
+    }
 }
 

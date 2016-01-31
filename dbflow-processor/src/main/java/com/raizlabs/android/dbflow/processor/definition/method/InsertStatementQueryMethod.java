@@ -37,11 +37,11 @@ public class InsertStatementQueryMethod implements MethodDefinition {
         int columnSize = tableDefinition.getColumnDefinitions().size();
         int columnCount = 0;
         for (ColumnDefinition column : tableDefinition.getColumnDefinitions()) {
-            if (columnCount > 0) {
-                codeBuilder.add(",");
-            }
-
             if (!column.isPrimaryKeyAutoIncrement || !isInsert) {
+                if (columnCount > 0) {
+                    codeBuilder.add(",");
+                }
+
                 codeBuilder.add(column.getInsertStatementColumnName());
                 columnCount++;
             }
@@ -53,12 +53,12 @@ public class InsertStatementQueryMethod implements MethodDefinition {
 
         columnCount = 0;
         for (int i = 0; i < columnSize; i++) {
-            if (columnCount > 0) {
-                codeBuilder.add(",");
-            }
-
             ColumnDefinition definition = tableDefinition.getColumnDefinitions().get(i);
             if (!definition.isPrimaryKeyAutoIncrement || !isInsert) {
+                if (columnCount > 0) {
+                    codeBuilder.add(",");
+                }
+
                 codeBuilder.add(definition.getInsertStatementValuesString());
                 columnCount++;
             }

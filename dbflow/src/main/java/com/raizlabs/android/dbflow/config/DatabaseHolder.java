@@ -47,7 +47,7 @@ public abstract class DatabaseHolder {
      * @param table                  The model table
      * @param baseDatabaseDefinition The database definition
      */
-    void putDatabaseForTable(Class<? extends Model> table, BaseDatabaseDefinition baseDatabaseDefinition) {
+    public void putDatabaseForTable(Class<? extends Model> table, BaseDatabaseDefinition baseDatabaseDefinition) {
         managerMap.put(table, baseDatabaseDefinition);
         managerNameMap.put(baseDatabaseDefinition.getDatabaseName(), baseDatabaseDefinition);
     }

@@ -50,7 +50,9 @@ public class CreationQueryMethod implements MethodDefinition {
         }
 
         for (UniqueGroupsDefinition definition : tableDefinition.uniqueGroupsDefinitions) {
-            creationBuilder.add(definition.getCreationName());
+            if (!definition.columnDefinitionList.isEmpty()) {
+                creationBuilder.add(definition.getCreationName());
+            }
         }
 
         int primarySize = tableDefinition.getPrimaryColumnDefinitions().size();

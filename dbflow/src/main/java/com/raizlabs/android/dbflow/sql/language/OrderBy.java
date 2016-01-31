@@ -9,6 +9,10 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
  */
 public class OrderBy implements Query {
 
+    public static final String ASCENDING = "ASC";
+
+    public static final String DESCENDING = "DESC";
+
     private NameAlias column;
 
     private boolean isAscending;

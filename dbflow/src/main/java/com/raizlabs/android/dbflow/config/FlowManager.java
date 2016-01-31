@@ -1,8 +1,7 @@
 package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
@@ -19,6 +18,8 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -30,26 +31,7 @@ import java.util.Map;
  * used in this application.
  */
 public class FlowManager {
-    /**
-     * Exception thrown when a database holder cannot load the database holder
-     * for a module.
-     */
-    public static class ModuleNotFoundException extends RuntimeException {
-        public ModuleNotFoundException() {
-        }
 
-        public ModuleNotFoundException(String detailMessage) {
-            super(detailMessage);
-        }
-
-        public ModuleNotFoundException(String detailMessage, Throwable throwable) {
-            super(detailMessage, throwable);
-        }
-
-        public ModuleNotFoundException(Throwable throwable) {
-            super(throwable);
-        }
-    }
 
     private static class GlobalDatabaseHolder extends DatabaseHolder {
         public void add(DatabaseHolder holder) {
@@ -63,16 +45,16 @@ public class FlowManager {
 
     private static GlobalDatabaseHolder globalDatabaseHolder = new GlobalDatabaseHolder();
 
-    private static HashSet<String> loadedModules = new HashSet<>();
+    private static HashSet<Class<? extends DatabaseHolder>> loadedModules = new HashSet<>();
 
 
     private static final String DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder";
 
     private static final String DEFAULT_DATABASE_HOLDER_PACKAGE_NAME =
-        FlowManager.class.getPackage().getName();
+            FlowManager.class.getPackage().getName();
 
     private static final String DEFAULT_DATABASE_HOLDER_CLASSNAME =
-        DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
+            DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
 
     /**
      * Returns the table name for the specific model class
@@ -87,7 +69,7 @@ public class FlowManager {
         String tableName = null;
         if (modelAdapter == null) {
             ModelViewAdapter modelViewAdapter = getDatabaseForTable(table).getModelViewAdapterForTable(
-                (Class<? extends BaseModelView>) table);
+                    (Class<? extends BaseModelView>) table);
             if (modelViewAdapter != null) {
                 tableName = modelViewAdapter.getViewName();
             }
@@ -106,13 +88,13 @@ public class FlowManager {
         BaseDatabaseDefinition databaseDefinition = getDatabase(databaseName);
         if (databaseDefinition == null) {
             throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
-                "Did you forget to add the @Database?", databaseName));
+                    "Did you forget to add the @Database?", databaseName));
         }
         Class<? extends Model> modelClass = databaseDefinition.getModelClassForName(tableName);
         if (modelClass == null) {
             throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
-                    "Did you forget to add the @Table annotation and point it to %1s?",
-                tableName, databaseName));
+                            "Did you forget to add the @Table annotation and point it to %1s?",
+                    tableName, databaseName));
         }
         return modelClass;
     }
@@ -125,7 +107,7 @@ public class FlowManager {
         BaseDatabaseDefinition flowManager = globalDatabaseHolder.getDatabaseForTable(table);
         if (flowManager == null) {
             throw new InvalidDBConfiguration("Table: " + table.getName() + " is not registered with a Database. " +
-                "Did you forget the @Table annotation?");
+                    "Did you forget the @Table annotation?");
         }
         return flowManager;
     }
@@ -142,29 +124,29 @@ public class FlowManager {
         }
 
         throw new InvalidDBConfiguration("The specified database" + databaseName + " was not found. " +
-            "Did you forget the @Database annotation?");
+                "Did you forget the @Database annotation?");
     }
 
     /**
      * @return The database holder, creating if necessary using reflection.
      */
-    protected static void loadDatabaseHolder(String className) {
-        if (loadedModules.contains(className)) {
+    protected static void loadDatabaseHolder(Class<? extends DatabaseHolder> holderClass) {
+        if (loadedModules.contains(holderClass)) {
             return;
         }
 
         try {
             // Load the database holder, and add it to the global collection.
-            DatabaseHolder dbHolder = (DatabaseHolder) Class.forName(className).newInstance();
+            DatabaseHolder dbHolder = holderClass.newInstance();
 
             if (dbHolder != null) {
                 globalDatabaseHolder.add(dbHolder);
 
                 // Cache the holder for future reference.
-                loadedModules.add(className);
+                loadedModules.add(holderClass);
             }
         } catch (Throwable e) {
-            throw new ModuleNotFoundException("Cannot load " + className, e);
+            throw new ModuleNotFoundException("Cannot load " + holderClass, e);
         }
     }
 
@@ -181,40 +163,47 @@ public class FlowManager {
     }
 
     /**
-     * Initializes DBFlow, loading the main application Database holder via reflection. This will
-     * trigger all creations, updates, and instantiation for each database defined.
+     * Initializes DBFlow, loading the main application Database holder via reflection one time only.
+     * This will trigger all creations, updates, and instantiation for each database defined.
      *
      * @param context The shared context for database usage.
      */
-    public static void init(Context context) {
+    public static void init(@NonNull Context context) {
         // Initialize the context, then load the default database holder.
         initContext(context);
 
         try {
-            loadDatabaseHolder(DEFAULT_DATABASE_HOLDER_CLASSNAME);
+            //noinspection unchecked
+            Class<? extends DatabaseHolder> defaultHolderClass = (Class<? extends DatabaseHolder>) Class.forName(DEFAULT_DATABASE_HOLDER_CLASSNAME);
+            loadDatabaseHolder(defaultHolderClass);
         } catch (ModuleNotFoundException e) {
             // Ignore this exception since it means the application does not have its
             // own database. The initialization happens because the application is using
             // a module that has a database.
+            FlowLog.log(FlowLog.Level.W, e.getMessage());
+        } catch (ClassNotFoundException e) {
+            // warning if a library uses DBFlow with module support but the app you're using doesn't support it.
+            FlowLog.log(FlowLog.Level.W, "Could not find the default GeneratedDatabaseHolder");
         }
     }
 
     /**
      * Loading the module Database holder via reflection. This will trigger all creations,
      * updates, and instantiation for each database defined.
-     * <p>
+     * <p/>
      * It is assumed FlowManager.init() is called by the application that uses the
      * module database. This method should only be called if you need to load databases
-     * that are part of a module.
+     * that are part of a module. Building once will give you the ability to add the class.
      */
-    public static void initModule(String moduleName) {
-        loadDatabaseHolder(DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + moduleName + DEFAULT_DATABASE_HOLDER_NAME);
+    public static void initModule(Class<? extends DatabaseHolder> generatedClassName) {
+        loadDatabaseHolder(generatedClassName);
     }
 
-    private static void initContext(Context context) {
-        // QUESTION Should we throw an exception if context is not null? In other
-        // words, should we allow the client to initialize the context more than once?!
-        FlowManager.context = context;
+    private static void initContext(@NonNull Context context) {
+        // only initialize Context once.
+        if (FlowManager.context == null) {
+            FlowManager.context = context.getApplicationContext();
+        }
     }
 
     /**
@@ -260,10 +249,10 @@ public class FlowManager {
         if (internalAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getModelViewAdapter(
-                    (Class<? extends BaseModelView<? extends Model>>) modelClass);
+                        (Class<? extends BaseModelView<? extends Model>>) modelClass);
             } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getQueryModelAdapter(
-                    (Class<? extends BaseQueryModel>) modelClass);
+                        (Class<? extends BaseQueryModel>) modelClass);
             }
         }
 
@@ -290,7 +279,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model> ModelContainerAdapter<ModelClass> getContainerAdapter(
-        Class<ModelClass> modelClass) {
+            Class<ModelClass> modelClass) {
         return FlowManager.getDatabaseForTable(modelClass).getModelContainerAdapterForTable(modelClass);
     }
 
@@ -303,7 +292,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <ModelViewClass extends BaseModelView<? extends Model>> ModelViewAdapter<? extends Model, ModelViewClass> getModelViewAdapter(
-        Class<ModelViewClass> modelViewClass) {
+            Class<ModelViewClass> modelViewClass) {
         return FlowManager.getDatabaseForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
     }
 
@@ -316,7 +305,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <QueryModel extends BaseQueryModel> QueryModelAdapter<QueryModel> getQueryModelAdapter(
-        Class<QueryModel> queryModel) {
+            Class<QueryModel> queryModel) {
         return FlowManager.getDatabaseForTable(queryModel).getQueryModelAdapterForQueryClass(queryModel);
     }
 
@@ -342,15 +331,15 @@ public class FlowManager {
     /**
      * Checks a standard database helper for integrity using quick_check(1).
      *
-     * @param helper The helper to user to look up integrity.
+     * @param openHelper The helper to user to look up integrity.
      * @return true if it's integrity is OK.
      */
-    public static boolean isDatabaseIntegrityOk(SQLiteOpenHelper helper) {
+    public static boolean isDatabaseIntegrityOk(OpenHelper openHelper) {
         boolean integrityOk = true;
 
-        SQLiteStatement prog = null;
+        DatabaseStatement prog = null;
         try {
-            prog = helper.getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
+            prog = openHelper.getDatabase().compileStatement("PRAGMA quick_check(1)");
             String rslt = prog.simpleQueryForString();
             if (!rslt.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases
@@ -367,5 +356,26 @@ public class FlowManager {
     }
 
     // endregion
+
+    /**
+     * Exception thrown when a database holder cannot load the database holder
+     * for a module.
+     */
+    public static class ModuleNotFoundException extends RuntimeException {
+        public ModuleNotFoundException() {
+        }
+
+        public ModuleNotFoundException(String detailMessage) {
+            super(detailMessage);
+        }
+
+        public ModuleNotFoundException(String detailMessage, Throwable throwable) {
+            super(detailMessage, throwable);
+        }
+
+        public ModuleNotFoundException(Throwable throwable) {
+            super(throwable);
+        }
+    }
 
 }

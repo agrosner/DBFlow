@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.CallSuper;
 
 import com.raizlabs.android.dbflow.sql.Query;
@@ -9,6 +8,7 @@ import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Provides a simple way to update a table's field or fields quickly in a migration.
@@ -78,7 +78,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
     }
 
     @Override
-    public final void migrate(SQLiteDatabase database) {
+    public final void migrate(DatabaseWrapper database) {
         database.execSQL(generateQuery());
     }
 

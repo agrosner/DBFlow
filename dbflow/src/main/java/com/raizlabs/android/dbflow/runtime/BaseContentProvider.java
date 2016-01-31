@@ -7,9 +7,11 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseHolder;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.OrderBy;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
@@ -23,7 +25,8 @@ import java.util.List;
  * extend when generated.
  */
 public abstract class BaseContentProvider extends ContentProvider {
-    protected String moduleName;
+
+    protected Class<? extends DatabaseHolder> moduleClass;
 
     /**
      * Converts the column into a {@link Property}. This exists since the property method is static and cannot
@@ -37,8 +40,8 @@ public abstract class BaseContentProvider extends ContentProvider {
 
     }
 
-    protected BaseContentProvider(String moduleName) {
-        this.moduleName = moduleName;
+    protected BaseContentProvider(Class<? extends DatabaseHolder> databaseHolderClass) {
+        this.moduleClass = databaseHolderClass;
     }
 
     /**
@@ -89,6 +92,36 @@ public abstract class BaseContentProvider extends ContentProvider {
         return conditions.toArray(new SQLCondition[conditions.size()]);
     }
 
+    protected static List<OrderBy> toOrderBy(String sort, PropertyConverter propertyConverter) {
+        List<OrderBy> orderBies = new ArrayList<>();
+        if (StringUtils.isNotNullOrEmpty(sort)) {
+            String[] sortArray = sort.split(",");
+            for (String s : sortArray) {
+                String columnName;
+                String ordering;
+                if (s.endsWith(OrderBy.ASCENDING)) {
+                    ordering = OrderBy.ASCENDING;
+                    columnName = s.replace(OrderBy.ASCENDING, "");
+                } else if (s.endsWith(OrderBy.DESCENDING)) {
+                    ordering = OrderBy.DESCENDING;
+                    columnName = s.replace(OrderBy.DESCENDING, "");
+                } else {
+                    // default SQLite is ascending order, we will crash if the s is not a valid column name.
+                    ordering = OrderBy.ASCENDING;
+                    columnName = s;
+                }
+                OrderBy orderBy = OrderBy.fromProperty(propertyConverter.fromName(columnName));
+                if (ordering.equals(OrderBy.ASCENDING)) {
+                    orderBy.ascending();
+                } else {
+                    orderBy.descending();
+                }
+                orderBies.add(orderBy);
+            }
+        }
+        return orderBies;
+    }
+
     protected BaseDatabaseDefinition database;
 
     @Override
@@ -96,8 +129,8 @@ public abstract class BaseContentProvider extends ContentProvider {
         // If this is a module, then we need to initialize the module as part
         // of the creation process. We can assume the framework has been general
         // framework has been initialized.
-        if (moduleName != null) {
-            FlowManager.initModule(moduleName);
+        if (moduleClass != null) {
+            FlowManager.initModule(moduleClass);
         }
 
         return true;

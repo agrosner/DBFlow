@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.container;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
@@ -82,12 +83,25 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         }
     }
 
+    @Nullable
     @Override
     public ModelClass toModel() {
         if (model == null && data != null) {
             model = modelContainerAdapter.toModel(this);
         }
+        return model;
+    }
 
+    @Nullable
+    @Override
+    public ModelClass toModelForce() {
+        model = null;
+        return toModel();
+    }
+
+    @Nullable
+    @Override
+    public ModelClass getModel() {
         return model;
     }
 
@@ -130,6 +144,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         return inValue;
     }
 
+    @Nullable
     @Override
     public DataClass getData() {
         return data;

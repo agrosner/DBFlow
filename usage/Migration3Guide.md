@@ -7,6 +7,7 @@ _note:_
 1. `update` no longer attempts to `insert` if it fails.
 2. Package private fields from other packages are now automatically accessible via generated `_Helper` classes. The referenced fields must be annotated with `@Column`, `@PrimaryKey`, or `@ForeignKey`. if its a legacy `ForeignKeyReference`, `referendFieldIsPackagePrivate()` must be set to true.
 3. `@Column` no longer required in conjunction with `@PrimaryKey` or `@ForeignKey`
+4. Can now have DBFlow in multiple modules, libraries, etc via "Modules"!
 
 ## Table Of Contents
 1. Database + Table Structure
@@ -14,6 +15,7 @@ _note:_
 3. ModelContainers
 4. ModelViews
 5. Caching
+6. Database Modules
 
 ## Database + Table Structure
 ### Database changes
@@ -367,3 +369,35 @@ public class CacheableModel extends BaseModel {
     String name;
 }
 ```
+
+Also, you can now have caching objects with _multiple_ primary keys!!!
+
+Simply in your model class define a `@MultiCacheField` and now you can cache objects with multiple primary keys:
+
+```java
+@Table(database = TestDatabase.class, cachingEnabled = true)
+public class MultipleCacheableModel extends BaseModel {
+
+    @MultiCacheField
+    public static IMultiKeyCacheConverter<String> multiKeyCacheModel = new IMultiKeyCacheConverter<String>() {
+
+        @Override
+        @NonNull
+        public String getCachingKey(@NonNull Object[] values) {
+            return "(" + values[0] + "," + values[1] + ")";
+        }
+    };
+
+    @PrimaryKey
+    double latitude;
+
+    @PrimaryKey
+    double longitude;
+
+}
+```
+
+Please note that the field must be of type `IMultiKeyCacheConverter` in order to compile and convert correctly. You must provide one, otherwise caching will not work. Also the return caching key _must_ be unique, otherwise inconsistent results may occur from within the cache.
+
+## Database Modules
+Now in DBFlow we have support for libraries, other subprojects, and more in general to all use DBFlow at the same time. The only requirement is that they specify an argument to `apt` in order to prevent clashes and the library loads the class during the initialization phase. To read on how to do this (fairly simply), please check it out here: ([Database Modules](https://github.com/Raizlabs/DBFlow/blob/master/usage/DatabaseModules.md))

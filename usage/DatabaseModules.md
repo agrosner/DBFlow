@@ -1,17 +1,11 @@
 # Database Modules
+DBFlow at it's base will generate a `GeneratedDatabaseHolder` class, which contains all of the databases, tables, more defined for everything your application will need to reference when interacting with the library.
 
-When you use DBFlow as is, DBFlow assumes the application defines all the databases
-it needs. There, however, are scenarios where an application needs to load a module,
-or library, that uses DBFlow to manage its databases. This is an important scenario
-because it allows you to reuse a database across multiple applications. Unfortunately,
-if you try this with DBFlow, then there will be duplicate symbols in the application and
-the module and the application will not build.
+However, there are scenarios where an application has a library or subproject that also uses DBFlow to manage its databases. This is an important scenario because it allows you to reuse a database across multiple applications. Previously, DBFlow did not support this use-case and would fail when attempting to do so.
 
-To get around this problem, you must enable database module support for the module
-intended to be loaded by an application. Fortunately, this is a very easy process.
+To get around this problem, you must enable database module support for the module intended to be loaded by an application. Fortunately, this is a very easy process.
 
-To add databases to a module, first update the ```build.config``` with the ```apt```
-section. In the example below, all databases will be in the ```Test``` module.
+To add databases to a module, first update your `build.gradle` of the library to define a custom `apt` argument that will place the `GeneratedDatabaseHolder` class-like definition in a different class file (in same package) so that the classes will not get duplicated.
 
 ```groovy
 apt {
@@ -21,8 +15,9 @@ apt {
 }
 ```
 
-Initialize DBFlow using the standard approach. For example, you can initialize
-DBFlow in the ```Application``` class:
+By passing the `targetModuleName`, we append that to the `GeneratedDatabaseHolder` to create the `GeneratedDatabaseHolderTest` module.
+
+In your library (and application) you should initialize DBFlow using the standard approach.
 
 ```java
 public class ExampleApplication extends Application {
@@ -34,26 +29,10 @@ public class ExampleApplication extends Application {
 }
 ```
 
-Lastly, instruct DBFlow to load the module that contains the database.
+Lastly, instruct DBFlow to load the module that contains the database (you may need to build the app to generate the class file to be able to reference it).
 
 ```java
-FlowManager.initModule("Test");
+FlowManager.initModule(GeneratedDatabaseHolderTest.class);
 ```
 
-Ideally, the module containing the databases should execute the line of code above. This
-can easily be done by exporting an initialization method from the module that the application
-must invoke before it can be used, similar to DBFlow. For example:
-
-```java
-public class Test {
-    public static void initialize(Context context) {
-        FlowManager.initModule("Test");
-
-        // Perform other initialization steps
-    }
-}
-```
-
-Otherwise, the application must be aware that is needs to manually instruct DBFlow to load
-a database module. Lastly, ```FlowManager.initModule(moduleName)``` can be invoked multiple
-times without causing any additional side-effects after the first invocation.
+This method can be invoked multiple times without any effect on the state of the application because it keeps a mapping of the ones already loaded.

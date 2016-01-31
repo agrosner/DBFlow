@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.Collection;
 
@@ -102,7 +103,7 @@ public class TransactionManager {
      *
      * @param runnable
      */
-    public static void transact(SQLiteDatabase database, Runnable runnable) {
+    public static void transact(DatabaseWrapper database, Runnable runnable) {
         database.beginTransaction();
         try {
             runnable.run();

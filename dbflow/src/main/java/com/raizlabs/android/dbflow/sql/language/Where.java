@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
+import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -156,6 +156,19 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         return this;
     }
 
+    /**
+     * For use in {@link ContentProvider} generation. Appends all ORDER BY here.
+     *
+     * @param orderBies The order by.
+     * @return this instance.
+     */
+    public Where<ModelClass> orderByAll(List<OrderBy> orderBies) {
+        if (orderBies != null) {
+            orderByList.addAll(orderBies);
+        }
+        return this;
+    }
+
     @Override
     public Where<ModelClass> limit(int count) {
         this.limit = count;
@@ -191,7 +204,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         if ((whereBase instanceof Set) || whereBase.getQueryBuilderBase() instanceof Delete) {
             count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseDefinition.getWritableDatabase(), getQuery());
         } else {
-            count = DatabaseUtils.longForQuery(databaseDefinition.getWritableDatabase(), getQuery(), null);
+            count = SqlUtils.longForQuery(databaseDefinition.getWritableDatabase(), getQuery());
         }
         return count;
     }
@@ -235,7 +248,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     @Override
-    public void queryClose() {
+    public void execute() {
         Cursor query = query();
         if (query != null) {
             query.close();

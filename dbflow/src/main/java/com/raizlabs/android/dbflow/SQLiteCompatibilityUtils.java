@@ -3,9 +3,10 @@ package com.raizlabs.android.dbflow;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
 import android.os.Build;
+
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Provides some backwards compatibility with database operations in Android.
@@ -20,9 +21,9 @@ public class SQLiteCompatibilityUtils {
      * @param rawQuery The query to use.
      * @return The count of rows changed.
      */
-    public static long executeUpdateDelete(SQLiteDatabase database, String rawQuery) {
+    public static long executeUpdateDelete(DatabaseWrapper database, String rawQuery) {
         long count = 0;
-        SQLiteStatement sqLiteStatement = database.compileStatement(rawQuery);
+        DatabaseStatement sqLiteStatement = database.compileStatement(rawQuery);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             count = sqLiteStatement.executeUpdateDelete();
         } else {
@@ -57,14 +58,8 @@ public class SQLiteCompatibilityUtils {
      * @param conflictAlgorithm The algorithm to use for conflicts.
      * @return The count of rows changed.
      */
-    public static long updateWithOnConflict(SQLiteDatabase database, String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm) {
-        long count;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            count = database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
-        } else {
-            count = database.update(tableName, contentValues, where, whereArgs);
-        }
-        return count;
+    public static long updateWithOnConflict(DatabaseWrapper database, String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm) {
+        return database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
     }
 
 }

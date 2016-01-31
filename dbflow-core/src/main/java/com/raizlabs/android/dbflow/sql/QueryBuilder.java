@@ -79,7 +79,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
     /**
      * Appends the object only if its not null
      *
-     * @param object
+     * @param object If not null, its string representation.
      * @return This instance
      */
     public QueryClass appendOptional(Object object) {

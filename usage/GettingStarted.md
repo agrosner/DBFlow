@@ -54,6 +54,8 @@ public class ColonyDatabase {
 
 For best practices, we create the constants `NAME` and `VERSION` as public, so other components we define for DBFlow can reference it later (if needed).
 
+_Note:_ If you wish to use [SQLCipher](https://www.zetetic.net/sqlcipher/) please read [set up here](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLCipherSupport.md)
+
 ## Creating our tables and establishing relationships
 Now that we have a place to store our data for the ant colonies, we need to explicitly define how the underlying SQL data is stored and what we get is a `Model` that represents that underlying data.
 

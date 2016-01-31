@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
@@ -8,6 +7,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     }
 
     @Override
-    public final void migrate(SQLiteDatabase database) {
+    public final void migrate(DatabaseWrapper database) {
         // "ALTER TABLE "
         String sql = getAlterTableQueryBuilder().getQuery();
         String tableName = FlowManager.getTableName(table);

@@ -143,7 +143,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
             queryBuilder.append("NATURAL ");
         }
 
-        queryBuilder.append(type.name().replace("_", "")).appendSpace();
+        queryBuilder.append(type.name().replace("_", " ")).appendSpace();
 
         queryBuilder.append("JOIN")
                 .appendSpace()

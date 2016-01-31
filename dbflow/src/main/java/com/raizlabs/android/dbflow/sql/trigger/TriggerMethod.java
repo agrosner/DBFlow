@@ -74,7 +74,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
                 .append(methodName);
         if (properties != null && properties.length > 0) {
             queryBuilder.appendSpaceSeparated("OF")
-                    .appendArray(properties);
+                    .appendArray((Object[]) properties);
         }
         queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(onTable));
 

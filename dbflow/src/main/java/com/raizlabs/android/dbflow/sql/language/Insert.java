@@ -2,12 +2,12 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
@@ -204,7 +204,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return Exeuctes and returns the count of rows affected by this query.
      */
     public long count() {
-        return DatabaseUtils.longForQuery(baseDatabaseDefinition.getWritableDatabase(), getQuery(), null);
+        return SqlUtils.longForQuery(baseDatabaseDefinition.getWritableDatabase(), getQuery());
     }
 
     @Override
@@ -218,7 +218,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
 
         if (columns != null) {
             queryBuilder.append("(")
-                    .appendArray(columns)
+                    .appendArray((Object[]) columns)
                     .append(")");
         }
 
@@ -249,7 +249,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     }
 
     @Override
-    public void queryClose() {
+    public void execute() {
         query();
     }
 }

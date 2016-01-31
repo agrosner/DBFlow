@@ -459,6 +459,20 @@ public class TableDefinition extends BaseTableDefinition {
 
         if (cachingEnabled) {
 
+            // TODO: pass in model cache loaders.
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("createSingleModelLoader")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_MODEL_LOADER)
+                    .returns(ClassNames.SINGLE_MODEL_LOADER).build());
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("createListModelLoader")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_LIST_MODEL_LOADER)
+                    .returns(ClassNames.LIST_MODEL_LOADER).build());
+
             typeBuilder.addMethod(MethodSpec.methodBuilder("cachingEnabled")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)

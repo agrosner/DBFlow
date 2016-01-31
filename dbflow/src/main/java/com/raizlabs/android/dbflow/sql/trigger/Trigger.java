@@ -90,7 +90,7 @@ public class Trigger implements Query {
      * @return
      */
     public <ModelClass extends Model> TriggerMethod<ModelClass> delete(Class<ModelClass> onTable) {
-        return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable, null);
+        return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable);
     }
 
     /**
@@ -100,7 +100,7 @@ public class Trigger implements Query {
      * @return
      */
     public <ModelClass extends Model> TriggerMethod<ModelClass> insert(Class<ModelClass> onTable) {
-        return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable, null);
+        return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable);
     }
 
     /**

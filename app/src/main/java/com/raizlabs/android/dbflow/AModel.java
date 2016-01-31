@@ -25,7 +25,6 @@ public class AModel extends BaseModel {
     @Column
     long time;
 
-    @Column
     @ForeignKey(references =
             {@ForeignKeyReference(columnType = String.class,
                     columnName = "otherModel",

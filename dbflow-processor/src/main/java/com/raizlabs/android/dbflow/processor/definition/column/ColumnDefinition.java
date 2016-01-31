@@ -75,11 +75,14 @@ public class ColumnDefinition extends BaseDefinition {
 
     public BaseColumnAccess columnAccess;
     public boolean hasCustomConverter;
+    private BaseTableDefinition tableDefinition;
 
     public ColumnDefinition(ProcessorManager processorManager, Element element,
                             BaseTableDefinition baseTableDefinition, boolean isPackagePrivate,
                             Column column, PrimaryKey primaryKey) {
         super(element, processorManager);
+        this.tableDefinition = baseTableDefinition;
+        this.column = column;
         if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName()
                     .toString() : column.name();
@@ -358,8 +361,25 @@ public class ColumnDefinition extends BaseDefinition {
                         .build().toString();
             }
         } else {
-            return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+            String statement = columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
                     ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false);
+
+            if (this instanceof ForeignKeyColumnDefinition && isPrimaryKey
+                    && ((ForeignKeyColumnDefinition) this).isModelContainer) {
+                ForeignKeyColumnDefinition foreignKeyColumnDefinition = (ForeignKeyColumnDefinition) this;
+                TableDefinition referenced = manager.getTableDefinition(tableDefinition.databaseDefinition.elementTypeName,
+                        foreignKeyColumnDefinition.referencedTableClassName);
+                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.getForeignKeyReferenceDefinitionList().get(0);
+                // check for null and retrieve proper value
+                String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
+                if (method == null) {
+                    method = "get";
+                }
+                statement = String
+                        .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
+                                statement, statement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
+            }
+            return statement;
         }
     }
 
