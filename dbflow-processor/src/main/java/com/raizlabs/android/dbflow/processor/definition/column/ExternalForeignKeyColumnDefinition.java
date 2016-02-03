@@ -85,9 +85,6 @@ public class ExternalForeignKeyColumnDefinition extends BaseForeignKeyColumnDefi
     @Override
     protected void checkNeedsReferences() {
         if (needsReferences) {
-            System.err.println ("==== " + referencedTableClassName);
-            System.err.println ("==== " + referencedDatabaseClassName);
-
             TableDefinition referencedTableDefinition = manager.getTableDefinition(referencedDatabaseClassName, referencedTableClassName);
             List<ColumnDefinition> primaryColumns = referencedTableDefinition.getPrimaryColumnDefinitions();
 
