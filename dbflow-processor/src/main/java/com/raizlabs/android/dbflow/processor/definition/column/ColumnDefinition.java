@@ -248,8 +248,8 @@ public class ColumnDefinition extends BaseDefinition {
             propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box());
         }
         typeBuilder.addField(FieldSpec.builder(propParam,
-                columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T($T.class, $S)", propParam, tableClass, columnName).build());
+            columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+            .initializer("new $T($T.class, $S)", propParam, tableClass, columnName).build());
     }
 
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {
@@ -272,12 +272,12 @@ public class ColumnDefinition extends BaseDefinition {
 
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         return DefinitionUtils.getContentValuesStatement(containerKeyName, elementName,
-                columnName, elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter)).build();
+            columnName, elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter)).build();
     }
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         return DefinitionUtils.getSQLiteStatementMethod(index, containerKeyName, elementName,
-                elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter), isPrimaryKeyAutoIncrement).build();
+            elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter), isPrimaryKeyAutoIncrement).build();
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter,
@@ -289,7 +289,7 @@ public class ColumnDefinition extends BaseDefinition {
             putDefaultValue = true;
         }
         return DefinitionUtils.getLoadFromCursorMethod(containerKeyName, elementName,
-                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
+            elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
     }
 
     /**
@@ -304,7 +304,7 @@ public class ColumnDefinition extends BaseDefinition {
 
     public String setColumnAccessString(CodeBlock formattedAccess, boolean toModelMethod) {
         return columnAccess.setColumnAccessString(elementTypeName, containerKeyName, elementName,
-                false, ModelUtils.getVariable(false), formattedAccess, toModelMethod);
+            false, ModelUtils.getVariable(false), formattedAccess, toModelMethod);
     }
 
     public CodeBlock getToModelMethod() {
@@ -361,25 +361,8 @@ public class ColumnDefinition extends BaseDefinition {
                         .build().toString();
             }
         } else {
-            String statement = columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+            return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
                     ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false);
-
-            if (this instanceof ForeignKeyColumnDefinition && isPrimaryKey
-                    && ((ForeignKeyColumnDefinition) this).isModelContainer) {
-                ForeignKeyColumnDefinition foreignKeyColumnDefinition = (ForeignKeyColumnDefinition) this;
-                TableDefinition referenced = manager.getTableDefinition(tableDefinition.databaseDefinition.elementTypeName,
-                        foreignKeyColumnDefinition.referencedTableClassName);
-                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.getForeignKeyReferenceDefinitionList().get(0);
-                // check for null and retrieve proper value
-                String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
-                if (method == null) {
-                    method = "get";
-                }
-                statement = String
-                        .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
-                                statement, statement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
-            }
-            return statement;
         }
     }
 

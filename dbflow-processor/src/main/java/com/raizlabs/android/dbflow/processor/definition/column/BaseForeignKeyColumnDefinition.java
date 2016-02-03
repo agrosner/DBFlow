@@ -192,7 +192,6 @@ public abstract class BaseForeignKeyColumnDefinition extends ColumnDefinition {
             }
 
             if (saveForeignKeyModel) {
-                System.err.println ("==== Saving the foreign model!!!!");
                 builder.addStatement("$L.save()", finalAccessStatement);
             }
 

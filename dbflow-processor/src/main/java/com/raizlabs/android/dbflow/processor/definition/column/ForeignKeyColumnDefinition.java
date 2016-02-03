@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.ClassName;
@@ -87,5 +88,36 @@ public class ForeignKeyColumnDefinition extends BaseForeignKeyColumnDefinition {
                 needsReferences = false;
             }
         }
+    }
+
+    @Override
+    public String getPropertyComparisonAccessStatement(boolean isModelContainerAdapter) {
+        String statement = super.getPropertyComparisonAccessStatement(isModelContainerAdapter);
+
+        if (isPrimaryKey) {
+            if (isModelContainer) {
+                TableDefinition referenced =
+                    manager.getTableDefinition (
+                        tableDefinition.databaseDefinition.elementTypeName,
+                        referencedTableClassName);
+
+                ForeignKeyReferenceDefinition referenceDefinition = getForeignKeyReferenceDefinitionList().get(0);
+                // check for null and retrieve proper value
+                String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
+
+                if (method == null) {
+                    method = "get";
+                }
+
+                statement = String
+                    .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
+                        statement, statement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
+            }
+            else {
+                statement = String.format ("%s.%s", statement, foreignKeyReferenceDefinitionList.get(0).foreignColumnName);
+            }
+        }
+
+        return statement;
     }
 }
