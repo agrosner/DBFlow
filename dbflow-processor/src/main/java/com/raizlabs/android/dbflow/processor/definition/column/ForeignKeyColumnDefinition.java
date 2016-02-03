@@ -110,8 +110,8 @@ public class ForeignKeyColumnDefinition extends BaseForeignKeyColumnDefinition {
                 }
 
                 statement = String
-                    .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
-                        statement, statement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
+                    .format("%1s != null ? %1sValue(%1s.%1s.getContainerKey()) : null",
+                        statement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
             }
             else {
                 statement = String.format ("%s.%s", statement, foreignKeyReferenceDefinitionList.get(0).foreignColumnName);
