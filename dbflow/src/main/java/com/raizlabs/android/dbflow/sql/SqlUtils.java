@@ -383,8 +383,8 @@ public class SqlUtils {
     void delete(final TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         SQLite.delete((Class<TableClass>) adapter.getModelClass()).where(
                 adapter.getPrimaryConditionClause(model)).execute();
-        adapter.updateAutoIncrement(model, 0);
         notifyModelChanged(model, adapter, modelAdapter, Action.DELETE);
+        adapter.updateAutoIncrement(model, 0);
     }
 
     /**
