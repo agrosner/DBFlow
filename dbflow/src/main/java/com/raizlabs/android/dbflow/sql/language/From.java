@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,6 +132,11 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @return the result of the query as a {@link Cursor}.
      */
     @Override
+    public Cursor query(DatabaseWrapper wrapper) {
+        return where().query(wrapper);
+    }
+
+    @Override
     public Cursor query() {
         return where().query();
     }
@@ -151,14 +157,6 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     @Override
     public ModelClass querySingle() {
         return where().querySingle();
-    }
-
-    @Override
-    public void execute() {
-        Cursor query = query();
-        if (query != null) {
-            query.close();
-        }
     }
 
     @Override

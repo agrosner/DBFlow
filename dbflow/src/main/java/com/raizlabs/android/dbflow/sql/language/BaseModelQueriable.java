@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
 
@@ -80,6 +81,14 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
     @Override
     public <QueryClass extends BaseQueryModel> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass) {
         return FlowManager.getQueryModelAdapter(queryModelClass).getSingleModelLoader().load(getQuery());
+    }
+
+    @Override
+    public void execute(DatabaseWrapper wrapper) {
+        Cursor cursor = query(wrapper);
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 
     @Override
