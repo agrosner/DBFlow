@@ -1,8 +1,10 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
+import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,12 +30,20 @@ public class IndexProperty<T extends Model> {
         this.unique = unique;
     }
 
+    public void createIfNotExists(DatabaseWrapper wrapper) {
+        wrapper.execSQL(getCreateQuery());
+    }
+
     public void createIfNotExists() {
-        FlowManager.getDatabaseForTable(table).getWritableDatabase().execSQL(getCreateQuery());
+        createIfNotExists(FlowManager.getDatabaseForTable(table).getWritableDatabase());
     }
 
     public void drop() {
-        FlowManager.getDatabaseForTable(table).getWritableDatabase().execSQL(getDropQuery());
+        drop(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+    }
+
+    private void drop(DatabaseWrapper writableDatabase) {
+        writableDatabase.execSQL(getDropQuery())
     }
 
     public String getCreateQuery() {
