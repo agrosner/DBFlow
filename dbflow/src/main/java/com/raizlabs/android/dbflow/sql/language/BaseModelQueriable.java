@@ -47,6 +47,16 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
         return retrievalAdapter.getSingleModelLoader().load(getQuery());
     }
 
+    @Override
+    public ModelClass querySingle(DatabaseWrapper wrapper) {
+        return retrievalAdapter.getSingleModelLoader().load(wrapper, getQuery());
+    }
+
+    @Override
+    public List<ModelClass> queryList(DatabaseWrapper wrapper) {
+        return retrievalAdapter.getListModelLoader().load(wrapper, getQuery());
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {

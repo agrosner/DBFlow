@@ -4,8 +4,6 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.list.FlowCursorList;
-import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
@@ -128,45 +126,14 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
         return where().andAll(conditions);
     }
 
-    /**
-     * @return the result of the query as a {@link Cursor}.
-     */
-    @Override
-    public Cursor query(DatabaseWrapper wrapper) {
-        return where().query(wrapper);
-    }
-
     @Override
     public Cursor query() {
         return where().query();
     }
 
-    /**
-     * Queries for all of the results this statement returns from a DB cursor in the form of the {@link ModelClass}
-     *
-     * @return All of the entries in the DB converted into {@link ModelClass}
-     */
     @Override
-    public List<ModelClass> queryList() {
-        return where().queryList();
-    }
-
-    /**
-     * @return The first result of this query. It forces a {@link Where#limit(int)} of 1 for more efficient querying.
-     */
-    @Override
-    public ModelClass querySingle() {
-        return where().querySingle();
-    }
-
-    @Override
-    public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<>(false, this);
-    }
-
-    @Override
-    public FlowQueryList<ModelClass> queryTableList() {
-        return new FlowQueryList<>(this);
+    public Cursor query(DatabaseWrapper databaseWrapper) {
+        return where().query(databaseWrapper);
     }
 
     /**

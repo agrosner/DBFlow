@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
 
@@ -24,9 +25,23 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
     List<ModelClass> queryList();
 
     /**
+     * Allows you to specify a DB, useful for migrations.
+     *
+     * @return a list of model converted items
+     */
+    List<ModelClass> queryList(DatabaseWrapper wrapper);
+
+    /**
      * @return Single model, the first of potentially many results
      */
     ModelClass querySingle();
+
+    /**
+     * Allows you to specify a DB, useful for migrations.
+     *
+     * @return Single model, the first of potentially many results
+     */
+    ModelClass querySingle(DatabaseWrapper wrapper);
 
     /**
      * Queries and populates the specified {@link ModelContainer} from the database.

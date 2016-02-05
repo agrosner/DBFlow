@@ -245,6 +245,11 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         return cursor;
     }
 
+    @Override
+    public Cursor query() {
+        return query(databaseWrapper);
+    }
+
     /**
      * Queries for all of the results this statement returns from a DB cursor in the form of the {@link ModelClass}
      *
