@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -28,11 +27,6 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     private Class<ModelClass> table;
 
     /**
-     * The database manager
-     */
-    private BaseDatabaseDefinition baseDatabaseDefinition;
-
-    /**
      * The columns to specify in this query (optional)
      */
     private IProperty[] columns;
@@ -54,7 +48,6 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      */
     public Insert(Class<ModelClass> table) {
         this.table = table;
-        baseDatabaseDefinition = FlowManager.getDatabaseForTable(table);
     }
 
     /**
@@ -204,8 +197,14 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     /**
      * @return Exeuctes and returns the count of rows affected by this query.
      */
+    @Override
+    public long count(DatabaseWrapper databaseWrapper) {
+        return SqlUtils.longForQuery(databaseWrapper, getQuery());
+    }
+
+    @Override
     public long count() {
-        return SqlUtils.longForQuery(baseDatabaseDefinition.getWritableDatabase(), getQuery());
+        return count(FlowManager.getDatabaseForTable(table).getWritableDatabase());
     }
 
     @Override

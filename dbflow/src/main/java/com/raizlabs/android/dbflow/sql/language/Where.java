@@ -199,7 +199,8 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      *
      * @return The number of rows this query returns or affects.
      */
-    public long count() {
+    @Override
+    public long count(DatabaseWrapper databaseWrapper) {
         long count;
         if ((whereBase instanceof Set) || whereBase.getQueryBuilderBase() instanceof Delete) {
             count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseWrapper, getQuery());
@@ -207,6 +208,11 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
             count = SqlUtils.longForQuery(databaseWrapper, getQuery());
         }
         return count;
+    }
+
+    @Override
+    public long count() {
+        return count(databaseWrapper);
     }
 
     @Override

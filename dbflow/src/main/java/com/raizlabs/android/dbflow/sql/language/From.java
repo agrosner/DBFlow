@@ -141,8 +141,14 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      *
      * @return The number of rows this query returns
      */
+    @Override
     public long count() {
         return where().count();
+    }
+
+    @Override
+    public long count(DatabaseWrapper databaseWrapper) {
+        return where().count(databaseWrapper);
     }
 
     /**

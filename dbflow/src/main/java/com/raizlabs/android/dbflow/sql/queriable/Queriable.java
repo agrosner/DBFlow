@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Set;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -24,6 +25,20 @@ public interface Queriable {
      * @return A cursor from the DB based on this query
      */
     Cursor query(DatabaseWrapper databaseWrapper);
+
+    /**
+     * @return the count of the results of the query. This may return the
+     * number of rows affected from a {@link Set} or {@link Delete} statement.
+     */
+    long count();
+
+    /**
+     * Allows you to pass in a {@link DatabaseWrapper} manually.
+     *
+     * @return the count of the results of the query. This may return the
+     * number of rows affected from a {@link Set} or {@link Delete} statement.
+     */
+    long count(DatabaseWrapper databaseWrapper);
 
     /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when

@@ -107,8 +107,14 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      *
      * @return The number of rows this query returns
      */
+    @Override
     public long count() {
         return where().count();
+    }
+
+    @Override
+    public long count(DatabaseWrapper databaseWrapper) {
+        return where().count(databaseWrapper);
     }
 
     @Override
