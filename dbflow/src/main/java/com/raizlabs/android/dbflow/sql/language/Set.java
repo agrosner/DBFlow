@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
@@ -131,12 +132,29 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
 
     @Override
     public Cursor query() {
-        FlowManager.getDatabaseForTable(table).getWritableDatabase().execSQL(getQuery());
+        query(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+        return null;
+    }
+
+    @Override
+    public Cursor query(DatabaseWrapper databaseWrapper) {
+        databaseWrapper.execSQL(getQuery());
         return null;
     }
 
     @Override
     public void execute() {
-        query();
+        Cursor cursor = query();
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
+    @Override
+    public void execute(DatabaseWrapper databaseWrapper) {
+        Cursor cursor = query(databaseWrapper);
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 }

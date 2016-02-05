@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL query string
@@ -41,4 +42,8 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
         return FlowManager.getDatabaseForTable(getTable()).getWritableDatabase().rawQuery(query, null);
     }
 
+    @Override
+    public Cursor query(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.rawQuery(query, null);
+    }
 }

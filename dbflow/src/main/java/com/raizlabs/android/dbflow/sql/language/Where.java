@@ -202,9 +202,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     public long count() {
         long count;
         if ((whereBase instanceof Set) || whereBase.getQueryBuilderBase() instanceof Delete) {
-            count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseWrapper.getWritableDatabase(), getQuery());
+            count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseWrapper, getQuery());
         } else {
-            count = SqlUtils.longForQuery(databaseWrapper.getWritableDatabase(), getQuery());
+            count = SqlUtils.longForQuery(databaseWrapper, getQuery());
         }
         return count;
     }
