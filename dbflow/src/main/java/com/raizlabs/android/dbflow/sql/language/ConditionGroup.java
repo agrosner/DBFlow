@@ -22,7 +22,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
 
     /**
      * @return Starts an arbitrary clause of conditions to use, that when included in other {@link SQLCondition},
-     * does not append paranthesis to group it.
+     * does not append parenthesis to group it.
      */
     public static ConditionGroup nonGroupingClause() {
         return new ConditionGroup();
