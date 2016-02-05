@@ -54,7 +54,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      */
     public UpdateTableMigration<ModelClass> set(SQLCondition... conditions) {
         if (setConditionGroup == null) {
-            setConditionGroup = new ConditionGroup();
+            setConditionGroup = ConditionGroup.nonGroupingClause();
         }
 
         setConditionGroup.andAll(conditions);
@@ -63,7 +63,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
 
     public UpdateTableMigration<ModelClass> where(SQLCondition... conditions) {
         if (whereConditionGroup == null) {
-            whereConditionGroup = new ConditionGroup();
+            whereConditionGroup = ConditionGroup.nonGroupingClause();
         }
 
         whereConditionGroup.andAll(conditions);
