@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.sql;
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 /**
@@ -64,12 +65,12 @@ public class BuilderTest extends FlowTestCase {
 
     public void testCombinedOperations() {
         // TODO: fix combined ops
-        //ConditionGroup combinedCondition = ConditionGroup
-        //        .begin(ConditionGroup
-        //                .begin(column(columnRaw("A"))).or(column(columnRaw("B"))))
-        //        .and(column(columnRaw("C")));
-        //ConditionQueryBuilder<ConditionModel> conditionQueryBuilder = new ConditionQueryBuilder<>(ConditionModel.class, combinedCondition);
-        //assertEquals("((A OR B) AND C)", conditionQueryBuilder.getQuery());
+        ConditionGroup combinedCondition = ConditionGroup.clause()
+                .and(ConditionGroup.clause()
+                        .and(PropertyFactory.from(String.class, "A").eq(PropertyFactory.from(String.class, "B")))
+                        .or(PropertyFactory.from(String.class, "B").eq(PropertyFactory.from(String.class, "C"))))
+                .and(PropertyFactory.from(String.class, "C").eq("D"));
+        assertEquals("(A=B OR B=C) AND C='D'", combinedCondition.getQuery());
     }
 
 }
