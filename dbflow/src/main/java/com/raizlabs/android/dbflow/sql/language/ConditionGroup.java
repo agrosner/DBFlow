@@ -25,7 +25,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * does not append parenthesis to group it.
      */
     public static ConditionGroup nonGroupingClause() {
-        return new ConditionGroup();
+        return new ConditionGroup().setUseParenthesis(false);
     }
 
     private final List<SQLCondition> conditionsList = new ArrayList<>();
