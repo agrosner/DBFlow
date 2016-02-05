@@ -34,7 +34,7 @@ public class ContentUtils {
      * @return A complete Uri for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
      */
     public static Uri buildUri(String authority, String... paths) {
-        return buildUri(BASE_CONTENT_URI, authority, paths);
+        return buildUriWithAuthority(BASE_CONTENT_URI, authority, paths);
     }
 
     /**
@@ -45,7 +45,7 @@ public class ContentUtils {
      * @param paths          The list of paths to append.
      * @return A complete Uri for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
      */
-    public static Uri buildUri(String baseContentUri, String authority, String... paths) {
+    public static Uri buildUriWithAuthority(String baseContentUri, String authority, String... paths) {
         Uri.Builder builder = Uri.parse(baseContentUri + authority).buildUpon();
         for (String path : paths) {
             builder.appendPath(path);
