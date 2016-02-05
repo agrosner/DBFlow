@@ -18,7 +18,7 @@ public class IndexPropertyMigration extends BaseMigration {
     /**
      * If you wish to drop the index, set this method to false. Call this in the subclasses constructor.
      *
-     * @param shouldCreate 
+     * @param shouldCreate
      */
     public void setShouldCreate(boolean shouldCreate) {
         this.shouldCreate = shouldCreate;
@@ -26,6 +26,10 @@ public class IndexPropertyMigration extends BaseMigration {
 
     @Override
     public void migrate(DatabaseWrapper database) {
-        indexProperty.createIfNotExists(database);
+        if (shouldCreate) {
+            indexProperty.createIfNotExists(database);
+        } else {
+            indexProperty.drop(database);
+        }
     }
 }

@@ -42,7 +42,7 @@ public class IndexProperty<T extends Model> {
         drop(FlowManager.getDatabaseForTable(table).getWritableDatabase());
     }
 
-    private void drop(DatabaseWrapper writableDatabase) {
+    public void drop(DatabaseWrapper writableDatabase) {
         writableDatabase.execSQL(getDropQuery())
     }
 
