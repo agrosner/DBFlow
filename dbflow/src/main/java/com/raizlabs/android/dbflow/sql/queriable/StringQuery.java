@@ -40,7 +40,7 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
 
     @Override
     public Cursor query() {
-        return FlowManager.getDatabaseForTable(getTable()).getWritableDatabase().rawQuery(query, null);
+        return query(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
     @Override
