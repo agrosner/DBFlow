@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.structure.database.BaseDatabaseHelper;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
@@ -29,22 +30,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.getDatabaseVersion()) {
-                @Override
-                public void onOpen(SQLiteDatabase db) {
-                    SQLCipherOpenHelper.this.onOpen(db);
-                }
-
-                @Override
-                public void onCreate(SQLiteDatabase db) {
-                    SQLCipherOpenHelper.this.onCreate(db);
-                }
-
-                @Override
-                public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                    SQLCipherOpenHelper.this.onUpgrade(db, oldVersion, newVersion);
-                }
-            };
+                    databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
         databaseHelperDelegate = new DatabaseHelperDelegate(listener, databaseDefinition, backupHelper);
@@ -106,12 +92,14 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
     /**
      * Simple helper to manage backup.
      */
-    private abstract class BackupHelper extends SQLiteOpenHelper implements OpenHelper {
+    private class BackupHelper extends SQLiteOpenHelper implements OpenHelper {
 
         private SQLCipherDatabase sqlCipherDatabase;
+        private final BaseDatabaseHelper baseDatabaseHelper;
 
-        public BackupHelper(Context context, String name, int version) {
+        public BackupHelper(Context context, String name, int version, BaseDatabaseDefinition databaseDefinition) {
             super(context, name, null, version);
+            this.baseDatabaseHelper = new BaseDatabaseHelper(databaseDefinition);
         }
 
         @Override
@@ -138,6 +126,21 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
 
         @Override
         public void setDatabaseListener(DatabaseHelperListener helperListener) {
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            baseDatabaseHelper.onCreate(SQLCipherDatabase.from(db));
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            baseDatabaseHelper.onUpgrade(SQLCipherDatabase.from(db), oldVersion, newVersion);
+        }
+
+        @Override
+        public void onOpen(SQLiteDatabase db) {
+            baseDatabaseHelper.onOpen(SQLCipherDatabase.from(db));
         }
     }
 }
