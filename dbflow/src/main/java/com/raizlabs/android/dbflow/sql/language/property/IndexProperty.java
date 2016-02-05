@@ -43,7 +43,7 @@ public class IndexProperty<T extends Model> {
     }
 
     public void drop(DatabaseWrapper writableDatabase) {
-        writableDatabase.execSQL(getDropQuery())
+        writableDatabase.execSQL(getDropQuery());
     }
 
     public String getCreateQuery() {
