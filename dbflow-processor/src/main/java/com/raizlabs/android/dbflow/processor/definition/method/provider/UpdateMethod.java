@@ -50,32 +50,31 @@ public class UpdateMethod implements MethodDefinition {
 
 
                     method.beginControlFlow("case $L:", uriDefinition.name);
-                    method.addStatement("$T adapter = $T.getModelAdapter($T.getTableClassForName($S, $S))",
-                            ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
-                            contentProviderDefinition.databaseNameString, tableEndpointDefinition.tableName);
-
-                    CodeBlock.Builder codeBuilder = CodeBlock.builder()
-                            .add("final int count = (int) new $T", ClassNames.UPDATE);
-                    ProviderMethodUtils.appendTableName(codeBuilder,
-                            manager.getDatabaseName(contentProviderDefinition.databaseName),
-                            tableEndpointDefinition.tableName);
-                    codeBuilder.add(".conflictAction(adapter.getUpdateOnConflictAction()).set().conditionValues(values)");
-                    if (contentProviderDefinition.useSafeQueryChecking) {
-                        codeBuilder.add(".where(toConditions(selection, selectionArgs))");
-                    } else {
-                        codeBuilder.add(".where(new $T(selection, selectionArgs))", ClassNames.UNSAFE_STRING_CONDITION);
-                    }
-                    ProviderMethodUtils.appendPathSegments(codeBuilder, manager, uriDefinition.segments,
-                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
-                    codeBuilder.add(".count();\n");
-                    method.addCode(codeBuilder.build());
+                    method.addStatement(
+                        "$T adapter = $T.getModelAdapter($T.getTableClassForName($S, $S))",
+                        ClassNames.MODEL_ADAPTER,
+                        ClassNames.FLOW_MANAGER,
+                        ClassNames.FLOW_MANAGER,
+                        contentProviderDefinition.databaseNameString,
+                        tableEndpointDefinition.tableName);
+                    method.addCode(ProviderMethodUtils.getSegmentsPreparation(uriDefinition));
+                    method.addCode(
+                        "long count = $T.getDatabase($S).getWritableDatabase().updateWithOnConflict($S, $L, ",
+                        ClassNames.FLOW_MANAGER,
+                        manager.getDatabaseName(contentProviderDefinition.databaseName),
+                        tableEndpointDefinition.tableName,
+                        PARAM_CONTENT_VALUES);
+                    method.addCode(ProviderMethodUtils.getSelectionAndSelectionArgs(uriDefinition));
+                    method.addCode(
+                        ", $T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
+                        ClassNames.CONFLICT_ACTION);
 
                     CodeBlock.Builder code = CodeBlock.builder();
                     new NotifyMethod(tableEndpointDefinition, uriDefinition,
                             Notify.Method.UPDATE).addCode(code);
                     method.addCode(code.build());
 
-                    method.addStatement("return count");
+                    method.addStatement("return (int) count");
                     method.endControlFlow();
                 }
             }

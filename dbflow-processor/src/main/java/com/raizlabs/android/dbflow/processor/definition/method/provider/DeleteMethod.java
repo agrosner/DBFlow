@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -47,16 +48,13 @@ public class DeleteMethod implements MethodDefinition {
 
                     code.beginControlFlow("case $L:", uriDefinition.name);
 
-                    code.add("long count = $T.delete", ClassNames.SQLITE);
-                    ProviderMethodUtils.appendTableName(code, databaseName, tableEndpointDefinition.tableName);
-                    if (contentProviderDefinition.useSafeQueryChecking) {
-                        code.add(".where(toConditions(selection, selectionArgs))");
-                    } else {
-                        code.add(".where(new $T(selection, selectionArgs))", ClassNames.UNSAFE_STRING_CONDITION);
-                    }
-                    ProviderMethodUtils.appendPathSegments(code, manager, uriDefinition.segments,
-                            contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
-                    code.add(".count();\n");
+                    code.add(ProviderMethodUtils.getSegmentsPreparation(uriDefinition));
+                    code.add("long count = $T.getDatabase($S).getWritableDatabase().delete($S, ",
+                        ClassNames.FLOW_MANAGER,
+                        manager.getDatabaseName(contentProviderDefinition.databaseName),
+                        tableEndpointDefinition.tableName);
+                    code.add(ProviderMethodUtils.getSelectionAndSelectionArgs(uriDefinition));
+                    code.add(");\n");
 
                     new NotifyMethod(tableEndpointDefinition, uriDefinition, Notify.Method.DELETE)
                             .addCode(code);

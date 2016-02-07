@@ -1,58 +1,66 @@
 package com.raizlabs.android.dbflow.processor.definition.method.provider;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
+import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
+
+import java.util.List;
 
 /**
  * Description:
  */
 public class ProviderMethodUtils {
 
-
-    static void appendTableName(CodeBlock.Builder codeBuilder, String databaseName, String tableName) {
-        codeBuilder.add("(FlowManager.getTableClassForName($S, $S))", databaseName, tableName);
+    /**
+     * Get any code needed to use path segments. This should be called before creating the statement that uses
+     * {@link #getSelectionAndSelectionArgs(ContentUriDefinition)}.
+     */
+    static CodeBlock getSegmentsPreparation(ContentUriDefinition uriDefinition) {
+        if (uriDefinition.segments.length == 0) {
+            return CodeBlock.builder().build();
+        } else {
+            return CodeBlock.builder()
+                .addStatement("$T<$T> segments = uri.getPathSegments()", List.class, String.class)
+                .build();
+        }
     }
 
-    static void appendPathSegments(CodeBlock.Builder codeBuilder, ProcessorManager processorManager,
-                                   ContentUri.PathSegment[] pathSegments, TypeName databaseName, String tableName) {
-        TableDefinition tableDefinition = processorManager.getTableDefinition(databaseName, tableName);
-        if (tableDefinition == null) {
-            processorManager.logError("Could not find table definition for %1s from %1s", tableName, databaseName);
+    /**
+     * Get code which creates the {@code selection} and {@code selectionArgs} parameters separated by a comma.
+     */
+    static CodeBlock getSelectionAndSelectionArgs(ContentUriDefinition uriDefinition) {
+        ContentUri.PathSegment[] segments = uriDefinition.segments;
+        if (segments.length == 0) {
+            return CodeBlock.builder().add("selection, selectionArgs").build();
         } else {
-            for (ContentUri.PathSegment pathSegment : pathSegments) {
-                ColumnDefinition columnDefinition = tableDefinition.mColumnMap.get(pathSegment.column());
-                if (columnDefinition == null) {
-                    processorManager.logError("Column %1s not found for table %1s", pathSegment.column(), tableDefinition.tableName);
-                } else {
-                    codeBuilder.add("\n.and($T.$L.is(", tableDefinition.getPropertyClassName(),
-                            pathSegment.column());
-
-                    // primitive use value of
-                    if (columnDefinition.element.asType().getKind().isPrimitive()) {
-                        String name = columnDefinition.element.asType().toString();
-
-                        // handle char
-                        if ("char".equals(name)) {
-                            name = "character";
-                        }
-
-                        // handle integer
-                        if ("int".equals(name)) {
-                            name = "integer";
-                        }
-
-                        name = name.substring(0, 1).toUpperCase() + name.substring(1);
-                        codeBuilder.add("$L.valueOf(uri.getPathSegments().get($L))", name, pathSegment.segment());
-                    } else {
-                        codeBuilder.add("uri.getPathSegments().get($L)", pathSegment.segment());
-                    }
-                    codeBuilder.add("))");
+            CodeBlock.Builder selectionBuilder =
+                CodeBlock.builder().add("$T.concatenateWhere(selection, \"", ClassNames.DATABASE_UTILS);
+            CodeBlock.Builder selectionArgsBuilder =
+                CodeBlock.builder()
+                    .add("$T.appendSelectionArgs(selectionArgs, new $T[] {", ClassNames.DATABASE_UTILS, String.class);
+            boolean isFirst = true;
+            for (ContentUri.PathSegment segment : segments) {
+                if (!isFirst) {
+                    selectionBuilder.add(" AND ");
+                    selectionArgsBuilder.add(", ");
                 }
+                selectionBuilder.add("$L = ?", segment.column());
+                selectionArgsBuilder.add("segments.get($L)", segment.segment());
+                isFirst = false;
             }
+            selectionBuilder.add("\")");
+            selectionArgsBuilder.add("})");
+            return CodeBlock.builder()
+                .add(selectionBuilder.build())
+                .add(", ")
+                .add(selectionArgsBuilder.build())
+                .build();
         }
     }
 }
