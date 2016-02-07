@@ -79,4 +79,10 @@ public abstract class BaseQueriable<ModelClass extends Model> implements Queriab
     public DatabaseStatement compileStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getQuery());
     }
+
+
+    @Override
+    public String toString() {
+        return getQuery();
+    }
 }

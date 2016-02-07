@@ -162,11 +162,6 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     @Override
-    public String toString() {
-        return getQuery();
-    }
-
-    @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
                 .append(queryBase.getQuery());
