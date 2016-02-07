@@ -102,7 +102,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     /**
      * Uses the {@link Condition} pairs to fill this insert query.
      *
-     * @param conditionQueryBuilder The condition query builder to use
+     * @param conditionGroup The condition query builder to use
      * @return
      */
     public Insert<ModelClass> columnValues(ConditionGroup conditionGroup) {
@@ -198,13 +198,13 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @return Exeuctes and returns the count of rows affected by this query.
      */
     @Override
-    public long count(DatabaseWrapper databaseWrapper) {
-        return SqlUtils.longForQuery(databaseWrapper, getQuery());
+    public long count(DatabaseWrapper databaseWrapper, String... selectionArgs) {
+        return SqlUtils.longForQuery(databaseWrapper, getQuery(), selectionArgs);
     }
 
     @Override
-    public long count() {
-        return count(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+    public long count(String... selectionArgs) {
+        return count(FlowManager.getDatabaseForTable(table).getWritableDatabase(), selectionArgs);
     }
 
     @Override
@@ -243,14 +243,14 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     }
 
     @Override
-    public Cursor query() {
-        query(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+    public Cursor query(String... selectionArgs) {
+        query(FlowManager.getDatabaseForTable(table).getWritableDatabase(), selectionArgs);
         return null;
     }
 
     @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
-        databaseWrapper.execSQL(getQuery());
+    public Cursor query(DatabaseWrapper databaseWrapper, String... selectionArgs) {
+        databaseWrapper.execSQL(getQuery(), selectionArgs);
         return null;
     }
 

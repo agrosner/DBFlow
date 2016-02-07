@@ -553,8 +553,9 @@ public class SqlUtils {
         }
     }
 
-    public static long longForQuery(DatabaseWrapper wrapper, String query) {
+    public static long longForQuery(DatabaseWrapper wrapper, String query, String... selectionArgs) {
         DatabaseStatement statement = wrapper.compileStatement(query);
+        statement.bindArgsAsStrings(selectionArgs);
         try {
             return statement.simpleQueryForLong();
         } finally {

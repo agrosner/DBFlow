@@ -38,29 +38,29 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
     }
 
     @Override
-    public List<ModelClass> queryList() {
-        return retrievalAdapter.getListModelLoader().load(getQuery());
+    public List<ModelClass> queryList(String... selectionArgs) {
+        return retrievalAdapter.getListModelLoader().load(getQuery(), selectionArgs);
     }
 
     @Override
-    public ModelClass querySingle() {
-        return retrievalAdapter.getSingleModelLoader().load(getQuery());
+    public ModelClass querySingle(String... selectionArgs) {
+        return retrievalAdapter.getSingleModelLoader().load(getQuery(), selectionArgs);
     }
 
     @Override
-    public ModelClass querySingle(DatabaseWrapper wrapper) {
-        return retrievalAdapter.getSingleModelLoader().load(wrapper, getQuery());
+    public ModelClass querySingle(DatabaseWrapper wrapper, String... selectionArgs) {
+        return retrievalAdapter.getSingleModelLoader().load(wrapper, getQuery(), selectionArgs);
     }
 
     @Override
-    public List<ModelClass> queryList(DatabaseWrapper wrapper) {
-        return retrievalAdapter.getListModelLoader().load(wrapper, getQuery());
+    public List<ModelClass> queryList(DatabaseWrapper wrapper, String... selectionArgs) {
+        return retrievalAdapter.getListModelLoader().load(wrapper, getQuery(), selectionArgs);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {
-        return (ModelContainerClass) FlowManager.getContainerAdapter(table).getModelContainerLoader().load(getQuery(), instance);
+    public <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance, String... selectionArgs) {
+        return (ModelContainerClass) FlowManager.getContainerAdapter(table).getModelContainerLoader().load(getQuery(), instance, selectionArgs);
     }
 
     @Override
@@ -69,13 +69,13 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
     }
 
     @Override
-    public FlowCursorList<ModelClass> queryCursorList() {
-        return new FlowCursorList<>(false, this);
+    public FlowCursorList<ModelClass> queryCursorList(String... selectionArgs) {
+        return new FlowCursorList<>(false, this, selectionArgs);
     }
 
     @Override
-    public FlowQueryList<ModelClass> queryTableList() {
-        return new FlowQueryList<>(this);
+    public FlowQueryList<ModelClass> queryTableList(String... selectionArgs) {
+        return new FlowQueryList<>(this, selectionArgs);
     }
 
     @Override
@@ -84,13 +84,13 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
     }
 
     @Override
-    public <QueryClass extends BaseQueryModel> List<QueryClass> queryCustomList(Class<QueryClass> queryModelClass) {
-        return FlowManager.getQueryModelAdapter(queryModelClass).getListModelLoader().load(getQuery());
+    public <QueryClass extends BaseQueryModel> List<QueryClass> queryCustomList(Class<QueryClass> queryModelClass, String... selectionArgs) {
+        return FlowManager.getQueryModelAdapter(queryModelClass).getListModelLoader().load(getQuery(), selectionArgs);
     }
 
     @Override
-    public <QueryClass extends BaseQueryModel> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass) {
-        return FlowManager.getQueryModelAdapter(queryModelClass).getSingleModelLoader().load(getQuery());
+    public <QueryClass extends BaseQueryModel> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass, String... selectionArgs) {
+        return FlowManager.getQueryModelAdapter(queryModelClass).getSingleModelLoader().load(getQuery(), selectionArgs);
     }
 
     @Override

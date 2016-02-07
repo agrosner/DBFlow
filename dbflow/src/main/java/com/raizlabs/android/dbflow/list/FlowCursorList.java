@@ -22,11 +22,12 @@ import java.util.List;
 public class FlowCursorList<ModelClass extends Model> {
 
     private Cursor cursor;
-    private Class<ModelClass> table;
+    private final Class<ModelClass> table;
     private ModelCache<ModelClass, ?> modelCache;
     private boolean cacheModels;
-    private ModelQueriable<ModelClass> modelQueriable;
+    private final ModelQueriable<ModelClass> modelQueriable;
     private int cacheSize;
+    private final String[] selectionArgs;
 
     /**
      * Constructs an instance of this list with a specified cache size.
@@ -45,10 +46,14 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param cacheModels    For every call to {@link #getItem(long)}, we want to keep a reference to it so
      *                       we do not need to convert the cursor data back into a {@link ModelClass} again.
      * @param modelQueriable The SQL where query to use when doing a query.
+     * @param selectionArgs  You may include ?s in selection, which will be replaced by the values
+     *                       from selectionArgs, in order that they appear in the selection. The
+     *                       values will be bound as Strings.
      */
-    public FlowCursorList(boolean cacheModels, ModelQueriable<ModelClass> modelQueriable) {
+    public FlowCursorList(boolean cacheModels, ModelQueriable<ModelClass> modelQueriable, String... selectionArgs) {
         this.modelQueriable = modelQueriable;
-        cursor = this.modelQueriable.query();
+        this.selectionArgs = selectionArgs;
+        cursor = this.modelQueriable.query(selectionArgs);
         table = modelQueriable.getTable();
         this.cacheModels = cacheModels;
         setCacheModels(cacheModels);
@@ -128,7 +133,7 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public synchronized void refresh() {
         cursor.close();
-        cursor = modelQueriable.query();
+        cursor = modelQueriable.query(selectionArgs);
 
         if (cacheModels) {
             modelCache.clear();

@@ -91,10 +91,13 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
      *
      * @param modelQueriable The object that can query from a database.
+     * @param selectionArgs  You may include ?s in selection, which will be replaced by the values
+     *                       from selectionArgs, in order that they appear in the selection. The
+     *                       values will be bound as Strings.
      */
-    public FlowQueryList(ModelQueriable<ModelClass> modelQueriable) {
+    public FlowQueryList(ModelQueriable<ModelClass> modelQueriable, String... selectionArgs) {
         super(null);
-        internalCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable) {
+        internalCursorList = new FlowCursorList<ModelClass>(transact, modelQueriable, selectionArgs) {
             @Override
             protected ModelCache<ModelClass, ?> getBackingCache() {
                 return FlowQueryList.this.getBackingCache(getCacheSize());

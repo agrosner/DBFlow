@@ -39,22 +39,22 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
     }
 
     @Override
-    public Cursor query() {
-        return query(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
+    public Cursor query(String... selectionArgs) {
+        return query(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase(), selectionArgs);
     }
 
     @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
-        return databaseWrapper.rawQuery(query, null);
+    public Cursor query(DatabaseWrapper databaseWrapper, String... selectionArgs) {
+        return databaseWrapper.rawQuery(query, selectionArgs);
     }
 
     @Override
-    public long count() {
-        return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
+    public long count(String... selectionArgs) {
+        return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase(), selectionArgs);
     }
 
     @Override
-    public long count(DatabaseWrapper databaseWrapper) {
-        return SqlUtils.longForQuery(databaseWrapper, getQuery());
+    public long count(DatabaseWrapper databaseWrapper, String... selectionArgs) {
+        return SqlUtils.longForQuery(databaseWrapper, getQuery(), selectionArgs);
     }
 }

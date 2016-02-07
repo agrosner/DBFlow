@@ -21,9 +21,10 @@ public class SQLiteCompatibilityUtils {
      * @param rawQuery The query to use.
      * @return The count of rows changed.
      */
-    public static long executeUpdateDelete(DatabaseWrapper database, String rawQuery) {
+    public static long executeUpdateDelete(DatabaseWrapper database, String rawQuery, String... selectionArgs) {
         long count = 0;
         DatabaseStatement sqLiteStatement = database.compileStatement(rawQuery);
+        sqLiteStatement.bindArgsAsStrings(selectionArgs);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             count = sqLiteStatement.executeUpdateDelete();
         } else {

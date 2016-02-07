@@ -12,7 +12,8 @@ import com.raizlabs.android.dbflow.sql.queriable.Queriable;
  */
 public class QueryTransaction extends BaseResultTransaction<Cursor> {
 
-    private Queriable queriable;
+    private final Queriable queriable;
+    private final String[] selectionArgs;
 
     /**
      * Constructs a new instance that will simply run a query as a transaction.
@@ -30,10 +31,14 @@ public class QueryTransaction extends BaseResultTransaction<Cursor> {
      * @param dbTransactionInfo         The information on how to process the transaction
      * @param queriable                 The data object that that has certain methods pertaining to queries.
      * @param cursorTransactionListener The callback that gets invoked that enables processing of the cursor.
+     * @param selectionArgs             You may include ?s in selection, which will be replaced by the values
+     *                                  from selectionArgs, in order that they appear in the selection. The
+     *                                  values will be bound as Strings.
      */
-    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable queriable, TransactionListener<Cursor> cursorTransactionListener) {
+    public QueryTransaction(DBTransactionInfo dbTransactionInfo, Queriable queriable, TransactionListener<Cursor> cursorTransactionListener, String... selectionArgs) {
         super(dbTransactionInfo, cursorTransactionListener);
         this.queriable = queriable;
+        this.selectionArgs = selectionArgs;
     }
 
     @Override
@@ -43,7 +48,7 @@ public class QueryTransaction extends BaseResultTransaction<Cursor> {
 
     @Override
     public Cursor onExecute() {
-        return queriable.query();
+        return queriable.query(selectionArgs);
     }
 
     @Override
