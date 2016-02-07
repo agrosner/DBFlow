@@ -5,6 +5,7 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Set;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -25,6 +26,18 @@ public interface Queriable {
      * @return A cursor from the DB based on this query
      */
     Cursor query(DatabaseWrapper databaseWrapper);
+
+
+    /**
+     * @return A new {@link DatabaseStatement} from this query.
+     */
+    DatabaseStatement compileStatement();
+
+    /**
+     * @param databaseWrapper The wrapper to use.
+     * @return A new {@link DatabaseStatement} from this query with database specified.
+     */
+    DatabaseStatement compileStatement(DatabaseWrapper databaseWrapper);
 
     /**
      * @return the count of the results of the query. This may return the

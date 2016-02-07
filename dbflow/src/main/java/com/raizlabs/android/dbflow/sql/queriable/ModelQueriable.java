@@ -76,11 +76,6 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
     AsyncQuery<ModelClass> async();
 
     /**
-     * @return A new {@link DatabaseStatement} from this query.
-     */
-    DatabaseStatement compileStatement();
-
-    /**
      * Returns a {@link List} based on the custom {@link QueryClass} you pass in.
      *
      * @param queryModelClass The query model class to use.

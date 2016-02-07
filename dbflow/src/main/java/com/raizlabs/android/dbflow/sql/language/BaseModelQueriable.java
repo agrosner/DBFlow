@@ -112,7 +112,12 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
 
     @Override
     public DatabaseStatement compileStatement() {
-        return FlowManager.getDatabaseForTable(table).getWritableDatabase().compileStatement(getQuery());
+        return compileStatement(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+    }
+
+    @Override
+    public DatabaseStatement compileStatement(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getQuery());
     }
 
     @Override
