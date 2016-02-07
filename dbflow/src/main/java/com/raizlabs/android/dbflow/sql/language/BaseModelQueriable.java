@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
@@ -107,6 +108,11 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
         if (cursor != null) {
             cursor.close();
         }
+    }
+
+    @Override
+    public DatabaseStatement compileStatement() {
+        return FlowManager.getDatabaseForTable(table).getWritableDatabase().compileStatement(getQuery());
     }
 
     @Override

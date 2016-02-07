@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
@@ -73,6 +74,11 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
      * @return an async version of this query to run.
      */
     AsyncQuery<ModelClass> async();
+
+    /**
+     * @return A new {@link DatabaseStatement} from this query.
+     */
+    DatabaseStatement compileStatement();
 
     /**
      * Returns a {@link List} based on the custom {@link QueryClass} you pass in.
