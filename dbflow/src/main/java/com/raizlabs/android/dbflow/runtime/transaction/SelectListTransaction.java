@@ -15,7 +15,8 @@ import java.util.List;
  */
 public class SelectListTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> {
 
-    private ModelQueriable<ModelClass> modelQueriable;
+    private final ModelQueriable<ModelClass> modelQueriable;
+    private final String[] selectionArgs;
 
     /**
      * Creates an instance of this class
@@ -34,18 +35,22 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
      *
      * @param modelQueriable      The model queriable that defines how to fetch models from the DB.
      * @param transactionListener The result that returns from this query.
+     * @param selectionArgs       You may include ?s in selection, which will be replaced by the values
+     *                            from selectionArgs, in order that they appear in the selection. The
+     *                            values will be bound as Strings.
      */
-    public SelectListTransaction(ModelQueriable<ModelClass> modelQueriable, TransactionListener<List<ModelClass>> transactionListener) {
+    public SelectListTransaction(ModelQueriable<ModelClass> modelQueriable, TransactionListener<List<ModelClass>> transactionListener, String... selectionArgs) {
         super(DBTransactionInfo.createFetch(), transactionListener);
         this.modelQueriable = modelQueriable;
+        this.selectionArgs = selectionArgs;
     }
 
     /**
      * Creates an instance of this class
      *
-     * @param transactionListener        The result that returns from this query.
-     * @param whereConditionQueryBuilder The query builder used to SELECT.
-     * @param properties                 The columns to select.
+     * @param transactionListener The result that returns from this query.
+     * @param conditionGroup      The query builder used to SELECT.
+     * @param properties          The columns to select.
      */
     public SelectListTransaction(TransactionListener<List<ModelClass>> transactionListener,
                                  Class<ModelClass> table, ConditionGroup conditionGroup, IProperty... properties) {
@@ -71,7 +76,7 @@ public class SelectListTransaction<ModelClass extends Model> extends BaseResultT
 
     @Override
     public List<ModelClass> onExecute() {
-        return modelQueriable.queryList();
+        return modelQueriable.queryList(selectionArgs);
     }
 
 }

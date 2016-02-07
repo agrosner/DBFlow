@@ -34,8 +34,18 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     @Override
+    public Condition isSelectionArg() {
+        return column(getNameAlias()).isSelectionArg();
+    }
+
+    @Override
     public Condition eq(ITypeConditional conditional) {
         return column(getNameAlias()).eq(conditional);
+    }
+
+    @Override
+    public Condition eqSelectionArg() {
+        return column(getNameAlias()).eqSelectionArg();
     }
 
     @Override
@@ -44,8 +54,18 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     @Override
+    public Condition isNotSelectionArg() {
+        return column(getNameAlias()).isNotSelectionArg();
+    }
+
+    @Override
     public Condition notEq(ITypeConditional conditional) {
         return column(getNameAlias()).notEq(conditional);
+    }
+
+    @Override
+    public Condition notEqSelectionArg() {
+        return column(getNameAlias()).notEqSelectionArg();
     }
 
     @Override

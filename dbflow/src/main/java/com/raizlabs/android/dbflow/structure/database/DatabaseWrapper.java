@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteStatement;
  */
 public interface DatabaseWrapper {
 
-    void execSQL(String query);
+    void execSQL(String query, String... selectionArgs);
 
     void beginTransaction();
 

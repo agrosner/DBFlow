@@ -26,4 +26,6 @@ public interface DatabaseStatement {
     void bindDouble(int index, double aDouble);
 
     void bindBlob(int index, byte[] bytes);
+
+    void bindArgsAsStrings(String... selectionArgs);
 }

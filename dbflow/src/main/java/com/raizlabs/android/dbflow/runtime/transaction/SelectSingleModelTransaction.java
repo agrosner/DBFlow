@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -14,7 +13,8 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class SelectSingleModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
 
-    private ModelQueriable<ModelClass> modelQueriable;
+    private final ModelQueriable<ModelClass> modelQueriable;
+    private final String[] selectionArgs;
 
     /**
      * Creates an instance of this class
@@ -33,17 +33,21 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
      *
      * @param modelQueriable      The model queriable that defines how to fetch models from the DB.
      * @param transactionListener The transaction listener.
+     * @param selectionArgs       You may include ?s in selection, which will be replaced by the values
+     *                            from selectionArgs, in order that they appear in the selection. The
+     *                            values will be bound as Strings.
      */
-    public SelectSingleModelTransaction(ModelQueriable<ModelClass> modelQueriable, TransactionListener<ModelClass> transactionListener) {
+    public SelectSingleModelTransaction(ModelQueriable<ModelClass> modelQueriable, TransactionListener<ModelClass> transactionListener, String... selectionArgs) {
         super(DBTransactionInfo.createFetch(), transactionListener);
         this.modelQueriable = modelQueriable;
+        this.selectionArgs = selectionArgs;
     }
 
     /**
      * Creates an instance of this class
      *
      * @param transactionListener        The result that returns from this query.
-     * @param whereConditionQueryBuilder The query builder used to SELECT.
+     * @param conditionGroup             The query builder used to SELECT.
      * @param properties                 The columns to project the SELECT on.
      */
     public SelectSingleModelTransaction(TransactionListener<ModelClass> transactionListener,
@@ -53,6 +57,6 @@ public class SelectSingleModelTransaction<ModelClass extends Model> extends Base
 
     @Override
     public ModelClass onExecute() {
-        return modelQueriable.querySingle();
+        return modelQueriable.querySingle(selectionArgs);
     }
 }

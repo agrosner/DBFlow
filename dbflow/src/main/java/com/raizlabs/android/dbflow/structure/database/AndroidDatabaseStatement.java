@@ -97,4 +97,11 @@ public class AndroidDatabaseStatement implements DatabaseStatement {
     public void bindBlob(int index, byte[] bytes) {
         statement.bindBlob(index, bytes);
     }
+
+    @Override
+    public void bindArgsAsStrings(String... selectionArgs) {
+        for (int i = selectionArgs.length; i != 0; i--) {
+            statement.bindString(i, selectionArgs[i - 1]);
+        }
+    }
 }

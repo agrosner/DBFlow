@@ -10,11 +10,15 @@ public interface IConditional {
 
     Condition is(BaseModelQueriable baseModelQueriable);
 
+    Condition isSelectionArg();
+
     Condition isNull();
 
     Condition eq(ITypeConditional conditional);
 
     Condition eq(BaseModelQueriable baseModelQueriable);
+
+    Condition eqSelectionArg();
 
     Condition isNotNull();
 
@@ -24,9 +28,13 @@ public interface IConditional {
 
     Condition isNot(BaseModelQueriable baseModelQueriable);
 
+    Condition isNotSelectionArg();
+
     Condition notEq(ITypeConditional conditional);
 
     Condition notEq(BaseModelQueriable baseModelQueriable);
+
+    Condition notEqSelectionArg();
 
     Condition like(ITypeConditional conditional);
 

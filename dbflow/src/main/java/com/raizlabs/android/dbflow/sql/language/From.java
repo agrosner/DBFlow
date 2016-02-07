@@ -127,13 +127,13 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     @Override
-    public Cursor query() {
-        return where().query();
+    public Cursor query(String... selectionArgs) {
+        return where().query(selectionArgs);
     }
 
     @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
-        return where().query(databaseWrapper);
+    public Cursor query(DatabaseWrapper databaseWrapper, String... selectionArgs) {
+        return where().query(databaseWrapper, selectionArgs);
     }
 
     /**
@@ -142,13 +142,13 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @return The number of rows this query returns
      */
     @Override
-    public long count() {
-        return where().count();
+    public long count(String... selectionArgs) {
+        return where().count(selectionArgs);
     }
 
     @Override
-    public long count(DatabaseWrapper databaseWrapper) {
-        return where().count(databaseWrapper);
+    public long count(DatabaseWrapper databaseWrapper, String... selectionArgs) {
+        return where().count(databaseWrapper, selectionArgs);
     }
 
     /**

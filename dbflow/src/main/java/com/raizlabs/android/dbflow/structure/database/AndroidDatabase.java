@@ -22,8 +22,8 @@ public class AndroidDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public void execSQL(String query) {
-        database.execSQL(query);
+    public void execSQL(String query, String... selectionArgs) {
+        database.execSQL(query, selectionArgs);
     }
 
     @Override

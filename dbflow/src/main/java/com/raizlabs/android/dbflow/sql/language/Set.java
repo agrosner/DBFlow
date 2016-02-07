@@ -108,13 +108,13 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      * @return The number of rows this query returns
      */
     @Override
-    public long count() {
-        return where().count();
+    public long count(String... selectionArgs) {
+        return where().count(selectionArgs);
     }
 
     @Override
-    public long count(DatabaseWrapper databaseWrapper) {
-        return where().count(databaseWrapper);
+    public long count(DatabaseWrapper databaseWrapper, String... selectionArgs) {
+        return where().count(databaseWrapper, selectionArgs);
     }
 
     @Override
@@ -137,14 +137,14 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     }
 
     @Override
-    public Cursor query() {
-        query(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+    public Cursor query(String... selectionArgs) {
+        query(FlowManager.getDatabaseForTable(table).getWritableDatabase(), selectionArgs);
         return null;
     }
 
     @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
-        databaseWrapper.execSQL(getQuery());
+    public Cursor query(DatabaseWrapper databaseWrapper, String... selectionArgs) {
+        databaseWrapper.execSQL(getQuery(), selectionArgs);
         return null;
     }
 

@@ -30,15 +30,18 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
     /**
      * Loads the data from a query and returns it as a {@link TReturn}.
      *
-     * @param query The query to call.
+     * @param query         The query to call.
+     * @param selectionArgs You may include ?s in selection, which will be replaced by the values
+     *                      from selectionArgs, in order that they appear in the selection. The
+     *                      values will be bound as Strings.
      * @return The data loaded from the database.
      */
-    public TReturn load(String query) {
-        return load(databaseDefinition.getWritableDatabase(), query);
+    public TReturn load(String query, String... selectionArgs) {
+        return load(databaseDefinition.getWritableDatabase(), query, selectionArgs);
     }
 
-    public TReturn load(String query, @Nullable TReturn data) {
-        return load(databaseDefinition.getWritableDatabase(), query, data);
+    public TReturn load(String query, @Nullable TReturn data, String... selectionArgs) {
+        return load(databaseDefinition.getWritableDatabase(), query, data, selectionArgs);
     }
 
     /**
@@ -46,16 +49,19 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
      *
      * @param databaseWrapper A custom database wrapper object to use.
      * @param query           The query to call.
+     * @param selectionArgs   You may include ?s in selection, which will be replaced by the values
+     *                        from selectionArgs, in order that they appear in the selection. The
+     *                        values will be bound as Strings.
      * @return The data loaded from the database.
      */
     @Nullable
-    public TReturn load(@NonNull DatabaseWrapper databaseWrapper, String query) {
-        return load(databaseWrapper, query, null);
+    public TReturn load(@NonNull DatabaseWrapper databaseWrapper, String query, String... selectionArgs) {
+        return load(databaseWrapper, query, null, selectionArgs);
     }
 
     @Nullable
-    public TReturn load(@NonNull DatabaseWrapper databaseWrapper, String query, @Nullable TReturn data) {
-        final Cursor cursor = databaseWrapper.rawQuery(query, null);
+    public TReturn load(@NonNull DatabaseWrapper databaseWrapper, String query, @Nullable TReturn data, String... selectionArgs) {
+        final Cursor cursor = databaseWrapper.rawQuery(query, selectionArgs);
         if (cursor != null) {
             try {
                 data = convertToData(cursor, data);
@@ -82,7 +88,7 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
     /**
      * Specify how to convert the {@link Cursor} data into a {@link TReturn}. Can be null.
      *
-     * @param cursor The cursor resulting from a query passed into {@link #load(String)}
+     * @param cursor The cursor resulting from a query passed into {@link #load(String, String...)}
      * @param data   The data (if not null) that we can reuse without need to create new object.
      * @return A new (or reused) instance that represents the {@link Cursor}.
      */

@@ -200,19 +200,19 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return The number of rows this query returns or affects.
      */
     @Override
-    public long count(DatabaseWrapper databaseWrapper) {
+    public long count(DatabaseWrapper databaseWrapper, String... selectionArgs) {
         long count;
         if ((whereBase instanceof Set) || whereBase.getQueryBuilderBase() instanceof Delete) {
-            count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseWrapper, getQuery());
+            count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseWrapper, getQuery(), selectionArgs);
         } else {
-            count = SqlUtils.longForQuery(databaseWrapper, getQuery());
+            count = SqlUtils.longForQuery(databaseWrapper, getQuery(), selectionArgs);
         }
         return count;
     }
 
     @Override
-    public long count() {
-        return count(databaseWrapper);
+    public long count(String... selectionArgs) {
+        return count(databaseWrapper, selectionArgs);
     }
 
     @Override
@@ -238,22 +238,22 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return the result of the query as a {@link Cursor}.
      */
     @Override
-    public Cursor query(DatabaseWrapper wrapper) {
+    public Cursor query(DatabaseWrapper wrapper, String... selectionArgs) {
         // Query the sql here
         Cursor cursor = null;
         String query = getQuery();
         if (whereBase.getQueryBuilderBase() instanceof Select) {
-            cursor = wrapper.rawQuery(query, null);
+            cursor = wrapper.rawQuery(query, selectionArgs);
         } else {
-            wrapper.execSQL(query);
+            wrapper.execSQL(query, selectionArgs);
         }
 
         return cursor;
     }
 
     @Override
-    public Cursor query() {
-        return query(databaseWrapper);
+    public Cursor query(String... selectionArgs) {
+        return query(databaseWrapper, selectionArgs);
     }
 
     /**
@@ -262,9 +262,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return All of the entries in the DB converted into {@link ModelClass}
      */
     @Override
-    public List<ModelClass> queryList() {
+    public List<ModelClass> queryList(String... selectionArgs) {
         checkSelect("query");
-        return super.queryList();
+        return super.queryList(selectionArgs);
     }
 
     protected void checkSelect(String methodName) {
@@ -280,10 +280,10 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return The first result of this query. Note: this query forces a limit of 1 from the database.
      */
     @Override
-    public ModelClass querySingle() {
+    public ModelClass querySingle(String... selectionArgs) {
         checkSelect("query");
         limit(1);
-        return super.querySingle();
+        return super.querySingle(selectionArgs);
     }
 
     /**

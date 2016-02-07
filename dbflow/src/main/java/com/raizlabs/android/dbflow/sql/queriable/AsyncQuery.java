@@ -46,20 +46,26 @@ public class AsyncQuery<ModelClass extends Model> {
      * Queries the list on the {@link DBTransactionQueue}
      *
      * @param transactionListener Listens for transaction events.
+     * @param selectionArgs       You may include ?s in selection, which will be replaced by the values
+     *                            from selectionArgs, in order that they appear in the selection. The
+     *                            values will be bound as Strings.
      */
-    public void queryList(TransactionListener<List<ModelClass>> transactionListener) {
+    public void queryList(TransactionListener<List<ModelClass>> transactionListener, String... selectionArgs) {
         cancel();
-        transactionManager.addTransaction(currentTransaction = new SelectListTransaction<>(modelQueriable, transactionListener));
+        transactionManager.addTransaction(currentTransaction = new SelectListTransaction<>(modelQueriable, transactionListener, selectionArgs));
     }
 
     /**
      * Queries a single item on the {@link DBTransactionQueue}
      *
      * @param transactionListener Listens for transaction events.
+     * @param selectionArgs       You may include ?s in selection, which will be replaced by the values
+     *                            from selectionArgs, in order that they appear in the selection. The
+     *                            values will be bound as Strings.
      */
-    public void querySingle(TransactionListener<ModelClass> transactionListener) {
+    public void querySingle(TransactionListener<ModelClass> transactionListener, String... selectionArgs) {
         cancel();
-        transactionManager.addTransaction(currentTransaction = new SelectSingleModelTransaction<>(modelQueriable, transactionListener));
+        transactionManager.addTransaction(currentTransaction = new SelectSingleModelTransaction<>(modelQueriable, transactionListener, selectionArgs));
     }
 
     /**
@@ -73,11 +79,14 @@ public class AsyncQuery<ModelClass extends Model> {
      * Queries the raw {@link Cursor} object from the contained query.
      *
      * @param transactionListener Listens for transaction events.
+     * @param selectionArgs       You may include ?s in selection, which will be replaced by the values
+     *                            from selectionArgs, in order that they appear in the selection. The
+     *                            values will be bound as Strings.
      */
-    public void query(TransactionListener<Cursor> transactionListener) {
+    public void query(TransactionListener<Cursor> transactionListener, String... selectionArgs) {
         cancel();
         transactionManager.addTransaction(
-                currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable, transactionListener));
+                currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable, transactionListener, selectionArgs));
     }
 
     public void cancel() {

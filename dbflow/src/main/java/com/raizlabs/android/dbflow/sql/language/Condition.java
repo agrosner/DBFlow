@@ -57,8 +57,19 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     @Override
+    public Condition isSelectionArg() {
+        isRaw = true;
+        return is("?");
+    }
+
+    @Override
     public Condition eq(Object value) {
         return is(value);
+    }
+
+    @Override
+    public Condition eqSelectionArg() {
+        return isSelectionArg();
     }
 
     @Override
@@ -68,8 +79,19 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     @Override
+    public Condition isNotSelectionArg() {
+        isRaw = true;
+        return isNot("?");
+    }
+
+    @Override
     public Condition notEq(Object value) {
         return isNot(value);
+    }
+
+    @Override
+    public Condition notEqSelectionArg() {
+        return isNotSelectionArg();
     }
 
     /**
@@ -596,7 +618,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
          * Appends another value to this In statement
          *
          * @param argument The non-type converted value of the object. The value will be converted
-         *                 in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}.
+         *                 in a {@link com.raizlabs.android.dbflow.sql.language.ConditionGroup}.
          * @return
          */
         public In and(Object argument) {
