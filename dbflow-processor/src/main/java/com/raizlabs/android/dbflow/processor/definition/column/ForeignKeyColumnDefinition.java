@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
+import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -367,6 +368,38 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
     }
 
+    @Override
+    public void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
+        if (!(columnAccess instanceof TypeConverterAccess)) {
+            String origStatement = getColumnAccessString(isModelContainerAdapter, false);
+            if (isPrimaryKey) {
+                TableDefinition referenced = manager.getTableDefinition(tableDefinition.databaseDefinition.elementTypeName,
+                        referencedTableClassName);
+                String statement = "";
+                for (ForeignKeyReferenceDefinition referenceDefinition : getForeignKeyReferenceDefinitionList()) {
+                    if (isModelContainer) {
+                        // check for null and retrieve proper value
+                        String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
+                        if (method == null) {
+                            method = "get";
+                        }
+                        statement = String
+                                .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
+                                        origStatement, origStatement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
+                    } else if (isModel) {
+                        statement = String.format("%1s != null ? %1s : null", origStatement, referenceDefinition.getPrimaryReferenceString(isModelContainerAdapter));
+                    } else {
+                        statement = origStatement;
+                    }
+                    codeBuilder.add("\n.and($T.$L.eq($L))", tableDefinition.getPropertyClassName(), referenceDefinition.columnName, statement);
+                }
+
+            }
+        } else {
+            super.appendPropertyComparisonAccessStatement(isModelContainerAdapter, codeBuilder);
+        }
+    }
+
     String getFinalAccessStatement(CodeBlock.Builder codeBuilder, boolean isModelContainerAdapter, String statement) {
         String finalAccessStatement = statement;
         if (columnAccess instanceof TypeConverterAccess ||
@@ -427,7 +460,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 List<ColumnDefinition> primaryColumns = referencedTableDefinition.getPrimaryColumnDefinitions();
                 for (ColumnDefinition primaryColumn : primaryColumns) {
                     ForeignKeyReferenceDefinition foreignKeyReferenceDefinition =
-                            new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn, columnAccess, this);
+                            new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn,
+                                    columnAccess, this, primaryColumns.size());
                     foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition);
                 }
                 if (nonModelColumn) {

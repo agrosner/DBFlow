@@ -343,44 +343,29 @@ public class ColumnDefinition extends BaseDefinition {
 
     /**
      * @param isModelContainerAdapter
+     * @param codeBuilder
      * @return A string without any type conversion for this field.
      */
-    public String getPropertyComparisonAccessStatement(boolean isModelContainerAdapter) {
+    public void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
+        codeBuilder.add("\n.and($T.$L.eq(", tableDefinition.getPropertyClassName(), columnName);
         if (columnAccess instanceof TypeConverterAccess) {
             TypeConverterAccess converterAccess = ((TypeConverterAccess) columnAccess);
             TypeConverterDefinition converterDefinition = converterAccess.typeConverterDefinition;
             if (!isModelContainerAdapter) {
-                return converterAccess.existingColumnAccess.getColumnAccessString(converterDefinition.getDbTypeName(), containerKeyName, elementName,
-                        ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false);
+                codeBuilder.add(converterAccess.existingColumnAccess.getColumnAccessString(converterDefinition.getDbTypeName(), containerKeyName, elementName,
+                        ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false));
             } else {
-                return CodeBlock.builder()
+                codeBuilder.add(CodeBlock.builder()
                         .add("$L.getTypeConvertedPropertyValue($T.class, $S)",
                                 ModelUtils.getVariable(isModelContainerAdapter),
                                 converterAccess.typeConverterDefinition.getModelTypeName(),
                                 containerKeyName)
-                        .build().toString();
+                        .build());
             }
         } else {
-            String statement = columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
-                    ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false);
-
-            if (this instanceof ForeignKeyColumnDefinition && isPrimaryKey
-                    && ((ForeignKeyColumnDefinition) this).isModelContainer) {
-                ForeignKeyColumnDefinition foreignKeyColumnDefinition = (ForeignKeyColumnDefinition) this;
-                TableDefinition referenced = manager.getTableDefinition(tableDefinition.databaseDefinition.elementTypeName,
-                        foreignKeyColumnDefinition.referencedTableClassName);
-                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.getForeignKeyReferenceDefinitionList().get(0);
-                // check for null and retrieve proper value
-                String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
-                if (method == null) {
-                    method = "get";
-                }
-                statement = String
-                        .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
-                                statement, statement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
-            }
-            return statement;
+            codeBuilder.add(getColumnAccessString(isModelContainerAdapter, false));
         }
+        codeBuilder.add("))");
     }
 
     public String getReferenceColumnName(ForeignKeyReference reference) {
