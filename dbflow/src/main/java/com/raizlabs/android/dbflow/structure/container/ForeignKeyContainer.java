@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.Model;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -53,7 +54,11 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
     @Override
     @SuppressWarnings("unchecked")
     public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
-        return new ForeignKeyContainer(columnClass, (Map<String, Object>) inValue);
+        if (inValue instanceof ModelContainer) {
+            return new ForeignKeyContainer((ModelContainer) inValue);
+        } else {
+            return new ForeignKeyContainer(columnClass, (Map<String, Object>) inValue);
+        }
     }
 
     @Override
@@ -76,6 +81,12 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
             setData(data);
         }
         data.put(columnName, value);
+    }
+
+    @Nullable
+    @Override
+    public Iterator<String> iterator() {
+        return data != null ? data.keySet().iterator() : null;
     }
 
     /**
