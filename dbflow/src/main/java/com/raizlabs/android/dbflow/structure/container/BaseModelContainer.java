@@ -194,6 +194,11 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     @Override
+    public void putDefault(IProperty property) {
+        putDefault(property.getContainerKey());
+    }
+
+    @Override
     public ModelAdapter<ModelClass> getModelAdapter() {
         return modelAdapter;
     }

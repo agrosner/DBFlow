@@ -369,6 +369,27 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
+    public CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
+        if (nonModelColumn) {
+            return super.getForeignKeyContainerMethod(tableClassName);
+        } else {
+            String access = columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+                    ModelUtils.getVariable(false), false, false);
+            CodeBlock.Builder builder = CodeBlock.builder();
+            CodeBlock.Builder elseBuilder = CodeBlock.builder();
+            builder.beginControlFlow("if ($L != null)", access);
+            for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
+                builder.add(referenceDefinition.getForeignKeyContainerMethod(tableClassName));
+                elseBuilder.addStatement("$L.putDefault($T.$L)", ModelUtils.getVariable(true), tableClassName, referenceDefinition.columnName);
+            }
+            builder.nextControlFlow("else");
+            builder.add(elseBuilder.build());
+            builder.endControlFlow();
+            return builder.build();
+        }
+    }
+
+    @Override
     public void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
         if (!(columnAccess instanceof TypeConverterAccess)) {
             String origStatement = getColumnAccessString(isModelContainerAdapter, false);

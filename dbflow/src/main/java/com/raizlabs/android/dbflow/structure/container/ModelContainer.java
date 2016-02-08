@@ -223,6 +223,14 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     void putDefault(String columnName);
 
     /**
+     * Puts the default value of this {@link ModelContainer} as data. It may be null for objects,
+     * or 0 for primitives.
+     *
+     * @param property The property to put.
+     */
+    void putDefault(IProperty property);
+
+    /**
      * @return The associated model adapter from the table for this {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
      */
     ModelAdapter<ModelClass> getModelAdapter();

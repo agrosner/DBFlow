@@ -168,6 +168,14 @@ public class ForeignKeyReferenceDefinition {
                 getForeignKeyColumnVariable(isModelContainerAdapter), false).build();
     }
 
+    CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
+
+        CodeBlock.Builder codeBuilder = CodeBlock.builder();
+        codeBuilder.addStatement("$L.put($T.$L, $L)", ModelUtils.getVariable(true), tableClassName, columnName,
+                getShortColumnAccess(false, false, tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false, false)));
+        return codeBuilder.build();
+    }
+
     private String getForeignKeyColumnVariable(boolean isModelContainerAdapter) {
         return isModelContainerAdapter ? foreignKeyColumnDefinition.getRefName() : ModelUtils.getVariable(isModelContainerAdapter);
     }
