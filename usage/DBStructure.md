@@ -234,7 +234,8 @@ has become drastically easier in DBFlow 3.0+.
 
 To define a relationship,
 simply define the `@ManyToMany` annotation on a class pointing to another `Model` table:
-```java@Table(database = TestDatabase.class)
+```java
+@Table(database = TestDatabase.class)
 @ManyToMany(referencedTable = TestModel1.class)
 public class ManyToManyModel extends BaseModel {
 
