@@ -1,11 +1,10 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
-import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ManyToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.processor.ClassNames;
-import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -16,8 +15,6 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-
-import java.util.List;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -69,10 +66,8 @@ public class ManyToManyDefinition extends BaseDefinition {
             .addStatement("return $L", "_id")
             .build());
 
-        List<ColumnDefinition> primaryKeys = referencedDefinition.getPrimaryColumnDefinitions();
-        appendColumnDefinitions(typeBuilder, primaryKeys, referencedDefinition);
-        primaryKeys = selfDefinition.getPrimaryColumnDefinitions();
-        appendColumnDefinitions(typeBuilder, primaryKeys, selfDefinition);
+        appendColumnDefinitions(typeBuilder, referencedDefinition);
+        appendColumnDefinitions(typeBuilder, selfDefinition);
     }
 
     @Override
@@ -80,21 +75,19 @@ public class ManyToManyDefinition extends BaseDefinition {
         return ClassNames.BASE_MODEL;
     }
 
-    private void appendColumnDefinitions(TypeSpec.Builder typeBuilder, List<ColumnDefinition> primaryKeys, TableDefinition referencedDefinition) {
-        for (ColumnDefinition primary : primaryKeys) {
-            String fieldName = primary.elementName + "_" + referencedDefinition.elementName;
-            typeBuilder.addField(FieldSpec.builder(primary.elementTypeName, fieldName)
-                .addAnnotation(AnnotationSpec.builder(Column.class).build()).build()).build();
-            typeBuilder.addMethod(MethodSpec.methodBuilder("get" + StringUtils.capitalize(fieldName))
-                .returns(primary.elementTypeName)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $L", fieldName)
-                .build());
-            typeBuilder.addMethod(MethodSpec.methodBuilder("set" + StringUtils.capitalize(fieldName))
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(primary.elementTypeName, "param")
-                .addStatement("$L = param", fieldName)
-                .build());
-        }
+    private void appendColumnDefinitions(TypeSpec.Builder typeBuilder, TableDefinition referencedDefinition) {
+        String fieldName = StringUtils.lower(referencedDefinition.elementName);
+        typeBuilder.addField(FieldSpec.builder(referencedDefinition.elementClassName, fieldName)
+            .addAnnotation(AnnotationSpec.builder(ForeignKey.class).build()).build()).build();
+        typeBuilder.addMethod(MethodSpec.methodBuilder("get" + StringUtils.capitalize(fieldName))
+            .returns(referencedDefinition.elementClassName)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addStatement("return $L", fieldName)
+            .build());
+        typeBuilder.addMethod(MethodSpec.methodBuilder("set" + StringUtils.capitalize(fieldName))
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addParameter(referencedDefinition.elementClassName, "param")
+            .addStatement("$L = param", fieldName)
+            .build());
     }
 }
