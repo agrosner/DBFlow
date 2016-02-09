@@ -216,3 +216,88 @@ public class UniqueModel extends BaseModel {
 
 }
 ```
+
+### Many-To-Many Source Gen
+
+Making an "association" table between two tables that are related via many-to-many
+has become drastically easier in DBFlow 3.0+.
+
+#### How It works
+
+1. Annotate your target `Model` class with `@ManyToMany(referencedTable = MyRefTable.class)`
+2. DBFlow generates the associated `@Table` class named `{target}{dbflow class separator}{referencedTable}`, with all of its other `_Adapter` and `_Table` counterparts. So for a target of `Shop` with a reference of `Customer`, by default the name of the `Table` generated is `Shop_Customer`.
+3. The generated `Model` uses the `@PrimaryKey` of each table as `@ForeignKey` fields along with a single auto-incrementing `Long` `@PrimaryKey`.
+3. It also generates getters and setters for the joined table (except a setter on the "_id" field).
+
+
+#### Example
+
+To define a relationship,
+simply define the `@ManyToMany` annotation on a class pointing to another `Model` table:
+```java@Table(database = TestDatabase.class)
+@ManyToMany(referencedTable = TestModel1.class)
+public class ManyToManyModel extends BaseModel {
+
+    @PrimaryKey
+    String name;
+
+    @PrimaryKey
+    int id;
+
+    @Column
+    char anotherColumn;
+}
+```
+
+With the associated table as follows:
+```java
+
+@Table(database = TestDatabase.class)
+public class TestModel1 extends BaseModel {
+    @Column
+    @PrimaryKey
+    String name;
+}
+
+```
+
+Which generates a `Model` class as:
+```java
+@Table(
+    database = TestDatabase.class
+)
+public final class ManyToManyModel_TestModel1 extends BaseModel {
+  @PrimaryKey(
+      autoincrement = true
+  )
+  long _id;
+
+  @ForeignKey
+  TestModel1 testModel1;
+
+  @ForeignKey
+  ManyToManyModel manyToManyModel;
+
+  public final long getId() {
+    return _id;
+  }
+
+  public final TestModel1 getTestModel1() {
+    return testModel1;
+  }
+
+  public final void setTestModel1(TestModel1 param) {
+    testModel1 = param;
+  }
+
+  public final ManyToManyModel getManyToManyModel() {
+    return manyToManyModel;
+  }
+
+  public final void setManyToManyModel(ManyToManyModel param) {
+    manyToManyModel = param;
+  }
+}
+```
+
+Which saves you even more code to maintain or write!
