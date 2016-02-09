@@ -54,21 +54,21 @@ be `public`, and point the `sqlHelperClass()` to the custom class in the `@Datab
 All standard tables must use the `@Table` annotation and implement `Model`. As a convenience, `BaseModel` provides a default implementation.
 
 **Models Support**:
-1. Any default java class is supported such as the primitives, boxed primitives, and `String`.
-2. A non-default object with a `TypeConverter` is also save-able. Objects with type-parameters are _not_ supported. Also `List`, `Map` or multi-value fields are not recommended. If you must, you have to leave out the type parameters.
-3. Composite primary keys
-4. Nested `Model` defined as a `@ForeignKey`, enabling 1-1 relationships.
-5. Any `ModelContainer` as a `@ForeignKey`
-6. Composite `@ForeignKey`
-7. Custom `TypeConverter` via `@Column(typeConverter = SomeTypeConverter.class)`
+  1. Any default java class is supported such as the primitives, boxed primitives, and `String`.
+  2. A non-default object with a `TypeConverter` is also save-able. Objects with type-parameters are _not_ supported. Also `List`, `Map` or multi-value fields are not recommended. If you must, you have to leave out the type parameters.
+  3. Composite primary keys
+  4. Nested `Model` defined as a `@ForeignKey`, enabling 1-1 relationships.
+  5. Any `ModelContainer` as a `@ForeignKey`
+  6. Composite `@ForeignKey`
+  7. Custom `TypeConverter` via `@Column(typeConverter = SomeTypeConverter.class)`
 
 **Restrictions & Limitations**:
-1. All `Model` **MUST HAVE** an accessible default constructor. We will use the default constructor when querying the database.
-2. Subclassing works as one would expect: the library gathers all inherited fields annotated with `@Column` and count those as rows in the current class's database.
-3. Column names default to the field name as a convenience, but if the name of your fields change you will need to specify the column name.
-4. All fields must be `public` or package private as the `_Adapter` class needs access to them. _NOTE:_ Package private fields need _not_ be in the same package as DBFlow will generate the necessary access methods to get to them.
-5. or private ONLY when you specify `get{Name}()` and `set{Name}(columnType)` methods for a column named `{name}`. This can be configured.
-6. All model class definitions have to be accessible. Inner model classes are supported as of 3.0.0-beta1+.
+  1. All `Model` **MUST HAVE** an accessible default constructor. We will use the default constructor when querying the database.
+  2. Subclassing works as one would expect: the library gathers all inherited fields annotated with `@Column` and count those as rows in the current class's database.
+  3. Column names default to the field name as a convenience, but if the name of your fields change you will need to specify the column name.
+  4. All fields must be `public` or package private as the `_Adapter` class needs access to them. _NOTE:_ Package private fields need _not_ be in the same package as DBFlow will generate the necessary access methods to get to them.
+  5. or private ONLY when you specify `get{Name}()` and `set{Name}(columnType)` methods for a column named `{name}`. This can be configured.
+  6. All model class definitions have to be accessible. Inner model classes are supported as of 3.0.0-beta1+.
 
 ### Sample Model
 This is an example of a `Model` class with a primary key (at least one is required) and another field.
@@ -180,10 +180,10 @@ In the `_Adapter`:
 ```
 
 We insert its value at runtime. This has some limitations:
-1. Constant, pure value strings
-2. No `Model`, `ModelContainer`, or primitive can use this.
-3. Must be of same type as column.
-4. `String` types need to be escaped via: `"\"something\""`
+  1. Constant, pure value strings
+  2. No `Model`, `ModelContainer`, or primitive can use this.
+  3. Must be of same type as column.
+  4. `String` types need to be escaped via: `"\"something\""`
 
 ### Unique Groups
 In Sqlite you can define any number of columns as having a "unique" relationship, meaning the combination of one or more rows must be unique across the whole table.
