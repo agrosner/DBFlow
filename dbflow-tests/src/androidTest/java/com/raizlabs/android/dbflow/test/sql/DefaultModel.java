@@ -10,4 +10,5 @@ public class DefaultModel extends TestModel1 {
 
     @Column(defaultValue = "55")
     Integer count;
+
 }

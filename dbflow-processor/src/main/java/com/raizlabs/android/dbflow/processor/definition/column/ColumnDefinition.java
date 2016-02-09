@@ -70,7 +70,6 @@ public class ColumnDefinition extends BaseDefinition {
 
     public Collate collate = Collate.NONE;
     public String defaultValue;
-    public boolean hasDefaultValue;
 
     public boolean isBoolean = false;
 
@@ -90,7 +89,6 @@ public class ColumnDefinition extends BaseDefinition {
             length = column.length();
             collate = column.collate();
             defaultValue = column.defaultValue();
-            hasDefaultValue = defaultValue != null;
             excludeFromToModelMethod = column.excludeFromToModelMethod();
         } else {
             this.columnName = element.getSimpleName()
