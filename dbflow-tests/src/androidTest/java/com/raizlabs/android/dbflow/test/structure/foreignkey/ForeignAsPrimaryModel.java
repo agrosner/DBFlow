@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.sql.BoxedModel;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
@@ -26,4 +27,8 @@ public class ForeignAsPrimaryModel extends BaseModel {
     @ForeignKey
     @PrimaryKey
     BoxedModel boxedModel;
+
+    @ForeignKey
+    @PrimaryKey
+    ForeignKeyContainer<BoxedModel> boxedModelForeignKeyContainer;
 }

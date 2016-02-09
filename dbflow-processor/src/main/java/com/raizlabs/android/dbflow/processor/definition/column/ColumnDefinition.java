@@ -347,7 +347,7 @@ public class ColumnDefinition extends BaseDefinition {
      * @return A string without any type conversion for this field.
      */
     public void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
-        codeBuilder.add("\n.and($T.$L.eq(", tableDefinition.getPropertyClassName(), columnName);
+        codeBuilder.add("\nclause.and($T.$L.eq(", tableDefinition.getPropertyClassName(), columnName);
         if (columnAccess instanceof TypeConverterAccess) {
             TypeConverterAccess converterAccess = ((TypeConverterAccess) columnAccess);
             TypeConverterDefinition converterDefinition = converterAccess.typeConverterDefinition;
@@ -365,7 +365,7 @@ public class ColumnDefinition extends BaseDefinition {
         } else {
             codeBuilder.add(getColumnAccessString(isModelContainerAdapter, false));
         }
-        codeBuilder.add("))");
+        codeBuilder.add("));");
     }
 
     public String getReferenceColumnName(ForeignKeyReference reference) {
