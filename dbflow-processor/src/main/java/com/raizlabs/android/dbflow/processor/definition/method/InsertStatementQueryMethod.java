@@ -25,14 +25,18 @@ public class InsertStatementQueryMethod implements MethodDefinition {
     @Override
     public MethodSpec getMethodSpec() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(isInsert ? "getInsertStatementQuery" : "getCompiledStatementQuery")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .returns(ClassName.get(String.class));
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .returns(ClassName.get(String.class));
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder()
-                .add("INSERT INTO ")
-                .add(QueryBuilder.quote(tableDefinition.tableName))
-                .add("(");
+            .add("INSERT ");
+        if (!tableDefinition.insertConflictActionName.isEmpty()) {
+            codeBuilder.add("OR $L ", tableDefinition.insertConflictActionName);
+        }
+        codeBuilder.add("INTO ")
+            .add(QueryBuilder.quote(tableDefinition.tableName))
+            .add("(");
 
         int columnSize = tableDefinition.getColumnDefinitions().size();
         int columnCount = 0;
