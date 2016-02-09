@@ -38,7 +38,7 @@ public class TableHandler extends BaseContainerHandler<Table> {
 
             if (element.getAnnotation(ManyToMany.class) != null) {
                 ManyToManyDefinition manyToManyDefinition = new ManyToManyDefinition((TypeElement) element, processorManager);
-                TableDefinition manyTableDefinition = new TableDefinition(processorManager, manyToManyDefinition.outputClassName);
+                processorManager.addManyToManyDefinition(manyToManyDefinition);
             }
         }
     }

@@ -81,15 +81,15 @@ public class DBFlowProcessor extends AbstractProcessor {
         super.init(processingEnv);
         manager = new ProcessorManager(processingEnv);
         manager.addHandlers(
-                new MigrationHandler(),
-                new TypeConverterHandler(),
-                new DatabaseHandler(),
-                new TableHandler(),
-                new QueryModelHandler(),
-                new ModelContainerHandler(),
-                new ModelViewHandler(),
-                new ContentProviderHandler(),
-                new TableEndpointHandler());
+            new MigrationHandler(),
+            new TypeConverterHandler(),
+            new DatabaseHandler(),
+            new TableHandler(),
+            new QueryModelHandler(),
+            new ModelContainerHandler(),
+            new ModelViewHandler(),
+            new ContentProviderHandler(),
+            new TableEndpointHandler());
     }
 
     @Override

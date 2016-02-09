@@ -44,12 +44,6 @@ public abstract class BaseTableDefinition extends BaseDefinition {
         columnDefinitions = new ArrayList<>();
     }
 
-    public BaseTableDefinition(ClassName typeElement, ProcessorManager processorManager) {
-        super(typeElement, processorManager);
-        this.modelClassName = typeElement.toString();
-        columnDefinitions = new ArrayList<>();
-    }
-
     protected abstract void createColumnDefinitions(TypeElement typeElement);
 
     public List<ColumnDefinition> getColumnDefinitions() {

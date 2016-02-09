@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.FlowManagerHolderDefinition;
+import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
@@ -18,6 +19,7 @@ import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 
@@ -150,6 +152,16 @@ public class ProcessorManager implements Handler {
         }
     }
 
+    public void addManyToManyDefinition(ManyToManyDefinition manyToManyDefinition) {
+        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(manyToManyDefinition.databaseTypeName);
+        databaseDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinition);
+        if (databaseDefinition.manyToManyDefinitionMap.containsKey(manyToManyDefinition.outputClassName)) {
+            logError("Found duplicate table %1s for database %1s", manyToManyDefinition.outputClassName, databaseDefinition.databaseName);
+        } else {
+            databaseDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.outputClassName, manyToManyDefinition);
+        }
+    }
+
     public TableDefinition getTableDefinition(TypeName databaseName, TypeName typeName) {
         return databaseDefinitionMap.get(databaseName).tableDefinitionMap.get(typeName);
     }
@@ -277,6 +289,11 @@ public class ProcessorManager implements Handler {
             try {
                 JavaFile.builder(databaseDefinition.packageName, databaseDefinition.getTypeSpec())
                     .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+
+                Collection<ManyToManyDefinition> manyToManyDefinitions = databaseDefinition.manyToManyDefinitionMap.values();
+                for (ManyToManyDefinition manyToMany : manyToManyDefinitions) {
+                    WriterUtils.writeBaseDefinition(manyToMany, processorManager);
+                }
 
                 Collection<TableDefinition> tableDefinitions = databaseDefinition.tableDefinitionMap.values();
                 for (TableDefinition tableDefinition : tableDefinitions) {
