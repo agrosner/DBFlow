@@ -22,7 +22,7 @@ import java.util.List;
  * Description: Defines the SQL WHERE statement of the query.
  */
 public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelClass>
-        implements Query, ModelQueriable<ModelClass>, Transformable<ModelClass> {
+    implements Query, ModelQueriable<ModelClass>, Transformable<ModelClass> {
 
     private static final int VALUE_UNSET = -1;
 
@@ -30,10 +30,6 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * The first chunk of the SQL statement before this query.
      */
     private final WhereBase<ModelClass> whereBase;
-    /**
-     * The database manager we run this query on
-     */
-    private final DatabaseWrapper databaseWrapper;
 
     /**
      * Helps to build the where statement easily
@@ -61,7 +57,6 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     Where(WhereBase<ModelClass> whereBase, SQLCondition... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
-        databaseWrapper = FlowManager.getDatabaseForTable(this.whereBase.getTable()).getWritableDatabase();
         conditionGroup = new ConditionGroup();
         havingGroup = new ConditionGroup();
 
@@ -189,7 +184,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      */
     public Where<ModelClass> exists(@NonNull Where where) {
         conditionGroup.and(new ExistenceCondition()
-                .where(where));
+            .where(where));
         return this;
     }
 
@@ -212,17 +207,17 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
 
     @Override
     public long count() {
-        return count(databaseWrapper);
+        return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
     @Override
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-                .appendQualifier("WHERE", conditionGroup.getQuery())
-                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-                .appendQualifier("HAVING", havingGroup.getQuery())
-                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
+            .appendQualifier("WHERE", conditionGroup.getQuery())
+            .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+            .appendQualifier("HAVING", havingGroup.getQuery())
+            .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
@@ -253,7 +248,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
 
     @Override
     public Cursor query() {
-        return query(databaseWrapper);
+        return query(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
     /**

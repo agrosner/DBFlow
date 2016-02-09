@@ -99,4 +99,6 @@ public class ClassNames {
     public static final ClassName CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "CacheableListModelLoader");
     public static final ClassName LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "ListModelLoader");
 
+    public static final ClassName DATABASE_WRAPPER = ClassName.get(DATABASE, "DatabaseWrapper");
+
 }
