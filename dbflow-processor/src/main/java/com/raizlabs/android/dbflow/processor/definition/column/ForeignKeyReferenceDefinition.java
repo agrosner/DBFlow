@@ -140,7 +140,7 @@ public class ForeignKeyReferenceDefinition {
             combined = columnShortAccess;
         }
         return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
-            columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter)).build();
+            columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter), null).build();
     }
 
     public String getPrimaryReferenceString(boolean isModelContainerAdapter) {
@@ -165,7 +165,7 @@ public class ForeignKeyReferenceDefinition {
         return DefinitionUtils.getSQLiteStatementMethod(
             index, columnShortAccess, combined,
             columnClassName, isModelContainerAdapter, simpleColumnAccess,
-            getForeignKeyColumnVariable(isModelContainerAdapter), false).build();
+            getForeignKeyColumnVariable(isModelContainerAdapter), false, null).build();
     }
 
     CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {

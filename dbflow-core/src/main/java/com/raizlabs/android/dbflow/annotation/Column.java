@@ -30,7 +30,8 @@ public @interface Column {
     Collate collate() default Collate.NONE;
 
     /**
-     * @return Adds a default value for this column when saving
+     * @return Adds a default value for this column when saving. Note this will place it in when saving
+     * to the DB because we cannot know the intention of missing data from a query.
      */
     String defaultValue() default "";
 
