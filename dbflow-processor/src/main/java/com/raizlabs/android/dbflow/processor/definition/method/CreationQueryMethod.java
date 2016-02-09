@@ -66,7 +66,7 @@ public class CreationQueryMethod implements MethodDefinition {
             }
 
             ColumnDefinition primaryDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
-            creationBuilder.add(primaryDefinition.getCreationName());
+            creationBuilder.add(primaryDefinition.getPrimaryKeyName());
 
             if (i == primarySize - 1) {
                 creationBuilder.add(")");

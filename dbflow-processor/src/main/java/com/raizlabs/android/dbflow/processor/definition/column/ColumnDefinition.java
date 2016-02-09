@@ -395,6 +395,10 @@ public class ColumnDefinition extends BaseDefinition {
         return codeBlockBuilder.build();
     }
 
+    public String getPrimaryKeyName() {
+        return QueryBuilder.quote(columnName);
+    }
+
     public CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();

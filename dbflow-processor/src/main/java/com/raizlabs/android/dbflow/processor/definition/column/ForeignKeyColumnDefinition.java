@@ -192,6 +192,20 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
+    public String getPrimaryKeyName() {
+        checkNeedsReferences();
+        CodeBlock.Builder builder = CodeBlock.builder();
+        for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
+            if (i > 0) {
+                builder.add(" ,");
+            }
+            ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
+            builder.add(referenceDefinition.getPrimaryKeyName());
+        }
+        return builder.build().toString();
+    }
+
+    @Override
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         if (nonModelColumn) {
             return super.getContentValuesStatement(isModelContainerAdapter);

@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
@@ -124,6 +125,10 @@ public class ForeignKeyReferenceDefinition {
 
     CodeBlock getCreationStatement() {
         return DefinitionUtils.getCreationStatement(columnClassName, null, columnName).build();
+    }
+
+    String getPrimaryKeyName() {
+        return QueryBuilder.quote(columnName);
     }
 
     CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
