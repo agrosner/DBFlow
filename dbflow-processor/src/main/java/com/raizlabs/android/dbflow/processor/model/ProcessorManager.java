@@ -19,7 +19,6 @@ import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 
@@ -287,15 +286,25 @@ public class ProcessorManager implements Handler {
         List<DatabaseDefinition> databaseDefinitions = getDatabaseDefinitionMap();
         for (DatabaseDefinition databaseDefinition : databaseDefinitions) {
             try {
-                JavaFile.builder(databaseDefinition.packageName, databaseDefinition.getTypeSpec())
-                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
 
                 Collection<ManyToManyDefinition> manyToManyDefinitions = databaseDefinition.manyToManyDefinitionMap.values();
                 for (ManyToManyDefinition manyToMany : manyToManyDefinitions) {
                     WriterUtils.writeBaseDefinition(manyToMany, processorManager);
                 }
 
+                if (!manyToManyDefinitions.isEmpty()) {
+                    // process database on later round.
+                    manyToManyDefinitions.clear();
+                    continue;
+                }
+
+
+                JavaFile.builder(databaseDefinition.packageName, databaseDefinition.getTypeSpec())
+                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+
+
                 Collection<TableDefinition> tableDefinitions = databaseDefinition.tableDefinitionMap.values();
+
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
                     tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
@@ -328,11 +337,14 @@ public class ProcessorManager implements Handler {
             }
         }
 
-        try {
-            JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                new FlowManagerHolderDefinition(processorManager).getTypeSpec())
-                .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
-        } catch (IOException e) {
+        if (roundEnvironment.processingOver()) {
+
+            try {
+                JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
+                    new FlowManagerHolderDefinition(processorManager).getTypeSpec())
+                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+            } catch (IOException e) {
+            }
         }
     }
 }
