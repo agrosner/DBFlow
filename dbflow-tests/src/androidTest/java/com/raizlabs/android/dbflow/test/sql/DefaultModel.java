@@ -11,4 +11,6 @@ public class DefaultModel extends TestModel1 {
     @Column(defaultValue = "55")
     Integer count;
 
+    @Column(defaultValue = "\"this is\"")
+    String test;
 }
