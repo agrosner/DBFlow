@@ -75,6 +75,16 @@ public abstract class BaseDefinition implements TypeDefinition {
         }
     }
 
+    public BaseDefinition(ClassName element, ProcessorManager processorManager) {
+        this.manager = processorManager;
+        this.elementTypeName = element;
+        packageName = element.packageName();
+        elementName = element.simpleName();
+        if (!elementTypeName.isPrimitive()) {
+            elementClassName = element.topLevelClassName();
+        }
+    }
+
     public BaseDefinition(TypeElement element, ProcessorManager processorManager) {
         this.manager = processorManager;
         this.typeElement = element;
