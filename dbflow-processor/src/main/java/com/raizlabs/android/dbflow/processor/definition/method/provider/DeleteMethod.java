@@ -49,7 +49,11 @@ public class DeleteMethod implements MethodDefinition {
 
                     code.add("long count = new $T().from", ClassNames.DELETE);
                     ProviderMethodUtils.appendTableName(code, databaseName, tableEndpointDefinition.tableName);
-                    code.add(".where(toConditions(selection, selectionArgs))");
+                    if (contentProviderDefinition.useSafeQueryChecking) {
+                        code.add(".where(toConditions(selection, selectionArgs))");
+                    } else {
+                        code.add(".where(new $T(selection, selectionArgs))", ClassNames.UNSAFE_STRING_CONDITION);
+                    }
                     ProviderMethodUtils.appendPathSegments(code, manager, uriDefinition.segments,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
                     code.add(".count();\n");

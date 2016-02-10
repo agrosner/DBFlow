@@ -41,6 +41,7 @@ public class ContentProviderDefinition extends BaseDefinition {
 
     public TypeName databaseName;
     public String databaseNameString;
+    public boolean useSafeQueryChecking;
 
     public String authority;
 
@@ -58,6 +59,7 @@ public class ContentProviderDefinition extends BaseDefinition {
             } catch (MirroredTypeException mte) {
                 databaseName = TypeName.get(mte.getTypeMirror());
             }
+            useSafeQueryChecking = provider.useSafeQueryChecking();
             DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseName);
             databaseNameString = databaseDefinition.databaseName;
             setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);

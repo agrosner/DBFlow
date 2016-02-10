@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
@@ -42,6 +41,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -401,6 +401,15 @@ public class TableDefinition extends BaseTableDefinition {
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
+
+        FieldSpec.Builder propertyConverter = FieldSpec.builder(ClassNames.PROPERTY_CONVERTER, "PROPERTY_CONVERTER", Modifier.FINAL, Modifier.PUBLIC, Modifier.STATIC)
+                .initializer(CodeBlock.builder()
+                        .add("new $T(){ \n", ClassNames.PROPERTY_CONVERTER)
+                        .add("public $T fromName(String columnName) {\n", ClassNames.IPROPERTY)
+                        .add("return $L.getProperty(columnName); \n}\n}", getPropertyClassName())
+                        .build());
+        typeBuilder.addField(propertyConverter.build());
+
         MethodSpec.Builder getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(String.class, "columnName")
