@@ -27,7 +27,7 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
                     (PrivateColumnAccess) ((WrapperColumnAccess) columnDefinition.columnAccess).getExistingColumnAccess();
             if (!columnDefinition.tableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getGetterNameElement(columnDefinition.elementName))) {
                 processorManager.logError(ColumnValidator.class, "Could not find getter for private element: " +
-                                "%1s from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
+                                "\"%1s\" from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
                         columnDefinition.elementName, columnDefinition.tableDefinition.elementName, privateColumnAccess.getGetterNameElement(columnDefinition.elementName));
                 success = false;
             }
