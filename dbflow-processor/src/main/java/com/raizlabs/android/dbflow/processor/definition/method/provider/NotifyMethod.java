@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.processor.definition.CodeAdder;
 import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition;
 import com.raizlabs.android.dbflow.processor.definition.NotifyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.CodeBlock;
 
 import java.util.List;
