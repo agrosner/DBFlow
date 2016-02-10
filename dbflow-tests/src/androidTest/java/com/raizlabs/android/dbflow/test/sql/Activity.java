@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test.sql;
 
+import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -17,6 +18,7 @@ public class Activity extends BaseModel {
 
     int steps;
 
+    @ColumnIgnore
     private double calories;
 
 }

@@ -36,7 +36,9 @@ public class DefinitionUtils {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             if (columnAccess instanceof TypeConverterAccess) {
-                finalTypeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+                if (((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
+                    finalTypeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+                }
                 isBlobRaw = (finalTypeName.equals(ClassName.get(Blob.class)));
             } else {
                 if (columnAccess instanceof EnumColumnAccess) {
@@ -96,7 +98,9 @@ public class DefinitionUtils {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             if (columnAccess instanceof TypeConverterAccess) {
-                finalTypeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+                if (((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
+                    finalTypeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+                }
                 isBlobRaw = (finalTypeName.equals(ClassName.get(Blob.class)));
             } else {
                 if (columnAccess instanceof EnumColumnAccess) {
@@ -235,7 +239,7 @@ public class DefinitionUtils {
 
         if (SQLiteHelper.containsType(elementTypeName)) {
             statement = SQLiteHelper.get(elementTypeName).toString();
-        } else if (columnAccess instanceof TypeConverterAccess) {
+        } else if (columnAccess instanceof TypeConverterAccess && ((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
             statement = SQLiteHelper.get(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName()).toString();
         }
 
@@ -249,7 +253,7 @@ public class DefinitionUtils {
         String method = "";
         if (SQLiteHelper.containsMethod(elementTypeName)) {
             method = SQLiteHelper.getMethod(elementTypeName);
-        } else if (columnAccess instanceof TypeConverterAccess) {
+        } else if (columnAccess instanceof TypeConverterAccess && ((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
             method = SQLiteHelper.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
         } else if (columnAccess instanceof EnumColumnAccess) {
             method = SQLiteHelper.getMethod(ClassName.get(String.class));

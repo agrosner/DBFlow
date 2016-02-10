@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
@@ -278,7 +279,8 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isValidColumn = (allFields && (element.getKind().isField() &&
                     !element.getModifiers().contains(Modifier.STATIC) &&
                     !element.getModifiers().contains(Modifier.FINAL))) &&
-                    !element.asType().toString().equals(ClassNames.MODEL_ADAPTER.toString()); // ignore model adapter fields.
+                    element.getAnnotation(ColumnIgnore.class) == null &&
+                    !element.asType().toString().equals(ClassNames.MODEL_ADAPTER.toString());
 
             // package private, will generate helper
             boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
@@ -290,7 +292,6 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
             if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
                     || isValidColumn || isInherited || isInheritedPrimaryKey) {
-
 
                 ColumnDefinition columnDefinition;
                 if (isInheritedPrimaryKey) {
