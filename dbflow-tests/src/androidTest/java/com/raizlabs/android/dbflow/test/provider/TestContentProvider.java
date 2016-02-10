@@ -31,7 +31,7 @@ public class TestContentProvider {
         return builder.build();
     }
 
-    @TableEndpoint(name = ContentProviderModel.ENDPOINT)
+    @TableEndpoint(name = ContentProviderModel.ENDPOINT, contentProvider = ContentDatabase.class)
     public static class ContentProviderModel {
 
         public static final String ENDPOINT = "ContentProviderModel";
@@ -58,7 +58,7 @@ public class TestContentProvider {
 
     }
 
-    @TableEndpoint(name = NoteModel.ENDPOINT)
+    @TableEndpoint(name = NoteModel.ENDPOINT, contentProvider = ContentDatabase.class)
     public static class NoteModel {
 
         public static final String ENDPOINT = "NoteModel";
@@ -132,7 +132,7 @@ public class TestContentProvider {
         }
     }
 
-    @TableEndpoint(name = TestSyncableModel.ENDPOINT)
+    @TableEndpoint(name = TestSyncableModel.ENDPOINT, contentProvider = ContentDatabase.class)
     public static class TestSyncableModel {
 
         public static final String ENDPOINT = "TestSyncableModel";

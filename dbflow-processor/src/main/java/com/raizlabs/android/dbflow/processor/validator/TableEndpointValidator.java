@@ -17,12 +17,6 @@ public class TableEndpointValidator implements Validator<TableEndpointDefinition
             success = false;
         }
 
-        if (tableEndpointDefinition.isTopLevel && (tableEndpointDefinition.contentProviderName == null
-                || tableEndpointDefinition.contentProviderName.isEmpty())) {
-            processorManager.logError("A top-level @TableEndpoint %1s must specify the @ContentProvider it belongs to", tableEndpointDefinition.elementClassName);
-            success = false;
-        }
-
         return success;
     }
 }

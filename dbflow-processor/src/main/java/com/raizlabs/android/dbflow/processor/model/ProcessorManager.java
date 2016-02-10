@@ -60,7 +60,7 @@ public class ProcessorManager implements Handler {
 
     private Map<TypeName, DatabaseDefinition> databaseDefinitionMap = Maps.newHashMap();
     private List<BaseContainerHandler> handlers = new ArrayList<>();
-    private Map<String, ContentProviderDefinition> providerMap = Maps.newHashMap();
+    private Map<TypeName, ContentProviderDefinition> providerMap = Maps.newHashMap();
 
     public ProcessorManager(ProcessingEnvironment processingEnv) {
         processingEnvironment = processingEnv;
@@ -240,7 +240,7 @@ public class ProcessorManager implements Handler {
     }
 
     public void addContentProviderDefinition(ContentProviderDefinition contentProviderDefinition) {
-        providerMap.put(contentProviderDefinition.elementClassName.simpleName(), contentProviderDefinition);
+        providerMap.put(contentProviderDefinition.elementTypeName, contentProviderDefinition);
     }
 
     public void putTableEndpointForProvider(TableEndpointDefinition tableEndpointDefinition) {

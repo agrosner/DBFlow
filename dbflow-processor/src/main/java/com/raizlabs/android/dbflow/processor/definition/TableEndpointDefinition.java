@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
 import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.TypeName;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
 
 /**
  * Description:
@@ -30,7 +32,7 @@ public class TableEndpointDefinition extends BaseDefinition {
 
     public String tableName;
 
-    public String contentProviderName;
+    public TypeName contentProviderName;
 
     public boolean isTopLevel = false;
 
@@ -42,7 +44,11 @@ public class TableEndpointDefinition extends BaseDefinition {
 
             tableName = endpoint.name();
 
-            contentProviderName = endpoint.contentProviderName();
+            try {
+                endpoint.contentProvider();
+            } catch (MirroredTypeException mte) {
+                contentProviderName = TypeName.get(mte.getTypeMirror());
+            }
         }
 
         isTopLevel = typeElement.getEnclosingElement() instanceof PackageElement;
