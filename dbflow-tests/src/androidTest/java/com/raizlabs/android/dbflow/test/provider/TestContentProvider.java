@@ -16,7 +16,7 @@ import com.raizlabs.android.dbflow.sql.SqlUtils;
  */
 @ContentProvider(authority = TestContentProvider.AUTHORITY,
         database = ContentDatabase.class,
-        baseContentUri = TestContentProvider.BASE_CONTENT_URI, useSafeQueryChecking = false)
+        baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 public class TestContentProvider {
 
     public static final String AUTHORITY = "com.raizlabs.android.dbflow.test.provider";
