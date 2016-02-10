@@ -3,7 +3,10 @@ package com.raizlabs.android.dbflow.processor.validator;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.EnumColumnAccess;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.PrivateColumnAccess;
+import com.raizlabs.android.dbflow.processor.definition.column.WrapperColumnAccess;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 
 /**
  * Description: Ensures the integrity of the annotation processor for columns.
@@ -16,6 +19,34 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
     public boolean validate(ProcessorManager processorManager, ColumnDefinition columnDefinition) {
 
         boolean success = true;
+
+        // validate getter and setters.
+        if (columnDefinition.columnAccess instanceof PrivateColumnAccess ||
+                columnDefinition.columnAccess instanceof WrapperColumnAccess && ((WrapperColumnAccess) columnDefinition.columnAccess).getExistingColumnAccess() instanceof PrivateColumnAccess) {
+            PrivateColumnAccess privateColumnAccess = columnDefinition.columnAccess instanceof PrivateColumnAccess ? ((PrivateColumnAccess) columnDefinition.columnAccess) :
+                    (PrivateColumnAccess) ((WrapperColumnAccess) columnDefinition.columnAccess).getExistingColumnAccess();
+            if (!columnDefinition.tableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getGetterNameElement(columnDefinition.elementName))) {
+                processorManager.logError(ColumnValidator.class, "Could not find getter for private element: " +
+                                "\"%1s\" from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
+                        columnDefinition.elementName, columnDefinition.tableDefinition.elementName, privateColumnAccess.getGetterNameElement(columnDefinition.elementName));
+                success = false;
+            }
+            if (!columnDefinition.tableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getSetterNameElement(columnDefinition.elementName))) {
+                processorManager.logError(ColumnValidator.class, "Could not find setter for private element: " +
+                                "\"%1s\" from table class: %1s. Consider adding a setter with name %1s or making it more accessible.",
+                        columnDefinition.elementName, columnDefinition.tableDefinition.elementName, privateColumnAccess.getSetterNameElement(columnDefinition.elementName));
+                success = false;
+            }
+        }
+
+        if (!StringUtils.isNullOrEmpty(columnDefinition.defaultValue)) {
+            if (columnDefinition instanceof ForeignKeyColumnDefinition && (((ForeignKeyColumnDefinition) columnDefinition).isModelContainer
+                    || ((ForeignKeyColumnDefinition) columnDefinition).isModel)) {
+                processorManager.logError(ColumnValidator.class, "Default values cannot be specified for model or model container fields");
+            } else if (columnDefinition.elementTypeName.isPrimitive()) {
+                processorManager.logWarning(ColumnValidator.class, "Primitive column types will not respect default values");
+            }
+        }
 
         if (columnDefinition.columnName == null || columnDefinition.columnName.isEmpty()) {
             success = false;

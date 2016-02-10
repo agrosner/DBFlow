@@ -99,14 +99,16 @@ public class QueryModelDefinition extends BaseTableDefinition {
     @Override
     protected void createColumnDefinitions(TypeElement typeElement) {
         List<? extends Element> variableElements = ElementUtility.getAllElements(typeElement, manager);
+
+        for (Element element : variableElements) {
+            classElementLookUpMap.put(element.getSimpleName().toString(), element);
+        }
+
         ColumnValidator columnValidator = new ColumnValidator();
         for (Element variableElement : variableElements) {
 
             // no private static or final fields
-            boolean isValidColumn = allFields && (variableElement.getKind().isField() &&
-                    !variableElement.getModifiers().contains(Modifier.STATIC) &&
-                    !variableElement.getModifiers().contains(Modifier.PRIVATE) &&
-                    !variableElement.getModifiers().contains(Modifier.FINAL));
+            boolean isValidColumn = ElementUtility.isValidAllFields(allFields, element);
 
             if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
 

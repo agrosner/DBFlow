@@ -13,14 +13,14 @@ import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
 /**
  * Description:
  */
-@TableEndpoint(name = ContentProviderModel.NAME, contentProviderName = "ContentDatabase")
+@TableEndpoint(name = ContentProviderModel.NAME, contentProvider = ContentDatabase.class)
 @Table(database = ContentDatabase.class, name = ContentProviderModel.NAME)
 public class ContentProviderModel extends BaseProviderModel<ContentProviderModel> {
 
     public static final String NAME = "ContentProviderModel";
 
     @ContentUri(path = NAME, type = ContentUri.ContentType.VND_MULTIPLE + NAME)
-    public static final Uri CONTENT_URI = ContentUtils.buildUri(ContentDatabase.AUTHORITY);
+    public static final Uri CONTENT_URI = ContentUtils.buildUriWithAuthority(ContentDatabase.AUTHORITY);
 
     @Column
     @PrimaryKey(autoincrement = true)

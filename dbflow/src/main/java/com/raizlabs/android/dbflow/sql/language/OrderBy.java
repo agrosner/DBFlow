@@ -18,6 +18,7 @@ public class OrderBy implements Query {
     private boolean isAscending;
 
     private Collate collation;
+    private String orderByString;
 
     public static OrderBy fromProperty(IProperty property) {
         return new OrderBy(property.getNameAlias());
@@ -27,6 +28,10 @@ public class OrderBy implements Query {
         return new OrderBy(nameAlias);
     }
 
+    public static OrderBy fromString(String orderByString) {
+        return new OrderBy(orderByString);
+    }
+
     OrderBy(NameAlias column) {
         this.column = column;
     }
@@ -34,6 +39,10 @@ public class OrderBy implements Query {
     OrderBy(NameAlias column, boolean isAscending) {
         this(column);
         this.isAscending = isAscending;
+    }
+
+    OrderBy(String orderByString) {
+        this.orderByString = orderByString;
     }
 
     public OrderBy ascending() {
@@ -53,14 +62,18 @@ public class OrderBy implements Query {
 
     @Override
     public String getQuery() {
-        StringBuilder query = new StringBuilder()
-                .append(column)
-                .append(" ");
-        if (collation != null) {
-            query.append("COLLATE").append(" ").append(collation).append(" ");
+        if (orderByString == null) {
+            StringBuilder query = new StringBuilder()
+                    .append(column)
+                    .append(" ");
+            if (collation != null) {
+                query.append("COLLATE").append(" ").append(collation).append(" ");
+            }
+            query.append(isAscending ? "ASC" : "DESC");
+            return query.toString();
+        } else {
+            return orderByString;
         }
-        query.append(isAscending ? "ASC" : "DESC");
-        return query.toString();
     }
 
     @Override

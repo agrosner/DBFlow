@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
+import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -21,6 +22,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +48,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public ForeignKeyAction onUpdate;
 
     public boolean isModelContainer;
+    public boolean isForeignKeyContainer;
 
     public boolean isModel;
 
@@ -91,6 +94,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
         isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), element);
         isModelContainer = isModelContainer || ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL_CONTAINER.toString(), element);
+        isForeignKeyContainer = isModelContainer && ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.FOREIGN_KEY_CONTAINER.toString(), element);
+
         nonModelColumn = !isModel && !isModelContainer;
 
         saveForeignKeyModel = foreignKey.saveForeignKeyModel();
@@ -187,6 +192,20 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
+    public String getPrimaryKeyName() {
+        checkNeedsReferences();
+        CodeBlock.Builder builder = CodeBlock.builder();
+        for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
+            if (i > 0) {
+                builder.add(" ,");
+            }
+            ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
+            builder.add(referenceDefinition.getPrimaryKeyName());
+        }
+        return builder.build().toString();
+    }
+
+    @Override
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         if (nonModelColumn) {
             return super.getContentValuesStatement(isModelContainerAdapter);
@@ -261,6 +280,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             CodeBlock.Builder ifNullBuilder = CodeBlock.builder()
                     .add("if (");
             CodeBlock.Builder selectBuilder = CodeBlock.builder();
+
+            // used for foreignkey containers only.
+            String foreignKeyContainerRefName = "ref" + columnName;
+
             for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
                 ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
                 String indexName = "index" + referenceDefinition.columnName;
@@ -270,29 +293,46 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 }
                 ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
 
-                // TODO: respect separator here.
-                selectBuilder.add("\n.and($L.$L.eq($L))",
-                        ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName() + "_" + TableDefinition.DBFLOW_TABLE_TAG),
-                        referenceDefinition.foreignColumnName,
-                        CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR,
-                                DefinitionUtils.getLoadFromCursorMethodString(referenceDefinition.columnClassName,
-                                        referenceDefinition.columnAccess), indexName).build());
+                CodeBlock loadFromCursorBlock = CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR,
+                        DefinitionUtils.getLoadFromCursorMethodString(referenceDefinition.columnClassName,
+                                referenceDefinition.columnAccess), indexName).build();
+                ClassName generatedTableRef = ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName()
+                        + tableDefinition.databaseDefinition.classSeparator + TableDefinition.DBFLOW_TABLE_TAG);
+                if (!isForeignKeyContainer) {
+                    selectBuilder.add("\n.and($L.$L.eq($L))", generatedTableRef,
+                            referenceDefinition.foreignColumnName, loadFromCursorBlock);
+                } else {
+                    selectBuilder.add("\n$L.put($S, $L);", foreignKeyContainerRefName, referenceDefinition.foreignColumnName,
+                            loadFromCursorBlock);
+                }
             }
             ifNullBuilder.add(")");
             builder.beginControlFlow(ifNullBuilder.build().toString());
 
             CodeBlock.Builder initializer = CodeBlock.builder();
 
-            initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
-                    .add(selectBuilder.build());
-            if (!isModelContainerAdapter && !isModelContainer) {
-                initializer.add(".querySingle()");
+            if (isForeignKeyContainer) {
+
+                builder.addStatement("$T $L = new $T<>($T.class)",
+                        ParameterizedTypeName.get(ClassNames.FOREIGN_KEY_CONTAINER, referencedTableClassName),
+                        foreignKeyContainerRefName,
+                        ClassNames.FOREIGN_KEY_CONTAINER, referencedTableClassName);
+
+                builder.add(selectBuilder.build()).add("\n");
+
+                initializer.add(foreignKeyContainerRefName);
             } else {
-                if (isModelContainerAdapter) {
-                    initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
-                            ModelUtils.getVariable(true), referencedTableClassName);
+                initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
+                        .add(selectBuilder.build());
+                if (!isModelContainerAdapter && !isModelContainer) {
+                    initializer.add(".querySingle()");
                 } else {
-                    initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
+                    if (isModelContainerAdapter) {
+                        initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(true),
+                                ModelUtils.getVariable(true), referencedTableClassName);
+                    } else {
+                        initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
+                    }
                 }
             }
 
@@ -340,6 +380,69 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             }
             builder.endControlFlow();
             return builder.build();
+        }
+    }
+
+    @Override
+    public CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
+        if (nonModelColumn) {
+            return super.getForeignKeyContainerMethod(tableClassName);
+        } else {
+            String access = columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+                    ModelUtils.getVariable(false), false, false);
+            CodeBlock.Builder builder = CodeBlock.builder();
+            CodeBlock.Builder elseBuilder = CodeBlock.builder();
+            builder.beginControlFlow("if ($L != null)", access);
+            for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
+                builder.add(referenceDefinition.getForeignKeyContainerMethod(tableClassName));
+                elseBuilder.addStatement("$L.putDefault($T.$L)", ModelUtils.getVariable(true), tableClassName, referenceDefinition.columnName);
+            }
+            builder.nextControlFlow("else");
+            builder.add(elseBuilder.build());
+            builder.endControlFlow();
+            return builder.build();
+        }
+    }
+
+    @Override
+    public void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
+        if (!(columnAccess instanceof TypeConverterAccess)) {
+            String origStatement = getColumnAccessString(isModelContainerAdapter, false);
+            if (isPrimaryKey) {
+                TableDefinition referenced = manager.getTableDefinition(tableDefinition.databaseDefinition.elementTypeName,
+                        referencedTableClassName);
+                String statement = "";
+                String variableName = "container" + elementName;
+                TypeName typeName = elementTypeName;
+                if (isModelContainerAdapter) {
+                    typeName = ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER, elementTypeName, WildcardTypeName.subtypeOf(Object.class));
+                }
+                codeBuilder.addStatement("\n$T $L = ($T) $L", typeName, variableName, typeName, origStatement);
+                codeBuilder.beginControlFlow("if ($L != null)", variableName);
+                CodeBlock.Builder elseBuilder = CodeBlock.builder();
+                for (ForeignKeyReferenceDefinition referenceDefinition : getForeignKeyReferenceDefinitionList()) {
+                    if (isModelContainer || isModelContainerAdapter) {
+                        // check for null and retrieve proper value
+                        String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
+                        if (method == null) {
+                            method = "get";
+                        }
+                        statement = String
+                                .format("%1s.%1sValue(%1s.%1s.getContainerKey())", variableName, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
+                    } else if (isModel) {
+                        statement = referenceDefinition.getPrimaryReferenceString(isModelContainerAdapter);
+                    } else {
+                        statement = origStatement;
+                    }
+                    codeBuilder.addStatement("clause.and($T.$L.eq($L))", tableDefinition.getPropertyClassName(), referenceDefinition.columnName, statement);
+                    elseBuilder.addStatement("clause.and($T.$L.eq(($T) $L))", tableDefinition.getPropertyClassName(), referenceDefinition.columnName, referenceDefinition.columnClassName, DefinitionUtils.getDefaultValueString(referenceDefinition.columnClassName));
+                }
+                codeBuilder.nextControlFlow("else");
+                codeBuilder.add(elseBuilder.build());
+                codeBuilder.endControlFlow();
+            }
+        } else {
+            super.appendPropertyComparisonAccessStatement(isModelContainerAdapter, codeBuilder);
         }
     }
 
@@ -403,7 +506,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 List<ColumnDefinition> primaryColumns = referencedTableDefinition.getPrimaryColumnDefinitions();
                 for (ColumnDefinition primaryColumn : primaryColumns) {
                     ForeignKeyReferenceDefinition foreignKeyReferenceDefinition =
-                            new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn, columnAccess, this);
+                            new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn,
+                                    columnAccess, this, primaryColumns.size());
                     foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition);
                 }
                 if (nonModelColumn) {

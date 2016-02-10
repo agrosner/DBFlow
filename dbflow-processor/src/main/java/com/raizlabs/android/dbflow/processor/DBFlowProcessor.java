@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor;
 
 import com.google.auto.service.AutoService;
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.ModelView;
@@ -59,6 +60,7 @@ public class DBFlowProcessor extends AbstractProcessor {
         supportedTypes.add(Migration.class.getCanonicalName());
         supportedTypes.add(ContentProvider.class.getCanonicalName());
         supportedTypes.add(TableEndpoint.class.getCanonicalName());
+        supportedTypes.add(ColumnIgnore.class.getCanonicalName());
         supportedTypes.add(QueryModel.class.getCanonicalName());
         return supportedTypes;
     }

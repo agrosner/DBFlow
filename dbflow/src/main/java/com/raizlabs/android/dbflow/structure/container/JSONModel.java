@@ -1,14 +1,16 @@
 package com.raizlabs.android.dbflow.structure.container;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Iterator;
 
 /**
  * Description: This eliminates the need for converting json into a {@link com.raizlabs.android.dbflow.structure.Model}
@@ -42,7 +44,17 @@ public class JSONModel<ModelClass extends Model> extends BaseModelContainer<Mode
     @Override
     @SuppressWarnings("unchecked")
     public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
-        return new JSONModel((JSONObject) inValue, columnClass);
+        if (inValue instanceof ModelContainer) {
+            return new JSONModel((ModelContainer) inValue);
+        } else {
+            return new JSONModel((JSONObject) inValue, columnClass);
+        }
+    }
+
+    @Nullable
+    @Override
+    public Iterator<String> iterator() {
+        return data != null ? data.keys() : null;
     }
 
     @NonNull

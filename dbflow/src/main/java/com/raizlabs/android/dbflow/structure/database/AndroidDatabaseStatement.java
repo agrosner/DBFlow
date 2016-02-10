@@ -23,6 +23,10 @@ public class AndroidDatabaseStatement implements DatabaseStatement {
         this.database = database;
     }
 
+    public SQLiteStatement getStatement() {
+        return statement;
+    }
+
     @Override
     public long executeUpdateDelete() {
         long count = 0;

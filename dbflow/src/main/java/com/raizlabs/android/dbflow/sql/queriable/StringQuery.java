@@ -4,8 +4,10 @@ import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL query string
@@ -38,7 +40,21 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
 
     @Override
     public Cursor query() {
-        return FlowManager.getDatabaseForTable(getTable()).getWritableDatabase().rawQuery(query, null);
+        return query(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
+    @Override
+    public Cursor query(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.rawQuery(query, null);
+    }
+
+    @Override
+    public long count() {
+        return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
+    }
+
+    @Override
+    public long count(DatabaseWrapper databaseWrapper) {
+        return SqlUtils.longForQuery(databaseWrapper, getQuery());
+    }
 }

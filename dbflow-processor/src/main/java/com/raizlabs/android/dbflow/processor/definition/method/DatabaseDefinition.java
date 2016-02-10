@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
+import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
@@ -64,6 +65,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
     public Map<TypeName, QueryModelDefinition> queryModelDefinitionMap = new HashMap<>();
     public Map<TypeName, ModelContainerDefinition> modelContainerDefinitionMap = new HashMap<>();
     public Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
+    public Map<TypeName, ManyToManyDefinition> manyToManyDefinitionMap = new HashMap<>();
 
     public DatabaseDefinition(ProcessorManager manager, Element element) {
         super(element, manager);

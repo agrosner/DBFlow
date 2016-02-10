@@ -8,6 +8,8 @@ import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
+import java.util.Iterator;
+
 /**
  * Author: andrewgrosner
  * Description: The primary interface for converting data that acts like a {@link com.raizlabs.android.dbflow.structure.Model} into a model object
@@ -71,6 +73,9 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      * @return true if this container contains a value with the specified key. Nulls do not count.
      */
     boolean containsValue(String key);
+
+    @Nullable
+    Iterator<String> iterator();
 
     /**
      * @param key The key in the container.
@@ -221,6 +226,14 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      * @param columnName The name of the column to put.
      */
     void putDefault(String columnName);
+
+    /**
+     * Puts the default value of this {@link ModelContainer} as data. It may be null for objects,
+     * or 0 for primitives.
+     *
+     * @param property The property to put.
+     */
+    void putDefault(IProperty property);
 
     /**
      * @return The associated model adapter from the table for this {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}

@@ -1,10 +1,12 @@
 package com.raizlabs.android.dbflow.structure.container;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -24,7 +26,11 @@ public class MapModelContainer<ModelClass extends Model> extends SimpleModelCont
     @Override
     @SuppressWarnings("unchecked")
     public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
-        return new MapModelContainer((Map<String, Object>) inValue, columnClass);
+        if (inValue instanceof ModelContainer) {
+            return new MapModelContainer((ModelContainer) inValue);
+        } else {
+            return new MapModelContainer((Map<String, Object>) inValue, columnClass);
+        }
     }
 
     @Override
@@ -44,12 +50,21 @@ public class MapModelContainer<ModelClass extends Model> extends SimpleModelCont
 
     @Override
     public Object getValue(String key) {
-        return getData().get(key);
+        return getData() != null ? getData().get(key) : null;
     }
 
     @Override
     public void put(String columnName, Object value) {
+        if (getData() == null) {
+            setData(newDataInstance());
+        }
+        //noinspection ConstantConditions
         getData().put(columnName, value);
     }
 
+    @Nullable
+    @Override
+    public Iterator<String> iterator() {
+        return data != null ? data.keySet().iterator() : null;
+    }
 }

@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.SQLiteHelper;
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
@@ -38,11 +37,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     @Override
     public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (!isModelContainerAdapter) {
-            if (StringUtils.isNullOrEmpty(getterName)) {
-                return String.format("%1s.%1s()", variableNameString, getGetterName(elementName));
-            } else {
-                return String.format("%1s.%1s()", variableNameString, getterName);
-            }
+            return String.format("%1s.%1s()", variableNameString, getGetterNameElement(elementName));
         } else {
             String method = SQLiteHelper.getModelContainerMethod(fieldType);
             if (method == null) {
@@ -55,11 +50,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     @Override
     public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement) {
         if (!isModelContainerAdapter) {
-            if (StringUtils.isNullOrEmpty(getterName)) {
-                return String.format("%1s()", getGetterName(elementName));
-            } else {
-                return String.format("%1s()", getterName);
-            }
+            return String.format("%1s()", getGetterNameElement(elementName));
         } else {
             return elementName;
         }
@@ -70,22 +61,33 @@ public class PrivateColumnAccess extends BaseColumnAccess {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
-            if (StringUtils.isNullOrEmpty(setterName)) {
-                return String.format("%1s.set%1s(%1s)", variableNameString, StringUtils.capitalize(elementName), formattedAccess);
+            return String.format("%1s.%1s(%1s)", variableNameString, getSetterNameElement(elementName), formattedAccess);
+        }
+    }
+
+    public String getGetterNameElement(String elementName) {
+        if (StringUtils.isNullOrEmpty(getterName)) {
+            if (useIsForGetter && !elementName.startsWith("is")) {
+                return "is" + StringUtils.capitalize(elementName);
+            } else if (!useIsForGetter && !elementName.startsWith("get")) {
+                return "get" + StringUtils.capitalize(elementName);
             } else {
-                return String.format("%1s.%1s(%1s)", variableNameString, setterName, formattedAccess);
+                return StringUtils.lower(elementName);
             }
+        } else {
+            return getterName;
         }
     }
 
-    private String getGetterName(String elementName) {
-        String finalName = elementName;
-        if (useIsForGetter && !finalName.startsWith("is")) {
-            finalName = "is" + StringUtils.capitalize(finalName);
-        } else if (!useIsForGetter && !finalName.startsWith("get")) {
-            finalName = "get" + StringUtils.capitalize(finalName);
+    public String getSetterNameElement(String elementName) {
+        if (StringUtils.isNullOrEmpty(setterName)) {
+            if (!elementName.startsWith("set")) {
+                return "set" + StringUtils.capitalize(elementName);
+            } else {
+                return StringUtils.lower(elementName);
+            }
+        } else {
+            return setterName;
         }
-        return finalName;
     }
-
 }
