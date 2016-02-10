@@ -271,16 +271,16 @@ public class TableDefinition extends BaseTableDefinition {
     protected void createColumnDefinitions(TypeElement typeElement) {
         List<? extends Element> elements = ElementUtility.getAllElements(typeElement, manager);
 
+        for (Element element : elements) {
+            classElementLookUpMap.put(element.getSimpleName().toString(), element);
+        }
+
         ColumnValidator columnValidator = new ColumnValidator();
         OneToManyValidator oneToManyValidator = new OneToManyValidator();
         for (Element element : elements) {
 
             // no private static or final fields for all columns, or any inherited columns here.
-            boolean isValidColumn = (allFields && (element.getKind().isField() &&
-                    !element.getModifiers().contains(Modifier.STATIC) &&
-                    !element.getModifiers().contains(Modifier.FINAL))) &&
-                    element.getAnnotation(ColumnIgnore.class) == null &&
-                    !element.asType().toString().equals(ClassNames.MODEL_ADAPTER.toString());
+            boolean isAllFields = ElementUtility.isValidAllFields(allFields, element);
 
             // package private, will generate helper
             boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
@@ -291,7 +291,7 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isInherited = inheritedColumnMap.containsKey(element.getSimpleName().toString());
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
             if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
-                    || isValidColumn || isInherited || isInheritedPrimaryKey) {
+                    || isAllFields || isInherited || isInheritedPrimaryKey) {
 
                 ColumnDefinition columnDefinition;
                 if (isInheritedPrimaryKey) {
