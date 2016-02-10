@@ -277,8 +277,8 @@ public class TableDefinition extends BaseTableDefinition {
             // no private static or final fields for all columns, or any inherited columns here.
             boolean isValidColumn = (allFields && (element.getKind().isField() &&
                     !element.getModifiers().contains(Modifier.STATIC) &&
-                    !element.getModifiers().contains(Modifier.PRIVATE) &&
-                    !element.getModifiers().contains(Modifier.FINAL)));
+                    !element.getModifiers().contains(Modifier.FINAL))) &&
+                    !element.asType().toString().equals(ClassNames.MODEL_ADAPTER.toString()); // ignore model adapter fields.
 
             // package private, will generate helper
             boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);

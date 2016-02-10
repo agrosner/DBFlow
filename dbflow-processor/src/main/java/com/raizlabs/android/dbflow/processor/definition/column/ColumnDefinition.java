@@ -75,7 +75,7 @@ public class ColumnDefinition extends BaseDefinition {
 
     public BaseColumnAccess columnAccess;
     public boolean hasCustomConverter;
-    private BaseTableDefinition tableDefinition;
+    public BaseTableDefinition tableDefinition;
 
     public ColumnDefinition(ProcessorManager processorManager, Element element,
                             BaseTableDefinition baseTableDefinition, boolean isPackagePrivate,

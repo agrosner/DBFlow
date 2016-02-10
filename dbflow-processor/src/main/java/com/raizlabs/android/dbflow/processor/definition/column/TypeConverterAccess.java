@@ -25,6 +25,8 @@ public class TypeConverterAccess extends WrapperColumnAccess {
         super(columnDefinition);
         typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.elementTypeName.box());
         this.manager = manager;
+
+        checkConverter(columnDefinition.elementTypeName, columnDefinition.columnName, columnDefinition.tableDefinition.elementTypeName.toString());
     }
 
     public TypeConverterAccess(ProcessorManager manager, ColumnDefinition columnDefinition, TypeConverterDefinition typeConverterDefinition, String typeConverterFieldName) {
@@ -32,6 +34,8 @@ public class TypeConverterAccess extends WrapperColumnAccess {
         this.manager = manager;
         this.typeConverterFieldName = typeConverterFieldName;
         this.typeConverterDefinition = typeConverterDefinition;
+
+        checkConverter(columnDefinition.elementTypeName, columnDefinition.columnName, columnDefinition.tableDefinition.elementTypeName.toString());
     }
 
     @Override
@@ -104,5 +108,12 @@ public class TypeConverterAccess extends WrapperColumnAccess {
             throw new RuntimeException("");
         }
         return super.getSqliteTypeForTypeName(typeConverterDefinition.getDbTypeName(), isModelContainerAdapter);
+    }
+
+    private void checkConverter(TypeName fieldType, String elementName, String tableName) {
+        if (typeConverterDefinition == null) {
+            manager.logError("No type converter for: " + fieldType + " -> " + elementName + " from class: " + tableName + ". Please" +
+                    "register with a TypeConverter.");
+        }
     }
 }

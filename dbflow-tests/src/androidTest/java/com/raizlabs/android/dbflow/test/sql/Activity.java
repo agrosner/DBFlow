@@ -17,5 +17,6 @@ public class Activity extends BaseModel {
 
     int steps;
 
-    double calories;
+    private double calories;
+
 }
