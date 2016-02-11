@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.test;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.test.sql.MigrationDatabase;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -30,6 +31,7 @@ public class DBFlowTestRule implements TestRule {
                     base.evaluate();
                 } finally {
                     FlowManager.getDatabase(TestDatabase.NAME).reset(RuntimeEnvironment.application);
+                    FlowManager.getDatabase(MigrationDatabase.NAME).reset(RuntimeEnvironment.application);
                     FlowManager.destroy();
                 }
             }
