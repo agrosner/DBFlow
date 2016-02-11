@@ -15,7 +15,7 @@ apt {
 }
 ```
 
-By passing the `targetModuleName`, we append that to the `GeneratedDatabaseHolder` to create the `GeneratedDatabaseHolderTest` module.
+By passing the `targetModuleName`, we append that to the `GeneratedDatabaseHolder` to create the `TestGeneratedDatabaseHolder` module.
 
 In your library (and application) you should initialize DBFlow using the standard approach.
 
@@ -32,7 +32,7 @@ public class ExampleApplication extends Application {
 Lastly, instruct DBFlow to load the module that contains the database (you may need to build the app to generate the class file to be able to reference it).
 
 ```java
-FlowManager.initModule(GeneratedDatabaseHolderTest.class);
+FlowManager.initModule(TestGeneratedDatabaseHolder.class);
 ```
 
 This method can be invoked multiple times without any effect on the state of the application because it keeps a mapping of the ones already loaded.
