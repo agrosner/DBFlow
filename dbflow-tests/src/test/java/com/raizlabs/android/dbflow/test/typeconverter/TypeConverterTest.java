@@ -3,8 +3,8 @@ package com.raizlabs.android.dbflow.test.typeconverter;
 import android.location.Location;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
-import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import org.json.JSONException;
@@ -14,7 +14,9 @@ import org.junit.Test;
 import java.util.Calendar;
 import java.util.Date;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -89,8 +91,9 @@ public class TypeConverterTest extends FlowTestCase {
      * Type converters that autobox to native types need to have their behavior checked
      * when null values are present in the database.
      */
+    @Test
     public void testConvertersNullValues() {
-        new Delete().from(TestType.class).where().query();
+        SQLite.delete(TestType.class).execute();
 
         TestType testType = new TestType();
         testType.setName("Name");
@@ -114,8 +117,9 @@ public class TypeConverterTest extends FlowTestCase {
      * Type converters that autobox to native types need to have their behavior checked
      * when null values are present in the database.
      */
+    @Test
     public void testConvertersNullDatabaseConversionValues() {
-        new Delete().from(TestType.class).where().query();
+        SQLite.delete(TestType.class).execute();
 
         TestType testType = new TestType();
         testType.setName("Name");
@@ -127,7 +131,7 @@ public class TypeConverterTest extends FlowTestCase {
          * the type converter.
          */
 
-        new Update<>(TestType.class)
+        SQLite.update(TestType.class)
                 .set(TestType_Table.nativeBoolean.is((Boolean) null))
                 .where(TestType_Table.name.eq(testType.getName()))
                 .execute();

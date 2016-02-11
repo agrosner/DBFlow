@@ -18,7 +18,7 @@ public class CipherTest extends FlowTestCase {
 
 
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         SQLiteDatabase.loadLibs(getContext());
     }
 
