@@ -14,8 +14,10 @@ android {
 }
 
 dependencies {
-    androidTestApt project("${dbflow_project_prefix}dbflow-processor")
-    androidTestCompile 'com.jayway.awaitility:awaitility:1.6.5'
-    androidTestCompile project("${dbflow_project_prefix}dbflow")
-    androidTestCompile project("${dbflow_project_prefix}dbflow-sqlcipher")
+    testApt project("${dbflow_project_prefix}dbflow-processor")
+    testCompile 'com.jayway.awaitility:awaitility:1.6.5'
+    testCompile project("${dbflow_project_prefix}dbflow")
+    testCompile project("${dbflow_project_prefix}dbflow-sqlcipher")
+    testCompile 'junit:junit:4.12'
+    testCompile "org.robolectric:robolectric:3.0"
 }

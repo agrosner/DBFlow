@@ -8,9 +8,15 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class JsonModelTest extends FlowTestCase {
 
+    @Test
     public void testJsonModel() {
 
         Delete.tables(TestModelContainerClass.class, ParentModel.class);
@@ -56,6 +62,7 @@ public class JsonModelTest extends FlowTestCase {
         Delete.tables(TestModelContainerClass.class, ParentModel.class);
     }
 
+    @Test
     public void testJsonArrayModel() {
 
         Delete.tables(ParentModel.class);
@@ -116,6 +123,7 @@ public class JsonModelTest extends FlowTestCase {
         }
     }
 
+    @Test
     public void testNullForeignKey() throws JSONException {
 
         Delete.tables(TestModelContainerClass.class, ParentModel.class);

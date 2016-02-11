@@ -4,11 +4,18 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Description: Asserts values are handled same for container and adapter
  */
 public class ContainerDifferenceTest extends FlowTestCase {
 
+    @Test
     public void testContainer() {
         Delete.table(AutoIncrementContainer.class);
 

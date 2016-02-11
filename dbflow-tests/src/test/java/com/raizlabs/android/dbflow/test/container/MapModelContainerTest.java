@@ -4,14 +4,20 @@ import com.raizlabs.android.dbflow.structure.container.MapModelContainer;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Description:
  */
 public class MapModelContainerTest extends FlowTestCase {
 
+    @Test
     public void testMapModel() {
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("name", "test");

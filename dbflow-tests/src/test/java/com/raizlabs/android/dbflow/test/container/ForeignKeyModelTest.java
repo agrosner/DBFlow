@@ -5,8 +5,16 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+
 public class ForeignKeyModelTest extends FlowTestCase {
 
+    @Test
     public void testForeignKeyModel() {
 
         Delete.tables(ForeignInteractionModel.class, ParentModel.class);

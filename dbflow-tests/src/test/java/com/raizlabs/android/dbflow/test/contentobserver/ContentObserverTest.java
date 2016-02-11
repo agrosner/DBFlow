@@ -15,10 +15,14 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
+import org.robolectric.RuntimeEnvironment;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ContentObserverTest extends FlowTestCase {
 
@@ -34,7 +38,7 @@ public class ContentObserverTest extends FlowTestCase {
         Delete.table(TestModel1.class);
 
         FlowContentObserver flowContentObserver = new FlowContentObserver();
-        flowContentObserver.registerForContentChanges(getContext(), TestModel1.class);
+        flowContentObserver.registerForContentChanges(RuntimeEnvironment.application, TestModel1.class);
 
         final Boolean[] methodcalled = {false, false, false, false};
         final Callable<Boolean>[] methodCalls = new Callable[4];
@@ -126,7 +130,7 @@ public class ContentObserverTest extends FlowTestCase {
         await().atMost(5, TimeUnit.SECONDS).until(methodCalls[3]);
         assertTrue(methodcalled[3]);
 
-        flowContentObserver.unregisterForContentChanges(getContext());
+        flowContentObserver.unregisterForContentChanges(RuntimeEnvironment.application);
 
         Delete.table(TestModel1.class);
     }

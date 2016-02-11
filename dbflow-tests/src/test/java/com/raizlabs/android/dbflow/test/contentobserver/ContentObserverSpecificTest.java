@@ -14,16 +14,22 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+import org.robolectric.RuntimeEnvironment;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Description:
  */
 public class ContentObserverSpecificTest extends FlowTestCase {
 
+    @Test
     public void testSpecificUris() {
 
         ContentObserverModel model = new ContentObserverModel();
@@ -40,6 +46,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(ContentObserverModel_Table.name.getQuery()))), "Something");
     }
 
+    @Test
     public void testSpecificUrlNotifications() {
 
         Delete.table(ContentObserverModel.class);
@@ -95,7 +102,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
                 }
             }
         });
-        contentObserver.registerForContentChanges(getContext(), ContentObserverModel.class);
+        contentObserver.registerForContentChanges(RuntimeEnvironment.application, ContentObserverModel.class);
         ContentObserverModel model = new ContentObserverModel();
         model.id = 3;
         model.name = "Something";
