@@ -92,6 +92,8 @@ public class MigrationTest extends FlowTestCase {
 
         int addedColumIndex = cursor.getColumnIndex("addedColumn");
         assertFalse(addedColumIndex == -1);
+
+        cursor.close();
     }
 
     public void testIndexMigration() {

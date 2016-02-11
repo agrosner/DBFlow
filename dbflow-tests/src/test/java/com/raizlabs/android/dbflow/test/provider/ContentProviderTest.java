@@ -1,29 +1,38 @@
 package com.raizlabs.android.dbflow.test.provider;
 
+import android.content.ContentResolver;
 import android.net.Uri;
-import android.test.ProviderTestCase2;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils;
+import com.raizlabs.android.dbflow.test.FlowTestCase;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.shadows.ShadowContentResolver;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
  * Description:
  */
-public class ContentProviderTest extends ProviderTestCase2<TestContentProvider_Provider> {
+public class ContentProviderTest extends FlowTestCase {
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        FlowManager.init(getContext());
+    private ContentResolver getMockContentResolver() {
+        return RuntimeEnvironment.application.getContentResolver();
     }
 
-    public ContentProviderTest() {
-        super(TestContentProvider_Provider.class, TestContentProvider.AUTHORITY);
+    @Before
+    public void setUp() {
+        ShadowContentResolver.registerProvider(TestContentProvider.AUTHORITY, new TestContentProvider_Provider());
     }
 
+    @Test
     public void testContentProviderUtils() {
         Delete.tables(NoteModel.class, ContentProviderModel.class);
 
@@ -56,6 +65,7 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider_P
         Delete.tables(NoteModel.class, ContentProviderModel.class);
     }
 
+    @Test
     public void testContentProviderNative() {
         Delete.tables(NoteModel.class, ContentProviderModel.class);
 
@@ -90,6 +100,7 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider_P
         Delete.tables(NoteModel.class, ContentProviderModel.class);
     }
 
+    @Test
     public void testSyncableModel() {
         Delete.table(TestSyncableModel.class);
 
@@ -119,10 +130,4 @@ public class ContentProviderTest extends ProviderTestCase2<TestContentProvider_P
         Delete.table(TestSyncableModel.class);
     }
 
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        FlowManager.destroy();
-    }
 }

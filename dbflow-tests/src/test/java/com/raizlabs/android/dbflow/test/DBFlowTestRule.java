@@ -29,6 +29,7 @@ public class DBFlowTestRule implements TestRule {
                 try {
                     base.evaluate();
                 } finally {
+                    FlowManager.getDatabase(TestDatabase.NAME).reset(RuntimeEnvironment.application);
                     FlowManager.destroy();
                 }
             }

@@ -109,7 +109,7 @@ public class ContentObserverSpecificTest extends FlowTestCase {
         model.somethingElse = "SomethingElse";
         model.insert();
 
-        await().atMost(10, TimeUnit.SECONDS).until(methodCalls[0]);
+        await().atMost(20, TimeUnit.SECONDS).until(methodCalls[0]);
 
         // inserting
         assertTrue(conditions[0].length == 2);
