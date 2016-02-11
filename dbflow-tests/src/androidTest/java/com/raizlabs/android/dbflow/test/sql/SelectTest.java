@@ -21,14 +21,14 @@ public class SelectTest extends FlowTestCase {
 
     public void testSelectStatement() {
         Where<TestModel1> where = new Select(name).from(TestModel1.class)
-            .where(name.is("test"));
+                .where(name.is("test"));
 
         assertEquals("SELECT `name` FROM `TestModel1` WHERE `name`='test'", where.getQuery().trim());
         where.query();
 
         Where<TestModel3> where1 = new Select(name, type).from(TestModel3.class)
-            .where(name.is("test"),
-                type.is("test"));
+                .where(name.is("test"),
+                        type.is("test"));
 
         assertEquals("SELECT `name`,`type` FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where1.getQuery().trim());
 
@@ -44,34 +44,34 @@ public class SelectTest extends FlowTestCase {
 
 
         Where<TestModel3> where4 = new Select().from(TestModel3.class)
-            .where(name.eq("test"))
-            .and(type.is("test"));
+                .where(name.eq("test"))
+                .and(type.is("test"));
 
         assertEquals("SELECT * FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where4.getQuery().trim());
 
         Where<TestModel3> where6 = new Select(Method.count(type))
-            .from(TestModel3.class)
-            .orderBy(name, true)
-            .orderBy(type, true);
+                .from(TestModel3.class)
+                .orderBy(name, true)
+                .orderBy(type, true);
         assertEquals("SELECT COUNT(`type`) FROM `TestModel32` ORDER BY `name` ASC,`type` ASC", where6.getQuery().trim());
 
         String query = SQLite.select()
-            .from(TestModel3.class)
-            .where(TestModel3_Table.type
-                .in(SQLite.select(TestModel2_Table.name)
-                    .from(TestModel2.class)
-                    .where(TestModel2_Table.name.is("Test")))).getQuery();
+                .from(TestModel3.class)
+                .where(TestModel3_Table.type
+                        .in(SQLite.select(TestModel2_Table.name)
+                                .from(TestModel2.class)
+                                .where(TestModel2_Table.name.is("Test")))).getQuery();
         assertEquals("SELECT * FROM `TestModel32` WHERE `type` IN " +
-            "(SELECT `name` FROM `TestModel2` WHERE `name`='Test' )", query.trim());
+                "(SELECT `name` FROM `TestModel2` WHERE `name`='Test' )", query.trim());
 
         String operationalQuery = SQLite.select(new Method(Method.sum(TestModel3_Table.name))
-            .minus(Method.sum(TestModel3_Table.type)).as("troop"), TestModel3_Table.type)
-            .from(TestModel3.class).getQuery();
+                .minus(Method.sum(TestModel3_Table.type)).as("troop"), TestModel3_Table.type)
+                .from(TestModel3.class).getQuery();
 
         assertEquals("SELECT (SUM(`name`) - SUM(`type`)) AS `troop`,`type` FROM `TestModel32`", operationalQuery.trim());
 
         String methodQuery = SQLite.select(Method.max(TestModel3_Table.type).as("troop"))
-            .from(TestModel3.class).getQuery();
+                .from(TestModel3.class).getQuery();
         assertEquals("SELECT MAX(`type`) AS `troop` FROM `TestModel32`", methodQuery.trim());
     }
 
@@ -97,6 +97,13 @@ public class SelectTest extends FlowTestCase {
         assertEquals("SELECT * FROM `TestModel1` NATURAL INNER JOIN `TestModel32`", where.getQuery().trim());
 
         where.query();
+    }
+
+    public void testNulls() {
+
+        String nullable = null;
+        String query = SQLite.select().from(TestModel1.class).where(TestModel1_Table.name.eq(nullable)).getQuery();
+        assertEquals("SELECT * FROM `TestModel1` WHERE `name`=NULL", query.trim());
     }
 
 }
