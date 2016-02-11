@@ -118,20 +118,20 @@ public class ContentObserverTest extends FlowTestCase {
         flowContentObserver.removeModelChangeListener(onModelStateChangedListener);
 
         // saved
-        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[0]);
+        await().forever().until(methodCalls[0]);
         assertTrue(methodcalled[0]);
 
 
         // deleted
-        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[1]);
+        await().forever().until(methodCalls[1]);
         assertTrue(methodcalled[1]);
 
         // inserted
-        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[2]);
+        await().forever().until(methodCalls[2]);
         assertTrue(methodcalled[2]);
 
         // updated
-        await().atMost(5, TimeUnit.SECONDS).until(methodCalls[3]);
+        await().forever().until(methodCalls[3]);
         assertTrue(methodcalled[3]);
 
         flowContentObserver.unregisterForContentChanges(RuntimeEnvironment.application);

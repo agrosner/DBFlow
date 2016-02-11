@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.test.sql;
 
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -11,8 +10,8 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -77,7 +76,7 @@ public class BoxedValueTest extends FlowTestCase {
             fail("Was able to save model");
         } catch (SQLiteException s) {
             // not null should fail
-            assertTrue(s instanceof SQLiteConstraintException);
+            assertEquals(s.getMessage(), "Cannot execute for last inserted row ID, base error code: 19");
         }
     }
 
