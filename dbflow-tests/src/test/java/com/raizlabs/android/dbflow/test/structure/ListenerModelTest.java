@@ -13,10 +13,15 @@ import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener;
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
 import static com.raizlabs.android.dbflow.test.structure.ListenerModel_Table.name;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ListenerModelTest extends FlowTestCase {
 
+    @Test
     public void testListeners() {
         Delete.table(ListenerModel.class);
 

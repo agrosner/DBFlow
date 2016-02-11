@@ -9,15 +9,20 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Date;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Description:
  */
 public class TypeConverterTest extends FlowTestCase {
 
+    @Test
     public void testConverters() {
 
         Delete.table(TestType.class);

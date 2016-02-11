@@ -5,13 +5,21 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
 import java.util.List;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Description: Tests the {@link OneToMany} annotation to ensure it works as expected.
  */
 public class OneToManyModelTest extends FlowTestCase {
 
+    @Test
     public void testOneToManyModel() {
         Delete.tables(TestModel2.class, OneToManyModel.class);
 

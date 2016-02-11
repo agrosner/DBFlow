@@ -4,12 +4,17 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI;
 
+import org.junit.Test;
+
 import static com.raizlabs.android.dbflow.test.structure.foreignkey.ForeignModel_Table.name;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class ForeignKeyTest extends FlowTestCase {
 
     // region Test Foreign Key
 
+    @Test
     public void testForeignKey() {
         ForeignParentModel parentModel = new ForeignParentModel();
         parentModel.setName("Test");
@@ -28,6 +33,7 @@ public class ForeignKeyTest extends FlowTestCase {
         assertEquals(retrieved.testModel1, foreignModel.testModel1);
     }
 
+    @Test
     public void testForeignKey2() {
 
         TestModelAI testModelAI = new TestModelAI();

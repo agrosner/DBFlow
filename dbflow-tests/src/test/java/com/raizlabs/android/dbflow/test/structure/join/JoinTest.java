@@ -7,7 +7,11 @@ import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Description:
@@ -15,9 +19,9 @@ import java.util.List;
 public class JoinTest extends FlowTestCase {
 
 
+    @Test
     public void testJoins() {
         Delete.tables(Company.class, Department.class);
-
 
         Company company = new Company();
         company.id = 1;

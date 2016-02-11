@@ -4,11 +4,15 @@ import com.raizlabs.android.dbflow.structure.container.JSONModel;
 import com.raizlabs.android.dbflow.structure.container.MapModelContainer;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
 import static com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name;
 import static com.raizlabs.android.dbflow.test.structure.TestModel2_Table.model_order;
+import static org.junit.Assert.assertTrue;
 
 public class ComplexModelTest extends FlowTestCase {
 
+    @Test
     public void testComplexModel() {
         ComplexModel complexModel = new ComplexModel();
 
