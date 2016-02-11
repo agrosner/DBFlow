@@ -4,11 +4,16 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * Description: Tests enums
  */
 public class EnumModelTest extends FlowTestCase {
 
+    @Test
     public void testEnumModel() {
         Delete.table(EnumModel.class);
 

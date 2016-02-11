@@ -6,7 +6,14 @@ import android.database.sqlite.SQLiteException;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Description: Test to ensure that passing null to non-null fields does not cause a NPE and that it
@@ -17,23 +24,25 @@ public class BoxedValueTest extends FlowTestCase {
     private static final AtomicLong SEQUENCE_ID = new AtomicLong();
     private BoxedModel testObject;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
         testObject = new BoxedModel();
         testObject.id = SEQUENCE_ID.getAndIncrement();
     }
 
+    @Test
     public void testBoxedValues_nullId() {
         testObject.id = null;
         assertCannotSaveModel();
     }
 
+    @Test
     public void testBoxedValues_integerFieldNotNull() {
         testObject.integerFieldNotNull = null;
         assertCannotSaveModel();
     }
 
+    @Test
     public void testBoxedValues_integerField() {
         testObject.integerField = null;
         assertCanSaveModel();
@@ -41,11 +50,13 @@ public class BoxedValueTest extends FlowTestCase {
         assertNull(testObject.integerField);
     }
 
+    @Test
     public void testBoxedValues_stringFieldNotNull() {
         testObject.stringFieldNotNull = null;
         assertCannotSaveModel();
     }
 
+    @Test
     public void testBoxedValues_stringField() {
         testObject.stringField = null;
         assertCanSaveModel();

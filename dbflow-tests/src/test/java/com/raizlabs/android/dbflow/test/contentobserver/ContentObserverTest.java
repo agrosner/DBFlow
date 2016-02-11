@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
+import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
 import java.util.concurrent.Callable;
@@ -22,10 +23,12 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ContentObserverTest extends FlowTestCase {
 
+    @Test
     public void testNotificationUri() {
 
         Uri notificationUri = SqlUtils.getNotificationUri(TestModel1.class, BaseModel.Action.SAVE, TestModel1_Table.name.getQuery(), "this is a %test");
@@ -34,6 +37,7 @@ public class ContentObserverTest extends FlowTestCase {
         assertEquals(Uri.decode(notificationUri.getQueryParameter(Uri.encode(TestModel1_Table.name.getQuery()))), "this is a %test");
     }
 
+    @Test
     public void testContentObserver() {
         Delete.table(TestModel1.class);
 
@@ -135,6 +139,7 @@ public class ContentObserverTest extends FlowTestCase {
         Delete.table(TestModel1.class);
     }
 
+    @Test
     public void testContentObserverTransaction() {
         Delete.table(TestModel1.class);
 
@@ -247,7 +252,7 @@ public class ContentObserverTest extends FlowTestCase {
 
         flowContentObserver.removeModelChangeListener(onModelStateChangedListener);
 
-        flowContentObserver.unregisterForContentChanges(getContext());
+        flowContentObserver.unregisterForContentChanges(RuntimeEnvironment.application);
 
         Delete.table(TestModel1.class);
     }

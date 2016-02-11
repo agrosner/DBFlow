@@ -12,12 +12,16 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+
 /**
  * Description:
  */
 public class InsertTest extends FlowTestCase {
 
-
+    @Test
     public void testInsert() {
 
         Delete.table(InsertModel.class);
@@ -46,6 +50,7 @@ public class InsertTest extends FlowTestCase {
         assertNotNull(model);
     }
 
+    @Test
     public void testInsertAutoIncNotFirst() {
         Delete.table(InsertModelAutoIncPrimaryKeyNotFirst.class);
 

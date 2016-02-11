@@ -9,12 +9,15 @@ import com.raizlabs.android.dbflow.sql.trigger.Trigger;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
+import org.junit.Test;
+
 import static com.raizlabs.android.dbflow.test.sql.TestUpdateModel_Table.value;
 import static com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name;
+import static org.junit.Assert.assertEquals;
 
 public class TriggerTest extends FlowTestCase {
 
-
+    @Test
     public void testTriggerLanguage() {
         Where<TestModel1> logic = new Update<>(TestModel1.class)
                 .set(name.is("Jason"))
@@ -34,6 +37,7 @@ public class TriggerTest extends FlowTestCase {
                 "\nEND", trigger.trim());
     }
 
+    @Test
     public void testTriggerFunctions() {
         Delete.tables(TestUpdateModel.class, ConditionModel.class);
 

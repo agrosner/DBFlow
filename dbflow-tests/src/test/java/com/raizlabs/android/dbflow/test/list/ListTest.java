@@ -11,13 +11,18 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.utils.GenerationUtils;
 
+import org.junit.Test;
+
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Description:
  */
 public class ListTest extends FlowTestCase {
 
+    @Test
     public void testTableList() {
 
         Delete.table(ListModel.class);
@@ -45,6 +50,7 @@ public class ListTest extends FlowTestCase {
         assertTrue(flowQueryList.size() == 0);
     }
 
+    @Test
     public void testTableListEmpty() {
         Delete.table(ListModel.class);
 
@@ -87,7 +93,7 @@ public class ListTest extends FlowTestCase {
         }
     }
 
-
+    @Test
     public void testCursorList() {
 
         Delete.table(ListModel.class);

@@ -11,6 +11,8 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
+import static org.junit.Assert.assertFalse;
+
 /**
  * Description:
  */

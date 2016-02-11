@@ -4,7 +4,10 @@ import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.integerField;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Description: Validates subquery formatting
@@ -12,6 +15,7 @@ import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.integerField
 public class SubqueryTest extends FlowTestCase {
 
 
+    @Test
     public void testSubquery() {
 
         String query = new Select()

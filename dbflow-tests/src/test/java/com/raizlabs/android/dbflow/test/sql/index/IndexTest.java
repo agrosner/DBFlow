@@ -6,12 +6,17 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
 import java.util.List;
 
 import static com.raizlabs.android.dbflow.test.sql.index.IndexModel_Table.salary;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class IndexTest extends FlowTestCase {
 
+    @Test
     public void testIndex() {
 
         Delete.table(IndexModel.class);

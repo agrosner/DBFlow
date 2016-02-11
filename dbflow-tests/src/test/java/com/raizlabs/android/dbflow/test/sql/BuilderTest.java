@@ -6,6 +6,10 @@ import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * Author: andrewgrosner
  * Description: Test our {@link ConditionGroup} and
@@ -16,6 +20,7 @@ public class BuilderTest extends FlowTestCase {
     /**
      * This test will ensure that all column values are converted appropriately
      */
+    @Test
     public void testConditions() {
         ConditionGroup conditionGroup = ConditionGroup.clause()
                 .and(ConditionModel_Table.number.is(5L))
@@ -30,6 +35,7 @@ public class BuilderTest extends FlowTestCase {
         assertEquals("`number` BETWEEN 5 AND 10", conditionGroup.getQuery().trim());
     }
 
+    @Test
     public void testCollate() {
         Condition collate = ConditionModel_Table.name.is("James").collate(Collate.NOCASE);
         ConditionGroup conditionQueryBuilder = ConditionGroup.clause().and(collate);
@@ -37,6 +43,7 @@ public class BuilderTest extends FlowTestCase {
 
     }
 
+    @Test
     public void testChainingConditions() {
         ConditionGroup conditionQueryBuilder = ConditionGroup.clause();
         conditionQueryBuilder.and(ConditionModel_Table.name.is("James"))
@@ -45,14 +52,15 @@ public class BuilderTest extends FlowTestCase {
         assertEquals("`name`='James' OR `number`=6 AND `fraction`=4.5", conditionQueryBuilder.getQuery().trim());
     }
 
+    @Test
     public void testIsOperators() {
-        // TODO: add is not null/null ops
-        //ConditionGroup conditionQueryBuilder = ConditionGroup.clause()
-        //        .and(ConditionModel_Table.name.is("James"))
-        //        .or(ConditionModel_Table.fraction.isNotNull());
-        //assertEquals("`name`='James' OR `fraction` IS NOT NULL", conditionQueryBuilder.getQuery().trim());
+        ConditionGroup conditionQueryBuilder = ConditionGroup.clause()
+                .and(ConditionModel_Table.name.is("James"))
+                .or(ConditionModel_Table.fraction.isNotNull());
+        assertEquals("`name`='James' OR `fraction` IS NOT NULL", conditionQueryBuilder.getQuery().trim());
     }
 
+    @Test
     public void testInOperators() {
         Condition.In in = ConditionModel_Table.name.in("Jason", "Ryan", "Michael");
         ConditionGroup conditionQueryBuilder = ConditionGroup.clause().and(in);
@@ -63,6 +71,7 @@ public class BuilderTest extends FlowTestCase {
         assertEquals("`name` NOT IN ('Jason','Ryan','Michael')", conditionQueryBuilder.getQuery().trim());
     }
 
+    @Test
     public void testCombinedOperations() {
         // TODO: fix combined ops
         ConditionGroup combinedCondition = ConditionGroup.clause()

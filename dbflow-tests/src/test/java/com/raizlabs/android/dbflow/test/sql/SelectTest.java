@@ -12,13 +12,18 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 import com.raizlabs.android.dbflow.test.structure.TestModel2;
 import com.raizlabs.android.dbflow.test.structure.TestModel2_Table;
 
+import org.junit.Test;
+
 import java.util.List;
 
 import static com.raizlabs.android.dbflow.test.sql.TestModel3_Table.name;
 import static com.raizlabs.android.dbflow.test.sql.TestModel3_Table.type;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SelectTest extends FlowTestCase {
 
+    @Test
     public void testSelectStatement() {
         Where<TestModel1> where = new Select(name).from(TestModel1.class)
                 .where(name.is("test"));
@@ -75,6 +80,7 @@ public class SelectTest extends FlowTestCase {
         assertEquals("SELECT MAX(`type`) AS `troop` FROM `TestModel32`", methodQuery.trim());
     }
 
+    @Test
     public void testJoins() {
 
         TestModel1 testModel1 = new TestModel1();
@@ -99,6 +105,7 @@ public class SelectTest extends FlowTestCase {
         where.query();
     }
 
+    @Test
     public void testNulls() {
 
         String nullable = null;

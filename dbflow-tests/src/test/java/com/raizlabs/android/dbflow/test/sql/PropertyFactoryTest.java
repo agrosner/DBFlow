@@ -14,11 +14,16 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel2;
 import com.raizlabs.android.dbflow.test.structure.TestModel2_Table;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * Description:
  */
 public class PropertyFactoryTest extends FlowTestCase {
 
+    @Test
     public void testPropertyFactory() {
 
         long time = System.currentTimeMillis();

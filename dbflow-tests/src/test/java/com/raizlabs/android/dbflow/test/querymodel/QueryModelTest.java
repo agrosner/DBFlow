@@ -5,15 +5,21 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
 import java.util.List;
 import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Description: Tests the {@link TestQueryModel} to ensure it works as expected.
  */
 public class QueryModelTest extends FlowTestCase {
 
-
+    @Test
     public void testSalaryModel() {
         Delete.tables(SalaryModel.class);
 
