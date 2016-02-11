@@ -2,29 +2,27 @@ package com.raizlabs.android.dbflow.test.sql;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-import android.test.AndroidTestCase;
 
-import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
 import com.raizlabs.android.dbflow.sql.migration.IndexMigration;
 import com.raizlabs.android.dbflow.sql.migration.UpdateTableMigration;
+import com.raizlabs.android.dbflow.test.FlowTestCase;
+
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MigrationTest extends AndroidTestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        FlowManager.init(getContext());
-        FlowLog.setMinimumLoggingLevel(FlowLog.Level.I);
-    }
+public class MigrationTest extends FlowTestCase {
 
-
+    @Test
     public void testMigration() {
 
         List<String> columnNames = Arrays.asList("`fraction` REAL", "`time` INTEGER", "`name2` TEXT", "`number` INTEGER", "`blobby` BLOB");
@@ -71,6 +69,7 @@ public class MigrationTest extends AndroidTestCase {
         alterTableMigration.onPostMigrate();
     }
 
+    @Test
     public void testUpdateMigration() {
         UpdateTableMigration<MigrationModel> updateTableMigration
                 = new UpdateTableMigration<>(MigrationModel.class)
@@ -83,6 +82,7 @@ public class MigrationTest extends AndroidTestCase {
         updateTableMigration.onPostMigrate();
     }
 
+    @Test
     public void testSqlFile() {
         MigrationModel migrationModel = new MigrationModel();
         migrationModel.setName("test");
@@ -101,10 +101,4 @@ public class MigrationTest extends AndroidTestCase {
         assertEquals("CREATE INDEX IF NOT EXISTS `MyIndex` ON `TestModel32`(`type`)", indexMigration.getIndexQuery().trim());
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        getContext().deleteDatabase(MigrationDatabase.NAME);
-        FlowManager.destroy();
-    }
 }
