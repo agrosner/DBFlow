@@ -23,11 +23,13 @@ To include a prepackaged database for your application, simply include the ".db"
 
 **Kotlin**: As of 3.0, Kotlin support is out of the box.
 
-Previously you needed to define a  `generatedClassSeparator()` that works for it. Simply add:
+Previously you needed to define a  `generatedClassSeparator()` that works for it.
+
+If you wish to change the default of `_` Simply add some string:
 
 ```java
 
-@Database(generatedClassSeparator = "_")
+@Database(generatedClassSeparator = "$$")
 ```
 
 **Integrity Checks on open of the database**: `consistencyChecksEnabled()` will run a `PRAGMA quick_check(1)` whenever the database is opened. If it fails, it will attempt to copy a prepackaged database.
