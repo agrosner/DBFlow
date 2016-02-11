@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
 
-import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
@@ -49,7 +48,6 @@ public class FlowCursorList<ModelClass extends Model> {
      */
     public FlowCursorList(boolean cacheModels, ModelQueriable<ModelClass> modelQueriable) {
         this.modelQueriable = modelQueriable;
-        this.cacheSize = Table.DEFAULT_CACHE_SIZE;
         cursor = this.modelQueriable.query();
         table = modelQueriable.getTable();
         this.cacheModels = cacheModels;
@@ -113,7 +111,7 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     protected ModelCache<ModelClass, ?> getBackingCache() {
-        return new ModelLruCache<>(cacheSize);
+        return ModelLruCache.newInstance(cacheSize);
     }
 
     /**

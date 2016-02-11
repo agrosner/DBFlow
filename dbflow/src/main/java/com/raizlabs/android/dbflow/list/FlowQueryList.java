@@ -109,7 +109,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      * If you override this method, be careful to call an empty cache to the {@link com.raizlabs.android.dbflow.structure.cache.ModelLruCache}
      */
     public ModelCache<ModelClass, ?> getBackingCache(int count) {
-        return new ModelLruCache<>(count);
+        return ModelLruCache.newInstance(count);
     }
 
     /**

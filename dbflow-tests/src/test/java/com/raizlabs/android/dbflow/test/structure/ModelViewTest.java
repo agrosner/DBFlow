@@ -34,10 +34,7 @@ public class ModelViewTest extends FlowTestCase {
         List<TestModelView> testModelViews = new Select().from(TestModelView.class).queryList();
         assertTrue(!testModelViews.isEmpty());
         assertTrue(testModelViews.size() == 1);
-    }
 
-    @Test
-    public void testModelViewCursorList() {
         FlowCursorList<TestModelView> list = new FlowCursorList<>(true, TestModelView.class);
         assertNotNull(list.getItem(0));
     }
