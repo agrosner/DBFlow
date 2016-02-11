@@ -8,10 +8,18 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
+import org.junit.Test;
+
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class CacheableModelTest extends FlowTestCase {
 
+    @Test
     public void testCacheableModel() {
 
         Delete.table(CacheableModel.class);
@@ -28,7 +36,7 @@ public class CacheableModelTest extends FlowTestCase {
             CacheableModel cacheableModel = modelCache.get(id);
             assertNotNull(cacheableModel);
 
-            assertEquals(new Select().from(CacheableModel.class).
+            assertEquals(SQLite.select().from(CacheableModel.class).
                     where(CacheableModel_Table.id.is(id))
                     .querySingle(), cacheableModel);
 
@@ -39,6 +47,7 @@ public class CacheableModelTest extends FlowTestCase {
         Delete.table(CacheableModel.class);
     }
 
+    @Test
     public void testCacheableModel2() {
         Delete.table(CacheableModel2.class);
 
@@ -64,6 +73,7 @@ public class CacheableModelTest extends FlowTestCase {
         Delete.table(CacheableModel2.class);
     }
 
+    @Test
     public void testCacheableModel3() {
         Delete.table(CacheableModel3.class);
 
@@ -91,6 +101,7 @@ public class CacheableModelTest extends FlowTestCase {
 
     }
 
+    @Test
     public void testCacheableModel4() {
         List<CacheableModel4> model4s = SQLite.select()
                 .from(CacheableModel4.class)
@@ -98,6 +109,7 @@ public class CacheableModelTest extends FlowTestCase {
                 .queryList();
     }
 
+    @Test
     public void testMultiplePrimaryKey() {
         Delete.table(MultipleCacheableModel.class);
 

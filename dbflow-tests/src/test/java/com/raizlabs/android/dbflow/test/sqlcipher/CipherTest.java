@@ -6,18 +6,23 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+
 /**
  * Description:
  */
 public class CipherTest extends FlowTestCase {
 
 
-    @Override
+    @Before
     protected void setUp() throws Exception {
-        super.setUp();
         SQLiteDatabase.loadLibs(getContext());
     }
 
+    @Test
     public void testCipherModel() {
         Delete.table(CipherModel.class);
 

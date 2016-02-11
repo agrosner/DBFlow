@@ -6,7 +6,7 @@ import android.net.Uri;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
-import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Update;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
@@ -14,16 +14,22 @@ import com.raizlabs.android.dbflow.test.provider.TestContentProvider;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
+import org.junit.Test;
+
 import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.note;
 import static com.raizlabs.android.dbflow.test.provider.NoteModel_Table.providerModel;
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.id;
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.integerField;
 import static com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.name;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class UpdateTest extends FlowTestCase {
 
+    @Test
     public void testUpdateStatement() {
-        Update update = new Update<>(TestModel1.class);
+        Update update = SQLite.update(TestModel1.class);
 
         // Verify update prefix
 
@@ -33,7 +39,7 @@ public class UpdateTest extends FlowTestCase {
         assertUpdateSuffix("FAIL", update.orFail());
         assertUpdateSuffix("IGNORE", update.orIgnore());
 
-        Update<TestModel1> from = new Update<>(TestModel1.class);
+        Update<TestModel1> from = SQLite.update(TestModel1.class);
 
         assertEquals("UPDATE `TestModel1`", from.getQuery().trim());
 
@@ -43,13 +49,13 @@ public class UpdateTest extends FlowTestCase {
         assertEquals("UPDATE `TestModel1` SET `name`='newvalue' WHERE `name`='oldvalue'", where.getQuery().trim());
         where.query();
 
-        String query = new Update<>(BoxedModel.class).set(integerField.concatenate(1)).getQuery();
+        String query = SQLite.update(BoxedModel.class).set(integerField.concatenate(1)).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `integerField`=`integerField` + 1", query.trim());
 
-        query = new Update<>(BoxedModel.class).set(name.concatenate("Test")).getQuery();
+        query = SQLite.update(BoxedModel.class).set(name.concatenate("Test")).getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim());
 
-        query = new Update<>(BoxedModel.class).set(name.eq("Test"))
+        query = SQLite.update(BoxedModel.class).set(name.eq("Test"))
                 .where(name.eq(name.withTable()))
                 .getQuery();
         assertEquals("UPDATE `BoxedModel` SET `name`='Test' WHERE `name`=`BoxedModel`.`name`", query.trim());
@@ -69,18 +75,19 @@ public class UpdateTest extends FlowTestCase {
         }
     }
 
+    @Test
     public void testUpdateEffect() {
         TestUpdateModel testUpdateModel = new TestUpdateModel();
         testUpdateModel.setName("Test");
         testUpdateModel.value = "oldvalue";
         testUpdateModel.save();
 
-        assertNotNull(new Select().from(TestUpdateModel.class)
+        assertNotNull(SQLite.select().from(TestUpdateModel.class)
                 .where(TestUpdateModel_Table.name.is("Test")));
 
-        new Update<>(TestUpdateModel.class).set(TestUpdateModel_Table.value.is("newvalue")).where().count();
+        SQLite.update(TestUpdateModel.class).set(TestUpdateModel_Table.value.is("newvalue")).where().count();
 
-        TestUpdateModel newUpdateModel = new Select().from(TestUpdateModel.class)
+        TestUpdateModel newUpdateModel = SQLite.select().from(TestUpdateModel.class)
                 .where(TestUpdateModel_Table.name.is("Test"))
                 .querySingle();
         assertEquals("newvalue", newUpdateModel.value);
