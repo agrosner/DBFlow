@@ -47,7 +47,7 @@ public class DeleteMethod implements MethodDefinition {
 
                     code.beginControlFlow("case $L:", uriDefinition.name);
 
-                    code.add("long count = new $T().from", ClassNames.DELETE);
+                    code.add("long count = $T.delete", ClassNames.SQLITE);
                     ProviderMethodUtils.appendTableName(code, databaseName, tableEndpointDefinition.tableName);
                     if (contentProviderDefinition.useSafeQueryChecking) {
                         code.add(".where(toConditions(selection, selectionArgs))");

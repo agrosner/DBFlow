@@ -15,12 +15,15 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
+import org.junit.Test;
+
 /**
  * Description:
  */
 public class ForeignKeyModelTest extends FlowTestCase {
 
 
+    @Test
     public void testInsertAndUpdate() {
 
         Delete.table(FkParent.class);
