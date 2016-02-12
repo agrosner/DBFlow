@@ -53,8 +53,12 @@ public class QueryMethod implements MethodDefinition {
                                             .add("$L.PROPERTY_CONVERTER", tableDefinition.getPropertyClassName())
                                             .build());
                     ProviderMethodUtils.appendTableName(codeBuilder,
-                        manager.getDatabaseName(contentProviderDefinition.databaseName), tableEndpointDefinition.tableName);
-                    codeBuilder.add(".where(toConditions(selection, selectionArgs))");
+                            manager.getDatabaseName(contentProviderDefinition.databaseName), tableEndpointDefinition.tableName);
+                    if (contentProviderDefinition.useSafeQueryChecking) {
+                        codeBuilder.add(".where(toConditions(selection, selectionArgs))");
+                    } else {
+                        codeBuilder.add(".where(new $T(selection, selectionArgs))", ClassNames.UNSAFE_STRING_CONDITION);
+                    }
                     ProviderMethodUtils.appendPathSegments(codeBuilder, manager, uriDefinition.segments,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
                     if (contentProviderDefinition.useSafeQueryChecking) {
