@@ -217,14 +217,15 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                             ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false);
             String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
+
+            if (saveForeignKeyModel) {
+                builder.addStatement("$L.save()", finalAccessStatement);
+            }
+
             CodeBlock.Builder elseBuilder = CodeBlock.builder();
             for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
                 builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter));
                 elseBuilder.addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, QueryBuilder.quote(referenceDefinition.columnName));
-            }
-
-            if (saveForeignKeyModel) {
-                builder.addStatement("$L.save()", finalAccessStatement);
             }
 
             builder.nextControlFlow("else")
