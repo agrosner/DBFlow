@@ -272,7 +272,9 @@ public class ColumnDefinition extends BaseDefinition {
 
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         return DefinitionUtils.getContentValuesStatement(containerKeyName, elementName,
-            columnName, elementTypeName, isModelContainerAdapter, columnAccess, ModelUtils.getVariable(isModelContainerAdapter), defaultValue).build();
+            columnName, elementTypeName, isModelContainerAdapter, columnAccess,
+                ModelUtils.getVariable(isModelContainerAdapter), defaultValue,
+                tableDefinition.outputClassName).build();
     }
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {

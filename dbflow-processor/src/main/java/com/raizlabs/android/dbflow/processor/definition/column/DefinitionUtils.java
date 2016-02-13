@@ -22,7 +22,8 @@ public class DefinitionUtils {
     public static CodeBlock.Builder getContentValuesStatement(String elementName, String fullElementName,
                                                               String columnName, TypeName elementTypeName,
                                                               boolean isModelContainerAdapter, BaseColumnAccess columnAccess,
-                                                              String variableNameString, String defaultValue) {
+                                                              String variableNameString, String defaultValue,
+                                                              ClassName tableTableClassName) {
         String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter, false);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -63,18 +64,19 @@ public class DefinitionUtils {
         String putAccess = applyAndGetPutAccess(finalAccessStatement, isBlobRaw, elementTypeName, finalTypeName,
                 isModelContainerAdapter, columnAccess, codeBuilder, variableNameString, elementName);
 
-        codeBuilder.addStatement("$L.put($S, $L)",
+        codeBuilder.addStatement("$L.put($T.$L.getQuery(), $L)",
                 BindToContentValuesMethod.PARAM_CONTENT_VALUES,
-                QueryBuilder.quote(columnName), putAccess);
+                tableTableClassName, columnName, putAccess);
 
         if (!finalTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else");
             if (defaultValue != null && !defaultValue.isEmpty()) {
-                codeBuilder.addStatement("$L.put($S, $L)",
+                codeBuilder.addStatement("$L.put($T.$L.getQuery(), $L)",
                         BindToContentValuesMethod.PARAM_CONTENT_VALUES,
-                        QueryBuilder.quote(columnName), defaultValue);
+                        tableTableClassName, columnName, defaultValue);
             } else {
-                codeBuilder.addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, QueryBuilder.quote(columnName));
+                codeBuilder.addStatement("$L.putNull($T.$L.getQuery())", BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                        tableTableClassName, columnName);
             }
             codeBuilder.endControlFlow();
         }

@@ -121,6 +121,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 // TODO: add validation
                 foreignKeyReferenceDefinitionList.add(referenceDefinition);
             }
+
+            if (nonModelColumn && foreignKeyReferenceDefinitionList.size() == 1) {
+                ForeignKeyReferenceDefinition foreignKeyReferenceDefinition = foreignKeyReferenceDefinitionList.get(0);
+                columnName = foreignKeyReferenceDefinition.columnName;
+            }
         }
 
     }
@@ -515,6 +520,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     columnName = foreignKeyReferenceDefinitionList.get(0).columnName;
                 }
                 needsReferences = false;
+            }
+
+            if (nonModelColumn && foreignKeyReferenceDefinitionList.size() == 1) {
+                ForeignKeyReferenceDefinition foreignKeyReferenceDefinition = foreignKeyReferenceDefinitionList.get(0);
+                columnName = foreignKeyReferenceDefinition.columnName;
             }
         }
     }
