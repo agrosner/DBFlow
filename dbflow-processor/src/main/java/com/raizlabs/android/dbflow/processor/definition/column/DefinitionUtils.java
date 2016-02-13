@@ -64,18 +64,18 @@ public class DefinitionUtils {
         String putAccess = applyAndGetPutAccess(finalAccessStatement, isBlobRaw, elementTypeName, finalTypeName,
                 isModelContainerAdapter, columnAccess, codeBuilder, variableNameString, elementName);
 
-        codeBuilder.addStatement("$L.put($T.$L.getQuery(), $L)",
+        codeBuilder.addStatement("$L.put($T.$L.getCursorKey(), $L)",
                 BindToContentValuesMethod.PARAM_CONTENT_VALUES,
                 tableTableClassName, columnName, putAccess);
 
         if (!finalTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else");
             if (defaultValue != null && !defaultValue.isEmpty()) {
-                codeBuilder.addStatement("$L.put($T.$L.getQuery(), $L)",
+                codeBuilder.addStatement("$L.put($T.$L.getCursorKey(), $L)",
                         BindToContentValuesMethod.PARAM_CONTENT_VALUES,
                         tableTableClassName, columnName, defaultValue);
             } else {
-                codeBuilder.addStatement("$L.putNull($T.$L.getQuery())", BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                codeBuilder.addStatement("$L.putNull($T.$L.getCursorKey())", BindToContentValuesMethod.PARAM_CONTENT_VALUES,
                         tableTableClassName, columnName);
             }
             codeBuilder.endControlFlow();

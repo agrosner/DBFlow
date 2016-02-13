@@ -69,6 +69,11 @@ public interface IProperty<P extends IProperty> extends Query {
     String getContainerKey();
 
     /**
+     * @return The key used in placing values into cursor.
+     */
+    String getCursorKey();
+
+    /**
      * @return the table this property belongs to.
      */
     Class<? extends Model> getTable();
