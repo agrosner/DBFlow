@@ -25,12 +25,13 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
 
     public SQLCipherOpenHelper(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
         super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(), null, databaseDefinition.getDatabaseVersion());
+        SQLiteDatabase.loadLibs(FlowManager.getContext());
 
         OpenHelper backupHelper = null;
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.getDatabaseVersion(), databaseDefinition);
+                databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
         databaseHelperDelegate = new DatabaseHelperDelegate(listener, databaseDefinition, backupHelper);
