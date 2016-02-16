@@ -22,6 +22,9 @@ public class ModelAutoIncrementTest extends FlowTestCase {
 
         assertTrue(testModelAI.exists());
 
+        testModelAI.insert();
+        testModelAI.insert();
+
         TestModelAI testModelAI2 = new TestModelAI();
         testModelAI2.id = testModelAI.id;
         testModelAI2.name = "Test2";

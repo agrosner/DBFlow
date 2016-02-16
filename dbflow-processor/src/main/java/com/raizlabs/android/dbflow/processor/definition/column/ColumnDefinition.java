@@ -378,6 +378,10 @@ public class ColumnDefinition extends BaseDefinition {
     public CodeBlock getCreationName() {
         CodeBlock.Builder codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName);
 
+        if (isPrimaryKeyAutoIncrement) {
+            codeBlockBuilder.add(" PRIMARY KEY AUTOINCREMENT");
+        }
+
         if (length > -1) {
             codeBlockBuilder.add("($L)", length);
         }
