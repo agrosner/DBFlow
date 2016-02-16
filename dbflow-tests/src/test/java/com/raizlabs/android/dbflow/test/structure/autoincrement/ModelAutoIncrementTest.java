@@ -31,13 +31,26 @@ public class ModelAutoIncrementTest extends FlowTestCase {
         testModelAI2.update();
 
         TestModelAI testModelAI3 = new Select().from(TestModelAI.class)
-                .where(TestModelAI_Table.id.is(testModelAI.id))
-                .querySingle();
+            .where(TestModelAI_Table.id.is(testModelAI.id))
+            .querySingle();
         assertEquals(testModelAI3.name, testModelAI2.name);
 
         testModelAI.delete();
         assertTrue(!testModelAI.exists());
 
         Delete.table(TestModel1.class);
+    }
+
+    @Test
+    public void test_singleFieldAutoIncrement() {
+
+        Delete.table(TestSingleFieldAutoIncrement.class);
+
+        TestSingleFieldAutoIncrement singleFieldAutoIncrement = new TestSingleFieldAutoIncrement();
+        singleFieldAutoIncrement.insert();
+
+        assertTrue(singleFieldAutoIncrement.id > 0);
+
+        Delete.table(TestSingleFieldAutoIncrement.class);
     }
 }
