@@ -17,11 +17,6 @@ import static org.junit.Assert.assertTrue;
 public class CipherTest extends FlowTestCase {
 
 
-    @Before
-    public void setUp() throws Exception {
-        SQLiteDatabase.loadLibs(getContext());
-    }
-
     @Test
     public void testCipherModel() {
         Delete.table(CipherModel.class);
