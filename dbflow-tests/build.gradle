@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'android-apt'
 repositories {
     mavenCentral()
@@ -33,6 +34,9 @@ android {
             minifyEnabled true
         }
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 }
 
 dependencies {
@@ -44,10 +48,21 @@ dependencies {
     testCompile 'com.jayway.awaitility:awaitility:1.6.5'
     testCompile project("${dbflow_project_prefix}dbflow")
     testCompile project("${dbflow_project_prefix}dbflow-sqlcipher")
+    testCompile project("${dbflow_project_prefix}dbflow-kotlinextensions")
     testCompile 'junit:junit:4.12'
     testCompile "org.robolectric:robolectric:3.0"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 android.applicationVariants.all { variant ->
     variant.javaCompile.dependsOn ':dbflow-processor:jar'
+}
+buildscript {
+    ext.kotlin_version = '1.0.0'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }
