@@ -20,15 +20,15 @@ public class TableValidator implements Validator<TableDefinition> {
             success = false;
         }
 
-        boolean hasTwoKinds = (tableDefinition.hasAutoIncrement && !tableDefinition.primaryColumnDefinitions.isEmpty());
+        boolean hasTwoKinds = ((tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) && !tableDefinition.primaryColumnDefinitions.isEmpty());
 
         if (hasTwoKinds) {
             processorManager.logError(TableValidator.class, "Table %1s cannot mix and match autoincrement and composite primary keys", tableDefinition.tableName);
             success = false;
         }
 
-        boolean hasPrimary = (tableDefinition.hasAutoIncrement && tableDefinition.primaryColumnDefinitions.isEmpty()
-                || !tableDefinition.hasAutoIncrement && !tableDefinition.primaryColumnDefinitions.isEmpty());
+        boolean hasPrimary = ((tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) && tableDefinition.primaryColumnDefinitions.isEmpty()
+            || !tableDefinition.hasAutoIncrement && !tableDefinition.hasRowID && !tableDefinition.primaryColumnDefinitions.isEmpty());
 
         if (!hasPrimary) {
             processorManager.logError(TableValidator.class, "Table %1s needs to define at least one primary key", tableDefinition.tableName);

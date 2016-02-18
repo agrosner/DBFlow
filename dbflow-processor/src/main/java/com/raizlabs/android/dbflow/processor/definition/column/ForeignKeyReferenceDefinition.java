@@ -46,8 +46,8 @@ public class ForeignKeyReferenceDefinition {
         this.tableColumnAccess = tableColumnAccess;
         this.foreignKeyFieldName = foreignKeyFieldName;
 
-        if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement
-                || referenceCount > 0) {
+        if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement() && !foreignKeyColumnDefinition.isRowId
+            || referenceCount > 0) {
             columnName = foreignKeyFieldName + "_" + referencedColumn.columnName;
         } else {
             columnName = foreignKeyFieldName;
@@ -66,14 +66,14 @@ public class ForeignKeyReferenceDefinition {
             boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, referencedColumn.element, foreignKeyColumnDefinition.element);
 
             isReferencedFieldPackagePrivate = referencedColumn.columnAccess instanceof PackagePrivateAccess
-                    || isPackagePrivateNotInSamePackage;
+                || isPackagePrivateNotInSamePackage;
         }
         if (isReferencedFieldPrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PrivateColumnAccess(referencedColumn.column, false);
         } else if (isReferencedFieldPackagePrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PackagePrivateAccess(referencedColumn.packageName,
-                    foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
-                    ClassName.get((TypeElement) referencedColumn.element.getEnclosingElement()).simpleName());
+                foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
+                ClassName.get((TypeElement) referencedColumn.element.getEnclosingElement()).simpleName());
         } else {
             if (foreignKeyColumnDefinition.isModelContainer) {
                 columnAccess = new ModelContainerAccess(tableColumnAccess, foreignColumnName);
@@ -109,8 +109,8 @@ public class ForeignKeyReferenceDefinition {
             columnAccess = new PrivateColumnAccess(foreignKeyReference);
         } else if (isReferencedFieldPackagePrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PackagePrivateAccess(foreignKeyColumnDefinition.referencedTableClassName.packageName(),
-                    foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
-                    foreignKeyColumnDefinition.referencedTableClassName.simpleName());
+                foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
+                foreignKeyColumnDefinition.referencedTableClassName.simpleName());
             PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, foreignColumnName);
         } else {
             if (foreignKeyColumnDefinition.isModelContainer) {
@@ -145,9 +145,9 @@ public class ForeignKeyReferenceDefinition {
             combined = columnShortAccess;
         }
         return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
-                columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess,
-                getForeignKeyColumnVariable(isModelContainerAdapter), null,
-                foreignKeyColumnDefinition.tableDefinition.outputClassName).build();
+            columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess,
+            getForeignKeyColumnVariable(isModelContainerAdapter), null,
+            foreignKeyColumnDefinition.tableDefinition.outputClassName).build();
     }
 
     public String getPrimaryReferenceString(boolean isModelContainerAdapter) {
@@ -170,9 +170,9 @@ public class ForeignKeyReferenceDefinition {
         String columnShortAccess = getShortColumnAccess(isModelContainerAdapter, true, shortAccess);
         String combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
         return DefinitionUtils.getSQLiteStatementMethod(
-                index, columnShortAccess, combined,
-                columnClassName, isModelContainerAdapter, simpleColumnAccess,
-                getForeignKeyColumnVariable(isModelContainerAdapter), false, null).build();
+            index, columnShortAccess, combined,
+            columnClassName, isModelContainerAdapter, simpleColumnAccess,
+            getForeignKeyColumnVariable(isModelContainerAdapter), false, null).build();
     }
 
     CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {

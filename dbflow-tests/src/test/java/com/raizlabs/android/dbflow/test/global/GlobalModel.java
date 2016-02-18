@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 public class GlobalModel extends BaseModel {
 
     @Column
-    @PrimaryKey(autoincrement = true)
+    @PrimaryKey(rowID = true)
     int id;
 
     @Column

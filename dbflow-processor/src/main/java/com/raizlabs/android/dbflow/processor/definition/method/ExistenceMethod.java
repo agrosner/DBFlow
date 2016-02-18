@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 
@@ -29,25 +28,25 @@ public class ExistenceMethod implements MethodDefinition {
     public MethodSpec getMethodSpec() {
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("exists")
-                .addAnnotation(Override.class)
-                .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
-                        ModelUtils.getVariable(isModelContainerAdapter))
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .returns(TypeName.BOOLEAN);
+            .addAnnotation(Override.class)
+            .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
+                ModelUtils.getVariable(isModelContainerAdapter))
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .returns(TypeName.BOOLEAN);
         // only quick check if enabled.
-        if (tableDefinition.hasAutoIncrement()) {
+        if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
             ColumnDefinition columnDefinition = tableDefinition.getAutoIncrementColumn();
             methodBuilder.addCode("return $L > 0", columnDefinition.getColumnAccessString(isModelContainerAdapter, false));
         }
 
-        if (!tableDefinition.hasAutoIncrement() || !tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
-            if (tableDefinition.hasAutoIncrement()) {
+        if ((!tableDefinition.hasRowID() && !tableDefinition.hasAutoIncrement()) || !tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
+            if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
                 methodBuilder.addCode(" && ");
             } else {
                 methodBuilder.addCode("return ");
             }
             methodBuilder.addCode("new $T($T.count()).from($T.class).where(getPrimaryConditionClause($L)).count() > 0",
-                    ClassNames.SELECT, ClassNames.METHOD, tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
+                ClassNames.SELECT, ClassNames.METHOD, tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
         }
         methodBuilder.addCode(";\n");
 

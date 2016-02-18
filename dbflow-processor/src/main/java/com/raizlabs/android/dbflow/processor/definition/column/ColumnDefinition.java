@@ -55,8 +55,9 @@ public class ColumnDefinition extends BaseDefinition {
 
     public boolean hasTypeConverter;
     public boolean isPrimaryKey;
-    public boolean isPrimaryKeyAutoIncrement;
+    private boolean isPrimaryKeyAutoIncrement;
     public boolean isQuickCheckPrimaryKeyAutoIncrement;
+    public boolean isRowId;
 
     public Column column;
     public int length = -1;
@@ -113,7 +114,9 @@ public class ColumnDefinition extends BaseDefinition {
         }
 
         if (primaryKey != null) {
-            if (primaryKey.autoincrement()) {
+            if (primaryKey.rowID()) {
+                isRowId = true;
+            } else if (primaryKey.autoincrement()) {
                 isPrimaryKeyAutoIncrement = true;
                 isQuickCheckPrimaryKeyAutoIncrement = primaryKey.quickCheckAutoIncrement();
             } else {
@@ -273,14 +276,14 @@ public class ColumnDefinition extends BaseDefinition {
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         return DefinitionUtils.getContentValuesStatement(containerKeyName, elementName,
             columnName, elementTypeName, isModelContainerAdapter, columnAccess,
-                ModelUtils.getVariable(isModelContainerAdapter), defaultValue,
-                tableDefinition.outputClassName).build();
+            ModelUtils.getVariable(isModelContainerAdapter), defaultValue,
+            tableDefinition.outputClassName).build();
     }
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         return DefinitionUtils.getSQLiteStatementMethod(index, containerKeyName, elementName,
             elementTypeName, isModelContainerAdapter, columnAccess,
-            ModelUtils.getVariable(isModelContainerAdapter), isPrimaryKeyAutoIncrement, defaultValue).build();
+            ModelUtils.getVariable(isModelContainerAdapter), isPrimaryKeyAutoIncrement || isRowId, defaultValue).build();
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter,
@@ -378,7 +381,7 @@ public class ColumnDefinition extends BaseDefinition {
     public CodeBlock getCreationName() {
         CodeBlock.Builder codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName);
 
-        if (isPrimaryKeyAutoIncrement) {
+        if (isPrimaryKeyAutoIncrement && !isRowId) {
             codeBlockBuilder.add(" PRIMARY KEY AUTOINCREMENT");
         }
 
@@ -412,5 +415,9 @@ public class ColumnDefinition extends BaseDefinition {
             columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
                 ModelUtils.getVariable(false), false, false));
         return codeBuilder.build();
+    }
+
+    public boolean isPrimaryKeyAutoIncrement() {
+        return isPrimaryKeyAutoIncrement;
     }
 }

@@ -14,10 +14,14 @@ public @interface PrimaryKey {
 
     /**
      * Specifies if the column is autoincrementing or not
-     *
-     * @return the columnType int
      */
     boolean autoincrement() default false;
+
+    /**
+     * Specifies the column to be treated as a ROWID but is not an {@link #autoincrement()}. This
+     * overrides {@link #autoincrement()} and is mutually exclusive.
+     */
+    boolean rowID() default false;
 
     /**
      * @return When true, we simple do {columnName} &gt; 0 when checking for it's existence if {@link #autoincrement()}
