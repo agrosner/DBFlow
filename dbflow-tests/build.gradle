@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'android-apt'
 repositories {
     mavenCentral()
 }
@@ -40,11 +39,11 @@ android {
 }
 
 dependencies {
-    apt project(':dbflow-processor')
+    kapt project(':dbflow-processor')
     compile project(':dbflow')
     compile 'com.android.support:appcompat-v7:23.1.1'
 
-    testApt project("${dbflow_project_prefix}dbflow-processor")
+    kaptTest project("${dbflow_project_prefix}dbflow-processor")
     testCompile 'com.jayway.awaitility:awaitility:1.6.5'
     testCompile project("${dbflow_project_prefix}dbflow")
     testCompile project("${dbflow_project_prefix}dbflow-sqlcipher")
@@ -65,4 +64,8 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
+}
+
+kapt {
+    generateStubs = true
 }
