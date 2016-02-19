@@ -412,7 +412,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
-        if (!(columnAccess instanceof TypeConverterAccess)) {
+        if (nonModelColumn || columnAccess instanceof TypeConverterAccess) {
+            super.appendPropertyComparisonAccessStatement(isModelContainerAdapter, codeBuilder);
+        } else {
             String origStatement = getColumnAccessString(isModelContainerAdapter, false);
             if (isPrimaryKey) {
                 TableDefinition referenced = manager.getTableDefinition(tableDefinition.databaseDefinition.elementTypeName,
@@ -447,8 +449,6 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 codeBuilder.add(elseBuilder.build());
                 codeBuilder.endControlFlow();
             }
-        } else {
-            super.appendPropertyComparisonAccessStatement(isModelContainerAdapter, codeBuilder);
         }
     }
 
