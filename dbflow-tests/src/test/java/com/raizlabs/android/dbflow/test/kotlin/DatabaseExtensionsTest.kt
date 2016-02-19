@@ -23,7 +23,6 @@ class DatabaseExtensionsTest : FlowTestCase() {
         // easily delete all these items.
         items.processInTransaction { it.delete() }
 
-
         TestModel1::class.database().transact {
             // do something here
         }
