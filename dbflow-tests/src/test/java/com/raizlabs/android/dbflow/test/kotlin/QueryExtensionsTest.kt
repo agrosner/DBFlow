@@ -1,13 +1,12 @@
 package com.raizlabs.android.dbflow.test.kotlin
 
-import android.widget.TextView
 import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.property
 import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.test.FlowTestCase
 import com.raizlabs.android.dbflow.test.structure.TestModel1
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table
 import org.junit.Assert
+import org.junit.Assert.*
 import org.junit.Test
 
 /**
@@ -26,9 +25,9 @@ class QueryExtensionsTest : FlowTestCase() {
             }
         }.query
 
-        Assert.assertEquals(query.trim(), "SELECT `name` FROM `TestModel1` WHERE `name`='test' AND `name`!='something'")
+        assertEquals(query.trim(), "SELECT `name` FROM `TestModel1` WHERE `name`='test' AND `name`!='something'")
 
-        val text = TextView(null)
-        text.prooperty("name")
     }
 }
+
+

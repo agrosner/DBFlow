@@ -30,8 +30,9 @@ val Byte.property: ByteProperty
 val <T> T.property: Property<T>
     get() = PropertyFactory.from(this)
 
-inline fun <reified T : Any?> propertyString(stringRepresentation: String?): Property<T> {
+inline fun <reified T : Any> T.propertyString(stringRepresentation: String?): Property<T> {
     return PropertyFactory.from(T::class.java, stringRepresentation)
 }
+
 
 
