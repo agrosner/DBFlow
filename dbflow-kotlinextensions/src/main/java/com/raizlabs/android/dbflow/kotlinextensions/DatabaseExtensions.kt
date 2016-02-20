@@ -5,6 +5,9 @@ import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.runtime.TransactionManager
+import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction
+import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo
+import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter
@@ -81,14 +84,28 @@ fun <TModel : Model> Class<TModel>.containerAdapter(): ModelContainerAdapter<TMo
 }
 
 /**
- * Enables a collection of TModel objects to easily operate on them within a DB transaction.
+ * Enables a collection of TModel objects to easily operate on them within a synchronous database transaction.
  */
 inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(crossinline processFunction: (TModel) -> Unit) {
-    TransactionManager.transact(FlowManager.getDatabaseForTable(TModel::class.java).writableDatabase) {
-        forEach {
-            processFunction(it)
-        }
+    TModel::class.database().transact {
+        forEach { processFunction(it) }
     }
+}
+
+/**
+ * Places the [Collection] of items on the [DBTransactionQueue]. Use the [processFunction] to perform
+ * an action on each individual [Model]. This happens on a non-UI thread.
+ */
+inline fun <TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit) {
+    object : ProcessModelTransaction<TModel>(ProcessModelInfo.withModels(this), null) {
+        override fun processModel(model: TModel) {
+            processFunction(model)
+        }
+    }.transact()
+}
+
+fun <TResult> BaseTransaction<TResult>.transact() {
+    TransactionManager.getInstance().addTransaction(this)
 }
 
 fun DatabaseWrapper.executeUpdateDelete(rawQuery: String) {
