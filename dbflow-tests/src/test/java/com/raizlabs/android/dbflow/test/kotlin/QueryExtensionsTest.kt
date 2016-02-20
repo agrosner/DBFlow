@@ -60,7 +60,7 @@ class QueryExtensionsTest : FlowTestCase() {
             }
         }
 
-        assertEquals(query.query.trim(), "UPDATE `TestModel1` SET `name`='yes' WHERE `name`='no' AND `name`='maybe`")
+        assertEquals(query.query.trim(), "UPDATE `TestModel1` SET `name`='yes' WHERE `name`='no' AND `name`='maybe'")
     }
 
     @Test

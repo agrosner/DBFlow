@@ -1,9 +1,6 @@
 package com.raizlabs.android.dbflow.test.kotlin
 
-import com.raizlabs.android.dbflow.kotlinextensions.database
-import com.raizlabs.android.dbflow.kotlinextensions.processInTransaction
-import com.raizlabs.android.dbflow.kotlinextensions.processInTransactionAsync
-import com.raizlabs.android.dbflow.kotlinextensions.transact
+import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.test.FlowTestCase
 import com.raizlabs.android.dbflow.test.structure.TestModel1
@@ -19,7 +16,7 @@ class DatabaseExtensionsTest : FlowTestCase() {
     fun test_databaseTransaction() {
 
         var items = SQLite.select()
-                .from(TestModel1::class.java).queryList();
+                .from<TestModel1>().queryList()
 
         // easily delete all these items.
         items.processInTransaction { it.delete() }
@@ -31,6 +28,8 @@ class DatabaseExtensionsTest : FlowTestCase() {
         items.processInTransactionAsync {
             it.delete()
         }
+
+
     }
 
 }

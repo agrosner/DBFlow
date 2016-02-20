@@ -4,6 +4,7 @@ import android.content.ContentValues
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
+import com.raizlabs.android.dbflow.runtime.DBTransactionQueue
 import com.raizlabs.android.dbflow.runtime.TransactionManager
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo
