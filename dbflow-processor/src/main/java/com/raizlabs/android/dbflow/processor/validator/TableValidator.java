@@ -16,7 +16,8 @@ public class TableValidator implements Validator<TableDefinition> {
         boolean success = true;
 
         if (tableDefinition.getColumnDefinitions() == null || tableDefinition.getColumnDefinitions().isEmpty()) {
-            processorManager.logError(TableValidator.class, "Table %1s needs to define at least one column", tableDefinition.tableName);
+            processorManager.logError(TableValidator.class, "Table %1s of %1s, %1s needs to define at least one column", tableDefinition.tableName,
+                    tableDefinition.elementClassName, tableDefinition.element.getClass());
             success = false;
         }
 

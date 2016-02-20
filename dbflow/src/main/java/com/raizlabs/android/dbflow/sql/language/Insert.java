@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,6 +54,24 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
         for (int i = 0; i < columns.length; i++) {
             String column = columns[i];
             this.columns[i] = modelClassModelAdapter.getProperty(column);
+        }
+        return this;
+    }
+
+    public Insert<ModelClass> columns(IProperty... properties) {
+        this.columns = new IProperty[properties.length];
+        for (int i = 0; i < properties.length; i++) {
+            columns[i] = properties[i];
+        }
+        return this;
+    }
+
+    public Insert<ModelClass> columns(List<IProperty> properties) {
+        if (properties != null) {
+            this.columns = new IProperty[properties.size()];
+            for (int i = 0; i < properties.size(); i++) {
+                columns[i] = properties.get(i);
+            }
         }
         return this;
     }

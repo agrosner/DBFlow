@@ -30,7 +30,7 @@ public class TableHandler extends BaseContainerHandler<Table> {
 
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
-        if (element instanceof TypeElement) {
+        if (element instanceof TypeElement && element.getAnnotation(getAnnotationClass()) != null) {
             TableDefinition tableDefinition = new TableDefinition(processorManager, (TypeElement) element);
             if (definitionValidator.validate(processorManager, tableDefinition)) {
                 processorManager.addTableDefinition(tableDefinition);

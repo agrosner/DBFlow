@@ -25,7 +25,7 @@ class QueryExtensionsTest : FlowTestCase() {
         var query = select(TestModel1_Table.name) {
             from<TestModel1> {
                 where { TestModel1_Table.name.eq("test") }
-                    .and { TestModel1_Table.name.isNot("something") }
+                        .and { TestModel1_Table.name.isNot("something") }
             }
         }.query
 
@@ -44,8 +44,8 @@ class QueryExtensionsTest : FlowTestCase() {
         }
 
         assertEquals(another.query.trim(), "SELECT * FROM `TestModel1` " +
-            "INNER JOIN `TestModel2` ON `TestModel2`.`name`=`TestModel1`.`name`  " +
-            "LEFT OUTER JOIN `TestModel32` ON `TestModel1`.`name`=`TestModel32`.`name`")
+                "INNER JOIN `TestModel2` ON `TestModel2`.`name`=`TestModel1`.`name`  " +
+                "LEFT OUTER JOIN `TestModel32` ON `TestModel1`.`name`=`TestModel32`.`name`")
     }
 
     @Test
@@ -56,7 +56,7 @@ class QueryExtensionsTest : FlowTestCase() {
             set {
                 conditions(TestModel1_Table.name.`is`("yes"))
                 where { TestModel1_Table.name.eq("no") }
-                    .and { TestModel1_Table.name.eq("maybe") }
+                        .and { TestModel1_Table.name.eq("maybe") }
             }
         }
 
@@ -73,6 +73,16 @@ class QueryExtensionsTest : FlowTestCase() {
             }
         }
 
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun test_insertBuilders() {
+
+        var query = insert<TestModel1> {
+            orReplace()
+            into(KotlinTestModel_Table.id to 5, KotlinTestModel_Table.name to "5")
+        }
     }
 }
 
