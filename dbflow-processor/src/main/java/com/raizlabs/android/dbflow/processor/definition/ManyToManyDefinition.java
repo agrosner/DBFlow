@@ -83,7 +83,8 @@ public class ManyToManyDefinition extends BaseDefinition {
         String fieldName = StringUtils.lower(referencedDefinition.elementName);
 
         FieldSpec.Builder fieldBuilder = FieldSpec.builder(referencedDefinition.elementClassName, fieldName)
-                .addAnnotation(AnnotationSpec.builder(ForeignKey.class).build());
+                .addAnnotation(AnnotationSpec.builder(ForeignKey.class)
+                                             .addMember("saveForeignKeyModel", "false").build());
         if (!generateAutoIncrement) {
             fieldBuilder.addAnnotation(AnnotationSpec.builder(PrimaryKey.class).build());
         }
