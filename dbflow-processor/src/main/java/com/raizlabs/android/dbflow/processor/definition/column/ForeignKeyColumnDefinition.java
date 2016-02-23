@@ -3,16 +3,20 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.processor.SQLiteHelper;
+import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
 
 /**
@@ -21,6 +25,8 @@ import javax.lang.model.type.MirroredTypeException;
 public class ForeignKeyColumnDefinition extends BaseForeignKeyColumnDefinition {
     public ForeignKeyAction onDelete;
     public ForeignKeyAction onUpdate;
+
+    public boolean isForeignKeyContainer;
 
     public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition, Element typeElement, boolean isPackagePrivate) {
         super(manager, tableDefinition, typeElement, isPackagePrivate);
@@ -52,6 +58,18 @@ public class ForeignKeyColumnDefinition extends BaseForeignKeyColumnDefinition {
             manager.logError("Referenced was null for %1s within %1s", typeElement, elementTypeName);
         }
 
+        TypeElement element = manager.getElements().getTypeElement(
+            manager.getTypeUtils().erasure(typeElement.asType()).toString());
+
+        isForeignKeyContainer =
+            isModelContainer &&
+            ProcessorUtils.implementsClass(
+                manager.getProcessingEnvironment(),
+                ClassNames.FOREIGN_KEY_CONTAINER.toString(),
+                element);
+
+        saveForeignKeyModel = foreignKey.saveForeignKeyModel();
+
         ForeignKeyReference[] references = foreignKey.references();
         if (references.length == 0) {
             // no references specified we will delegate references call to post-evaluation
@@ -62,6 +80,32 @@ public class ForeignKeyColumnDefinition extends BaseForeignKeyColumnDefinition {
                 // TODO: add validation
                 foreignKeyReferenceDefinitionList.add(referenceDefinition);
             }
+
+            if (nonModelColumn && foreignKeyReferenceDefinitionList.size() == 1) {
+                ForeignKeyReferenceDefinition foreignKeyReferenceDefinition = foreignKeyReferenceDefinitionList.get(0);
+                columnName = foreignKeyReferenceDefinition.columnName;
+            }
+        }
+    }
+
+    @Override
+    public CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
+        if (nonModelColumn) {
+            return super.getForeignKeyContainerMethod(tableClassName);
+        } else {
+            String access = columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+                    ModelUtils.getVariable(false), false, false);
+            CodeBlock.Builder builder = CodeBlock.builder();
+            CodeBlock.Builder elseBuilder = CodeBlock.builder();
+            builder.beginControlFlow("if ($L != null)", access);
+            for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
+                builder.add(referenceDefinition.getForeignKeyContainerMethod(tableClassName));
+                elseBuilder.addStatement("$L.putDefault($T.$L)", ModelUtils.getVariable(true), tableClassName, referenceDefinition.columnName);
+            }
+            builder.nextControlFlow("else");
+            builder.add(elseBuilder.build());
+            builder.endControlFlow();
+            return builder.build();
         }
     }
 
@@ -69,6 +113,7 @@ public class ForeignKeyColumnDefinition extends BaseForeignKeyColumnDefinition {
      * If {@link ForeignKey} has no {@link ForeignKeyReference}s, we use the primary key the referenced
      * table. We do this post-evaluation so all of the {@link TableDefinition} can be generated.
      */
+    @Override
     protected void checkNeedsReferences() {
         TableDefinition referencedTableDefinition = manager.getTableDefinition(tableDefinition.databaseTypeName, referencedTableClassName);
         if (referencedTableDefinition == null) {
@@ -78,8 +123,8 @@ public class ForeignKeyColumnDefinition extends BaseForeignKeyColumnDefinition {
                 List<ColumnDefinition> primaryColumns = referencedTableDefinition.getPrimaryColumnDefinitions();
                 for (ColumnDefinition primaryColumn : primaryColumns) {
                     ForeignKeyReferenceDefinition foreignKeyReferenceDefinition =
-                        new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn, columnAccess, this);
-
+                            new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn,
+                                    columnAccess, this, primaryColumns.size());
                     foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition);
                 }
                 if (nonModelColumn) {
@@ -87,37 +132,11 @@ public class ForeignKeyColumnDefinition extends BaseForeignKeyColumnDefinition {
                 }
                 needsReferences = false;
             }
-        }
-    }
 
-    @Override
-    public String getPropertyComparisonAccessStatement(boolean isModelContainerAdapter) {
-        String statement = super.getPropertyComparisonAccessStatement(isModelContainerAdapter);
-
-        if (isPrimaryKey) {
-            if (isModelContainer) {
-                TableDefinition referenced =
-                    manager.getTableDefinition (
-                        tableDefinition.databaseDefinition.elementTypeName,
-                        referencedTableClassName);
-
-                ForeignKeyReferenceDefinition referenceDefinition = getForeignKeyReferenceDefinitionList().get(0);
-                // check for null and retrieve proper value
-                String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
-
-                if (method == null) {
-                    method = "get";
-                }
-
-                statement = String
-                    .format("%1s != null ? %1s.%1sValue(%1s.%1s.getContainerKey()) : null",
-                        statement, statement, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
-            }
-            else {
-                statement = String.format ("%s.%s", statement, foreignKeyReferenceDefinitionList.get(0).foreignColumnName);
+            if (nonModelColumn && foreignKeyReferenceDefinitionList.size() == 1) {
+                ForeignKeyReferenceDefinition foreignKeyReferenceDefinition = foreignKeyReferenceDefinitionList.get(0);
+                columnName = foreignKeyReferenceDefinition.columnName;
             }
         }
-
-        return statement;
     }
 }

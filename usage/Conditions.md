@@ -1,21 +1,23 @@
 # Properties, Condition, & ConditionGroup
-DBFlow by the means of java annotation processing, generates a `_Table` class that represents your `Model` class in its table structure. Each field generated are  `Property`. Each `Property` represents that field and provides type-safe operations that turn it into a `Condition` or another `Property`.
+DBFlow, by the means of java annotation processing, generates a `_Table` class that represents your `Model` class in its table structure. Each field generated are  `IProperty`. Each `IProperty` represents a column in the corresponding table and provides type-safe conditional operations that turn it into a `SQLCondition` or mutate into another `Property`.
 
-`Condition` is a class that represents a condition statement within a SQL statement such as:
+`SQLCondition` is an interface that represents a condition statement within a SQL statement. It's an interface so other types of condition can be used, as well as allowing maximum flexibility to suit your needs.
+
+For example:
 
 ```sql
 
-name = 'Test'
+`name` = 'Test'
 
-name = `SomeTable`.`Test`
+`name` = `SomeTable`.`Test`
 
-name LIKE '%Test%'
+`name` LIKE '%Test%'
 
-name != 'Test'
+`name` != 'Test'
 
-salary BETWEEN 15000 AND 40000
+`salary` BETWEEN 15000 AND 40000
 
-name IN('Test','Test2','TestN')
+`name` IN('Test','Test2','TestN')
 
 ((`name`='Test' AND `rank`=6) OR (`name`='Bob' AND `rank`=8))
 ```
@@ -26,10 +28,9 @@ It is recommended that we create `Condition` from `Property` in our queries.
 We have a simple table:
 
 ```java
-@Table(database = TestDatabase.class, name = "TestModel32")
+@Table(database = TestDatabase.class)
 public class TestModel3 {
 
-    @Column
     @PrimaryKey
     public String name;
 
@@ -64,16 +65,19 @@ public final class TestModel3_Table {
 }
 ```
 
-Using fields from the generated class file, we can now use the `Property` to generate `Condition` for our queries:
+Using fields from the generated class file, we can now use the `Property` to generate `SQLCondition` for our queries:
 
 ```java
 
-TestModel3_Table.name.is("Test"); // name = 'Test'
-TestModel3_Table.name.withTable().is("Test"); // TestModel3.name = 'Test'
-TestModel3_Table.name.like("%Test%")
+TestModel3_Table.name.is("Test"); // `name` = 'Test'
+TestModel3_Table.name.withTable().is("Test"); // `TestModel3`.`name` = 'Test'
+TestModel3_Table.name.like("%Test%");
+
+// `name`=`AnotherTable`.`name`
+TestModel3_Table.name.eq(AnotherTable_Table.name);
 ```
 
-A whole set of `Condition` operations are supported for `Property` including:
+A whole set of `SQLCondition` operations are supported for `Property` generated for a Table including:
 1. `is()`, `eq()` -> =
 2. `isNot()`, `notEq()` -> !=
 3. `isNull()` -> IS NULL / `isNotNull()`IS NOT NULL
@@ -85,9 +89,9 @@ A whole set of `Condition` operations are supported for `Property` including:
 ## ConditionGroup
 The `ConditionGroup` is the successor to the `ConditionQueryBuilder`. It was flawed in that it conformed to `QueryBuilder`, yet contained `Condition`, and required a type-parameter that referenced the table it belonged in.
 
-`ConditionGroup` are arbitrary collections of `Condition` that can combine into one SQlite statement _or_ be used as `Condition` within another `ConditionGroup`.
+`ConditionGroup` are arbitrary collections of `SQLCondition` that can combine into one SQLite statement _or_ be used as `SQLCondition` within another `ConditionGroup`.
 
-Any Sqlite wrapper class that takes in multiple `Condition` use this class to construct the query for it.
+This used in wrapper query statements, backing for all kinds of other queries and classes.
 
 ```java
 

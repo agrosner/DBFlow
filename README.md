@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.0.0beta2-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.0.0beta3-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
@@ -89,14 +89,15 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
 
   apply plugin: 'com.neenbedankt.android-apt'
 
-  def dbflow_version = "3.0.0-beta2"
+  def dbflow_version = "3.0.0-beta3"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
+  // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
-    
+
     // sql-cipher database encyrption (optional)
     compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
   }

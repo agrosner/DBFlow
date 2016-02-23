@@ -100,4 +100,10 @@ public class ClassNames {
     public static final ClassName CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "CacheableListModelLoader");
     public static final ClassName LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "ListModelLoader");
 
+    public static final ClassName DATABASE_WRAPPER = ClassName.get(DATABASE, "DatabaseWrapper");
+
+    public static final ClassName ORDER_BY = ClassName.get(LANGUAGE, "OrderBy");
+    public static final ClassName SQLITE = ClassName.get(LANGUAGE, "SQLite");
+
+    public static final ClassName UNSAFE_STRING_CONDITION = ClassName.get(LANGUAGE, "UnSafeStringCondition");
 }

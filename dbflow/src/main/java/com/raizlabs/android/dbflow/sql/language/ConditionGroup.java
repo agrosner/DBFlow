@@ -20,20 +20,29 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
         return new ConditionGroup();
     }
 
+    /**
+     * @return Starts an arbitrary clause of conditions to use, that when included in other {@link SQLCondition},
+     * does not append parenthesis to group it.
+     */
+    public static ConditionGroup nonGroupingClause() {
+        return new ConditionGroup().setUseParenthesis(false);
+    }
+
     private final List<SQLCondition> conditionsList = new ArrayList<>();
 
     private QueryBuilder query;
     private boolean isChanged;
     private boolean allCommaSeparated;
+    private boolean useParenthesis = true;
 
-    ConditionGroup(NameAlias columnName) {
+    protected ConditionGroup(NameAlias columnName) {
         super(columnName);
 
         // default is AND
         separator = Operation.AND;
     }
 
-    public ConditionGroup() {
+    protected ConditionGroup() {
         this(null);
     }
 
@@ -47,6 +56,17 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
     public ConditionGroup setAllCommaSeparated(boolean allCommaSeparated) {
         this.allCommaSeparated = allCommaSeparated;
         isChanged = true;
+        return this;
+    }
+
+    /**
+     * Sets whether we use paranthesis when grouping this within other {@link SQLCondition}. The default
+     * is true, but if no conditions exist there are no paranthesis anyways.
+     *
+     * @param useParenthesis true if we use them, false if not.
+     */
+    public ConditionGroup setUseParenthesis(boolean useParenthesis) {
+        this.useParenthesis = useParenthesis;
         return this;
     }
 
@@ -141,11 +161,17 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
 
     @Override
     public void appendConditionToQuery(QueryBuilder queryBuilder) {
+        if (useParenthesis && conditionsList.size() > 0) {
+            queryBuilder.append("(");
+        }
         for (SQLCondition condition : conditionsList) {
             condition.appendConditionToQuery(queryBuilder);
             if (condition.hasSeparator()) {
                 queryBuilder.appendSpaceSeparated(condition.separator());
             }
+        }
+        if (useParenthesis && conditionsList.size() > 0) {
+            queryBuilder.append(")");
         }
     }
 

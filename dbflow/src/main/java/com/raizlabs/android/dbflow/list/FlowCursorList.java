@@ -111,7 +111,7 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     protected ModelCache<ModelClass, ?> getBackingCache() {
-        return new ModelLruCache<>(cacheSize);
+        return ModelLruCache.newInstance(cacheSize);
     }
 
     /**

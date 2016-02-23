@@ -90,9 +90,18 @@ public class ExternalForeignKeyColumnDefinition extends BaseForeignKeyColumnDefi
 
             for (ColumnDefinition primaryColumn : primaryColumns) {
                 ForeignKeyReferenceDefinition foreignKeyReferenceDefinition =
-                    new ForeignKeyReferenceDefinition(manager, elementName, primaryColumn, columnAccess, this);
+                    new ForeignKeyReferenceDefinition (
+                        manager,
+                        elementName,
+                        primaryColumn,
+                        columnAccess,
+                        this,
+                        primaryColumns.size());
 
                 foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition);
+            }
+            if (nonModelColumn) {
+                columnName = foreignKeyReferenceDefinitionList.get(0).columnName;
             }
 
             needsReferences = false;

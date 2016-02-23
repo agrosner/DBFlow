@@ -10,14 +10,18 @@ import net.sqlcipher.database.SQLiteStatement;
  */
 public class SQLCipherStatement implements DatabaseStatement {
 
-    private final SQLiteStatement statement;
-
     public static SQLCipherStatement from(SQLiteStatement statement) {
         return new SQLCipherStatement(statement);
     }
 
+    private final SQLiteStatement statement;
+
     SQLCipherStatement(SQLiteStatement statement) {
         this.statement = statement;
+    }
+
+    public SQLiteStatement getStatement() {
+        return statement;
     }
 
     @Override

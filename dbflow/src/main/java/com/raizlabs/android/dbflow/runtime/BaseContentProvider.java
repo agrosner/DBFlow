@@ -74,18 +74,23 @@ public abstract class BaseContentProvider extends ContentProvider {
             List<String> copySelectionArgs = selectionArgs != null ? new ArrayList<>(Arrays.asList(selectionArgs)) : new ArrayList<String>();
             for (int i = 0; i < stringConditions.length; i++) {
                 String stringCondition = stringConditions[i];
-                if (stringCondition.endsWith("?")) {
-                    stringConditions[i] = stringCondition.substring(0, stringCondition.length() - 1) + copySelectionArgs.remove(0);
+                if (stringCondition.contains("?")) {
+                    stringCondition = stringCondition.replace("?", copySelectionArgs.remove(0));
                 }
 
                 String[] params = stringCondition.split("=");
-                if (params.length == 0) {
-                    throw new IllegalArgumentException("Selection conditions must be of Operation Type.");
-                } else if (params.length == 2) {
+                if (params.length == 2) {
                     conditions.add(Condition.column(new NameAlias(params[0])).eq(params[1]));
-                } else {
-                    throw new IllegalStateException("Something went wrong. Condition could not be associated with equals");
+                    continue;
                 }
+
+                params = stringCondition.split("LIKE");
+                if (params.length == 2) {
+                    conditions.add(Condition.column(new NameAlias(params[0].trim())).like(params[1].trim()));
+                    continue;
+                }
+
+                throw new IllegalStateException("Something went wrong. Condition could not be associated with equals or like");
             }
         }
 

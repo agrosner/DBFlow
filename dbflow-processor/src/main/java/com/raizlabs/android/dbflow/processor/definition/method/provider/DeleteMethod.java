@@ -36,48 +36,50 @@ public class DeleteMethod implements MethodDefinition {
 
     @Override
     public MethodSpec getMethodSpec() {
-        MethodSpec.Builder method = MethodSpec.methodBuilder("delete")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.URI, PARAM_URI)
-                .addParameter(ClassName.get(String.class), PARAM_SELECTION)
-                .addParameter(ArrayTypeName.of(String.class), PARAM_SELECTION_ARGS)
-                .returns(TypeName.INT);
+        CodeBlock.Builder code = CodeBlock.builder();
 
-        method.beginControlFlow("switch(MATCHER.match($L))", PARAM_URI);
+        code.beginControlFlow("switch(MATCHER.match($L))", PARAM_URI);
         for (TableEndpointDefinition tableEndpointDefinition : contentProviderDefinition.endpointDefinitions) {
             for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
                 if (uriDefinition.deleteEnabled) {
 
                     String databaseName = manager.getDatabaseName(contentProviderDefinition.databaseName);
 
-                    method.beginControlFlow("case $L:", uriDefinition.name);
+                    code.beginControlFlow("case $L:", uriDefinition.name);
 
-                    CodeBlock.Builder code = CodeBlock.builder();
-                    code.add("long count = new $T().from", ClassNames.DELETE);
+                    code.add("long count = $T.delete", ClassNames.SQLITE);
                     ProviderMethodUtils.appendTableName(code, databaseName, tableEndpointDefinition.tableName);
-                    code.add(".where(toConditions(selection, selectionArgs))");
+                    if (contentProviderDefinition.useSafeQueryChecking) {
+                        code.add(".where(toConditions(selection, selectionArgs))");
+                    } else {
+                        code.add(".where(new $T(selection, selectionArgs))", ClassNames.UNSAFE_STRING_CONDITION);
+                    }
                     ProviderMethodUtils.appendPathSegments(code, manager, uriDefinition.segments,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
                     code.add(".count();\n");
 
-                    method.addCode(code.build());
-
                     new NotifyMethod(tableEndpointDefinition, uriDefinition, Notify.Method.DELETE)
                             .addCode(code);
 
-                    method.addStatement("return (int) count");
-                    method.endControlFlow();
+                    code.addStatement("return (int) count");
+                    code.endControlFlow();
                 }
             }
         }
 
-        method.beginControlFlow("default:")
+        code.beginControlFlow("default:")
                 .addStatement("throw new $T($S + $L)", ClassName.get(IllegalArgumentException.class), "Unknown URI", PARAM_URI)
                 .endControlFlow();
-        method.endControlFlow();
+        code.endControlFlow();
 
-        return method.build();
+        return MethodSpec.methodBuilder("delete")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(ClassNames.URI, PARAM_URI)
+                .addParameter(ClassName.get(String.class), PARAM_SELECTION)
+                .addParameter(ArrayTypeName.of(String.class), PARAM_SELECTION_ARGS)
+                .addCode(code.build())
+                .returns(TypeName.INT).build();
     }
 
 }

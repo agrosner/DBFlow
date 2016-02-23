@@ -21,36 +21,38 @@ abstract class BaseCondition implements SQLCondition {
      */
     @SuppressWarnings("unchecked")
     public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
-        String stringVal;
-        if (value != null) {
+        if (value == null) {
+            return "NULL";
+        } else {
+            String stringVal;
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
                 value = typeConverter.getDBValue(value);
             }
-        }
 
-        if (value instanceof Number) {
-            stringVal = String.valueOf(value);
-        } else {
-            if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
-                stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
-            } else if (value instanceof NameAlias) {
-                stringVal = ((NameAlias) value).getQuery();
-            } else if (value instanceof SQLCondition) {
-                QueryBuilder queryBuilder = new QueryBuilder();
-                ((SQLCondition) value).appendConditionToQuery(queryBuilder);
-                stringVal = queryBuilder.toString();
-            } else if (value instanceof Query) {
-                stringVal = ((Query) value).getQuery();
-            } else {
+            if (value instanceof Number) {
                 stringVal = String.valueOf(value);
-                if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
-                    stringVal = DatabaseUtils.sqlEscapeString(stringVal);
+            } else {
+                if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
+                    stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
+                } else if (value instanceof NameAlias) {
+                    stringVal = ((NameAlias) value).getQuery();
+                } else if (value instanceof SQLCondition) {
+                    QueryBuilder queryBuilder = new QueryBuilder();
+                    ((SQLCondition) value).appendConditionToQuery(queryBuilder);
+                    stringVal = queryBuilder.toString();
+                } else if (value instanceof Query) {
+                    stringVal = ((Query) value).getQuery();
+                } else {
+                    stringVal = String.valueOf(value);
+                    if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
+                        stringVal = DatabaseUtils.sqlEscapeString(stringVal);
+                    }
                 }
             }
-        }
 
-        return stringVal;
+            return stringVal;
+        }
     }
 
     /**

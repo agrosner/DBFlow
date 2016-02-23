@@ -17,7 +17,9 @@ public class Migration1 extends BaseMigration {
 
     @Override
     public void migrate(DatabaseWrapper database) {
-
+      List<SomeClass> list = SQLite.select()
+          .from(SomeClass.class)
+          .queryList(database); // must pass in wrapper in order to prevent recursive calls to DB.
     }
 }
 ```

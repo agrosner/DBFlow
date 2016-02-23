@@ -22,7 +22,8 @@ public class DefinitionUtils {
     public static CodeBlock.Builder getContentValuesStatement(String elementName, String fullElementName,
                                                               String columnName, TypeName elementTypeName,
                                                               boolean isModelContainerAdapter, BaseColumnAccess columnAccess,
-                                                              String variableNameString) {
+                                                              String variableNameString, String defaultValue,
+                                                              ClassName tableTableClassName) {
         String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter, false);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -36,7 +37,9 @@ public class DefinitionUtils {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             if (columnAccess instanceof TypeConverterAccess) {
-                finalTypeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+                if (((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
+                    finalTypeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+                }
                 isBlobRaw = (finalTypeName.equals(ClassName.get(Blob.class)));
             } else {
                 if (columnAccess instanceof EnumColumnAccess) {
@@ -61,14 +64,21 @@ public class DefinitionUtils {
         String putAccess = applyAndGetPutAccess(finalAccessStatement, isBlobRaw, elementTypeName, finalTypeName,
                 isModelContainerAdapter, columnAccess, codeBuilder, variableNameString, elementName);
 
-        codeBuilder.addStatement("$L.put($S, $L)",
+        codeBuilder.addStatement("$L.put($T.$L.getCursorKey(), $L)",
                 BindToContentValuesMethod.PARAM_CONTENT_VALUES,
-                QueryBuilder.quote(columnName), putAccess);
+                tableTableClassName, columnName, putAccess);
 
         if (!finalTypeName.isPrimitive()) {
-            codeBuilder.nextControlFlow("else")
-                    .addStatement("$L.putNull($S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, QueryBuilder.quote(columnName))
-                    .endControlFlow();
+            codeBuilder.nextControlFlow("else");
+            if (defaultValue != null && !defaultValue.isEmpty()) {
+                codeBuilder.addStatement("$L.put($T.$L.getCursorKey(), $L)",
+                        BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                        tableTableClassName, columnName, defaultValue);
+            } else {
+                codeBuilder.addStatement("$L.putNull($T.$L.getCursorKey())", BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                        tableTableClassName, columnName);
+            }
+            codeBuilder.endControlFlow();
         }
         return codeBuilder;
     }
@@ -76,7 +86,7 @@ public class DefinitionUtils {
     public static CodeBlock.Builder getSQLiteStatementMethod(AtomicInteger index, String elementName,
                                                              String fullElementName, TypeName elementTypeName,
                                                              boolean isModelContainerAdapter, BaseColumnAccess columnAccess,
-                                                             String variableNameString, boolean isAutoIncrement) {
+                                                             String variableNameString, boolean isAutoIncrement, String defaultValue) {
         String statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, isModelContainerAdapter, true);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -90,7 +100,9 @@ public class DefinitionUtils {
             finalAccessStatement = (isModelContainerAdapter ? (variableNameString + elementName) : ("ref" + fullElementName));
 
             if (columnAccess instanceof TypeConverterAccess) {
-                finalTypeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+                if (((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
+                    finalTypeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
+                }
                 isBlobRaw = (finalTypeName.equals(ClassName.get(Blob.class)));
             } else {
                 if (columnAccess instanceof EnumColumnAccess) {
@@ -120,9 +132,15 @@ public class DefinitionUtils {
                 columnAccess.getSqliteTypeForTypeName(elementTypeName, isModelContainerAdapter).getSQLiteStatementMethod(),
                 index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""), putAccess);
         if (!finalTypeName.isPrimitive()) {
-            codeBuilder.nextControlFlow("else")
-                    .addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""))
-                    .endControlFlow();
+            codeBuilder.nextControlFlow("else");
+            if (defaultValue != null && !defaultValue.isEmpty()) {
+                codeBuilder.addStatement("$L.bind$L($L, $L)", BindToStatementMethod.PARAM_STATEMENT,
+                        columnAccess.getSqliteTypeForTypeName(elementTypeName, isModelContainerAdapter).getSQLiteStatementMethod(),
+                        index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""), defaultValue);
+            } else {
+                codeBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""));
+            }
+            codeBuilder.endControlFlow();
         }
 
         return codeBuilder;
@@ -176,25 +194,14 @@ public class DefinitionUtils {
             if (isModelContainerAdapter) {
                 codeBuilder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);
             } else {
-                String defaultValue = "null";
-                if (elementTypeName.isPrimitive()) {
-                    if (elementTypeName.equals(TypeName.BOOLEAN)) {
-                        defaultValue = "false";
-                    } else if (elementTypeName.equals(TypeName.BYTE) || elementTypeName.equals(TypeName.INT)
-                            || elementTypeName.equals(TypeName.DOUBLE) || elementTypeName.equals(TypeName.FLOAT)
-                            || elementTypeName.equals(TypeName.LONG) || elementTypeName.equals(TypeName.SHORT)) {
-                        defaultValue = "0";
-                    } else if (elementTypeName.equals(TypeName.CHAR)) {
-                        defaultValue = "'\\u0000'";
-                    }
-                }
+
                 BaseColumnAccess baseColumnAccess = columnAccess;
                 if (columnAccess instanceof WrapperColumnAccess) {
                     baseColumnAccess = ((WrapperColumnAccess) columnAccess).existingColumnAccess;
                 }
                 codeBuilder.addStatement(baseColumnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
                         isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter),
-                        CodeBlock.builder().add(defaultValue).build(), false));
+                        CodeBlock.builder().add(getDefaultValueString(elementTypeName)).build(), false));
             }
         }
 
@@ -234,7 +241,7 @@ public class DefinitionUtils {
 
         if (SQLiteHelper.containsType(elementTypeName)) {
             statement = SQLiteHelper.get(elementTypeName).toString();
-        } else if (columnAccess instanceof TypeConverterAccess) {
+        } else if (columnAccess instanceof TypeConverterAccess && ((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
             statement = SQLiteHelper.get(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName()).toString();
         }
 
@@ -248,11 +255,27 @@ public class DefinitionUtils {
         String method = "";
         if (SQLiteHelper.containsMethod(elementTypeName)) {
             method = SQLiteHelper.getMethod(elementTypeName);
-        } else if (columnAccess instanceof TypeConverterAccess) {
+        } else if (columnAccess instanceof TypeConverterAccess && ((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
             method = SQLiteHelper.getMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
         } else if (columnAccess instanceof EnumColumnAccess) {
             method = SQLiteHelper.getMethod(ClassName.get(String.class));
         }
         return method;
+    }
+
+    public static String getDefaultValueString(TypeName elementTypeName) {
+        String defaultValue = "null";
+        if (elementTypeName.isPrimitive()) {
+            if (elementTypeName.equals(TypeName.BOOLEAN)) {
+                defaultValue = "false";
+            } else if (elementTypeName.equals(TypeName.BYTE) || elementTypeName.equals(TypeName.INT)
+                    || elementTypeName.equals(TypeName.DOUBLE) || elementTypeName.equals(TypeName.FLOAT)
+                    || elementTypeName.equals(TypeName.LONG) || elementTypeName.equals(TypeName.SHORT)) {
+                defaultValue = "0";
+            } else if (elementTypeName.equals(TypeName.CHAR)) {
+                defaultValue = "'\\u0000'";
+            }
+        }
+        return defaultValue;
     }
 }

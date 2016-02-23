@@ -60,7 +60,11 @@ public class UpdateMethod implements MethodDefinition {
                             manager.getDatabaseName(contentProviderDefinition.databaseName),
                             tableEndpointDefinition.tableName);
                     codeBuilder.add(".conflictAction(adapter.getUpdateOnConflictAction()).set().conditionValues(values)");
-                    codeBuilder.add(".where(toConditions(selection, selectionArgs))");
+                    if (contentProviderDefinition.useSafeQueryChecking) {
+                        codeBuilder.add(".where(toConditions(selection, selectionArgs))");
+                    } else {
+                        codeBuilder.add(".where(new $T(selection, selectionArgs))", ClassNames.UNSAFE_STRING_CONDITION);
+                    }
                     ProviderMethodUtils.appendPathSegments(codeBuilder, manager, uriDefinition.segments,
                             contentProviderDefinition.databaseName, tableEndpointDefinition.tableName);
                     codeBuilder.add(".count();\n");

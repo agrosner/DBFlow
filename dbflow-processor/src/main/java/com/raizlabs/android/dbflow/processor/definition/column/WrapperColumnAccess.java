@@ -13,7 +13,7 @@ public abstract class WrapperColumnAccess extends BaseColumnAccess {
         this.columnDefinition = columnDefinition;
     }
 
-    protected BaseColumnAccess getExistingColumnAccess() {
+    public BaseColumnAccess getExistingColumnAccess() {
         return existingColumnAccess;
     }
 

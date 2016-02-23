@@ -1,30 +1,27 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
-public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Queriable, Transformable<ModelClass> {
+public class Set<ModelClass extends Model> extends BaseQueriable<ModelClass> implements WhereBase<ModelClass>, Queriable, Transformable<ModelClass> {
 
     private ConditionGroup conditionGroup;
 
     private Query update;
 
-    private Class<ModelClass> table;
-
     Set(Query update, Class<ModelClass> table) {
+        super(table);
         this.update = update;
-        this.table = table;
         conditionGroup = new ConditionGroup();
         conditionGroup.setAllCommaSeparated(true);
     }
@@ -106,8 +103,14 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
      *
      * @return The number of rows this query returns
      */
+    @Override
     public long count() {
         return where().count();
+    }
+
+    @Override
+    public long count(DatabaseWrapper databaseWrapper) {
+        return where().count(databaseWrapper);
     }
 
     @Override
@@ -120,23 +123,8 @@ public class Set<ModelClass extends Model> implements WhereBase<ModelClass>, Que
     }
 
     @Override
-    public Class<ModelClass> getTable() {
-        return table;
-    }
-
-    @Override
     public Query getQueryBuilderBase() {
         return update;
     }
 
-    @Override
-    public Cursor query() {
-        FlowManager.getDatabaseForTable(table).getWritableDatabase().execSQL(getQuery());
-        return null;
-    }
-
-    @Override
-    public void execute() {
-        query();
-    }
 }

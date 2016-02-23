@@ -1,16 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
-import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -19,17 +14,8 @@ import java.util.Map;
 /**
  * Description: The SQLite INSERT command
  */
-public class Insert<ModelClass extends Model> implements Query, Queriable {
+public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> {
 
-    /**
-     * The table class that this INSERT points to
-     */
-    private Class<ModelClass> table;
-
-    /**
-     * The database manager
-     */
-    private BaseDatabaseDefinition baseDatabaseDefinition;
 
     /**
      * The columns to specify in this query (optional)
@@ -52,8 +38,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * @param table The table to insert into
      */
     public Insert(Class<ModelClass> table) {
-        this.table = table;
-        baseDatabaseDefinition = FlowManager.getDatabaseForTable(table);
+        super(table);
     }
 
     /**
@@ -61,11 +46,10 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * each column has a 1-1 relationship to the values.
      *
      * @param columns The columns to use
-     * @return This INSERT statement
      */
     public Insert<ModelClass> columns(String... columns) {
         this.columns = new IProperty[columns.length];
-        ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(table);
+        ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(getTable());
         for (int i = 0; i < columns.length; i++) {
             String column = columns[i];
             this.columns[i] = modelClassModelAdapter.getProperty(column);
@@ -78,7 +62,6 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * a set of columns are specified.
      *
      * @param values The non type-converted values
-     * @return
      */
     public Insert<ModelClass> values(Object... values) {
         this.values = values;
@@ -89,7 +72,6 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
      * Uses the {@link Condition} pairs to fill this insert query.
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
-     * @return
      */
     public Insert<ModelClass> columnValues(SQLCondition... conditions) {
 
@@ -108,8 +90,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
     /**
      * Uses the {@link Condition} pairs to fill this insert query.
      *
-     * @param conditionQueryBuilder The condition query builder to use
-     * @return
+     * @param conditionGroup The ConditionGroup to use
      */
     public Insert<ModelClass> columnValues(ConditionGroup conditionGroup) {
 
@@ -200,13 +181,6 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
         return or(ConflictAction.IGNORE);
     }
 
-    /**
-     * @return Exeuctes and returns the count of rows affected by this query.
-     */
-    public long count() {
-        return SqlUtils.longForQuery(baseDatabaseDefinition.getWritableDatabase(), getQuery());
-    }
-
     @Override
     public String getQuery() {
         ValueQueryBuilder queryBuilder = new ValueQueryBuilder("INSERT ");
@@ -214,7 +188,7 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
             queryBuilder.append("OR ").append(conflictAction);
         }
         queryBuilder.appendSpaceSeparated("INTO")
-                .appendTableName(table);
+                .appendTableName(getTable());
 
         if (columns != null) {
             queryBuilder.append("(")
@@ -223,10 +197,10 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
         }
 
         if (columns != null && values != null && columns.length != values.length) {
-            throw new IllegalStateException("The Insert of " + FlowManager.getTableName(table) + " when specifying" +
+            throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
                     "columns needs to have the same amount of values and columns");
         } else if (values == null) {
-            throw new IllegalStateException("The insert of " + FlowManager.getTableName(table) + " should have" +
+            throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
                     "at least one value specified for the insert");
         }
 
@@ -235,21 +209,4 @@ public class Insert<ModelClass extends Model> implements Query, Queriable {
         return queryBuilder.getQuery();
     }
 
-    /**
-     * @return The table associated with this INSERT
-     */
-    public Class<ModelClass> getTable() {
-        return table;
-    }
-
-    @Override
-    public Cursor query() {
-        FlowManager.getDatabaseForTable(table).getWritableDatabase().execSQL(getQuery());
-        return null;
-    }
-
-    @Override
-    public void execute() {
-        query();
-    }
 }

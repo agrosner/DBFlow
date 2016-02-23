@@ -10,8 +10,7 @@ import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.Iterator;
 
 /**
  * Description: The base class that all ModelContainers should extend.
@@ -60,10 +59,12 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     public BaseModelContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
         this(existingContainer.getTable());
 
-        Map<String, Class> columnMap = modelContainerAdapter.getColumnMap();
-        Set<String> keys = columnMap.keySet();
-        for (String key : keys) {
-            put(key, existingContainer.getValue(key));
+        Iterator<String> keys = existingContainer.iterator();
+        if (keys != null) {
+            while (keys.hasNext()) {
+                String key = keys.next();
+                put(key, existingContainer.getValue(key));
+            }
         }
     }
 
@@ -191,6 +192,11 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         } else {
             put(columnName, null);
         }
+    }
+
+    @Override
+    public void putDefault(IProperty property) {
+        putDefault(property.getContainerKey());
     }
 
     @Override

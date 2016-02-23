@@ -39,7 +39,7 @@ public @interface Table {
 
     /**
      * @return When true, all public, package-private , non-static, and non-final fields of the reference class are considered as {@link com.raizlabs.android.dbflow.annotation.Column} .
-     * The only required annotated field becomes The {@link com.raizlabs.android.dbflow.annotation.PrimaryKey}
+     * The only required annotated field becomes The {@link PrimaryKey}
      * or {@link PrimaryKey#autoincrement()}.
      */
     boolean allFields() default false;

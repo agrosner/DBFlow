@@ -20,5 +20,5 @@ public @interface TableEndpoint {
     /**
      * @return When placed in a top-level class, this is required to connect it to a provider.
      */
-    String contentProviderName() default "";
+    Class<?> contentProvider();
 }

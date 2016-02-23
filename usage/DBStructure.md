@@ -23,11 +23,13 @@ To include a prepackaged database for your application, simply include the ".db"
 
 **Kotlin**: As of 3.0, Kotlin support is out of the box.
 
-Previously you needed to define a  `generatedClassSeparator()` that works for it. Simply add:
+Previously you needed to define a  `generatedClassSeparator()` that works for it.
+
+If you wish to change the default of `_` Simply add some string:
 
 ```java
 
-@Database(generatedClassSeparator = "_")
+@Database(generatedClassSeparator = "$$")
 ```
 
 **Integrity Checks on open of the database**: `consistencyChecksEnabled()` will run a `PRAGMA quick_check(1)` whenever the database is opened. If it fails, it will attempt to copy a prepackaged database.
@@ -54,21 +56,19 @@ be `public`, and point the `sqlHelperClass()` to the custom class in the `@Datab
 All standard tables must use the `@Table` annotation and implement `Model`. As a convenience, `BaseModel` provides a default implementation.
 
 **Models Support**:
-  1. Any default java class is supported such as the primitives, boxed primitives, and `String`.
-  2. A non-default object with a `TypeConverter` is also save-able. Objects with type-parameters are _not_ supported. Also `List`, `Map` or multi-value fields are not recommended. If you must, you have to leave out the type parameters.
-  3. Composite primary keys
-  4. Nested `Model` defined as a `@ForeignKey`, enabling 1-1 relationships.
-  5. Any `ModelContainer` as a `@ForeignKey`
-  6. Composite `@ForeignKey`
-  7. Custom `TypeConverter` via `@Column(typeConverter = SomeTypeConverter.class)`
+  1. Fields: Any default java class is supported such as the primitives, boxed primitives, and `String`.
+  2. `TypeConverter`: you can define for a non-standard column classes such as `Date`, `Calendar`, etc. These can be configured on a column-by-column basis.
+  3. Composite `@PrimaryKey`
+  4. Composite `@ForeignKey`. Nested `Model`, `ModelContainer`, `ForeignKeyContainer` or standard `@Column`.
+  5. Combining `@PrimaryKey` and `@ForeignKey`, and those can have complex primary keys.
+  6. Inner classes
 
-**Restrictions & Limitations**:
-  1. All `Model` **MUST HAVE** an accessible default constructor. We will use the default constructor when querying the database.
-  2. Subclassing works as one would expect: the library gathers all inherited fields annotated with `@Column` and count those as rows in the current class's database.
-  3. Column names default to the field name as a convenience, but if the name of your fields change you will need to specify the column name.
-  4. All fields must be `public` or package private as the `_Adapter` class needs access to them. _NOTE:_ Package private fields need _not_ be in the same package as DBFlow will generate the necessary access methods to get to them.
-  5. or private ONLY when you specify `get{Name}()` and `set{Name}(columnType)` methods for a column named `{name}`. This can be configured.
-  6. All model class definitions have to be accessible. Inner model classes are supported as of 3.0.0-beta1+.
+**Rules And Tips For Models**:
+  1. `Model` must have an accessible default constructor. This can be public or package private.
+  2. Subclassing is fully supported. DBFlow will gather and combine each subclass' annotations and combine them for the current class.
+  3. Fields can be public, package private (we generate package helpers to get access), or private with getters and setters specified. Private fields need to have a getter with `get{Name}` and setter with `set{Name}`. These also can be configured.
+  4. We can inherit columns from non-`Model` classes that a class may extend via the `inheritedColumns()` (or `inheritedPrimaryKeys()`). These must be accessible via package-private, public, or private with corresponding getters and setters.
+  5. To enable caching, set `cachingEnabled = true`, which will speed up retrieval in most scenarios.
 
 ### Sample Model
 This is an example of a `Model` class with a primary key (at least one is required) and another field.
@@ -102,6 +102,8 @@ It will override the usual conversion/access methods (EXCEPT for if the field is
 
 ### All Fields as Columns
 As other libraries do, you can set `@Table(allFields = true)` to turn on the ability to use all public/package private, non-final, and non-static fields as `@Column`. You still are required to provide at least one `@PrimaryKey` field.
+
+If you need to ignore a field, use the `@ColumnIgnore` annotation.
 
 ### Private Columns
 If you wish to use private fields, simply specify a getter and setter that follow the format of: `name` -> `getName()` + `setName(columnFieldType)`
@@ -150,6 +152,41 @@ public class PrivateModelTest extends BaseModel {
 }
 ```
 
+### Default values
+When a value of a field is missing or left out, you wish to provide a default "fallback" in the database. SQLite provides this as the `DEFAULT` command in a creation statement.
+
+However in DBFlow it is not so easy to respect this since we rely on precompiled `INSERT` statements with all primary keys in it. So as a compromise, these values are inserted as such:
+
+```java
+@Table(database = TestDatabase.class)
+public class DefaultModel extends TestModel1 {
+
+    @Column(defaultValue = "55")
+    Integer count;
+
+}
+```
+
+In the `_Adapter`:
+
+```java
+@Override
+  public final void bindToInsertValues(ContentValues values, DefaultModel model) {
+    if (model.count != null) {
+      values.put("`count`", model.count);
+    } else {
+      values.put("`count`", 55);
+    }
+    //...
+  }
+```
+
+We insert its value at runtime. This has some limitations:
+  1. Constant, pure value strings
+  2. No `Model`, `ModelContainer`, or primitive can use this.
+  3. Must be of same type as column.
+  4. `String` types need to be escaped via: `"\"something\""`
+
 ### Unique Groups
 In Sqlite you can define any number of columns as having a "unique" relationship, meaning the combination of one or more rows must be unique across the whole table.
 
@@ -181,3 +218,89 @@ public class UniqueModel extends BaseModel {
 
 }
 ```
+
+### Many-To-Many Source Gen
+
+Making an "association" table between two tables that are related via many-to-many
+has become drastically easier in DBFlow 3.0+.
+
+#### How It works
+
+1. Annotate your target `Model` class with `@ManyToMany(referencedTable = MyRefTable.class)`
+2. DBFlow generates the associated `@Table` class named `{target}{dbflow class separator}{referencedTable}`, with all of its other `_Adapter` and `_Table` counterparts. So for a target of `Shop` with a reference of `Customer`, by default the name of the `Table` generated is `Shop_Customer`.
+3. The generated `Model` uses the `@PrimaryKey` of each table as `@ForeignKey` fields along with a single auto-incrementing `Long` `@PrimaryKey`.
+3. It also generates getters and setters for the joined table (except a setter on the "_id" field).
+
+
+#### Example
+
+To define a relationship,
+simply define the `@ManyToMany` annotation on a class pointing to another `Model` table:
+```java
+@Table(database = TestDatabase.class)
+@ManyToMany(referencedTable = TestModel1.class)
+public class ManyToManyModel extends BaseModel {
+
+    @PrimaryKey
+    String name;
+
+    @PrimaryKey
+    int id;
+
+    @Column
+    char anotherColumn;
+}
+```
+
+With the associated table as follows:
+```java
+
+@Table(database = TestDatabase.class)
+public class TestModel1 extends BaseModel {
+    @Column
+    @PrimaryKey
+    String name;
+}
+
+```
+
+Which generates a `Model` class as:
+```java
+@Table(
+    database = TestDatabase.class
+)
+public final class ManyToManyModel_TestModel1 extends BaseModel {
+  @PrimaryKey(
+      autoincrement = true
+  )
+  long _id;
+
+  @ForeignKey
+  TestModel1 testModel1;
+
+  @ForeignKey
+  ManyToManyModel manyToManyModel;
+
+  public final long getId() {
+    return _id;
+  }
+
+  public final TestModel1 getTestModel1() {
+    return testModel1;
+  }
+
+  public final void setTestModel1(TestModel1 param) {
+    testModel1 = param;
+  }
+
+  public final ManyToManyModel getManyToManyModel() {
+    return manyToManyModel;
+  }
+
+  public final void setManyToManyModel(ManyToManyModel param) {
+    manyToManyModel = param;
+  }
+}
+```
+
+Which saves you even more code to maintain or write!

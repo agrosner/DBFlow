@@ -24,22 +24,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.getDatabaseVersion()) {
-                @Override
-                public void onOpen(SQLiteDatabase db) {
-                    FlowSQLiteOpenHelper.this.onOpen(db);
-                }
-
-                @Override
-                public void onCreate(SQLiteDatabase db) {
-                    FlowSQLiteOpenHelper.this.onCreate(db);
-                }
-
-                @Override
-                public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                    FlowSQLiteOpenHelper.this.onUpgrade(db, oldVersion, newVersion);
-                }
-            };
+                    databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
         databaseHelperDelegate = new DatabaseHelperDelegate(listener, databaseDefinition, backupHelper);
@@ -96,12 +81,14 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
     /**
      * Simple helper to manage backup.
      */
-    private abstract class BackupHelper extends SQLiteOpenHelper implements OpenHelper {
+    private class BackupHelper extends SQLiteOpenHelper implements OpenHelper {
 
         private AndroidDatabase androidDatabase;
+        private final BaseDatabaseHelper baseDatabaseHelper;
 
-        public BackupHelper(Context context, String name, int version) {
+        public BackupHelper(Context context, String name, int version, BaseDatabaseDefinition databaseDefinition) {
             super(context, name, null, version);
+            this.baseDatabaseHelper = new BaseDatabaseHelper(databaseDefinition);
         }
 
         @Override
@@ -128,6 +115,21 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
 
         @Override
         public void setDatabaseListener(DatabaseHelperListener helperListener) {
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            baseDatabaseHelper.onCreate(AndroidDatabase.from(db));
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            baseDatabaseHelper.onUpgrade(AndroidDatabase.from(db), oldVersion, newVersion);
+        }
+
+        @Override
+        public void onOpen(SQLiteDatabase db) {
+            baseDatabaseHelper.onOpen(AndroidDatabase.from(db));
         }
     }
 

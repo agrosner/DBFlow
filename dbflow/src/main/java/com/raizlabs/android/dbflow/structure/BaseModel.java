@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
+import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
 
@@ -9,7 +10,7 @@ import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
  * If you wish not to extend from this class you will need to implement {@link com.raizlabs.android.dbflow.structure.Model}
  * instead.
  */
-public abstract class BaseModel implements Model {
+public class BaseModel implements Model {
 
     /**
      * Specifies the Action that was taken when data changes
@@ -42,6 +43,7 @@ public abstract class BaseModel implements Model {
         CHANGE
     }
 
+    @ColumnIgnore
     private transient ModelAdapter modelAdapter;
 
     @SuppressWarnings("unchecked")

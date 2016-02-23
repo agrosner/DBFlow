@@ -28,18 +28,20 @@ public class PrimaryConditionMethod implements MethodDefinition {
     @Override
     public MethodSpec getMethodSpec() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getPrimaryConditionClause")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
-                        ModelUtils.getVariable(isModelContainerAdapter))
-                .returns(ClassNames.CONDITION_GROUP);
-        CodeBlock.Builder code = CodeBlock.builder()
-                .add("return $T.clause()", ClassNames.CONDITION_GROUP);
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
+                ModelUtils.getVariable(isModelContainerAdapter))
+            .returns(ClassNames.CONDITION_GROUP);
+        CodeBlock.Builder code = CodeBlock.builder();
+        code.add("$T clause = $T.clause();", ClassNames.CONDITION_GROUP, ClassNames.CONDITION_GROUP);
         for (ColumnDefinition columnDefinition : tableDefinition.getPrimaryColumnDefinitions()) {
-            code.add(".and($T.$L.eq($L))", tableDefinition.getPropertyClassName(), columnDefinition.columnName,
-                    columnDefinition.getPropertyComparisonAccessStatement(isModelContainerAdapter));
+            CodeBlock.Builder codeBuilder = CodeBlock.builder();
+            columnDefinition.appendPropertyComparisonAccessStatement(isModelContainerAdapter, codeBuilder);
+            code.add(codeBuilder.build());
         }
-        methodBuilder.addCode(code.addStatement("").build());
+        methodBuilder.addCode(code.build());
+        methodBuilder.addStatement("return clause");
         return methodBuilder.build();
     }
 }

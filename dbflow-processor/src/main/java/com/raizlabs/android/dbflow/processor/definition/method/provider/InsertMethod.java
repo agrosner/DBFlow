@@ -48,10 +48,10 @@ public class InsertMethod implements MethodDefinition {
                                             "$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", tableEndpointDefinition.tableName,
                                     ClassNames.CONFLICT_ACTION);
 
-                    if (!isBulk) {
-                        new NotifyMethod(tableEndpointDefinition, uriDefinition,
-                                Notify.Method.INSERT).addCode(code);
+                    new NotifyMethod(tableEndpointDefinition, uriDefinition,
+                            Notify.Method.INSERT).addCode(code);
 
+                    if (!isBulk) {
                         code.addStatement("return $T.withAppendedId($L, id)", ClassNames.CONTENT_URIS, PARAM_URI);
                     } else {
                         code.addStatement("return id > 0 ? 1 : 0");

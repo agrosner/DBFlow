@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -14,15 +13,15 @@ import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
 
 /**
  * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code.
  */
-public abstract class BaseModelQueriable<ModelClass extends Model> implements ModelQueriable<ModelClass>, Query {
+public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQueriable<ModelClass> implements ModelQueriable<ModelClass>, Query {
 
-    private final Class<ModelClass> table;
     private final InstanceAdapter<?, ModelClass> retrievalAdapter;
 
     /**
@@ -31,7 +30,7 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
      * @param table the table that belongs to this query.
      */
     protected BaseModelQueriable(Class<ModelClass> table) {
-        this.table = table;
+        super(table);
         //noinspection unchecked
         retrievalAdapter = FlowManager.getInstanceAdapter(table);
     }
@@ -46,15 +45,20 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
         return retrievalAdapter.getSingleModelLoader().load(getQuery());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {
-        return (ModelContainerClass) FlowManager.getContainerAdapter(table).getModelContainerLoader().load(getQuery(), instance);
+    public ModelClass querySingle(DatabaseWrapper wrapper) {
+        return retrievalAdapter.getSingleModelLoader().load(wrapper, getQuery());
     }
 
     @Override
-    public Class<ModelClass> getTable() {
-        return table;
+    public List<ModelClass> queryList(DatabaseWrapper wrapper) {
+        return retrievalAdapter.getListModelLoader().load(wrapper, getQuery());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {
+        return (ModelContainerClass) FlowManager.getContainerAdapter(getTable()).getModelContainerLoader().load(getQuery(), instance);
     }
 
     @Override
@@ -82,16 +86,4 @@ public abstract class BaseModelQueriable<ModelClass extends Model> implements Mo
         return FlowManager.getQueryModelAdapter(queryModelClass).getSingleModelLoader().load(getQuery());
     }
 
-    @Override
-    public void execute() {
-        Cursor cursor = query();
-        if (cursor != null) {
-            cursor.close();
-        }
-    }
-
-    @Override
-    public String toString() {
-        return getQuery();
-    }
 }

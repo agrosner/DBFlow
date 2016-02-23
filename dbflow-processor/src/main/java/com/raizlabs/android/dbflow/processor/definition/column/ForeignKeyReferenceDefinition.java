@@ -2,7 +2,9 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
@@ -39,13 +41,16 @@ public class ForeignKeyReferenceDefinition {
                                          String foreignKeyFieldName,
                                          ColumnDefinition referencedColumn,
                                          BaseColumnAccess tableColumnAccess,
-                                         BaseForeignKeyColumnDefinition foreignKeyColumnDefinition) {
+                                         BaseForeignKeyColumnDefinition foreignKeyColumnDefinition,
+                                         int referenceCount)
+    {
         this.manager = manager;
         this.foreignKeyColumnDefinition = foreignKeyColumnDefinition;
         this.tableColumnAccess = tableColumnAccess;
         this.foreignKeyFieldName = foreignKeyFieldName;
 
-        if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement) {
+        if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement() && !foreignKeyColumnDefinition.isRowId
+            || referenceCount > 0) {
             columnName = foreignKeyFieldName + "_" + referencedColumn.columnName;
         } else {
             columnName = foreignKeyFieldName;
@@ -58,7 +63,13 @@ public class ForeignKeyReferenceDefinition {
             isReferencedFieldPackagePrivate = ((WrapperColumnAccess) referencedColumn.columnAccess).existingColumnAccess instanceof PackagePrivateAccess;
         } else {
             isReferencedFieldPrivate = (referencedColumn.columnAccess instanceof PrivateColumnAccess);
-            isReferencedFieldPackagePrivate = referencedColumn.columnAccess instanceof PackagePrivateAccess;
+
+            // fix here to ensure we can access it otherwise we generate helper
+            boolean isPackagePrivate = ElementUtility.isPackagePrivate(referencedColumn.element);
+            boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, referencedColumn.element, foreignKeyColumnDefinition.element);
+
+            isReferencedFieldPackagePrivate = referencedColumn.columnAccess instanceof PackagePrivateAccess
+                || isPackagePrivateNotInSamePackage;
         }
         if (isReferencedFieldPrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PrivateColumnAccess(referencedColumn.column, false);
@@ -121,6 +132,10 @@ public class ForeignKeyReferenceDefinition {
         return DefinitionUtils.getCreationStatement(columnClassName, null, columnName).build();
     }
 
+    String getPrimaryKeyName() {
+        return QueryBuilder.quote(columnName);
+    }
+
     CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         // fix its access here.
         String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, isModelContainerAdapter, false);
@@ -135,7 +150,22 @@ public class ForeignKeyReferenceDefinition {
             combined = columnShortAccess;
         }
         return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
-            columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter)).build();
+            columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess,
+            getForeignKeyColumnVariable(isModelContainerAdapter), null,
+            foreignKeyColumnDefinition.tableDefinition.outputClassName).build();
+    }
+
+    public String getPrimaryReferenceString(boolean isModelContainerAdapter) {
+        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, isModelContainerAdapter, false);
+        shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(isModelContainerAdapter, shortAccess);
+        String columnShortAccess = getShortColumnAccess(isModelContainerAdapter, false, shortAccess);
+        String combined;
+        if (!(columnAccess instanceof PackagePrivateAccess)) {
+            combined = ModelUtils.getVariable(isModelContainerAdapter) + "." + shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
+        } else {
+            combined = columnShortAccess;
+        }
+        return combined;
     }
 
     CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
@@ -147,7 +177,19 @@ public class ForeignKeyReferenceDefinition {
         return DefinitionUtils.getSQLiteStatementMethod(
             index, columnShortAccess, combined,
             columnClassName, isModelContainerAdapter, simpleColumnAccess,
-            getForeignKeyColumnVariable(isModelContainerAdapter), false).build();
+            getForeignKeyColumnVariable(isModelContainerAdapter), false, null).build();
+    }
+
+    CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
+
+        String access = getShortColumnAccess(false, false, tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false, false));
+        if (foreignKeyColumnDefinition.isModelContainer) {
+            access = foreignKeyColumnDefinition.getColumnAccessString(false, false) + "." + access;
+        }
+
+        CodeBlock.Builder codeBuilder = CodeBlock.builder();
+        codeBuilder.addStatement("$L.put($T.$L, $L)", ModelUtils.getVariable(true), tableClassName, columnName, access);
+        return codeBuilder.build();
     }
 
     private String getForeignKeyColumnVariable(boolean isModelContainerAdapter) {

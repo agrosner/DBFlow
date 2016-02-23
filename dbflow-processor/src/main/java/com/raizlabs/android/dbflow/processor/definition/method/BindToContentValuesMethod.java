@@ -35,28 +35,28 @@ public class BindToContentValuesMethod implements MethodDefinition {
     @Override
     public MethodSpec getMethodSpec() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(isInsert ? "bindToInsertValues" : "bindToContentValues")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
-                .addParameter(baseTableDefinition.getParameterClassName(isModelContainerAdapter),
-                        ModelUtils.getVariable(isModelContainerAdapter))
-                .returns(TypeName.VOID);
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
+            .addParameter(baseTableDefinition.getParameterClassName(isModelContainerAdapter),
+                ModelUtils.getVariable(isModelContainerAdapter))
+            .returns(TypeName.VOID);
 
         if (isInsert) {
             List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
             for (ColumnDefinition columnDefinition : columnDefinitionList) {
-                if (!columnDefinition.isPrimaryKeyAutoIncrement){
+                if (!columnDefinition.isPrimaryKeyAutoIncrement() && !columnDefinition.isRowId) {
                     methodBuilder.addCode(columnDefinition.getContentValuesStatement(isModelContainerAdapter));
                 }
             }
 
             if (implementsContentValuesListener) {
                 methodBuilder.addStatement("$L.onBindTo$LValues($L)",
-                        ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
+                    ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
             }
         } else if (baseTableDefinition instanceof TableDefinition) {
             TableDefinition tableDefinition = ((TableDefinition) baseTableDefinition);
-            if (tableDefinition.hasAutoIncrement) {
+            if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
                 ColumnDefinition autoIncrement = tableDefinition.autoIncrementDefinition;
                 methodBuilder.addCode(autoIncrement.getContentValuesStatement(isModelContainerAdapter));
             }
@@ -64,7 +64,7 @@ public class BindToContentValuesMethod implements MethodDefinition {
             methodBuilder.addStatement("bindToInsertValues($L, $L)", PARAM_CONTENT_VALUES, ModelUtils.getVariable(isModelContainerAdapter));
             if (implementsContentValuesListener) {
                 methodBuilder.addStatement("$L.onBindTo$LValues($L)",
-                        ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
+                    ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
             }
         }
 

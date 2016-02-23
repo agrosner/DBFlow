@@ -16,4 +16,12 @@ public class StringUtils {
 
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
+
+    public static String lower(String str) {
+        if (str == null || str.trim().length() == 0) {
+            return str;
+        }
+
+        return str.substring(0, 1).toLowerCase() + str.substring(1);
+    }
 }

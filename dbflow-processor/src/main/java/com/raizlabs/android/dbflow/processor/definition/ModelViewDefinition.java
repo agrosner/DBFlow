@@ -60,6 +60,8 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
     public String viewTableName;
 
+    public boolean allFields;
+
     public ModelViewDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
 
@@ -73,6 +75,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
             } catch (MirroredTypeException mte) {
                 this.databaseName = TypeName.get(mte.getTypeMirror());
             }
+            allFields = modelView.allFields();
 
             databaseDefinition = manager.getDatabaseWriter(databaseName);
             this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;
@@ -124,9 +127,18 @@ public class ModelViewDefinition extends BaseTableDefinition {
     @Override
     protected void createColumnDefinitions(TypeElement typeElement) {
         List<? extends Element> variableElements = ElementUtility.getAllElements(typeElement, manager);
+
+        for (Element element : variableElements) {
+            classElementLookUpMap.put(element.getSimpleName().toString(), element);
+        }
+
         ColumnValidator columnValidator = new ColumnValidator();
         for (Element variableElement : variableElements) {
-            if (variableElement.getAnnotation(Column.class) != null) {
+
+            boolean isValidAllFields = ElementUtility.isValidAllFields(allFields, element);
+
+            if (variableElement.getAnnotation(Column.class) != null || isValidAllFields) {
+
                 // package private, will generate helper
                 boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
                 boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
@@ -140,7 +152,8 @@ public class ModelViewDefinition extends BaseTableDefinition {
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition || columnDefinition.isPrimaryKeyAutoIncrement) {
+                if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition
+                    || columnDefinition.isPrimaryKeyAutoIncrement() || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys");
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery.class) != null) {
