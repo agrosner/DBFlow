@@ -22,4 +22,10 @@ public @interface ManyToMany {
      * of the generated table instead of using an autoincrementing Long {@link PrimaryKey}.
      */
     boolean generateAutoIncrement() default true;
+
+    /**
+     * @return by default, we append {selfTable}{generatedClassSeparator}{referencedTable} or "User_Follower",
+     * for example. If you want different name, change this.
+     */
+    String generatedTableClassName() default "";
 }

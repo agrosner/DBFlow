@@ -28,6 +28,8 @@ public class ManyToManyDefinition extends BaseDefinition {
     TypeName referencedTable;
     public TypeName databaseTypeName;
     boolean generateAutoIncrement;
+    boolean sameTableReferenced;
+    String generatedTableClassName;
 
     public ManyToManyDefinition(TypeElement element, ProcessorManager processorManager) {
         super(element, processorManager);
@@ -35,6 +37,9 @@ public class ManyToManyDefinition extends BaseDefinition {
         ManyToMany manyToMany = element.getAnnotation(ManyToMany.class);
         referencedTable = TypeName.get(ModelUtils.getReferencedClassFromAnnotation(manyToMany));
         generateAutoIncrement = manyToMany.generateAutoIncrement();
+        generatedTableClassName = manyToMany.generatedTableClassName();
+
+        sameTableReferenced = (referencedTable.equals(elementTypeName));
 
         Table table = element.getAnnotation(Table.class);
         try {
@@ -47,8 +52,12 @@ public class ManyToManyDefinition extends BaseDefinition {
         if (databaseDefinition == null) {
             manager.logError("DatabaseDefinition was null for : " + elementName);
         } else {
-            ClassName referencedOutput = getElementClassName(manager.getElements().getTypeElement(referencedTable.toString()));
-            setOutputClassName(databaseDefinition.classSeparator + referencedOutput.simpleName());
+            if (StringUtils.isNullOrEmpty(generatedTableClassName)) {
+                ClassName referencedOutput = getElementClassName(manager.getElements().getTypeElement(referencedTable.toString()));
+                setOutputClassName(databaseDefinition.classSeparator + referencedOutput.simpleName());
+            } else {
+                setOutputClassNameFull(generatedTableClassName);
+            }
         }
     }
 
@@ -70,8 +79,8 @@ public class ManyToManyDefinition extends BaseDefinition {
                     .build());
         }
 
-        appendColumnDefinitions(typeBuilder, referencedDefinition);
-        appendColumnDefinitions(typeBuilder, selfDefinition);
+        appendColumnDefinitions(typeBuilder, referencedDefinition, 0);
+        appendColumnDefinitions(typeBuilder, selfDefinition, 1);
     }
 
     @Override
@@ -79,8 +88,12 @@ public class ManyToManyDefinition extends BaseDefinition {
         return ClassNames.BASE_MODEL;
     }
 
-    private void appendColumnDefinitions(TypeSpec.Builder typeBuilder, TableDefinition referencedDefinition) {
+    private void appendColumnDefinitions(TypeSpec.Builder typeBuilder,
+                                         TableDefinition referencedDefinition, int index) {
         String fieldName = StringUtils.lower(referencedDefinition.elementName);
+        if (sameTableReferenced) {
+            fieldName += index;
+        }
 
         FieldSpec.Builder fieldBuilder = FieldSpec.builder(referencedDefinition.elementClassName, fieldName)
                 .addAnnotation(AnnotationSpec.builder(ForeignKey.class).build());

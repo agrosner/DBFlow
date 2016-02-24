@@ -106,6 +106,10 @@ public abstract class BaseDefinition implements TypeDefinition {
         outputClassName = ClassName.get(packageName, outputName + postfix);
     }
 
+    protected void setOutputClassNameFull(String fullName) {
+        outputClassName = ClassName.get(packageName, fullName);
+    }
+
     @Override
     public TypeSpec getTypeSpec() {
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(outputClassName.simpleName())
