@@ -157,3 +157,22 @@ items.processInTransaction { it.delete() }
 ```
 
 #### Class Extensions
+
+If you need access to the Database, ModelAdapter, etc for a specific class you
+can now:
+
+
+```kotlin
+
+database<TestModel>
+
+tableName<TestModel>
+
+modelAdapter<TestModel>
+
+containerAdapter<TestModel>
+
+```
+
+
+Which under-the-hood call their corresponding `FlowManager` methods.
