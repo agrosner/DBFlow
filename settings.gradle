@@ -1,1 +1,1 @@
-include ':dbflow', ':dbflow-processor', ':dbflow-core', ':dbflow-sqlcipher', ':dbflow-tests'
+include ':dbflow', ':dbflow-processor', ':dbflow-core', ':dbflow-sqlcipher', ':dbflow-tests', ':dbflow-kotlinextensions'
