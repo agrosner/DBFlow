@@ -1,11 +1,5 @@
-<manifest package="com.raizlabs.android.dbflow.kotlinextensions"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest package="com.raizlabs.android.dbflow.kotlinextensions">
 
-    <application android:allowBackup="true"
-                 android:label="@string/app_name"
-                 android:supportsRtl="true"
-    >
-
-    </application>
+    <application/>
 
 </manifest>
