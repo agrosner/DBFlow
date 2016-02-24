@@ -21,13 +21,11 @@ class DatabaseExtensionsTest : FlowTestCase() {
         // easily delete all these items.
         items.processInTransaction { it.delete() }
 
-        TestModel1::class.database().transact {
+        database<TestModel1>().transact {
             // do something here
         }
 
-        items.processInTransactionAsync {
-            it.delete()
-        }
+        items.processInTransactionAsync { it.delete() }
 
 
     }
