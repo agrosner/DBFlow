@@ -67,6 +67,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      */
     public ConditionGroup setUseParenthesis(boolean useParenthesis) {
         this.useParenthesis = useParenthesis;
+        isChanged = true;
         return this;
     }
 
