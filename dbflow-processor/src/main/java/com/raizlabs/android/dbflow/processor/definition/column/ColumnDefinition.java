@@ -371,7 +371,11 @@ public class ColumnDefinition extends BaseDefinition {
                         .build());
             }
         } else {
-            codeBuilder.add(getColumnAccessString(isModelContainerAdapter, false));
+            String columnAccessString = getColumnAccessString(isModelContainerAdapter, false);
+            if (columnAccess instanceof BlobColumnAccess) {
+                columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(".getBlob()"));
+            }
+            codeBuilder.add(columnAccessString);
         }
         codeBuilder.add("));");
     }
