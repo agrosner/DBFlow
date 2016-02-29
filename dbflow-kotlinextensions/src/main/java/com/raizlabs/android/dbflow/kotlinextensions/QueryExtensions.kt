@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.kotlinextensions
 import com.raizlabs.android.dbflow.sql.language.*
 import com.raizlabs.android.dbflow.sql.language.Set
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
-import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.structure.Model
 import java.util.*
 
@@ -54,15 +53,14 @@ inline fun <reified TModel : Model> insert(insertMethod: Insert<TModel>.() -> Un
     return insert
 }
 
-@Suppress("UNCHECKED_CAST")
-fun <TModel : Model> Insert<TModel>.into(vararg pairs: Pair<Property<*>, *>) {
-    var columns = ArrayList<Property<*>>()
+fun <TModel : Model> Insert<TModel>.into(vararg pairs: Pair<IProperty<*>, *>) {
+    var columns: MutableList<IProperty<*>> = ArrayList()
     var values = ArrayList<Any?>()
     pairs.forEach {
         columns.add(it.first)
         values.add(it.second)
     }
-    this.columns(columns as List<IProperty<IProperty<*>>>).values(values.toArray())
+    this.columns(columns).values(values.toArray())
 }
 
 inline fun <reified TModel : Model> delete(): BaseModelQueriable<TModel> = SQLite.delete(TModel::class.java)
