@@ -10,4 +10,8 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 public class TestModel2 extends TestModel1 {
     @Column(name = "model_order")
     int order;
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
 }

@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.test.structure;
+package com.raizlabs.android.dbflow.test.structure.onetomany;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
@@ -8,6 +8,8 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
+import com.raizlabs.android.dbflow.test.structure.TestModel2;
+import com.raizlabs.android.dbflow.test.structure.TestModel2_Table;
 
 import java.util.List;
 

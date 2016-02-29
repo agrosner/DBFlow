@@ -1,9 +1,10 @@
-package com.raizlabs.android.dbflow.test.structure;
+package com.raizlabs.android.dbflow.test.structure.onetomany;
 
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+import com.raizlabs.android.dbflow.test.structure.TestModel2;
 
 import org.junit.Test;
 
@@ -24,13 +25,13 @@ public class OneToManyModelTest extends FlowTestCase {
         Delete.tables(TestModel2.class, OneToManyModel.class);
 
         TestModel2 testModel2 = new TestModel2();
-        testModel2.name = "Greater";
-        testModel2.order = 4;
+        testModel2.setName("Greater");
+        testModel2.setOrder(4);
         testModel2.save();
 
         testModel2 = new TestModel2();
-        testModel2.name = "Lesser";
-        testModel2.order = 1;
+        testModel2.setName("Lesser");
+        testModel2.setOrder(1);
         testModel2.save();
 
         // assert we save
