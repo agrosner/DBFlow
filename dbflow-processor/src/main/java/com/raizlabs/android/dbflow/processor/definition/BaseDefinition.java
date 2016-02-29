@@ -103,6 +103,9 @@ public abstract class BaseDefinition implements TypeDefinition {
         } else {
             outputName = elementClassName.simpleName();
         }
+        if(postfix.contains(outputName)) {
+            throw new UnsupportedOperationException("Many to many relationship for the same model type not supported");
+        }
         outputClassName = ClassName.get(packageName, outputName + postfix);
     }
 
