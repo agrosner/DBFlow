@@ -38,12 +38,12 @@ public class FixPrimaryKeyMigrationTest extends FlowTestCase {
     public void test_validateTableInformationQuery() {
         assertEquals("SELECT sql FROM sqlite_master WHERE name='GlobalModel'", fixPrimaryKeyMigration.getSelectTableQuery().getQuery());
         assertEquals("CREATE TABLE IF NOT EXISTS `GlobalModel`(`id` INTEGER,`name` TEXT, PRIMARY KEY(`id`)" + ");", modelAdapter.getCreationQuery());
-        assertTrue(fixPrimaryKeyMigration.validateCreationQuery(modelAdapter.getCreationQuery().replace("IF NOT EXISTS", "")));
+        assertTrue(fixPrimaryKeyMigration.validateCreationQuery(modelAdapter.getCreationQuery().replace("IF NOT EXISTS ", "")));
     }
 
     @Test
     public void test_validateTempCreationQuery() {
-        assertEquals("CREATE TABLE IF NOT EXISTS `GlobalModel_temp`(`id` INTEGER,`name` TEXT, PRIMARY KEY(`id`)" + ");", fixPrimaryKeyMigration.getTempCreationQuery());
+        assertEquals("CREATE TABLE IF NOT EXISTS `Gl≠obalModel_temp`(`id` INTEGER,`name` TEXT, PRIMARY KEY(`id`)" + ");", fixPrimaryKeyMigration.getTempCreationQuery());
     }
 
     @Test
