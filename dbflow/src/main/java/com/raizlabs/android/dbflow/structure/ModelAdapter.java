@@ -25,6 +25,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     implements InternalAdapter<ModelClass, ModelClass> {
 
     private DatabaseStatement insertStatement;
+    private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<ModelClass, ?> modelCache;
 
@@ -47,6 +48,27 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getInsertStatementQuery());
+    }
+
+    /**
+     * @return The precompiled full statement for this table model adapter
+     */
+    public DatabaseStatement getCompiledStatement() {
+        if (insertStatement == null) {
+            insertStatement = getCompiledStatement(
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+        }
+
+        return insertStatement;
+    }
+
+    /**
+     * @param databaseWrapper The database used to do an insert statement.
+     * @return a new compiled {@link DatabaseStatement} representing insert.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
+     */
+    public DatabaseStatement getCompiledStatement(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getCompiledStatementQuery());
     }
 
     /**
