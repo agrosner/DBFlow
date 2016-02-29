@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -40,6 +39,9 @@ import java.util.Map;
  * methods away from the {@link Model} class and let any class use these.
  */
 public class SqlUtils {
+
+    private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+
 
     /**
      * Queries the DB for a {@link Cursor} and converts it into a list.
@@ -560,6 +562,19 @@ public class SqlUtils {
         } finally {
             statement.close();
         }
+    }
+
+    /**
+     * Converts a byte[] to a String hex representation for within wrapper queries.
+     */
+    public static String byteArrayToHexString(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 }
 

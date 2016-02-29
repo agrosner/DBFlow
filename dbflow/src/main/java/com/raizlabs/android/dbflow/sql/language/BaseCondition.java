@@ -4,8 +4,10 @@ import android.database.DatabaseUtils;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 
 /**
  * Description: Base class for all kinds of {@link SQLCondition}
@@ -43,6 +45,14 @@ abstract class BaseCondition implements SQLCondition {
                     stringVal = queryBuilder.toString();
                 } else if (value instanceof Query) {
                     stringVal = ((Query) value).getQuery();
+                } else if (value instanceof Blob || value instanceof byte[]) {
+                    byte[] bytes;
+                    if (value instanceof Blob) {
+                        bytes = ((Blob) value).getBlob();
+                    } else {
+                        bytes = ((byte[]) value);
+                    }
+                    stringVal = "X" + DatabaseUtils.sqlEscapeString(SqlUtils.byteArrayToHexString(bytes));
                 } else {
                     stringVal = String.valueOf(value);
                     if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
