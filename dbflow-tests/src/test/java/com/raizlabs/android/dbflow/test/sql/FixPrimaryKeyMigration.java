@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.sql;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -28,8 +29,18 @@ public abstract class FixPrimaryKeyMigration<TableClass extends Model> extends B
             if (validateCreationQuery(creationQuery)) {
                 /// create table
                 database.execSQL(getTempCreationQuery());
+
+                String insertQuery = getInsertTransferQuery();
+                database.execSQL(insertQuery);
+
+                database.execSQL(String.format("DROP TABLE %1s", FlowManager.getTableName(getTableClass())));
+
+                database.execSQL(String.format("ALTER TABLE %1s RENAME to %1s", QueryBuilder.quote(getTempTableName()),
+                    FlowManager.getTableName(getTableClass())));
+            } else {
+                FlowLog.log(FlowLog.Level.I, String.format("Creation Query %1s is already in correct format.", creationQuery));
             }
-            String insertQuery = getInsertTransferQuery();
+
         }
 
         if (tableSchema != null) {
@@ -55,7 +66,7 @@ public abstract class FixPrimaryKeyMigration<TableClass extends Model> extends B
 
     boolean validateCreationQuery(String query) {
         return query.startsWith(
-            String.format("CREATE TABLE IF NOT EXISTS %1s(%1s INTEGER,", QueryBuilder.quote(getTableName()),
+            String.format("CREATE TABLE %1s(%1s INTEGER,", QueryBuilder.quote(getTableName()),
                 QueryBuilder.quote(FlowManager.getModelAdapter(getTableClass()).getAutoIncrementingColumnName())));
     }
 
