@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Author: andrewgrosner
@@ -32,11 +33,20 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
-            insertStatement = FlowManager.getDatabaseForTable(getModelClass())
-                .getWritableDatabase().compileStatement(getInsertStatementQuery());
+            insertStatement = getInsertStatement(
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return insertStatement;
+    }
+
+    /**
+     * @param databaseWrapper The database used to do an insert statement.
+     * @return a new compiled {@link DatabaseStatement} representing insert.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
+     */
+    public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getInsertStatementQuery());
     }
 
     /**

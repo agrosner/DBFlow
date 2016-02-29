@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
@@ -36,9 +35,9 @@ public class Queen extends BaseModel {
     public List<Ant> getMyAnts() {
         if (ants == null || ants.isEmpty()) {
             ants = SQLite.select()
-                    .from(Ant.class)
-                    .where(Ant_Table.queenForeignKeyContainer_id.eq(id))
-                    .queryList();
+                .from(Ant.class)
+                .where(Ant_Table.queenForeignKeyContainer_id.eq(id))
+                .queryList();
         }
         return ants;
     }
