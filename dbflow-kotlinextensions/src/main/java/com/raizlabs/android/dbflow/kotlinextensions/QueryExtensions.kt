@@ -54,6 +54,7 @@ inline fun <reified TModel : Model> insert(insertMethod: Insert<TModel>.() -> Un
     return insert
 }
 
+@Suppress("UNCHECKED_CAST")
 fun <TModel : Model> Insert<TModel>.into(vararg pairs: Pair<Property<*>, *>) {
     var columns = ArrayList<Property<*>>()
     var values = ArrayList<Any?>()
