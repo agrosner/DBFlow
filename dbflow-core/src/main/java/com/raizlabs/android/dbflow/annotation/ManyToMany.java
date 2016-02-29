@@ -28,4 +28,11 @@ public @interface ManyToMany {
      * for example. If you want different name, change this.
      */
     String generatedTableClassName() default "";
+
+    /**
+     * @return by default the Models referenced here are not saved prior to saving this
+     * object for obvious efficiency reasons.
+     * @see ForeignKey#saveForeignKeyModel()
+     */
+    boolean saveForeignKeyModels() default false;
 }
