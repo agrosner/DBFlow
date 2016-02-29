@@ -5,6 +5,7 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.migration.BaseMigration;
 import com.raizlabs.android.dbflow.sql.queriable.StringQuery;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -28,7 +29,7 @@ public abstract class FixPrimaryKeyMigration<TableClass extends Model> extends B
                 /// create table
                 database.execSQL(getTempCreationQuery());
             }
-
+            String insertQuery = getInsertTransferQuery();
         }
 
         if (tableSchema != null) {
@@ -44,8 +45,12 @@ public abstract class FixPrimaryKeyMigration<TableClass extends Model> extends B
     String getTempCreationQuery() {
         ModelAdapter adapter = FlowManager.getModelAdapter(getTableClass());
         String adapterCreationQuery = adapter.getCreationQuery();
-        adapterCreationQuery = adapterCreationQuery.replace(getTableName(), getTableName() + "_temp");
+        adapterCreationQuery = adapterCreationQuery.replace(getTableName(), getTempTableName());
         return adapterCreationQuery;
+    }
+
+    private String getTempTableName() {
+        return getTableName() + "_temp";
     }
 
     boolean validateCreationQuery(String query) {
@@ -56,6 +61,16 @@ public abstract class FixPrimaryKeyMigration<TableClass extends Model> extends B
 
     String getTableName() {
         return QueryBuilder.stripQuotes(FlowManager.getTableName(getTableClass()));
+    }
+
+    String getInsertTransferQuery() {
+        String query = SQLite.insert(getTableClass())
+            .asColumns()
+            .select(SQLite
+                .select(FlowManager.getModelAdapter(getTableClass())
+                    .getAllColumnProperties()).from(getTableClass())).getQuery();
+        query = query.replaceFirst(getTableName(), getTempTableName());
+        return query;
     }
 
     protected abstract Class<TableClass> getTableClass();

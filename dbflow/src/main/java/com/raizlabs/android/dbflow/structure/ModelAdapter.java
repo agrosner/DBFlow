@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
@@ -20,7 +21,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
  * Description: Internal adapter that gets extended when a {@link Table} gets used.
  */
 public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAdapter<ModelClass, ModelClass>
-        implements InternalAdapter<ModelClass, ModelClass> {
+    implements InternalAdapter<ModelClass, ModelClass> {
 
     private DatabaseStatement insertStatement;
     private String[] cachingColumns;
@@ -32,7 +33,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
             insertStatement = FlowManager.getDatabaseForTable(getModelClass())
-                    .getWritableDatabase().compileStatement(getInsertStatementQuery());
+                .getWritableDatabase().compileStatement(getInsertStatementQuery());
         }
 
         return insertStatement;
@@ -115,9 +116,9 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     @Override
     public Number getAutoIncrementingId(ModelClass model) {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "a single primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "a single primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     /**
@@ -126,9 +127,9 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     /**
@@ -216,8 +217,8 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
 
     public IMultiKeyCacheConverter<?> getCacheConverter() {
         throw new InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
-                "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
-                "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
+            "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
+            "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
     }
 
     public ModelCache<ModelClass, ?> createModelCache() {
@@ -238,6 +239,11 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      * @return The property from the corresponding Table class.
      */
     public abstract BaseProperty getProperty(String columnName);
+
+    /**
+     * @return An array of column properties, in order of declaration.
+     */
+    public abstract IProperty[] getAllColumnProperties();
 
     /**
      * @return The query used to insert a model using a {@link SQLiteStatement}
@@ -265,8 +271,8 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
 
     private void throwCachingError() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "an autoincrementing or at least one int/long primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "an autoincrementing or at least one int/long primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 }

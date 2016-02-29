@@ -42,4 +42,9 @@ public class FixPrimaryKeyMigrationTest extends FlowTestCase {
     public void test_validateTempCreationQuery() {
         assertEquals("CREATE TABLE IF NOT EXISTS `GlobalModel_temp`(`id` INTEGER,`name` TEXT, PRIMARY KEY(`id`)" + ");", fixPrimaryKeyMigration.getTempCreationQuery());
     }
+
+    @Test
+    public void test_validateInsertTransferQuery() {
+        assertEquals("INSERT INTO `GlobalModel_temp`(`id`, `name`) SELECT `id`,`name` FROM `GlobalModel`", fixPrimaryKeyMigration.getInsertTransferQuery());
+    }
 }

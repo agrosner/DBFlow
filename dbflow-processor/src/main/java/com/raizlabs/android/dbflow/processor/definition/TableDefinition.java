@@ -424,18 +424,32 @@ public class TableDefinition extends BaseTableDefinition {
             .addParameter(String.class, "columnName")
             .returns(ClassNames.BASE_PROPERTY);
 
+        MethodSpec.Builder getAllColumnPropertiesMethod = MethodSpec.methodBuilder("getAllColumnProperties")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+            .returns(ArrayTypeName.of(ClassNames.IPROPERTY));
+        CodeBlock.Builder getPropertiesBuilder = CodeBlock.builder();
+
         getPropertyForNameMethod.addStatement("columnName = $T.quoteIfNeeded(columnName)", ClassName.get(QueryBuilder.class));
 
         getPropertyForNameMethod.beginControlFlow("switch ($L) ", "columnName");
-        for (ColumnDefinition columnDefinition : columnDefinitions) {
+        for (int i = 0; i < columnDefinitions.size(); i++) {
+            if (i > 0) {
+                getPropertiesBuilder.add(",");
+            }
+            ColumnDefinition columnDefinition = columnDefinitions.get(i);
             columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
             columnDefinition.addPropertyCase(getPropertyForNameMethod);
+            columnDefinition.addColumnName(getPropertiesBuilder);
+
         }
         getPropertyForNameMethod.beginControlFlow("default: ");
         getPropertyForNameMethod.addStatement("throw new $T($S)", IllegalArgumentException.class,
             "Invalid column name passed. Ensure you are calling the correct table's column");
         getPropertyForNameMethod.endControlFlow();
         getPropertyForNameMethod.endControlFlow();
+
+        getAllColumnPropertiesMethod.addStatement("return new $T[]{$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString());
+        typeBuilder.addMethod(getAllColumnPropertiesMethod.build());
 
         // add index properties here
         for (IndexGroupsDefinition indexGroupsDefinition : indexGroupsDefinitions) {
@@ -470,6 +484,12 @@ public class TableDefinition extends BaseTableDefinition {
                 .addStatement("return $S", QueryBuilder.stripQuotes(autoIncrementDefinition.columnName))
                 .returns(ClassName.get(String.class)).build());
         }
+
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getAllColumnProperties")
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addStatement("return $T.getAllColumnProperties()", outputClassName)
+            .returns(ArrayTypeName.of(ClassNames.IPROPERTY)).build());
 
         if (cachingEnabled) {
 
