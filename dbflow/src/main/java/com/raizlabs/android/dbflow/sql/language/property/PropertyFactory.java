@@ -1,9 +1,12 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: Provides some useful methods for creating {@link IProperty} from non-property types.
@@ -83,7 +86,7 @@ public class PropertyFactory {
     /**
      * Creates a new type-parameterized {@link Property} to be used as its value represented by a string
      * using {@link Condition#convertValueToString(Object)}.
-     *
+     * <p>
      * It will not convert a String column name
      * into a property, rather it assumes its database value represented by the String.
      *
@@ -93,6 +96,17 @@ public class PropertyFactory {
      */
     public static <T> Property<T> from(@Nullable T type) {
         return new Property<>(null, new NameAlias(Condition.convertValueToString(type)).tickName(false));
+    }
+
+    /**
+     * Creates a new {@link Property} that is used to allow selects in a query.
+     *
+     * @param queriable The queriable to use and evaulated into a query.
+     * @param <TModel>  The model class of the query.
+     * @return A new property that is a query.
+     */
+    public static <TModel extends Model> Property<TModel> from(@NonNull BaseModelQueriable<TModel> queriable) {
+        return from(queriable.getTable(), "(" + queriable.getQuery() + ")");
     }
 
     /**
