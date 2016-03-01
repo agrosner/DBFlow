@@ -11,6 +11,8 @@ import com.raizlabs.android.dbflow.sql.language.property.IntProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+import com.raizlabs.android.dbflow.test.structure.TestModel1;
+import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 import com.raizlabs.android.dbflow.test.structure.TestModel2;
 import com.raizlabs.android.dbflow.test.structure.TestModel2_Table;
 
@@ -29,7 +31,7 @@ public class PropertyFactoryTest extends FlowTestCase {
         long time = System.currentTimeMillis();
 
         Where<TestModel2> delete = SQLite.delete(TestModel2.class)
-                .where(TestModel2_Table.model_order.plus(PropertyFactory.from(5)).lessThan((int) time));
+            .where(TestModel2_Table.model_order.plus(PropertyFactory.from(5)).lessThan((int) time));
         assertEquals("DELETE FROM `TestModel2` WHERE `model_order` + 5<" + (int) time, delete.getQuery().trim());
 
         CharProperty charProperty = PropertyFactory.from('c');
@@ -66,6 +68,14 @@ public class PropertyFactoryTest extends FlowTestCase {
         assertEquals("20.0", floatProperty.getQuery());
         queryBuilder = new QueryBuilder();
         floatProperty.minus(ConditionModel_Table.floatie).minus(ConditionModel_Table.floatie).eq(5f).appendConditionToQuery(queryBuilder);
+
+        Property<TestModel1> model1Property = PropertyFactory.from(
+            SQLite.select().from(TestModel1.class).where(TestModel1_Table.name.eq("Test"))).as("Cool");
+        assertEquals("(SELECT * FROM `TestModel1` WHERE `name`='Test' ) AS `Cool`", model1Property.getDefinition());
+        queryBuilder = new QueryBuilder();
+        model1Property.minus(ConditionModel_Table.fraction).plus(TestModel1_Table.name.withTable()).like("%somethingnotvalid%").appendConditionToQuery(queryBuilder);
+        assertEquals("(SELECT * FROM `TestModel1` WHERE `name`='Test' ) - `fraction` + `TestModel1`.`name` LIKE '%somethingnotvalid%'", queryBuilder.getQuery().trim());
+
     }
 
 
