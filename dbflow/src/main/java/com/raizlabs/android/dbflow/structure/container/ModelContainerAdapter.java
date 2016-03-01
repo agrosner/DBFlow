@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
+import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
@@ -21,6 +22,7 @@ import java.util.Map;
 public abstract class ModelContainerAdapter<ModelClass extends Model> extends RetrievalAdapter<ModelContainer<ModelClass, ?>, ModelClass> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
 
     private ModelContainerLoader<ModelClass> modelContainerLoader;
+    private ModelSaver<ModelClass, ModelClass, ModelContainerAdapter<ModelClass>> modelSaver;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
 
@@ -60,6 +62,22 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
     @Override
     public void delete(ModelContainer<ModelClass, ?> modelContainer) {
         SqlUtils.delete(modelContainer, this, modelContainer.getModelAdapter());
+    }
+
+    public ModelSaver<ModelClass, ModelClass, ModelContainerAdapter<ModelClass>> getModelSaver() {
+        if (modelSaver == null) {
+            modelSaver = new ModelSaver<>(this, );
+        }
+        return modelSaver;
+    }
+
+    /**
+     * Sets how this {@link ModelAdapter} saves its objects.
+     *
+     * @param modelSaver The saver to use.
+     */
+    public void setModelSaver(ModelSaver<ModelClass, ModelClass, ModelContainerAdapter<ModelClass>> modelSaver) {
+        this.modelSaver = modelSaver;
     }
 
     /**
