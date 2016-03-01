@@ -28,6 +28,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<ModelClass, ?> modelCache;
+    private
 
     /**
      * @return The precompiled insert statement for this table model adapter

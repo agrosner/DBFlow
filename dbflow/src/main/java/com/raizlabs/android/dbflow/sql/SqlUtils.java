@@ -313,6 +313,7 @@ public class SqlUtils {
      * @param modelAdapter The {@link ModelAdapter} to use
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void save(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         if (model == null) {
@@ -341,6 +342,7 @@ public class SqlUtils {
      * @param modelAdapter The adapter to use
      * @return true if model updated successfully, false if not.
      */
+    @Deprecated
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     boolean update(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
@@ -364,6 +366,7 @@ public class SqlUtils {
      * @param model        The model to insert.
      * @param modelAdapter The adapter to use.
      */
+    @Deprecated
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void insert(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
@@ -380,6 +383,7 @@ public class SqlUtils {
      *
      * @param model The model to delete
      */
+    @Deprecated
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void delete(final TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
@@ -412,7 +416,7 @@ public class SqlUtils {
      * @param <AdapterClass> The class of the adapter, which is either a {@link ModelAdapter} or {@link ModelContainerAdapter}
      */
     @SuppressWarnings("unchecked")
-    private static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
+    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void notifyModelChanged(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter, Action action) {
         if (FlowContentObserver.shouldNotify()) {
             notifyModelChanged(modelAdapter.getModelClass(), action,
