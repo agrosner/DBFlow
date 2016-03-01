@@ -55,12 +55,12 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      * @return The precompiled full statement for this table model adapter
      */
     public DatabaseStatement getCompiledStatement() {
-        if (insertStatement == null) {
-            insertStatement = getCompiledStatement(
+        if (compiledStatement == null) {
+            compiledStatement = getCompiledStatement(
                 FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
-        return insertStatement;
+        return compiledStatement;
     }
 
     /**
