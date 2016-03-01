@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language.property;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
+import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -86,7 +86,7 @@ public class PropertyFactory {
     /**
      * Creates a new type-parameterized {@link Property} to be used as its value represented by a string
      * using {@link Condition#convertValueToString(Object)}.
-     * <p>
+     * <p/>
      * It will not convert a String column name
      * into a property, rather it assumes its database value represented by the String.
      *
@@ -105,7 +105,7 @@ public class PropertyFactory {
      * @param <TModel>  The model class of the query.
      * @return A new property that is a query.
      */
-    public static <TModel extends Model> Property<TModel> from(@NonNull BaseModelQueriable<TModel> queriable) {
+    public static <TModel extends Model> Property<TModel> from(@NonNull BaseQueriable<TModel> queriable) {
         return from(queriable.getTable(), "(" + queriable.getQuery() + ")");
     }
 

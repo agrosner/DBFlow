@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable
+import com.raizlabs.android.dbflow.sql.language.BaseQueriable
 import com.raizlabs.android.dbflow.sql.language.property.*
 import com.raizlabs.android.dbflow.structure.Model
 
@@ -32,7 +33,7 @@ val Byte.property: ByteProperty
 val <T> T.property: Property<T>
     get() = PropertyFactory.from(this)
 
-val <T : Model> BaseModelQueriable<T>.property: Property<T>
+val <T : Model> BaseQueriable<T>.property: Property<T>
     get() = PropertyFactory.from(this)
 
 inline fun <reified T : Any> T.propertyString(stringRepresentation: String?): Property<T> {
