@@ -1,9 +1,9 @@
 # Properties, Condition, & ConditionGroup
-DBFlow, by the means of java annotation processing, generates a `_Table` class that represents your `Model` class in its table structure. Each field generated are  `IProperty`. Each `IProperty` represents a column in the corresponding table and provides type-safe conditional operations that turn it into a `SQLCondition` or mutate into another `Property`.
+DBFlow, by the means of java annotation processing, generates a `_Table` class that represents your `Model` class in its table structure. Each field generated are subclasses of `IProperty`. Each `IProperty` represents a column in the corresponding table and provides type-safe conditional operations that turn it into a `SQLCondition` or mutate into another `Property`.
 
 `SQLCondition` is an interface that represents a condition statement within a SQL statement. It's an interface so other types of condition can be used, as well as allowing maximum flexibility to suit your needs.
 
-For example:
+For example, written in raw SQLite:
 
 ```sql
 
@@ -32,7 +32,7 @@ We have a simple table:
 public class TestModel3 {
 
     @PrimaryKey
-    public String name;
+    String name;
 
     @Column
     String type;
@@ -44,18 +44,28 @@ With this definition a `TestModel3_Table` class gets generated:
 ```java
 
 public final class TestModel3_Table {
-  public static final Property<String> name = new Property<String>(TestModel3.class, "name");
+  public static final PropertyConverter PROPERTY_CONVERTER = new PropertyConverter(){
+  public IProperty fromName(String columnName) {
+  return com.raizlabs.android.dbflow.test.sql.TestModel3_Table.getProperty(columnName);
+  }
+  };
 
   public static final Property<String> type = new Property<String>(TestModel3.class, "type");
+
+  public static final Property<String> name = new Property<String>(TestModel3.class, "name");
+
+  public static final IProperty[] getAllColumnProperties() {
+    return new IProperty[]{type,name};
+  }
 
   public static BaseProperty getProperty(String columnName) {
     columnName = QueryBuilder.quoteIfNeeded(columnName);
     switch (columnName)  {
-      case "`name`":  {
-        return name;
-      }
       case "`type`":  {
         return type;
+      }
+      case "`name`":  {
+        return name;
       }
       default:  {
         throw new IllegalArgumentException("Invalid column name passed. Ensure you are calling the correct table's column");
@@ -86,10 +96,20 @@ A whole set of `SQLCondition` operations are supported for `Property` generated 
 6. `between()` -> BETWEEN
 7. `in()`, `notIn()`
 
-## ConditionGroup
-The `ConditionGroup` is the successor to the `ConditionQueryBuilder`. It was flawed in that it conformed to `QueryBuilder`, yet contained `Condition`, and required a type-parameter that referenced the table it belonged in.
+Also we can do adds and subtractions:
 
-`ConditionGroup` are arbitrary collections of `SQLCondition` that can combine into one SQLite statement _or_ be used as `SQLCondition` within another `ConditionGroup`.
+```java
+
+SomeTable_Table.latitude.plus(SomeTable_Table.longitude).lessThan(45.0); // `latitude` + `longitude` < 45.0
+
+SomeTable_Table.latitude.minus(SomeTable_Table.longitude).greaterThan(45.0); // `latitude` - `longitude` > 45.0
+
+```
+
+## ConditionGroup
+The `ConditionGroup` is the successor to the `ConditionQueryBuilder`. That was flawed in that it conformed to `QueryBuilder`, yet contained `Condition`, and required a type-parameter that referenced the table it belonged in.
+
+`ConditionGroup` are arbitrary collections of `SQLCondition` that can combine into a single conditional, SELECT projection, _or_ be used as `SQLCondition` within another `ConditionGroup`.
 
 This used in wrapper query statements, backing for all kinds of other queries and classes.
 
@@ -100,10 +120,13 @@ SQLite.select()
   .where(MyTable_Table.someColumn.is("SomeValue"))
   .and(MyTable_Table.anotherColumn.is("ThisValue"));
 
-  // or
+  // SELECT * FROM `MyTable` WHERE `someColumn`='OneValue' OR (`someColumn`='SomeValue' AND `anotherColumn`='ThisValue')
   SQLite.select()
     .from(MyTable.class)
-    .where(ConditionGroup.clause()
+    .where(MyTable.someColumn.is("OneValue"))
+    .or(ConditionGroup.clause()
       .and(MyTable_Table.someColumn.is("SomeValue")
-      .or(MyTable_Table.anotherColumn.is("ThisValue"));
+      .AND(MyTable_Table.anotherColumn.is("ThisValue"));
+
+
 ```
