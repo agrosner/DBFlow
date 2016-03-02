@@ -60,32 +60,30 @@ For more detailed usage, check out these sections:
 [Kotlin Extensions](usage/KotlinSupport.md)
 
 # Including in your project
+If you use KAPT (Kotlin's APT), then skip this first step.
+
 We need to include the [apt plugin](https://bitbucket.org/hvisser/android-apt) in our classpath to enable Annotation Processing:
 
 ```groovy
 
 buildscript {
     repositories {
-      // required for this library, don't use mavenCentral()
         jcenter()
     }
     dependencies {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
-```
 
-Add this maven url to your project.
-
-```groovy
 allProjects {
   repositories {
+    // required to find the project's artifacts
     maven { url "https://jitpack.io" }
   }
 }
 ```
 
-Add the library to the project-level build.gradle, using the  to enable Annotation Processing:
+Add the library to the project-level build.gradle, using the apt plugin to enable Annotation Processing:
 
 ```groovy
 
@@ -97,15 +95,19 @@ Add the library to the project-level build.gradle, using the  to enable Annotati
 
   dependencies {
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
+    // kapt for kotlin apt
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
     // sql-cipher database encyrption (optional)
     compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
   }
-```
 
-You can also specify a commit hash instead of `develop-SNAPSHOT` to grab a specific commit.
+// if you're building with Kotlin
+  kapt {
+    generateStubs = true
+  }
+```
 
 # Pull Requests
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
@@ -115,18 +117,5 @@ I welcome and encourage all pull requests. It usually will take me within 24-48 
 4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.
 5. Have fun!
 
-# Maintainers
+# Maintained By
 [agrosner](https://github.com/agrosner) ([@agrosner](https://www.twitter.com/agrosner))
-
-# Contributors
-[wongcain](https://github.com/wongcain)
-
-[mozarcik](https://github.com/mozarcik)
-
-[mickele](https://github.com/mickele)
-
-[intrications](https://github.com/intrications)
-
-[mcumings](https://github.com/mcumings)
-
-[ktzouno](https://github.com/ktzouno)
