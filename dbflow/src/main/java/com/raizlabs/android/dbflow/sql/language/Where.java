@@ -189,8 +189,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Executes a SQL statement that retrieves the count of results in the DB. This may return the
-     * number of rows affected from a {@link Set} or {@link Delete} statement.
+     * Executes a SQL statement that retrieves the count of results in the DB. Within a {@link Set} or {@link Delete}
+     * this will execute an {@link SQLiteCompatibilityUtils#executeUpdateDelete(DatabaseWrapper, String)}, which returns
+     * number of rows affected.
      *
      * @return The number of rows this query returns or affects.
      */
