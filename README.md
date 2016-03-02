@@ -43,6 +43,8 @@ For more detailed usage, check out these sections:
 
 [Powerful Model Caching](usage/ModelCaching.md)
 
+[Query Models](usage/QueryModels.md)
+
 [Content Provider Generation](usage/ContentProviderGenerators.md)
 
 [Migrations](usage/Migrations.md)
