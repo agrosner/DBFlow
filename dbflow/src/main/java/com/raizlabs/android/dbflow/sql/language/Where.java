@@ -206,11 +206,6 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     @Override
-    public long count() {
-        return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
-    }
-
-    @Override
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
@@ -281,13 +276,4 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         return super.querySingle();
     }
 
-    /**
-     * Returns whether the DB {@link android.database.Cursor} returns with a count of at least 1
-     *
-     * @return if {@link android.database.Cursor}.count &lt; 0
-     */
-    public boolean hasData() {
-        checkSelect("query");
-        return SqlUtils.hasData(whereBase.getTable(), getQuery());
-    }
 }

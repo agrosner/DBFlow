@@ -72,7 +72,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
     }
 
     /**
-     * Sets how this {@link ModelContainerAdapterg} saves its objects.
+     * Sets how this {@link ModelContainerAdapter} saves its objects.
      *
      * @param modelSaver The saver to use.
      */

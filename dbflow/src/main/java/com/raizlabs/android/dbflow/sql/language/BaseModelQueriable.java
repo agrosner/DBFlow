@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
@@ -85,5 +86,4 @@ public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQ
     public <QueryClass extends BaseQueryModel> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass) {
         return FlowManager.getQueryModelAdapter(queryModelClass).getSingleModelLoader().load(getQuery());
     }
-
 }
