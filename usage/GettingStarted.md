@@ -11,7 +11,7 @@ Colony (1..1) -> Queen (1...many)-> Ants
 ```
 
 ## Setting Up DBFlow
-To initialize DBFlow, open databases, and begin migrations and creations, place this code in a custom `Application` class (recommended):
+To initialize DBFlow, place this code in a custom `Application` class (recommended):
 
 ```java
 
@@ -39,9 +39,9 @@ Lastly, add the definition to the manifest (with the name that you chose for you
 ```
 
 ## Defining our database
-In DBFlow, databases are placeholder objects that generate interactions from which tables "connect" themselves to.
+In DBFlow, a `@Database` is a placeholder object that generate a subclass of `BaseDatabaseDefinition`, which connect all tables, ModelAdapter, Views, Queries, and more under a single object. All connections are done pre-compile time, so there's no searching, reflection, or anything else that can slow down the runtime impact of your app.
 
-We need to define where we store our ant colony:
+In this example, we need to define where we store our ant colony:
 
 ```java
 
@@ -56,7 +56,7 @@ public class ColonyDatabase {
 
 For best practices, we create the constants `NAME` and `VERSION` as public, so other components we define for DBFlow can reference it later (if needed).
 
-_Note:_ If you wish to use [SQLCipher](https://www.zetetic.net/sqlcipher/) please read [set up here](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLCipherSupport.md)
+_Note:_ If you wish to use [SQLCipher](https://www.zetetic.net/sqlcipher/) please read [setup here](usage/SQLCipherSupport.md)
 
 ## Creating our tables and establishing relationships
 Now that we have a place to store our data for the ant colonies, we need to explicitly define how the underlying SQL data is stored and what we get is a `Model` that represents that underlying data.
@@ -64,15 +64,15 @@ Now that we have a place to store our data for the ant colonies, we need to expl
 ### The Queen Table
 We will start and go top-down within the colony. There can be only one queen per colony. We define our database objects using the ORM (object-relational mapping) model. What we do is mark each field we want represented as a database column in a class that corresponds to an underlying database table.
 
-In DBFlow, anything that represents an object that interacts with the database using ORM must implement `Model`. The reason for an interface vs. a baseclass ensures that other kinds of `Model` such as views/virtual tables can conform to the same protocol and not rely on one base class to rule them all. We extend `BaseModel` as a convenience for the standard table to `Model` class.
+In DBFlow, anything that represents an object that interacts with the database using ORM must implement `Model`. The reason for an interface vs. a baseclass ensures that other kinds of `Model` such as views/virtual tables can conform to the same protocol and not rely on one base class to rule them all. We extend `BaseModel` as a convenience for the standard table to `Model` class. Also, if not forced to at least an interface, this prevents passing in objects not meant for the methods they belong to.
 
 To properly define a table we must:
 1. Mark the class with `@Table` annotation
-2. Point the database to the correct database, in this case `ColonyDatabase`
+2. Point the table to the correct database, in this case `ColonyDatabase`
 3. Define at least one primary key
-4. The class and all of its database columns must be package private, `public`, or private with corresponding getters and setters so the generated classes can access them.
+4. The class and all of its database columns must be package private, `public`, or private (with corresponding getters and setters), so that the classes generated from DBFlow can access them.
 
-The basic definition we can use is:
+The basic definition of `Queen` we can use is:
 
 ```java
 
