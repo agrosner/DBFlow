@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
@@ -28,6 +29,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<ModelClass, ?> modelCache;
+    private ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> modelSaver;
 
     /**
      * @return The precompiled insert statement for this table model adapter
@@ -90,7 +92,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     @Override
     public void save(ModelClass model) {
-        SqlUtils.save(model, this, this);
+        getModelSaver().save(model);
     }
 
     /**
@@ -100,7 +102,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     @Override
     public void insert(ModelClass model) {
-        SqlUtils.insert(model, this, this);
+        getModelSaver().insert(model);
     }
 
     /**
@@ -110,7 +112,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     @Override
     public void update(ModelClass model) {
-        SqlUtils.update(model, this, this);
+        getModelSaver().update(model);
     }
 
     /**
@@ -120,7 +122,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     @Override
     public void delete(ModelClass model) {
-        SqlUtils.delete(model, this, this);
+        getModelSaver().delete(model);
     }
 
 
@@ -226,6 +228,22 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
 
     public Object getCachingId(@NonNull ModelClass model) {
         return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
+    }
+
+    public ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> getModelSaver() {
+        if (modelSaver == null) {
+            modelSaver = new ModelSaver<>(this, this);
+        }
+        return modelSaver;
+    }
+
+    /**
+     * Sets how this {@link ModelAdapter} saves its objects.
+     *
+     * @param modelSaver The saver to use.
+     */
+    public void setModelSaver(ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> modelSaver) {
+        this.modelSaver = modelSaver;
     }
 
     /**

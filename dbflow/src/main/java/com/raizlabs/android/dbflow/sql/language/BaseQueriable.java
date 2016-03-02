@@ -43,6 +43,16 @@ public abstract class BaseQueriable<ModelClass extends Model> implements Queriab
     }
 
     @Override
+    public boolean hasData() {
+        return count() > 0;
+    }
+
+    @Override
+    public boolean hasData(DatabaseWrapper databaseWrapper) {
+        return count(databaseWrapper) > 0;
+    }
+
+    @Override
     public Cursor query() {
         query(FlowManager.getDatabaseForTable(table).getWritableDatabase());
         return null;

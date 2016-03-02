@@ -43,7 +43,7 @@ public class FixPrimaryKeyMigrationTest extends FlowTestCase {
 
     @Test
     public void test_validateTempCreationQuery() {
-        assertEquals("CREATE TABLE IF NOT EXISTS `Gl≠obalModel_temp`(`id` INTEGER,`name` TEXT, PRIMARY KEY(`id`)" + ");", fixPrimaryKeyMigration.getTempCreationQuery());
+        assertEquals("CREATE TABLE IF NOT EXISTS `GlobalModel_temp`(`id` INTEGER,`name` TEXT, PRIMARY KEY(`id`)" + ");", fixPrimaryKeyMigration.getTempCreationQuery());
     }
 
     @Test
