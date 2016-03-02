@@ -8,10 +8,10 @@ The library is built on speed, performance, and approachability. It not only eli
 
 Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on writing amazing apps.
 
-# Why Use DBFlow vs other solutions
-DBFlow was built with the intention of bringing the best of all features from other ORM database libraries and to do it even better. It was also built to not limit how you can code your problems, but make it _significantly_ easier to make amazing applications. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
+# Why Use DBFlow
+DBFlow was built with the intention of bringing the best of most features from other ORM database libraries and to do it even better. It was also built to not limit how you can code your problems, but make it _significantly_ easier to deal with databases on Android. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
 - **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages. _Also, subclass objects in this library to suit your needs_.
-- **Speed**: Built with java's annotation processing code generation, there's zero runtime performance hit by using this library. This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
+- **Speed**: Built with java's annotation processing code generation, there's almost zero runtime performance hit by using this library (only reflection is creation of the main, generated database module's constructor). This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
 - **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
 - **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
 - **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in database request queue to perform operations on same thread, and many more features.
@@ -27,35 +27,37 @@ for older changes, from other xx.xx versions, check it out [here](https://github
 # Usage Docs
 For more detailed usage, check out these sections:
 
-[Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md)
+[Getting Started](usage/GettingStarted.md)
 
-[Tables and Database Properties](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
+[Tables and Database Properties](usage/DBStructure.md)
 
-[Multiple Instances of DBFlow / Database Modules](https://github.com/Raizlabs/DBFlow/blob/master/usage/DatabaseModules.md)
+[Multiple Instances of DBFlow / Database Modules](usage/DatabaseModules.md)
 
-[SQL Statements Using the Wrapper Classes](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLQuery.md)
+[SQL Statements Using the Wrapper Classes](usage/SQLQuery.md)
 
-[Properties & Conditions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md)
+[Properties & Conditions](usage/Conditions.md)
 
-[Transactions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Transactions.md)
+[Transactions](usage/Transactions.md)
 
-[Type Converters](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
+[Type Converters](usage/TypeConverters.md)
 
-[Powerful Model Caching](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelCaching.md)
+[Powerful Model Caching](usage/ModelCaching.md)
 
-[Content Provider Generation](https://github.com/Raizlabs/DBFlow/blob/master/usage/ContentProviderGenerators.md)
+[Content Provider Generation](usage/ContentProviderGenerators.md)
 
-[Migrations](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migrations.md)
+[Migrations](usage/Migrations.md)
 
-[Model Containers](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelContainers.md)
+[Model Containers](usage/ModelContainers.md)
 
-[Observing Models](https://github.com/Raizlabs/DBFlow/blob/master/usage/ObservableModels.md)
+[Observing Models](usage/ObservableModels.md)
 
-[Queries as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
+[Queries as Lists](usage/TableList.md)
 
-[Triggers, Indexes, and More](https://github.com/Raizlabs/DBFlow/blob/master/usage/TriggersIndexesAndMore.md)
+[Triggers, Indexes, and More](usage/TriggersIndexesAndMore.md)
 
-[SQLCipher Support](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLCipherSupport.md)
+[SQLCipher Support](usage/SQLCipherSupport.md)
+
+[Kotlin Extensions](usage/KotlinSupport.md)
 
 # Including in your project
 We need to include the [apt plugin](https://bitbucket.org/hvisser/android-apt) in our classpath to enable Annotation Processing:
