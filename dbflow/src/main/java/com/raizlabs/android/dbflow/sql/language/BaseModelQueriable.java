@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
@@ -19,7 +18,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.List;
 
 /**
- * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code.
+ * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code. It provides the
+ * default implementation for convenience.
  */
 public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQueriable<ModelClass> implements ModelQueriable<ModelClass>, Query {
 

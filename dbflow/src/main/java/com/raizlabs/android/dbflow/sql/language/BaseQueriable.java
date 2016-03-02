@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
- * Description:
+ * Description: Base implementation of something that can be queried from the database.
  */
 public abstract class BaseQueriable<ModelClass extends Model> implements Queriable, Query {
 
