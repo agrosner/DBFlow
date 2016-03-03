@@ -155,7 +155,8 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
                 constructor.addStatement("$L.put($L, migrations$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
                     version, version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {
-                    constructor.addStatement("migrations$L.add(new $T())", version, migrationDefinition.elementClassName);
+                    constructor.addStatement("migrations$L.add(new $T$L)", version, migrationDefinition.elementClassName,
+                        migrationDefinition.getConstructorName());
                 }
             }
         }
