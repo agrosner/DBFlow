@@ -124,6 +124,13 @@ SQLite.select()
   .where()
   .orderBy(Customer_Table.customer_id, true)
   .queryList();
+
+  SQLite.select()
+    .from(table)
+    .where()
+    .orderBy(Customer_Table.customer_id, true)
+    .orderBy(Customer_Table.name, false)
+    .queryList();
 ```
 
 ### Group By
@@ -208,6 +215,8 @@ SQLite.delete(MyTable.class)
 For reference, ([JOIN examples](http://www.tutorialspoint.com/sqlite/sqlite_using_joins.htm)).
 
 `JOIN` statements are great for combining many-to-many relationships.
+If your query returns non-table fields and cannot map to an existing object,
+see about [query models](usage/QueryModels.md)
 
 For example we have a table named `Customer` and another named `Reservations`.
 

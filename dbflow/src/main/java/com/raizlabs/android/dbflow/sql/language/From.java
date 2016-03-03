@@ -27,11 +27,6 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     private Query queryBase;
 
     /**
-     * The table that this statement gets from
-     */
-    private Class<ModelClass> table;
-
-    /**
      * An alias for the table
      */
     private NameAlias tableAlias;
@@ -50,7 +45,6 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     public From(Query querybase, Class<ModelClass> table) {
         super(table);
         queryBase = querybase;
-        this.table = table;
         tableAlias = new NameAlias(FlowManager.getTableName(table));
     }
 

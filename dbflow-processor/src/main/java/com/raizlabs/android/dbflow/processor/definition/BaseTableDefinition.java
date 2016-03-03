@@ -148,6 +148,10 @@ public abstract class BaseTableDefinition extends BaseDefinition {
         return false;
     }
 
+    public boolean hasRowID() {
+        return false;
+    }
+
     public ColumnDefinition getAutoIncrementColumn() {
         return null;
     }

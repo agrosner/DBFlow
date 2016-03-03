@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +33,8 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      */
     private ConflictAction conflictAction = ConflictAction.NONE;
 
+    private From<? extends Model> selectFrom;
+
     /**
      * Constructs a new INSERT command
      *
@@ -54,6 +57,32 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
             String column = columns[i];
             this.columns[i] = modelClassModelAdapter.getProperty(column);
         }
+        return this;
+    }
+
+    public Insert<ModelClass> columns(IProperty... properties) {
+        this.columns = new IProperty[properties.length];
+        for (int i = 0; i < properties.length; i++) {
+            columns[i] = properties[i];
+        }
+        return this;
+    }
+
+    public Insert<ModelClass> columns(List<IProperty> properties) {
+        if (properties != null) {
+            this.columns = new IProperty[properties.size()];
+            for (int i = 0; i < properties.size(); i++) {
+                columns[i] = properties.get(i);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * @return Appends a list of columns to this INSERT statement from the associated {@link ModelClass}.
+     */
+    public Insert<ModelClass> asColumns() {
+        columns(FlowManager.getModelAdapter(getTable()).getAllColumnProperties());
         return this;
     }
 
@@ -122,6 +151,16 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
         return columns(columns).values(values);
     }
 
+    /**
+     * Appends the specified {@link From}, which comes from a {@link Select} statement.
+     *
+     * @param selectFrom The from that is continuation of {@link Select}.
+     */
+    public Insert<ModelClass> select(From<? extends Model> selectFrom) {
+        this.selectFrom = selectFrom;
+        return this;
+    }
+
 
     /**
      * Specifies the optional OR method to use for this insert query
@@ -185,26 +224,32 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
     public String getQuery() {
         ValueQueryBuilder queryBuilder = new ValueQueryBuilder("INSERT ");
         if (conflictAction != null && !conflictAction.equals(ConflictAction.NONE)) {
-            queryBuilder.append("OR ").append(conflictAction);
+            queryBuilder.append("OR").appendSpaceSeparated(conflictAction);
         }
-        queryBuilder.appendSpaceSeparated("INTO")
-                .appendTableName(getTable());
+        queryBuilder.append("INTO")
+            .appendSpace()
+            .appendTableName(getTable());
 
         if (columns != null) {
             queryBuilder.append("(")
-                    .appendArray((Object[]) columns)
-                    .append(")");
+                .appendArray((Object[]) columns)
+                .append(")");
         }
 
-        if (columns != null && values != null && columns.length != values.length) {
-            throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
+        // append FROM, which overrides values
+        if (selectFrom != null) {
+            queryBuilder.appendSpace().append(selectFrom.getQuery());
+        } else {
+            if (columns != null && values != null && columns.length != values.length) {
+                throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
                     "columns needs to have the same amount of values and columns");
-        } else if (values == null) {
-            throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
+            } else if (values == null) {
+                throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
                     "at least one value specified for the insert");
-        }
+            }
 
-        queryBuilder.append(" VALUES(").appendModelArray(values).append(")");
+            queryBuilder.append(" VALUES(").appendModelArray(values).append(")");
+        }
 
         return queryBuilder.getQuery();
     }

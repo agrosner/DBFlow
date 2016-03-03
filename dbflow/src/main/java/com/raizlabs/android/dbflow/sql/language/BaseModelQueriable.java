@@ -18,7 +18,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.List;
 
 /**
- * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code.
+ * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code. It provides the
+ * default implementation for convenience.
  */
 public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQueriable<ModelClass> implements ModelQueriable<ModelClass>, Query {
 
@@ -85,5 +86,4 @@ public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQ
     public <QueryClass extends BaseQueryModel> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass) {
         return FlowManager.getQueryModelAdapter(queryModelClass).getSingleModelLoader().load(getQuery());
     }
-
 }

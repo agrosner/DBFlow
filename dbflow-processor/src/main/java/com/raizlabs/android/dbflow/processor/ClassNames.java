@@ -35,6 +35,7 @@ public class ClassNames {
     public static final ClassName URI = ClassName.get("android.net", "Uri");
     public static final ClassName URI_MATCHER = ClassName.get("android.content", "UriMatcher");
     public static final ClassName CURSOR = ClassName.get("android.database", "Cursor");
+    public static final ClassName DATABASE_UTILS = ClassName.get("android.database", "DatabaseUtils");
     public static final ClassName CONTENT_VALUES = ClassName.get("android.content", "ContentValues");
     public static final ClassName CONTENT_URIS = ClassName.get("android.content", "ContentUris");
 

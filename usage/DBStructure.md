@@ -23,11 +23,13 @@ To include a prepackaged database for your application, simply include the ".db"
 
 **Kotlin**: As of 3.0, Kotlin support is out of the box.
 
-Previously you needed to define a  `generatedClassSeparator()` that works for it. Simply add:
+Previously you needed to define a  `generatedClassSeparator()` that works for it.
+
+If you wish to change the default of `_` Simply add some string:
 
 ```java
 
-@Database(generatedClassSeparator = "_")
+@Database(generatedClassSeparator = "$$")
 ```
 
 **Integrity Checks on open of the database**: `consistencyChecksEnabled()` will run a `PRAGMA quick_check(1)` whenever the database is opened. If it fails, it will attempt to copy a prepackaged database.
@@ -54,21 +56,19 @@ be `public`, and point the `sqlHelperClass()` to the custom class in the `@Datab
 All standard tables must use the `@Table` annotation and implement `Model`. As a convenience, `BaseModel` provides a default implementation.
 
 **Models Support**:
-  1. Any default java class is supported such as the primitives, boxed primitives, and `String`.
-  2. A non-default object with a `TypeConverter` is also save-able. Objects with type-parameters are _not_ supported. Also `List`, `Map` or multi-value fields are not recommended. If you must, you have to leave out the type parameters.
-  3. Composite primary keys
-  4. Nested `Model` defined as a `@ForeignKey`, enabling 1-1 relationships.
-  5. Any `ModelContainer` as a `@ForeignKey`
-  6. Composite `@ForeignKey`
-  7. Custom `TypeConverter` via `@Column(typeConverter = SomeTypeConverter.class)`
+  1. Fields: Any default java class is supported such as the primitives, boxed primitives, and `String`.
+  2. `TypeConverter`: you can define for a non-standard column classes such as `Date`, `Calendar`, etc. These can be configured on a column-by-column basis.
+  3. Composite `@PrimaryKey`
+  4. Composite `@ForeignKey`. Nested `Model`, `ModelContainer`, `ForeignKeyContainer` or standard `@Column`.
+  5. Combining `@PrimaryKey` and `@ForeignKey`, and those can have complex primary keys.
+  6. Inner classes
 
-**Restrictions & Limitations**:
-  1. All `Model` **MUST HAVE** an accessible default constructor. We will use the default constructor when querying the database.
-  2. Subclassing works as one would expect: the library gathers all inherited fields annotated with `@Column` and count those as rows in the current class's database.
-  3. Column names default to the field name as a convenience, but if the name of your fields change you will need to specify the column name.
-  4. All fields must be `public` or package private as the `_Adapter` class needs access to them. _NOTE:_ Package private fields need _not_ be in the same package as DBFlow will generate the necessary access methods to get to them.
-  5. or private ONLY when you specify `get{Name}()` and `set{Name}(columnType)` methods for a column named `{name}`. This can be configured.
-  6. All model class definitions have to be accessible. Inner model classes are supported as of 3.0.0-beta1+.
+**Rules And Tips For Models**:
+  1. `Model` must have an accessible default constructor. This can be public or package private.
+  2. Subclassing is fully supported. DBFlow will gather and combine each subclass' annotations and combine them for the current class.
+  3. Fields can be public, package private (we generate package helpers to get access), or private with getters and setters specified. Private fields need to have a getter with `get{Name}` and setter with `set{Name}`. These also can be configured.
+  4. We can inherit columns from non-`Model` classes that a class may extend via the `inheritedColumns()` (or `inheritedPrimaryKeys()`). These must be accessible via package-private, public, or private with corresponding getters and setters.
+  5. To enable caching, set `cachingEnabled = true`, which will speed up retrieval in most scenarios.
 
 ### Sample Model
 This is an example of a `Model` class with a primary key (at least one is required) and another field.
@@ -102,6 +102,8 @@ It will override the usual conversion/access methods (EXCEPT for if the field is
 
 ### All Fields as Columns
 As other libraries do, you can set `@Table(allFields = true)` to turn on the ability to use all public/package private, non-final, and non-static fields as `@Column`. You still are required to provide at least one `@PrimaryKey` field.
+
+If you need to ignore a field, use the `@ColumnIgnore` annotation.
 
 ### Private Columns
 If you wish to use private fields, simply specify a getter and setter that follow the format of: `name` -> `getName()` + `setName(columnFieldType)`

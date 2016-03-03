@@ -4,8 +4,10 @@ import android.database.DatabaseUtils;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 
 /**
  * Description: Base class for all kinds of {@link SQLCondition}
@@ -21,36 +23,46 @@ abstract class BaseCondition implements SQLCondition {
      */
     @SuppressWarnings("unchecked")
     public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
-        String stringVal;
-        if (value != null) {
+        if (value == null) {
+            return "NULL";
+        } else {
+            String stringVal;
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
                 value = typeConverter.getDBValue(value);
             }
-        }
 
-        if (value instanceof Number) {
-            stringVal = String.valueOf(value);
-        } else {
-            if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
-                stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
-            } else if (value instanceof NameAlias) {
-                stringVal = ((NameAlias) value).getQuery();
-            } else if (value instanceof SQLCondition) {
-                QueryBuilder queryBuilder = new QueryBuilder();
-                ((SQLCondition) value).appendConditionToQuery(queryBuilder);
-                stringVal = queryBuilder.toString();
-            } else if (value instanceof Query) {
-                stringVal = ((Query) value).getQuery();
-            } else {
+            if (value instanceof Number) {
                 stringVal = String.valueOf(value);
-                if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
-                    stringVal = DatabaseUtils.sqlEscapeString(stringVal);
+            } else {
+                if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
+                    stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
+                } else if (value instanceof NameAlias) {
+                    stringVal = ((NameAlias) value).getQuery();
+                } else if (value instanceof SQLCondition) {
+                    QueryBuilder queryBuilder = new QueryBuilder();
+                    ((SQLCondition) value).appendConditionToQuery(queryBuilder);
+                    stringVal = queryBuilder.toString();
+                } else if (value instanceof Query) {
+                    stringVal = ((Query) value).getQuery();
+                } else if (value instanceof Blob || value instanceof byte[]) {
+                    byte[] bytes;
+                    if (value instanceof Blob) {
+                        bytes = ((Blob) value).getBlob();
+                    } else {
+                        bytes = ((byte[]) value);
+                    }
+                    stringVal = "X" + DatabaseUtils.sqlEscapeString(SqlUtils.byteArrayToHexString(bytes));
+                } else {
+                    stringVal = String.valueOf(value);
+                    if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
+                        stringVal = DatabaseUtils.sqlEscapeString(stringVal);
+                    }
                 }
             }
-        }
 
-        return stringVal;
+            return stringVal;
+        }
     }
 
     /**

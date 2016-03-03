@@ -10,32 +10,67 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link Table} gets used.
  */
 public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAdapter<ModelClass, ModelClass>
-        implements InternalAdapter<ModelClass, ModelClass> {
+    implements InternalAdapter<ModelClass, ModelClass> {
 
     private DatabaseStatement insertStatement;
+    private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<ModelClass, ?> modelCache;
+    private ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> modelSaver;
 
     /**
      * @return The precompiled insert statement for this table model adapter
      */
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
-            insertStatement = FlowManager.getDatabaseForTable(getModelClass())
-                    .getWritableDatabase().compileStatement(getInsertStatementQuery());
+            insertStatement = getInsertStatement(
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return insertStatement;
+    }
+
+    /**
+     * @param databaseWrapper The database used to do an insert statement.
+     * @return a new compiled {@link DatabaseStatement} representing insert.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
+     */
+    public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getInsertStatementQuery());
+    }
+
+    /**
+     * @return The precompiled full statement for this table model adapter
+     */
+    public DatabaseStatement getCompiledStatement() {
+        if (compiledStatement == null) {
+            compiledStatement = getCompiledStatement(
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+        }
+
+        return compiledStatement;
+    }
+
+    /**
+     * @param databaseWrapper The database used to do an insert statement.
+     * @return a new compiled {@link DatabaseStatement} representing insert.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
+     */
+    public DatabaseStatement getCompiledStatement(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getCompiledStatementQuery());
     }
 
     /**
@@ -57,7 +92,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     @Override
     public void save(ModelClass model) {
-        SqlUtils.save(model, this, this);
+        getModelSaver().save(model);
     }
 
     /**
@@ -67,7 +102,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     @Override
     public void insert(ModelClass model) {
-        SqlUtils.insert(model, this, this);
+        getModelSaver().insert(model);
     }
 
     /**
@@ -77,7 +112,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     @Override
     public void update(ModelClass model) {
-        SqlUtils.update(model, this, this);
+        getModelSaver().update(model);
     }
 
     /**
@@ -87,7 +122,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     @Override
     public void delete(ModelClass model) {
-        SqlUtils.delete(model, this, this);
+        getModelSaver().delete(model);
     }
 
 
@@ -115,9 +150,9 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     @Override
     public Number getAutoIncrementingId(ModelClass model) {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "a single primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "a single primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     /**
@@ -126,9 +161,9 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      */
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     /**
@@ -195,6 +230,22 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
         return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
     }
 
+    public ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> getModelSaver() {
+        if (modelSaver == null) {
+            modelSaver = new ModelSaver<>(this, this);
+        }
+        return modelSaver;
+    }
+
+    /**
+     * Sets how this {@link ModelAdapter} saves its objects.
+     *
+     * @param modelSaver The saver to use.
+     */
+    public void setModelSaver(ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> modelSaver) {
+        this.modelSaver = modelSaver;
+    }
+
     /**
      * Reloads relationships when loading from {@link Cursor} in a model that's cacheable. By having
      * relationships with cached models, the retrieval will be very fast.
@@ -216,8 +267,8 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
 
     public IMultiKeyCacheConverter<?> getCacheConverter() {
         throw new InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
-                "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
-                "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
+            "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
+            "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
     }
 
     public ModelCache<ModelClass, ?> createModelCache() {
@@ -238,6 +289,11 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      * @return The property from the corresponding Table class.
      */
     public abstract BaseProperty getProperty(String columnName);
+
+    /**
+     * @return An array of column properties, in order of declaration.
+     */
+    public abstract IProperty[] getAllColumnProperties();
 
     /**
      * @return The query used to insert a model using a {@link SQLiteStatement}
@@ -265,8 +321,8 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
 
     private void throwCachingError() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "an autoincrementing or at least one int/long primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "an autoincrementing or at least one int/long primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 }

@@ -28,6 +28,9 @@ public class ManyToManyDefinition extends BaseDefinition {
     TypeName referencedTable;
     public TypeName databaseTypeName;
     boolean generateAutoIncrement;
+    boolean sameTableReferenced;
+    String generatedTableClassName;
+    boolean saveForeignKeyModels;
 
     public ManyToManyDefinition(TypeElement element, ProcessorManager processorManager) {
         super(element, processorManager);
@@ -35,6 +38,10 @@ public class ManyToManyDefinition extends BaseDefinition {
         ManyToMany manyToMany = element.getAnnotation(ManyToMany.class);
         referencedTable = TypeName.get(ModelUtils.getReferencedClassFromAnnotation(manyToMany));
         generateAutoIncrement = manyToMany.generateAutoIncrement();
+        generatedTableClassName = manyToMany.generatedTableClassName();
+        saveForeignKeyModels = manyToMany.saveForeignKeyModels();
+
+        sameTableReferenced = (referencedTable.equals(elementTypeName));
 
         Table table = element.getAnnotation(Table.class);
         try {
@@ -47,8 +54,12 @@ public class ManyToManyDefinition extends BaseDefinition {
         if (databaseDefinition == null) {
             manager.logError("DatabaseDefinition was null for : " + elementName);
         } else {
-            ClassName referencedOutput = getElementClassName(manager.getElements().getTypeElement(referencedTable.toString()));
-            setOutputClassName(databaseDefinition.classSeparator + referencedOutput.simpleName());
+            if (StringUtils.isNullOrEmpty(generatedTableClassName)) {
+                ClassName referencedOutput = getElementClassName(manager.getElements().getTypeElement(referencedTable.toString()));
+                setOutputClassName(databaseDefinition.classSeparator + referencedOutput.simpleName());
+            } else {
+                setOutputClassNameFull(generatedTableClassName);
+            }
         }
     }
 
@@ -61,17 +72,17 @@ public class ManyToManyDefinition extends BaseDefinition {
 
         if (generateAutoIncrement) {
             typeBuilder.addField(FieldSpec.builder(TypeName.LONG, "_id")
-                    .addAnnotation(AnnotationSpec.builder(PrimaryKey.class).addMember("autoincrement", "true").build())
-                    .build());
+                .addAnnotation(AnnotationSpec.builder(PrimaryKey.class).addMember("autoincrement", "true").build())
+                .build());
             typeBuilder.addMethod(MethodSpec.methodBuilder("getId")
-                    .returns(TypeName.LONG)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return $L", "_id")
-                    .build());
+                .returns(TypeName.LONG)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return $L", "_id")
+                .build());
         }
 
-        appendColumnDefinitions(typeBuilder, referencedDefinition);
-        appendColumnDefinitions(typeBuilder, selfDefinition);
+        appendColumnDefinitions(typeBuilder, referencedDefinition, 0);
+        appendColumnDefinitions(typeBuilder, selfDefinition, 1);
     }
 
     @Override
@@ -79,24 +90,29 @@ public class ManyToManyDefinition extends BaseDefinition {
         return ClassNames.BASE_MODEL;
     }
 
-    private void appendColumnDefinitions(TypeSpec.Builder typeBuilder, TableDefinition referencedDefinition) {
+    private void appendColumnDefinitions(TypeSpec.Builder typeBuilder,
+                                         TableDefinition referencedDefinition, int index) {
         String fieldName = StringUtils.lower(referencedDefinition.elementName);
+        if (sameTableReferenced) {
+            fieldName += index;
+        }
 
         FieldSpec.Builder fieldBuilder = FieldSpec.builder(referencedDefinition.elementClassName, fieldName)
-                .addAnnotation(AnnotationSpec.builder(ForeignKey.class).build());
+            .addAnnotation(AnnotationSpec.builder(ForeignKey.class)
+                .addMember("saveForeignKeyModel", saveForeignKeyModels + "").build());
         if (!generateAutoIncrement) {
             fieldBuilder.addAnnotation(AnnotationSpec.builder(PrimaryKey.class).build());
         }
         typeBuilder.addField(fieldBuilder.build()).build();
         typeBuilder.addMethod(MethodSpec.methodBuilder("get" + StringUtils.capitalize(fieldName))
-                .returns(referencedDefinition.elementClassName)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $L", fieldName)
-                .build());
+            .returns(referencedDefinition.elementClassName)
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addStatement("return $L", fieldName)
+            .build());
         typeBuilder.addMethod(MethodSpec.methodBuilder("set" + StringUtils.capitalize(fieldName))
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(referencedDefinition.elementClassName, "param")
-                .addStatement("$L = param", fieldName)
-                .build());
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addParameter(referencedDefinition.elementClassName, "param")
+            .addStatement("$L = param", fieldName)
+            .build());
     }
 }

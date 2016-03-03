@@ -55,21 +55,23 @@ public class CreationQueryMethod implements MethodDefinition {
             }
         }
 
-        int primarySize = tableDefinition.getPrimaryColumnDefinitions().size();
-        for (int i = 0; i < primarySize; i++) {
-            if (i == 0) {
-                creationBuilder.add(", PRIMARY KEY(");
-            }
+        if (!tableDefinition.hasAutoIncrement) {
+            int primarySize = tableDefinition.getPrimaryColumnDefinitions().size();
+            for (int i = 0; i < primarySize; i++) {
+                if (i == 0) {
+                    creationBuilder.add(", PRIMARY KEY(");
+                }
 
-            if (i > 0) {
-                creationBuilder.add(",");
-            }
+                if (i > 0) {
+                    creationBuilder.add(",");
+                }
 
-            ColumnDefinition primaryDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
-            creationBuilder.add(primaryDefinition.getPrimaryKeyName());
+                ColumnDefinition primaryDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
+                creationBuilder.add(primaryDefinition.getPrimaryKeyName());
 
-            if (i == primarySize - 1) {
-                creationBuilder.add(")");
+                if (i == primarySize - 1) {
+                    creationBuilder.add(")");
+                }
             }
         }
 

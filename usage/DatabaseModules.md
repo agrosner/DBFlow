@@ -15,6 +15,18 @@ apt {
 }
 ```
 
+for KAPT:
+```groovy
+
+kapt {
+    generateStubs = true
+    arguments {
+        arg("targetModuleName", "Test")
+    }
+}
+
+```
+
 By passing the `targetModuleName`, we append that to the `GeneratedDatabaseHolder` to create the `TestGeneratedDatabaseHolder` module.
 
 In your library (and application) you should initialize DBFlow using the standard approach.

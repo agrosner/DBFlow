@@ -54,6 +54,18 @@ public interface Queriable {
     long count(DatabaseWrapper databaseWrapper);
 
     /**
+     * @return True if this query has data. It will run a {@link #count()} greater than 0.
+     */
+    boolean hasData();
+
+    /**
+     * Allows you to pass in a {@link DatabaseWrapper} manually.
+     *
+     * @return True if this query has data. It will run a {@link #count()} greater than 0.
+     */
+    boolean hasData(DatabaseWrapper databaseWrapper);
+
+    /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */

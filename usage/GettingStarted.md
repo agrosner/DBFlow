@@ -11,7 +11,7 @@ Colony (1..1) -> Queen (1...many)-> Ants
 ```
 
 ## Setting Up DBFlow
-To initialize DBFlow, open databases, and begin migrations and creations, place this code in a custom `Application` class:
+To initialize DBFlow, place this code in a custom `Application` class (recommended):
 
 ```java
 
@@ -26,6 +26,8 @@ public class ExampleApplication extends Application {
 }
 ```
 
+Never fear, this only initializes once and it will hold onto only the `Application` context even if initialized in another `Context`.
+
 Lastly, add the definition to the manifest (with the name that you chose for your custom application):
 
 ```xml
@@ -37,9 +39,9 @@ Lastly, add the definition to the manifest (with the name that you chose for you
 ```
 
 ## Defining our database
-In DBFlow, databases are placeholder objects that generate interactions from which tables "connect" themselves to.
+In DBFlow, a `@Database` is a placeholder object that generate a subclass of `BaseDatabaseDefinition`, which connect all tables, ModelAdapter, Views, Queries, and more under a single object. All connections are done pre-compile time, so there's no searching, reflection, or anything else that can slow down the runtime impact of your app.
 
-We need to define where we store our ant colony:
+In this example, we need to define where we store our ant colony:
 
 ```java
 
@@ -54,7 +56,7 @@ public class ColonyDatabase {
 
 For best practices, we create the constants `NAME` and `VERSION` as public, so other components we define for DBFlow can reference it later (if needed).
 
-_Note:_ If you wish to use [SQLCipher](https://www.zetetic.net/sqlcipher/) please read [set up here](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLCipherSupport.md)
+_Note:_ If you wish to use [SQLCipher](https://www.zetetic.net/sqlcipher/) please read [setup here](usage/SQLCipherSupport.md)
 
 ## Creating our tables and establishing relationships
 Now that we have a place to store our data for the ant colonies, we need to explicitly define how the underlying SQL data is stored and what we get is a `Model` that represents that underlying data.
@@ -62,16 +64,15 @@ Now that we have a place to store our data for the ant colonies, we need to expl
 ### The Queen Table
 We will start and go top-down within the colony. There can be only one queen per colony. We define our database objects using the ORM (object-relational mapping) model. What we do is mark each field we want represented as a database column in a class that corresponds to an underlying database table.
 
-In DBFlow, anything that represents an object that interacts with the database using ORM must implement `Model`. The reason for an interface vs. a baseclass ensures that other kinds of `Model` such as views/virtual tables can conform to the same protocol and not rely on one base class to rule them all. We extend `BaseModel` as a convenience for the standard table to `Model` class.
+In DBFlow, anything that represents an object that interacts with the database using ORM must implement `Model`. The reason for an interface vs. a baseclass ensures that other kinds of `Model` such as views/virtual tables can conform to the same protocol and not rely on one base class to rule them all. We extend `BaseModel` as a convenience for the standard table to `Model` class. Also, if not forced to at least an interface, this prevents passing in objects not meant for the methods they belong to.
 
 To properly define a table we must:
 1. Mark the class with `@Table` annotation
-2. Point the database to the correct database, in this case `ColonyDatabase`
+2. Point the table to the correct database, in this case `ColonyDatabase`
 3. Define at least one primary key
-4. The class and all of its database columns must be package private or `public`
-5. so the generated `_Adapter` class can access it. Note: Columns may be private with getter and setters specified.
+4. The class and all of its database columns must be package private, `public`, or private (with corresponding getters and setters), so that the classes generated from DBFlow can access them.
 
-The basic definition we can use is:
+The basic definition of `Queen` we can use is:
 
 ```java
 
@@ -92,7 +93,7 @@ So we have a queen ant definition, and now we need to define a `Colony` for the 
 ### The Colony
 
 ```java
-@ModelContainer
+@ModelContainer // more on this later.
 @Table(database = ColonyDatabase.class)
 public class Colony extends BaseModel {
 
@@ -125,11 +126,11 @@ public class Queen extends BaseModel {
 }
 ```
 
-Defining the Foreign Key as a `Model` will automatically load the relationship when loading from the database using a query on the value in that column. For performance reasons we use `saveForeignKeyModel=false` to not save the parent `Colony` when the `Queen` object is saved.
+Defining the Foreign Key as a `Model` will automatically load the relationship when loading from the database using a query on the value of the reference in that column. For performance reasons we default `saveForeignKeyModel=false` to not save the parent `Colony` when the `Queen` object is saved.
 
-As of 3.0, we no longer need to explicitly define the `@ForeignKeyReference` for each referenced column. DBFlow will know and add them automatically to the table definitions.
+If you wish to keep that pairing intact, set `saveForeignKeyModel=true`.
 
-The `@ModelContainer` annotation is _required_ for any `Model` referenced as a `ForeignKeyContainer`. This is to limit the generation of unnecessary code if not used.
+As of 3.0, we no longer need to explicitly define the `@ForeignKeyReference` for each referenced column. DBFlow will add them automatically to the table definitions based on the `@PrimaryKey` of the referenced tables. They will appear in the format of `{foreignKeyFieldName}_{referencedColumnName}`.
 
 ### The Ant Table + 1-to-Many
 Now that we have a `Colony` with a `Queen` that belongs to it, we need some ants to serve her!
@@ -162,11 +163,13 @@ public class Ant extends BaseModel {
 
 We have the `type`, which can be "worker", "mater", or "other". Also if the ant is male or female.
 
-We use a `ForeignKeyContainer` in this instance, since we can have thousands of ants. For performance reasons this will "lazy-load" the relationship of the `Queen` and only run the query on the DB for the `Queen` when we call `toModel()`.
+We use a `ForeignKeyContainer` in this instance, since we can have thousands of ants. For performance reasons this will "lazy-load" the relationship of the `Queen` and only run the query on the DB for the `Queen` when we call `toModel()`. With this said, in order to set the proper values on the `ForeignKeyContainer` you _should_ call its generated method for converting itself into a `ForeignKeyContainer` via `FlowManager.getContainerAdapter(Queen.class).toForeignKeyContainer(queen)`.
 
 Since `ModelContainer` usage is not generated by default, we must add the `@ModelContainer` annotation to the `Queen` class in order to use for a `ForeignKeyContainer`.
 
- Next, we establish the 1-to-many relationship by lazy-loading the ants for performance reasons:
+Lastly, using `@ForeignKeyContainer` can prevent circular references. If both the `Queen` and `Colony` referenced each other by `Model`, we would run into a `StackOverFlowError`, since they both would try to load each other out of the database.
+
+ Next, we establish the 1-to-many relationship by lazy-loading the ants, since we may have thousands, if not, millions stored:
 
 ```java
 

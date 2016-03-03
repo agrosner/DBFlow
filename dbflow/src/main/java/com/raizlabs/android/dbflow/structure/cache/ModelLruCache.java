@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
+import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -8,7 +9,17 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class ModelLruCache<ModelClass extends Model> extends ModelCache<ModelClass, LruCache<Long, ModelClass>> {
 
-    public ModelLruCache(int size) {
+    /**
+     * @param size The size, if less than or equal to 0 we set it to {@link Table#DEFAULT_CACHE_SIZE}.
+     */
+    public static <ModelClass extends Model> ModelLruCache<ModelClass> newInstance(int size) {
+        if (size <= 0) {
+            size = Table.DEFAULT_CACHE_SIZE;
+        }
+        return new ModelLruCache<>(size);
+    }
+
+    protected ModelLruCache(int size) {
         super(new LruCache<Long, ModelClass>(size));
     }
 

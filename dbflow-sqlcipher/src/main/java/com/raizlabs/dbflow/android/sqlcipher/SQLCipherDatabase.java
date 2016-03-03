@@ -2,6 +2,8 @@ package com.raizlabs.dbflow.android.sqlcipher;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -70,5 +72,22 @@ public class SQLCipherDatabase implements DatabaseWrapper {
     @Override
     public long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values, int sqLiteDatabaseAlgorithmInt) {
         return database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt);
+    }
+
+    @Override
+    public Cursor query(
+            @NonNull String tableName,
+            @Nullable String[] columns,
+            @Nullable String selection,
+            @Nullable String[] selectionArgs,
+            @Nullable String groupBy,
+            @Nullable String having,
+            @Nullable String orderBy) {
+        return database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy);
+    }
+
+    @Override
+    public int delete(@NonNull String tableName, @Nullable String whereClause, @Nullable String[] whereArgs) {
+        return database.delete(tableName, whereClause, whereArgs);
     }
 }

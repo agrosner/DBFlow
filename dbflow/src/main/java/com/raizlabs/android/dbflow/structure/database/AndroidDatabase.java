@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Description: Specifies the android default implementation of a database.
@@ -80,5 +81,22 @@ public class AndroidDatabase implements DatabaseWrapper {
             count = database.insert(tableName, nullColumnHack, values);
         }
         return count;
+    }
+
+    @Override
+    public Cursor query(
+            @NonNull String tableName,
+            @Nullable String[] columns,
+            @Nullable String selection,
+            @Nullable String[] selectionArgs,
+            @Nullable String groupBy,
+            @Nullable String having,
+            @Nullable String orderBy) {
+        return database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy);
+    }
+
+    @Override
+    public int delete(@NonNull String tableName, @Nullable String whereClause, @Nullable String[] whereArgs) {
+        return database.delete(tableName, whereClause, whereArgs);
     }
 }

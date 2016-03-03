@@ -26,12 +26,4 @@ public @interface ContentProvider {
      * @return The base content uri String to use for all paths
      */
     String baseContentUri() default "";
-
-    /**
-     * @return Default true, it will enforce that any kind of query to the DB the selection, selection args,
-     * and sortOrder can be converted into Property classes. This is to prevent SQL injection or unintended behavior.
-     * This, however, is pretty basic and doesn't allow complex queries. Setting this to false means
-     * you acknowledge any kind of risk and need to it work for more complicated queries.
-     */
-    boolean useSafeQueryChecking() default true;
 }

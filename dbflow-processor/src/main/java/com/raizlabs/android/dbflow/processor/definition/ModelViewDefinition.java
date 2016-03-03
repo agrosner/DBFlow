@@ -152,7 +152,8 @@ public class ModelViewDefinition extends BaseTableDefinition {
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition || columnDefinition.isPrimaryKeyAutoIncrement) {
+                if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition
+                    || columnDefinition.isPrimaryKeyAutoIncrement() || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys");
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery.class) != null) {

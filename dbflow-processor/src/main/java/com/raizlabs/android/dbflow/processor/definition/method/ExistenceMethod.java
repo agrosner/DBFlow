@@ -35,13 +35,22 @@ public class ExistenceMethod implements MethodDefinition {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .returns(TypeName.BOOLEAN);
         // only quick check if enabled.
-        if (tableDefinition.hasAutoIncrement()) {
+        if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
             ColumnDefinition columnDefinition = tableDefinition.getAutoIncrementColumn();
-            methodBuilder.addCode("return $L > 0", columnDefinition.getColumnAccessString(isModelContainerAdapter, false));
+            CodeBlock.Builder incrementBuilder = CodeBlock.builder().add("return ");
+            String columnAccess = columnDefinition.getColumnAccessString(isModelContainerAdapter, false);
+            if (!columnDefinition.elementTypeName.isPrimitive()) {
+                incrementBuilder.add("($L != null && ", columnAccess);
+            }
+            incrementBuilder.add("$L > 0", columnAccess);
+            if (!columnDefinition.elementTypeName.isPrimitive()) {
+                incrementBuilder.add(" || $L == null)", columnAccess);
+            }
+            methodBuilder.addCode(incrementBuilder.build());
         }
 
-        if (!tableDefinition.hasAutoIncrement() || !tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
-            if (tableDefinition.hasAutoIncrement()) {
+        if ((!tableDefinition.hasRowID() && !tableDefinition.hasAutoIncrement()) || !tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
+            if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
                 methodBuilder.addCode(" && ");
             } else {
                 methodBuilder.addCode("return ");

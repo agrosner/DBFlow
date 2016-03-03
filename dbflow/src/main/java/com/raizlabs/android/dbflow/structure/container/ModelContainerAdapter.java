@@ -4,8 +4,9 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
+import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
@@ -21,6 +22,7 @@ import java.util.Map;
 public abstract class ModelContainerAdapter<ModelClass extends Model> extends RetrievalAdapter<ModelContainer<ModelClass, ?>, ModelClass> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
 
     private ModelContainerLoader<ModelClass> modelContainerLoader;
+    private ModelSaver<ModelClass, ModelContainer<ModelClass, ?>, ModelContainerAdapter<ModelClass>> modelSaver;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
 
@@ -31,7 +33,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      */
     @Override
     public void save(ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.save(modelContainer, this, modelContainer.getModelAdapter());
+        getModelSaver().save(modelContainer);
     }
 
     /**
@@ -40,7 +42,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      * @param modelContainer The model container to insert.
      */
     public void insert(ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.insert(modelContainer, this, modelContainer.getModelAdapter());
+        getModelSaver().insert(modelContainer);
     }
 
     /**
@@ -49,7 +51,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      * @param modelContainer The model to update.
      */
     public void update(ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.update(modelContainer, this, modelContainer.getModelAdapter());
+        getModelSaver().update(modelContainer);
     }
 
     /**
@@ -59,7 +61,23 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      */
     @Override
     public void delete(ModelContainer<ModelClass, ?> modelContainer) {
-        SqlUtils.delete(modelContainer, this, modelContainer.getModelAdapter());
+        getModelSaver().delete(modelContainer);
+    }
+
+    public ModelSaver<ModelClass, ModelContainer<ModelClass, ?>, ModelContainerAdapter<ModelClass>> getModelSaver() {
+        if (modelSaver == null) {
+            modelSaver = new ModelSaver<>(FlowManager.getModelAdapter(getModelClass()), this);
+        }
+        return modelSaver;
+    }
+
+    /**
+     * Sets how this {@link ModelContainerAdapter} saves its objects.
+     *
+     * @param modelSaver The saver to use.
+     */
+    public void setModelSaver(ModelSaver<ModelClass, ModelContainer<ModelClass, ?>, ModelContainerAdapter<ModelClass>> modelSaver) {
+        this.modelSaver = modelSaver;
     }
 
     /**

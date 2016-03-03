@@ -203,6 +203,11 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
         return getNameAlias().getQuery();
     }
 
+    @Override
+    public String getCursorKey() {
+        return getNameAlias().getQuery();
+    }
+
     public String getDefinition() {
         return getNameAlias().getDefinition();
     }

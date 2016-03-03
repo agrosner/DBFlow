@@ -1,12 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.StringUtils;
-import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
- * Description: Meant for {@link ContentProvider} generated, this class will use a String to describe its condition.
- * Not recommended for normal queries.
+ * Description: This class will use a String to describe its condition.
+ * Not recommended for normal queries, but can be used as a fall-back.
  */
 public class UnSafeStringCondition implements SQLCondition {
 

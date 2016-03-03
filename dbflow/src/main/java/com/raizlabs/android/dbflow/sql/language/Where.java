@@ -189,8 +189,9 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Executes a SQL statement that retrieves the count of results in the DB. This may return the
-     * number of rows affected from a {@link Set} or {@link Delete} statement.
+     * Executes a SQL statement that retrieves the count of results in the DB. Within a {@link Set} or {@link Delete}
+     * this will execute an {@link SQLiteCompatibilityUtils#executeUpdateDelete(DatabaseWrapper, String)}, which returns
+     * number of rows affected.
      *
      * @return The number of rows this query returns or affects.
      */
@@ -203,11 +204,6 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
             count = SqlUtils.longForQuery(databaseWrapper, getQuery());
         }
         return count;
-    }
-
-    @Override
-    public long count() {
-        return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
     @Override
@@ -281,13 +277,4 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
         return super.querySingle();
     }
 
-    /**
-     * Returns whether the DB {@link android.database.Cursor} returns with a count of at least 1
-     *
-     * @return if {@link android.database.Cursor}.count &lt; 0
-     */
-    public boolean hasData() {
-        checkSelect("query");
-        return SqlUtils.hasData(whereBase.getTable(), getQuery());
-    }
 }

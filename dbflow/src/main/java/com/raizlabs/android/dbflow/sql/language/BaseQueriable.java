@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
- * Description:
+ * Description: Base implementation of something that can be queried from the database.
  */
 public abstract class BaseQueriable<ModelClass extends Model> implements Queriable, Query {
 
@@ -40,6 +40,16 @@ public abstract class BaseQueriable<ModelClass extends Model> implements Queriab
     @Override
     public long count() {
         return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
+    }
+
+    @Override
+    public boolean hasData() {
+        return count() > 0;
+    }
+
+    @Override
+    public boolean hasData(DatabaseWrapper databaseWrapper) {
+        return count(databaseWrapper) > 0;
     }
 
     @Override

@@ -46,7 +46,7 @@ public class ForeignKeyReferenceDefinition {
         this.tableColumnAccess = tableColumnAccess;
         this.foreignKeyFieldName = foreignKeyFieldName;
 
-        if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement
+        if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement() && !foreignKeyColumnDefinition.isRowId
             || referenceCount > 0) {
             columnName = foreignKeyFieldName + "_" + referencedColumn.columnName;
         } else {
@@ -145,7 +145,9 @@ public class ForeignKeyReferenceDefinition {
             combined = columnShortAccess;
         }
         return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
-            columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess, getForeignKeyColumnVariable(isModelContainerAdapter), null).build();
+            columnName, columnClassName, isModelContainerAdapter, simpleColumnAccess,
+            getForeignKeyColumnVariable(isModelContainerAdapter), null,
+            foreignKeyColumnDefinition.tableDefinition.outputClassName).build();
     }
 
     public String getPrimaryReferenceString(boolean isModelContainerAdapter) {
