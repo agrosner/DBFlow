@@ -3,9 +3,11 @@ package com.raizlabs.android.dbflow.structure;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Provides a base retrieval class for all {@link Model} backed
@@ -26,13 +28,21 @@ public abstract class RetrievalAdapter<ModelClass extends Model, TableClass exte
 
     /**
      * @param model The model to query values from
-     * @return True if it exists as VIEW row in the database table
+     * @return True if it exists as a row in the corresponding database table
      */
-    public abstract boolean exists(ModelClass model);
+    public boolean exists(ModelClass model) {
+        return exists(model, FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+    }
+
+    /**
+     * @param model The model to query values from
+     * @return True if it exists as a row in the corresponding database table
+     */
+    public abstract boolean exists(ModelClass model, DatabaseWrapper databaseWrapper);
 
     /**
      * @param model The primary condition clause.
-     * @return The clause that contains necessary
+     * @return The clause that contains necessary primary conditions for this table.
      */
     public abstract ConditionGroup getPrimaryConditionClause(ModelClass model);
 

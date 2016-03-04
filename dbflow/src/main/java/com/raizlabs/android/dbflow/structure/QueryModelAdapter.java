@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: The baseclass for adapters to {@link QueryModel} that defines how it interacts with the DB. The
@@ -16,6 +17,11 @@ public abstract class QueryModelAdapter<ModelClass extends Model> extends Instan
 
     @Override
     public boolean exists(ModelClass model) {
+        throw new UnsupportedOperationException("QueryModels cannot check for existence");
+    }
+
+    @Override
+    public boolean exists(ModelClass model, DatabaseWrapper databaseWrapper) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 }

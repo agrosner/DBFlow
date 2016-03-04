@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,11 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
         getModelSaver().save(modelContainer);
     }
 
+    @Override
+    public void save(ModelContainer<ModelClass, ?> model, DatabaseWrapper databaseWrapper) {
+        getModelSaver().save(model, databaseWrapper);
+    }
+
     /**
      * Inserts the specified model into the DB.
      *
@@ -43,6 +49,11 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      */
     public void insert(ModelContainer<ModelClass, ?> modelContainer) {
         getModelSaver().insert(modelContainer);
+    }
+
+    @Override
+    public void insert(ModelContainer<ModelClass, ?> model, DatabaseWrapper databaseWrapper) {
+        getModelSaver().insert(model, databaseWrapper);
     }
 
     /**
@@ -54,6 +65,11 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
         getModelSaver().update(modelContainer);
     }
 
+    @Override
+    public void update(ModelContainer<ModelClass, ?> model, DatabaseWrapper databaseWrapper) {
+        getModelSaver().update(model, databaseWrapper);
+    }
+
     /**
      * Deletes the specified container using the primary key values contained in it.
      *
@@ -62,6 +78,11 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
     @Override
     public void delete(ModelContainer<ModelClass, ?> modelContainer) {
         getModelSaver().delete(modelContainer);
+    }
+
+    @Override
+    public void delete(ModelContainer<ModelClass, ?> model, DatabaseWrapper databaseWrapper) {
+        getModelSaver().delete(model, databaseWrapper);
     }
 
     public ModelSaver<ModelClass, ModelContainer<ModelClass, ?>, ModelContainerAdapter<ModelClass>> getModelSaver() {

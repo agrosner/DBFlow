@@ -29,11 +29,12 @@ public class ExistenceMethod implements MethodDefinition {
     public MethodSpec getMethodSpec() {
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("exists")
-                .addAnnotation(Override.class)
-                .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
-                        ModelUtils.getVariable(isModelContainerAdapter))
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .returns(TypeName.BOOLEAN);
+            .addAnnotation(Override.class)
+            .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
+                ModelUtils.getVariable(isModelContainerAdapter))
+            .addParameter(ClassNames.DATABASE_WRAPPER, "wrapper")
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .returns(TypeName.BOOLEAN);
         // only quick check if enabled.
         if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
             ColumnDefinition columnDefinition = tableDefinition.getAutoIncrementColumn();
@@ -55,8 +56,8 @@ public class ExistenceMethod implements MethodDefinition {
             } else {
                 methodBuilder.addCode("return ");
             }
-            methodBuilder.addCode("new $T($T.count()).from($T.class).where(getPrimaryConditionClause($L)).count() > 0",
-                    ClassNames.SELECT, ClassNames.METHOD, tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
+            methodBuilder.addCode("new $T($T.count()).from($T.class).where(getPrimaryConditionClause($L)).count(wrapper) > 0",
+                ClassNames.SELECT, ClassNames.METHOD, tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
         }
         methodBuilder.addCode(";\n");
 

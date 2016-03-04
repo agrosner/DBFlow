@@ -30,37 +30,57 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
         this.adapter = adapter;
     }
 
-    @SuppressWarnings("unchecked")
     public void save(TableClass model) {
+        DatabaseWrapper wrapper = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
+        save(model, wrapper);
+    }gi
+
+    @SuppressWarnings("unchecked")
+    public void save(TableClass model, DatabaseWrapper wrapper) {
         if (model == null) {
             throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
         }
 
-        boolean exists = adapter.exists(model);
+        boolean exists = adapter.exists(model, wrapper);
 
         if (exists) {
-            exists = update(model);
+            exists = update(model, wrapper);
         }
 
         if (!exists) {
-            insert(model);
+            insert(model, wrapper);
         }
 
         SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.SAVE);
     }
 
-    @SuppressWarnings("unchecked")
     public boolean update(TableClass model) {
-        DatabaseWrapper db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
+        return update(model, FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean update(TableClass model, DatabaseWrapper wrapper) {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
-        boolean successful = SQLiteCompatibilityUtils.updateWithOnConflict(db,
+        boolean successful = SQLiteCompatibilityUtils.updateWithOnConflict(wrapper,
             modelAdapter.getTableName(), contentValues, adapter.getPrimaryConditionClause(model).getQuery(), null,
             ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.UPDATE);
         }
         return successful;
+    }
+
+    @SuppressWarnings("unchecked")
+    public long insert(TableClass model, DatabaseWrapper wrapper) {
+        DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
+        adapter.bindToInsertStatement(insertStatement, model);
+        long id = insertStatement.executeInsert();
+        if (id > -1) {
+            adapter.updateAutoIncrement(model, id);
+            SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
+        }
+        return id;
     }
 
     @SuppressWarnings("unchecked")
@@ -75,10 +95,14 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
         return id;
     }
 
-    @SuppressWarnings("unchecked")
     public boolean delete(TableClass model) {
+        return delete(model, FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean delete(TableClass model, DatabaseWrapper wrapper) {
         boolean successful = SQLite.delete((Class<TableClass>) adapter.getModelClass()).where(
-            adapter.getPrimaryConditionClause(model)).count() != 0;
+            adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);
         }
