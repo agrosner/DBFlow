@@ -33,7 +33,7 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
     public void save(TableClass model) {
         DatabaseWrapper wrapper = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
         save(model, wrapper);
-    }gi
+    }
 
     @SuppressWarnings("unchecked")
     public void save(TableClass model, DatabaseWrapper wrapper) {
