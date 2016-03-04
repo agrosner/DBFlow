@@ -54,11 +54,9 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
         DatabaseWrapper db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
-        boolean successful = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
-            adapter.getPrimaryConditionClause(model).getQuery(), null,
-            ConflictAction.getSQLiteDatabaseAlgorithmInt(
-                modelAdapter.getUpdateOnConflictAction())) !=
-            0);
+        boolean successful = SQLiteCompatibilityUtils.updateWithOnConflict(db,
+            modelAdapter.getTableName(), contentValues, adapter.getPrimaryConditionClause(model).getQuery(), null,
+            ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.UPDATE);
         }
@@ -76,10 +74,13 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
     }
 
     @SuppressWarnings("unchecked")
-    public void delete(TableClass model) {
-        SQLite.delete((Class<TableClass>) adapter.getModelClass()).where(
-            adapter.getPrimaryConditionClause(model)).execute();
-        SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);
+    public boolean delete(TableClass model) {
+        boolean successful = SQLite.delete((Class<TableClass>) adapter.getModelClass()).where(
+            adapter.getPrimaryConditionClause(model)).count() != 0;
+        if (successful) {
+            SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);
+        }
         adapter.updateAutoIncrement(model, 0);
+        return successful;
     }
 }
