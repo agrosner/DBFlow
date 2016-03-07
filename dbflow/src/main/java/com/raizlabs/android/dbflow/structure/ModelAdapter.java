@@ -95,6 +95,11 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
         getModelSaver().save(model);
     }
 
+    @Override
+    public void save(ModelClass model, DatabaseWrapper databaseWrapper) {
+        getModelSaver().save(model, databaseWrapper);
+    }
+
     /**
      * Inserts the specified model into the DB.
      *
@@ -103,6 +108,11 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     @Override
     public void insert(ModelClass model) {
         getModelSaver().insert(model);
+    }
+
+    @Override
+    public void insert(ModelClass model, DatabaseWrapper databaseWrapper) {
+        getModelSaver().insert(model, databaseWrapper);
     }
 
     /**
@@ -115,6 +125,11 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
         getModelSaver().update(model);
     }
 
+    @Override
+    public void update(ModelClass model, DatabaseWrapper databaseWrapper) {
+        getModelSaver().update(model, databaseWrapper);
+    }
+
     /**
      * Deletes the model from the DB
      *
@@ -125,6 +140,10 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
         getModelSaver().delete(model);
     }
 
+    @Override
+    public void delete(ModelClass model, DatabaseWrapper databaseWrapper) {
+        getModelSaver().delete(model, databaseWrapper);
+    }
 
     @Override
     public void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelClass model) {

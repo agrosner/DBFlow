@@ -7,6 +7,7 @@ import android.support.annotation.IntRange;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}
@@ -27,11 +28,27 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
     void save(ModelClass model);
 
     /**
+     * Saves the specified model to the DB.
+     *
+     * @param model           The model to save/insert/update
+     * @param databaseWrapper The manually specified wrapper.
+     */
+    void save(ModelClass model, DatabaseWrapper databaseWrapper);
+
+    /**
      * Inserts the specified model into the DB.
      *
      * @param model The model to insert.
      */
     void insert(ModelClass model);
+
+    /**
+     * Inserts the specified model into the DB.
+     *
+     * @param model           The model to insert.
+     * @param databaseWrapper The manually specified wrapper.
+     */
+    void insert(ModelClass model, DatabaseWrapper databaseWrapper);
 
     /**
      * Updates the specified model into the DB.
@@ -41,11 +58,27 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
     void update(ModelClass model);
 
     /**
+     * Updates the specified model into the DB.
+     *
+     * @param model           The model to update.
+     * @param databaseWrapper The manually specified wrapper.
+     */
+    void update(ModelClass model, DatabaseWrapper databaseWrapper);
+
+    /**
      * Deletes the model from the DB
      *
      * @param model The model to delete
      */
     void delete(ModelClass model);
+
+    /**
+     * Deletes the model from the DB
+     *
+     * @param model           The model to delete
+     * @param databaseWrapper The manually specified wrapper.
+     */
+    void delete(ModelClass model, DatabaseWrapper databaseWrapper);
 
     /**
      * Binds a {@link ModelClass} to the specified db statement
@@ -57,7 +90,8 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
     /**
      * Provides common logic and a starting value for insert statements. So we can property compile
      * and bind statements without generating duplicate code.
-     *  @param sqLiteStatement The statement to bind.
+     *
+     * @param sqLiteStatement The statement to bind.
      * @param model           The model to retrieve data from.
      * @param start           The starting index for this bind.
      */
@@ -67,7 +101,8 @@ public interface InternalAdapter<TableClass extends Model, ModelClass extends Mo
     /**
      * Binds to a {@link SQLiteStatement}. It leaves out an autoincrementing primary key (if specified)
      * to keep the true nature of AI keys.
-     *  @param sqLiteStatement The statement to bind to.
+     *
+     * @param sqLiteStatement The statement to bind to.
      * @param model           The model to read from.
      */
     void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelClass model);
