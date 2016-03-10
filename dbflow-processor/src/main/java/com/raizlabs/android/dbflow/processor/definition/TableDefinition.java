@@ -300,7 +300,7 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isInherited = inheritedColumnMap.containsKey(element.getSimpleName().toString());
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
 
-            if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
+            if (element.getAnnotation(Column.class) != null || isForeign || isExternalForeign || isPrimary
                 || isAllFields || isInherited || isInheritedPrimaryKey) {
 
                 ColumnDefinition columnDefinition;
