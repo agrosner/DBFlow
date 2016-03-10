@@ -107,9 +107,10 @@ public class ExternalForeignKeyColumnDefinition extends BaseForeignKeyColumnDefi
             needsReferences = false;
         }
 
+        /*
         if (nonModelColumn && foreignKeyReferenceDefinitionList.size() == 1) {
             ForeignKeyReferenceDefinition foreignKeyReferenceDefinition = foreignKeyReferenceDefinitionList.get(0);
             columnName = foreignKeyReferenceDefinition.columnName;
-        }
+        }*/
     }
 }
