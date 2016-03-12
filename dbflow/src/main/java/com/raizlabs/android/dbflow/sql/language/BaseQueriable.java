@@ -1,7 +1,9 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDoneException;
 
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -34,7 +36,13 @@ public abstract class BaseQueriable<ModelClass extends Model> implements Queriab
      */
     @Override
     public long count(DatabaseWrapper databaseWrapper) {
-        return SqlUtils.longForQuery(databaseWrapper, getQuery());
+        try {
+            return SqlUtils.longForQuery(databaseWrapper, getQuery());
+        } catch (SQLiteDoneException sde) {
+            // catch exception here, log it but return 0;
+            FlowLog.log(FlowLog.Level.E, sde);
+        }
+        return 0;
     }
 
     @Override
