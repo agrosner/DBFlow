@@ -58,4 +58,21 @@ time in case of failure we create a **third copy of the database** in case trans
 ## Custom FlowSQLiteOpenHelper
 
 For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper`
-to manage database interactions.
+to manage database interactions. To do so, you must extend `FlowSQLiteOpenHelper`
+and have the constructor match `super`.
+
+```java
+
+
+public class CustomFlowSQliteOpenHelper extends FlowSQLiteOpenHelper {
+
+    public CustomFlowSQliteOpenHelper(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
+        super(databaseDefinition, listener);
+    }
+}
+
+
+```
+
+Then in your database class: `@Database(sqlHelperClass = CustomFlowSQliteOpenHelper.class)`,
+which will replace all instances for that specific DB with the custom one.
