@@ -25,13 +25,58 @@ public class AppDatabase {
 Writing this file generates (by default) a `AppDatabaseAppDatabase_Database.java`
 file, which contains tables, views, and more all tied to a specific database. This
 class is automatically placed into the main `GeneratedDatabaseHolder`, which holds
-potentially many databases.
+potentially many databases. The name, `AppDatabaseAppDatabase_Database.java`, is generated
+via {DatabaseClassName}{DatabaseFileName}{GeneratedClassSepator, default = "\_"}Database
 
-To learn more about what you can configure in a database, read [here](/usage2/Databases.md)
+To learn more about what you can configure in a database (such as SQLCipher), read [here](/usage2/Databases.md)
+
+## Initialize FlowManager
+
+DBFlow needs an instance of `Context` in order to use it for a few features such
+as reading from assets, content observing, and generating `ContentProvider`.
+
+Initialize in your `Application` subclass. You can also initialize it from other
+`Context` but we always grab the `Application` `Context` (this is done only once).
+
+```java
+public class ExampleApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        FlowManager.init(this);
+    }
+}
+
+```
+
+Finally, add the definition to the manifest (with the name that you chose for your custom application):
+```xml
+<application
+  android:name="{packageName}.ExampleApplication"
+  ...>
+</application>
+```
+
+A database within DBFlow is only initialized once you call `FlowManager.getDatabase(SomeDatabase.NAME).getWritableDatabase()`. If you
+don't want this behavior or prefer it to happen immediately, modify your `ExampleApplication`:
+
+```java
+
+@Override
+public void onCreate() {
+    super.onCreate();
+    FlowManager.init(this);
+    // create database and begin migrations, etc.
+    FlowManager.getDatabase(SomeDatabase.NAME).getWritableDatabase();
+}
+
+```
+
 
 ## Create Models
 
-All your database tables __must__ impement `Model`, which is simply an interface:
+All your database tables _must_ implement `Model`, which is simply an interface:
 
 ```java
 
@@ -65,7 +110,7 @@ public interface Model {
 
 ```
 
-As a convenience (and recommended for most uses), you should extend `BaseModel`, which provides the default implementation. You can also reference this file if for some reason you must implement `Model`. **Also** you don't need to directly extend `BaseModel`, in fact you can extend other tables to combine their columns. However those fields must be package-private, public, or private with accessible java-bean getters and setters.
+As a convenience (and recommended for most uses), you should extend `BaseModel`, which provides the default implementation. If for some reason you must implement `Model`, you should reference its implementation. **Also** you don't need to directly extend `BaseModel`, in fact you can extend other tables to combine their columns. However those fields must be package-private, public, or private with accessible java-bean getters and setters.
 
 An example:
 
@@ -104,7 +149,28 @@ public class Currency extends BaseModel {
 
 We, by default lazy look for columns, meaning they all must contain either `@PrimaryKey`, `@Column`, or `@ForeignKey` to be used in tables. If you wish to include all fields, set `@Table(allFields = true)`.
 
-Columns can be `public`, package-private, or `private` with java-bean-style getters and setters.
+Columns can be `public`, package-private, or `private` with java-bean-style getters and setters (must be public).
+
+Here is an example of a "nice" `private` field:
+
+```java
+
+public class Dog extends BaseModel {
+
+  @PrimaryKey
+  private String name;
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+}
+
+```
 
 **Supported Types**:
 1. all java primitives including `char`,`byte`, `short`, and `boolean`.
@@ -114,10 +180,12 @@ Columns can be `public`, package-private, or `private` with java-bean-style gett
 5. `Model`/`ModelContainer` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
 
 **Unsupported Types**:
-1. `List<T>` : List columns are not supported and not generally proper for a relational database.
-2. Anything that is generically typed (even with an associated `TypeConverter`), **except** `ModelContainer` and `ForeignKeyContainer` fields.
+1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
+2. Anything that is generically typed (even with an associated `TypeConverter`), **except** `ModelContainer` and `ForeignKeyContainer` fields. If you need to include the field, subclass the generic object and provide a `TypeConverter`.
 
-Since we don't require extension on `BaseModel` directly, tables can extend non-model classes in inherit their fields directly (given proper accessibility) via the `@InheritedColumn` annotation (or `@InheritedPrimaryKey` for primary keys):
+## Inherited Columns
+
+Since we don't require extension on `BaseModel` directly, tables can extend non-model classes and inherit their fields directly (given proper accessibility) via the `@InheritedColumn` annotation (or `@InheritedPrimaryKey` for primary keys):
 
 ```java
 
@@ -131,7 +199,7 @@ public class InheritorModel extends InheritedModel implements Model {
 
 ```
 
-## Primary keys
+## Primary Keys
 
 DBFlow supports multiple primary keys, right out of the box. Simply create a table with multiple `@PrimaryKey`:
 
@@ -151,7 +219,13 @@ public class Dog extends BaseModel {
 
 If we want an autoincrementing key, you specify `@PrimaryKey(autoincrement = true)`, but only one of these kind can exist in a table and you cannot mix with regular primary keys.
 
-## Foreign keys
+## Relationships
+
+We can link `@Table` in DBFlow via 1-1, 1-many, or many-to-many. For 1-1 we use
+`@PrimaryKey`, for 1-many we use `@OneToMany`, and for many-to-many we use the `@ManyToMany` annotation.
+
+
+### One To One
 
 DBFlow supports multiple `@ForeignKey` right out of the box as well (and for the most part, they can also be `@PrimaryKey`).
 
@@ -172,10 +246,19 @@ public class Dog extends BaseModel {
 
 ```
 
+`@ForeignKey` can only be a subset of types:
+1. `Model` or `ModelContainer`
+2. Any field not requiring a `TypeConverter`. If not a `Model`, you _must_ specify the `tableClass` it points to.
+3. Cannot inherit `@ForeignKey` from non-model classes (see [Inherited Columns](#inherited-columns))
+
+
+If you create a circular reference (i.e. two tables with strong references to `Model` as `@ForeignKey` to each other), read on.
+
 ### Foreign Key Containers
 
 For efficiency reasons we recommend using `ForeignKeyContainer<>`. A `ForeignKeyContainer`
-is foreign key that only contains the foreign key reference data within itself.
+is foreign key that only contains the foreign key reference data within itself. If you
+desire thread-safety and prefer this to happen immediately, replace with the `Model` object.
 
 From our previous example of `Dog`, instead of using a  `String` field for **breed**
 we recommended by using a `ForeignKeyContainer<Breed>`. It is nearly identical, but the difference being
@@ -191,6 +274,9 @@ we would also do a load of related `Owner`. This means that even if multiple `Do
 all point to same owner we end up doing 2x retrievals for every load of `Dog`. Replacing
 that model field of `Owner` with `ForeignKeyContainer<Owner>` prevents the extra N lookup time,
 leading to much faster loads of `Dog`.
+
+__Note__: using `ForeignKeyContainer` also helps to prevent circular references that can
+get you in a `StackOverFlowError` if two tables strongly reference each other in `@ForeignKey`.
 
 Our modified example now looks like this:
 
@@ -222,3 +308,111 @@ public class Dog extends BaseModel {
 Since `ForeignKeyContainer` only contain fields that are relevant to the relationship,
 a handy method in `ModelContainerAdapter` converts an object to the `ForeignKeyContainer` via
 `toForeignKeyContainer()`.
+
+### One To Many
+
+In DBFlow, `@OneToMany` is an annotation that you provide to a method in your `Model` class that will allow management of those objects during CRUD operations.
+This can allow you to combine a relationship of objects to a single `Model` to happen together on load, save, insert, update, and deletion.
+
+```java
+
+@ModelContainer
+@Table(database = ColonyDatabase.class)
+public class Queen extends BaseModel {
+
+    @Column
+    @PrimaryKey(autoincrement = true)
+    long id;
+
+    @Column
+    String name;
+
+    @Column
+    @ForeignKey(saveForeignKeyModel = false)
+    Colony colony;
+
+    List<Ant> ants;
+
+    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
+    public List<Ant> getMyAnts() {
+        if (ants == null || ants.isEmpty()) {
+            ants = SQLite.select()
+                .from(Ant.class)
+                .where(Ant_Table.queenForeignKeyContainer_id.eq(id))
+                .queryList();
+        }
+        return ants;
+    }
+}
+
+```
+
+### Many To Many
+
+
+In DBFlow many to many is done via source-gen. A simple table:
+
+```java
+
+@Table(database = TestDatabase.class)
+@ManyToMany(referencedTable = Followers.class)
+public class User extends BaseModel {
+
+    @PrimaryKey
+    String name;
+
+    @PrimaryKey
+    int id;
+
+}
+
+```
+
+Generates a `@Table` class named `User_Followers`, which DBFlow treats as if you
+coded the class yourself!:
+
+```java
+
+@Table(
+    database = TestDatabase.class
+)
+public final class User_Follower extends BaseModel {
+  @PrimaryKey(
+      autoincrement = true
+  )
+  long _id;
+
+  @ForeignKey(
+      saveForeignKeyModel = false
+  )
+  Follower follower;
+
+  @ForeignKey(
+      saveForeignKeyModel = false
+  )
+  User user;
+
+  public final long getId() {
+    return _id;
+  }
+
+  public final Followers getFollower() {
+    return follower;
+  }
+
+  public final void setFollower(Follower param) {
+    follower = param;
+  }
+
+  public final Users getUser() {
+    return user;
+  }
+
+  public final void setUser(User param) {
+    user = param;
+  }
+}
+
+```
+
+This annotation makes it very easy to generate "join" tables for you to use in the app for a ManyToMany relationship.
