@@ -171,3 +171,54 @@ public class Dog extends BaseModel {
 }
 
 ```
+
+### Foreign Key Containers
+
+For efficiency reasons we recommend using `ForeignKeyContainer<>`. A `ForeignKeyContainer`
+is foreign key that only contains the foreign key reference data within itself.
+
+From our previous example of `Dog`, instead of using a  `String` field for **breed**
+we recommended by using a `ForeignKeyContainer<Breed>`. It is nearly identical, but the difference being
+we would then only need to call `load()` on the reference and it would query the `Breed`
+table for a row with the `breed` id. This also makes it easier if the table you
+reference has multiple primary keys, since DBFlow will handle the work for you.
+
+Multiple calls to `load()` will have no performance impact,
+as the reference will cache the relationship. If you need to get up-to-date data, use `reload()`.
+
+Second, for every load of a `Dog` object from the database,
+we would also do a load of related `Owner`. This means that even if multiple `Dog` say (50)
+all point to same owner we end up doing 2x retrievals for every load of `Dog`. Replacing
+that model field of `Owner` with `ForeignKeyContainer<Owner>` prevents the extra N lookup time,
+leading to much faster loads of `Dog`.
+
+Our modified example now looks like this:
+
+```java
+
+public class Dog extends BaseModel {
+
+  @PrimaryKey
+  String name;
+
+  @ForeignKey
+  @PrimaryKey
+  ForeignKeyContainer<Breed> breed; // tableClass only needed for single-field refs that are not Model.
+
+  @ForeignKey
+  ForeignKeyContainer<Owner> owner;
+
+  public void associateOwner(Owner owner) {
+    owner = FlowManager.getContainerAdapter(Owner.class).toForeignKeyContainer(owner); // convenience conversion
+  }
+
+  public void associateBreed(Breed breed) {
+    owner = FlowManager.getContainerAdapter(Breed.class).toForeignKeyContainer(breed); // convenience conversion
+  }
+}
+
+```
+
+Since `ForeignKeyContainer` only contain fields that are relevant to the relationship,
+a handy method in `ModelContainerAdapter` converts an object to the `ForeignKeyContainer` via
+`toForeignKeyContainer()`.
