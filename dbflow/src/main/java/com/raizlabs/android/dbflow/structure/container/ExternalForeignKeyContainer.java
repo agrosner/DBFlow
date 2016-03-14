@@ -23,6 +23,16 @@ public class ExternalForeignKeyContainer<ModelClass extends Model> extends Forei
         initializeObserver();
     }
 
+    @Override
+    public BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass) {
+        if (inValue instanceof ModelContainer) {
+            return new ExternalForeignKeyContainer((ModelContainer) inValue);
+        } else {
+            return new ExternalForeignKeyContainer(columnClass, (Map<String, Object>) inValue);
+        }
+
+    }
+
     public ExternalForeignKeyContainer(Class<ModelClass> table) {
         super(table);
         initializeObserver();
