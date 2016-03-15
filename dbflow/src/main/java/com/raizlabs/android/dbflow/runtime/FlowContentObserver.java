@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.runtime;
 
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
@@ -151,7 +152,14 @@ public class FlowContentObserver extends ContentObserver {
      * Registers the observer for model change events for specific class.
      */
     public void registerForContentChanges(Context context, Class<? extends Model> table) {
-        context.getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
+        registerForContentChanges(context.getContentResolver(), table);
+    }
+
+    /**
+     * Registers the observer for model change events for specific class.
+     */
+    public void registerForContentChanges(ContentResolver contentResolver, Class<? extends Model> table) {
+        contentResolver.registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
         if (!OBSERVER_LIST.contains(this)) {
             OBSERVER_LIST.add(this);
         }
