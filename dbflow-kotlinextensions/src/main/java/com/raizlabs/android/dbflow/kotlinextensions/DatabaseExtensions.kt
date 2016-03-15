@@ -4,10 +4,10 @@ import android.content.ContentValues
 import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.runtime.TransactionManager
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelTransaction
+import com.raizlabs.android.dbflow.runtime.ITransactionQueue
 import com.raizlabs.android.dbflow.structure.BaseQueryModel
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.ModelAdapter
@@ -74,7 +74,7 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(cros
 }
 
 /**
- * Places the [Collection] of items on the [DBTransactionQueue]. Use the [processFunction] to perform
+ * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
 inline fun <TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit) {
@@ -89,7 +89,7 @@ inline fun <TModel : Model> Collection<TModel>.processInTransactionAsync(crossin
  * Transacts a [BaseTransaction] at the end for cleaner feel.
  */
 fun <TResult> BaseTransaction<TResult>.transact() {
-    TransactionManager.getInstance().addTransaction(this)
+    FlowManager.getTransactionManager().addTransaction(this)
 }
 
 /**

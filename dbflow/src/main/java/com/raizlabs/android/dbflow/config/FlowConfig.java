@@ -46,7 +46,7 @@ public class FlowConfig {
     public static class Builder {
 
         final Context context;
-        Set<Class<? extends DatabaseHolder>> databaseHolders;
+        Set<Class<? extends DatabaseHolder>> databaseHolders = new HashSet<>();
         BaseTransactionManager transactionManager;
         boolean openDatabasesOnInit;
 
@@ -55,9 +55,6 @@ public class FlowConfig {
         }
 
         public Builder addDatabaseHolder(Class<? extends DatabaseHolder> databaseHolderClass) {
-            if (databaseHolders == null) {
-                databaseHolders = new HashSet<>();
-            }
             databaseHolders.add(databaseHolderClass);
             return this;
         }
