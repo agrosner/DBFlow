@@ -18,13 +18,13 @@ public class ComplexModel extends BaseModel {
     String name;
 
     @Column
-    @ForeignKey(references = {@ForeignKeyReference(columnName = "testmodel_id",
-            columnType = String.class, foreignKeyColumnName = "name")})
+    @ForeignKey(saveForeignKeyModel = true, references = {@ForeignKeyReference(columnName = "testmodel_id",
+        columnType = String.class, foreignKeyColumnName = "name")})
     JSONModel<TestModel1> testModel1;
 
     @Column
-    @ForeignKey(references = {@ForeignKeyReference(columnName = "mapmodel_id",
-            columnType = String.class, foreignKeyColumnName = "name")})
+    @ForeignKey(saveForeignKeyModel = true, references = {@ForeignKeyReference(columnName = "mapmodel_id",
+        columnType = String.class, foreignKeyColumnName = "name")})
     MapModelContainer<TestModel2> mapModelContainer;
 
 }
