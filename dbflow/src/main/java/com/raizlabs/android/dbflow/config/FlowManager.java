@@ -62,13 +62,13 @@ public class FlowManager {
 
     public static BaseTransactionManager getTransactionManager() {
         if (transactionManager == null) {
-            transactionManager = new DefaultTransactionManager();
+            if (config.getTransactionManager() == null) {
+                transactionManager = new DefaultTransactionManager();
+            } else {
+                transactionManager = config.getTransactionManager();
+            }
         }
         return transactionManager;
-    }
-
-    public static void setTransactionManager(BaseTransactionManager transactionManager) {
-        FlowManager.transactionManager = transactionManager;
     }
 
     /**
@@ -146,7 +146,7 @@ public class FlowManager {
     /**
      * Loading the module Database holder via reflection. This will trigger all creations,
      * updates, and instantiation for each database defined.
-     * <p>
+     * <p/>
      * It is assumed FlowManager.init() is called by the application that uses the
      * module database. This method should only be called if you need to load databases
      * that are part of a module. Building once will give you the ability to add the class.

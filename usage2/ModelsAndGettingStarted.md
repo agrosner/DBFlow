@@ -44,7 +44,7 @@ public class ExampleApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FlowManager.init(this);
+        FlowManager.init(new FlowConfig.Builder(this));
     }
 }
 
@@ -59,19 +59,29 @@ Finally, add the definition to the manifest (with the name that you chose for yo
 ```
 
 A database within DBFlow is only initialized once you call `FlowManager.getDatabase(SomeDatabase.NAME).getWritableDatabase()`. If you
-don't want this behavior or prefer it to happen immediately, modify your `ExampleApplication`:
+don't want this behavior or prefer it to happen immediately, modify your `FlowConfig`:
 
 ```java
 
 @Override
 public void onCreate() {
     super.onCreate();
-    FlowManager.init(this);
-    // create database and begin migrations, etc.
-    FlowManager.getDatabase(SomeDatabase.NAME).getWritableDatabase();
+    FlowManager.init(new FlowConfig.Builder(this)
+        .openDatabasesOnInit(true));
 }
 
 ```
+
+If you do not like the built-in `DefaultTransactionManager`, or just want to roll your own existing system:
+
+```java
+
+FlowManager.init(new FlowConfig.Builder(this)
+    .transactionManager(new CustomTransactionManager()));
+
+```
+
+To read more on transactions and subclassing `BaseTransacationManager` go (here)[/usage2/Transactions.md]
 
 
 ## Create Models
@@ -416,3 +426,71 @@ public final class User_Follower extends BaseModel {
 ```
 
 This annotation makes it very easy to generate "join" tables for you to use in the app for a ManyToMany relationship. It only generates the table you need. To use it you must reference it in code as normal.
+
+## Unique Columns
+
+DBFlow has support for SQLite `UNIQUE` constraint (here for documentation)[http://www.tutorialspoint.com/sqlite/sqlite_constraints.htm].
+
+Add `@Unique` annotation to your existing `@Column` and DBFlow adds it as a constraint when
+the database table is first created. This means that once it is created you should not change or modify this.
+
+We can _also_ support multiple unique clauses in order to ensure any combination of fields are unique. For example:
+
+To generate this in the creation query:
+```sqlite
+UNIQUE('name', 'number') ON CONFLICT FAIL, UNIQUE('name', 'address') ON CONFLICT ROLLBACK
+```
+We declare the annotations as such:
+
+```java
+
+@Table(database = AppDatabase.class,
+  uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.FAIL),
+                        @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.ROLLBACK))
+public class UniqueModel extends BaseModel {
+
+  @PrimaryKey
+  @Unique(unique = false, uniqueGroups = {1,2})
+  String name;
+
+  @Column
+  @Unique(unique = false, uniqueGroups = 1)
+  String number;
+
+  @Column
+  @Unique(unique = false, uniqueGroups = 2)
+  String address;
+
+}
+
+```
+
+The `groupNumber` within each defined `uniqueColumnGroups` with an associated `@Unique` column. We need to specify `unique=false` for any column used in a group so we expect the column to be part of a group. If true as well, the column will _also_ alone be unique.
+
+## Default Values
+
+DBFlow supports default values in a slighty different way that SQLite does. Since we do not know
+exactly the intention of missing data when saving a `Model`, since we group all fields, `defaultValue` specifies
+a value that we replace when saving to the database when the value of the field is `null`.
+
+This feature only works on Boxed primitive and the `DataClass` equivalent of objects (such as from TypeConverter), such as String, Integer, Long, Double, etc.
+__Note__: If the `DataClass` is a `Blob`, unfortunately this will not work.
+For `Boolean` classes, use "1" for true, "0" for false.
+
+```java
+
+@Column(defaultValue = "55")
+Integer count;
+
+@Column(defaultValue = "\"this is\"")
+String test;
+
+@Column(defaultValue = "1000L")
+Date date;
+
+@Column(defaultValue = "1")
+Boolean aBoolean;
+
+```
+
+DBFlow inserts it's literal value into the `ModelAdapter` for the table so any `String` must be escaped.
