@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.sql.language.Condition;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Description: Runs a fetch on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}, returning only the first item.
+ * Description: Runs a fetch on the {@link DefaultTransactionQueue}, returning only the first item.
  */
 public class SelectSingleModelTransaction<ModelClass extends Model> extends BaseResultTransaction<ModelClass> {
 

@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -74,7 +74,7 @@ public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQ
 
     @Override
     public AsyncQuery<ModelClass> async() {
-        return new AsyncQuery<>(this, TransactionManager.getInstance());
+        return new AsyncQuery<>(this, FlowManager.getTransactionManager());
     }
 
     @Override

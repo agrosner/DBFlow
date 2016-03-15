@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
-import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
@@ -24,7 +23,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     public interface OnModelChangedListener {
 
         /**
-         * Called when the change finishes on the {@link DBTransactionQueue}. This method is called on the UI thread.
+         * Called when the change finishes on the {@link DefaultTransactionQueue}. This method is called on the UI thread.
          */
         void onModelChanged(Model model);
     }
@@ -50,25 +49,25 @@ public class AsyncModel<ModelClass extends Model> implements Model {
 
     @Override
     public void save() {
-        TransactionManager.getInstance()
+        FlowManager.getTransactionManager()
                 .addTransaction(new SaveModelTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void delete() {
-        TransactionManager.getInstance()
+        FlowManager.getTransactionManager()
                 .addTransaction(new DeleteModelListTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void update() {
-        TransactionManager.getInstance()
+        FlowManager.getTransactionManager()
                 .addTransaction(new UpdateModelListTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void insert() {
-        TransactionManager.getInstance()
+        FlowManager.getTransactionManager()
                 .addTransaction(new InsertModelTransaction<>(getProcessModelInfoInternal()));
     }
 

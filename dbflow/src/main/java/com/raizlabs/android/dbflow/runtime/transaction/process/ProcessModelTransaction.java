@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.runtime.transaction.process;
 
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -7,7 +8,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.List;
 
 /**
- * Description: Provides a {@link ModelClass}-list backed implementation on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+ * Description: Provides a {@link ModelClass}-list backed implementation on the {@link DefaultTransactionQueue}
  * and allows for specific method calling on a model.
  */
 public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>>
@@ -89,7 +90,7 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
     }
 
     /**
-     * Called when we are on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} and looping
+     * Called when we are on the {@link DefaultTransactionQueue} and looping
      * through the models. Run a specific {@link com.raizlabs.android.dbflow.structure.Model} method here.
      *
      * @param model

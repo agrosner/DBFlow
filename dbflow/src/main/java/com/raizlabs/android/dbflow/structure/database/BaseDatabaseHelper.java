@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.config.NaturalOrderComparator;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -77,7 +77,7 @@ public class BaseDatabaseHelper {
      */
     protected void executeCreations(final DatabaseWrapper database) {
 
-        TransactionManager.transact(database, new Runnable() {
+        BaseTransactionManager.transact(database, new Runnable() {
             @Override
             public void run() {
 
@@ -131,7 +131,7 @@ public class BaseDatabaseHelper {
 
             final int curVersion = oldVersion + 1;
 
-            TransactionManager.transact(db, new Runnable() {
+            BaseTransactionManager.transact(db, new Runnable() {
                 @Override
                 public void run() {
 

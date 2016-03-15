@@ -1,7 +1,9 @@
 package com.raizlabs.android.dbflow.runtime;
 
+import android.os.Handler;
 import android.os.Looper;
 
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 
 import java.util.Iterator;
@@ -10,25 +12,24 @@ import java.util.concurrent.PriorityBlockingQueue;
 /**
  * Description: will handle concurrent requests to the DB based on priority
  */
-public class DBTransactionQueue extends Thread {
+public class DefaultTransactionQueue extends Thread implements ITransactionQueue {
 
-    /**
-     * Queue of requests
-     */
     private final PriorityBlockingQueue<BaseTransaction> queue;
 
     private boolean isQuitting = false;
 
-    private TransactionManager transactionManager;
+    /**
+     * Runs all of the transactions {@link BaseTransaction#onPostExecute(Object)} on main thread.
+     */
+    private Handler requestHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Creates a queue with the specified name to ID it.
      *
      * @param name
      */
-    public DBTransactionQueue(String name, TransactionManager transactionManager) {
+    public DefaultTransactionQueue(String name) {
         super(name);
-        this.transactionManager = transactionManager;
         queue = new PriorityBlockingQueue<>();
     }
 
@@ -63,7 +64,7 @@ public class DBTransactionQueue extends Thread {
 
                     // Run the result on the FG
                     if (transaction.hasResult(result)) {
-                        transactionManager.processOnRequestHandler(new Runnable() {
+                        requestHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 finalTransaction.onPostExecute(result);
@@ -78,6 +79,7 @@ public class DBTransactionQueue extends Thread {
 
     }
 
+    @Override
     public void add(BaseTransaction runnable) {
         if (!queue.contains(runnable)) {
             queue.add(runnable);
@@ -89,6 +91,7 @@ public class DBTransactionQueue extends Thread {
      *
      * @param runnable
      */
+    @Override
     public void cancel(BaseTransaction runnable) {
         synchronized (queue) {
             if (queue.contains(runnable)) {
@@ -102,6 +105,7 @@ public class DBTransactionQueue extends Thread {
      *
      * @param tag
      */
+    @Override
     public void cancel(String tag) {
         synchronized (queue) {
             Iterator<BaseTransaction> it = queue.iterator();
@@ -114,9 +118,24 @@ public class DBTransactionQueue extends Thread {
         }
     }
 
+    @Override
+    public void startIfNotAlive() {
+        synchronized (this) {
+            if (!isAlive()) {
+                try {
+                    start();
+                } catch (IllegalThreadStateException i) {
+                    // log if failure from thread is still alive.
+                    FlowLog.log(FlowLog.Level.E, i);
+                }
+            }
+        }
+    }
+
     /**
      * Quits this process
      */
+    @Override
     public void quit() {
         isQuitting = true;
         interrupt();

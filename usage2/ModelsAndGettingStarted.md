@@ -355,7 +355,7 @@ In DBFlow many to many is done via source-gen. A simple table:
 ```java
 
 @Table(database = TestDatabase.class)
-@ManyToMany(referencedTable = Followers.class)
+@ManyToMany(referencedTable = Follower.class)
 public class User extends BaseModel {
 
     @PrimaryKey
@@ -368,7 +368,7 @@ public class User extends BaseModel {
 
 ```
 
-Generates a `@Table` class named `User_Followers`, which DBFlow treats as if you
+Generates a `@Table` class named `User_Follower`, which DBFlow treats as if you
 coded the class yourself!:
 
 ```java
@@ -415,4 +415,4 @@ public final class User_Follower extends BaseModel {
 
 ```
 
-This annotation makes it very easy to generate "join" tables for you to use in the app for a ManyToMany relationship.
+This annotation makes it very easy to generate "join" tables for you to use in the app for a ManyToMany relationship. It only generates the table you need. To use it you must reference it in code as normal.

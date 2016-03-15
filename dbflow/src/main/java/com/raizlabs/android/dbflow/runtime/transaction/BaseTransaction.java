@@ -2,10 +2,11 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 
 /**
  * Description: The basic request object that's placed on the DBRequestQueue for processing.
- * The {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} uses a priority queue that will process
+ * The {@link DefaultTransactionQueue} uses a priority queue that will process
  * this class based on the priority assigned to it.
  * <p></p>
  * There are four main kinds of requests:
@@ -46,7 +47,7 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
     /**
      * Constructs this class using the specified DBRequest info
      *
-     * @param dbTransactionInfo Tells the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} how to process
+     * @param dbTransactionInfo Tells the {@link DefaultTransactionQueue} how to process
      *                          this transaction.
      */
     public BaseTransaction(DBTransactionInfo dbTransactionInfo) {
@@ -62,7 +63,7 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
 
     /**
      * Tells the queue if this request is ready to run. The default is true. This is run on the
-     * {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}'s thread.
+     * {@link DefaultTransactionQueue}'s thread.
      *
      * @return True if we run the request, if false we throw it away.
      */
@@ -82,7 +83,7 @@ public abstract class BaseTransaction<TransactionResult> implements Comparable<B
     }
 
     /**
-     * Executes this transaction on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}'s thread
+     * Executes this transaction on the {@link DefaultTransactionQueue}'s thread
      * only if {@link #onReady()} is true.
      */
     public abstract TransactionResult onExecute();

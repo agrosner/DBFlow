@@ -3,8 +3,8 @@ package com.raizlabs.android.dbflow.sql.queriable;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
@@ -20,18 +20,18 @@ import java.util.List;
 public class AsyncQuery<ModelClass extends Model> {
 
     private final ModelQueriable<ModelClass> modelQueriable;
-    private final TransactionManager transactionManager;
+    private final DefaultTransactionManager defaultTransactionManager;
     private BaseTransaction currentTransaction;
 
     /**
      * Constructs an instance of this async query.
      *
      * @param queriable          The queriable object to use to query data.
-     * @param transactionManager The manager to run this query on
+     * @param defaultTransactionManager The manager to run this query on
      */
-    public AsyncQuery(ModelQueriable<ModelClass> queriable, TransactionManager transactionManager) {
+    public AsyncQuery(ModelQueriable<ModelClass> queriable, DefaultTransactionManager defaultTransactionManager) {
         this.modelQueriable = queriable;
-        this.transactionManager = transactionManager;
+        this.defaultTransactionManager = defaultTransactionManager;
     }
 
     /**
@@ -39,27 +39,27 @@ public class AsyncQuery<ModelClass extends Model> {
      */
     public void execute() {
         cancel();
-        transactionManager.addTransaction(currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable));
+        defaultTransactionManager.addTransaction(currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable));
     }
 
     /**
-     * Queries the list on the {@link DBTransactionQueue}
+     * Queries the list on the {@link DefaultTransactionQueue}
      *
      * @param transactionListener Listens for transaction events.
      */
     public void queryList(TransactionListener<List<ModelClass>> transactionListener) {
         cancel();
-        transactionManager.addTransaction(currentTransaction = new SelectListTransaction<>(modelQueriable, transactionListener));
+        defaultTransactionManager.addTransaction(currentTransaction = new SelectListTransaction<>(modelQueriable, transactionListener));
     }
 
     /**
-     * Queries a single item on the {@link DBTransactionQueue}
+     * Queries a single item on the {@link DefaultTransactionQueue}
      *
      * @param transactionListener Listens for transaction events.
      */
     public void querySingle(TransactionListener<ModelClass> transactionListener) {
         cancel();
-        transactionManager.addTransaction(currentTransaction = new SelectSingleModelTransaction<>(modelQueriable, transactionListener));
+        defaultTransactionManager.addTransaction(currentTransaction = new SelectSingleModelTransaction<>(modelQueriable, transactionListener));
     }
 
     /**
@@ -76,13 +76,13 @@ public class AsyncQuery<ModelClass extends Model> {
      */
     public void query(TransactionListener<Cursor> transactionListener) {
         cancel();
-        transactionManager.addTransaction(
+        defaultTransactionManager.addTransaction(
                 currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable, transactionListener));
     }
 
     public void cancel() {
         if (currentTransaction != null) {
-            transactionManager.cancelTransaction(currentTransaction);
+            defaultTransactionManager.cancelTransaction(currentTransaction);
             currentTransaction = null;
         }
     }

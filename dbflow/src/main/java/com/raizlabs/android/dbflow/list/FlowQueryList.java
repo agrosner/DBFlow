@@ -7,9 +7,10 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
@@ -38,7 +39,7 @@ import java.util.ListIterator;
 /**
  * Description: Operates very similiar to a {@link java.util.List} except its backed by a table cursor. All of
  * the {@link java.util.List} modifications default to the main thread, but it can be set to
- * run on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. Register a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener}
+ * run on the {@link DefaultTransactionQueue}. Register a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener}
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
@@ -66,7 +67,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         }
     };
     /**
-     * If true, we will make all modifications on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}, else
+     * If true, we will make all modifications on the {@link DefaultTransactionQueue}, else
      * we will run it on the main thread.
      */
     private boolean transact = false;
@@ -163,7 +164,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     }
 
     /**
-     * If true, we will transact all modifications on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+     * If true, we will transact all modifications on the {@link DefaultTransactionQueue}
      *
      * @param transact true to transact all modifications in the background.
      */
@@ -254,7 +255,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     @Override
     public boolean add(ModelClass model) {
         if (transact) {
-            TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(getProcessModelInfo(model)));
+            FlowManager.getTransactionManager().addTransaction(new SaveModelTransaction<>(getProcessModelInfo(model)));
         } else {
             model.save();
             internalTransactionListener.onResultReceived(Arrays.asList(model));
@@ -287,7 +288,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         // cast to normal collection, we do not want subclasses of this table saved
         final Collection<ModelClass> tmpCollection = (Collection<ModelClass>) collection;
         if (transact) {
-            TransactionManager.getInstance().addTransaction(
+            FlowManager.getTransactionManager().addTransaction(
                     new SaveModelTransaction<>(getProcessModelInfo(tmpCollection)));
         } else {
             ProcessModelHelper.process(internalCursorList.getTable(), tmpCollection, new ProcessModel<ModelClass>() {
@@ -307,7 +308,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     @Override
     public void clear() {
         if (transact) {
-            TransactionManager.getInstance()
+            FlowManager.getTransactionManager()
                     .addTransaction(new QueryTransaction(MODIFICATION_INFO,
                             SQLite.delete().from(internalCursorList.getTable())));
         } else {
@@ -419,7 +420,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     }
 
     /**
-     * Removes the {@link ModelClass} from its table on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} .
+     * Removes the {@link ModelClass} from its table on the {@link DefaultTransactionQueue} .
      * If {@link #transact} is true, the delete does not happen immediately.
      *
      * @param location The location within the table to remove the item from
@@ -429,7 +430,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     public ModelClass remove(int location) {
         ModelClass model = internalCursorList.getItem(location);
         if (transact) {
-            TransactionManager.getInstance().addTransaction(
+            FlowManager.getTransactionManager().addTransaction(
                     new DeleteModelListTransaction<>(getProcessModelInfo(model)));
         } else {
             model.delete();
@@ -439,7 +440,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     }
 
     /**
-     * Removes an item from this table on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} if
+     * Removes an item from this table on the {@link DefaultTransactionQueue} if
      * {@link #transact} is true.
      *
      * @param object A model class. For interface purposes, this must be an Object.
@@ -454,7 +455,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             ModelClass model = ((ModelClass) object);
             if (transact) {
-                TransactionManager.getInstance().addTransaction(
+                FlowManager.getTransactionManager().addTransaction(
                         new DeleteModelListTransaction<>(getProcessModelInfo(model)));
             } else {
                 model.delete();
@@ -480,7 +481,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         // if its a ModelClass
         Collection<ModelClass> modelCollection = (Collection<ModelClass>) collection;
         if (transact) {
-            TransactionManager.getInstance().addTransaction(
+            FlowManager.getTransactionManager().addTransaction(
                     new DeleteModelListTransaction<>(getProcessModelInfo(modelCollection)));
         } else {
             ProcessModelHelper.process(internalCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
@@ -508,7 +509,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         List<ModelClass> tableList = internalCursorList.getAll();
         tableList.removeAll(collection);
         if (transact) {
-            TransactionManager.getInstance().addTransaction(
+            FlowManager.getTransactionManager().addTransaction(
                     new DeleteModelListTransaction<>(getProcessModelInfo(tableList)));
         } else {
             ProcessModelHelper.process(internalCursorList.getTable(), tableList, new ProcessModel<ModelClass>() {
@@ -543,7 +544,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      */
     public ModelClass set(ModelClass object) {
         if (transact) {
-            TransactionManager.getInstance().addTransaction(
+            FlowManager.getTransactionManager().addTransaction(
                     new UpdateModelListTransaction<>(getProcessModelInfo(object)));
         } else {
             object.update();

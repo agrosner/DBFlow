@@ -5,20 +5,11 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.DatabaseHolder;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.sql.language.OrderBy;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Description: The base provider class that {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
@@ -59,7 +50,7 @@ public abstract class BaseContentProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull final Uri uri, @NonNull final ContentValues[] values) {
         final int[] count = {0};
-        TransactionManager.transact(getDatabase().getWritableDatabase(), new Runnable() {
+        BaseTransactionManager.transact(getDatabase().getWritableDatabase(), new Runnable() {
             @Override
             public void run() {
                 for (ContentValues contentValues : values) {

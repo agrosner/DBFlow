@@ -5,9 +5,9 @@ import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import java.util.UUID;
 
 /**
- * Description: Describes a {@link BaseTransaction} request on the {@link DBTransactionQueue}. It provides
+ * Description: Describes a {@link BaseTransaction} request on the {@link DefaultTransactionQueue}. It provides
  * information about it's priority and debug logging name. The priority it has determines the order
- * it executes when the {@link DBTransactionQueue} is flooded with separate requests.
+ * it executes when the {@link DefaultTransactionQueue} is flooded with separate requests.
  */
 public class DBTransactionInfo {
 
@@ -70,7 +70,7 @@ public class DBTransactionInfo {
 
     /**
      * @return A prefilled, fetch request with {@link BaseTransaction#PRIORITY_UI} for almost immediate
-     * response time from the {@link DBTransactionQueue}.
+     * response time from the {@link DefaultTransactionQueue}.
      */
     public static DBTransactionInfo createFetch() {
         DBTransactionInfo requestInfo = new DBTransactionInfo();

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.runtime.transaction;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -11,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.List;
 
 /**
- * Description: Runs a fetch on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}
+ * Description: Runs a fetch on the {@link DefaultTransactionQueue}
  */
 public class SelectListTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>> {
 

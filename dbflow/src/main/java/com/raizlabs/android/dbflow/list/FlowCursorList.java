@@ -2,8 +2,9 @@ package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -160,14 +161,14 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     /**
-     * Fetches the list on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue}. For
+     * Fetches the list on the {@link DefaultTransactionQueue}. For
      * large data sets this will take some time.
      *
      * @param transactionListener Called when we retrieve the results.
      */
     public void fetchAll(TransactionListener<List<ModelClass>> transactionListener) {
         throwIfCursorClosed();
-        TransactionManager.getInstance().addTransaction(
+        FlowManager.getTransactionManager().addTransaction(
                 new BaseResultTransaction<List<ModelClass>>(DBTransactionInfo.createFetch(), transactionListener) {
                     @Override
                     public List<ModelClass> onExecute() {

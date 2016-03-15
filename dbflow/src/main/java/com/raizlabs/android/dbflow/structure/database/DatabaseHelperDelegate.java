@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 
 import java.io.File;
@@ -237,7 +237,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
 
     /**
-     * Saves the database as a backup on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} as
+     * Saves the database as a backup on the {@link DefaultTransactionQueue} as
      * the highest priority ever. This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     public void backupDB() {
@@ -246,7 +246,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
                     "both backupEnabled and consistency checks enabled to the Database annotation");
         }
         // highest priority ever!
-        TransactionManager.getInstance().addTransaction(new BaseTransaction(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI + 1)) {
+        FlowManager.getTransactionManager().addTransaction(new BaseTransaction(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI + 1)) {
             @Override
             public Object onExecute() {
 

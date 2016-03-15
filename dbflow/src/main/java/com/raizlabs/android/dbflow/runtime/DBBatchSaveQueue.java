@@ -40,7 +40,7 @@ public class DBBatchSaveQueue extends Thread {
     private long modelSaveCheckTime = sMODEL_SAVE_CHECK_TIME;
 
     /**
-     * The shared save queue that all {@link com.raizlabs.android.dbflow.runtime.TransactionManager#saveOnSaveQueue(java.util.Collection)} uses.
+     * The shared save queue that all {@link DefaultTransactionManager#saveOnSaveQueue(java.util.Collection)} uses.
      */
     private static DBBatchSaveQueue batchSaveQueue;
 
@@ -149,7 +149,7 @@ public class DBBatchSaveQueue extends Thread {
             }
             if (tmpModels.size() > 0) {
                 //onExecute this on the DBManager thread
-                TransactionManager.getInstance()
+                FlowManager.getTransactionManager()
                         .addTransaction(new SaveModelTransaction<>(ProcessModelInfo
                                 .withModels(tmpModels)
                                 .result(internalListener)

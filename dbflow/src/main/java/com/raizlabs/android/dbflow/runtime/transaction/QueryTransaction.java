@@ -3,11 +3,11 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 
 /**
- * Description: Runs a DB query in the BG on the {@link DBTransactionQueue}. It supplies
+ * Description: Runs a DB query in the BG on the {@link DefaultTransactionQueue}. It supplies
  * the cursor returned from this query and will automatically closes the cursor to prevent database leaks.
  */
 public class QueryTransaction extends BaseResultTransaction<Cursor> {

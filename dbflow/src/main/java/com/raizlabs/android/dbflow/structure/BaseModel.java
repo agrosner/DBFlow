@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
+import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 
 /**
  * Description: The base implementation of {@link com.raizlabs.android.dbflow.structure.Model} using the
@@ -80,7 +80,7 @@ public class BaseModel implements Model {
     }
 
     /**
-     * @return An async instance of this model where all transactions are on the {@link DBTransactionQueue}
+     * @return An async instance of this model where all transactions are on the {@link DefaultTransactionQueue}
      */
     public AsyncModel<BaseModel> async() {
         return new AsyncModel<>(this);
