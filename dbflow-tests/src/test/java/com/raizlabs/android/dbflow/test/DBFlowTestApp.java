@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.test;
 
 import android.app.Application;
 
+import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
@@ -14,7 +15,7 @@ public class DBFlowTestApp extends Application {
     public void onCreate() {
         super.onCreate();
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V);
-        FlowManager.init(this);
+        FlowManager.init(new FlowConfig.Builder(this).build());
     }
 
     @Override

@@ -75,5 +75,9 @@ public class FlowConfig {
             this.openDatabasesOnInit = openDatabasesOnInit;
             return this;
         }
+
+        public FlowConfig build() {
+            return new FlowConfig(this);
+        }
     }
 }

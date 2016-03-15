@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.raizlabs.android.dbflow.test.R;
+import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 
@@ -16,7 +16,7 @@ public class DemoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
 
-        FlowManager.init(getApplicationContext());
+        FlowManager.init(new FlowConfig.Builder(getApplicationContext()).build());
     }
 
 
