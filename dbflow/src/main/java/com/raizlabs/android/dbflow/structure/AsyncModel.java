@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
@@ -50,25 +51,25 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     @Override
     public void save() {
         FlowManager.getTransactionManager()
-                .addTransaction(new SaveModelTransaction<>(getProcessModelInfoInternal()));
+            .addTransaction(new SaveModelTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void delete() {
         FlowManager.getTransactionManager()
-                .addTransaction(new DeleteModelListTransaction<>(getProcessModelInfoInternal()));
+            .addTransaction(new DeleteModelListTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void update() {
         FlowManager.getTransactionManager()
-                .addTransaction(new UpdateModelListTransaction<>(getProcessModelInfoInternal()));
+            .addTransaction(new UpdateModelListTransaction<>(getProcessModelInfoInternal()));
     }
 
     @Override
     public void insert() {
         FlowManager.getTransactionManager()
-                .addTransaction(new InsertModelTransaction<>(getProcessModelInfoInternal()));
+            .addTransaction(new InsertModelTransaction<>(getProcessModelInfoInternal()));
     }
 
     private ProcessModelInfo<ModelClass> getProcessModelInfoInternal() {

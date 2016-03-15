@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime;
 import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
@@ -150,10 +151,10 @@ public class DBBatchSaveQueue extends Thread {
             if (tmpModels.size() > 0) {
                 //onExecute this on the DBManager thread
                 FlowManager.getTransactionManager()
-                        .addTransaction(new SaveModelTransaction<>(ProcessModelInfo
-                                .withModels(tmpModels)
-                                .result(internalListener)
-                                .info(saveQueueInfo)));
+                    .addTransaction(new SaveModelTransaction<>(ProcessModelInfo
+                        .withModels(tmpModels)
+                        .result(internalListener)
+                        .info(saveQueueInfo)));
             }
 
             try {

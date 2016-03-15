@@ -57,7 +57,7 @@ public abstract class BaseTransactionManager {
      * Stops the queue this manager contains.
      */
     public void stopQueue() {
-        getQueue().stop();
+        getQueue().quit();
     }
 
     /**
