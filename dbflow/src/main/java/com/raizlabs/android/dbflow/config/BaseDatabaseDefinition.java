@@ -154,7 +154,7 @@ public abstract class BaseDatabaseDefinition {
         return migrationMap;
     }
 
-    OpenHelper getHelper() {
+    synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             openHelper = createHelper();
         }

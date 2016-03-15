@@ -3,7 +3,9 @@ package com.raizlabs.android.dbflow.config;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.structure.Model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,9 +13,8 @@ import java.util.Map;
  * between them.
  */
 public abstract class DatabaseHolder {
-    protected final Map<Class<? extends Model>, BaseDatabaseDefinition> managerMap = new HashMap<>();
-
-    protected final Map<String, BaseDatabaseDefinition> managerNameMap = new HashMap<>();
+    protected final Map<Class<? extends Model>, BaseDatabaseDefinition> databaseDefinitionMap = new HashMap<>();
+    protected final Map<String, BaseDatabaseDefinition> databaseNameMap = new HashMap<>();
 
     protected final Map<Class<?>, TypeConverter> typeConverters = new HashMap<>();
 
@@ -30,7 +31,7 @@ public abstract class DatabaseHolder {
      * @return The database that the table belongs in
      */
     public BaseDatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
-        return managerMap.get(table);
+        return databaseDefinitionMap.get(table);
     }
 
     /**
@@ -38,7 +39,7 @@ public abstract class DatabaseHolder {
      * @return The database that has the specified name
      */
     public BaseDatabaseDefinition getDatabase(String databaseName) {
-        return managerNameMap.get(databaseName);
+        return databaseNameMap.get(databaseName);
     }
 
     /**
@@ -48,8 +49,11 @@ public abstract class DatabaseHolder {
      * @param baseDatabaseDefinition The database definition
      */
     public void putDatabaseForTable(Class<? extends Model> table, BaseDatabaseDefinition baseDatabaseDefinition) {
-        managerMap.put(table, baseDatabaseDefinition);
-        managerNameMap.put(baseDatabaseDefinition.getDatabaseName(), baseDatabaseDefinition);
+        databaseDefinitionMap.put(table, baseDatabaseDefinition);
+        databaseNameMap.put(baseDatabaseDefinition.getDatabaseName(), baseDatabaseDefinition);
     }
 
+    public List<BaseDatabaseDefinition> getDatabaseDefinitions() {
+        return new ArrayList<>(databaseNameMap.values());
+    }
 }

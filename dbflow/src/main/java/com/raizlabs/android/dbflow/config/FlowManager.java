@@ -34,16 +34,17 @@ import java.util.Map;
  */
 public class FlowManager {
 
-
     private static class GlobalDatabaseHolder extends DatabaseHolder {
         public void add(DatabaseHolder holder) {
-            managerMap.putAll(holder.managerMap);
-            managerNameMap.putAll(holder.managerNameMap);
+            databaseDefinitionMap.putAll(holder.databaseDefinitionMap);
+            databaseNameMap.putAll(holder.databaseNameMap);
             typeConverters.putAll(holder.typeConverters);
         }
+
+
     }
 
-    private static Context context;
+    private static FlowConfig config;
 
     private static GlobalDatabaseHolder globalDatabaseHolder = new GlobalDatabaseHolder();
 
@@ -141,6 +142,19 @@ public class FlowManager {
             "Did you forget the @Database annotation?");
     }
 
+
+    /**
+     * Loading the module Database holder via reflection. This will trigger all creations,
+     * updates, and instantiation for each database defined.
+     * <p>
+     * It is assumed FlowManager.init() is called by the application that uses the
+     * module database. This method should only be called if you need to load databases
+     * that are part of a module. Building once will give you the ability to add the class.
+     */
+    public static void initModule(Class<? extends DatabaseHolder> generatedClassName) {
+        loadDatabaseHolder(generatedClassName);
+    }
+
     /**
      * @return The database holder, creating if necessary using reflection.
      */
@@ -165,26 +179,27 @@ public class FlowManager {
     }
 
     /**
-     * Will throw an exception if this class is not initialized yet in {@link #init(Context)}
+     * Will throw an exception if this class is not initialized yet in {@link #init(FlowConfig)}
      *
      * @return The shared context.
      */
+    @NonNull
     public static Context getContext() {
-        if (context == null) {
-            throw new IllegalStateException("Context cannot be null for FlowManager");
+        if (config == null) {
+            throw new IllegalStateException("You must provide a valid FlowConfig instance. " +
+                "We recommend calling init() in your application class.");
         }
-        return context;
+        return config.getContext();
     }
 
     /**
      * Initializes DBFlow, loading the main application Database holder via reflection one time only.
      * This will trigger all creations, updates, and instantiation for each database defined.
      *
-     * @param context The shared context for database usage.
+     * @param flowConfig The configuration instance that will help shape how DBFlow gets constructed.
      */
-    public static void init(@NonNull Context context) {
-        // Initialize the context, then load the default database holder.
-        initContext(context);
+    public static void init(@NonNull FlowConfig flowConfig) {
+        FlowManager.config = flowConfig;
 
         try {
             //noinspection unchecked
@@ -199,24 +214,19 @@ public class FlowManager {
             // warning if a library uses DBFlow with module support but the app you're using doesn't support it.
             FlowLog.log(FlowLog.Level.W, "Could not find the default GeneratedDatabaseHolder");
         }
-    }
 
-    /**
-     * Loading the module Database holder via reflection. This will trigger all creations,
-     * updates, and instantiation for each database defined.
-     * <p>
-     * It is assumed FlowManager.init() is called by the application that uses the
-     * module database. This method should only be called if you need to load databases
-     * that are part of a module. Building once will give you the ability to add the class.
-     */
-    public static void initModule(Class<? extends DatabaseHolder> generatedClassName) {
-        loadDatabaseHolder(generatedClassName);
-    }
+        if (flowConfig.getDatabaseHolders() != null && !flowConfig.getDatabaseHolders().isEmpty()) {
+            for (Class<? extends DatabaseHolder> holder : flowConfig.getDatabaseHolders()) {
+                loadDatabaseHolder(holder);
+            }
+        }
 
-    private static void initContext(@NonNull Context context) {
-        // only initialize Context once.
-        if (FlowManager.context == null) {
-            FlowManager.context = context.getApplicationContext();
+        if (flowConfig.openDatabasesOnInit()) {
+            List<BaseDatabaseDefinition> databaseDefinitions = globalDatabaseHolder.getDatabaseDefinitions();
+            for (BaseDatabaseDefinition databaseDefinition : databaseDefinitions) {
+                // triggers open, create, migrations.
+                databaseDefinition.getWritableDatabase();
+            }
         }
     }
 
@@ -242,10 +252,10 @@ public class FlowManager {
     // region Getters
 
     /**
-     * Release reference to context
+     * Release reference to context and {@link FlowConfig}
      */
     public static synchronized void destroy() {
-        context = null;
+        config = null;
 
         // Reset the global database holder.
         globalDatabaseHolder = new GlobalDatabaseHolder();
