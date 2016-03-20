@@ -9,7 +9,7 @@ We can link `@Table` in DBFlow via 1-1, 1-many, or many-to-many. For 1-1 we use
 DBFlow supports multiple `@ForeignKey` right out of the box as well (and for the most part, they can also be `@PrimaryKey`).
 
 ```java
-
+@Table(database = AppDatabase.class)
 public class Dog extends BaseModel {
 
   @PrimaryKey
@@ -26,9 +26,9 @@ public class Dog extends BaseModel {
 ```
 
 `@ForeignKey` can only be a subset of types:
-1. `Model` or `ModelContainer`
-2. Any field not requiring a `TypeConverter`. If not a `Model`, you _must_ specify the `tableClass` it points to.
-3. Cannot inherit `@ForeignKey` from non-model classes (see [Inherited Columns](#inherited-columns))
+  1. `Model` or `ModelContainer`
+  2. Any field not requiring a `TypeConverter`. If not a `Model`, you _must_ specify the `tableClass` it points to.
+  3. Cannot inherit `@ForeignKey` from non-model classes (see [Inherited Columns](#inherited-columns))
 
 
 If you create a circular reference (i.e. two tables with strong references to `Model` as `@ForeignKey` to each other), read on.
@@ -60,26 +60,28 @@ get you in a `StackOverFlowError` if two tables strongly reference each other in
 Our modified example now looks like this:
 
 ```java
-
+@Table(database = AppDatabase.class)
 public class Dog extends BaseModel {
 
-  @PrimaryKey
-  String name;
+    @PrimaryKey
+    String name;
 
-  @ForeignKey
-  @PrimaryKey
-  ForeignKeyContainer<Breed> breed; // tableClass only needed for single-field refs that are not Model.
+    @ForeignKey
+    @PrimaryKey
+    ForeignKeyContainer<Breed> breed; // tableClass only needed for single-field refs that are not Model.
 
-  @ForeignKey
-  ForeignKeyContainer<Owner> owner;
+    @ForeignKey
+    ForeignKeyContainer<Owner> owner;
 
-  public void associateOwner(Owner owner) {
-    owner = FlowManager.getContainerAdapter(Owner.class).toForeignKeyContainer(owner); // convenience conversion
-  }
+    public void associateOwner(Owner owner) {
+        this.owner = FlowManager.getContainerAdapter(Owner.class)
+                        .toForeignKeyContainer(owner); // convenience conversion
+    }
 
-  public void associateBreed(Breed breed) {
-    owner = FlowManager.getContainerAdapter(Breed.class).toForeignKeyContainer(breed); // convenience conversion
-  }
+    public void associateBreed(Breed breed) {
+        this.breed = FlowManager.getContainerAdapter(Breed.class)
+                      .toForeignKeyContainer(breed); // convenience conversion
+    }
 }
 
 ```
