@@ -18,7 +18,7 @@ Columns can be `public`, package-private, or `private`.
 Here is an example of a "nice" `private` field:
 
 ```java
-
+@Table(database = AppDatabase.class)
 public class Dog extends BaseModel {
 
   @PrimaryKey
@@ -38,15 +38,15 @@ public class Dog extends BaseModel {
 
 Columns have a wide-range of supported types in the `Model` classes:
 **Supported Types**:
-1. all java primitives including `char`,`byte`, `short`, and `boolean`.
-2. All java boxed primitive classes
-3. String, Date, java.sql.Date, Calendar, Blob, Boolean
-4. Custom data types via a [TypeConverter](/usage2/TypeConverters.md)
-5. `Model`/`ModelContainer`/`ForeignKeyContainer` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
+  1. all java primitives including `char`,`byte`, `short`, and `boolean`.
+  2. All java boxed primitive classes
+  3. String, Date, java.sql.Date, Calendar, Blob, Boolean
+  4. Custom data types via a [TypeConverter](/usage2/TypeConverters.md)
+  5. `Model`/`ModelContainer`/`ForeignKeyContainer` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
 
 **Unsupported Types**:
-1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
-2. Anything that is generically typed (even with an associated `TypeConverter`), **except** `ModelContainer` and `ForeignKeyContainer` fields. If you need to include the field, subclass the generic object and provide a `TypeConverter`.
+  1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
+  2. Anything that is generically typed (even with an associated `TypeConverter`), **except** `ModelContainer` and `ForeignKeyContainer` fields. If you need to include the field, subclass the generic object and provide a `TypeConverter`.
 
 ## Inherited Columns
 
@@ -69,7 +69,7 @@ public class InheritorModel extends InheritedModel implements Model {
 DBFlow supports multiple primary keys, right out of the box. Simply create a table with multiple `@PrimaryKey`:
 
 ```java
-
+@Table(database = AppDatabase.class)
 public class Dog extends BaseModel {
 
   @PrimaryKey
