@@ -22,19 +22,23 @@ public class AppDatabase {
 
 ```
 
-**Note:** The database is not created until you call `FlowManager.getWritableDatabase()`. I recommend placing a call to this in your `Application.onCreate()` method.
+## Database Migrations
 
-### Advanced Database features
+Database migrations are run when upon open of the database connection,
+the version number increases on an existing database.
+To read more on migrations, visit the [page](/usage2/Migrations.md).
+
+## Advanced Database features
 
 This section goes through features that are for more advanced use of a database,
 but may be very useful.
 
-## Prepackaged Databases
+### Prepackaged Databases
 To include a prepackaged database for your application, simply include the ".db" file in `src/main/assets/{databaseName}.db`. On creation of the database, we copy over the file into the application for usage. Since this is prepackaged within the APK, we cannot delete it once it's copied over,
 which can bulk up your raw APK size. _Note_ this is only copied over on initial creation
 of the database for the app.
 
-## Global Conflict Handling
+### Global Conflict Handling
 In DBFlow when an INSERT or UPDATE are performed, by default, we use `ABORT`. If you wish to configure this globally, you can define it to apply for all tables from a given database:
 
 
@@ -47,7 +51,7 @@ public class AppDatabase {
 
 These follow the SQLite standard [here](https://www.sqlite.org/conflict.html).
 
-## Integrity Checking
+### Integrity Checking
 
 Databases can get corrupted or in an invalid state at some point. If you specify
 `consistencyChecksEnabled=true` It runs a `PRAGMA quick_check(1)`
@@ -55,7 +59,7 @@ whenever the database is opened. If it fails, you should provide a backup databa
 that it will copy over. If not, **we wipe the internal database**. Note that during this
 time in case of failure we create a **third copy of the database** in case transfer fails.
 
-## Custom FlowSQLiteOpenHelper
+### Custom FlowSQLiteOpenHelper
 
 For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper`
 to manage database interactions. To do so, you must extend `FlowSQLiteOpenHelper`
