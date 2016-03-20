@@ -55,8 +55,7 @@ Since DBFlow uses annotation processing, which is run pre-proguard phase,
 the configuration is highly minimal:
 
 ```
--keep class com.raizlabs.android.dbflow.config.GeneratedDatabaseHolder { *; }
-
+-keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
 ```
 
 If you are using [multiple modules](/usage2/MultipleModules.md), you will need
@@ -73,16 +72,6 @@ apt {
 }
 
 ```
-we use the rule:
-
-```
--keep class com.raizlabs.android.dbflow.config.TestGeneratedDatabaseHolder { *; }
-
-```
-
-This is needed for _every_ database module so that it can be properly created, only once,
-via reflection.
-
 
 ## Sections
 
