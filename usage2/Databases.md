@@ -26,7 +26,36 @@ public class AppDatabase {
 
 Database migrations are run when upon open of the database connection,
 the version number increases on an existing database.
-To read more on migrations, visit the [page](/usage2/Migrations.md).
+
+An example migration:
+
+```java
+
+@Database(name = AppDatabase.NAME, version = AppDatabase.VERSION)
+public class AppDatabase {
+
+  public static final String NAME = "AppDatabase"; // we will add the .db extension
+
+  public static final String VERSION = 2;
+
+  @Migration(version = 2, database = MigrationDatabase.class)
+  public static class AddEmailToUserMigration extends AlterTableMigration<User> {
+
+    public AddEmailToUserMigration(Class<User> table) {
+        super(table);
+    }
+
+    @Override
+    public void onPreMigrate() {
+        addColumn(SQLiteType.TEXT, "email");
+    }
+  }
+}
+
+```
+This simple example adds a column to the `User` table named "email". In code, just add
+the column to the `Model` class and this migration runs only on existing dbs.
+ To read more on migrations and more examples of different kinds, visit the [page](/usage2/Migrations.md).
 
 ## Advanced Database features
 
