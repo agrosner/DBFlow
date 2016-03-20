@@ -34,7 +34,7 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
      */
     @Nullable
     @Override
-    protected TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data) {
+    public TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data) {
         if (cursor.moveToFirst()) {
             ModelCache<TModel, ?> modelCache = modelAdapter.getModelCache();
             Object[] values = modelAdapter.getCachingColumnValuesFromCursor(

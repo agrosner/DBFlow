@@ -18,7 +18,7 @@ public class SingleModelLoader<TModel extends Model> extends ModelLoader<TModel,
     @SuppressWarnings("unchecked")
     @Override
     @Nullable
-    protected TModel convertToData(@NonNull final Cursor cursor, @Nullable TModel data) {
+    public TModel convertToData(@NonNull final Cursor cursor, @Nullable TModel data) {
         if (cursor.moveToFirst()) {
             if (data == null) {
                 data = (TModel) getInstanceAdapter().newInstance();

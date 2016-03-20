@@ -2,11 +2,10 @@ package com.raizlabs.android.dbflow.structure.database.transaction;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
- * Description:
+ * Description: The main async transaction class. It represents a transaction that occurs in the database.
  */
 public class Transaction {
 
@@ -48,6 +47,7 @@ public class Transaction {
     }
 
     public void execute() {
+
     }
 
     public static class Builder {

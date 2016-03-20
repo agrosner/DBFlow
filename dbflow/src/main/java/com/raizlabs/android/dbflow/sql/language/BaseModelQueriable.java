@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.runtime.DefaultTransactionManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -34,6 +33,11 @@ public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQ
         super(table);
         //noinspection unchecked
         retrievalAdapter = FlowManager.getInstanceAdapter(table);
+    }
+
+    @Override
+    public CursorResult<ModelClass> queryResults() {
+        return new CursorResult<>(retrievalAdapter.getModelClass(), query());
     }
 
     @Override

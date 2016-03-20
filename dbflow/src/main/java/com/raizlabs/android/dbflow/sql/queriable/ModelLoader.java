@@ -56,6 +56,16 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
     @Nullable
     public TReturn load(@NonNull DatabaseWrapper databaseWrapper, String query, @Nullable TReturn data) {
         final Cursor cursor = databaseWrapper.rawQuery(query, null);
+        return load(cursor, data);
+    }
+
+    @Nullable
+    public TReturn load(@Nullable Cursor cursor) {
+        return load(cursor, null);
+    }
+
+    @Nullable
+    public TReturn load(@Nullable Cursor cursor, @Nullable TReturn data) {
         if (cursor != null) {
             try {
                 data = convertToData(cursor, data);
@@ -87,5 +97,5 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
      * @return A new (or reused) instance that represents the {@link Cursor}.
      */
     @Nullable
-    protected abstract TReturn convertToData(@NonNull final Cursor cursor, @Nullable TReturn data);
+    public abstract TReturn convertToData(@NonNull final Cursor cursor, @Nullable TReturn data);
 }

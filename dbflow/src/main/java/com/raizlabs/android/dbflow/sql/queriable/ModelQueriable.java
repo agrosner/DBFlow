@@ -1,9 +1,11 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
+import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
@@ -18,6 +20,11 @@ import java.util.List;
  * Examples of such statements are: {@link From}, {@link Where}, {@link StringQuery}
  */
 public interface ModelQueriable<ModelClass extends Model> extends Queriable {
+
+    /**
+     * @return A wrapper class around {@link Cursor} that allows you to convert its data into results.
+     */
+    CursorResult<ModelClass> queryResults();
 
     /**
      * @return a list of model converted items
