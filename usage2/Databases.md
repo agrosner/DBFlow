@@ -27,6 +27,8 @@ public class AppDatabase {
 Database migrations are run when upon open of the database connection,
 the version number increases on an existing database.
 
+It is preferred that `Migration` files go in the same file as the database, for
+organizational purposes.
 An example migration:
 
 ```java
