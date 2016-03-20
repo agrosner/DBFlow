@@ -7,6 +7,9 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
+
 /**
  * Description: Specifies the android default implementation of a database.
  */
@@ -40,6 +43,22 @@ public class AndroidDatabase implements DatabaseWrapper {
     @Override
     public void endTransaction() {
         database.endTransaction();
+    }
+
+    @Override
+    public void executeTransaction(ITransaction ITransaction) {
+        beginTransaction();
+        try {
+            ITransaction.execute(this);
+            setTransactionSuccessful();
+        } finally {
+            endTransaction();
+        }
+    }
+
+    @Override
+    public Transaction.Builder beginTransactionAsync(ITransaction transaction) {
+        return new Transaction.Builder(transaction, this);
     }
 
     @Override

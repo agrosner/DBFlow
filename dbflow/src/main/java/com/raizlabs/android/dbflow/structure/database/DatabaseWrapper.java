@@ -2,9 +2,11 @@ package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 /**
  * Description: Provides a base implementation that wraps a database, so other database engines potentially can
@@ -20,6 +22,10 @@ public interface DatabaseWrapper {
 
     void endTransaction();
 
+    void executeTransaction(ITransaction ITransaction);
+
+    Transaction.Builder beginTransactionAsync(ITransaction transaction);
+
     int getVersion();
 
     DatabaseStatement compileStatement(String rawQuery);
@@ -31,13 +37,13 @@ public interface DatabaseWrapper {
     long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values, int sqLiteDatabaseAlgorithmInt);
 
     Cursor query(
-        @NonNull String tableName,
-        @Nullable String[] columns,
-        @Nullable String selection,
-        @Nullable String[] selectionArgs,
-        @Nullable String groupBy,
-        @Nullable String having,
-        @Nullable String orderBy);
+            @NonNull String tableName,
+            @Nullable String[] columns,
+            @Nullable String selection,
+            @Nullable String[] selectionArgs,
+            @Nullable String groupBy,
+            @Nullable String having,
+            @Nullable String orderBy);
 
     int delete(@NonNull String tableName, @Nullable String whereClause, @Nullable String[] whereArgs);
 }
