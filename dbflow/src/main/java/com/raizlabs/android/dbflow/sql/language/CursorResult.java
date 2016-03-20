@@ -32,10 +32,24 @@ public class CursorResult<TModel extends Model> implements Closeable {
     }
 
     /**
+     * @return Converts the {@link Cursor} to a {@link List} of {@link TModel} and then closes it.
+     */
+    public List<TModel> toListClose() {
+        return retrievalAdapter.getListModelLoader().load(cursor);
+    }
+
+    /**
      * @return The first {@link TModel} of items from the contained {@link Cursor}. You must call {@link #close()} when finished.
      */
     public TModel toModel() {
         return retrievalAdapter.getSingleModelLoader().convertToData(cursor, null);
+    }
+
+    /**
+     * @return Converts the {@link Cursor} into the first {@link TModel} from the cursor and then closes it.
+     */
+    public TModel toModelClose() {
+        return retrievalAdapter.getSingleModelLoader().load(cursor);
     }
 
     public long count() {

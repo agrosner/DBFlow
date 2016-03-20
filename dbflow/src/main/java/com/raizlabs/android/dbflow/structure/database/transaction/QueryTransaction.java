@@ -47,7 +47,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
             this.modelQueriable = modelQueriable;
         }
 
-        public Builder queryResult(QueryResultCallback<TResult> queryResultCallback) {
+        public Builder<TResult> queryResult(QueryResultCallback<TResult> queryResultCallback) {
             this.queryResultCallback = queryResultCallback;
             return this;
         }

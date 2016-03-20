@@ -75,23 +75,23 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
             this.processModel = processModel;
         }
 
-        public Builder add(TModel model) {
+        public Builder<TModel> add(TModel model) {
             models.add(model);
             return this;
         }
 
         @SafeVarargs
-        public final Builder addAll(TModel... models) {
+        public final Builder<TModel> addAll(TModel... models) {
             this.models.addAll(Arrays.asList(models));
             return this;
         }
 
-        public Builder addAll(Collection<TModel> models) {
+        public Builder<TModel> addAll(Collection<TModel> models) {
             this.models.addAll(models);
             return this;
         }
 
-        public Builder processListener(OnModelProcessListener<TModel> processListener) {
+        public Builder<TModel> processListener(OnModelProcessListener<TModel> processListener) {
             this.processListener = processListener;
             return this;
         }

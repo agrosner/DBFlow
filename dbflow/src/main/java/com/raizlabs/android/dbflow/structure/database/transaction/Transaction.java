@@ -39,15 +39,36 @@ public class Transaction {
     final Error errorCallback;
     final Success successCallback;
     final ITransaction transaction;
+    final DatabaseWrapper databaseWrapper;
 
     Transaction(Builder builder) {
+        databaseWrapper = builder.databaseWrapper;
         errorCallback = builder.errorCallback;
         successCallback = builder.successCallback;
         transaction = builder.transaction;
     }
 
-    public void execute() {
+    public Error error() {
+        return errorCallback;
+    }
 
+    public Success success() {
+        return successCallback;
+    }
+
+    public ITransaction transaction() {
+        return transaction;
+    }
+
+    public void execute() {
+        // TODO: make async
+        try {
+            transaction.execute(databaseWrapper);
+        } catch (Throwable throwable) {
+            if (errorCallback != null) {
+                errorCallback.onError(transaction, throwable);
+            }
+        }
     }
 
     public static final class Builder {

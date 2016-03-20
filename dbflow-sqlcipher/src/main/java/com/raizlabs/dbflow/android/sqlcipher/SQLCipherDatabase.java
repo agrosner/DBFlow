@@ -60,7 +60,7 @@ public class SQLCipherDatabase implements DatabaseWrapper {
 
     @Override
     public Transaction.Builder beginTransactionAsync(ITransaction transaction) {
-
+        return new Transaction.Builder(transaction, this);
     }
 
     @Override
