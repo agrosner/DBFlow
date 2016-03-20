@@ -16,7 +16,6 @@ import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
 import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModel;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelper;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
@@ -29,6 +28,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
+import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -291,7 +291,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
             FlowManager.getTransactionManager().addTransaction(
                     new SaveModelTransaction<>(getProcessModelInfo(tmpCollection)));
         } else {
-            ProcessModelHelper.process(internalCursorList.getTable(), tmpCollection, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), tmpCollection, new ProcessModelTransaction.ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
                     model.save();
@@ -484,7 +484,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
             FlowManager.getTransactionManager().addTransaction(
                     new DeleteModelListTransaction<>(getProcessModelInfo(modelCollection)));
         } else {
-            ProcessModelHelper.process(internalCursorList.getTable(), modelCollection, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), modelCollection, new ProcessModelTransaction.ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
                     model.delete();
@@ -512,7 +512,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
             FlowManager.getTransactionManager().addTransaction(
                     new DeleteModelListTransaction<>(getProcessModelInfo(tableList)));
         } else {
-            ProcessModelHelper.process(internalCursorList.getTable(), tableList, new ProcessModel<ModelClass>() {
+            ProcessModelHelper.process(internalCursorList.getTable(), tableList, new ProcessModelTransaction.ProcessModel<ModelClass>() {
                 @Override
                 public void processModel(ModelClass model) {
                     model.delete();

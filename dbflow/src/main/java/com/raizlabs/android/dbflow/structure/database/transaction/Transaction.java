@@ -50,12 +50,12 @@ public class Transaction {
 
     }
 
-    public static class Builder {
+    public static final class Builder {
 
-        private final ITransaction transaction;
-        @NonNull private final DatabaseWrapper databaseWrapper;
-        private Error errorCallback;
-        private Success successCallback;
+        final ITransaction transaction;
+        @NonNull final DatabaseWrapper databaseWrapper;
+        Error errorCallback;
+        Success successCallback;
 
         public Builder(@NonNull ITransaction transaction, @NonNull DatabaseWrapper databaseWrapper) {
             this.transaction = transaction;

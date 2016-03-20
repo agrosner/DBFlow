@@ -152,7 +152,7 @@ public class ProcessModelInfo<ModelClass extends Model> {
      * @param processModel Process model
      */
     @SuppressWarnings("unchecked")
-    public void processModels(ProcessModel<ModelClass> processModel) {
+    public void processModels(com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction.ProcessModel<ModelClass> processModel) {
 
         // ignore empty list.
         if (!models.isEmpty()) {

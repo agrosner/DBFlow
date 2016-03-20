@@ -12,7 +12,7 @@ import java.util.List;
  * and allows for specific method calling on a model.
  */
 public abstract class ProcessModelTransaction<ModelClass extends Model> extends BaseResultTransaction<List<ModelClass>>
-        implements ProcessModel<ModelClass> {
+        implements com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction.ProcessModel<ModelClass> {
 
     /**
      * Called during execution of the {@link #processModel(Model)} method. Gives an idea of progress.
@@ -71,7 +71,7 @@ public abstract class ProcessModelTransaction<ModelClass extends Model> extends 
         if (contentObserver != null) {
             contentObserver.beginTransaction();
         }
-        processModelInfo.processModels(new ProcessModel<ModelClass>() {
+        processModelInfo.processModels(new com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction.ProcessModel<ModelClass>() {
             @Override
             public void processModel(ModelClass model) {
                 ProcessModelTransaction.this.processModel(model);

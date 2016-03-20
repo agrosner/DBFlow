@@ -38,10 +38,10 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
         }
     }
 
-    public static class Builder<TResult extends Model> {
+    public static final class Builder<TResult extends Model> {
 
-        private final ModelQueriable<TResult> modelQueriable;
-        private QueryResultCallback<TResult> queryResultCallback;
+        final ModelQueriable<TResult> modelQueriable;
+        QueryResultCallback<TResult> queryResultCallback;
 
         public Builder(@NonNull ModelQueriable<TResult> modelQueriable) {
             this.modelQueriable = modelQueriable;
@@ -52,7 +52,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
             return this;
         }
 
-        public QueryTransaction build() {
+        public QueryTransaction<TResult> build() {
             return new QueryTransaction<>(this);
         }
     }

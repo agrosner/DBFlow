@@ -26,6 +26,7 @@ public class ClassNames {
     public static final String LISTENER = STRUCTURE + ".listener";
     public static final String RUNTIME = BASE_PACKAGE + ".runtime";
     public static final String TRANSACTION = RUNTIME + ".transaction";
+    public static final String DATABASE_TRANSACTION = DATABASE = ".transaction";
     public static final String PROCESS = TRANSACTION + ".process";
 
     public static final ClassName DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder");
@@ -56,7 +57,7 @@ public class ClassNames {
     public static final ClassName QUERY = ClassName.get(SQL, "Query");
 
     public static final ClassName TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter");
-    public static final ClassName PROCESS_MODEL_INFO = ClassName.get(PROCESS, "ProcessModelInfo");
+    public static final ClassName PROCESS_MODEL_INFO = ClassName.get(DATABASE_TRANSACTION, "ProcessModelInfo");
 
     public static final ClassName FLOW_MANAGER_STATIC_INTERFACE = ClassName.get(FLOW_MANAGER_PACKAGE, "DatabaseHolder");
 
