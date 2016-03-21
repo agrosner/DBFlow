@@ -245,7 +245,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
                     "both backupEnabled and consistency checks enabled to the Database annotation");
         }
 
-        getWritableDatabase().beginTransactionAsync(new ITransaction() {
+        getDatabaseDefinition().beginTransactionAsync(new ITransaction() {
             @SuppressWarnings("ResultOfMethodCallIgnored")
             @Override
             public void execute(DatabaseWrapper databaseWrapper) {

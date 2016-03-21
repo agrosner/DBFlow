@@ -62,7 +62,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
 
     @Override
     public void save() {
-        databaseDefinition.getWritableDatabase()
+        databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<ModelClass>() {
                             @Override
@@ -77,7 +77,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
 
     @Override
     public void delete() {
-        databaseDefinition.getWritableDatabase()
+        databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<ModelClass>() {
                             @Override
@@ -92,7 +92,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
 
     @Override
     public void update() {
-        databaseDefinition.getWritableDatabase()
+        databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<ModelClass>() {
                             @Override
@@ -107,7 +107,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
 
     @Override
     public void insert() {
-        databaseDefinition.getWritableDatabase()
+        databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<ModelClass>() {
                             @Override

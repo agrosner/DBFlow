@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 
 /**
  * Description: The main async transaction class. It represents a transaction that occurs in the database.
@@ -44,11 +44,11 @@ public class Transaction {
     final Error errorCallback;
     final Success successCallback;
     final ITransaction transaction;
-    final DatabaseWrapper databaseWrapper;
+    final BaseDatabaseDefinition databaseDefinition;
     final String name;
 
     Transaction(Builder builder) {
-        databaseWrapper = builder.databaseWrapper;
+        databaseDefinition = builder.baseDatabaseDefinition;
         errorCallback = builder.errorCallback;
         successCallback = builder.successCallback;
         transaction = builder.transaction;
@@ -77,7 +77,7 @@ public class Transaction {
 
     public void executeSync() {
         try {
-            transaction.execute(databaseWrapper);
+            transaction.execute(databaseDefinition.getWritableDatabase());
             if (successCallback != null) {
                 TRANSACTION_HANDLER.post(new Runnable() {
                     @Override
@@ -96,14 +96,14 @@ public class Transaction {
     public static final class Builder {
 
         final ITransaction transaction;
-        @NonNull final DatabaseWrapper databaseWrapper;
+        @NonNull final BaseDatabaseDefinition baseDatabaseDefinition;
         Error errorCallback;
         Success successCallback;
         private String name;
 
-        public Builder(@NonNull ITransaction transaction, @NonNull DatabaseWrapper databaseWrapper) {
+        public Builder(@NonNull ITransaction transaction, @NonNull BaseDatabaseDefinition baseDatabaseDefinition) {
             this.transaction = transaction;
-            this.databaseWrapper = databaseWrapper;
+            this.baseDatabaseDefinition = baseDatabaseDefinition;
         }
 
         public Builder error(Error errorCallback) {

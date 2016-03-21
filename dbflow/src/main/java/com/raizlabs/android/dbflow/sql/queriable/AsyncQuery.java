@@ -36,7 +36,7 @@ public class AsyncQuery<ModelClass extends Model> {
      */
     public void execute() {
         cancel();
-        currentTransaction = database.getWritableDatabase()
+        currentTransaction = database
                 .beginTransactionAsync(new QueryTransaction.Builder<>(modelQueriable).build())
                 .build();
         currentTransaction.execute();
@@ -59,7 +59,7 @@ public class AsyncQuery<ModelClass extends Model> {
                       Transaction.Error error) {
         cancel();
 
-        currentTransaction = database.getWritableDatabase()
+        currentTransaction = database
                 .beginTransactionAsync(new QueryTransaction.Builder<>(modelQueriable)
                         .queryResult(queryResultCallback).build())
                 .error(error).build();

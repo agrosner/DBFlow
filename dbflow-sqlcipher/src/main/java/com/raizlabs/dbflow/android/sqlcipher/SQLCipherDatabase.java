@@ -48,22 +48,6 @@ public class SQLCipherDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public void executeTransaction(ITransaction ITransaction) {
-        try {
-            beginTransaction();
-            ITransaction.execute(this);
-            setTransactionSuccessful();
-        } finally {
-            endTransaction();
-        }
-    }
-
-    @Override
-    public Transaction.Builder beginTransactionAsync(ITransaction transaction) {
-        return new Transaction.Builder(transaction, this);
-    }
-
-    @Override
     public int getVersion() {
         return database.getVersion();
     }

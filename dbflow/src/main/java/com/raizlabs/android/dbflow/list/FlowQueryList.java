@@ -226,7 +226,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      */
     @Override
     public boolean add(ModelClass model) {
-        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+        Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
                         .add(model).build())
                 .error(errorCallback)
@@ -265,7 +265,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         // cast to normal collection, we do not want subclasses of this table saved
         final Collection<ModelClass> tmpCollection = (Collection<ModelClass>) collection;
 
-        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+        Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
                         .addAll(tmpCollection).build())
                 .error(errorCallback)
@@ -284,7 +284,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      */
     @Override
     public void clear() {
-        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+        Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new QueryTransaction.Builder<>(
                         SQLite.delete().from(internalCursorList.getTable())).build())
                 .error(errorCallback)
@@ -411,7 +411,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     public ModelClass remove(int location) {
         ModelClass model = internalCursorList.getItem(location);
 
-        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+        Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
                         .add(model).build())
                 .error(errorCallback)
@@ -440,7 +440,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         // if its a ModelClass
         if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             ModelClass model = ((ModelClass) object);
-            Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+            Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                     .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
                             .add(model).build())
                     .error(errorCallback)
@@ -470,7 +470,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
 
         // if its a ModelClass
         Collection<ModelClass> modelCollection = (Collection<ModelClass>) collection;
-        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+        Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
                         .addAll(modelCollection).build())
                 .error(errorCallback)
@@ -496,7 +496,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     public boolean retainAll(@NonNull Collection<?> collection) {
         List<ModelClass> tableList = internalCursorList.getAll();
         tableList.removeAll(collection);
-        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+        Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel, tableList)
                         .build())
                 .error(errorCallback)
@@ -530,7 +530,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      * @return The updated model.
      */
     public ModelClass set(ModelClass object) {
-        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+        Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(updateModel)
                         .add(object)
                         .build())

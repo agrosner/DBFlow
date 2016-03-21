@@ -28,14 +28,14 @@ public class ProcessModelHelper {
                                                           final ProcessModelTransaction.ProcessModel<ModelClass> processModel) {
         if (!collection.isEmpty()) {
             FlowManager.getDatabaseForTable(modelClass)
-                    .getWritableDatabase().executeTransaction(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    for (ModelClass collectionModel : collection) {
-                        processModel.processModel(collectionModel);
-                    }
-                }
-            });
+                    .executeTransaction(new ITransaction() {
+                        @Override
+                        public void execute(DatabaseWrapper databaseWrapper) {
+                            for (ModelClass collectionModel : collection) {
+                                processModel.processModel(collectionModel);
+                            }
+                        }
+                    });
         }
     }
 
@@ -52,13 +52,13 @@ public class ProcessModelHelper {
                                                           final ProcessModelTransaction.ProcessModel<ModelClass> processModel,
                                                           final ModelClass... models) {
         FlowManager.getDatabaseForTable(modelClass)
-                .getWritableDatabase().executeTransaction(new ITransaction() {
-            @Override
-            public void execute(DatabaseWrapper databaseWrapper) {
-                for (ModelClass model : models) {
-                    processModel.processModel(model);
-                }
-            }
-        });
+                .executeTransaction(new ITransaction() {
+                    @Override
+                    public void execute(DatabaseWrapper databaseWrapper) {
+                        for (ModelClass model : models) {
+                            processModel.processModel(model);
+                        }
+                    }
+                });
     }
 }

@@ -22,10 +22,6 @@ public interface DatabaseWrapper {
 
     void endTransaction();
 
-    void executeTransaction(ITransaction ITransaction);
-
-    Transaction.Builder beginTransactionAsync(ITransaction transaction);
-
     int getVersion();
 
     DatabaseStatement compileStatement(String rawQuery);

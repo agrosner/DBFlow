@@ -6,12 +6,10 @@ import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.config.NaturalOrderComparator;
-import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -77,30 +75,30 @@ public class BaseDatabaseHelper {
      * @param database
      */
     protected void executeCreations(final DatabaseWrapper database) {
-        database.executeTransaction(new ITransaction() {
-            @Override
-            public void execute(DatabaseWrapper databaseWrapper) {
-                List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
-                for (ModelAdapter modelAdapter : modelAdapters) {
-                    database.execSQL(modelAdapter.getCreationQuery());
-                }
-
-                // create our model views
-                List<ModelViewAdapter> modelViews = databaseDefinition.getModelViewAdapters();
-                for (ModelViewAdapter modelView : modelViews) {
-                    QueryBuilder queryBuilder = new QueryBuilder()
-                            .append("CREATE VIEW")
-                            .appendSpaceSeparated(modelView.getViewName())
-                            .append("AS ")
-                            .append(modelView.getCreationQuery());
-                    try {
-                        database.execSQL(queryBuilder.getQuery());
-                    } catch (SQLiteException e) {
-                        FlowLog.logError(e);
-                    }
-                }
+        try {
+            database.beginTransaction();
+            List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
+            for (ModelAdapter modelAdapter : modelAdapters) {
+                database.execSQL(modelAdapter.getCreationQuery());
             }
-        });
+
+            // create our model views
+            List<ModelViewAdapter> modelViews = databaseDefinition.getModelViewAdapters();
+            for (ModelViewAdapter modelView : modelViews) {
+                QueryBuilder queryBuilder = new QueryBuilder()
+                        .append("CREATE VIEW")
+                        .appendSpaceSeparated(modelView.getViewName())
+                        .append("AS ")
+                        .append(modelView.getCreationQuery());
+                database.execSQL(queryBuilder.getQuery());
+                database.setTransactionSuccessful();
+            }
+        } catch (SQLiteException e) {
+            FlowLog.logError(e);
+        } finally {
+            database.endTransaction();
+        }
+
     }
 
     protected void executeMigrations(final DatabaseWrapper db, final int oldVersion, final int newVersion) {
@@ -130,38 +128,40 @@ public class BaseDatabaseHelper {
 
             final int curVersion = oldVersion + 1;
 
-            db.executeTransaction(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    // execute migrations in order, migration file first before wrapped migration classes.
-                    for (int i = curVersion; i <= newVersion; i++) {
-                        List<String> migrationFiles = migrationFileMap.get(i);
-                        if (migrationFiles != null) {
-                            for (String migrationFile : migrationFiles) {
-                                executeSqlScript(db, migrationFile);
-                                FlowLog.log(FlowLog.Level.I, migrationFile + " executed successfully.");
-                            }
+            try {
+                db.beginTransaction();
+
+                // execute migrations in order, migration file first before wrapped migration classes.
+                for (int i = curVersion; i <= newVersion; i++) {
+                    List<String> migrationFiles = migrationFileMap.get(i);
+                    if (migrationFiles != null) {
+                        for (String migrationFile : migrationFiles) {
+                            executeSqlScript(db, migrationFile);
+                            FlowLog.log(FlowLog.Level.I, migrationFile + " executed successfully.");
                         }
+                    }
 
-                        if (migrationMap != null) {
-                            List<Migration> migrationsList = migrationMap.get(i);
-                            if (migrationsList != null) {
-                                for (Migration migration : migrationsList) {
-                                    // before migration
-                                    migration.onPreMigrate();
+                    if (migrationMap != null) {
+                        List<Migration> migrationsList = migrationMap.get(i);
+                        if (migrationsList != null) {
+                            for (Migration migration : migrationsList) {
+                                // before migration
+                                migration.onPreMigrate();
 
-                                    // migrate
-                                    migration.migrate(db);
+                                // migrate
+                                migration.migrate(db);
 
-                                    // after migration cleanup
-                                    migration.onPostMigrate();
-                                    FlowLog.log(FlowLog.Level.I, migration.getClass() + " executed successfully.");
-                                }
+                                // after migration cleanup
+                                migration.onPostMigrate();
+                                FlowLog.log(FlowLog.Level.I, migration.getClass() + " executed successfully.");
                             }
                         }
                     }
                 }
-            });
+                db.setTransactionSuccessful();
+            } finally {
+                db.setTransactionSuccessful();
+            }
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e);
         }

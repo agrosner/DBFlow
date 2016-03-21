@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
-import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
@@ -18,6 +17,9 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.FlowSQLiteOpenHelper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -167,6 +169,21 @@ public abstract class BaseDatabaseDefinition {
 
     public DatabaseWrapper getWritableDatabase() {
         return getHelper().getDatabase();
+    }
+
+    public Transaction.Builder beginTransactionAsync(ITransaction transaction) {
+        return new Transaction.Builder(transaction, this);
+    }
+
+    public void executeTransaction(ITransaction transaction) {
+        DatabaseWrapper database = getWritableDatabase();
+        try {
+            database.beginTransaction();
+            transaction.execute(database);
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
     }
 
     /**

@@ -53,7 +53,7 @@ public abstract class BaseContentProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull final Uri uri, @NonNull final ContentValues[] values) {
         final int[] count = {0};
-        getDatabase().getWritableDatabase().executeTransaction(new ITransaction() {
+        getDatabase().executeTransaction(new ITransaction() {
             @Override
             public void execute(DatabaseWrapper databaseWrapper) {
                 for (ContentValues contentValues : values) {
