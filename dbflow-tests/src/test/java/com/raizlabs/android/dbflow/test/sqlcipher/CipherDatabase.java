@@ -5,8 +5,7 @@ import com.raizlabs.android.dbflow.annotation.Database;
 /**
  * Description:
  */
-@Database(name = CipherDatabase.NAME, version = CipherDatabase.VERSION,
-        sqlHelperClass = SQLCipherHelperImpl.class)
+@Database(name = CipherDatabase.NAME, version = CipherDatabase.VERSION)
 public class CipherDatabase {
 
     public static final String NAME = "CipherDatabase";

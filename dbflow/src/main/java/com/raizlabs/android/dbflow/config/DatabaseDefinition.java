@@ -77,7 +77,13 @@ public abstract class DatabaseDefinition {
 
     public BaseTransactionManager getTransactionManager() {
         if (transactionManager == null) {
-            transactionManager = new DefaultTransactionManager(this);
+            DatabaseConfig databaseConfig = FlowManager.getConfig()
+                    .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+            if (databaseConfig == null || databaseConfig.transactionManager() == null) {
+                transactionManager = new DefaultTransactionManager(this);
+            } else {
+                transactionManager = databaseConfig.transactionManager();
+            }
         }
         return transactionManager;
     }
@@ -169,13 +175,15 @@ public abstract class DatabaseDefinition {
 
     synchronized OpenHelper getHelper() {
         if (openHelper == null) {
-            openHelper = createHelper();
+            DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
+                    .get(getAssociatedDatabaseClassFile());
+            if (config == null || config.helperCreator() == null) {
+                openHelper = new FlowSQLiteOpenHelper(this, helperListener);
+            } else {
+                openHelper = config.helperCreator();
+            }
         }
         return openHelper;
-    }
-
-    protected OpenHelper createHelper() {
-        return new FlowSQLiteOpenHelper(this, internalHelperListener);
     }
 
     public DatabaseWrapper getWritableDatabase() {
@@ -242,6 +250,11 @@ public abstract class DatabaseDefinition {
      * @return True if the {@link Database#backupEnabled()} annotation is true.
      */
     public abstract boolean backupEnabled();
+
+    /**
+     * @return The class that defines the {@link Database} annotation.
+     */
+    public abstract Class<?> getAssociatedDatabaseClassFile();
 
     /**
      * Performs a full deletion of this database. Reopens the {@link FlowSQLiteOpenHelper} as well.

@@ -70,7 +70,7 @@ public class OneToManyDefinition extends BaseDefinition {
      */
     public void writeDelete(CodeBlock.Builder codeBuilder) {
         if (isDelete()) {
-            writeLoopWithMethod(codeBuilder, getMethodName());
+            writeLoopWithMethod(codeBuilder, "delete");
 
             codeBuilder.addStatement("$L = null", getVariableName());
         }

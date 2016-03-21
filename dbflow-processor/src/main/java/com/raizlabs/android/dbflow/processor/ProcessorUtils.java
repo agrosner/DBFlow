@@ -44,12 +44,4 @@ public class ProcessorUtils {
         return isSubClass;
     }
 
-    public static TypeMirror getOpenHelperClass(Database database) {
-        try {
-            database.sqlHelperClass();
-        } catch (MirroredTypeException mte) {
-            return mte.getTypeMirror();
-        }
-        return null;
-    }
 }

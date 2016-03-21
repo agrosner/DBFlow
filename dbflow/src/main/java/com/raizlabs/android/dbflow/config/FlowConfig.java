@@ -3,10 +3,10 @@ package com.raizlabs.android.dbflow.config;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
-
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -14,24 +14,24 @@ import java.util.Set;
  */
 public class FlowConfig {
 
-    private Set<Class<? extends DatabaseHolder>> databaseHolders;
-    private BaseTransactionManager transactionManager;
-    private Context context;
-    private boolean openDatabasesOnInit;
+    private final Set<Class<? extends DatabaseHolder>> databaseHolders;
+    private final Map<Class<?>, DatabaseConfig> databaseConfigMap;
+    private final Context context;
+    private final boolean openDatabasesOnInit;
 
     private FlowConfig(Builder builder) {
         databaseHolders = Collections.unmodifiableSet(builder.databaseHolders);
-        transactionManager = builder.transactionManager;
+        databaseConfigMap = builder.databaseConfigMap;
         context = builder.context;
         openDatabasesOnInit = builder.openDatabasesOnInit;
     }
 
-    public Set<Class<? extends DatabaseHolder>> getDatabaseHolders() {
+    public Set<Class<? extends DatabaseHolder>> databaseHolders() {
         return databaseHolders;
     }
 
-    public BaseTransactionManager getTransactionManager() {
-        return transactionManager;
+    public Map<Class<?>, DatabaseConfig> databaseConfigMap() {
+        return databaseConfigMap;
     }
 
     @NonNull
@@ -47,7 +47,7 @@ public class FlowConfig {
 
         final Context context;
         Set<Class<? extends DatabaseHolder>> databaseHolders = new HashSet<>();
-        BaseTransactionManager transactionManager;
+        final Map<Class<?>, DatabaseConfig> databaseConfigMap = new HashMap<>();
         boolean openDatabasesOnInit;
 
         public Builder(Context context) {
@@ -59,8 +59,8 @@ public class FlowConfig {
             return this;
         }
 
-        public Builder transactionManager(BaseTransactionManager transactionManager) {
-            this.transactionManager = transactionManager;
+        public Builder addDatabaseConfig(DatabaseConfig databaseConfig) {
+            databaseConfigMap.put(databaseConfig.databaseClass(), databaseConfig);
             return this;
         }
 
