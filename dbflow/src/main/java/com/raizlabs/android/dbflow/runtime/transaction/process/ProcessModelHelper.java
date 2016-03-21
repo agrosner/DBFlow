@@ -3,8 +3,9 @@ package com.raizlabs.android.dbflow.runtime.transaction.process;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 
 import java.util.Collection;
@@ -26,15 +27,15 @@ public class ProcessModelHelper {
                                                           @NonNull final Collection<ModelClass> collection,
                                                           final ProcessModelTransaction.ProcessModel<ModelClass> processModel) {
         if (!collection.isEmpty()) {
-            BaseTransactionManager.transact(FlowManager.getDatabaseForTable(modelClass).getWritableDatabase(),
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            for (ModelClass collectionModel : collection) {
-                                processModel.processModel(collectionModel);
-                            }
-                        }
-                    });
+            FlowManager.getDatabaseForTable(modelClass)
+                    .getWritableDatabase().executeTransaction(new ITransaction() {
+                @Override
+                public void execute(DatabaseWrapper databaseWrapper) {
+                    for (ModelClass collectionModel : collection) {
+                        processModel.processModel(collectionModel);
+                    }
+                }
+            });
         }
     }
 
@@ -50,14 +51,14 @@ public class ProcessModelHelper {
     public static <ModelClass extends Model> void process(Class<? extends Model> modelClass,
                                                           final ProcessModelTransaction.ProcessModel<ModelClass> processModel,
                                                           final ModelClass... models) {
-        BaseTransactionManager.transact(FlowManager.getDatabaseForTable(modelClass).getWritableDatabase(),
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        for (ModelClass model : models) {
-                            processModel.processModel(model);
-                        }
-                    }
-                });
+        FlowManager.getDatabaseForTable(modelClass)
+                .getWritableDatabase().executeTransaction(new ITransaction() {
+            @Override
+            public void execute(DatabaseWrapper databaseWrapper) {
+                for (ModelClass model : models) {
+                    processModel.processModel(model);
+                }
+            }
+        });
     }
 }

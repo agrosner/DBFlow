@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -76,11 +77,9 @@ public class BaseDatabaseHelper {
      * @param database
      */
     protected void executeCreations(final DatabaseWrapper database) {
-
-        BaseTransactionManager.transact(database, new Runnable() {
+        database.executeTransaction(new ITransaction() {
             @Override
-            public void run() {
-
+            public void execute(DatabaseWrapper databaseWrapper) {
                 List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
                 for (ModelAdapter modelAdapter : modelAdapters) {
                     database.execSQL(modelAdapter.getCreationQuery());
@@ -131,10 +130,9 @@ public class BaseDatabaseHelper {
 
             final int curVersion = oldVersion + 1;
 
-            BaseTransactionManager.transact(db, new Runnable() {
+            db.executeTransaction(new ITransaction() {
                 @Override
-                public void run() {
-
+                public void execute(DatabaseWrapper databaseWrapper) {
                     // execute migrations in order, migration file first before wrapped migration classes.
                     for (int i = curVersion; i <= newVersion; i++) {
                         List<String> migrationFiles = migrationFileMap.get(i);

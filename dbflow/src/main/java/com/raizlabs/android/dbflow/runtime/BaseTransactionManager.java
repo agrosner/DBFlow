@@ -2,9 +2,7 @@ package com.raizlabs.android.dbflow.runtime;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: The base implementation of Transaction manager.
@@ -16,30 +14,6 @@ public abstract class BaseTransactionManager {
     public BaseTransactionManager(@NonNull ITransactionQueue transactionQueue) {
         this.transactionQueue = transactionQueue;
         checkQueue();
-    }
-
-    /**
-     * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
-     *
-     * @param runnable The runnable to transact.
-     */
-    public static void transact(String databaseName, Runnable runnable) {
-        transact(FlowManager.getDatabase(databaseName).getWritableDatabase(), runnable);
-    }
-
-    /**
-     * Wraps the runnable around {@link android.database.sqlite.SQLiteDatabase#beginTransaction()} and the other methods.
-     *
-     * @param runnable The runnable to transact.
-     */
-    public static void transact(DatabaseWrapper database, Runnable runnable) {
-        database.beginTransaction();
-        try {
-            runnable.run();
-            database.setTransactionSuccessful();
-        } finally {
-            database.endTransaction();
-        }
     }
 
     public ITransactionQueue getQueue() {

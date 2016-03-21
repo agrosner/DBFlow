@@ -10,6 +10,8 @@ import com.raizlabs.android.dbflow.config.DatabaseHolder;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 
 /**
  * Description: The base provider class that {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
@@ -27,7 +29,8 @@ public abstract class BaseContentProvider extends ContentProvider {
         IProperty fromName(String columnName);
     }
 
-    protected BaseContentProvider() {}
+    protected BaseContentProvider() {
+    }
 
     protected BaseContentProvider(Class<? extends DatabaseHolder> databaseHolderClass) {
         this.moduleClass = databaseHolderClass;
@@ -50,9 +53,9 @@ public abstract class BaseContentProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull final Uri uri, @NonNull final ContentValues[] values) {
         final int[] count = {0};
-        BaseTransactionManager.transact(getDatabase().getWritableDatabase(), new Runnable() {
+        getDatabase().getWritableDatabase().executeTransaction(new ITransaction() {
             @Override
-            public void run() {
+            public void execute(DatabaseWrapper databaseWrapper) {
                 for (ContentValues contentValues : values) {
                     count[0] += bulkInsert(uri, contentValues);
                 }

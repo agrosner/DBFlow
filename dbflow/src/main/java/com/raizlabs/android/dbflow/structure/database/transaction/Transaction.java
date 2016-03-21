@@ -31,7 +31,7 @@ public class Transaction {
         /**
          * Called when a transaction succeeded.
          *
-         * @param ITransaction The transacton that succeeded.
+         * @param ITransaction The transaction that succeeded.
          */
         void onSuccess(ITransaction ITransaction);
     }
