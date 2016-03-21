@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.Condition;
@@ -58,7 +58,7 @@ public class SqlUtils {
     @Deprecated
     public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql,
                                                                         String... args) {
-        BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
+        DatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = null;
         try {
@@ -290,7 +290,7 @@ public class SqlUtils {
 
     @Deprecated
     public static <ModelClass extends Model> boolean hasData(Class<ModelClass> table, String sql, String... args) {
-        BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(table);
+        DatabaseDefinition flowManager = FlowManager.getDatabaseForTable(table);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();

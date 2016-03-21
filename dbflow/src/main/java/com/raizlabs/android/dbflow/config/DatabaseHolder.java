@@ -13,8 +13,8 @@ import java.util.Map;
  * between them.
  */
 public abstract class DatabaseHolder {
-    protected final Map<Class<? extends Model>, BaseDatabaseDefinition> databaseDefinitionMap = new HashMap<>();
-    protected final Map<String, BaseDatabaseDefinition> databaseNameMap = new HashMap<>();
+    protected final Map<Class<? extends Model>, DatabaseDefinition> databaseDefinitionMap = new HashMap<>();
+    protected final Map<String, DatabaseDefinition> databaseNameMap = new HashMap<>();
 
     protected final Map<Class<?>, TypeConverter> typeConverters = new HashMap<>();
 
@@ -30,7 +30,7 @@ public abstract class DatabaseHolder {
      * @param table The model class
      * @return The database that the table belongs in
      */
-    public BaseDatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
+    public DatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
         return databaseDefinitionMap.get(table);
     }
 
@@ -38,7 +38,7 @@ public abstract class DatabaseHolder {
      * @param databaseName The name of the database to retrieve
      * @return The database that has the specified name
      */
-    public BaseDatabaseDefinition getDatabase(String databaseName) {
+    public DatabaseDefinition getDatabase(String databaseName) {
         return databaseNameMap.get(databaseName);
     }
 
@@ -46,14 +46,14 @@ public abstract class DatabaseHolder {
      * Helper method used to store a database for the specified table.
      *
      * @param table                  The model table
-     * @param baseDatabaseDefinition The database definition
+     * @param databaseDefinition The database definition
      */
-    public void putDatabaseForTable(Class<? extends Model> table, BaseDatabaseDefinition baseDatabaseDefinition) {
-        databaseDefinitionMap.put(table, baseDatabaseDefinition);
-        databaseNameMap.put(baseDatabaseDefinition.getDatabaseName(), baseDatabaseDefinition);
+    public void putDatabaseForTable(Class<? extends Model> table, DatabaseDefinition databaseDefinition) {
+        databaseDefinitionMap.put(table, databaseDefinition);
+        databaseNameMap.put(databaseDefinition.getDatabaseName(), databaseDefinition);
     }
 
-    public List<BaseDatabaseDefinition> getDatabaseDefinitions() {
+    public List<DatabaseDefinition> getDatabaseDefinitions() {
         return new ArrayList<>(databaseNameMap.values());
     }
 }

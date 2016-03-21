@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.structure.database;
 
 import android.database.sqlite.SQLiteException;
 
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.config.NaturalOrderComparator;
@@ -31,13 +31,13 @@ public class BaseDatabaseHelper {
      * Location where the migration files should exist.
      */
     public static final String MIGRATION_PATH = "migrations";
-    private final BaseDatabaseDefinition databaseDefinition;
+    private final DatabaseDefinition databaseDefinition;
 
-    public BaseDatabaseHelper(BaseDatabaseDefinition databaseDefinition) {
+    public BaseDatabaseHelper(DatabaseDefinition databaseDefinition) {
         this.databaseDefinition = databaseDefinition;
     }
 
-    public BaseDatabaseDefinition getDatabaseDefinition() {
+    public DatabaseDefinition getDatabaseDefinition() {
         return databaseDefinition;
     }
 

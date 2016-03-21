@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.sql.trigger;
 
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -41,7 +41,7 @@ public class CompletedTrigger<ModelClass extends Model> implements Query {
      * Turns on this trigger
      */
     public void enable() {
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(triggerMethod.onTable);
+        DatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(triggerMethod.onTable);
         databaseDefinition.getWritableDatabase().execSQL(getQuery());
     }
 

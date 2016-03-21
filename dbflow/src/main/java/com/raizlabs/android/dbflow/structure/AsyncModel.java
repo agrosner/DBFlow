@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
@@ -28,7 +28,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
 
     private final ModelClass model;
     private transient WeakReference<OnModelChangedListener> onModelChangedListener;
-    private final BaseDatabaseDefinition databaseDefinition;
+    private final DatabaseDefinition databaseDefinition;
 
     private Transaction.Error errorCallback;
 

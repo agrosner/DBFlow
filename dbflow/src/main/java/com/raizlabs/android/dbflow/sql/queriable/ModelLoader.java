@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -18,7 +18,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 public abstract class ModelLoader<TModel extends Model, TReturn> {
 
     private final Class<TModel> modelClass;
-    private final BaseDatabaseDefinition databaseDefinition;
+    private final DatabaseDefinition databaseDefinition;
     private InstanceAdapter instanceAdapter;
 
     public ModelLoader(Class<TModel> modelClass) {
@@ -85,7 +85,7 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
         return instanceAdapter;
     }
 
-    public BaseDatabaseDefinition getDatabaseDefinition() {
+    public DatabaseDefinition getDatabaseDefinition() {
         return databaseDefinition;
     }
 

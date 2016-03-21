@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
@@ -24,7 +24,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
     public static final String TEMP_DB_NAME = "temp-";
 
-    public static String getTempDbFileName(BaseDatabaseDefinition databaseDefinition) {
+    public static String getTempDbFileName(DatabaseDefinition databaseDefinition) {
         return TEMP_DB_NAME + databaseDefinition.getDatabaseName() + ".db";
     }
 
@@ -33,7 +33,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     @Nullable private final OpenHelper backupHelper;
 
     public DatabaseHelperDelegate(DatabaseHelperListener databaseHelperListener,
-                                  BaseDatabaseDefinition databaseDefinition, @Nullable OpenHelper backupHelper) {
+                                  DatabaseDefinition databaseDefinition, @Nullable OpenHelper backupHelper) {
         super(databaseDefinition);
         this.databaseHelperListener = databaseHelperListener;
         this.backupHelper = backupHelper;
@@ -78,7 +78,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     /**
-     * @return the temporary database file name for when we have backups enabled {@link BaseDatabaseDefinition#backupEnabled()}
+     * @return the temporary database file name for when we have backups enabled {@link DatabaseDefinition#backupEnabled()}
      */
     private String getTempDbFileName() {
         return getTempDbFileName(getDatabaseDefinition());
@@ -199,7 +199,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     /**
-     * Will use the already existing app database if {@link BaseDatabaseDefinition#backupEnabled()} is true. If the existing
+     * Will use the already existing app database if {@link DatabaseDefinition#backupEnabled()} is true. If the existing
      * is not there we will try to use the prepackaged database for that purpose.
      *
      * @param databaseName    The name of the database to restore

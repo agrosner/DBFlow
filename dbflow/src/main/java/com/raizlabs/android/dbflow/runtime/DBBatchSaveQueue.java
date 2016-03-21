@@ -2,18 +2,16 @@ package com.raizlabs.android.dbflow.runtime;
 
 import android.os.Looper;
 
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionManager;
+import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Description: This queue will bulk save items added to it when it gets access to the DB. It should only exist as one entity.
@@ -58,27 +56,18 @@ public class DBBatchSaveQueue extends Thread {
 
     private boolean purgeQueueWhenDone = true;
 
-    private DBTransactionInfo saveQueueInfo = DBTransactionInfo.create("Batch Saving Models");
+    private Transaction.Error errorListener;
+    private Transaction.Success successListener;
 
-    private TransactionListener<List<Model>> transactionListener;
+    private DatabaseDefinition databaseDefinition;
 
     /**
      * Creates a new instance of this class to batch save {@link com.raizlabs.android.dbflow.structure.Model} classes.
      */
-    private DBBatchSaveQueue() {
+    DBBatchSaveQueue(DatabaseDefinition databaseDefinition) {
         super("DBBatchSaveQueue");
-
+        this.databaseDefinition = databaseDefinition;
         models = new ArrayList<>();
-    }
-
-    /**
-     * @return The main save queue.
-     */
-    public static DBBatchSaveQueue getSharedSaveQueue() {
-        if (batchSaveQueue == null) {
-            batchSaveQueue = new DBBatchSaveQueue();
-        }
-        return batchSaveQueue;
     }
 
     /**
@@ -97,24 +86,6 @@ public class DBBatchSaveQueue extends Thread {
      */
     public void setModelSaveSize(int mModelSaveSize) {
         this.modelSaveSize = mModelSaveSize;
-    }
-
-    /**
-     * Change the priority of the queue, add a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener} for when saving is done
-     *
-     * @param transactionInfo The information used for all batch save requests.
-     */
-    public void setSaveQueueInfo(DBTransactionInfo transactionInfo) {
-        this.saveQueueInfo = transactionInfo;
-    }
-
-    /**
-     * Sets a listener to receive call backs as the save queue saves batches of models.
-     *
-     * @param listener The listener to call as it updates.
-     */
-    public void setTransactionListener(TransactionListener<List<Model>> listener) {
-        transactionListener = listener;
     }
 
     /**
@@ -137,6 +108,24 @@ public class DBBatchSaveQueue extends Thread {
         this.purgeQueueWhenDone = purgeQueueWhenDone;
     }
 
+    /**
+     * Listener for errors in each batch {@link Transaction}.
+     *
+     * @param errorListener The listener to use.
+     */
+    public void setErrorListener(Transaction.Error errorListener) {
+        this.errorListener = errorListener;
+    }
+
+    /**
+     * Listener for batch updates.
+     *
+     * @param successListener The listener to get notified when changes are successful.
+     */
+    public void setSuccessListener(Transaction.Success successListener) {
+        this.successListener = successListener;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void run() {
@@ -152,11 +141,12 @@ public class DBBatchSaveQueue extends Thread {
             if (tmpModels.size() > 0) {
                 //onExecute this on the DBManager thread
 
-                FlowManager.getTransactionManager()
-                    .addTransaction(new SaveModelTransaction<>(ProcessModelInfo
-                        .withModels(tmpModels)
-                        .result(internalListener)
-                        .info(saveQueueInfo)));
+                databaseDefinition.beginTransactionAsync(
+                    new ProcessModelTransaction.Builder(modelSaver).build())
+                    .success(successCallback)
+                    .error(errorCallback)
+                    .build()
+                    .execute();
             }
 
             try {
@@ -240,40 +230,30 @@ public class DBBatchSaveQueue extends Thread {
         isQuitting = true;
     }
 
-    private final TransactionListener<List<Model>> internalListener = new TransactionListener<List<Model>>() {
+    private final ProcessModelTransaction.ProcessModel modelSaver = new ProcessModelTransaction.ProcessModel() {
         @Override
-        public void onResultReceived(List<Model> result) {
-            if (transactionListener != null) {
-                transactionListener.onResultReceived(result);
-            }
-
-            if (purgeQueueWhenDone) {
-                synchronized (models) {
-                    // interrupt the thread if we discover the model size is now smaller than the save size.
-                    if (models.size() < MODEL_SAVE_SIZE) {
-                        purgeQueue();
-                    }
-                }
-            }
-        }
-
-        @Override
-        public boolean onReady(BaseTransaction<List<Model>> transaction) {
-            if (transactionListener != null) {
-                // result ignored. Always will be ready.
-                transactionListener.onReady(transaction);
-            }
-            return true;
-        }
-
-        @Override
-        public boolean hasResult(BaseTransaction<List<Model>> transaction, List<Model> result) {
-            if (transactionListener != null) {
-                // result ignored always will have a result when called.
-                transactionListener.hasResult(transaction, result);
-            }
-            return true;
+        public void processModel(Model model) {
+            model.save();
         }
     };
+
+    private final Transaction.Success successCallback = new Transaction.Success() {
+        @Override
+        public void onSuccess(Transaction transaction) {
+            if (successListener != null) {
+                successListener.onSuccess(transaction);
+            }
+        }
+    };
+
+    private final Transaction.Error errorCallback = new Transaction.Error() {
+        @Override
+        public void onError(Transaction transaction, Throwable error) {
+            if (errorListener != null) {
+                errorListener.onError(transaction, error);
+            }
+        }
+    };
+
 }
 

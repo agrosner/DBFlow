@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
+import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
@@ -17,6 +18,7 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.FlowSQLiteOpenHelper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionManager;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -28,10 +30,10 @@ import java.util.Map;
 
 /**
  * Author: andrewgrosner
- * Description: The main interface that all Flow Managers implement. This is for internal usage only
+ * Description: The main interface that all Database implementations extend from. This is for internal usage only
  * as it will be generated for every {@link Database}.
  */
-public abstract class BaseDatabaseDefinition {
+public abstract class DatabaseDefinition {
 
     final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
 
@@ -64,11 +66,20 @@ public abstract class BaseDatabaseDefinition {
      */
     private boolean isResetting = false;
 
+    private BaseTransactionManager transactionManager;
+
     /**
      * @return a list of all model classes in this database.
      */
     public List<Class<? extends Model>> getModelClasses() {
         return models;
+    }
+
+    public BaseTransactionManager getTransactionManager() {
+        if (transactionManager == null) {
+            transactionManager = new DefaultTransactionManager(this);
+        }
+        return transactionManager;
     }
 
     /**

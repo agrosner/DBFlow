@@ -1,10 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database.transaction;
 
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
-import com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue;
-import com.raizlabs.android.dbflow.structure.Model;
-
-import java.util.Collection;
 
 /**
  * Description: This class manages batch database interactions. It is useful for retrieving, updating, saving,
@@ -12,53 +9,12 @@ import java.util.Collection;
  */
 public class DefaultTransactionManager extends BaseTransactionManager {
 
-    public DefaultTransactionManager() {
-        super(new DefaultTransactionQueue("DBFlow Transaction Queue"));
+    public DefaultTransactionManager(DatabaseDefinition databaseDefinition) {
+        super(new DefaultTransactionQueue("DBFlow Transaction Queue"), databaseDefinition);
     }
 
-    public DefaultTransactionManager(ITransactionQueue transactionQueue) {
-        super(transactionQueue);
+    public DefaultTransactionManager(ITransactionQueue transactionQueue, DatabaseDefinition databaseDefinition) {
+        super(transactionQueue, databaseDefinition);
     }
 
-    /**
-     * Saves the passed in model to the {@link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}.
-     * This method is recommended for saving large amounts of continuous data as to batch up as much data as possible in a save.
-     *
-     * @param model        The model to save
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
-     */
-    public <ModelClass extends Model> void saveOnSaveQueue(ModelClass model) {
-
-        // Only start save queue if we are going to use it
-        if (!getSaveQueue().isAlive()) {
-            getSaveQueue().start();
-        }
-        getSaveQueue().add(model);
-    }
-
-    // endregion
-
-    // region Database Save methods
-
-    public DBBatchSaveQueue getSaveQueue() {
-        return DBBatchSaveQueue.getSharedSaveQueue();
-    }
-
-    /**
-     * Saves all of the passed in models to the {@link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}.
-     * This method is recommended for saving large amounts of continuous data as to batch up as much data as possible in a save.
-     *
-     * @param models       The list of models to save
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}.
-     */
-    public <ModelClass extends Model> void saveOnSaveQueue(Collection<ModelClass> models) {
-
-        // Only start save queue if we are going to use it
-        if (!getSaveQueue().isAlive()) {
-            getSaveQueue().start();
-        }
-        getSaveQueue().addAll(models);
-    }
-
-    // endregion
 }

@@ -78,7 +78,7 @@ public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQ
 
     @Override
     public AsyncQuery<ModelClass> async() {
-        return new AsyncQuery<>(this, FlowManager.getTransactionManager());
+        return new AsyncQuery<>(this);
     }
 
     @Override

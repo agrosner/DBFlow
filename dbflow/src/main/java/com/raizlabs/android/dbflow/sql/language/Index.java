@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -134,7 +134,7 @@ public class Index<ModelClass extends Model> implements Query {
             throw new IllegalStateException("There should be at least one column in this index");
         }
 
-        BaseDatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(table);
+        DatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(table);
         databaseDefinition.getWritableDatabase().execSQL(getQuery());
     }
 

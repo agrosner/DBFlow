@@ -101,7 +101,7 @@ public class FlowManager {
      * @return The associated table class for the specified name.
      */
     public static Class<? extends Model> getTableClassForName(String databaseName, String tableName) {
-        BaseDatabaseDefinition databaseDefinition = getDatabase(databaseName);
+        DatabaseDefinition databaseDefinition = getDatabase(databaseName);
         if (databaseDefinition == null) {
             throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
                     "Did you forget to add the @Database?", databaseName));
@@ -117,10 +117,10 @@ public class FlowManager {
 
     /**
      * @param table The table to lookup the database for.
-     * @return the corresponding {@link BaseDatabaseDefinition} for the specified model
+     * @return the corresponding {@link DatabaseDefinition} for the specified model
      */
-    public static BaseDatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
-        BaseDatabaseDefinition flowManager = globalDatabaseHolder.getDatabaseForTable(table);
+    public static DatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
+        DatabaseDefinition flowManager = globalDatabaseHolder.getDatabaseForTable(table);
         if (flowManager == null) {
             throw new InvalidDBConfiguration("Table: " + table.getName() + " is not registered with a Database. " +
                     "Did you forget the @Table annotation?");
@@ -134,10 +134,10 @@ public class FlowManager {
 
     /**
      * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
-     * @return the {@link BaseDatabaseDefinition} for the specified database
+     * @return the {@link DatabaseDefinition} for the specified database
      */
-    public static BaseDatabaseDefinition getDatabase(String databaseName) {
-        BaseDatabaseDefinition database = globalDatabaseHolder.getDatabase(databaseName);
+    public static DatabaseDefinition getDatabase(String databaseName) {
+        DatabaseDefinition database = globalDatabaseHolder.getDatabase(databaseName);
 
         if (database != null) {
             return database;
@@ -231,8 +231,8 @@ public class FlowManager {
         }
 
         if (flowConfig.openDatabasesOnInit()) {
-            List<BaseDatabaseDefinition> databaseDefinitions = globalDatabaseHolder.getDatabaseDefinitions();
-            for (BaseDatabaseDefinition databaseDefinition : databaseDefinitions) {
+            List<DatabaseDefinition> databaseDefinitions = globalDatabaseHolder.getDatabaseDefinitions();
+            for (DatabaseDefinition databaseDefinition : databaseDefinitions) {
                 // triggers open, create, migrations.
                 databaseDefinition.getWritableDatabase();
             }

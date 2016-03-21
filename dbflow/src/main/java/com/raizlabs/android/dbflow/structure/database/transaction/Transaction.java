@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 
 /**
  * Description: The main async transaction class. It represents a transaction that occurs in the database.
@@ -44,11 +44,11 @@ public class Transaction {
     final Error errorCallback;
     final Success successCallback;
     final ITransaction transaction;
-    final BaseDatabaseDefinition databaseDefinition;
+    final DatabaseDefinition databaseDefinition;
     final String name;
 
     Transaction(Builder builder) {
-        databaseDefinition = builder.baseDatabaseDefinition;
+        databaseDefinition = builder.databaseDefinition;
         errorCallback = builder.errorCallback;
         successCallback = builder.successCallback;
         transaction = builder.transaction;
@@ -96,14 +96,14 @@ public class Transaction {
     public static final class Builder {
 
         final ITransaction transaction;
-        @NonNull final BaseDatabaseDefinition baseDatabaseDefinition;
+        @NonNull final DatabaseDefinition databaseDefinition;
         Error errorCallback;
         Success successCallback;
         private String name;
 
-        public Builder(@NonNull ITransaction transaction, @NonNull BaseDatabaseDefinition baseDatabaseDefinition) {
+        public Builder(@NonNull ITransaction transaction, @NonNull DatabaseDefinition databaseDefinition) {
             this.transaction = transaction;
-            this.baseDatabaseDefinition = baseDatabaseDefinition;
+            this.databaseDefinition = databaseDefinition;
         }
 
         public Builder error(Error errorCallback) {

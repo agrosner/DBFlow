@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.Database;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.BaseDatabaseHelper;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
@@ -23,7 +23,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
     private DatabaseHelperDelegate databaseHelperDelegate;
     private SQLCipherDatabase cipherDatabase;
 
-    public SQLCipherOpenHelper(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
+    public SQLCipherOpenHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
         super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(), null, databaseDefinition.getDatabaseVersion());
         SQLiteDatabase.loadLibs(FlowManager.getContext());
 
@@ -98,7 +98,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         private SQLCipherDatabase sqlCipherDatabase;
         private final BaseDatabaseHelper baseDatabaseHelper;
 
-        public BackupHelper(Context context, String name, int version, BaseDatabaseDefinition databaseDefinition) {
+        public BackupHelper(Context context, String name, int version, DatabaseDefinition databaseDefinition) {
             super(context, name, null, version);
             this.baseDatabaseHelper = new BaseDatabaseHelper(databaseDefinition);
         }

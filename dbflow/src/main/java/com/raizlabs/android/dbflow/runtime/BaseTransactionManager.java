@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.runtime;
 
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
@@ -11,10 +13,25 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 public abstract class BaseTransactionManager {
 
     private final ITransactionQueue transactionQueue;
+    private final DatabaseDefinition databaseDefinition;
+    private DBBatchSaveQueue saveQueue;
 
-    public BaseTransactionManager(@NonNull ITransactionQueue transactionQueue) {
+    public BaseTransactionManager(@NonNull ITransactionQueue transactionQueue, @NonNull DatabaseDefinition databaseDefinition) {
         this.transactionQueue = transactionQueue;
+        this.databaseDefinition = databaseDefinition;
+        saveQueue = new DBBatchSaveQueue(databaseDefinition);
         checkQueue();
+    }
+
+    public DBBatchSaveQueue getSaveQueue() {
+        try {
+            if (!saveQueue.isAlive()) {
+                saveQueue.start();
+            }
+        } catch (IllegalThreadStateException i) {
+            FlowLog.logError(i); // if queue is alive, will throw error. might occur in multithreading.
+        }
+        return saveQueue;
     }
 
     public ITransactionQueue getQueue() {
