@@ -5,15 +5,13 @@ import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelTransaction
-import com.raizlabs.android.dbflow.runtime.ITransactionQueue
 import com.raizlabs.android.dbflow.structure.BaseQueryModel
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
 
 /**
  * Allows you to do something on the database.
@@ -77,12 +75,10 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(cros
  * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit) {
-    object : ProcessModelTransaction<TModel>(ProcessModelInfo.withModels(this), null) {
-        override fun processModel(model: TModel) {
-            processFunction(model)
-        }
-    }.transact()
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit) {
+    database<TModel>().writableDatabase.beginTransactionAsync(
+            ProcessModelTransaction.Builder<TModel>(processFunction, this)
+    ).build().execute();
 }
 
 /**

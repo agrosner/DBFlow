@@ -7,9 +7,8 @@ import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -237,19 +236,19 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
 
     /**
-     * Saves the database as a backup on the {@link DefaultTransactionQueue} as
-     * the highest priority ever. This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
+     * Saves the database as a backup on the {@link DefaultTransactionQueue}.
+     * This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     public void backupDB() {
         if (!getDatabaseDefinition().backupEnabled() || !getDatabaseDefinition().areConsistencyChecksEnabled()) {
             throw new IllegalStateException("Backups are not enabled for : " + getDatabaseDefinition().getDatabaseName() + ". Please consider adding " +
                     "both backupEnabled and consistency checks enabled to the Database annotation");
         }
-        // highest priority ever!
-        FlowManager.getTransactionManager().addTransaction(new BaseTransaction(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI + 1)) {
-            @Override
-            public Object onExecute() {
 
+        getWritableDatabase().beginTransactionAsync(new ITransaction() {
+            @SuppressWarnings("ResultOfMethodCallIgnored")
+            @Override
+            public void execute(DatabaseWrapper databaseWrapper) {
                 Context context = FlowManager.getContext();
                 File backup = context.getDatabasePath(getTempDbFileName());
                 File temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + getDatabaseDefinition().getDatabaseFileName());
@@ -274,10 +273,9 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
                     FlowLog.logError(e);
 
                 }
-                return null;
             }
+        }).build().execute();
 
-        });
     }
 
     public DatabaseWrapper getWritableDatabase() {

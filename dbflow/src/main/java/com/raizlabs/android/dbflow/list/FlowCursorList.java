@@ -3,10 +3,6 @@ package com.raizlabs.android.dbflow.list;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -161,30 +157,12 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     /**
-     * Fetches the list on the {@link DefaultTransactionQueue}. For
-     * large data sets this will take some time.
-     *
-     * @param transactionListener Called when we retrieve the results.
-     */
-    public void fetchAll(TransactionListener<List<ModelClass>> transactionListener) {
-        throwIfCursorClosed();
-        FlowManager.getTransactionManager().addTransaction(
-                new BaseResultTransaction<List<ModelClass>>(DBTransactionInfo.createFetch(), transactionListener) {
-                    @Override
-                    public List<ModelClass> onExecute() {
-                        return getAll();
-                    }
-                });
-    }
-
-    /**
-     * @return the full, converted {@link ModelClass} list from the database on this list. For very
-     * large datasets, it's not encouraged to use this method. Use {@link #fetchAll(com.raizlabs.android.dbflow.runtime.transaction.TransactionListener)}
-     * instead.
+     * @return the full, converted {@link ModelClass} list from the database on this list. For large
+     * datasets that require a large conversion, consider calling this on a BG thread.
      */
     public List<ModelClass> getAll() {
         throwIfCursorClosed();
-        return SqlUtils.convertToList(table, cursor);
+        return FlowManager.getModelAdapter(table).getListModelLoader().convertToData(cursor, null);
     }
 
     /**

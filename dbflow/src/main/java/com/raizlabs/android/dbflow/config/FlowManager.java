@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
-import com.raizlabs.android.dbflow.runtime.DefaultTransactionManager;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
@@ -23,6 +22,7 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionManager;
 
 import java.util.HashSet;
 import java.util.List;
@@ -126,6 +126,10 @@ public class FlowManager {
                     "Did you forget the @Table annotation?");
         }
         return flowManager;
+    }
+
+    public static DatabaseWrapper getWritableDatabaseForTable(Class<? extends Model> table) {
+        return getDatabaseForTable(table).getWritableDatabase();
     }
 
     /**

@@ -1,5 +1,7 @@
-package com.raizlabs.android.dbflow.runtime;
+package com.raizlabs.android.dbflow.structure.database.transaction;
 
+import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
+import com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.Collection;

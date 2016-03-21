@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.runtime.transaction.process;
 
-import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseResultTransaction;
 import com.raizlabs.android.dbflow.structure.Model;

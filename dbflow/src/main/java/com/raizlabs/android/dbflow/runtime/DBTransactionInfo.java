@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.runtime;
 
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 
 import java.util.UUID;
 

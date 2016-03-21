@@ -75,6 +75,11 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
             this.processModel = processModel;
         }
 
+        public Builder(@NonNull ProcessModel<TModel> processModel, List<TModel> models) {
+            this.processModel = processModel;
+            this.models = models;
+        }
+
         public Builder<TModel> add(TModel model) {
             models.add(model);
             return this;

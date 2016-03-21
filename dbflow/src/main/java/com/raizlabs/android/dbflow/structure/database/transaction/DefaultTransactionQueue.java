@@ -1,27 +1,22 @@
-package com.raizlabs.android.dbflow.runtime;
+package com.raizlabs.android.dbflow.structure.database.transaction;
 
-import android.os.Handler;
 import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 
 import java.util.Iterator;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Description: will handle concurrent requests to the DB based on priority
+ * Description: Handles concurrent requests to the database and puts them in FIFO order based on a
+ * {@link LinkedBlockingQueue}. As requests come in, they're placed in order and ran one at a time
+ * until the queue becomes empty.
  */
 public class DefaultTransactionQueue extends Thread implements ITransactionQueue {
 
-    private final PriorityBlockingQueue<BaseTransaction> queue;
+    private final LinkedBlockingQueue<Transaction> queue;
 
     private boolean isQuitting = false;
-
-    /**
-     * Runs all of the transactions {@link BaseTransaction#onPostExecute(Object)} on main thread.
-     */
-    private Handler requestHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Creates a queue with the specified name to ID it.
@@ -30,7 +25,7 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
      */
     public DefaultTransactionQueue(String name) {
         super(name);
-        queue = new PriorityBlockingQueue<>();
+        queue = new LinkedBlockingQueue<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -38,7 +33,7 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
     public void run() {
         Looper.prepare();
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        BaseTransaction transaction;
+        Transaction transaction;
         while (true) {
             try {
                 synchronized (queue) {
@@ -54,33 +49,12 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
                 continue;
             }
 
-            try {
-                // If the transaction is ready
-                if (transaction.onReady()) {
-
-                    // Retrieve the result of the transaction
-                    final Object result = transaction.onExecute();
-                    final BaseTransaction finalTransaction = transaction;
-
-                    // Run the result on the FG
-                    if (transaction.hasResult(result)) {
-                        requestHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                finalTransaction.onPostExecute(result);
-                            }
-                        });
-                    }
-                }
-            } catch (Throwable t) {
-                throw new RuntimeException(t);
-            }
+            transaction.executeSync();
         }
-
     }
 
     @Override
-    public void add(BaseTransaction runnable) {
+    public void add(Transaction runnable) {
         if (!queue.contains(runnable)) {
             queue.add(runnable);
         }
@@ -92,7 +66,7 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
      * @param runnable
      */
     @Override
-    public void cancel(BaseTransaction runnable) {
+    public void cancel(Transaction runnable) {
         synchronized (queue) {
             if (queue.contains(runnable)) {
                 queue.remove(runnable);
@@ -108,10 +82,10 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
     @Override
     public void cancel(String tag) {
         synchronized (queue) {
-            Iterator<BaseTransaction> it = queue.iterator();
+            Iterator<Transaction> it = queue.iterator();
             while (it.hasNext()) {
-                BaseTransaction next = it.next();
-                if (next.getName().equals(tag)) {
+                Transaction next = it.next();
+                if (next.name() != null && next.name().equals(tag)) {
                     it.remove();
                 }
             }

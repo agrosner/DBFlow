@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database.transaction;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -17,10 +19,10 @@ public class Transaction {
         /**
          * Called when transaction fails.
          *
-         * @param ITransaction The transaction that failed.
-         * @param error        The error that was thrown.
+         * @param transaction The transaction that failed.
+         * @param error       The error that was thrown.
          */
-        void onError(ITransaction ITransaction, Throwable error);
+        void onError(Transaction transaction, Throwable error);
     }
 
     /**
@@ -31,21 +33,26 @@ public class Transaction {
         /**
          * Called when a transaction succeeded.
          *
-         * @param ITransaction The transaction that succeeded.
+         * @param transaction The transaction that succeeded.
          */
-        void onSuccess(ITransaction ITransaction);
+        void onSuccess(Transaction transaction);
     }
+
+    private static final Handler TRANSACTION_HANDLER = new Handler(Looper.getMainLooper());
+
 
     final Error errorCallback;
     final Success successCallback;
     final ITransaction transaction;
     final DatabaseWrapper databaseWrapper;
+    final String name;
 
     Transaction(Builder builder) {
         databaseWrapper = builder.databaseWrapper;
         errorCallback = builder.errorCallback;
         successCallback = builder.successCallback;
         transaction = builder.transaction;
+        name = builder.name;
     }
 
     public Error error() {
@@ -60,13 +67,28 @@ public class Transaction {
         return transaction;
     }
 
+    public String name() {
+        return name;
+    }
+
     public void execute() {
-        // TODO: make async
+        // TODO: place on proper transaction queue.
+    }
+
+    public void executeSync() {
         try {
             transaction.execute(databaseWrapper);
+            if (successCallback != null) {
+                TRANSACTION_HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        successCallback.onSuccess(Transaction.this);
+                    }
+                });
+            }
         } catch (Throwable throwable) {
             if (errorCallback != null) {
-                errorCallback.onError(transaction, throwable);
+                errorCallback.onError(this, throwable);
             }
         }
     }
@@ -77,6 +99,7 @@ public class Transaction {
         @NonNull final DatabaseWrapper databaseWrapper;
         Error errorCallback;
         Success successCallback;
+        private String name;
 
         public Builder(@NonNull ITransaction transaction, @NonNull DatabaseWrapper databaseWrapper) {
             this.transaction = transaction;
@@ -90,6 +113,11 @@ public class Transaction {
 
         public Builder success(Success successCallback) {
             this.successCallback = successCallback;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
             return this;
         }
 

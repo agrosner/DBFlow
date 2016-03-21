@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.runtime.transaction;
 
 
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 
 /**
  * Description: The basic request object that's placed on the DBRequestQueue for processing.

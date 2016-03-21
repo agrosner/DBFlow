@@ -9,18 +9,8 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
-import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelHelper;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
-import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -28,9 +18,12 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -55,17 +48,9 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      */
     private FlowCursorList<ModelClass> internalCursorList;
 
-    private TransactionListener<List<ModelClass>> transactionListener;
-    private TransactionListener<List<ModelClass>> internalTransactionListener = new TransactionListenerAdapter<List<ModelClass>>() {
-        @Override
-        public void onResultReceived(List<ModelClass> modelClasses) {
-            refresh();
+    private Transaction.Success successCallback;
+    private Transaction.Error errorCallback;
 
-            if (transactionListener != null) {
-                transactionListener.onResultReceived(modelClasses);
-            }
-        }
-    };
     /**
      * If true, we will make all modifications on the {@link DefaultTransactionQueue}, else
      * we will run it on the main thread.
@@ -104,7 +89,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     }
 
     /**
-     * @param count The size of the underlying {@link com.raizlabs.android.dbflow.list.FlowCursorList}
+     * @param count The size of the underlying {@link FlowCursorList}
      * @return The cache backing this query. Override to provide a custom {@link com.raizlabs.android.dbflow.structure.cache.ModelCache}
      * instead. If the count is somehow 0, it will default to a size of 50.
      * If you override this method, be careful to call an empty cache to the {@link com.raizlabs.android.dbflow.structure.cache.ModelLruCache}
@@ -155,16 +140,25 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     }
 
     /**
-     * Register for callbacks when data is changed asynchronous on this list.
+     * Register for callbacks when data is successfully processed.
      *
-     * @param transactionListener Provides callbacks when the data changes async.
+     * @param successCallback The callback.
      */
-    public void setTransactionListener(TransactionListener<List<ModelClass>> transactionListener) {
-        this.transactionListener = transactionListener;
+    public void setSuccessCallback(Transaction.Success successCallback) {
+        this.successCallback = successCallback;
     }
 
     /**
-     * If true, we will transact all modifications on the {@link DefaultTransactionQueue}
+     * Register for callbacks when there is a problem with data processed here.
+     *
+     * @param errorCallback The callback that receives errors.
+     */
+    public void setErrorCallback(Transaction.Error errorCallback) {
+        this.errorCallback = errorCallback;
+    }
+
+    /**
+     * If true, we will transact all modifications on the {@link ITransactionQueue}
      *
      * @param transact true to transact all modifications in the background.
      */
@@ -180,7 +174,7 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     }
 
     /**
-     * @return The {@link com.raizlabs.android.dbflow.list.FlowCursorList} that backs this table list.
+     * @return The {@link FlowCursorList} that backs this table list.
      */
     public FlowCursorList<ModelClass> getCursorList() {
         return internalCursorList;
@@ -225,28 +219,6 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     }
 
     /**
-     * Internal helper method for constructing {@link com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo}
-     *
-     * @param modelClasses
-     * @return
-     */
-    @SafeVarargs
-    protected final ProcessModelInfo<ModelClass> getProcessModelInfo(ModelClass... modelClasses) {
-        return ProcessModelInfo.withModels(modelClasses).result(internalTransactionListener).info(MODIFICATION_INFO);
-    }
-
-    /**
-     * Helper method for constructing {@link com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo}. Override
-     * for custom processing.
-     *
-     * @param modelCollection The list of models to add to the {@link com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo}
-     * @return The shared info for this table.
-     */
-    protected final ProcessModelInfo<ModelClass> getProcessModelInfo(Collection<ModelClass> modelCollection) {
-        return ProcessModelInfo.withModels(modelCollection).result(internalTransactionListener).info(MODIFICATION_INFO);
-    }
-
-    /**
      * Adds an item to this table
      *
      * @param model The model to save
@@ -254,11 +226,16 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      */
     @Override
     public boolean add(ModelClass model) {
+        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
+                        .add(model).build())
+                .error(errorCallback)
+                .success(internalSuccessCallback).build();
+
         if (transact) {
-            FlowManager.getTransactionManager().addTransaction(new SaveModelTransaction<>(getProcessModelInfo(model)));
+            transaction.execute();
         } else {
-            model.save();
-            internalTransactionListener.onResultReceived(Arrays.asList(model));
+            transaction.executeSync();
         }
         return true;
     }
@@ -287,17 +264,17 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     public boolean addAll(Collection<? extends ModelClass> collection) {
         // cast to normal collection, we do not want subclasses of this table saved
         final Collection<ModelClass> tmpCollection = (Collection<ModelClass>) collection;
+
+        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
+                        .addAll(tmpCollection).build())
+                .error(errorCallback)
+                .success(internalSuccessCallback).build();
+
         if (transact) {
-            FlowManager.getTransactionManager().addTransaction(
-                    new SaveModelTransaction<>(getProcessModelInfo(tmpCollection)));
+            transaction.execute();
         } else {
-            ProcessModelHelper.process(internalCursorList.getTable(), tmpCollection, new ProcessModelTransaction.ProcessModel<ModelClass>() {
-                @Override
-                public void processModel(ModelClass model) {
-                    model.save();
-                }
-            });
-            internalTransactionListener.onResultReceived((List<ModelClass>) tmpCollection);
+            transaction.executeSync();
         }
         return true;
     }
@@ -307,14 +284,18 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      */
     @Override
     public void clear() {
+        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+                .beginTransactionAsync(new QueryTransaction.Builder<>(
+                        SQLite.delete().from(internalCursorList.getTable())).build())
+                .error(errorCallback)
+                .success(internalSuccessCallback)
+                .build();
+
         if (transact) {
-            FlowManager.getTransactionManager()
-                    .addTransaction(new QueryTransaction(MODIFICATION_INFO,
-                            SQLite.delete().from(internalCursorList.getTable())));
+            transaction.execute();
         } else {
-            Delete.table(internalCursorList.getTable());
+            transaction.executeSync();
         }
-        internalTransactionListener.onResultReceived(null);
     }
 
     /**
@@ -356,11 +337,11 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     }
 
     /**
-     * Returns the item from the backing {@link com.raizlabs.android.dbflow.list.FlowCursorList}. First call
+     * Returns the item from the backing {@link FlowCursorList}. First call
      * will load the model from the cursor, while subsequent calls will use the cache.
      *
-     * @param row the row from the internal {@link com.raizlabs.android.dbflow.list.FlowCursorList} query that we use.
-     * @return A model converted from the internal {@link com.raizlabs.android.dbflow.list.FlowCursorList}. For
+     * @param row the row from the internal {@link FlowCursorList} query that we use.
+     * @return A model converted from the internal {@link FlowCursorList}. For
      * performance improvements, ensure caching is turned on.
      */
     @Override
@@ -429,12 +410,17 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     @Override
     public ModelClass remove(int location) {
         ModelClass model = internalCursorList.getItem(location);
+
+        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                        .add(model).build())
+                .error(errorCallback)
+                .success(internalSuccessCallback).build();
+
         if (transact) {
-            FlowManager.getTransactionManager().addTransaction(
-                    new DeleteModelListTransaction<>(getProcessModelInfo(model)));
+            transaction.execute();
         } else {
-            model.delete();
-            internalTransactionListener.onResultReceived(Arrays.asList(model));
+            transaction.executeSync();
         }
         return model;
     }
@@ -454,12 +440,16 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         // if its a ModelClass
         if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             ModelClass model = ((ModelClass) object);
+            Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+                    .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                            .add(model).build())
+                    .error(errorCallback)
+                    .success(internalSuccessCallback).build();
+
             if (transact) {
-                FlowManager.getTransactionManager().addTransaction(
-                        new DeleteModelListTransaction<>(getProcessModelInfo(model)));
+                transaction.execute();
             } else {
-                model.delete();
-                internalTransactionListener.onResultReceived(Arrays.asList(model));
+                transaction.executeSync();
             }
             removed = true;
         }
@@ -480,18 +470,16 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
 
         // if its a ModelClass
         Collection<ModelClass> modelCollection = (Collection<ModelClass>) collection;
-        if (transact) {
-            FlowManager.getTransactionManager().addTransaction(
-                    new DeleteModelListTransaction<>(getProcessModelInfo(modelCollection)));
-        } else {
-            ProcessModelHelper.process(internalCursorList.getTable(), modelCollection, new ProcessModelTransaction.ProcessModel<ModelClass>() {
-                @Override
-                public void processModel(ModelClass model) {
-                    model.delete();
-                }
-            });
-            internalTransactionListener.onResultReceived((List<ModelClass>) modelCollection);
+        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                        .addAll(modelCollection).build())
+                .error(errorCallback)
+                .success(internalSuccessCallback).build();
 
+        if (transact) {
+            transaction.execute();
+        } else {
+            transaction.executeSync();
         }
 
         return true;
@@ -508,17 +496,16 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
     public boolean retainAll(@NonNull Collection<?> collection) {
         List<ModelClass> tableList = internalCursorList.getAll();
         tableList.removeAll(collection);
+        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel, tableList)
+                        .build())
+                .error(errorCallback)
+                .success(internalSuccessCallback).build();
+
         if (transact) {
-            FlowManager.getTransactionManager().addTransaction(
-                    new DeleteModelListTransaction<>(getProcessModelInfo(tableList)));
+            transaction.execute();
         } else {
-            ProcessModelHelper.process(internalCursorList.getTable(), tableList, new ProcessModelTransaction.ProcessModel<ModelClass>() {
-                @Override
-                public void processModel(ModelClass model) {
-                    model.delete();
-                }
-            });
-            internalTransactionListener.onResultReceived(tableList);
+            transaction.executeSync();
         }
         return true;
     }
@@ -543,12 +530,17 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
      * @return The updated model.
      */
     public ModelClass set(ModelClass object) {
+        Transaction transaction = FlowManager.getWritableDatabaseForTable(internalCursorList.getTable())
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(updateModel)
+                        .add(object)
+                        .build())
+                .error(errorCallback)
+                .success(internalSuccessCallback).build();
+
         if (transact) {
-            FlowManager.getTransactionManager().addTransaction(
-                    new UpdateModelListTransaction<>(getProcessModelInfo(object)));
+            transaction.execute();
         } else {
-            object.update();
-            internalTransactionListener.onResultReceived(Arrays.asList(object));
+            transaction.executeSync();
         }
         return object;
     }
@@ -578,5 +570,59 @@ public class FlowQueryList<ModelClass extends Model> extends FlowContentObserver
         List<ModelClass> tableList = internalCursorList.getAll();
         return tableList.toArray(array);
     }
+
+    private final ProcessModelTransaction.ProcessModel<ModelClass> saveModel =
+            new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                @Override
+                public void processModel(ModelClass model) {
+                    model.save();
+                }
+            };
+
+    private final ProcessModelTransaction.ProcessModel<ModelClass> insertModel =
+            new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                @Override
+                public void processModel(ModelClass model) {
+                    model.insert();
+                }
+            };
+
+    private final ProcessModelTransaction.ProcessModel<ModelClass> updateModel =
+            new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                @Override
+                public void processModel(ModelClass model) {
+                    model.update();
+                }
+            };
+
+    private final ProcessModelTransaction.ProcessModel<ModelClass> deleteModel =
+            new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                @Override
+                public void processModel(ModelClass model) {
+                    model.delete();
+                }
+            };
+
+    private final Transaction.Error internalErrorCallback = new Transaction.Error() {
+        @Override
+        public void onError(Transaction transaction, Throwable error) {
+
+            if (errorCallback != null) {
+                errorCallback.onError(transaction, error);
+            }
+        }
+    };
+
+    private final Transaction.Success internalSuccessCallback = new Transaction.Success() {
+        @Override
+        public void onSuccess(Transaction transaction) {
+            refresh();
+
+            if (successCallback != null) {
+                successCallback.onSuccess(transaction);
+            }
+        }
+    };
+
 
 }

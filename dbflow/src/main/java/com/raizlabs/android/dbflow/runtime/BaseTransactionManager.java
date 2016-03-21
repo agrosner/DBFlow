@@ -2,7 +2,8 @@ package com.raizlabs.android.dbflow.runtime;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 /**
  * Description: The base implementation of Transaction manager.
@@ -39,7 +40,7 @@ public abstract class BaseTransactionManager {
      *
      * @param transaction The transaction to add.
      */
-    public void addTransaction(BaseTransaction transaction) {
+    public void addTransaction(Transaction transaction) {
         getQueue().add(transaction);
     }
 
@@ -48,7 +49,7 @@ public abstract class BaseTransactionManager {
      *
      * @param transaction
      */
-    public void cancelTransaction(BaseTransaction transaction) {
+    public void cancelTransaction(Transaction transaction) {
         getQueue().cancel(transaction);
     }
 }

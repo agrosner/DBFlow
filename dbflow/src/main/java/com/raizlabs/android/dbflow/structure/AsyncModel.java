@@ -1,17 +1,14 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.support.annotation.NonNull;
+
+import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.DefaultTransactionQueue;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * Description: Called from a {@link BaseModel}, this places the current {@link Model} interaction on the background.
@@ -29,11 +26,15 @@ public class AsyncModel<ModelClass extends Model> implements Model {
         void onModelChanged(Model model);
     }
 
-    private ModelClass model;
+    private final ModelClass model;
     private transient WeakReference<OnModelChangedListener> onModelChangedListener;
+    private final BaseDatabaseDefinition databaseDefinition;
 
-    public AsyncModel(ModelClass referenceModel) {
+    private Transaction.Error errorCallback;
+
+    public AsyncModel(@NonNull ModelClass referenceModel) {
         model = referenceModel;
+        databaseDefinition = FlowManager.getDatabaseForTable(model.getClass());
     }
 
     /**
@@ -48,32 +49,75 @@ public class AsyncModel<ModelClass extends Model> implements Model {
         return this;
     }
 
+    /**
+     * Listen for any errors that occur during operations on this {@link AsyncModel}.
+     *
+     * @param errorCallback The error callback.
+     * @return This instance.
+     */
+    public AsyncModel<ModelClass> error(Transaction.Error errorCallback) {
+        this.errorCallback = errorCallback;
+        return this;
+    }
+
     @Override
     public void save() {
-        FlowManager.getTransactionManager()
-            .addTransaction(new SaveModelTransaction<>(getProcessModelInfoInternal()));
+        databaseDefinition.getWritableDatabase()
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+                        new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                            @Override
+                            public void processModel(ModelClass model) {
+                                model.save();
+                            }
+                        }).build())
+                .error(error)
+                .success(success)
+                .build().execute();
     }
 
     @Override
     public void delete() {
-        FlowManager.getTransactionManager()
-            .addTransaction(new DeleteModelListTransaction<>(getProcessModelInfoInternal()));
+        databaseDefinition.getWritableDatabase()
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+                        new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                            @Override
+                            public void processModel(ModelClass model) {
+                                model.delete();
+                            }
+                        }).build())
+                .error(error)
+                .success(success)
+                .build().execute();
     }
 
     @Override
     public void update() {
-        FlowManager.getTransactionManager()
-            .addTransaction(new UpdateModelListTransaction<>(getProcessModelInfoInternal()));
+        databaseDefinition.getWritableDatabase()
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+                        new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                            @Override
+                            public void processModel(ModelClass model) {
+                                model.update();
+                            }
+                        }).build())
+                .error(error)
+                .success(success)
+                .build().execute();
     }
 
     @Override
     public void insert() {
-        FlowManager.getTransactionManager()
-            .addTransaction(new InsertModelTransaction<>(getProcessModelInfoInternal()));
-    }
-
-    private ProcessModelInfo<ModelClass> getProcessModelInfoInternal() {
-        return ProcessModelInfo.withModels(model).result(internalListener);
+        databaseDefinition.getWritableDatabase()
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+                        new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                            @Override
+                            public void processModel(ModelClass model) {
+                                model.insert();
+                            }
+                        }).build())
+                .error(error)
+                .success(success)
+                .build().execute();
     }
 
     @Override
@@ -81,22 +125,21 @@ public class AsyncModel<ModelClass extends Model> implements Model {
         return model.exists();
     }
 
-    private final TransactionListener<List<ModelClass>> internalListener = new TransactionListener<List<ModelClass>>() {
+    private final Transaction.Error error = new Transaction.Error() {
         @Override
-        public void onResultReceived(List<ModelClass> result) {
+        public void onError(Transaction transaction, Throwable error) {
+            if (errorCallback != null) {
+                errorCallback.onError(transaction, error);
+            }
+        }
+    };
+
+    private final Transaction.Success success = new Transaction.Success() {
+        @Override
+        public void onSuccess(Transaction transaction) {
             if (onModelChangedListener != null && onModelChangedListener.get() != null) {
                 onModelChangedListener.get().onModelChanged(model);
             }
-        }
-
-        @Override
-        public boolean onReady(BaseTransaction<List<ModelClass>> transaction) {
-            return true;
-        }
-
-        @Override
-        public boolean hasResult(BaseTransaction<List<ModelClass>> transaction, List<ModelClass> result) {
-            return true;
         }
     };
 }

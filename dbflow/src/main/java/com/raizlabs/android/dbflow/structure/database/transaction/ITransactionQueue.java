@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.runtime;
+package com.raizlabs.android.dbflow.structure.database.transaction;
 
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 
@@ -10,16 +10,16 @@ public interface ITransactionQueue {
     /**
      * Adds a transaction to the queue.
      *
-     * @param baseTransaction The transaction to run on the queue.
+     * @param transaction The transaction to run on the queue.
      */
-    void add(BaseTransaction baseTransaction);
+    void add(Transaction transaction);
 
     /**
      * Cancels a transaction.
      *
-     * @param baseTransaction The transaction to cancel on the queue.
+     * @param transaction The transaction to cancel on the queue.
      */
-    void cancel(BaseTransaction baseTransaction);
+    void cancel(Transaction transaction);
 
     /**
      * Starts if not alive.
