@@ -2,17 +2,12 @@ package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
 
+import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
-import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectSingleModelTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.structure.Model;
-
-import java.util.List;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 /**
  * Description: Adds async methods to a {@link ModelQueriable}
@@ -21,7 +16,8 @@ public class AsyncQuery<ModelClass extends Model> {
 
     private final ModelQueriable<ModelClass> modelQueriable;
     private final BaseTransactionManager defaultTransactionManager;
-    private BaseTransaction currentTransaction;
+    private Transaction currentTransaction;
+    private BaseDatabaseDefinition database;
 
     /**
      * Constructs an instance of this async query.
@@ -31,6 +27,7 @@ public class AsyncQuery<ModelClass extends Model> {
      */
     public AsyncQuery(ModelQueriable<ModelClass> queriable, BaseTransactionManager defaultTransactionManager) {
         this.modelQueriable = queriable;
+        database = FlowManager.getDatabaseForTable(queriable.getTable());
         this.defaultTransactionManager = defaultTransactionManager;
     }
 
@@ -39,27 +36,10 @@ public class AsyncQuery<ModelClass extends Model> {
      */
     public void execute() {
         cancel();
-        defaultTransactionManager.addTransaction(currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable));
-    }
-
-    /**
-     * Queries the list on the {@link DefaultTransactionQueue}
-     *
-     * @param transactionListener Listens for transaction events.
-     */
-    public void queryList(TransactionListener<List<ModelClass>> transactionListener) {
-        cancel();
-        defaultTransactionManager.addTransaction(currentTransaction = new SelectListTransaction<>(modelQueriable, transactionListener));
-    }
-
-    /**
-     * Queries a single item on the {@link DefaultTransactionQueue}
-     *
-     * @param transactionListener Listens for transaction events.
-     */
-    public void querySingle(TransactionListener<ModelClass> transactionListener) {
-        cancel();
-        defaultTransactionManager.addTransaction(currentTransaction = new SelectSingleModelTransaction<>(modelQueriable, transactionListener));
+        currentTransaction = database.getWritableDatabase()
+                .beginTransactionAsync(new QueryTransaction.Builder<>(modelQueriable).build())
+                .build();
+        currentTransaction.execute();
     }
 
     /**
@@ -72,12 +52,18 @@ public class AsyncQuery<ModelClass extends Model> {
     /**
      * Queries the raw {@link Cursor} object from the contained query.
      *
-     * @param transactionListener Listens for transaction events.
+     * @param queryResultCallback Called when query succeeds.
+     * @param error               Passed if any errors occur during transaction.
      */
-    public void query(TransactionListener<Cursor> transactionListener) {
+    public void query(QueryTransaction.QueryResultCallback<ModelClass> queryResultCallback,
+                      Transaction.Error error) {
         cancel();
-        defaultTransactionManager.addTransaction(
-            currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable, transactionListener));
+
+        currentTransaction = database.getWritableDatabase()
+                .beginTransactionAsync(new QueryTransaction.Builder<>(modelQueriable)
+                        .queryResult(queryResultCallback).build())
+                .error(error).build();
+        currentTransaction.execute();
     }
 
     public void cancel() {
