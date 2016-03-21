@@ -68,6 +68,20 @@ public abstract class DatabaseDefinition {
 
     private BaseTransactionManager transactionManager;
 
+
+    public DatabaseDefinition() {
+        DatabaseConfig config = FlowManager.getConfig()
+                .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+        if (config != null) {
+            helperListener = config.helperListener();
+        }
+        if (config == null || config.transactionManager() == null) {
+            transactionManager = new DefaultTransactionManager(this);
+        } else {
+            transactionManager = config.transactionManager();
+        }
+    }
+
     /**
      * @return a list of all model classes in this database.
      */
@@ -76,15 +90,6 @@ public abstract class DatabaseDefinition {
     }
 
     public BaseTransactionManager getTransactionManager() {
-        if (transactionManager == null) {
-            DatabaseConfig databaseConfig = FlowManager.getConfig()
-                    .databaseConfigMap().get(getAssociatedDatabaseClassFile());
-            if (databaseConfig == null || databaseConfig.transactionManager() == null) {
-                transactionManager = new DefaultTransactionManager(this);
-            } else {
-                transactionManager = databaseConfig.transactionManager();
-            }
-        }
         return transactionManager;
     }
 
@@ -203,15 +208,6 @@ public abstract class DatabaseDefinition {
         } finally {
             database.endTransaction();
         }
-    }
-
-    /**
-     * Register to listen for database changes
-     *
-     * @param databaseHelperListener Listens for DB changes
-     */
-    public void setHelperListener(DatabaseHelperListener databaseHelperListener) {
-        helperListener = databaseHelperListener;
     }
 
     /**

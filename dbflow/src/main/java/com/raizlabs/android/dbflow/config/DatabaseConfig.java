@@ -17,15 +17,22 @@ public class DatabaseConfig {
     private final HelperCreator helperCreator;
     private final Class<?> databaseClass;
     private final BaseTransactionManager transactionManager;
+    private final DatabaseHelperListener helperListener;
+
 
     DatabaseConfig(Builder builder) {
         helperCreator = builder.helperCreator;
         databaseClass = builder.databaseClass;
         transactionManager = builder.transactionManager;
+        helperListener = builder.helperListener;
     }
 
     public HelperCreator helperCreator() {
         return helperCreator;
+    }
+
+    public DatabaseHelperListener helperListener() {
+        return helperListener;
     }
 
     public Class<?> databaseClass() {
@@ -38,9 +45,10 @@ public class DatabaseConfig {
 
     public static class Builder {
 
-        private HelperCreator helperCreator;
-        private final Class<?> databaseClass;
-        private BaseTransactionManager transactionManager;
+        HelperCreator helperCreator;
+        final Class<?> databaseClass;
+        BaseTransactionManager transactionManager;
+        DatabaseHelperListener helperListener;
 
 
         public Builder(Class<?> databaseClass) {
@@ -49,6 +57,11 @@ public class DatabaseConfig {
 
         public Builder transactionManager(BaseTransactionManager transactionManager) {
             this.transactionManager = transactionManager;
+            return this;
+        }
+
+        public Builder helperListener(DatabaseHelperListener helperListener) {
+            this.helperListener = helperListener;
             return this;
         }
 
