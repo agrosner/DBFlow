@@ -6,7 +6,6 @@ import android.widget.BaseAdapter;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.utils.GenerationUtils;
@@ -105,13 +104,7 @@ public class ListTest extends FlowTestCase {
         TestModelAdapter modelAdapter = new TestModelAdapter(flowCursorList);
 
         assertTrue(testModel1s.size() == modelAdapter.getCount());
-
-        flowCursorList.fetchAll(new TransactionListenerAdapter<List<ListModel>>() {
-            @Override
-            public void onResultReceived(List<ListModel> models) {
-                assertTrue(models.size() == testModel1s.size());
-            }
-        });
+        assertTrue(flowCursorList.getAll().size() == testModel1s.size());
 
     }
 }

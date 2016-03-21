@@ -236,16 +236,6 @@ public class FlowManager {
     }
 
     /**
-     * Registers a listener for database creation/update events. Call this before running any query.
-     *
-     * @param databaseName           The name of the database. Will throw an exception if the database doesn't exist.
-     * @param databaseHelperListener Provides callbacks for database events.
-     */
-    public static void setDatabaseListener(String databaseName, DatabaseHelperListener databaseHelperListener) {
-        getDatabase(databaseName).setHelperListener(databaseHelperListener);
-    }
-
-    /**
      * @param objectClass A class with an associated type converter. May return null if not found.
      * @return The specific {@link TypeConverter} for the specified class. It defines
      * how the custom datatype is handled going into and out of the DB.

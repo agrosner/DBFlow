@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test.transaction;
 
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -29,12 +30,12 @@ import static org.junit.Assert.assertTrue;
  */
 public class TransactionsTest extends FlowTestCase {
 
-    DatabaseWrapper database;
+    DatabaseDefinition database;
 
 
     @Before
     public void beforeTests() {
-        database = FlowManager.getWritableDatabase(TestDatabase.NAME);
+        database = FlowManager.getDatabase(TestDatabase.NAME);
     }
 
     @Test

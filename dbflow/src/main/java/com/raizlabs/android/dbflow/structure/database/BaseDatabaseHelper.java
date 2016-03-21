@@ -91,8 +91,8 @@ public class BaseDatabaseHelper {
                         .append("AS ")
                         .append(modelView.getCreationQuery());
                 database.execSQL(queryBuilder.getQuery());
-                database.setTransactionSuccessful();
             }
+            database.setTransactionSuccessful();
         } catch (SQLiteException e) {
             FlowLog.logError(e);
         } finally {

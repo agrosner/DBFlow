@@ -175,6 +175,12 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
     private void writeGetters(TypeSpec.Builder typeBuilder) {
 
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getAssociatedDatabaseClassFile")
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $T.class", elementTypeName)
+                .returns(ParameterizedTypeName.get(Class.class)).build());
+
         typeBuilder.addMethod(MethodSpec.methodBuilder("isForeignKeysSupported")
                 .addAnnotation(Override.class)
                 .addModifiers(DatabaseHandler.METHOD_MODIFIERS)

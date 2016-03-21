@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.test.transaction;
 
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 /**
@@ -9,14 +9,14 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 public class MockTransaction {
 
     private final Transaction transaction;
-    private final DatabaseWrapper databaseWrapper;
+    private final DatabaseDefinition databaseDefinition;
 
-    public MockTransaction(Transaction transaction, DatabaseWrapper databaseWrapper) {
+    public MockTransaction(Transaction transaction, DatabaseDefinition databaseDefinition) {
         this.transaction = transaction;
-        this.databaseWrapper = databaseWrapper;
+        this.databaseDefinition = databaseDefinition;
     }
 
     public void execute() {
-        transaction.transaction().execute(databaseWrapper);
+        transaction.transaction().execute(databaseDefinition.getWritableDatabase());
     }
 }

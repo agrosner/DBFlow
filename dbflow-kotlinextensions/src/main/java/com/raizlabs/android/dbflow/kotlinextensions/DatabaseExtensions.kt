@@ -61,9 +61,11 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(cros
  * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(processModel: ProcessModelTransaction.ProcessModel<TModel>) {
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit) {
     database<TModel>().beginTransactionAsync(
-        ProcessModelTransaction.Builder(processModel).addAll(this).build()
+            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+                processFunction(it)
+            }).addAll(this).build()
     ).build().execute();
 }
 

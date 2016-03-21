@@ -1,8 +1,5 @@
 package com.raizlabs.android.dbflow.test.sql;
 
-import android.database.Cursor;
-
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.AsyncModel;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -27,22 +24,12 @@ public class AsyncQueryTest extends FlowTestCase {
 
         SQLite.select().from(TestModel1.class)
                 .where(TestModel1_Table.name.is("Async"))
-                .async().querySingle(new TransactionListenerAdapter<TestModel1>() {
-            @Override
-            public void onResultReceived(TestModel1 testModel1) {
-
-            }
-        });
+                .async().query(null, null);
 
         SQLite.update(TestModel1.class)
                 .set(TestModel1_Table.name.is("Async2"))
                 .where(TestModel1_Table.name.is("Async"))
-                .async().query(new TransactionListenerAdapter<Cursor>() {
-            @Override
-            public void onResultReceived(Cursor cursor) {
-
-            }
-        });
+                .async().query(null, null);
 
         testModel1.async().withListener(new AsyncModel.OnModelChangedListener() {
             @Override
