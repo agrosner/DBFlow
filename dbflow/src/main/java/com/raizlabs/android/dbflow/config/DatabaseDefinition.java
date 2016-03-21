@@ -180,7 +180,7 @@ public abstract class DatabaseDefinition {
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {
-                openHelper = config.helperCreator();
+                openHelper = config.helperCreator().createHelper(this, helperListener);
             }
         }
         return openHelper;
