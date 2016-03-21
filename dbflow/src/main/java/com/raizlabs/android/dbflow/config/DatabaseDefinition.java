@@ -261,13 +261,9 @@ public abstract class DatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             context.deleteDatabase(getDatabaseFileName());
-
-            DatabaseConfig config = FlowManager.getConfig().databaseConfigMap().get(getAssociatedDatabaseClassFile());
-            if (config != null) {
-                openHelper = config.helperCreator().createHelper(this, helperListener);
-            }
+            openHelper = null;
             isResetting = false;
-            openHelper.getDatabase();
+            getHelper().getDatabase();
         }
     }
 

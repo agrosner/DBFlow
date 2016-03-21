@@ -160,7 +160,7 @@ public class BaseDatabaseHelper {
                 }
                 db.setTransactionSuccessful();
             } finally {
-                db.setTransactionSuccessful();
+                db.endTransaction();
             }
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e);
