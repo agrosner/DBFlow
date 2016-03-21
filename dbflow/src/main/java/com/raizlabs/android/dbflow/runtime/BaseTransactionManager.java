@@ -13,12 +13,11 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 public abstract class BaseTransactionManager {
 
     private final ITransactionQueue transactionQueue;
-    private final DatabaseDefinition databaseDefinition;
     private DBBatchSaveQueue saveQueue;
 
-    public BaseTransactionManager(@NonNull ITransactionQueue transactionQueue, @NonNull DatabaseDefinition databaseDefinition) {
+    public BaseTransactionManager(@NonNull ITransactionQueue transactionQueue,
+                                  @NonNull DatabaseDefinition databaseDefinition) {
         this.transactionQueue = transactionQueue;
-        this.databaseDefinition = databaseDefinition;
         saveQueue = new DBBatchSaveQueue(databaseDefinition);
         checkQueue();
     }
