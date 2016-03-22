@@ -35,7 +35,7 @@ public class TransactionsTest extends FlowTestCase {
 
     @Before
     public void beforeTests() {
-        database = FlowManager.getDatabase(TestDatabase.NAME);
+        database = FlowManager.getDatabase(TestDatabase.class);
     }
 
     @Test

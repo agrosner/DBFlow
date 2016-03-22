@@ -15,7 +15,7 @@ import java.util.Map;
 public abstract class DatabaseHolder {
     protected final Map<Class<? extends Model>, DatabaseDefinition> databaseDefinitionMap = new HashMap<>();
     protected final Map<String, DatabaseDefinition> databaseNameMap = new HashMap<>();
-
+    protected final Map<Class<?>, DatabaseDefinition> databaseClassLookupMap = new HashMap<>();
     protected final Map<Class<?>, TypeConverter> typeConverters = new HashMap<>();
 
     /**
@@ -34,6 +34,10 @@ public abstract class DatabaseHolder {
         return databaseDefinitionMap.get(table);
     }
 
+    public DatabaseDefinition getDatabase(Class<?> databaseClass) {
+        return databaseClassLookupMap.get(databaseClass);
+    }
+
     /**
      * @param databaseName The name of the database to retrieve
      * @return The database that has the specified name
@@ -45,12 +49,13 @@ public abstract class DatabaseHolder {
     /**
      * Helper method used to store a database for the specified table.
      *
-     * @param table                  The model table
+     * @param table              The model table
      * @param databaseDefinition The database definition
      */
     public void putDatabaseForTable(Class<? extends Model> table, DatabaseDefinition databaseDefinition) {
         databaseDefinitionMap.put(table, databaseDefinition);
         databaseNameMap.put(databaseDefinition.getDatabaseName(), databaseDefinition);
+        databaseClassLookupMap.put(databaseDefinition.getAssociatedDatabaseClassFile(), databaseDefinition);
     }
 
     public List<DatabaseDefinition> getDatabaseDefinitions() {

@@ -32,7 +32,7 @@ public class InsertTest extends FlowTestCase {
 
         assertEquals("INSERT OR FAIL INTO `InsertModel`(`name`, `value`) VALUES('Test','Test1')", insert.getQuery());
 
-        FlowManager.getDatabase(TestDatabase.NAME).getWritableDatabase().execSQL(insert.getQuery());
+        FlowManager.getWritableDatabase(TestDatabase.class).execSQL(insert.getQuery());
 
         InsertModel model = new Select().from(InsertModel.class)
                 .where(InsertModel_Table.name.is("Test")).querySingle();
@@ -43,7 +43,7 @@ public class InsertTest extends FlowTestCase {
                 .values("Test2", "Test3");
         assertEquals("INSERT OR ABORT INTO `InsertModel` VALUES('Test2','Test3')", insert.getQuery());
 
-        FlowManager.getDatabase(TestDatabase.NAME).getWritableDatabase().execSQL(insert.getQuery());
+        FlowManager.getWritableDatabase(TestDatabase.NAME).execSQL(insert.getQuery());
 
 
         model = new Select().from(InsertModel.class)

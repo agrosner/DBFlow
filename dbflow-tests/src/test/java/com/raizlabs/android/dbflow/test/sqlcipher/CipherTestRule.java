@@ -41,7 +41,7 @@ public class CipherTestRule implements TestRule {
                 try {
                     base.evaluate();
                 } finally {
-                    FlowManager.getDatabase(CipherDatabase.NAME).reset(RuntimeEnvironment.application);
+                    FlowManager.getDatabase(CipherDatabase.class).reset(RuntimeEnvironment.application);
                     FlowManager.destroy();
                 }
             }
