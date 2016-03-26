@@ -5,11 +5,17 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
+import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 
 /**
- * Description: The main async transaction class. It represents a transaction that occurs in the database.
+ * Description: The main transaction class. It represents a transaction that occurs in the database.
+ * This is a handy class that allows you to wrap up a set of database modification (or queries) into
+ * a code block that gets accessed all on the same thread, in the same queue. This can prevent locking
+ * and synchronization issues when trying to read and write from the database at the same time.
+ * <p/>
+ * To create one, the recommended method is to use the {@link DatabaseDefinition#beginTransactionAsync(ITransaction)}.
  */
-public class Transaction {
+public final class Transaction {
 
     /**
      * Callback when a {@link ITransaction} failed because of an exception.
@@ -46,6 +52,7 @@ public class Transaction {
     final ITransaction transaction;
     final DatabaseDefinition databaseDefinition;
     final String name;
+    final boolean shouldRunInTransaction;
 
     Transaction(Builder builder) {
         databaseDefinition = builder.databaseDefinition;
@@ -53,6 +60,7 @@ public class Transaction {
         successCallback = builder.successCallback;
         transaction = builder.transaction;
         name = builder.name;
+        shouldRunInTransaction = builder.shouldRunInTransaction;
     }
 
     public Error error() {
@@ -71,13 +79,32 @@ public class Transaction {
         return name;
     }
 
+    /**
+     * Runs the transaction in the {@link BaseTransactionManager} of the associated database.
+     */
     public void execute() {
-        // TODO: place on proper transaction queue.
+        databaseDefinition.getTransactionManager().addTransaction(this);
     }
 
+    /**
+     * Cancels a transaction that has not run yet.
+     */
+    public void cancel() {
+        databaseDefinition.getTransactionManager().cancelTransaction(this);
+    }
+
+    /**
+     * Executes the transaction immediately on the same thread from which it is called. This calls
+     * the {@link DatabaseDefinition#executeTransaction(ITransaction)} method, which runs the
+     * {@link #transaction()} in a database transaction.
+     */
     public void executeSync() {
         try {
-            transaction.execute(databaseDefinition.getWritableDatabase());
+            if (shouldRunInTransaction) {
+                databaseDefinition.executeTransaction(transaction);
+            } else {
+                transaction.execute(databaseDefinition.getWritableDatabase());
+            }
             if (successCallback != null) {
                 TRANSACTION_HANDLER.post(new Runnable() {
                     @Override
@@ -93,34 +120,74 @@ public class Transaction {
         }
     }
 
+    /**
+     * The main entry point into {@link Transaction}, this provides an easy way to build up transactions.
+     */
     public static final class Builder {
 
         final ITransaction transaction;
         @NonNull final DatabaseDefinition databaseDefinition;
         Error errorCallback;
         Success successCallback;
-        private String name;
+        String name;
+        boolean shouldRunInTransaction = true;
 
+
+        /**
+         * @param transaction        The interface that actually executes the transaction.
+         * @param databaseDefinition The database this transaction will run on. Should be the same
+         *                           DB as the code that the transaction runs in.
+         */
         public Builder(@NonNull ITransaction transaction, @NonNull DatabaseDefinition databaseDefinition) {
             this.transaction = transaction;
             this.databaseDefinition = databaseDefinition;
         }
 
+        /**
+         * Specify an error callback to return all and any {@link Throwable} that occured during a {@link Transaction}.
+         */
         public Builder error(Error errorCallback) {
             this.errorCallback = errorCallback;
             return this;
         }
 
+        /**
+         * Specify a listener for successful transactions. This is called when the {@link ITransaction}
+         * specified is finished and it is posted on the UI thread.
+         *
+         * @param successCallback The callback, invoked on the UI thread.
+         */
         public Builder success(Success successCallback) {
             this.successCallback = successCallback;
             return this;
         }
 
+        /**
+         * Give this transaction a name. This will allow you to call {@link ITransactionQueue#cancel(String)}.
+         *
+         * @param name The name of this transaction. Should be unique for any transaction currently
+         *             running in the {@link ITransactionQueue}.
+         */
         public Builder name(String name) {
             this.name = name;
             return this;
         }
 
+        /**
+         * @param shouldRunInTransaction True is default. If true, we run this {@link Transaction} in
+         *                               a database transaction. If this is not necessary (usually for
+         *                               {@link QueryTransaction}), you should specify false.
+         * @return
+         */
+        public Builder shouldRunInTransaction(boolean shouldRunInTransaction) {
+            this.shouldRunInTransaction = shouldRunInTransaction;
+            return this;
+        }
+
+        /**
+         * @return A new instance of {@link Transaction}. Subsequent calls to this method produce
+         * new instances.
+         */
         public Transaction build() {
             return new Transaction(this);
         }

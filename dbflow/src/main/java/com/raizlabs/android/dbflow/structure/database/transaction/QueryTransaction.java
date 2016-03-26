@@ -19,6 +19,12 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
      */
     public interface QueryResultCallback<TResult extends Model> {
 
+        /**
+         * Called when the query completes.
+         *
+         * @param transaction The transaction that ran.
+         * @param tResult     The result of the query. Use this object to get data that you need.
+         */
         void onQueryResult(QueryTransaction transaction, CursorResult<TResult> tResult);
     }
 
@@ -38,20 +44,30 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
         }
     }
 
+    /**
+     * Provides easy way to build a {@link QueryTransaction}.
+     *
+     * @param <TResult>
+     */
     public static final class Builder<TResult extends Model> {
 
         final ModelQueriable<TResult> modelQueriable;
         QueryResultCallback<TResult> queryResultCallback;
 
-        public Builder(@NonNull ModelQueriable<TResult> modelQueriable) {
+        /**
+         * @param modelQueriable      The SQLite wrapper class that you wish to query with.
+         *                            EX. SQLite.select().from(SomeTable.class).where(...)
+         * @param queryResultCallback called when the result completes.
+         */
+        public Builder(@NonNull ModelQueriable<TResult> modelQueriable, QueryResultCallback<TResult> queryResultCallback) {
             this.modelQueriable = modelQueriable;
-        }
-
-        public Builder<TResult> queryResult(QueryResultCallback<TResult> queryResultCallback) {
             this.queryResultCallback = queryResultCallback;
-            return this;
         }
 
+        /**
+         * @return A new {@link QueryTransaction}. Subsequent calls to this method produce new
+         * instances.
+         */
         public QueryTransaction<TResult> build() {
             return new QueryTransaction<>(this);
         }
