@@ -1,0 +1,52 @@
+apply plugin: "com.jfrog.bintray"
+apply plugin: 'com.github.dcendents.android-maven'
+
+/**
+ * This task will generate the pom.xml file and install the AAR to the local M2 repo
+ */
+install {
+    repositories {
+        mavenInstaller {
+            pom.artifactId = bt_artifact_id
+            pom {
+                project {
+                    packaging bt_packaging
+                    name bt_name
+                    url bt_siteUrl
+
+                    licenses {
+                        license {
+                            name bt_licenseName
+                            url bt_licenseUrl
+                        }
+                    }
+
+                    scm {
+                        connection bt_gitUrl
+                        developerConnection bt_gitUrl
+                        url bt_siteUrl
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Uploads artifacts to Bintray
+ */
+bintray {
+    user = project.hasProperty("bt_user") ? bt_user : ""
+    key = project.hasProperty("bt_key") ? bt_key : ""
+
+    configurations = ['archives']
+    pkg {
+        repo = bt_repo
+        name = bt_artifact_id
+        userOrg = 'raizlabs'
+        websiteUrl = bt_siteUrl
+        vcsUrl = bt_gitUrl
+        licenses = [bt_licenseName]
+        publish = true
+    }
+}

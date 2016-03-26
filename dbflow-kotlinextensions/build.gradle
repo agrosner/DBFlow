@@ -49,7 +49,7 @@ buildscript {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
+apply from: '../bintray_upload.gradle'
 apply from: '../kotlin-artifacts.gradle'
 
 
