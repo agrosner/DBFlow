@@ -13,7 +13,8 @@ import java.lang.ref.WeakReference;
 /**
  * Description: Called from a {@link BaseModel}, this places the current {@link Model} interaction on the background.
  */
-public class AsyncModel<ModelClass extends Model> implements Model {
+public class AsyncModel<TModel extends Model> implements Model {
+
 
     /**
      * Listens for when this {@link Model} modification completes.
@@ -26,13 +27,13 @@ public class AsyncModel<ModelClass extends Model> implements Model {
         void onModelChanged(Model model);
     }
 
-    private final ModelClass model;
+    private final TModel model;
     private transient WeakReference<OnModelChangedListener> onModelChangedListener;
     private final DatabaseDefinition databaseDefinition;
-
+    private Transaction.Success successCallback;
     private Transaction.Error errorCallback;
 
-    public AsyncModel(@NonNull ModelClass referenceModel) {
+    public AsyncModel(@NonNull TModel referenceModel) {
         model = referenceModel;
         databaseDefinition = FlowManager.getDatabaseForTable(model.getClass());
     }
@@ -44,7 +45,7 @@ public class AsyncModel<ModelClass extends Model> implements Model {
      * @param onModelChangedListener The listener to use for a corresponding call to a method.
      * @return This instance.
      */
-    public AsyncModel<ModelClass> withListener(OnModelChangedListener onModelChangedListener) {
+    public AsyncModel<TModel> withListener(OnModelChangedListener onModelChangedListener) {
         this.onModelChangedListener = new WeakReference<>(onModelChangedListener);
         return this;
     }
@@ -55,8 +56,13 @@ public class AsyncModel<ModelClass extends Model> implements Model {
      * @param errorCallback The error callback.
      * @return This instance.
      */
-    public AsyncModel<ModelClass> error(Transaction.Error errorCallback) {
+    public AsyncModel<TModel> error(Transaction.Error errorCallback) {
         this.errorCallback = errorCallback;
+        return this;
+    }
+
+    public AsyncModel<TModel> success(Transaction.Success success) {
+        this.successCallback = success;
         return this;
     }
 
@@ -64,9 +70,9 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     public void save() {
         databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                        new ProcessModelTransaction.ProcessModel<TModel>() {
                             @Override
-                            public void processModel(ModelClass model) {
+                            public void processModel(TModel model) {
                                 model.save();
                             }
                         }).build())
@@ -79,9 +85,9 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     public void delete() {
         databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                        new ProcessModelTransaction.ProcessModel<TModel>() {
                             @Override
-                            public void processModel(ModelClass model) {
+                            public void processModel(TModel model) {
                                 model.delete();
                             }
                         }).build())
@@ -94,9 +100,9 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     public void update() {
         databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                        new ProcessModelTransaction.ProcessModel<TModel>() {
                             @Override
-                            public void processModel(ModelClass model) {
+                            public void processModel(TModel model) {
                                 model.update();
                             }
                         }).build())
@@ -109,9 +115,9 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     public void insert() {
         databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<ModelClass>() {
+                        new ProcessModelTransaction.ProcessModel<TModel>() {
                             @Override
-                            public void processModel(ModelClass model) {
+                            public void processModel(TModel model) {
                                 model.insert();
                             }
                         }).build())
@@ -137,6 +143,9 @@ public class AsyncModel<ModelClass extends Model> implements Model {
     private final Transaction.Success success = new Transaction.Success() {
         @Override
         public void onSuccess(Transaction transaction) {
+            if (successCallback != null) {
+                successCallback.onSuccess(transaction);
+            }
             if (onModelChangedListener != null && onModelChangedListener.get() != null) {
                 onModelChangedListener.get().onModelChanged(model);
             }

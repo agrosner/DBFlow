@@ -80,9 +80,6 @@ public class BaseModel implements Model {
         getModelAdapter().update(this, databaseWrapper);
     }
 
-    /**
-     * Directly tries to insert this item into the DB without updating.
-     */
     @SuppressWarnings("unchecked")
     @Override
     public void insert() {
