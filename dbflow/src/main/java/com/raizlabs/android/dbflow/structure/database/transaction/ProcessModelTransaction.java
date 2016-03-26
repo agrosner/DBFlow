@@ -94,9 +94,14 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
             this.processModel = processModel;
         }
 
-        public Builder(@NonNull ProcessModel<TModel> processModel, List<TModel> models) {
+        /**
+         * @param models       The models to process. This constructor creates a new {@link ArrayList}
+         *                     from the {@link Collection} passed.
+         * @param processModel The method call interface.
+         */
+        public Builder(Collection<TModel> models, @NonNull ProcessModel<TModel> processModel) {
             this.processModel = processModel;
-            this.models = models;
+            this.models = new ArrayList<>(models);
         }
 
         public Builder<TModel> add(TModel model) {
@@ -104,12 +109,18 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
             return this;
         }
 
+        /**
+         * Adds all specified models to the {@link ArrayList}.
+         */
         @SafeVarargs
         public final Builder<TModel> addAll(TModel... models) {
             this.models.addAll(Arrays.asList(models));
             return this;
         }
 
+        /**
+         * Adds a {@link Collection} of {@link Model} to the existing {@link ArrayList}.
+         */
         public Builder<TModel> addAll(Collection<TModel> models) {
             this.models.addAll(models);
             return this;
