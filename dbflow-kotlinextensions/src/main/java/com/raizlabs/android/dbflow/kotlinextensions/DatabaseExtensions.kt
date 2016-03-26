@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
-import android.content.ContentValues
-import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.structure.BaseQueryModel
@@ -74,11 +72,4 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync
  */
 fun DatabaseWrapper.executeUpdateDelete(rawQuery: String) {
     compileStatement(rawQuery).executeUpdateDelete()
-}
-
-/**
- * Adds the update method to the [DatabaseWrapper]
- */
-fun DatabaseWrapper.updateWithOnConflict(tableName: String, contentValues: ContentValues, where: String?, whereArgs: Array<String>?, conflictAlgorithm: Int): Long {
-    return SQLiteCompatibilityUtils.updateWithOnConflict(this, tableName, contentValues, where, whereArgs, conflictAlgorithm)
 }
