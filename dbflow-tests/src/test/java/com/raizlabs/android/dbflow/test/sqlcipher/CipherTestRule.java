@@ -32,7 +32,7 @@ public class CipherTestRule implements TestRule {
             public void evaluate() throws Throwable {
                 FlowManager.init(new FlowConfig.Builder(RuntimeEnvironment.application)
                         .addDatabaseConfig(new DatabaseConfig.Builder(CipherDatabase.class)
-                                .openHelper(new DatabaseConfig.HelperCreator() {
+                                .openHelper(new DatabaseConfig.OpenHelperCreator() {
                                     @Override
                                     public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener helperListener) {
                                         return new SQLCipherHelperImpl(databaseDefinition, helperListener);

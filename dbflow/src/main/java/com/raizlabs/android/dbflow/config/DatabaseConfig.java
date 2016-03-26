@@ -13,28 +13,33 @@ import java.util.Map;
  */
 public final class DatabaseConfig {
 
-    public interface HelperCreator {
+    public interface OpenHelperCreator {
 
         OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener helperListener);
     }
 
-    private final HelperCreator helperCreator;
+    public interface TransactionManagerCreator {
+
+        BaseTransactionManager createManager(DatabaseDefinition databaseDefinition);
+    }
+
+    private final OpenHelperCreator openHelperCreator;
     private final Class<?> databaseClass;
-    private final BaseTransactionManager transactionManager;
+    private final TransactionManagerCreator transactionManagerCreator;
     private final DatabaseHelperListener helperListener;
     private final Map<Class<? extends Model>, TableConfig> tableConfigMap;
 
 
     DatabaseConfig(Builder builder) {
-        helperCreator = builder.helperCreator;
+        openHelperCreator = builder.openHelperCreator;
         databaseClass = builder.databaseClass;
-        transactionManager = builder.transactionManager;
+        transactionManagerCreator = builder.transactionManagerCreator;
         helperListener = builder.helperListener;
         tableConfigMap = builder.tableConfigMap;
     }
 
-    public HelperCreator helperCreator() {
-        return helperCreator;
+    public OpenHelperCreator helperCreator() {
+        return openHelperCreator;
     }
 
     public DatabaseHelperListener helperListener() {
@@ -45,8 +50,8 @@ public final class DatabaseConfig {
         return databaseClass;
     }
 
-    public BaseTransactionManager transactionManager() {
-        return transactionManager;
+    public TransactionManagerCreator transactionManagerCreator() {
+        return transactionManagerCreator;
     }
 
     public Map<Class<? extends Model>, TableConfig> tableConfigMap() {
@@ -55,9 +60,9 @@ public final class DatabaseConfig {
 
     public static final class Builder {
 
-        HelperCreator helperCreator;
+        OpenHelperCreator openHelperCreator;
         final Class<?> databaseClass;
-        BaseTransactionManager transactionManager;
+        TransactionManagerCreator transactionManagerCreator;
         DatabaseHelperListener helperListener;
         final Map<Class<? extends Model>, TableConfig> tableConfigMap = new HashMap<>();
 
@@ -66,8 +71,8 @@ public final class DatabaseConfig {
             this.databaseClass = databaseClass;
         }
 
-        public Builder transactionManager(BaseTransactionManager transactionManager) {
-            this.transactionManager = transactionManager;
+        public Builder transactionManagerCreator(TransactionManagerCreator transactionManager) {
+            this.transactionManagerCreator = transactionManager;
             return this;
         }
 
@@ -86,8 +91,8 @@ public final class DatabaseConfig {
          *
          * @param openHelper The openhelper to use.
          */
-        public Builder openHelper(HelperCreator openHelper) {
-            helperCreator = openHelper;
+        public Builder openHelper(OpenHelperCreator openHelper) {
+            openHelperCreator = openHelper;
             return this;
         }
 

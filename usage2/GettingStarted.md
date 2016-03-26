@@ -44,7 +44,7 @@ public class ExampleApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FlowManager.init(new FlowConfig.Builder(this));
+        FlowManager.init(new Fl owConfig.Builder(this));
     }
 }
 
@@ -77,7 +77,10 @@ If you do not like the built-in `DefaultTransactionManager`, or just want to rol
 ```java
 
 FlowManager.init(new FlowConfig.Builder(this)
-    .transactionManager(new CustomTransactionManager()));
+    .addDatabaseConfig(
+        new DatabaseConfig.Builder(AppDatabase.class)
+            .transactionManager(new CustomTransactionManager())
+          .build()));
 
 ```
 

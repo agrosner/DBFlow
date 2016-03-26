@@ -1,8 +1,13 @@
 package com.raizlabs.android.dbflow.test.sql;
 
+import android.support.annotation.NonNull;
+
+import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.AsyncModel;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
@@ -24,7 +29,18 @@ public class AsyncQueryTest extends FlowTestCase {
 
         SQLite.select().from(TestModel1.class)
                 .where(TestModel1_Table.name.is("Async"))
-                .async().query(null, null);
+                .async()
+                .query(new QueryTransaction.QueryResultCallback<TestModel1>() {
+                    @Override
+                    public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
+
+                    }
+                }, new Transaction.Error() {
+                    @Override
+                    public void onError(Transaction transaction, Throwable error) {
+
+                    }
+                });
 
         SQLite.update(TestModel1.class)
                 .set(TestModel1_Table.name.is("Async2"))

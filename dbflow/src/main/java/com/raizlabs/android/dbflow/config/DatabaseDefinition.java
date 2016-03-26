@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
 
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
@@ -15,6 +14,7 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.FlowSQLiteOpenHelper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
@@ -96,10 +96,10 @@ public abstract class DatabaseDefinition {
             }
             helperListener = config.helperListener();
         }
-        if (config == null || config.transactionManager() == null) {
+        if (config == null || config.transactionManagerCreator() == null) {
             transactionManager = new DefaultTransactionManager(this);
         } else {
-            transactionManager = config.transactionManager();
+            transactionManager = config.transactionManagerCreator().createManager(this);
         }
     }
 

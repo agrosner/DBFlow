@@ -32,20 +32,41 @@ venza.save(); // inserts if not exists by primary key, updates if exists.
 // querying
 // SELECT * FROM `Automobile` WHERE `year`=2001 AND `model`='Camry'
 // we autogen a "_Table" class that contains convenience Properties which provide easy SQL ops.
-List<Automobile> autos = SQLite()
-                            .select()
-                            .from(Automobile.class)
-                            .where(Automobile_Table.year.is(2001))
-                            .and(Automobile_Table.model.is("Camry"))
-                            .queryList();
+SQLite().select()
+        .from(Automobile.class)
+        .where(Automobile_Table.year.is(2001))
+        .and(Automobile_Table.model.is("Camry"))
+        .async()
+        .query(new QueryTransaction.QueryResultCallback<TestModel1>() {
+            @Override
+            public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
+              // called when query returns on UI thread
+              List<Automobile> autos = tResult.toListClose();
+              // do something with results
+            }
+        }, new Transaction.Error() {
+            @Override
+            public void onError(Transaction transaction, Throwable error) {
+              // handle any errors
+            }
+        });
 
 // run a transaction synchronous easily.
-TransactionManager.transact(AppDatabase.NAME, new Runnable() {
-  @Override
-  public void run() {
-    // perform some transaction.
-  }
-})
+DatabaseDefinition database = FlowManager.getDatabase(AppDatabase.class);
+database.executeTransaction(new ITransaction() {
+            @Override
+            public void execute(DatabaseWrapper databaseWrapper) {
+              // do something here
+            }
+});
+
+// run asynchronous transactions easily, with expressive builders
+database.beginTransactionAsync(new ITransaction() {
+            @Override
+            public void execute(DatabaseWrapper databaseWrapper) {
+                // do something in BG
+            }
+        }).success(successCallback).error(errorCallback).build().execute();
 
 ```
 
@@ -58,23 +79,14 @@ the configuration is highly minimal:
 -keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
 ```
 
-If you are using [multiple modules](/usage2/MultipleModules.md), you will need
-to add additional rules here:
-
-for argument:
-
-```groovy
-
-apt {
-    arguments {
-        targetModuleName 'Test'
-    }
-}
-
-```
-
 ## Sections
 
 The list of documentation is listed here:
 
-[Models and Getting Started](/usage2/ModelsAndGettingStarted.md)
+[Getting Started](/usage2/GettingStarted.md)
+[Databases](/usage2/Databases.md)
+[Models](/usage2/Models.md)
+[Relationships](/usage2/Relationships.md)
+[Storing Data](/usage2/StoringData.md)
+
+[Multiple Modules](/usage2/MultipleModules.md)
