@@ -59,11 +59,11 @@ public interface ModelQueriable<TModel extends Model> extends Queriable {
     /**
      * Queries and populates the specified {@link ModelContainer} from the database.
      *
-     * @param instance    A non-null instance to populate from the DB.
-     * @param <DataClass> The kind of data that the instance provides.
+     * @param instance A non-null instance to populate from the DB.
      * @return The specified instance populated from the DB.
      */
-    <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance);
+    <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass
+    queryModelContainer(@NonNull ModelContainerClass instance);
 
     /**
      * @return the table that this query comes from.
@@ -72,12 +72,12 @@ public interface ModelQueriable<TModel extends Model> extends Queriable {
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
-     * cache models dynamically by setting {@link com.raizlabs.android.dbflow.list.FlowCursorList#setCacheModels(boolean)} to true.
+     * cache models dynamically by setting {@link FlowCursorList#setCacheModels(boolean)} to true.
      */
     FlowCursorList<TModel> queryCursorList();
 
     /**
-     * @return A cursor-backed {@link java.util.List} that handles conversion, retrieval, caching, content changes,
+     * @return A cursor-backed {@link List} that handles conversion, retrieval, caching, content changes,
      * and more.
      */
     FlowQueryList<TModel> queryTableList();
@@ -91,7 +91,7 @@ public interface ModelQueriable<TModel extends Model> extends Queriable {
      * Returns a {@link List} based on the custom {@link TQueryModel} you pass in.
      *
      * @param queryModelClass The query model class to use.
-     * @param <TQueryModel>    The class that extends {@link BaseQueryModel}
+     * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A list of custom models that are not tied to a table.
      */
     <TQueryModel extends BaseQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
@@ -100,7 +100,7 @@ public interface ModelQueriable<TModel extends Model> extends Queriable {
      * Returns a single {@link TQueryModel} from this query.
      *
      * @param queryModelClass The class to use.
-     * @param <TQueryModel>    The class that extends {@link BaseQueryModel}
+     * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A single model from the query.
      */
     <TQueryModel extends BaseQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
