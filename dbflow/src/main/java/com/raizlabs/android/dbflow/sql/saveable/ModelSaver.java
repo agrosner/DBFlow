@@ -19,16 +19,18 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: Defines how models get saved into the DB. It will bind values to {@link android.content.ContentValues} for
  * an update, execute a {@link DatabaseStatement}, or delete an object via the {@link Delete} wrapper.
  */
-public class ModelSaver<TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter> {
+public class ModelSaver {
 
-    public void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
+    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         DatabaseWrapper wrapper = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
         save(modelAdapter, adapter, model, wrapper);
     }
 
     @SuppressWarnings("unchecked")
-    public void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
-                     TTable model, DatabaseWrapper wrapper) {
+    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
+              TTable model, DatabaseWrapper wrapper) {
         if (model == null) {
             throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
         }
@@ -46,14 +48,16 @@ public class ModelSaver<TModel extends Model, TTable extends Model, TAdapter ext
         SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.SAVE);
     }
 
-    public boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
+    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         return update(modelAdapter, adapter, model,
                 FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
-    public boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
-                          TTable model, DatabaseWrapper wrapper) {
+    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
+                   TTable model, DatabaseWrapper wrapper) {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
@@ -66,8 +70,9 @@ public class ModelSaver<TModel extends Model, TTable extends Model, TAdapter ext
     }
 
     @SuppressWarnings("unchecked")
-    public long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
-                       TTable model, DatabaseWrapper wrapper) {
+    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
+                TTable model, DatabaseWrapper wrapper) {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
@@ -79,7 +84,8 @@ public class ModelSaver<TModel extends Model, TTable extends Model, TAdapter ext
     }
 
     @SuppressWarnings("unchecked")
-    public long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
+    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
@@ -90,13 +96,15 @@ public class ModelSaver<TModel extends Model, TTable extends Model, TAdapter ext
         return id;
     }
 
-    public boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
+    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         return delete(modelAdapter, adapter, model,
                 FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
-    public boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model, DatabaseWrapper wrapper) {
+    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model, DatabaseWrapper wrapper) {
         boolean successful = SQLite.delete((Class<TTable>) adapter.getModelClass()).where(
                 adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
         if (successful) {

@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -25,7 +26,8 @@ public abstract class ModelContainerAdapter<TModel extends Model>
         implements InternalAdapter<ModelContainer<TModel, ?>> {
 
     private ModelContainerLoader<TModel> modelContainerLoader;
-    private ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelSaver;
+    private ModelSaver modelSaver;
+    private ModelAdapter<TModel> modelAdapter;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
 
@@ -36,12 +38,12 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      */
     @Override
     public void save(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().save(modelContainer);
+        getModelSaver().save(getModelAdapter(), this, modelContainer);
     }
 
     @Override
     public void save(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().save(model, databaseWrapper);
+        getModelSaver().save(getModelAdapter(), this, model, databaseWrapper);
     }
 
     /**
@@ -50,12 +52,12 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      * @param modelContainer The model container to insert.
      */
     public void insert(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().insert(modelContainer);
+        getModelSaver().insert(getModelAdapter(), this, modelContainer);
     }
 
     @Override
     public void insert(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().insert(model, databaseWrapper);
+        getModelSaver().insert(getModelAdapter(), this, model, databaseWrapper);
     }
 
     /**
@@ -64,12 +66,12 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      * @param modelContainer The model to update.
      */
     public void update(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().update(modelContainer);
+        getModelSaver().update(getModelAdapter(), this, modelContainer);
     }
 
     @Override
     public void update(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().update(model, databaseWrapper);
+        getModelSaver().update(getModelAdapter(), this, model, databaseWrapper);
     }
 
     /**
@@ -79,19 +81,26 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      */
     @Override
     public void delete(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().delete(modelContainer);
+        getModelSaver().delete(getModelAdapter(), this, modelContainer);
     }
 
     @Override
     public void delete(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().delete(model, databaseWrapper);
+        getModelSaver().delete(getModelAdapter(), this, model, databaseWrapper);
     }
 
-    public ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> getModelSaver() {
+    public ModelSaver getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver<>(FlowManager.getModelAdapter(getModelClass()), this);
+            modelSaver = new ModelSaver();
         }
         return modelSaver;
+    }
+
+    public ModelAdapter<TModel> getModelAdapter() {
+        if (modelAdapter == null) {
+            modelAdapter = FlowManager.getModelAdapter(getModelClass());
+        }
+        return modelAdapter;
     }
 
     /**
@@ -99,7 +108,7 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelSaver) {
+    public void setModelSaver(ModelSaver modelSaver) {
         this.modelSaver = modelSaver;
     }
 

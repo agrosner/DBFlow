@@ -28,7 +28,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
-    private ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver;
+    private ModelSaver modelSaver;
 
     /**
      * @return The precompiled insert statement for this table model adapter
@@ -248,9 +248,9 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
     }
 
-    public ModelSaver<TModel, TModel, ModelAdapter<TModel>> getModelSaver() {
+    public ModelSaver getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver<>();
+            modelSaver = new ModelSaver();
         }
         return modelSaver;
     }
@@ -260,7 +260,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver) {
+    public void setModelSaver(ModelSaver modelSaver) {
         this.modelSaver = modelSaver;
     }
 
