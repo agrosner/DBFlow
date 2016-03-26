@@ -6,7 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: andrewgrosner
  * Description: Creates a new database to use in the application.
  * <p>
  * If we specify one DB, then all models do not need to specify a DB. As soon as we specify two, then each

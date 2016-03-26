@@ -1,0 +1,38 @@
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging bt_packaging
+                name bt_name
+                url bt_siteUrl
+                licenses {
+                    license {
+                        name bt_licenseName
+                        url bt_licenseUrl
+                    }
+                }
+                scm {
+                    connection bt_gitUrl
+                    developerConnection bt_gitUrl
+                    url bt_siteUrl
+                }
+            }
+        }
+    }
+}
+
+// restore when found.
+/*task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}*/
+
+/*task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}*/
+
+artifacts {
+    //archives sourcesJar
+    //archives javadocJar
+}

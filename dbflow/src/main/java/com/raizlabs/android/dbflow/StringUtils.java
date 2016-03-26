@@ -6,10 +6,7 @@ package com.raizlabs.android.dbflow;
 public class StringUtils {
 
     /**
-     * Returns true if the string is not null, empty string "", or the length is greater than 0
-     *
-     * @param inString The string we will check
-     * @return
+     * @return true if the string is not null, empty string "", or the length is greater than 0
      */
     public static boolean isNotNullOrEmpty(String inString) {
         return inString != null && !inString.equals("") && inString.length() > 0;
