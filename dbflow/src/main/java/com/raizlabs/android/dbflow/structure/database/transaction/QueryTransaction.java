@@ -59,14 +59,16 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
         final ModelQueriable<TResult> modelQueriable;
         QueryResultCallback<TResult> queryResultCallback;
 
-        /**
-         * @param modelQueriable      The SQLite wrapper class that you wish to query with.
-         *                            EX. SQLite.select().from(SomeTable.class).where(...)
-         * @param queryResultCallback called when the result completes on the UI thread.
-         */
-        public Builder(@NonNull ModelQueriable<TResult> modelQueriable, QueryResultCallback<TResult> queryResultCallback) {
+        public Builder(@NonNull ModelQueriable<TResult> modelQueriable) {
             this.modelQueriable = modelQueriable;
+        }
+
+        /**
+         * Called when transaction completes and use this to get results.
+         */
+        public Builder<TResult> queryResult(QueryResultCallback<TResult> queryResultCallback) {
             this.queryResultCallback = queryResultCallback;
+            return this;
         }
 
         /**

@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Description:
+ * Description: An implementation of the {@link ModelCache} that stores its contents in a {@link Map}.
+ * It will grow and continue to grow unless you {@link #clear()} out it's contents. It's good for simple
+ * data, but not recommended when holding a significant amount.
  */
 public class SimpleMapCache<TModel extends Model> extends ModelCache<TModel, Map<String, TModel>> {
 
