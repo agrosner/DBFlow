@@ -9,8 +9,7 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Author: andrewgrosner
- * Description: Wraps around the {@link android.database.sqlite.SQLiteOpenHelper} and provides extra features for use in this library.
+ * Description: Wraps around the {@link SQLiteOpenHelper} and provides extra features for use in this library.
  */
 public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper {
 

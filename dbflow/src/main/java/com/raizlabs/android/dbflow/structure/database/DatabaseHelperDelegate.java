@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
@@ -18,7 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Description: An abstraction from {@link FlowSQLiteOpenHelper} where this can be used in other helper class definitions.
+ * Description: An abstraction from some parts of the {@link SQLiteOpenHelper} where this can be
+ * used in other helper class definitions.
  */
 public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
@@ -49,6 +51,10 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
         }
     }
 
+    /**
+     * @param databaseHelperListener Listens for operations the DB and allow you to provide extra
+     *                               functionality.
+     */
     public void setDatabaseHelperListener(DatabaseHelperListener databaseHelperListener) {
         this.databaseHelperListener = databaseHelperListener;
     }
@@ -78,7 +84,8 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     /**
-     * @return the temporary database file name for when we have backups enabled {@link DatabaseDefinition#backupEnabled()}
+     * @return the temporary database file name for when we have backups enabled
+     * {@link DatabaseDefinition#backupEnabled()}
      */
     private String getTempDbFileName() {
         return getTempDbFileName(getDatabaseDefinition());

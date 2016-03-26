@@ -5,9 +5,6 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
-
 /**
  * Description: Provides a base implementation that wraps a database, so other database engines potentially can
  * be used.
@@ -28,18 +25,15 @@ public interface DatabaseWrapper {
 
     Cursor rawQuery(String query, String[] selectionArgs);
 
-    long updateWithOnConflict(String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm);
+    long updateWithOnConflict(String tableName, ContentValues contentValues, String where,
+                              String[] whereArgs, int conflictAlgorithm);
 
-    long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values, int sqLiteDatabaseAlgorithmInt);
+    long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values,
+                              int sqLiteDatabaseAlgorithmInt);
 
-    Cursor query(
-            @NonNull String tableName,
-            @Nullable String[] columns,
-            @Nullable String selection,
-            @Nullable String[] selectionArgs,
-            @Nullable String groupBy,
-            @Nullable String having,
-            @Nullable String orderBy);
+    Cursor query(@NonNull String tableName, @Nullable String[] columns, @Nullable String selection,
+                 @Nullable String[] selectionArgs, @Nullable String groupBy,
+                 @Nullable String having, @Nullable String orderBy);
 
     int delete(@NonNull String tableName, @Nullable String whereClause, @Nullable String[] whereArgs);
 }
