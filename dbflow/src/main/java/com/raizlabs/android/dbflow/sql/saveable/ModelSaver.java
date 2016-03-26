@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql.saveable;
 
 import android.content.ContentValues;
 
-import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
@@ -62,9 +61,9 @@ public class ModelSaver<TModel extends Model, TTable extends Model, TAdapter ext
     public boolean update(TTable model, DatabaseWrapper wrapper) {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
-        boolean successful = SQLiteCompatibilityUtils.updateWithOnConflict(wrapper,
-            modelAdapter.getTableName(), contentValues, adapter.getPrimaryConditionClause(model).getQuery(), null,
-            ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
+        boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
+                adapter.getPrimaryConditionClause(model).getQuery(), null,
+                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.UPDATE);
         }
@@ -102,7 +101,7 @@ public class ModelSaver<TModel extends Model, TTable extends Model, TAdapter ext
     @SuppressWarnings("unchecked")
     public boolean delete(TTable model, DatabaseWrapper wrapper) {
         boolean successful = SQLite.delete((Class<TTable>) adapter.getModelClass()).where(
-            adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
+                adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);
         }

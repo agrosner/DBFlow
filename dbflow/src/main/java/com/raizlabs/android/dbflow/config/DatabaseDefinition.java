@@ -199,7 +199,7 @@ public abstract class DatabaseDefinition {
         return migrationMap;
     }
 
-    synchronized OpenHelper getHelper() {
+    public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
                     .get(getAssociatedDatabaseClassFile());

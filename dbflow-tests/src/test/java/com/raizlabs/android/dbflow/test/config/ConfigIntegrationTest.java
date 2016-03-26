@@ -6,7 +6,12 @@ import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.config.TableConfig;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
+import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
+import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
@@ -14,6 +19,7 @@ import com.raizlabs.android.dbflow.test.BuildConfig;
 import com.raizlabs.android.dbflow.test.ShadowContentResolver2;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.customhelper.CustomOpenHelper;
+import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -71,19 +77,8 @@ public class ConfigIntegrationTest {
             }
         };
 
-        final DatabaseConfig.OpenHelperCreator openHelperCreator = new DatabaseConfig.OpenHelperCreator() {
-            @Override
-            public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener helperListener) {
-                return new CustomOpenHelper(databaseDefinition, helperListener);
-            }
-        };
-
-        final DatabaseConfig.TransactionManagerCreator managerCreator = new DatabaseConfig.TransactionManagerCreator() {
-            @Override
-            public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {
-                return new TestTransactionManager(databaseDefinition);
-            }
-        };
+        final CustomOpenHelperCreator openHelperCreator = new CustomOpenHelperCreator();
+        final CustomTransactionManagerCreator managerCreator = new CustomTransactionManagerCreator();
 
         FlowManager.init(builder
                 .addDatabaseConfig(new DatabaseConfig.Builder(TestDatabase.class)
@@ -104,5 +99,75 @@ public class ConfigIntegrationTest {
         assertEquals(databaseConfig.helperCreator(), openHelperCreator);
         assertEquals(databaseConfig.helperListener(), helperListener);
         assertTrue(databaseConfig.tableConfigMap().isEmpty());
+
+
+        DatabaseDefinition databaseDefinition = FlowManager.getDatabase(TestDatabase.class);
+        assertEquals(databaseDefinition.getTransactionManager(),
+                managerCreator.getTestTransactionManager());
+        assertEquals(databaseDefinition.getHelper(), openHelperCreator.getCustomOpenHelper());
+    }
+
+    @Test
+    public void test_tableConfig() {
+
+        ListModelLoader<TestModel1> customListModelLoader = new ListModelLoader<>(TestModel1.class);
+        SingleModelLoader<TestModel1> singleModelLoader = new SingleModelLoader<>(TestModel1.class);
+        ModelSaver<TestModel1, TestModel1, ModelAdapter<TestModel1>> modelSaver = new ModelSaver<>();
+
+        FlowManager.init(builder
+                .addDatabaseConfig(new DatabaseConfig.Builder(TestDatabase.class)
+                        .addTableConfig(new TableConfig.Builder<>(TestModel1.class)
+                                .singleModelLoader(singleModelLoader)
+                                .listModelLoader(customListModelLoader)
+                                .build())
+                        .build())
+                .build());
+
+        FlowConfig flowConfig = FlowManager.getConfig();
+        assertNotNull(flowConfig);
+
+        DatabaseConfig databaseConfig = flowConfig.databaseConfigMap().get(TestDatabase.class);
+        assertNotNull(databaseConfig);
+
+        //noinspection unchecked
+        TableConfig<TestModel1> config = databaseConfig.tableConfigMap().get(TestModel1.class);
+        assertNotNull(config);
+
+        assertEquals(config.listModelLoader(), customListModelLoader);
+        assertEquals(config.singleModelLoader(), singleModelLoader);
+
+        ModelAdapter<TestModel1> adapter = FlowManager.getModelAdapter(TestModel1.class);
+        assertEquals(adapter.getListModelLoader(), customListModelLoader);
+        assertEquals(adapter.getSingleModelLoader(), singleModelLoader);
+    }
+
+    private static class CustomTransactionManagerCreator implements DatabaseConfig.TransactionManagerCreator {
+
+        public TestTransactionManager testTransactionManager;
+
+        @Override
+        public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {
+            testTransactionManager = new TestTransactionManager(databaseDefinition);
+            return testTransactionManager;
+        }
+
+        public TestTransactionManager getTestTransactionManager() {
+            return testTransactionManager;
+        }
+    }
+
+    private static class CustomOpenHelperCreator implements DatabaseConfig.OpenHelperCreator {
+
+        private CustomOpenHelper customOpenHelper;
+
+        @Override
+        public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener helperListener) {
+            customOpenHelper = new CustomOpenHelper(databaseDefinition, helperListener);
+            return customOpenHelper;
+        }
+
+        public CustomOpenHelper getCustomOpenHelper() {
+            return customOpenHelper;
+        }
     }
 }
