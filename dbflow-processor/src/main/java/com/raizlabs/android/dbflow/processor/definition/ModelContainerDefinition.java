@@ -79,6 +79,7 @@ public class ModelContainerDefinition extends BaseDefinition {
         customTypeConverterPropertyMethod.addToType(typeBuilder);
 
         CodeBlock.Builder constructorCode = CodeBlock.builder();
+        constructorCode.addStatement("super(databaseDefinition)");
 
         for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
             constructorCode.addStatement("$L.put($S, $T.class)", "columnMap", columnDefinition.columnName,
@@ -88,6 +89,7 @@ public class ModelContainerDefinition extends BaseDefinition {
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
                 .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+                .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
                 .addCode(constructorCode.build())
                 .addModifiers(Modifier.PUBLIC).build());
 

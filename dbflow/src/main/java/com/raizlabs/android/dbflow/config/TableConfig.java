@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.config;
 
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -18,12 +19,14 @@ public final class TableConfig<TModel extends Model> {
     private final ModelSaver modelSaver;
     private final SingleModelLoader<TModel> singleModelLoader;
     private final ListModelLoader<TModel> listModelLoader;
+    private final ModelContainerLoader<TModel> modelContainerLoader;
 
     TableConfig(Builder<TModel> builder) {
         tableClass = builder.tableClass;
         modelSaver = builder.modelSaver;
         singleModelLoader = builder.singleModelLoader;
         listModelLoader = builder.listModelLoader;
+        modelContainerLoader = builder.modelContainerLoader;
     }
 
     public Class<? extends Model> tableClass() {
@@ -42,14 +45,17 @@ public final class TableConfig<TModel extends Model> {
         return singleModelLoader;
     }
 
+    public ModelContainerLoader<TModel> modelContainerLoader() {
+        return modelContainerLoader;
+    }
+
     public static final class Builder<TModel extends Model> {
 
         final Class<TModel> tableClass;
         ModelSaver modelSaver;
         SingleModelLoader<TModel> singleModelLoader;
         ListModelLoader<TModel> listModelLoader;
-        SingleModelLoader<TModel> modelContainerModelLoader;
-        ListModelLoader<TModel> modelContainerListModelLoader;
+        ModelContainerLoader<TModel> modelContainerLoader;
 
         public Builder(Class<TModel> tableClass) {
             this.tableClass = tableClass;
@@ -84,17 +90,8 @@ public final class TableConfig<TModel extends Model> {
          * If a {@link ModelContainer} annotation specified for this table, define how models are
          * loaded individually from the DB. This will override the default.
          */
-        public Builder<TModel> modelContainerModelLoader(SingleModelLoader<TModel> modelContainerModelLoader) {
-            this.modelContainerModelLoader = modelContainerModelLoader;
-            return this;
-        }
-
-        /**
-         * If a {@link ModelContainer} annotation specified for this table, define how a {@link List}
-         * of models are loaded from the DB. This will override the default.
-         */
-        public Builder<TModel> modelContainerListModelLoader(ListModelLoader<TModel> modelContainerListModelLoader) {
-            this.modelContainerListModelLoader = modelContainerListModelLoader;
+        public Builder<TModel> modelContainerLoader(ModelContainerLoader<TModel> modelContainerModelLoader) {
+            this.modelContainerLoader = modelContainerModelLoader;
             return this;
         }
 

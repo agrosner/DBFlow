@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
@@ -29,6 +30,13 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
     private ModelSaver modelSaver;
+
+    public ModelAdapter(DatabaseDefinition databaseDefinition) {
+        super(databaseDefinition);
+        if (getTableConfig() != null && getTableConfig().modelSaver() != null) {
+            modelSaver = getTableConfig().modelSaver();
+        }
+    }
 
     /**
      * @return The precompiled insert statement for this table model adapter

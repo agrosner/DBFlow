@@ -153,7 +153,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
                 }
 
                 if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition
-                    || columnDefinition.isPrimaryKeyAutoIncrement() || columnDefinition.isRowId) {
+                        || columnDefinition.isPrimaryKeyAutoIncrement() || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys");
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery.class) != null) {
@@ -222,11 +222,12 @@ public class ModelViewDefinition extends BaseTableDefinition {
         customTypeConverterPropertyMethod.addToType(typeBuilder);
 
         CodeBlock.Builder constructorCode = CodeBlock.builder();
-
+        constructorCode.addStatement("super(databaseDefinition)");
         customTypeConverterPropertyMethod.addCode(constructorCode);
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
                 .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+                .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
                 .addCode(constructorCode.build())
                 .addModifiers(Modifier.PUBLIC).build());
 

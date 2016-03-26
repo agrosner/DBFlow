@@ -153,13 +153,14 @@ public class QueryModelDefinition extends BaseTableDefinition {
         customTypeConverterPropertyMethod.addToType(typeBuilder);
 
         CodeBlock.Builder constructorCode = CodeBlock.builder();
-
+        constructorCode.addStatement("super(databaseDefinition)");
         customTypeConverterPropertyMethod.addCode(constructorCode);
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
                 .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+                .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
                 .addCode(constructorCode.build())
                 .addModifiers(Modifier.PUBLIC).build());
 

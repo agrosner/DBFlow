@@ -3,7 +3,9 @@ package com.raizlabs.android.dbflow.structure;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.config.TableConfig;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
@@ -13,10 +15,27 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: Provides a base retrieval class for all {@link Model} backed
  * adapters.
  */
-public abstract class RetrievalAdapter<TModel extends Model, TableClass extends Model> {
+public abstract class RetrievalAdapter<TModel extends Model, TTable extends Model> {
 
-    private SingleModelLoader<TableClass> singleModelLoader;
-    private ListModelLoader<TableClass> listModelLoader;
+    private SingleModelLoader<TTable> singleModelLoader;
+    private ListModelLoader<TTable> listModelLoader;
+
+    private TableConfig<TTable> tableConfig;
+
+    public RetrievalAdapter(DatabaseDefinition databaseDefinition) {
+        tableConfig = FlowManager.getConfig()
+                .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile())
+                .getTableConfigForTable(getModelClass());
+        if (tableConfig != null) {
+            if (tableConfig.singleModelLoader() != null) {
+                singleModelLoader = tableConfig.singleModelLoader();
+            }
+
+            if (tableConfig.listModelLoader() != null) {
+                listModelLoader = tableConfig.listModelLoader();
+            }
+        }
+    }
 
     /**
      * Assigns the {@link Cursor} data into the specified {@link TModel}
@@ -49,12 +68,16 @@ public abstract class RetrievalAdapter<TModel extends Model, TableClass extends 
     /**
      * @return the model class this adapter corresponds to
      */
-    public abstract Class<TableClass> getModelClass();
+    public abstract Class<TTable> getModelClass();
+
+    protected TableConfig<TTable> getTableConfig() {
+        return tableConfig;
+    }
 
     /**
      * @return A new {@link ListModelLoader}, caching will override this loader instance.
      */
-    public ListModelLoader<TableClass> getListModelLoader() {
+    public ListModelLoader<TTable> getListModelLoader() {
         if (listModelLoader == null) {
             listModelLoader = createListModelLoader();
         }
@@ -64,11 +87,11 @@ public abstract class RetrievalAdapter<TModel extends Model, TableClass extends 
     /**
      * @return
      */
-    protected ListModelLoader<TableClass> createListModelLoader() {
+    protected ListModelLoader<TTable> createListModelLoader() {
         return new ListModelLoader<>(getModelClass());
     }
 
-    public SingleModelLoader<TableClass> getSingleModelLoader() {
+    public SingleModelLoader<TTable> getSingleModelLoader() {
         if (singleModelLoader == null) {
             singleModelLoader = createSingleModelLoader();
         }
@@ -77,28 +100,28 @@ public abstract class RetrievalAdapter<TModel extends Model, TableClass extends 
 
     /**
      * Overrides the default implementation and allows you to provide your own implementation. Defines
-     * how a single {@link TableClass} is loaded.
+     * how a single {@link TTable} is loaded.
      *
      * @param singleModelLoader The loader to use.
      */
-    public void setSingleModelLoader(@NonNull SingleModelLoader<TableClass> singleModelLoader) {
+    public void setSingleModelLoader(@NonNull SingleModelLoader<TTable> singleModelLoader) {
         this.singleModelLoader = singleModelLoader;
     }
 
     /**
      * Overrides the default implementation and allows you to provide your own implementation. Defines
-     * how a list of {@link TableClass} are loaded.
+     * how a list of {@link TTable} are loaded.
      *
      * @param listModelLoader The loader to use.
      */
-    public void setListModelLoader(@NonNull ListModelLoader<TableClass> listModelLoader) {
+    public void setListModelLoader(@NonNull ListModelLoader<TTable> listModelLoader) {
         this.listModelLoader = listModelLoader;
     }
 
     /**
      * @return A new {@link SingleModelLoader}, caching will override this loader instance.
      */
-    protected SingleModelLoader<TableClass> createSingleModelLoader() {
+    protected SingleModelLoader<TTable> createSingleModelLoader() {
         return new SingleModelLoader<>(getModelClass());
     }
 }

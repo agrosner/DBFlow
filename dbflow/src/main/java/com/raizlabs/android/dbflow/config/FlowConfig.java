@@ -34,6 +34,10 @@ public final class FlowConfig {
         return databaseConfigMap;
     }
 
+    public DatabaseConfig getConfigForDatabase(Class<?> databaseClass) {
+        return databaseConfigMap().get(databaseClass);
+    }
+
     @NonNull
     public Context getContext() {
         return context;

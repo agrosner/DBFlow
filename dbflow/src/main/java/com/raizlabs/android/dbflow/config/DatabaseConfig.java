@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.config;
 
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
 import java.util.HashMap;
@@ -56,6 +56,11 @@ public final class DatabaseConfig {
 
     public Map<Class<? extends Model>, TableConfig> tableConfigMap() {
         return tableConfigMap;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <TModel extends Model> TableConfig<TModel> getTableConfigForTable(Class<TModel> modelClass) {
+        return tableConfigMap().get(modelClass);
     }
 
     public static final class Builder {

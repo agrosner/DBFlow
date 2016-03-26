@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
@@ -30,6 +31,14 @@ public abstract class ModelContainerAdapter<TModel extends Model>
     private ModelAdapter<TModel> modelAdapter;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
+
+    public ModelContainerAdapter(DatabaseDefinition databaseDefinition) {
+        super(databaseDefinition);
+
+        if (getTableConfig() != null && getTableConfig().modelContainerLoader() != null) {
+            modelContainerLoader = getTableConfig().modelContainerLoader();
+        }
+    }
 
     /**
      * Saves the container to the DB.
