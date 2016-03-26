@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.test.transaction;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
@@ -120,7 +122,7 @@ public class TransactionsTest extends FlowTestCase {
                         .where(TestModel1_Table.name.like("%test1"))
         ).queryResult(new QueryTransaction.QueryResultCallback<TestModel1>() {
             @Override
-            public void onQueryResult(QueryTransaction transaction, CursorResult<TestModel1> tResult) {
+            public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
                 List<TestModel1> results = tResult.toList();
                 assertEquals(results.size(), 2);
                 called.set(true);

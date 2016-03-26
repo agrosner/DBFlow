@@ -8,16 +8,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Author: andrewgrosner
- * Description: Holds a {@link org.json.JSONArray} as an array of {@link com.raizlabs.android.dbflow.structure.container.JSONModel}.
- * All operations for {@link com.raizlabs.android.dbflow.structure.Model} are iterated to each inner
- * Model.
+ * Description: Holds a {@link JSONArray} as an array of {@link JSONModel}.
+ * All operations for {@link Model} are iterated to each inner {@link JSONObject} as {@link JSONModel}.
  */
-public class JSONArrayModel<ModelClass extends Model> implements Model {
+public class JSONArrayModel<TModel extends Model> implements Model {
 
     private JSONArray jsonArray;
 
-    private Class<ModelClass> table;
+    private Class<TModel> table;
 
     /**
      * Constructs a new instance with the specified array and table.
@@ -25,7 +23,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
      * @param jsonArray The array to back this model.
      * @param table     The table that corresponds to each model.
      */
-    public JSONArrayModel(JSONArray jsonArray, Class<ModelClass> table) {
+    public JSONArrayModel(JSONArray jsonArray, Class<TModel> table) {
         this.jsonArray = jsonArray;
         this.table = table;
     }
@@ -35,14 +33,14 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
      *
      * @param table The table that corresponds to each model.
      */
-    public JSONArrayModel(Class<ModelClass> table) {
+    public JSONArrayModel(Class<TModel> table) {
         this(new JSONArray(), table);
     }
 
     /**
-     * Dynamically adds another json object to this array. It should be of type {@link ModelClass}
+     * Dynamically adds another json object to this array. It should be of type {@link TModel}
      *
-     * @param jsonObject should correspond to a {@link ModelClass}
+     * @param jsonObject should correspond to a {@link TModel}
      */
     public void addJSONObject(JSONObject jsonObject) {
         jsonArray.put(jsonObject);
@@ -65,21 +63,21 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     }
 
     /**
-     * Returns the {@link ModelClass} representation of the object.
+     * Returns the {@link TModel} representation of the object.
      *
      * @param index The valid index
-     * @return The {@link ModelClass}
+     * @return The {@link TModel}
      */
-    public ModelClass getModelObject(int index) {
+    public TModel getModelObject(int index) {
         return getJsonModel(index).toModel();
     }
 
-    public JSONModel<ModelClass> getJsonModel(int index) {
+    public JSONModel<TModel> getJsonModel(int index) {
         return new JSONModel<>(getJSONObject(index), table);
     }
 
     /**
-     * @return The length of the backed {@link org.json.JSONArray}
+     * @return The length of the backed {@link JSONArray}
      */
     public int length() {
         return jsonArray != null ? jsonArray.length() : 0;
@@ -89,7 +87,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public void save() {
         if (jsonArray != null && jsonArray.length() > 0) {
             int length = jsonArray.length();
-            JSONModel<ModelClass> jsonModel = new JSONModel<>(table);
+            JSONModel<TModel> jsonModel = new JSONModel<>(table);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.data = jsonArray.getJSONObject(i);
@@ -105,7 +103,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public void delete() {
         if (jsonArray != null && jsonArray.length() > 0) {
             int length = jsonArray.length();
-            JSONModel<ModelClass> jsonModel = new JSONModel<>(table);
+            JSONModel<TModel> jsonModel = new JSONModel<>(table);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.data = jsonArray.getJSONObject(i);
@@ -121,7 +119,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public void update() {
         if (jsonArray != null && jsonArray.length() > 0) {
             int length = jsonArray.length();
-            JSONModel<ModelClass> jsonModel = new JSONModel<>(table);
+            JSONModel<TModel> jsonModel = new JSONModel<>(table);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.data = jsonArray.getJSONObject(i);
@@ -137,7 +135,7 @@ public class JSONArrayModel<ModelClass extends Model> implements Model {
     public void insert() {
         if (jsonArray != null && jsonArray.length() > 0) {
             int length = jsonArray.length();
-            JSONModel<ModelClass> jsonModel = new JSONModel<>(table);
+            JSONModel<TModel> jsonModel = new JSONModel<>(table);
             for (int i = 0; i < length; i++) {
                 try {
                     jsonModel.data = jsonArray.getJSONObject(i);

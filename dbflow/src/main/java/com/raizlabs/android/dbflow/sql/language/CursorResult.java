@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
@@ -19,7 +20,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
     private final Cursor cursor;
 
     @SuppressWarnings("unchecked")
-    CursorResult(Class<TModel> modelClass, Cursor cursor) {
+    CursorResult(Class<TModel> modelClass, @Nullable Cursor cursor) {
         this.cursor = cursor;
         retrievalAdapter = FlowManager.getInstanceAdapter(modelClass);
     }
@@ -56,6 +57,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
         return cursor.getCount();
     }
 
+    @Nullable
     public Cursor getCursor() {
         return cursor;
     }

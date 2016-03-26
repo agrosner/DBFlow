@@ -12,14 +12,14 @@ import java.util.Set;
 /**
  * Description: The main configuration instance for DBFlow. This
  */
-public class FlowConfig {
+public final class FlowConfig {
 
     private final Set<Class<? extends DatabaseHolder>> databaseHolders;
     private final Map<Class<?>, DatabaseConfig> databaseConfigMap;
     private final Context context;
     private final boolean openDatabasesOnInit;
 
-    private FlowConfig(Builder builder) {
+    FlowConfig(Builder builder) {
         databaseHolders = Collections.unmodifiableSet(builder.databaseHolders);
         databaseConfigMap = builder.databaseConfigMap;
         context = builder.context;

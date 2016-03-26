@@ -16,28 +16,28 @@ import java.util.Iterator;
  * Description: This eliminates the need for converting json into a {@link com.raizlabs.android.dbflow.structure.Model}
  * and then saving to the DB. Let this class handle the saving for you.
  */
-public class JSONModel<ModelClass extends Model> extends BaseModelContainer<ModelClass, JSONObject> implements Model {
+public class JSONModel<TModel extends Model> extends BaseModelContainer<TModel, JSONObject> implements Model {
 
     /**
-     * Constructs this object with the {@link org.json.JSONObject} for the specified {@link ModelClass} table.
+     * Constructs this object with the {@link org.json.JSONObject} for the specified {@link TModel} table.
      *
      * @param jsonObject The json to reference in {@link com.raizlabs.android.dbflow.structure.Model} operations
      * @param table      The table of the referenced model
      */
-    public JSONModel(JSONObject jsonObject, Class<ModelClass> table) {
+    public JSONModel(JSONObject jsonObject, Class<TModel> table) {
         super(table, jsonObject);
     }
 
     /**
-     * Constructs this object with an empty {@link org.json.JSONObject} referencing the {@link ModelClass} table.
+     * Constructs this object with an empty {@link org.json.JSONObject} referencing the {@link TModel} table.
      *
      * @param table The table of the referenced model
      */
-    public JSONModel(Class<ModelClass> table) {
+    public JSONModel(Class<TModel> table) {
         super(table, new JSONObject());
     }
 
-    public JSONModel(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+    public JSONModel(@NonNull ModelContainer<TModel, ?> existingContainer) {
         super(existingContainer);
     }
 

@@ -7,12 +7,12 @@ import com.raizlabs.android.dbflow.structure.Model;
  * Description: Provides an {@link com.raizlabs.android.dbflow.structure.cache.LruCache} under its hood
  * and provides synchronization mechanisms.
  */
-public class ModelLruCache<ModelClass extends Model> extends ModelCache<ModelClass, LruCache<Long, ModelClass>> {
+public class ModelLruCache<TModel extends Model> extends ModelCache<TModel, LruCache<Long, TModel>> {
 
     /**
      * @param size The size, if less than or equal to 0 we set it to {@link Table#DEFAULT_CACHE_SIZE}.
      */
-    public static <ModelClass extends Model> ModelLruCache<ModelClass> newInstance(int size) {
+    public static <TModel extends Model> ModelLruCache<TModel> newInstance(int size) {
         if (size <= 0) {
             size = Table.DEFAULT_CACHE_SIZE;
         }
@@ -20,11 +20,11 @@ public class ModelLruCache<ModelClass extends Model> extends ModelCache<ModelCla
     }
 
     protected ModelLruCache(int size) {
-        super(new LruCache<Long, ModelClass>(size));
+        super(new LruCache<Long, TModel>(size));
     }
 
     @Override
-    public void addModel(Object id, ModelClass model) {
+    public void addModel(Object id, TModel model) {
         if (id instanceof Number) {
             synchronized (getCache()) {
                 Number number = ((Number) id);
@@ -37,8 +37,8 @@ public class ModelLruCache<ModelClass extends Model> extends ModelCache<ModelCla
     }
 
     @Override
-    public ModelClass removeModel(Object id) {
-        ModelClass model;
+    public TModel removeModel(Object id) {
+        TModel model;
         if (id instanceof Number) {
             synchronized (getCache()) {
                 model = getCache().remove(((Number) id).longValue());
@@ -63,7 +63,7 @@ public class ModelLruCache<ModelClass extends Model> extends ModelCache<ModelCla
     }
 
     @Override
-    public ModelClass get(Object id) {
+    public TModel get(Object id) {
         if (id instanceof Number) {
             return getCache().get(((Number) id).longValue());
         } else {

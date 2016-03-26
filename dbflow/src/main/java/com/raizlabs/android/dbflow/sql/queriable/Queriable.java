@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
@@ -17,6 +18,7 @@ public interface Queriable {
     /**
      * @return A cursor from the DB based on this query
      */
+    @Nullable
     Cursor query();
 
     /**
@@ -25,6 +27,7 @@ public interface Queriable {
      * @param databaseWrapper The wrapper to pass in.
      * @return A cursor from the DB based on this query
      */
+    @Nullable
     Cursor query(DatabaseWrapper databaseWrapper);
 
 

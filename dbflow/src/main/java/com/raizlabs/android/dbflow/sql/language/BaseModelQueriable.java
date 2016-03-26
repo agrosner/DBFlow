@@ -20,64 +20,64 @@ import java.util.List;
  * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code. It provides the
  * default implementation for convenience.
  */
-public abstract class BaseModelQueriable<ModelClass extends Model> extends BaseQueriable<ModelClass> implements ModelQueriable<ModelClass>, Query {
+public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueriable<TModel> implements ModelQueriable<TModel>, Query {
 
-    private final InstanceAdapter<?, ModelClass> retrievalAdapter;
+    private final InstanceAdapter<?, TModel> retrievalAdapter;
 
     /**
      * Constructs new instance of this class and is meant for subclasses only.
      *
      * @param table the table that belongs to this query.
      */
-    protected BaseModelQueriable(Class<ModelClass> table) {
+    protected BaseModelQueriable(Class<TModel> table) {
         super(table);
         //noinspection unchecked
         retrievalAdapter = FlowManager.getInstanceAdapter(table);
     }
 
     @Override
-    public CursorResult<ModelClass> queryResults() {
+    public CursorResult<TModel> queryResults() {
         return new CursorResult<>(retrievalAdapter.getModelClass(), query());
     }
 
     @Override
-    public List<ModelClass> queryList() {
+    public List<TModel> queryList() {
         return retrievalAdapter.getListModelLoader().load(getQuery());
     }
 
     @Override
-    public ModelClass querySingle() {
+    public TModel querySingle() {
         return retrievalAdapter.getSingleModelLoader().load(getQuery());
     }
 
     @Override
-    public ModelClass querySingle(DatabaseWrapper wrapper) {
+    public TModel querySingle(DatabaseWrapper wrapper) {
         return retrievalAdapter.getSingleModelLoader().load(wrapper, getQuery());
     }
 
     @Override
-    public List<ModelClass> queryList(DatabaseWrapper wrapper) {
+    public List<TModel> queryList(DatabaseWrapper wrapper) {
         return retrievalAdapter.getListModelLoader().load(wrapper, getQuery());
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {
+    public <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {
         return (ModelContainerClass) FlowManager.getContainerAdapter(getTable()).getModelContainerLoader().load(getQuery(), instance);
     }
 
     @Override
-    public FlowCursorList<ModelClass> queryCursorList() {
+    public FlowCursorList<TModel> queryCursorList() {
         return new FlowCursorList<>(false, this);
     }
 
     @Override
-    public FlowQueryList<ModelClass> queryTableList() {
+    public FlowQueryList<TModel> queryTableList() {
         return new FlowQueryList<>(this);
     }
 
     @Override
-    public AsyncQuery<ModelClass> async() {
+    public AsyncQuery<TModel> async() {
         return new AsyncQuery<>(this);
     }
 

@@ -20,23 +20,23 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: Defines how models get saved into the DB. It will bind values to {@link android.content.ContentValues} for
  * an update, execute a {@link DatabaseStatement}, or delete an object via the {@link Delete} wrapper.
  */
-public class ModelSaver<ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter> {
+public class ModelSaver<TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter> {
 
-    private final ModelAdapter<ModelClass> modelAdapter;
-    private final AdapterClass adapter;
+    private final ModelAdapter<TModel> modelAdapter;
+    private final TAdapter adapter;
 
-    public ModelSaver(ModelAdapter<ModelClass> modelAdapter, AdapterClass adapter) {
+    public ModelSaver(ModelAdapter<TModel> modelAdapter, TAdapter adapter) {
         this.modelAdapter = modelAdapter;
         this.adapter = adapter;
     }
 
-    public void save(TableClass model) {
+    public void save(TTable model) {
         DatabaseWrapper wrapper = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
         save(model, wrapper);
     }
 
     @SuppressWarnings("unchecked")
-    public void save(TableClass model, DatabaseWrapper wrapper) {
+    public void save(TTable model, DatabaseWrapper wrapper) {
         if (model == null) {
             throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
         }
@@ -54,12 +54,12 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
         SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.SAVE);
     }
 
-    public boolean update(TableClass model) {
+    public boolean update(TTable model) {
         return update(model, FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
-    public boolean update(TableClass model, DatabaseWrapper wrapper) {
+    public boolean update(TTable model, DatabaseWrapper wrapper) {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         boolean successful = SQLiteCompatibilityUtils.updateWithOnConflict(wrapper,
@@ -72,7 +72,7 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
     }
 
     @SuppressWarnings("unchecked")
-    public long insert(TableClass model, DatabaseWrapper wrapper) {
+    public long insert(TTable model, DatabaseWrapper wrapper) {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
@@ -84,7 +84,7 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
     }
 
     @SuppressWarnings("unchecked")
-    public long insert(TableClass model) {
+    public long insert(TTable model) {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
@@ -95,13 +95,13 @@ public class ModelSaver<ModelClass extends Model, TableClass extends Model, Adap
         return id;
     }
 
-    public boolean delete(TableClass model) {
+    public boolean delete(TTable model) {
         return delete(model, FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
-    public boolean delete(TableClass model, DatabaseWrapper wrapper) {
-        boolean successful = SQLite.delete((Class<TableClass>) adapter.getModelClass()).where(
+    public boolean delete(TTable model, DatabaseWrapper wrapper) {
+        boolean successful = SQLite.delete((Class<TTable>) adapter.getModelClass()).where(
             adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);

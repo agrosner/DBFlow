@@ -9,10 +9,10 @@ import java.util.Map;
 /**
  * Description:
  */
-public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelClass, Map<String, ModelClass>> {
+public class SimpleMapCache<TModel extends Model> extends ModelCache<TModel, Map<String, TModel>> {
 
     public SimpleMapCache() {
-        super(new HashMap<String, ModelClass>());
+        super(new HashMap<String, TModel>());
     }
 
     /**
@@ -20,17 +20,17 @@ public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelCl
      *
      * @param cache The arbitrary underlying cache class.
      */
-    public SimpleMapCache(Map<String, ModelClass> cache) {
+    public SimpleMapCache(Map<String, TModel> cache) {
         super(cache);
     }
 
     @Override
-    public void addModel(Object id, ModelClass model) {
+    public void addModel(Object id, TModel model) {
         getCache().put(String.valueOf(id), model);
     }
 
     @Override
-    public ModelClass removeModel(Object id) {
+    public TModel removeModel(Object id) {
         return getCache().remove(id);
     }
 
@@ -40,7 +40,7 @@ public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelCl
     }
 
     @Override
-    public ModelClass get(Object id) {
+    public TModel get(Object id) {
         return getCache().get(id);
     }
 

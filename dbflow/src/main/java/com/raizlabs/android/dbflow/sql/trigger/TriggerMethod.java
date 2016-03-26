@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: Describes the method that the trigger uses.
  */
-public class TriggerMethod<ModelClass extends Model> implements Query {
+public class TriggerMethod<TModel extends Model> implements Query {
 
     public static final String DELETE = "DELETE";
     public static final String INSERT = "INSERT";
@@ -23,11 +23,11 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
     /**
      * The table we're operating on.
      */
-    Class<ModelClass> onTable;
+    Class<TModel> onTable;
     boolean forEachRow = false;
     private SQLCondition whenCondition;
 
-    TriggerMethod(Trigger trigger, String methodName, Class<ModelClass> onTable, IProperty... properties) {
+    TriggerMethod(Trigger trigger, String methodName, Class<TModel> onTable, IProperty... properties) {
         this.trigger = trigger;
         this.methodName = methodName;
         this.onTable = onTable;
@@ -39,7 +39,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
         }
     }
 
-    public TriggerMethod<ModelClass> forEachRow() {
+    public TriggerMethod<TModel> forEachRow() {
         forEachRow = true;
         return this;
     }
@@ -50,7 +50,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
      * @param condition The condition for the trigger
      * @return
      */
-    public TriggerMethod<ModelClass> when(SQLCondition condition) {
+    public TriggerMethod<TModel> when(SQLCondition condition) {
         whenCondition = condition;
         return this;
     }
@@ -63,7 +63,7 @@ public class TriggerMethod<ModelClass extends Model> implements Query {
      * @param triggerLogicQuery The query to run for the BEGIN..END of the trigger
      * @return This trigger
      */
-    public CompletedTrigger<ModelClass> begin(Query triggerLogicQuery) {
+    public CompletedTrigger<TModel> begin(Query triggerLogicQuery) {
         return new CompletedTrigger<>(this, triggerLogicQuery);
     }
 

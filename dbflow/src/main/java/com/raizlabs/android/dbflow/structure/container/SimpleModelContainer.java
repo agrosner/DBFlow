@@ -8,17 +8,18 @@ import com.raizlabs.android.dbflow.structure.Model;
  * Description: Provides a simple implementation of most of the value conversion methods. This simplifies other
  * model containers that use {@link #getValue(String)} as a retrieval and will coerce its values into proper types.
  */
-public abstract class SimpleModelContainer<ModelClass extends Model, DataClass> extends BaseModelContainer<ModelClass, DataClass> {
+public abstract class SimpleModelContainer<TModel extends Model, DataClass>
+        extends BaseModelContainer<TModel, DataClass> {
 
-    public SimpleModelContainer(Class<ModelClass> table) {
+    public SimpleModelContainer(Class<TModel> table) {
         super(table);
     }
 
-    public SimpleModelContainer(Class<ModelClass> table, DataClass data) {
+    public SimpleModelContainer(Class<TModel> table, DataClass data) {
         super(table, data);
     }
 
-    public SimpleModelContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+    public SimpleModelContainer(@NonNull ModelContainer<TModel, ?> existingContainer) {
         super(existingContainer);
     }
 

@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
@@ -19,36 +20,41 @@ import java.util.List;
  * Description: An interface for query objects to enable you to query from the database in a structured way.
  * Examples of such statements are: {@link From}, {@link Where}, {@link StringQuery}
  */
-public interface ModelQueriable<ModelClass extends Model> extends Queriable {
+public interface ModelQueriable<TModel extends Model> extends Queriable {
 
     /**
      * @return A wrapper class around {@link Cursor} that allows you to convert its data into results.
      */
-    CursorResult<ModelClass> queryResults();
+    @NonNull
+    CursorResult<TModel> queryResults();
 
     /**
      * @return a list of model converted items
      */
-    List<ModelClass> queryList();
+    @NonNull
+    List<TModel> queryList();
 
     /**
      * Allows you to specify a DB, useful for migrations.
      *
      * @return a list of model converted items
      */
-    List<ModelClass> queryList(DatabaseWrapper wrapper);
+    @NonNull
+    List<TModel> queryList(DatabaseWrapper wrapper);
 
     /**
      * @return Single model, the first of potentially many results
      */
-    ModelClass querySingle();
+    @Nullable
+    TModel querySingle();
 
     /**
      * Allows you to specify a DB, useful for migrations.
      *
      * @return Single model, the first of potentially many results
      */
-    ModelClass querySingle(DatabaseWrapper wrapper);
+    @Nullable
+    TModel querySingle(DatabaseWrapper wrapper);
 
     /**
      * Queries and populates the specified {@link ModelContainer} from the database.
@@ -57,46 +63,46 @@ public interface ModelQueriable<ModelClass extends Model> extends Queriable {
      * @param <DataClass> The kind of data that the instance provides.
      * @return The specified instance populated from the DB.
      */
-    <ModelContainerClass extends ModelContainer<ModelClass, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance);
+    <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance);
 
     /**
      * @return the table that this query comes from.
      */
-    Class<ModelClass> getTable();
+    Class<TModel> getTable();
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
      * cache models dynamically by setting {@link com.raizlabs.android.dbflow.list.FlowCursorList#setCacheModels(boolean)} to true.
      */
-    FlowCursorList<ModelClass> queryCursorList();
+    FlowCursorList<TModel> queryCursorList();
 
     /**
      * @return A cursor-backed {@link java.util.List} that handles conversion, retrieval, caching, content changes,
      * and more.
      */
-    FlowQueryList<ModelClass> queryTableList();
+    FlowQueryList<TModel> queryTableList();
 
     /**
      * @return an async version of this query to run.
      */
-    AsyncQuery<ModelClass> async();
+    AsyncQuery<TModel> async();
 
     /**
-     * Returns a {@link List} based on the custom {@link QueryClass} you pass in.
+     * Returns a {@link List} based on the custom {@link TQueryModel} you pass in.
      *
      * @param queryModelClass The query model class to use.
-     * @param <QueryClass>    The class that extends {@link BaseQueryModel}
+     * @param <TQueryModel>    The class that extends {@link BaseQueryModel}
      * @return A list of custom models that are not tied to a table.
      */
-    <QueryClass extends BaseQueryModel> List<QueryClass> queryCustomList(Class<QueryClass> queryModelClass);
+    <TQueryModel extends BaseQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
 
     /**
-     * Returns a single {@link QueryClass} from this query.
+     * Returns a single {@link TQueryModel} from this query.
      *
      * @param queryModelClass The class to use.
-     * @param <QueryClass>    The class that extends {@link BaseQueryModel}
+     * @param <TQueryModel>    The class that extends {@link BaseQueryModel}
      * @return A single model from the query.
      */
-    <QueryClass extends BaseQueryModel> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass);
+    <TQueryModel extends BaseQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
 
 }

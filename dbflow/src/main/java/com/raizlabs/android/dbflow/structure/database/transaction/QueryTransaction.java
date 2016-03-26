@@ -25,7 +25,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
          * @param transaction The transaction that ran.
          * @param tResult     The result of the query. Use this object to get data that you need.
          */
-        void onQueryResult(QueryTransaction transaction, CursorResult<TResult> tResult);
+        void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TResult> tResult);
     }
 
     final ModelQueriable<TResult> modelQueriable;

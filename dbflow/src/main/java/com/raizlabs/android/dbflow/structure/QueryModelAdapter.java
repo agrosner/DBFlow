@@ -8,20 +8,21 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: The baseclass for adapters to {@link QueryModel} that defines how it interacts with the DB. The
  * where query is not defined here, rather its determined by the query used.
  */
-public abstract class QueryModelAdapter<ModelClass extends Model> extends InstanceAdapter<ModelClass, ModelClass> {
+public abstract class QueryModelAdapter<TQueryModel extends BaseQueryModel> extends
+        InstanceAdapter<TQueryModel, TQueryModel> {
 
     @Override
-    public ConditionGroup getPrimaryConditionClause(ModelClass model) {
+    public ConditionGroup getPrimaryConditionClause(TQueryModel model) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 
     @Override
-    public boolean exists(ModelClass model) {
+    public boolean exists(TQueryModel model) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 
     @Override
-    public boolean exists(ModelClass model, DatabaseWrapper databaseWrapper) {
+    public boolean exists(TQueryModel model, DatabaseWrapper databaseWrapper) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 }

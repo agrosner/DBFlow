@@ -136,17 +136,17 @@ public class SqlUtils {
     }
 
     /**
-     * Loops through a cursor and builds a list of {@link ModelClass} objects.
+     * Loops through a cursor and builds a list of {@link TModel} objects.
      *
      * @param table        The model class that we convert the cursor data into.
      * @param cursor       The cursor from the DB
-     * @param <ModelClass> The class that implements {@link Model}
+     * @param <TModel> The class that implements {@link Model}
      * @return An non-null {@link List}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
-    public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
-        final List<ModelClass> entities = new ArrayList<>();
+    public static <TModel extends Model> List<TModel> convertToList(Class<TModel> table, Cursor cursor) {
+        final List<TModel> entities = new ArrayList<>();
         InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
         if (modelAdapter != null) {
             // Ensure that we aren't iterating over this cursor concurrently from different threads
@@ -155,7 +155,7 @@ public class SqlUtils {
                     do {
                         Model model = modelAdapter.newInstance();
                         modelAdapter.loadFromCursor(cursor, model);
-                        entities.add((ModelClass) model);
+                        entities.add((TModel) model);
                     }
                     while (cursor.moveToNext());
                 }
@@ -166,24 +166,24 @@ public class SqlUtils {
     }
 
     /**
-     * Takes first {@link ModelClass} from the cursor
+     * Takes first {@link TModel} from the cursor
      *
      * @param dontMoveToFirst If it's a list or at a specific position, do not reset the cursor
      * @param table           The model class that we convert the cursor data into.
      * @param cursor          The cursor from the DB
-     * @param <ModelClass>    The class that implements {@link Model}
+     * @param <TModel>    The class that implements {@link Model}
      * @return A model transformed from the {@link Cursor}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
-    public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table,
-                                                                       Cursor cursor) {
-        ModelClass model = null;
+    public static <TModel extends Model> TModel convertToModel(boolean dontMoveToFirst, Class<TModel> table,
+                                                               Cursor cursor) {
+        TModel model = null;
         if (dontMoveToFirst || cursor.moveToFirst()) {
             InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
 
             if (modelAdapter != null) {
-                model = (ModelClass) modelAdapter.newInstance();
+                model = (TModel) modelAdapter.newInstance();
                 modelAdapter.loadFromCursor(cursor, model);
             }
         }

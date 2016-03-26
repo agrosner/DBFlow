@@ -15,7 +15,6 @@ import java.lang.ref.WeakReference;
  */
 public class AsyncModel<TModel extends Model> implements Model {
 
-
     /**
      * Listens for when this {@link Model} modification completes.
      */
@@ -43,7 +42,6 @@ public class AsyncModel<TModel extends Model> implements Model {
      * call to those the listener is nulled out.
      *
      * @param onModelChangedListener The listener to use for a corresponding call to a method.
-     * @return This instance.
      */
     public AsyncModel<TModel> withListener(OnModelChangedListener onModelChangedListener) {
         this.onModelChangedListener = new WeakReference<>(onModelChangedListener);
@@ -52,15 +50,15 @@ public class AsyncModel<TModel extends Model> implements Model {
 
     /**
      * Listen for any errors that occur during operations on this {@link AsyncModel}.
-     *
-     * @param errorCallback The error callback.
-     * @return This instance.
      */
     public AsyncModel<TModel> error(Transaction.Error errorCallback) {
         this.errorCallback = errorCallback;
         return this;
     }
 
+    /**
+     * Listens for successes on this {@link AsyncModel}. Will return the {@link Transaction}.
+     */
     public AsyncModel<TModel> success(Transaction.Success success) {
         this.successCallback = success;
         return this;

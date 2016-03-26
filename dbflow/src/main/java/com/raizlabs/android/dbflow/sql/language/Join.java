@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Description: Specifies a SQLite JOIN statement
  */
-public class Join<ModelClass extends Model, FromClass extends Model> implements Query {
+public class Join<TModel extends Model, TFromModel extends Model> implements Query {
 
     /**
      * The specific type of JOIN that is used.
@@ -52,7 +52,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     /**
      * The table to JOIN on
      */
-    private Class<ModelClass> table;
+    private Class<TModel> table;
 
     /**
      * The type of JOIN to use
@@ -62,7 +62,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     /**
      * The FROM statement that prefixes this statement.
      */
-    private From<FromClass> from;
+    private From<TFromModel> from;
 
     /**
      * The alias to name the JOIN
@@ -84,7 +84,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      */
     private boolean isNatural = false;
 
-    Join(From<FromClass> from, Class<ModelClass> table, @NonNull JoinType joinType) {
+    Join(From<TFromModel> from, Class<TModel> table, @NonNull JoinType joinType) {
         this.from = from;
         this.table = table;
         type = joinType;
@@ -97,7 +97,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @param alias The name to give it
      * @return This instance
      */
-    public Join<ModelClass, FromClass> as(String alias) {
+    public Join<TModel, TFromModel> as(String alias) {
         this.alias.as(alias);
         return this;
     }
@@ -107,7 +107,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      *
      * @return The FROM that this JOIN came from.
      */
-    public From<FromClass> natural() {
+    public From<TFromModel> natural() {
         isNatural = true;
         return from;
     }
@@ -118,7 +118,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @param onConditions The conditions it is on
      * @return The FROM that this JOIN came from
      */
-    public From<FromClass> on(SQLCondition... onConditions) {
+    public From<TFromModel> on(SQLCondition... onConditions) {
         on = new ConditionGroup();
         on.andAll(onConditions);
         return from;
@@ -130,7 +130,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @param columns THe columns to use
      * @return The FROM that this JOIN came from
      */
-    public From<FromClass> using(IProperty... columns) {
+    public From<TFromModel> using(IProperty... columns) {
         Collections.addAll(using, columns);
         return from;
     }

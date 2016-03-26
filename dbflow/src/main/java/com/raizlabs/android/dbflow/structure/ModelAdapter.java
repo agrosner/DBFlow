@@ -22,14 +22,14 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Author: andrewgrosner
  * Description: Internal adapter that gets extended when a {@link Table} gets used.
  */
-public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAdapter<ModelClass, ModelClass>
-    implements InternalAdapter<ModelClass, ModelClass> {
+public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter<TModel, TModel>
+    implements InternalAdapter<TModel> {
 
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
-    private ModelCache<ModelClass, ?> modelCache;
-    private ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> modelSaver;
+    private ModelCache<TModel, ?> modelCache;
+    private ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver;
 
     /**
      * @return The precompiled insert statement for this table model adapter
@@ -74,13 +74,13 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     }
 
     /**
-     * Creates a new {@link ModelClass} and Loads the cursor into a the object.
+     * Creates a new {@link TModel} and Loads the cursor into a the object.
      *
      * @param cursor The cursor to load
-     * @return A new {@link ModelClass}
+     * @return A new {@link TModel}
      */
-    public ModelClass loadFromCursor(Cursor cursor) {
-        ModelClass model = newInstance();
+    public TModel loadFromCursor(Cursor cursor) {
+        TModel model = newInstance();
         loadFromCursor(cursor, model);
         return model;
     }
@@ -91,12 +91,12 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      * @param model The model to save/insert/update
      */
     @Override
-    public void save(ModelClass model) {
+    public void save(TModel model) {
         getModelSaver().save(model);
     }
 
     @Override
-    public void save(ModelClass model, DatabaseWrapper databaseWrapper) {
+    public void save(TModel model, DatabaseWrapper databaseWrapper) {
         getModelSaver().save(model, databaseWrapper);
     }
 
@@ -106,12 +106,12 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      * @param model The model to insert.
      */
     @Override
-    public void insert(ModelClass model) {
+    public void insert(TModel model) {
         getModelSaver().insert(model);
     }
 
     @Override
-    public void insert(ModelClass model, DatabaseWrapper databaseWrapper) {
+    public void insert(TModel model, DatabaseWrapper databaseWrapper) {
         getModelSaver().insert(model, databaseWrapper);
     }
 
@@ -121,12 +121,12 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      * @param model The model to update.
      */
     @Override
-    public void update(ModelClass model) {
+    public void update(TModel model) {
         getModelSaver().update(model);
     }
 
     @Override
-    public void update(ModelClass model, DatabaseWrapper databaseWrapper) {
+    public void update(TModel model, DatabaseWrapper databaseWrapper) {
         getModelSaver().update(model, databaseWrapper);
     }
 
@@ -136,17 +136,17 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      * @param model The model to delete
      */
     @Override
-    public void delete(ModelClass model) {
+    public void delete(TModel model) {
         getModelSaver().delete(model);
     }
 
     @Override
-    public void delete(ModelClass model, DatabaseWrapper databaseWrapper) {
+    public void delete(TModel model, DatabaseWrapper databaseWrapper) {
         getModelSaver().delete(model, databaseWrapper);
     }
 
     @Override
-    public void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelClass model) {
+    public void bindToInsertStatement(DatabaseStatement sqLiteStatement, TModel model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
     }
 
@@ -158,16 +158,16 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      * @param id    The key to store
      */
     @Override
-    public void updateAutoIncrement(ModelClass model, Number id) {
+    public void updateAutoIncrement(TModel model, Number id) {
 
     }
 
     /**
      * @return The value for the {@link PrimaryKey#autoincrement()}
-     * if it has the field. This method is overridden when its specified for the {@link ModelClass}
+     * if it has the field. This method is overridden when its specified for the {@link TModel}
      */
     @Override
-    public Number getAutoIncrementingId(ModelClass model) {
+    public Number getAutoIncrementingId(TModel model) {
         throw new InvalidDBConfiguration(
             String.format("This method may have been called in error. The model class %1s must contain" +
                     "a single primary key (if used in a ModelCache, this method may be called)",
@@ -176,7 +176,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
 
     /**
      * @return The autoincrement column name for the {@link PrimaryKey#autoincrement()}
-     * if it has the field. This method is overridden when its specified for the {@link ModelClass}
+     * if it has the field. This method is overridden when its specified for the {@link TModel}
      */
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
@@ -216,20 +216,20 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
     }
 
     /**
-     * Loads all primary keys from the {@link ModelClass} into the inValues. The size of the array must
+     * Loads all primary keys from the {@link TModel} into the inValues. The size of the array must
      * match all primary keys. This method gets generated when caching is enabled. It converts the primary fields
-     * of the {@link ModelClass} into the array of values the caching mechanism uses.
+     * of the {@link TModel} into the array of values the caching mechanism uses.
      *
      * @param inValues   The reusable array of values to populate.
-     * @param modelClass The model to load from.
+     * @param TModel The model to load from.
      * @return The populated set of values to load from cache.
      */
-    public Object[] getCachingColumnValuesFromModel(Object[] inValues, ModelClass modelClass) {
+    public Object[] getCachingColumnValuesFromModel(Object[] inValues, TModel TModel) {
         throwCachingError();
         return null;
     }
 
-    public ModelCache<ModelClass, ?> getModelCache() {
+    public ModelCache<TModel, ?> getModelCache() {
         if (modelCache == null) {
             modelCache = createModelCache();
         }
@@ -245,11 +245,11 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
         }
     }
 
-    public Object getCachingId(@NonNull ModelClass model) {
+    public Object getCachingId(@NonNull TModel model) {
         return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
     }
 
-    public ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> getModelSaver() {
+    public ModelSaver<TModel, TModel, ModelAdapter<TModel>> getModelSaver() {
         if (modelSaver == null) {
             modelSaver = new ModelSaver<>(this, this);
         }
@@ -261,7 +261,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver<ModelClass, ModelClass, ModelAdapter<ModelClass>> modelSaver) {
+    public void setModelSaver(ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver) {
         this.modelSaver = modelSaver;
     }
 
@@ -271,7 +271,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
      *
      * @param cursor The cursor to reload from.
      */
-    public void reloadRelationships(@NonNull ModelClass model, Cursor cursor) {
+    public void reloadRelationships(@NonNull TModel model, Cursor cursor) {
         throwCachingError();
     }
 
@@ -290,7 +290,7 @@ public abstract class ModelAdapter<ModelClass extends Model> extends InstanceAda
             "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
     }
 
-    public ModelCache<ModelClass, ?> createModelCache() {
+    public ModelCache<TModel, ?> createModelCache() {
         return new SimpleMapCache<>(getCacheSize());
     }
 

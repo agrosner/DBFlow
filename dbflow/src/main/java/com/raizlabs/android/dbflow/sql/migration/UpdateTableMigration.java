@@ -15,12 +15,12 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * It ties an SQLite {@link com.raizlabs.android.dbflow.sql.language.Update}
  * to migrations whenever we want to batch update tables in a structured manner.
  */
-public class UpdateTableMigration<ModelClass extends Model> extends BaseMigration implements Query {
+public class UpdateTableMigration<TModel extends Model> extends BaseMigration implements Query {
 
     /**
      * The table to update
      */
-    private final Class<ModelClass> table;
+    private final Class<TModel> table;
 
     /**
      * The query to use
@@ -42,7 +42,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      *
      * @param table The table to update
      */
-    public UpdateTableMigration(Class<ModelClass> table) {
+    public UpdateTableMigration(Class<TModel> table) {
         this.table = table;
     }
 
@@ -52,7 +52,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
      *
      * @param conditions The conditions to append
      */
-    public UpdateTableMigration<ModelClass> set(SQLCondition... conditions) {
+    public UpdateTableMigration<TModel> set(SQLCondition... conditions) {
         if (setConditionGroup == null) {
             setConditionGroup = ConditionGroup.nonGroupingClause();
         }
@@ -61,7 +61,7 @@ public class UpdateTableMigration<ModelClass extends Model> extends BaseMigratio
         return this;
     }
 
-    public UpdateTableMigration<ModelClass> where(SQLCondition... conditions) {
+    public UpdateTableMigration<TModel> where(SQLCondition... conditions) {
         if (whereConditionGroup == null) {
             whereConditionGroup = ConditionGroup.nonGroupingClause();
         }

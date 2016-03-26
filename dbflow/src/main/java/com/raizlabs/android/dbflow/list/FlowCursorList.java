@@ -16,13 +16,13 @@ import java.util.List;
 /**
  * Description: A non-modifiable, cursor-backed list that you can use in {@link android.widget.ListView} or other data sources.
  */
-public class FlowCursorList<ModelClass extends Model> {
+public class FlowCursorList<TModel extends Model> {
 
     private Cursor cursor;
-    private Class<ModelClass> table;
-    private ModelCache<ModelClass, ?> modelCache;
+    private Class<TModel> table;
+    private ModelCache<TModel, ?> modelCache;
     private boolean cacheModels;
-    private ModelQueriable<ModelClass> modelQueriable;
+    private ModelQueriable<TModel> modelQueriable;
     private int cacheSize;
 
     /**
@@ -31,7 +31,7 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param cacheSize      The size of models to cache.
      * @param modelQueriable The SQL where query to use when doing a query.
      */
-    public FlowCursorList(int cacheSize, ModelQueriable<ModelClass> modelQueriable) {
+    public FlowCursorList(int cacheSize, ModelQueriable<TModel> modelQueriable) {
         this(false, modelQueriable);
         setCacheModels(true, cacheSize);
     }
@@ -40,10 +40,10 @@ public class FlowCursorList<ModelClass extends Model> {
      * Constructs an instance of this list.
      *
      * @param cacheModels    For every call to {@link #getItem(long)}, we want to keep a reference to it so
-     *                       we do not need to convert the cursor data back into a {@link ModelClass} again.
+     *                       we do not need to convert the cursor data back into a {@link TModel} again.
      * @param modelQueriable The SQL where query to use when doing a query.
      */
-    public FlowCursorList(boolean cacheModels, ModelQueriable<ModelClass> modelQueriable) {
+    public FlowCursorList(boolean cacheModels, ModelQueriable<TModel> modelQueriable) {
         this.modelQueriable = modelQueriable;
         cursor = this.modelQueriable.query();
         table = modelQueriable.getTable();
@@ -55,11 +55,11 @@ public class FlowCursorList<ModelClass extends Model> {
      * Constructs an instance of this list.
      *
      * @param cacheModels For every call to {@link #getItem(long)}, do we want to keep a reference to it so
-     *                    we do not need to convert the cursor data back into a {@link ModelClass} again.
+     *                    we do not need to convert the cursor data back into a {@link TModel} again.
      * @param table       The table to query from
      * @param conditions  The set of {@link SQLCondition} to query with
      */
-    public FlowCursorList(boolean cacheModels, Class<ModelClass> table, SQLCondition... conditions) {
+    public FlowCursorList(boolean cacheModels, Class<TModel> table, SQLCondition... conditions) {
         this(cacheModels, new Select().from(table).where(conditions));
     }
 
@@ -70,7 +70,7 @@ public class FlowCursorList<ModelClass extends Model> {
      * @param table      The table to query from
      * @param conditions The set of {@link SQLCondition} to query with
      */
-    public FlowCursorList(int cacheSize, Class<ModelClass> table, SQLCondition... conditions) {
+    public FlowCursorList(int cacheSize, Class<TModel> table, SQLCondition... conditions) {
         this(false, new Select().from(table).where(conditions));
         setCacheModels(true, cacheSize);
     }
@@ -107,12 +107,12 @@ public class FlowCursorList<ModelClass extends Model> {
         }
     }
 
-    protected ModelCache<ModelClass, ?> getBackingCache() {
+    protected ModelCache<TModel, ?> getBackingCache() {
         return ModelLruCache.newInstance(cacheSize);
     }
 
     /**
-     * Clears the {@link ModelClass} cache if we use a cache.
+     * Clears the {@link TModel} cache if we use a cache.
      */
     public void clearCache() {
         if (cacheModels) {
@@ -135,15 +135,15 @@ public class FlowCursorList<ModelClass extends Model> {
 
     /**
      * Returns a model at the specified position. If we are using the cache and it does not contain a model
-     * at that position, we move the cursor to the specified position and construct the {@link ModelClass}.
+     * at that position, we move the cursor to the specified position and construct the {@link TModel}.
      *
      * @param position The row number in the {@link android.database.Cursor} to look at
-     * @return The {@link ModelClass} converted from the cursor
+     * @return The {@link TModel} converted from the cursor
      */
-    public ModelClass getItem(long position) {
+    public TModel getItem(long position) {
         throwIfCursorClosed();
 
-        ModelClass model = null;
+        TModel model = null;
         if (cacheModels) {
             model = modelCache.get(position);
             if (model == null && cursor.moveToPosition((int) position)) {
@@ -157,10 +157,10 @@ public class FlowCursorList<ModelClass extends Model> {
     }
 
     /**
-     * @return the full, converted {@link ModelClass} list from the database on this list. For large
+     * @return the full, converted {@link TModel} list from the database on this list. For large
      * datasets that require a large conversion, consider calling this on a BG thread.
      */
-    public List<ModelClass> getAll() {
+    public List<TModel> getAll() {
         throwIfCursorClosed();
         return FlowManager.getModelAdapter(table).getListModelLoader().convertToData(cursor, null);
     }
@@ -198,7 +198,7 @@ public class FlowCursorList<ModelClass extends Model> {
         return cursor;
     }
 
-    public Class<ModelClass> getTable() {
+    public Class<TModel> getTable() {
         return table;
     }
 

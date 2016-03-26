@@ -11,15 +11,16 @@ import java.util.Map;
 
 /**
  * Description: An anonymous model object that operates just like a {@link java.util.Map}. It must correspond to
- * a {@link ModelClass} to get its blueprint.
+ * a {@link TModel} to get its blueprint.
  */
-public class MapModelContainer<ModelClass extends Model> extends SimpleModelContainer<ModelClass, Map<String, Object>> implements Model {
+public class MapModelContainer<TModel extends Model> extends
+        SimpleModelContainer<TModel, Map<String, Object>> implements Model {
 
-    public MapModelContainer(Class<ModelClass> table) {
+    public MapModelContainer(Class<TModel> table) {
         this(new HashMap<String, Object>(), table);
     }
 
-    public MapModelContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+    public MapModelContainer(@NonNull ModelContainer<TModel, ?> existingContainer) {
         super(existingContainer);
     }
 
@@ -44,7 +45,7 @@ public class MapModelContainer<ModelClass extends Model> extends SimpleModelCont
         return new HashMap<>();
     }
 
-    public MapModelContainer(Map<String, Object> map, Class<ModelClass> table) {
+    public MapModelContainer(Map<String, Object> map, Class<TModel> table) {
         super(table, map);
     }
 

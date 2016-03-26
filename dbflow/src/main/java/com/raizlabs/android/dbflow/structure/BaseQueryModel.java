@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 /**
  * Description: Provides a base class for objects that represent {@link QueryModel}.
  */
-public class BaseQueryModel extends BaseFinalModel {
+public class BaseQueryModel extends NoModificationModel {
 
     private transient QueryModelAdapter adapter;
 

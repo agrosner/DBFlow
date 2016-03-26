@@ -18,8 +18,8 @@ import java.util.List;
 /**
  * Description: The SQL FROM query wrapper that must have a {@link Query} base.
  */
-public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements
-        WhereBase<ModelClass>, ModelQueriable<ModelClass>, Transformable<ModelClass> {
+public class From<TModel extends Model> extends BaseModelQueriable<TModel> implements
+        WhereBase<TModel>, ModelQueriable<TModel>, Transformable<TModel> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!
@@ -42,7 +42,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @param querybase The base query we append this query to
      * @param table     The table this corresponds to
      */
-    public From(Query querybase, Class<ModelClass> table) {
+    public From(Query querybase, Class<TModel> table) {
         super(table);
         queryBase = querybase;
         tableAlias = new NameAlias(FlowManager.getTableName(table));
@@ -54,7 +54,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @param alias
      * @return This FROM statement
      */
-    public From<ModelClass> as(String alias) {
+    public From<TModel> as(String alias) {
         tableAlias.as(alias);
         return this;
     }
@@ -66,8 +66,8 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @param joinType The type of join to use
      * @return The join contained in this FROM statement
      */
-    public <JoinType extends Model> Join<JoinType, ModelClass> join(Class<JoinType> table, @NonNull Join.JoinType joinType) {
-        Join<JoinType, ModelClass> join = new Join<>(this, table, joinType);
+    public <TJoin extends Model> Join<TJoin, TModel> join(Class<TJoin> table, @NonNull Join.JoinType joinType) {
+        Join<TJoin, TModel> join = new Join<>(this, table, joinType);
         joins.add(join);
         return join;
     }
@@ -76,10 +76,10 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * Adds a {@link Join.JoinType#CROSS} join on a specific table for this query.
      *
      * @param table       The table to join on.
-     * @param <JoinClass> The class of the join table.
+     * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <JoinClass extends Model> Join<JoinClass, ModelClass> crossJoin(Class<JoinClass> table) {
+    public <TJoin extends Model> Join<TJoin, TModel> crossJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.CROSS);
     }
 
@@ -87,10 +87,10 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * Adds a {@link Join.JoinType#INNER} join on a specific table for this query.
      *
      * @param table       The table to join on.
-     * @param <JoinClass> The class of the join table.
+     * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <JoinClass extends Model> Join<JoinClass, ModelClass> innerJoin(Class<JoinClass> table) {
+    public <TJoin extends Model> Join<TJoin, TModel> innerJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.INNER);
     }
 
@@ -98,17 +98,17 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * Adds a {@link Join.JoinType#LEFT_OUTER} join on a specific table for this query.
      *
      * @param table       The table to join on.
-     * @param <JoinClass> The class of the join table.
+     * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <JoinClass extends Model> Join<JoinClass, ModelClass> leftOuterJoin(Class<JoinClass> table) {
+    public <TJoin extends Model> Join<TJoin, TModel> leftOuterJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.LEFT_OUTER);
     }
 
     /**
      * @return an empty {@link Where} statement
      */
-    public Where<ModelClass> where() {
+    public Where<TModel> where() {
         return new Where<>(this);
     }
 
@@ -116,7 +116,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @param conditions The array of conditions that define this WHERE statement
      * @return A {@link Where} statement with the specified array of {@link Condition}.
      */
-    public Where<ModelClass> where(SQLCondition... conditions) {
+    public Where<TModel> where(SQLCondition... conditions) {
         return where().andAll(conditions);
     }
 
@@ -151,7 +151,7 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
      * @param indexProperty The index property generated.
      * @return An INDEXED BY piece of this statement
      */
-    public IndexedBy<ModelClass> indexedBy(IndexProperty<ModelClass> indexProperty) {
+    public IndexedBy<TModel> indexedBy(IndexProperty<TModel> indexProperty) {
         return new IndexedBy<>(indexProperty, this);
     }
 
@@ -186,42 +186,42 @@ public class From<ModelClass extends Model> extends BaseModelQueriable<ModelClas
     }
 
     @Override
-    public Where<ModelClass> groupBy(NameAlias... nameAliases) {
+    public Where<TModel> groupBy(NameAlias... nameAliases) {
         return where().groupBy(nameAliases);
     }
 
     @Override
-    public Where<ModelClass> groupBy(IProperty... properties) {
+    public Where<TModel> groupBy(IProperty... properties) {
         return where().groupBy(properties);
     }
 
     @Override
-    public Where<ModelClass> orderBy(NameAlias nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 
     @Override
-    public Where<ModelClass> orderBy(IProperty property, boolean ascending) {
+    public Where<TModel> orderBy(IProperty property, boolean ascending) {
         return where().orderBy(property, ascending);
     }
 
     @Override
-    public Where<ModelClass> orderBy(OrderBy orderBy) {
+    public Where<TModel> orderBy(OrderBy orderBy) {
         return where().orderBy(orderBy);
     }
 
     @Override
-    public Where<ModelClass> limit(int count) {
+    public Where<TModel> limit(int count) {
         return where().limit(count);
     }
 
     @Override
-    public Where<ModelClass> offset(int offset) {
+    public Where<TModel> offset(int offset) {
         return where().offset(offset);
     }
 
     @Override
-    public Where<ModelClass> having(SQLCondition... conditions) {
+    public Where<TModel> having(SQLCondition... conditions) {
         return where().having(conditions);
     }
 }

@@ -2,12 +2,16 @@ package com.raizlabs.android.dbflow.config;
 
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
+import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Description:
  */
-public class DatabaseConfig {
+public final class DatabaseConfig {
 
     public interface HelperCreator {
 
@@ -18,6 +22,7 @@ public class DatabaseConfig {
     private final Class<?> databaseClass;
     private final BaseTransactionManager transactionManager;
     private final DatabaseHelperListener helperListener;
+    private final Map<Class<? extends Model>, TableConfig> tableConfigMap;
 
 
     DatabaseConfig(Builder builder) {
@@ -25,6 +30,7 @@ public class DatabaseConfig {
         databaseClass = builder.databaseClass;
         transactionManager = builder.transactionManager;
         helperListener = builder.helperListener;
+        tableConfigMap = builder.tableConfigMap;
     }
 
     public HelperCreator helperCreator() {
@@ -43,12 +49,17 @@ public class DatabaseConfig {
         return transactionManager;
     }
 
-    public static class Builder {
+    public Map<Class<? extends Model>, TableConfig> tableConfigMap() {
+        return tableConfigMap;
+    }
+
+    public static final class Builder {
 
         HelperCreator helperCreator;
         final Class<?> databaseClass;
         BaseTransactionManager transactionManager;
         DatabaseHelperListener helperListener;
+        final Map<Class<? extends Model>, TableConfig> tableConfigMap = new HashMap<>();
 
 
         public Builder(Class<?> databaseClass) {
@@ -62,6 +73,11 @@ public class DatabaseConfig {
 
         public Builder helperListener(DatabaseHelperListener helperListener) {
             this.helperListener = helperListener;
+            return this;
+        }
+
+        public Builder addTableConfig(TableConfig<?> tableConfig) {
+            tableConfigMap.put(tableConfig.tableClass(), tableConfig);
             return this;
         }
 

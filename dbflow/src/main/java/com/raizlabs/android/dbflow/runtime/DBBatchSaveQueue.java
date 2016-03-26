@@ -188,9 +188,9 @@ public class DBBatchSaveQueue extends Thread {
      * Adds a {@link java.util.Collection} of {@link com.raizlabs.android.dbflow.structure.Model} to this queue
      *
      * @param list
-     * @param <ModelClass>
+     * @param <TModel>
      */
-    public <ModelClass extends Model> void addAll(final Collection<ModelClass> list) {
+    public <TModel extends Model> void addAll(final Collection<TModel> list) {
         synchronized (models) {
             models.addAll(list);
 

@@ -89,7 +89,7 @@ public class Trigger implements Query {
      * @param onTable The table ON
      * @return
      */
-    public <ModelClass extends Model> TriggerMethod<ModelClass> delete(Class<ModelClass> onTable) {
+    public <TModel extends Model> TriggerMethod<TModel> delete(Class<TModel> onTable) {
         return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable);
     }
 
@@ -99,7 +99,7 @@ public class Trigger implements Query {
      * @param onTable The table ON
      * @return
      */
-    public <ModelClass extends Model> TriggerMethod<ModelClass> insert(Class<ModelClass> onTable) {
+    public <TModel extends Model> TriggerMethod<TModel> insert(Class<TModel> onTable) {
         return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable);
     }
 
@@ -111,7 +111,7 @@ public class Trigger implements Query {
      *                   the UPDATE OF column1, column2,... will be used.
      * @return
      */
-    public <ModelClass extends Model> TriggerMethod<ModelClass> update(Class<ModelClass> onTable, IProperty... properties) {
+    public <TModel extends Model> TriggerMethod<TModel> update(Class<TModel> onTable, IProperty... properties) {
         return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, properties);
     }
 

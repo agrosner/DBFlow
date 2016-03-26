@@ -15,26 +15,26 @@ import java.util.Iterator;
 /**
  * Description: The base class that all ModelContainers should extend.
  */
-public abstract class BaseModelContainer<ModelClass extends Model, DataClass> implements ModelContainer<ModelClass, DataClass>, Model {
+public abstract class BaseModelContainer<TModel extends Model, DataClass> implements ModelContainer<TModel, DataClass>, Model {
 
     /**
-     * The {@link ModelClass} that the json corresponds to. Use {@link #toModel()} to retrieve this value.
+     * The {@link TModel} that the json corresponds to. Use {@link #toModel()} to retrieve this value.
      */
-    ModelClass model;
+    TModel model;
 
     /**
      * The {@link com.raizlabs.android.dbflow.structure.ModelAdapter} that is defined for this {@link org.json.JSONObject}
      */
-    ModelAdapter<ModelClass> modelAdapter;
+    ModelAdapter<TModel> modelAdapter;
 
-    ModelContainerAdapter<ModelClass> modelContainerAdapter;
+    ModelContainerAdapter<TModel> modelContainerAdapter;
 
     /**
      * The data thats stored in the container
      */
     DataClass data;
 
-    public BaseModelContainer(Class<ModelClass> table) {
+    public BaseModelContainer(Class<TModel> table) {
         modelAdapter = FlowManager.getModelAdapter(table);
         modelContainerAdapter = FlowManager.getContainerAdapter(table);
         if (modelContainerAdapter == null) {
@@ -45,7 +45,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
         }
     }
 
-    public BaseModelContainer(Class<ModelClass> table, DataClass data) {
+    public BaseModelContainer(Class<TModel> table, DataClass data) {
         this(table);
         this.data = data;
     }
@@ -56,7 +56,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      *
      * @param existingContainer The existing container to load into this one.
      */
-    public BaseModelContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+    public BaseModelContainer(@NonNull ModelContainer<TModel, ?> existingContainer) {
         this(existingContainer.getTable());
 
         Iterator<String> keys = existingContainer.iterator();
@@ -86,7 +86,7 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Nullable
     @Override
-    public ModelClass toModel() {
+    public TModel toModel() {
         if (model == null && data != null) {
             model = modelContainerAdapter.toModel(this);
         }
@@ -95,14 +95,14 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
 
     @Nullable
     @Override
-    public ModelClass toModelForce() {
+    public TModel toModelForce() {
         model = null;
         return toModel();
     }
 
     @Nullable
     @Override
-    public ModelClass getModel() {
+    public TModel getModel() {
         return model;
     }
 
@@ -112,13 +112,13 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
      *
      * @param model
      */
-    public void setModel(ModelClass model) {
+    public void setModel(TModel model) {
         this.model = model;
     }
 
     /**
      * Invalidates the underlying model. In the next {@link #toModel()} call, it will re-query the underlying data
-     * and recreate a {@link ModelClass}.
+     * and recreate a {@link TModel}.
      */
     public void invalidateModel() {
         setModel(null);
@@ -200,12 +200,12 @@ public abstract class BaseModelContainer<ModelClass extends Model, DataClass> im
     }
 
     @Override
-    public ModelAdapter<ModelClass> getModelAdapter() {
+    public ModelAdapter<TModel> getModelAdapter() {
         return modelAdapter;
     }
 
     @Override
-    public Class<ModelClass> getTable() {
+    public Class<TModel> getTable() {
         return modelAdapter.getModelClass();
     }
 

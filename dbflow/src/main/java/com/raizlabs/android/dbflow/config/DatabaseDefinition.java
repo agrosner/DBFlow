@@ -24,6 +24,7 @@ import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,10 +70,30 @@ public abstract class DatabaseDefinition {
     private BaseTransactionManager transactionManager;
 
 
+    @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
         DatabaseConfig config = FlowManager.getConfig()
                 .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+
+
         if (config != null) {
+            // initialize configuration if exists.
+            Collection<TableConfig> tableConfigCollection = config.tableConfigMap().values();
+            for (TableConfig tableConfig : tableConfigCollection) {
+                ModelAdapter modelAdapter = modelAdapters.get(tableConfig.tableClass());
+                if (tableConfig.listModelLoader() != null) {
+                    modelAdapter.setListModelLoader(tableConfig.listModelLoader());
+                }
+
+                if (tableConfig.singleModelLoader() != null) {
+                    modelAdapter.setSingleModelLoader(tableConfig.singleModelLoader());
+                }
+
+                if (tableConfig.modelSaver() != null) {
+                    modelAdapter.setModelSaver(tableConfig.modelSaver());
+                }
+
+            }
             helperListener = config.helperListener();
         }
         if (config == null || config.transactionManager() == null) {

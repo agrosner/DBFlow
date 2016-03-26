@@ -20,10 +20,12 @@ import java.util.Map;
  * Description: The base class that generated {@link ModelContainerAdapter} implement
  * to provide the necessary interactions.
  */
-public abstract class ModelContainerAdapter<ModelClass extends Model> extends RetrievalAdapter<ModelContainer<ModelClass, ?>, ModelClass> implements InternalAdapter<ModelClass, ModelContainer<ModelClass, ?>> {
+public abstract class ModelContainerAdapter<TModel extends Model>
+        extends RetrievalAdapter<ModelContainer<TModel, ?>, TModel>
+        implements InternalAdapter<ModelContainer<TModel, ?>> {
 
-    private ModelContainerLoader<ModelClass> modelContainerLoader;
-    private ModelSaver<ModelClass, ModelContainer<ModelClass, ?>, ModelContainerAdapter<ModelClass>> modelSaver;
+    private ModelContainerLoader<TModel> modelContainerLoader;
+    private ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelSaver;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
 
@@ -33,12 +35,12 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      * @param modelContainer The container to read data from into {@link android.content.ContentValues}
      */
     @Override
-    public void save(ModelContainer<ModelClass, ?> modelContainer) {
+    public void save(ModelContainer<TModel, ?> modelContainer) {
         getModelSaver().save(modelContainer);
     }
 
     @Override
-    public void save(ModelContainer<ModelClass, ?> model, DatabaseWrapper databaseWrapper) {
+    public void save(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
         getModelSaver().save(model, databaseWrapper);
     }
 
@@ -47,12 +49,12 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      *
      * @param modelContainer The model container to insert.
      */
-    public void insert(ModelContainer<ModelClass, ?> modelContainer) {
+    public void insert(ModelContainer<TModel, ?> modelContainer) {
         getModelSaver().insert(modelContainer);
     }
 
     @Override
-    public void insert(ModelContainer<ModelClass, ?> model, DatabaseWrapper databaseWrapper) {
+    public void insert(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
         getModelSaver().insert(model, databaseWrapper);
     }
 
@@ -61,12 +63,12 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      *
      * @param modelContainer The model to update.
      */
-    public void update(ModelContainer<ModelClass, ?> modelContainer) {
+    public void update(ModelContainer<TModel, ?> modelContainer) {
         getModelSaver().update(modelContainer);
     }
 
     @Override
-    public void update(ModelContainer<ModelClass, ?> model, DatabaseWrapper databaseWrapper) {
+    public void update(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
         getModelSaver().update(model, databaseWrapper);
     }
 
@@ -76,16 +78,16 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      * @param modelContainer The container to delete.
      */
     @Override
-    public void delete(ModelContainer<ModelClass, ?> modelContainer) {
+    public void delete(ModelContainer<TModel, ?> modelContainer) {
         getModelSaver().delete(modelContainer);
     }
 
     @Override
-    public void delete(ModelContainer<ModelClass, ?> model, DatabaseWrapper databaseWrapper) {
+    public void delete(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
         getModelSaver().delete(model, databaseWrapper);
     }
 
-    public ModelSaver<ModelClass, ModelContainer<ModelClass, ?>, ModelContainerAdapter<ModelClass>> getModelSaver() {
+    public ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> getModelSaver() {
         if (modelSaver == null) {
             modelSaver = new ModelSaver<>(FlowManager.getModelAdapter(getModelClass()), this);
         }
@@ -97,26 +99,26 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver<ModelClass, ModelContainer<ModelClass, ?>, ModelContainerAdapter<ModelClass>> modelSaver) {
+    public void setModelSaver(ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelSaver) {
         this.modelSaver = modelSaver;
     }
 
     /**
-     * Converts the container into a {@link ModelClass}
+     * Converts the container into a {@link TModel}
      *
-     * @param modelContainer The container to read data from into a {@link ModelClass}
+     * @param modelContainer The container to read data from into a {@link TModel}
      * @return a new model instance.
      */
-    public abstract ModelClass toModel(ModelContainer<ModelClass, ?> modelContainer);
+    public abstract TModel toModel(ModelContainer<TModel, ?> modelContainer);
 
     /**
-     * Converts the {@link ModelClass} into a {@link ForeignKeyContainer} by appending only its primary
+     * Converts the {@link TModel} into a {@link ForeignKeyContainer} by appending only its primary
      * keys to the container. This is mostly for convenience.
      *
      * @param model the model to convert.
-     * @return A new {@link ForeignKeyContainer} from the {@link ModelClass}.
+     * @return A new {@link ForeignKeyContainer} from the {@link TModel}.
      */
-    public abstract ForeignKeyContainer<ModelClass> toForeignKeyContainer(ModelClass model);
+    public abstract ForeignKeyContainer<TModel> toForeignKeyContainer(TModel model);
 
     /**
      * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
@@ -126,7 +128,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      * @param id             The key to store
      */
     @Override
-    public void updateAutoIncrement(ModelContainer<ModelClass, ?> modelContainer, Number id) {
+    public void updateAutoIncrement(ModelContainer<TModel, ?> modelContainer, Number id) {
 
     }
 
@@ -135,7 +137,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      * @return The value of the {@link PrimaryKey#autoincrement()} if there is one.
      */
     @Override
-    public Number getAutoIncrementingId(ModelContainer<ModelClass, ?> modelContainer) {
+    public Number getAutoIncrementingId(ModelContainer<TModel, ?> modelContainer) {
         return 0;
     }
 
@@ -145,7 +147,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
     }
 
     @Override
-    public void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelContainer<ModelClass, ?> model) {
+    public void bindToInsertStatement(DatabaseStatement sqLiteStatement, ModelContainer<TModel, ?> model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
     }
 
@@ -165,14 +167,14 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
         return columnMap.get(columnName);
     }
 
-    public ModelContainerLoader<ModelClass> getModelContainerLoader() {
+    public ModelContainerLoader<TModel> getModelContainerLoader() {
         if (modelContainerLoader == null) {
             modelContainerLoader = createModelContainerLoader();
         }
         return modelContainerLoader;
     }
 
-    protected ModelContainerLoader<ModelClass> createModelContainerLoader() {
+    protected ModelContainerLoader<TModel> createModelContainerLoader() {
         return new ModelContainerLoader<>(getModelClass());
     }
 
@@ -181,7 +183,7 @@ public abstract class ModelContainerAdapter<ModelClass extends Model> extends Re
      *
      * @param modelContainerLoader The loader used to load {@link Cursor} data into a {@link ModelContainer}.
      */
-    public void setModelContainerLoader(ModelContainerLoader<ModelClass> modelContainerLoader) {
+    public void setModelContainerLoader(ModelContainerLoader<TModel> modelContainerLoader) {
         this.modelContainerLoader = modelContainerLoader;
     }
 }

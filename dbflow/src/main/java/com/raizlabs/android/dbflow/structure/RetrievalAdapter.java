@@ -13,24 +13,24 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: Provides a base retrieval class for all {@link Model} backed
  * adapters.
  */
-public abstract class RetrievalAdapter<ModelClass extends Model, TableClass extends Model> {
+public abstract class RetrievalAdapter<TModel extends Model, TableClass extends Model> {
 
     private SingleModelLoader<TableClass> singleModelLoader;
     private ListModelLoader<TableClass> listModelLoader;
 
     /**
-     * Assigns the {@link android.database.Cursor} data into the specified {@link ModelClass}
+     * Assigns the {@link android.database.Cursor} data into the specified {@link TModel}
      *
      * @param model  The model to assign cursor data to
      * @param cursor The cursor to load into the model
      */
-    public abstract void loadFromCursor(Cursor cursor, ModelClass model);
+    public abstract void loadFromCursor(Cursor cursor, TModel model);
 
     /**
      * @param model The model to query values from
      * @return True if it exists as a row in the corresponding database table
      */
-    public boolean exists(ModelClass model) {
+    public boolean exists(TModel model) {
         return exists(model, FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
     }
 
@@ -38,13 +38,13 @@ public abstract class RetrievalAdapter<ModelClass extends Model, TableClass exte
      * @param model The model to query values from
      * @return True if it exists as a row in the corresponding database table
      */
-    public abstract boolean exists(ModelClass model, DatabaseWrapper databaseWrapper);
+    public abstract boolean exists(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
      * @param model The primary condition clause.
      * @return The clause that contains necessary primary conditions for this table.
      */
-    public abstract ConditionGroup getPrimaryConditionClause(ModelClass model);
+    public abstract ConditionGroup getPrimaryConditionClause(TModel model);
 
     /**
      * @return the model class this adapter corresponds to

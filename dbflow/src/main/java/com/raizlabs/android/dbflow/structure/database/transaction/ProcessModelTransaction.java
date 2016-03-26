@@ -20,14 +20,14 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
     /**
      * Description: Simple interface for acting on a model in a Transaction or list of {@link Model}
      */
-    public interface ProcessModel<ModelClass extends Model> {
+    public interface ProcessModel<TModel extends Model> {
 
         /**
          * Called when processing models
          *
          * @param model The model to process
          */
-        void processModel(ModelClass model);
+        void processModel(TModel model);
     }
 
     /**

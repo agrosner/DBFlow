@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.structure;
 /**
  * Description: All modificatioon operations throw a {@link InvalidSqlViewOperationException}
  */
-abstract class BaseFinalModel implements Model {
+abstract class NoModificationModel implements Model {
 
     @Override
     public void save() {

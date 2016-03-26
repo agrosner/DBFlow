@@ -11,12 +11,12 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 /**
  * Description: Defines and enables an Index structurally through a migration.
  */
-public class IndexMigration<ModelClass extends Model> extends BaseMigration {
+public class IndexMigration<TModel extends Model> extends BaseMigration {
 
     /**
      * The table to index on
      */
-    private Class<ModelClass> onTable;
+    private Class<TModel> onTable;
 
     /**
      * The name of this index
@@ -26,9 +26,9 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
     /**
      * The underlying index object.
      */
-    private Index<ModelClass> index;
+    private Index<TModel> index;
 
-    public IndexMigration(@NonNull String name, @NonNull Class<ModelClass> onTable) {
+    public IndexMigration(@NonNull String name, @NonNull Class<TModel> onTable) {
         this.onTable = onTable;
         this.name = name;
     }
@@ -58,7 +58,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      * @param property The name of the column to add to the Index
      * @return This migration
      */
-    public IndexMigration<ModelClass> addColumn(IProperty property) {
+    public IndexMigration<TModel> addColumn(IProperty property) {
         getIndex().and(property);
         return this;
     }
@@ -68,7 +68,7 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
      *
      * @return This migration.
      */
-    public IndexMigration<ModelClass> unique() {
+    public IndexMigration<TModel> unique() {
         getIndex().unique(true);
         return this;
     }
@@ -76,9 +76,9 @@ public class IndexMigration<ModelClass extends Model> extends BaseMigration {
     /**
      * @return The index object based on the contents of this migration.
      */
-    public Index<ModelClass> getIndex() {
+    public Index<TModel> getIndex() {
         if (index == null) {
-            index = new Index<ModelClass>(name).on(onTable);
+            index = new Index<TModel>(name).on(onTable);
         }
         return index;
     }

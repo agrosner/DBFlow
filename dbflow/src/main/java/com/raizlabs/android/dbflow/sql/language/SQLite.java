@@ -29,19 +29,19 @@ public class SQLite {
 
     /**
      * @param table        The tablet to update.
-     * @param <ModelClass> The class that implements {@link Model}.
+     * @param <TModel> The class that implements {@link Model}.
      * @return A new UPDATE statement.
      */
-    public static <ModelClass extends Model> Update<ModelClass> update(Class<ModelClass> table) {
+    public static <TModel extends Model> Update<TModel> update(Class<TModel> table) {
         return new Update<>(table);
     }
 
     /**
      * @param table        The table to insert.
-     * @param <ModelClass> The class that implements {@link Model}.
+     * @param <TModel> The class that implements {@link Model}.
      * @return A new INSERT statement.
      */
-    public static <ModelClass extends Model> Insert<ModelClass> insert(Class<ModelClass> table) {
+    public static <TModel extends Model> Insert<TModel> insert(Class<TModel> table) {
         return new Insert<>(table);
     }
 
@@ -56,10 +56,10 @@ public class SQLite {
      * Starts a DELETE statement on the specified table.
      *
      * @param table        The table to delete from.
-     * @param <ModelClass> The class that implements {@link Model}.
+     * @param <TModel> The class that implements {@link Model}.
      * @return A {@link From} with specified DELETE on table.
      */
-    public static <ModelClass extends Model> From<ModelClass> delete(Class<ModelClass> table) {
+    public static <TModel extends Model> From<TModel> delete(Class<TModel> table) {
         return delete().from(table);
     }
 }

@@ -14,7 +14,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * code where this library does not provide. It only runs a
  * {@link android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])}.
  */
-public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements Query, ModelQueriable<ModelClass> {
+public class StringQuery<TModel extends Model> extends BaseModelQueriable<TModel> implements Query, ModelQueriable<TModel> {
 
     /**
      * The full SQLite query to use
@@ -28,7 +28,7 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
      * @param sql   The sql statement to query the DB with. Does not work with {@link com.raizlabs.android.dbflow.sql.language.Delete},
      *              this must be done with {@link android.database.sqlite.SQLiteDatabase#execSQL(String)}
      */
-    public StringQuery(Class<ModelClass> table, String sql) {
+    public StringQuery(Class<TModel> table, String sql) {
         super(table);
         query = sql;
     }
