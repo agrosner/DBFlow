@@ -31,6 +31,7 @@ public class AsyncModel<TModel extends Model> implements Model {
     private final DatabaseDefinition databaseDefinition;
     private Transaction.Success successCallback;
     private Transaction.Error errorCallback;
+    private Transaction currentTransaction;
 
     public AsyncModel(@NonNull TModel referenceModel) {
         model = referenceModel;
@@ -66,7 +67,8 @@ public class AsyncModel<TModel extends Model> implements Model {
 
     @Override
     public void save() {
-        databaseDefinition
+        cancel();
+        currentTransaction = databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<TModel>() {
                             @Override
@@ -76,12 +78,14 @@ public class AsyncModel<TModel extends Model> implements Model {
                         }).build())
                 .error(error)
                 .success(success)
-                .build().execute();
+                .build();
+        currentTransaction.execute();
     }
 
     @Override
     public void delete() {
-        databaseDefinition
+        cancel();
+        currentTransaction = databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<TModel>() {
                             @Override
@@ -91,12 +95,14 @@ public class AsyncModel<TModel extends Model> implements Model {
                         }).build())
                 .error(error)
                 .success(success)
-                .build().execute();
+                .build();
+        currentTransaction.execute();
     }
 
     @Override
     public void update() {
-        databaseDefinition
+        cancel();
+        currentTransaction = databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<TModel>() {
                             @Override
@@ -106,12 +112,14 @@ public class AsyncModel<TModel extends Model> implements Model {
                         }).build())
                 .error(error)
                 .success(success)
-                .build().execute();
+                .build();
+        currentTransaction.execute();
     }
 
     @Override
     public void insert() {
-        databaseDefinition
+        cancel();
+        currentTransaction = databaseDefinition
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<TModel>() {
                             @Override
@@ -121,7 +129,17 @@ public class AsyncModel<TModel extends Model> implements Model {
                         }).build())
                 .error(error)
                 .success(success)
-                .build().execute();
+                .build();
+        currentTransaction.execute();
+    }
+
+    /**
+     * Cancels current running transaction.
+     */
+    public void cancel() {
+        if (currentTransaction != null) {
+            currentTransaction.cancel();
+        }
     }
 
     @Override
@@ -135,6 +153,7 @@ public class AsyncModel<TModel extends Model> implements Model {
             if (errorCallback != null) {
                 errorCallback.onError(transaction, error);
             }
+            currentTransaction = null;
         }
     };
 
@@ -147,6 +166,7 @@ public class AsyncModel<TModel extends Model> implements Model {
             if (onModelChangedListener != null && onModelChangedListener.get() != null) {
                 onModelChangedListener.get().onModelChanged(model);
             }
+            currentTransaction = null;
         }
     };
 }
