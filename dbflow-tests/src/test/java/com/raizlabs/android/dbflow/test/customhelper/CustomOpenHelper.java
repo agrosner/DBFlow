@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.test.customhelper;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;

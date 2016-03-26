@@ -6,10 +6,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 
 /**
- * Description: The base implementation of {@link com.raizlabs.android.dbflow.structure.Model} using the
- * shared {@link com.raizlabs.android.dbflow.config.FlowManager}. It implements the methods so you don't have to.
- * If you wish not to extend from this class you will need to implement {@link com.raizlabs.android.dbflow.structure.Model}
- * instead.
+ * Description: The base implementation of {@link Model}. It is recommended to use this class as
+ * the base for your {@link Model}, but it is not required.
  */
 public class BaseModel implements Model {
 

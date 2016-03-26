@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.config;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;

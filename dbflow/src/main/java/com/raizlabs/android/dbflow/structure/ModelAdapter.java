@@ -19,11 +19,10 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
- * Author: andrewgrosner
- * Description: Internal adapter that gets extended when a {@link Table} gets used.
+ * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
  */
 public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter<TModel, TModel>
-    implements InternalAdapter<TModel> {
+        implements InternalAdapter<TModel> {
 
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
@@ -37,7 +36,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
             insertStatement = getInsertStatement(
-                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return insertStatement;
@@ -58,7 +57,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     public DatabaseStatement getCompiledStatement() {
         if (compiledStatement == null) {
             compiledStatement = getCompiledStatement(
-                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return compiledStatement;
@@ -151,7 +150,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     }
 
     /**
-     * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
+     * If a {@link Model} has an auto-incrementing primary key, then
      * this method will be overridden.
      *
      * @param model The model object to store the key
@@ -169,9 +168,9 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     @Override
     public Number getAutoIncrementingId(TModel model) {
         throw new InvalidDBConfiguration(
-            String.format("This method may have been called in error. The model class %1s must contain" +
-                    "a single primary key (if used in a ModelCache, this method may be called)",
-                getModelClass()));
+                String.format("This method may have been called in error. The model class %1s must contain" +
+                                "a single primary key (if used in a ModelCache, this method may be called)",
+                        getModelClass()));
     }
 
     /**
@@ -180,9 +179,9 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
-            String.format("This method may have been called in error. The model class %1s must contain" +
-                    "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
-                getModelClass()));
+                String.format("This method may have been called in error. The model class %1s must contain" +
+                                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                        getModelClass()));
     }
 
     /**
@@ -220,8 +219,8 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      * match all primary keys. This method gets generated when caching is enabled. It converts the primary fields
      * of the {@link TModel} into the array of values the caching mechanism uses.
      *
-     * @param inValues   The reusable array of values to populate.
-     * @param TModel The model to load from.
+     * @param inValues The reusable array of values to populate.
+     * @param TModel   The model to load from.
      * @return The populated set of values to load from cache.
      */
     public Object[] getCachingColumnValuesFromModel(Object[] inValues, TModel TModel) {
@@ -286,8 +285,8 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
 
     public IMultiKeyCacheConverter<?> getCacheConverter() {
         throw new InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
-            "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
-            "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
+                "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
+                "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
     }
 
     public ModelCache<TModel, ?> createModelCache() {
@@ -340,8 +339,8 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
 
     private void throwCachingError() {
         throw new InvalidDBConfiguration(
-            String.format("This method may have been called in error. The model class %1s must contain" +
-                    "an autoincrementing or at least one int/long primary key (if used in a ModelCache, this method may be called)",
-                getModelClass()));
+                String.format("This method may have been called in error. The model class %1s must contain" +
+                                "an auto-incrementing or at least one primary key (if used in a ModelCache, this method may be called)",
+                        getModelClass()));
     }
 }

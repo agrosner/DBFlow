@@ -134,7 +134,7 @@ public interface InternalAdapter<TModel extends Model> {
     void updateAutoIncrement(TModel model, Number id);
 
     /**
-     * @return The value for the {@link com.raizlabs.android.dbflow.annotation.Column#PRIMARY_KEY_AUTO_INCREMENT}
+     * @return The value for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link TModel}
      */
     Number getAutoIncrementingId(TModel model);

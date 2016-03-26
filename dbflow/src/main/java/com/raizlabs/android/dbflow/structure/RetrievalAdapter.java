@@ -19,7 +19,7 @@ public abstract class RetrievalAdapter<TModel extends Model, TableClass extends 
     private ListModelLoader<TableClass> listModelLoader;
 
     /**
-     * Assigns the {@link android.database.Cursor} data into the specified {@link TModel}
+     * Assigns the {@link Cursor} data into the specified {@link TModel}
      *
      * @param model  The model to assign cursor data to
      * @param cursor The cursor to load into the model
@@ -51,7 +51,9 @@ public abstract class RetrievalAdapter<TModel extends Model, TableClass extends 
      */
     public abstract Class<TableClass> getModelClass();
 
-
+    /**
+     * @return A new {@link ListModelLoader}, caching will override this loader instance.
+     */
     public ListModelLoader<TableClass> getListModelLoader() {
         if (listModelLoader == null) {
             listModelLoader = createListModelLoader();
@@ -59,6 +61,9 @@ public abstract class RetrievalAdapter<TModel extends Model, TableClass extends 
         return listModelLoader;
     }
 
+    /**
+     * @return
+     */
     protected ListModelLoader<TableClass> createListModelLoader() {
         return new ListModelLoader<>(getModelClass());
     }
@@ -90,6 +95,9 @@ public abstract class RetrievalAdapter<TModel extends Model, TableClass extends 
         this.listModelLoader = listModelLoader;
     }
 
+    /**
+     * @return A new {@link SingleModelLoader}, caching will override this loader instance.
+     */
     protected SingleModelLoader<TableClass> createSingleModelLoader() {
         return new SingleModelLoader<>(getModelClass());
     }

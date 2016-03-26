@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
@@ -307,26 +307,4 @@ public abstract class DatabaseDefinition {
         getHelper().backupDB();
     }
 
-    protected final DatabaseHelperListener internalHelperListener = new DatabaseHelperListener() {
-        @Override
-        public void onOpen(DatabaseWrapper database) {
-            if (helperListener != null) {
-                helperListener.onOpen(database);
-            }
-        }
-
-        @Override
-        public void onCreate(DatabaseWrapper database) {
-            if (helperListener != null) {
-                helperListener.onCreate(database);
-            }
-        }
-
-        @Override
-        public void onUpgrade(DatabaseWrapper database, int oldVersion, int newVersion) {
-            if (helperListener != null) {
-                helperListener.onUpgrade(database, oldVersion, newVersion);
-            }
-        }
-    };
 }
