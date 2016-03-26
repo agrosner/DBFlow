@@ -73,7 +73,7 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync
  * Adds the execute method to the [DatabaseWrapper]
  */
 fun DatabaseWrapper.executeUpdateDelete(rawQuery: String) {
-    SQLiteCompatibilityUtils.executeUpdateDelete(this, rawQuery)
+    compileStatement(rawQuery).executeUpdateDelete()
 }
 
 /**
