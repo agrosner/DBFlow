@@ -44,7 +44,7 @@ public final class Transaction {
         void onSuccess(Transaction transaction);
     }
 
-    private static final Handler TRANSACTION_HANDLER = new Handler(Looper.getMainLooper());
+    static final Handler TRANSACTION_HANDLER = new Handler(Looper.getMainLooper());
 
 
     final Error errorCallback;

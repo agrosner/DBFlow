@@ -38,9 +38,14 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
 
     @Override
     public void execute(DatabaseWrapper databaseWrapper) {
-        CursorResult<TResult> cursorResult = modelQueriable.queryResults();
+        final CursorResult<TResult> cursorResult = modelQueriable.queryResults();
         if (queryResultCallback != null) {
-            queryResultCallback.onQueryResult(this, cursorResult);
+            Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                @Override
+                public void run() {
+                    queryResultCallback.onQueryResult(QueryTransaction.this, cursorResult);
+                }
+            });
         }
     }
 
@@ -57,7 +62,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
         /**
          * @param modelQueriable      The SQLite wrapper class that you wish to query with.
          *                            EX. SQLite.select().from(SomeTable.class).where(...)
-         * @param queryResultCallback called when the result completes.
+         * @param queryResultCallback called when the result completes on the UI thread.
          */
         public Builder(@NonNull ModelQueriable<TResult> modelQueriable, QueryResultCallback<TResult> queryResultCallback) {
             this.modelQueriable = modelQueriable;
