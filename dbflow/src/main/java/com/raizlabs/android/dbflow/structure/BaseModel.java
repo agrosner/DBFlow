@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 
 /**
@@ -53,15 +54,30 @@ public class BaseModel implements Model {
     }
 
     @SuppressWarnings("unchecked")
+    public void save(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().save(this, databaseWrapper);
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void delete() {
         getModelAdapter().delete(this);
     }
 
     @SuppressWarnings("unchecked")
+    public void delete(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().delete(this, databaseWrapper);
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void update() {
         getModelAdapter().update(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void update(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().update(this, databaseWrapper);
     }
 
     /**
@@ -74,9 +90,19 @@ public class BaseModel implements Model {
     }
 
     @SuppressWarnings("unchecked")
+    public void insert(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().insert(this, databaseWrapper);
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public boolean exists() {
         return getModelAdapter().exists(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean exists(DatabaseWrapper databaseWrapper) {
+        return getModelAdapter().exists(this, databaseWrapper);
     }
 
     /**
