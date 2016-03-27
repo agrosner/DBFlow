@@ -44,7 +44,7 @@ public class ExampleApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FlowManager.init(new Fl owConfig.Builder(this));
+        FlowManager.init(new FlowConfig.Builder(this).build());
     }
 }
 
@@ -58,7 +58,7 @@ Finally, add the definition to the manifest (with the name that you chose for yo
 </application>
 ```
 
-A database within DBFlow is only initialized once you call `FlowManager.getDatabase(SomeDatabase.NAME).getWritableDatabase()`. If you
+A database within DBFlow is only initialized once you call `FlowManager.getDatabase(SomeDatabase.class).getWritableDatabase()`. If you
 don't want this behavior or prefer it to happen immediately, modify your `FlowConfig`:
 
 ```java
@@ -67,7 +67,7 @@ don't want this behavior or prefer it to happen immediately, modify your `FlowCo
 public void onCreate() {
     super.onCreate();
     FlowManager.init(new FlowConfig.Builder(this)
-        .openDatabasesOnInit(true));
+        .openDatabasesOnInit(true).build());
 }
 
 ```
@@ -84,7 +84,7 @@ FlowManager.init(new FlowConfig.Builder(this)
 
 ```
 You can define different kinds for each database.
-To read more on transactions and subclassing `BaseTransactionManager` go (here)[/usage2/StoringData.md]
+To read more on transactions and subclassing `BaseTransactionManager` go [here](/usage2/StoringData.md)
 
 
 ## Create Models
@@ -124,6 +124,7 @@ public interface Model {
 ```
 
 As a convenience (and recommended for most uses), you should extend `BaseModel`, which provides the default implementation. If for some reason you must implement `Model`, you should reference its implementation. **Also** you don't need to directly extend `BaseModel`, in fact you can extend other tables to combine their columns. However those fields must be package-private, public, or private with accessible java-bean getters and setters.
+To read more on this, read [here](/usage2/Models.md).
 
 An example:
 
@@ -157,3 +158,31 @@ public class Currency extends BaseModel {
 }
 
 ```
+
+## Perform Some Queries
+
+DBFlow uses expressive builders to represent and translate to the SQLite language.
+
+A simple query in SQLite:
+
+```sqlite
+
+SELECT * FROM Currency WHERE symbol='$';
+
+```
+
+Can be represented by:
+
+```java
+
+SQLite.select()
+  .from(Currency.class)
+  .where(Currency_Table.symbol.eq("$"));
+
+```
+
+We support many kinds of complex and complicated queries using the builder
+language. To read more about this, see [the wrapper language docs](/usage2/SQLiteWrapperLanguage.md)
+
+There is much more you can do in DBFlow. Read through the other docs to
+get a sense of the library.
