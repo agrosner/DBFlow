@@ -88,3 +88,39 @@ A more comprehensive list of conditional operations DBFlow supports and what the
   4. like(), glob()
   5. greaterThan(), greaterThanOrEqual(), lessThan(), lessThanOrEqual()
   6. between() -> BETWEEN 7. in(), notIn()
+
+#### Nested Conditions
+
+To create nested conditions (in parenthesis more often than not), just include
+a `ConditionGroup` as a `SQLCondition` in a query:
+
+
+```java
+
+SQLite.select()
+  .from(Location.class)
+  .where(Location_Table.latitude.eq(home.getLatitude()))
+  .and(ConditionGroup.clause()
+      .and(Location_Table.latitude
+        .minus(PropertyFactory.from(home.getLatitude())
+        .eq(1000L))))
+
+```
+
+Translates to:
+
+```sqlite
+
+SELECT * FROM `Location` WHERE `latitude`=45.05 AND (`latitude` - 45.05) = 1000
+
+```
+
+#### Nested Queries
+
+To create a nested query simply include it as a `Property` via `PropertyFactory.from(BaseQueriable)`:
+
+```java
+
+.where(PropertyFactory.from(SQLite.select().from(...).where(...))
+
+```
