@@ -44,6 +44,7 @@ public class ConfigIntegrationTest {
 
     @Before
     public void setup() {
+        FlowManager.reset();
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V);
         builder = new FlowConfig.Builder(RuntimeEnvironment.application);
     }

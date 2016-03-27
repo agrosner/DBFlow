@@ -58,6 +58,13 @@ public abstract class DatabaseHolder {
         databaseClassLookupMap.put(databaseDefinition.getAssociatedDatabaseClassFile(), databaseDefinition);
     }
 
+    public void reset() {
+        databaseDefinitionMap.clear();
+        databaseNameMap.clear();
+        databaseClassLookupMap.clear();
+        typeConverters.clear();
+    }
+
     public List<DatabaseDefinition> getDatabaseDefinitions() {
         return new ArrayList<>(databaseNameMap.values());
     }

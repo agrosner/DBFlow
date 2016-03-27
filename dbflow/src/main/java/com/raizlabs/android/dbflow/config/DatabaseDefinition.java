@@ -81,6 +81,9 @@ public abstract class DatabaseDefinition {
             Collection<TableConfig> tableConfigCollection = config.tableConfigMap().values();
             for (TableConfig tableConfig : tableConfigCollection) {
                 ModelAdapter modelAdapter = modelAdapters.get(tableConfig.tableClass());
+                if (modelAdapter == null) {
+                    continue;
+                }
                 if (tableConfig.listModelLoader() != null) {
                     modelAdapter.setListModelLoader(tableConfig.listModelLoader());
                 }
