@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public final class FlowConfig {
         return databaseConfigMap;
     }
 
+    @Nullable
     public DatabaseConfig getConfigForDatabase(Class<?> databaseClass) {
         return databaseConfigMap().get(databaseClass);
     }

@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.structure;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.config.TableConfig;
@@ -23,16 +24,18 @@ public abstract class RetrievalAdapter<TModel extends Model, TTable extends Mode
     private TableConfig<TTable> tableConfig;
 
     public RetrievalAdapter(DatabaseDefinition databaseDefinition) {
-        tableConfig = FlowManager.getConfig()
-                .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile())
-                .getTableConfigForTable(getModelClass());
-        if (tableConfig != null) {
-            if (tableConfig.singleModelLoader() != null) {
-                singleModelLoader = tableConfig.singleModelLoader();
-            }
+        DatabaseConfig databaseConfig = FlowManager.getConfig()
+                .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile());
+        if (databaseConfig != null) {
+            tableConfig = databaseConfig.getTableConfigForTable(getModelClass());
+            if (tableConfig != null) {
+                if (tableConfig.singleModelLoader() != null) {
+                    singleModelLoader = tableConfig.singleModelLoader();
+                }
 
-            if (tableConfig.listModelLoader() != null) {
-                listModelLoader = tableConfig.listModelLoader();
+                if (tableConfig.listModelLoader() != null) {
+                    listModelLoader = tableConfig.listModelLoader();
+                }
             }
         }
     }

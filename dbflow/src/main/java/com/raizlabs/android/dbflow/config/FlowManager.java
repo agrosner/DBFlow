@@ -186,6 +186,7 @@ public class FlowManager {
                 loadedModules.add(holderClass);
             }
         } catch (Throwable e) {
+            e.printStackTrace();
             throw new ModuleNotFoundException("Cannot load " + holderClass, e);
         }
     }

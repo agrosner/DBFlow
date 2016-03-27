@@ -5,6 +5,7 @@ import android.os.Build;
 import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowConfig;
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.config.TableConfig;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
@@ -43,6 +44,7 @@ public class ConfigIntegrationTest {
 
     @Before
     public void setup() {
+        FlowLog.setMinimumLoggingLevel(FlowLog.Level.V);
         builder = new FlowConfig.Builder(RuntimeEnvironment.application);
     }
 
