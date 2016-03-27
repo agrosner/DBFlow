@@ -201,7 +201,6 @@ a thread).
 
 ```java
 
-*/
 public class CustomTransactionManager extends BaseTransactionManager {
 
    public CustomTransactionManager(DatabaseDefinition databaseDefinition) {

@@ -93,8 +93,9 @@ time in case of failure we create a **third copy of the database** in case trans
 ### Custom FlowSQLiteOpenHelper
 
 For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper`
-to manage database interactions. To do so, you must extend `FlowSQLiteOpenHelper`
-and have the constructor match `super`.
+to manage database interactions. To do so, you must implement `OpenHelper`, but
+for convenience you should extend `FlowSQLiteOpenHelper` (for Android databases),
+or `SQLCipherOpenHelper` for SQLCipher.
 
 ```java
 
@@ -109,5 +110,21 @@ public class CustomFlowSQliteOpenHelper extends FlowSQLiteOpenHelper {
 
 ```
 
-Then in your database class: `@Database(sqlHelperClass = CustomFlowSQliteOpenHelper.class)`,
-which will replace all instances for that specific DB with the custom one.
+Then in your `DatabaseConfig`:
+
+```java
+
+FlowManager.init(new FlowConfig.Builder(RuntimeEnvironment.application)
+  .addDatabaseConfig(
+      new DatabaseConfig.Builder(CipherDatabase.class)
+          .openHelper(new DatabaseConfig.OpenHelperCreator() {
+              @Override
+              public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener helperListener) {
+                  return new CustomFlowSQliteOpenHelper(databaseDefinition, helperListener);
+              }
+          })
+      .build())
+  .build());
+
+
+```
