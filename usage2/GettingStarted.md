@@ -83,8 +83,8 @@ FlowManager.init(new FlowConfig.Builder(this)
           .build()));
 
 ```
-
-To read more on transactions and subclassing `BaseTransacationManager` go (here)[/usage2/Transactions.md]
+You can define different kinds for each database.
+To read more on transactions and subclassing `BaseTransactionManager` go (here)[/usage2/StoringData.md]
 
 
 ## Create Models

@@ -5,6 +5,7 @@ import android.content.Context;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
+import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
@@ -30,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Author: andrewgrosner
  * Description: The main interface that all Database implementations extend from. This is for internal usage only
  * as it will be generated for every {@link Database}.
  */
@@ -128,7 +128,7 @@ public abstract class DatabaseDefinition {
 
     /**
      * Returns the associated {@link ModelAdapter} within this database for
-     * the specified table. If the Model is missing the {@link com.raizlabs.android.dbflow.annotation.Table} annotation,
+     * the specified table. If the Model is missing the {@link Table} annotation,
      * this will return null.
      *
      * @param table The model that exists in this database.
@@ -141,7 +141,7 @@ public abstract class DatabaseDefinition {
     /**
      * @param tableName The name of the table in this db.
      * @return The associated {@link ModelAdapter} within this database for the specified table name.
-     * If the Model is missing the {@link com.raizlabs.android.dbflow.annotation.Table} annotation, this will return null.
+     * If the Model is missing the {@link Table} annotation, this will return null.
      */
     public Class<? extends Model> getModelClassForName(String tableName) {
         return modelTableNames.get(tableName);

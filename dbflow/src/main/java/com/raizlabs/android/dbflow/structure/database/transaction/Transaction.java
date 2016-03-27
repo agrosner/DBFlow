@@ -113,9 +113,14 @@ public final class Transaction {
                     }
                 });
             }
-        } catch (Throwable throwable) {
+        } catch (final Throwable throwable) {
             if (errorCallback != null) {
-                errorCallback.onError(this, throwable);
+                TRANSACTION_HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        errorCallback.onError(Transaction.this, throwable);
+                    }
+                });
             }
         }
     }

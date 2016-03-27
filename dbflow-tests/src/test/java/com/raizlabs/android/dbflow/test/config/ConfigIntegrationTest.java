@@ -152,9 +152,7 @@ public class ConfigIntegrationTest {
 
         @Override
         public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {
-            if (testTransactionManager == null) {
-                testTransactionManager = new TestTransactionManager(databaseDefinition);
-            }
+            testTransactionManager = new TestTransactionManager(databaseDefinition);
             return testTransactionManager;
         }
 
