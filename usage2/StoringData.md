@@ -27,17 +27,7 @@ for (int i = 0; i < models.size(), i++) {
 
 ```
 
-Instead we should move onto `Transaction`.
-
-## Transactions
-
-Transactions are ACID in SQLite, meaning they either occur completely or not at all.
-Using transactions significantly speed up the time it takes to store. So recommendation
-you should use transactions whenever you can.
-
-DBFlow supports two kinds of transactions: synchronous (blocking) vs. asynchronous.
-
-### Synchronous Transactions
+## Synchronous Transactions
 
 A simple database transaction can be wrapped in a call:
 
@@ -57,11 +47,20 @@ FlowManager.getDatabase(AppDatabase.class).executeTransaction(new ITransaction()
 Even though DBFlow is ridiculously fast, this should be put on a separate thread
  outside of the UI, so that your UI remains responsive on all devices.
 
+ Instead we should move onto `Transaction` (the preferred method).
+
  ### Async Transactions
 
- This is the preferred method. Transactions, using the `DefaultTransactionManager`,
+## Transactions
+
+Transactions are ACID in SQLite, meaning they either occur completely or not at all.
+Using transactions significantly speed up the time it takes to store. So recommendation
+you should use transactions whenever you can.
+
+Async is the preferred method. Transactions, using the `DefaultTransactionManager`,
  occur on one thread per-database (to prevent flooding from other DB in your app)
-  and receive callbacks on the UI.
+  and receive callbacks on the UI. You can override this behavior and roll your own
+  or hook into an existing system, read [here](/usage2/StoringData.md#custom-transactionmanager)
 
  A basic transaction:
 
@@ -96,9 +95,60 @@ transaction.cancel();
    .error(new Transaction.Error() {
        @Override
        public void onError(Transaction transaction, Throwable error) {
-
+          // call if any errors occur in the transaction.
        }
    });
 
 
  ```
+
+ The `Success` callback runs post-transaction on the UI thread.
+ The `Error` callback is called on the UI thread if and only if it is specified and an exception occurs,
+ otherwise it is thrown in the `Transaction` as a `RuntimeException`. **Note**:
+ all exceptions are caught when specifying the callback. Ensure you handle all
+ errors, otherwise you might miss some problems.
+
+### ProcessModelTransaction
+
+`ProcessModelTransaction` allows you to easily operate on a set of `Model` in a
+`Transaction` easily.
+
+It is a convenient way to operate on them:
+
+```java
+
+ProcessModelTransaction<TestModel1> processModelTransaction =
+        new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<TestModel1>() {
+            @Override
+            public void processModel(TestModel1 model) {
+                processCalled.set(true);
+            }
+        }).processListener(new ProcessModelTransaction.OnModelProcessListener<TestModel1>() {
+            @Override
+            public void onModelProcessed(long current, long total, TestModel1 modifiedModel) {
+                modelProcessedCount.incrementAndGet();
+            }
+        }).addAll(items).build();
+Transaction transaction = database.beginTransactionAsync(processModelTransaction).build();
+transaction.execute();
+
+```
+
+In Kotlin (with dbflow-kotlinextensions), this becomes as simple as:
+
+```java
+
+database<TestModel1>().beginTransactionAsync {
+    ProcessModelTransaction.Builder<TestModel1>({ it.save() })
+            .processListener(ProcessModelTransaction
+                    .OnModelProcessListener<TestModel1> { current, total, item ->
+                      // do something here on UI thread.
+                    })
+            .addAll(items).build()
+}.build().execute()
+
+```
+You can listen to when operations complete for each model via the `OnModelProcessListener`.
+These callbacks occur on the UI thread.
+
+### Custom TransactionManager

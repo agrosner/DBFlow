@@ -121,6 +121,8 @@ public final class Transaction {
                         errorCallback.onError(Transaction.this, throwable);
                     }
                 });
+            } else {
+                throw new RuntimeException("An exception occurred while executing a transaction", throwable);
             }
         }
     }
