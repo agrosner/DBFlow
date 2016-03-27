@@ -22,20 +22,31 @@ public class CacheableListModelLoader<TModel extends Model> extends ListModelLoa
 
     public CacheableListModelLoader(Class<TModel> modelClass) {
         super(modelClass);
+    }
 
-        if (!(getInstanceAdapter() instanceof ModelAdapter)) {
-            throw new IllegalArgumentException("A non-Table type was used.");
+    public ModelCache<TModel, ?> getModelCache() {
+        if (modelCache == null) {
+            modelCache = modelAdapter.getModelCache();
+            if (modelCache == null) {
+                throw new IllegalArgumentException("ModelCache specified in convertToCacheableList() must not be null.");
+            }
         }
-        //noinspection unchecked
-        modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
-        modelCache = modelAdapter.getModelCache();
+        return modelCache;
+    }
 
-        if (!modelAdapter.cachingEnabled()) {
-            throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
-                    "use one Primary Key or call convertToList()");
-        } else if (modelCache == null) {
-            throw new IllegalArgumentException("ModelCache specified in convertToCacheableList() must not be null.");
+    @SuppressWarnings("unchecked")
+    public ModelAdapter<TModel> getModelAdapter() {
+        if (modelAdapter == null) {
+            if (!(getInstanceAdapter() instanceof ModelAdapter)) {
+                throw new IllegalArgumentException("A non-Table type was used.");
+            }
+            modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
+            if (!modelAdapter.cachingEnabled()) {
+                throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
+                        "use one Primary Key or call convertToList()");
+            }
         }
+        return modelAdapter;
     }
 
     @SuppressWarnings("unchecked")
@@ -44,19 +55,19 @@ public class CacheableListModelLoader<TModel extends Model> extends ListModelLoa
         if (data == null) {
             data = new ArrayList<>();
         }
-        Object[] cacheValues = new Object[modelAdapter.getCachingColumns().length];
+        Object[] cacheValues = new Object[getModelAdapter().getCachingColumns().length];
         // Ensure that we aren't iterating over this cursor concurrently from different threads
         if (cursor.moveToFirst()) {
             do {
-                Object[] values = modelAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor);
-                TModel model = modelCache.get(modelAdapter.getCachingId(values));
+                Object[] values = getModelAdapter().getCachingColumnValuesFromCursor(cacheValues, cursor);
+                TModel model = getModelCache().get(getModelAdapter().getCachingId(values));
                 if (model != null) {
-                    modelAdapter.reloadRelationships(model, cursor);
+                    getModelAdapter().reloadRelationships(model, cursor);
                     data.add(model);
                 } else {
-                    model = modelAdapter.newInstance();
-                    modelAdapter.loadFromCursor(cursor, model);
-                    modelCache.addModel(modelAdapter.getCachingId(values), model);
+                    model = getModelAdapter().newInstance();
+                    getModelAdapter().loadFromCursor(cursor, model);
+                    getModelCache().addModel(getModelAdapter().getCachingId(values), model);
                     data.add(model);
                 }
             } while (cursor.moveToNext());

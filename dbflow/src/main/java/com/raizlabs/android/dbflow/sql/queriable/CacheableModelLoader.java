@@ -19,11 +19,21 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
 
     public CacheableModelLoader(Class<TModel> modelClass) {
         super(modelClass);
-        if (!(getInstanceAdapter() instanceof ModelAdapter)) {
-            throw new IllegalArgumentException("A non-Table type was used.");
+    }
+
+    @SuppressWarnings("unchecked")
+    public ModelAdapter<TModel> getModelAdapter() {
+        if (modelAdapter == null) {
+            if (!(getInstanceAdapter() instanceof ModelAdapter)) {
+                throw new IllegalArgumentException("A non-Table type was used.");
+            }
+            modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
+            if (!modelAdapter.cachingEnabled()) {
+                throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
+                        "use one Primary Key or call convertToList()");
+            }
         }
-        //noinspection unchecked
-        modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
+        return modelAdapter;
     }
 
     /**
@@ -36,20 +46,20 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
     @Override
     public TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data) {
         if (cursor.moveToFirst()) {
-            ModelCache<TModel, ?> modelCache = modelAdapter.getModelCache();
-            Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
-                    new Object[modelAdapter.getCachingColumns().length], cursor);
-            TModel model = modelCache.get(modelAdapter.getCachingId(values));
+            ModelCache<TModel, ?> modelCache = getModelAdapter().getModelCache();
+            Object[] values = getModelAdapter().getCachingColumnValuesFromCursor(
+                    new Object[getModelAdapter().getCachingColumns().length], cursor);
+            TModel model = modelCache.get(getModelAdapter().getCachingId(values));
             if (model == null) {
                 if (data == null) {
-                    model = modelAdapter.newInstance();
+                    model = getModelAdapter().newInstance();
                 } else {
                     model = data;
                 }
-                modelAdapter.loadFromCursor(cursor, model);
-                modelCache.addModel(modelAdapter.getCachingId(values), model);
+                getModelAdapter().loadFromCursor(cursor, model);
+                modelCache.addModel(getModelAdapter().getCachingId(values), model);
             } else {
-                modelAdapter.reloadRelationships(model, cursor);
+                getModelAdapter().reloadRelationships(model, cursor);
             }
             return model;
         } else {

@@ -18,13 +18,11 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 public abstract class ModelLoader<TModel extends Model, TReturn> {
 
     private final Class<TModel> modelClass;
-    private final DatabaseDefinition databaseDefinition;
+    private DatabaseDefinition databaseDefinition;
     private InstanceAdapter instanceAdapter;
 
     public ModelLoader(Class<TModel> modelClass) {
         this.modelClass = modelClass;
-        databaseDefinition = FlowManager.getDatabaseForTable(modelClass);
-        instanceAdapter = FlowManager.getInstanceAdapter(modelClass);
     }
 
     /**
@@ -34,11 +32,11 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
      * @return The data loaded from the database.
      */
     public TReturn load(String query) {
-        return load(databaseDefinition.getWritableDatabase(), query);
+        return load(getDatabaseDefinition().getWritableDatabase(), query);
     }
 
     public TReturn load(String query, @Nullable TReturn data) {
-        return load(databaseDefinition.getWritableDatabase(), query, data);
+        return load(getDatabaseDefinition().getWritableDatabase(), query, data);
     }
 
     /**
@@ -82,10 +80,17 @@ public abstract class ModelLoader<TModel extends Model, TReturn> {
 
     @NonNull
     public InstanceAdapter getInstanceAdapter() {
+        if (instanceAdapter == null) {
+            instanceAdapter = FlowManager.getInstanceAdapter(modelClass);
+        }
         return instanceAdapter;
     }
 
+    @NonNull
     public DatabaseDefinition getDatabaseDefinition() {
+        if (databaseDefinition == null) {
+            databaseDefinition = FlowManager.getDatabaseForTable(modelClass);
+        }
         return databaseDefinition;
     }
 
