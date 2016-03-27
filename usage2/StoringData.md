@@ -152,3 +152,83 @@ You can listen to when operations complete for each model via the `OnModelProces
 These callbacks occur on the UI thread.
 
 ### Custom TransactionManager
+
+If you prefer to roll your own thread-management system or have an existing
+system you can override the default system included.
+
+
+To begin you must implement a `ITransactionQueue`:
+
+```java
+
+public class CustomQueue implements ITransactionQueue {
+
+    @Override
+    public void add(Transaction transaction) {
+
+    }
+
+    @Override
+    public void cancel(Transaction transaction) {
+
+    }
+
+    @Override
+    public void startIfNotAlive() {
+
+    }
+
+    @Override
+    public void cancel(String name) {
+
+    }
+
+    @Override
+    public void quit() {
+
+    }
+}
+
+```
+
+You must provide ways to `add()`, `cancel(Transaction)`, and `startIfNotAlive()`.
+The other two methods are optional, but recommended.
+
+`startIfNotAlive()` in the `DefaultTransactionQueue` will start itself (since it's
+a thread).
+
+ Next you can override the `BaseTransactionManager` (not required, see later):
+
+```java
+
+*/
+public class CustomTransactionManager extends BaseTransactionManager {
+
+   public CustomTransactionManager(DatabaseDefinition databaseDefinition) {
+       super(new CustomTransactionQueue(), databaseDefinition);
+   }
+
+}
+
+```
+
+To register it with DBFlow, in your `FlowConfig`, you must:
+
+```java
+
+FlowManager.init(builder
+    .addDatabaseConfig(new DatabaseConfig.Builder(AppDatabase.class)
+       .transactionManagerCreator(new DatabaseConfig.TransactionManagerCreator() {
+                        @Override
+                        public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {
+                          // this will be called once database modules are loaded and created.
+                            return new CustomTransactionManager(databaseDefinition);
+
+                            // or you can:
+                            //return new DefaultTransactionManager(new CustomTransactionQueue(), databaseDefinition);
+                        }
+                    })
+       .build())
+    .build());
+
+```
