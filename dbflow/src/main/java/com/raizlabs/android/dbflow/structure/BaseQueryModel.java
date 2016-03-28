@@ -12,14 +12,17 @@ public class BaseQueryModel extends NoModificationModel {
 
     private transient QueryModelAdapter adapter;
 
-    public BaseQueryModel() {
-        adapter = FlowManager.getQueryModelAdapter(getClass());
-    }
-
     @Override
     public boolean exists() {
         throw new InvalidSqlViewOperationException("Query " + getClass().getName() + " does not exist as a table." +
                 "It's a convenient representation of a complex SQLite query.");
+    }
+
+    public QueryModelAdapter getQueryModelAdapter() {
+        if (adapter == null) {
+            adapter = FlowManager.getQueryModelAdapter(getClass());
+        }
+        return adapter;
     }
 
     /**
@@ -31,7 +34,7 @@ public class BaseQueryModel extends NoModificationModel {
     @SuppressWarnings("unchecked")
     public void loadFromCursor(Cursor cursor) {
         if (cursor != null && cursor.moveToFirst()) {
-            adapter.loadFromCursor(cursor, this);
+            getQueryModelAdapter().loadFromCursor(cursor, this);
         }
 
         if (cursor != null) {

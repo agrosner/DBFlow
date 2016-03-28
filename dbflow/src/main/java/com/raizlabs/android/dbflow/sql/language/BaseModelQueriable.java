@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,15 +56,18 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
         return retrievalAdapter.getSingleModelLoader().load(wrapper, getQuery());
     }
 
+    @NonNull
     @Override
     public List<TModel> queryList(DatabaseWrapper wrapper) {
-        return retrievalAdapter.getListModelLoader().load(wrapper, getQuery());
+        List<TModel> list = retrievalAdapter.getListModelLoader().load(wrapper, getQuery());
+        return list == null ? new ArrayList<TModel>() : list;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {
-        return (ModelContainerClass) FlowManager.getContainerAdapter(getTable()).getModelContainerLoader().load(getQuery(), instance);
+        return (ModelContainerClass) FlowManager.getContainerAdapter(getTable())
+                .getModelContainerLoader().load(getQuery(), instance);
     }
 
     @Override

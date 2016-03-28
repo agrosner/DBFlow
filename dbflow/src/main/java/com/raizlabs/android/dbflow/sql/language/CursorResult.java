@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -46,6 +47,31 @@ public class CursorResult<TModel extends Model> implements Closeable {
     public List<TModel> toListClose() {
         if (cursor != null) {
             return retrievalAdapter.getListModelLoader().load(cursor);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return A {@link List} of items from this object. You must call {@link #close()} when finished.
+     */
+    @Nullable
+    public <TCustom extends BaseQueryModel> List<TCustom> toCustomList(Class<TCustom> customClass) {
+        if (cursor != null) {
+            return FlowManager.getQueryModelAdapter(customClass)
+                    .getListModelLoader().convertToData(cursor, null);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return Converts the {@link Cursor} to a {@link List} of {@link TModel} and then closes it.
+     */
+    @Nullable
+    public <TCustom extends BaseQueryModel> List<TCustom> toCustomListClose(Class<TCustom> customClass) {
+        if (cursor != null) {
+            return FlowManager.getQueryModelAdapter(customClass).getListModelLoader().load(cursor);
         } else {
             return null;
         }

@@ -87,7 +87,8 @@ A more comprehensive list of conditional operations DBFlow supports and what the
   3. isNull() -> IS NULL / isNotNull() -> IS NOT NULL
   4. like(), glob()
   5. greaterThan(), greaterThanOrEqual(), lessThan(), lessThanOrEqual()
-  6. between() -> BETWEEN 7. in(), notIn()
+  6. between() -> BETWEEN
+  7. in(), notIn()
 
 #### Nested Conditions
 

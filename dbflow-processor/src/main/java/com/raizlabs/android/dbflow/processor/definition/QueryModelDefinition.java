@@ -108,13 +108,12 @@ public class QueryModelDefinition extends BaseTableDefinition {
         for (Element variableElement : variableElements) {
 
             // no private static or final fields
-            boolean isValidColumn = ElementUtility.isValidAllFields(allFields, element);
+            boolean isAllFields = ElementUtility.isValidAllFields(allFields, element);
+            // package private, will generate helper
+            boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
+            boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
 
-            if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
-
-                // package private, will generate helper
-                boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
-                boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
+            if (element.getAnnotation(Column.class) != null || isAllFields) {
 
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage);
                 if (columnValidator.validate(manager, columnDefinition)) {

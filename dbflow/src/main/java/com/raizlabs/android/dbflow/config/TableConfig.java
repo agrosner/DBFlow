@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.config;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
@@ -65,7 +67,7 @@ public final class TableConfig<TModel extends Model> {
          * Define how the table saves data into the DB from its associated {@link TModel}. This
          * will override the default.
          */
-        public Builder<TModel> modelSaver(ModelSaver modelSaver) {
+        public Builder<TModel> modelSaver(@NonNull ModelSaver modelSaver) {
             this.modelSaver = modelSaver;
             return this;
         }
@@ -73,7 +75,7 @@ public final class TableConfig<TModel extends Model> {
         /**
          * Define how the table loads single models. This will override the default.
          */
-        public Builder<TModel> singleModelLoader(SingleModelLoader<TModel> singleModelLoader) {
+        public Builder<TModel> singleModelLoader(@NonNull SingleModelLoader<TModel> singleModelLoader) {
             this.singleModelLoader = singleModelLoader;
             return this;
         }
@@ -81,7 +83,7 @@ public final class TableConfig<TModel extends Model> {
         /**
          * Define how the table loads a {@link List} of items. This will override the default.
          */
-        public Builder<TModel> listModelLoader(ListModelLoader<TModel> listModelLoader) {
+        public Builder<TModel> listModelLoader(@NonNull ListModelLoader<TModel> listModelLoader) {
             this.listModelLoader = listModelLoader;
             return this;
         }
@@ -90,7 +92,7 @@ public final class TableConfig<TModel extends Model> {
          * If a {@link ModelContainer} annotation specified for this table, define how models are
          * loaded individually from the DB. This will override the default.
          */
-        public Builder<TModel> modelContainerLoader(ModelContainerLoader<TModel> modelContainerModelLoader) {
+        public Builder<TModel> modelContainerLoader(@NonNull ModelContainerLoader<TModel> modelContainerModelLoader) {
             this.modelContainerLoader = modelContainerModelLoader;
             return this;
         }

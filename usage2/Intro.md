@@ -92,8 +92,13 @@ The list of documentation is listed here:
   [Relationships](/usage2/Relationships.md)
 
   [Storing Data](/usage2/StoringData.md)
-  
+
+  [Retrieval](/usage2/Retrieval.md)
+
   [The SQLite Wrapper Language](/usage2/SQLiteWrapperLanguage.md)
 
-Advanced DBFlow:
+For advanced DBFlow usages:
+
   [Multiple Modules](/usage2/MultipleModules.md)
+
+  [Query Models](/usage2/QueryModels.md)
