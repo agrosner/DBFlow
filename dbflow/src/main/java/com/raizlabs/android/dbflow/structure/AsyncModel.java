@@ -2,8 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -13,7 +12,7 @@ import java.lang.ref.WeakReference;
 /**
  * Description: Called from a {@link BaseModel}, this places the current {@link Model} interaction on the background.
  */
-public class AsyncModel<TModel extends Model> implements Model {
+public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel<TModel>> implements Model {
 
     /**
      * Listens for when this {@link Model} modification completes.
@@ -28,14 +27,11 @@ public class AsyncModel<TModel extends Model> implements Model {
 
     private final TModel model;
     private transient WeakReference<OnModelChangedListener> onModelChangedListener;
-    private final DatabaseDefinition databaseDefinition;
-    private Transaction.Success successCallback;
-    private Transaction.Error errorCallback;
-    private Transaction currentTransaction;
+
 
     public AsyncModel(@NonNull TModel referenceModel) {
+        super(referenceModel.getClass());
         model = referenceModel;
-        databaseDefinition = FlowManager.getDatabaseForTable(model.getClass());
     }
 
     /**
@@ -49,97 +45,49 @@ public class AsyncModel<TModel extends Model> implements Model {
         return this;
     }
 
-    /**
-     * Listen for any errors that occur during operations on this {@link AsyncModel}.
-     */
-    public AsyncModel<TModel> error(Transaction.Error errorCallback) {
-        this.errorCallback = errorCallback;
-        return this;
-    }
-
-    /**
-     * Listens for successes on this {@link AsyncModel}. Will return the {@link Transaction}.
-     */
-    public AsyncModel<TModel> success(Transaction.Success success) {
-        this.successCallback = success;
-        return this;
-    }
 
     @Override
     public void save() {
-        cancel();
-        currentTransaction = databaseDefinition
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<TModel>() {
-                            @Override
-                            public void processModel(TModel model) {
-                                model.save();
-                            }
-                        }).build())
-                .error(error)
-                .success(success)
-                .build();
-        currentTransaction.execute();
+        executeTransaction(new ProcessModelTransaction.Builder<>(
+                new ProcessModelTransaction.ProcessModel<TModel>() {
+                    @Override
+                    public void processModel(TModel model) {
+                        model.save();
+                    }
+                }).build());
     }
 
     @Override
     public void delete() {
-        cancel();
-        currentTransaction = databaseDefinition
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<TModel>() {
-                            @Override
-                            public void processModel(TModel model) {
-                                model.delete();
-                            }
-                        }).build())
-                .error(error)
-                .success(success)
-                .build();
-        currentTransaction.execute();
+        executeTransaction(new ProcessModelTransaction.Builder<>(
+                new ProcessModelTransaction.ProcessModel<TModel>() {
+                    @Override
+                    public void processModel(TModel model) {
+                        model.delete();
+                    }
+                }).build());
     }
 
     @Override
     public void update() {
-        cancel();
-        currentTransaction = databaseDefinition
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<TModel>() {
-                            @Override
-                            public void processModel(TModel model) {
-                                model.update();
-                            }
-                        }).build())
-                .error(error)
-                .success(success)
-                .build();
-        currentTransaction.execute();
+        executeTransaction(new ProcessModelTransaction.Builder<>(
+                new ProcessModelTransaction.ProcessModel<TModel>() {
+                    @Override
+                    public void processModel(TModel model) {
+                        model.update();
+                    }
+                }).build());
     }
 
     @Override
     public void insert() {
-        cancel();
-        currentTransaction = databaseDefinition
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<TModel>() {
-                            @Override
-                            public void processModel(TModel model) {
-                                model.insert();
-                            }
-                        }).build())
-                .error(error)
-                .success(success)
-                .build();
-        currentTransaction.execute();
-    }
-
-    /**
-     * Cancels current running transaction.
-     */
-    public void cancel() {
-        if (currentTransaction != null) {
-            currentTransaction.cancel();
-        }
+        executeTransaction(new ProcessModelTransaction.Builder<>(
+                new ProcessModelTransaction.ProcessModel<TModel>() {
+                    @Override
+                    public void processModel(TModel model) {
+                        model.insert();
+                    }
+                }).build());
     }
 
     @Override
@@ -147,26 +95,10 @@ public class AsyncModel<TModel extends Model> implements Model {
         return model.exists();
     }
 
-    private final Transaction.Error error = new Transaction.Error() {
-        @Override
-        public void onError(Transaction transaction, Throwable error) {
-            if (errorCallback != null) {
-                errorCallback.onError(transaction, error);
-            }
-            currentTransaction = null;
+    @Override
+    protected void onSuccess(Transaction transaction) {
+        if (onModelChangedListener != null && onModelChangedListener.get() != null) {
+            onModelChangedListener.get().onModelChanged(model);
         }
-    };
-
-    private final Transaction.Success success = new Transaction.Success() {
-        @Override
-        public void onSuccess(Transaction transaction) {
-            if (successCallback != null) {
-                successCallback.onSuccess(transaction);
-            }
-            if (onModelChangedListener != null && onModelChangedListener.get() != null) {
-                onModelChangedListener.get().onModelChanged(model);
-            }
-            currentTransaction = null;
-        }
-    };
+    }
 }

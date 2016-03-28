@@ -124,3 +124,99 @@ To create a nested query simply include it as a `Property` via `PropertyFactory.
 .where(PropertyFactory.from(SQLite.select().from(...).where(...))
 
 ```
+
+This appends a `WHERE (SELECT * FROM {table} )` to the query.
+
+### JOINS
+
+For reference, ([JOIN examples](http://www.tutorialspoint.com/sqlite/sqlite_using_joins.htm)).
+
+`JOIN` statements are great for combining many-to-many relationships.
+If your query returns non-table fields and cannot map to an existing object,
+see about [query models](usage/QueryModels.md)
+
+For example we have a table named `Customer` and another named `Reservations`.
+
+```SQL
+SELECT FROM `Customer` AS `C` INNER JOIN `Reservations` AS `R` ON `C`.`customerId`=`R`.`customerId`
+```
+
+```java
+// use the different QueryModel (instead of Table) if the result cannot be applied to existing Model classes.
+List<CustomTable> customers = new Select()   
+  .from(Customer.class).as("C")   
+  .join(Reservations.class, JoinType.INNER).as("R")    
+  .on(Customer_Table.customerId
+      .withTable(new NameAlias("C"))
+    .eq(Reservations_Table.customerId.withTable("R"))
+    .queryCustomList(CustomTable.class);
+```
+
+The `IProperty.withTable()` method will prepend a `NameAlias` or the `Table` alias  to the `IProperty` in the query, convenient for JOIN queries:
+
+```sqlite
+SELECT EMP_ID, NAME, DEPT FROM COMPANY LEFT OUTER JOIN DEPARTMENT
+      ON COMPANY.ID = DEPARTMENT.EMP_ID
+```
+
+in DBFlow:
+
+```java
+SQLite.select(Company_Table.EMP_ID, Company_Table.DEPT)
+  .from(Company.class)
+  .leftOuterJoin(Department.class)
+  .on(Company_Table.ID.withTable().eq(Department_Table.EMP_ID.withTable()))
+```
+
+### Order By
+
+```java
+
+// true for 'ASC', false for 'DESC'
+SQLite.select()
+  .from(table)
+  .where()
+  .orderBy(Customer_Table.customer_id, true)
+
+  SQLite.select()
+    .from(table)
+    .where()
+    .orderBy(Customer_Table.customer_id, true)
+    .orderBy(Customer_Table.name, false)
+```
+
+### Group By
+
+```java
+SQLite.select()
+  .from(table)
+  .groupBy(Customer_Table.customer_id, Customer_Table.customer_name)
+```
+
+### HAVING
+
+```java
+SQLite.select()
+  .from(table)
+  .groupBy(Customer_Table.customer_id, Customer_Table.customer_name))
+  .having(Customer_Table.customer_id.greaterThan(2))
+```
+
+### LIMIT + OFFSET
+
+```java
+SQLite.select()
+  .from(table)
+  .limit(3)
+  .offset(2)
+```
+
+## UPDATE
+
+DBFlow supports two kind of UPDATE:
+  1. `Model.update()`
+  2. `SQLite.update()`
+
+For simple `UPDATE` for a single or few, concrete set of `Model` stick with (1).
+For powerful multiple `Model` update that can span many rows, use (2). In this
+section we speak on (2).

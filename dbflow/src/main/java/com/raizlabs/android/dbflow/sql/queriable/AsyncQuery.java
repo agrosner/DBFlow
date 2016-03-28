@@ -1,41 +1,44 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
+import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
+import com.raizlabs.android.dbflow.structure.AsyncModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 /**
  * Description: Adds async methods to a {@link ModelQueriable}
  */
-public class AsyncQuery<TModel extends Model> {
+public class AsyncQuery<TModel extends Model> extends BaseAsyncObject<AsyncModel<TModel>> {
 
     private final ModelQueriable<TModel> modelQueriable;
-    private Transaction currentTransaction;
-    private DatabaseDefinition database;
+    private QueryTransaction.QueryResultCallback<TModel> queryResultCallback;
 
     /**
      * Constructs an instance of this async query.
      *
-     * @param queriable                 The queriable object to use to query data.
+     * @param queriable The queriable object to use to query data.
      */
-    public AsyncQuery(ModelQueriable<TModel> queriable) {
+    public AsyncQuery(@NonNull ModelQueriable<TModel> queriable) {
+        super(queriable.getTable());
         this.modelQueriable = queriable;
-        database = FlowManager.getDatabaseForTable(queriable.getTable());
+    }
+
+    /**
+     * @param queryResultCallback Called when query is executed and has a result.
+     */
+    public AsyncQuery<TModel> queryResultCallback(QueryTransaction.QueryResultCallback<TModel> queryResultCallback) {
+        this.queryResultCallback = queryResultCallback;
+        return this;
     }
 
     /**
      * Runs the specified query in the background.
      */
     public void execute() {
-        cancel();
-        currentTransaction = database
-            .beginTransactionAsync(new QueryTransaction.Builder<>(modelQueriable).build())
-            .build();
-        currentTransaction.execute();
+        executeTransaction(new QueryTransaction.Builder<>(modelQueriable)
+                .queryResult(queryResultCallback).build());
     }
 
     /**
@@ -45,27 +48,4 @@ public class AsyncQuery<TModel extends Model> {
         return modelQueriable.getTable();
     }
 
-    /**
-     * Queries the raw {@link Cursor} object from the contained query.
-     *
-     * @param queryResultCallback Called when query succeeds.
-     * @param error               Passed if any errors occur during transaction.
-     */
-    public void query(QueryTransaction.QueryResultCallback<TModel> queryResultCallback,
-                      Transaction.Error error) {
-        cancel();
-
-        currentTransaction = database
-            .beginTransactionAsync(new QueryTransaction.Builder<>(modelQueriable)
-                .queryResult(queryResultCallback).build())
-            .error(error).build();
-        currentTransaction.execute();
-    }
-
-    public void cancel() {
-        if (currentTransaction != null) {
-            database.getTransactionManager().cancelTransaction(currentTransaction);
-            currentTransaction = null;
-        }
-    }
 }
