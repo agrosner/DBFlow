@@ -219,4 +219,60 @@ DBFlow supports two kind of UPDATE:
 
 For simple `UPDATE` for a single or few, concrete set of `Model` stick with (1).
 For powerful multiple `Model` update that can span many rows, use (2). In this
-section we speak on (2).
+section we speak on (2). **Note:** using model caching, you'll need to clear it out
+post an operation from (2).
+
+
+```sql
+
+UPDATE Ant SET type = 'other' WHERE male = 1 AND type = 'worker';
+```
+
+Using DBFlow:
+
+```java
+
+// Native SQL wrapper
+SQLite.update(Ant.class)
+  .set(Ant_Table.type.eq("other"))
+  .where(Ant_Table.type.is("worker"))
+    .and(Ant_Table.isMale.is(true))
+    .async()
+    .execute(); // non-UI blocking
+```
+
+The `Set` part of the `Update` supports different kinds of values:
+  1. `ContentValues` -> converts to key/value as a `SQLCondition` of `is()`/`eq()`
+  2. `SQLCondition`, which are grouped together as part of the `SET` statement.
+
+## DELETE
+
+`DELETE` queries in DBFlow are similiar to `Update` in that we have two kinds:
+
+DBFlow supports two kind of UPDATE:
+  1. `Model.delete()`
+  2. `SQLite.delete()`
+
+For simple `DELETE` for a single or few, concrete set of `Model` stick with (1).
+For powerful multiple `Model` deletion that can span many rows, use (2). In this
+section we speak on (2). **Note:** using model caching, you'll need to clear it out
+post an operation from (2).
+
+
+```java
+
+// Delete a whole table
+Delete.table(MyTable.class, conditions);
+
+// Delete multiple instantly
+Delete.tables(MyTable1.class, MyTable2.class);
+
+// Delete using query
+SQLite.delete(MyTable.class)
+  .where(DeviceObject_Table.carrier.is("T-MOBILE"))
+    .and(DeviceObject_Table.device.is("Samsung-Galaxy-S5"))
+  .async()
+  .execute();
+```
+
+## 
