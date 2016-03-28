@@ -84,10 +84,15 @@ the configuration is highly minimal:
 The list of documentation is listed here:
 
   [Getting Started](/usage2/GettingStarted.md)
+
   [Databases](/usage2/Databases.md)
+
   [Models](/usage2/Models.md)
+
   [Relationships](/usage2/Relationships.md)
+
   [Storing Data](/usage2/StoringData.md)
+  
   [The SQLite Wrapper Language](/usage2/SQLiteWrapperLanguage.md)
 
 Advanced DBFlow:
