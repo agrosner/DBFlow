@@ -88,5 +88,7 @@ The list of documentation is listed here:
 [Models](/usage2/Models.md)
 [Relationships](/usage2/Relationships.md)
 [Storing Data](/usage2/StoringData.md)
+[The SQLite Wrapper Language](/usage2/SQLiteWrapperLanguage.md)
 
+Advanced DBFlow:
 [Multiple Modules](/usage2/MultipleModules.md)

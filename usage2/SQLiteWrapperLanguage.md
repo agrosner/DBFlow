@@ -249,7 +249,6 @@ The `Set` part of the `Update` supports different kinds of values:
 
 `DELETE` queries in DBFlow are similiar to `Update` in that we have two kinds:
 
-DBFlow supports two kind of UPDATE:
   1. `Model.delete()`
   2. `SQLite.delete()`
 
@@ -275,4 +274,33 @@ SQLite.delete(MyTable.class)
   .execute();
 ```
 
-## 
+## INSERT
+
+`INSERT` queries in DBFlow are also similiar to `Update` and `Delete` in that we
+have two kinds:
+
+  1. `Model.insert()`
+  2. `SQLite.insert()`
+
+For simple `INSERT` for a single or few, concrete set of `Model` stick with (1).
+For powerful multiple `Model` insertion that can span many rows, use (2). In this
+section we speak on (2). **Note:** using model caching, you'll need to clear it out
+post an operation from (2).
+
+```java
+
+// columns + values separately
+SQLite.insert(SomeTable.class)
+  .columns(SomeTable_Table.name, SomeTable_Table.phoneNumber)
+  .values("Default", "5555555")
+  .async()
+  .execute()
+
+// or combine into conditions
+  SQLite.insert(SomeTable.class)
+    .columnValues(SomeTable_Table.name.eq("Default"),
+     SomeTable_Table.phoneNumber.eq("5555555"))
+    .async()
+    .execute()
+
+```
