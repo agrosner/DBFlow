@@ -17,6 +17,8 @@ import java.util.List;
 public class CursorResult<TModel extends Model> implements Closeable {
 
     private final InstanceAdapter<?, TModel> retrievalAdapter;
+
+    @Nullable
     private final Cursor cursor;
 
     @SuppressWarnings("unchecked")
@@ -28,33 +30,53 @@ public class CursorResult<TModel extends Model> implements Closeable {
     /**
      * @return A {@link List} of items from this object. You must call {@link #close()} when finished.
      */
+    @Nullable
     public List<TModel> toList() {
-        return retrievalAdapter.getListModelLoader().convertToData(cursor, null);
+        if (cursor != null) {
+            return retrievalAdapter.getListModelLoader().convertToData(cursor, null);
+        } else {
+            return null;
+        }
     }
 
     /**
      * @return Converts the {@link Cursor} to a {@link List} of {@link TModel} and then closes it.
      */
+    @Nullable
     public List<TModel> toListClose() {
-        return retrievalAdapter.getListModelLoader().load(cursor);
+        if (cursor != null) {
+            return retrievalAdapter.getListModelLoader().load(cursor);
+        } else {
+            return null;
+        }
     }
 
     /**
      * @return The first {@link TModel} of items from the contained {@link Cursor}. You must call {@link #close()} when finished.
      */
+    @Nullable
     public TModel toModel() {
-        return retrievalAdapter.getSingleModelLoader().convertToData(cursor, null);
+        if (cursor != null) {
+            return retrievalAdapter.getSingleModelLoader().convertToData(cursor, null);
+        } else {
+            return null;
+        }
     }
 
     /**
      * @return Converts the {@link Cursor} into the first {@link TModel} from the cursor and then closes it.
      */
+    @Nullable
     public TModel toModelClose() {
-        return retrievalAdapter.getSingleModelLoader().load(cursor);
+        if (cursor != null) {
+            return retrievalAdapter.getSingleModelLoader().load(cursor);
+        } else {
+            return null;
+        }
     }
 
     public long count() {
-        return cursor.getCount();
+        return cursor == null ? 0 : cursor.getCount();
     }
 
     @Nullable
@@ -64,6 +86,8 @@ public class CursorResult<TModel extends Model> implements Closeable {
 
     @Override
     public void close() {
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 }

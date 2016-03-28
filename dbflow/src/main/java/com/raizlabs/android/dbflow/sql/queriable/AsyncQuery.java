@@ -3,14 +3,13 @@ package com.raizlabs.android.dbflow.sql.queriable;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
-import com.raizlabs.android.dbflow.structure.AsyncModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
 /**
  * Description: Adds async methods to a {@link ModelQueriable}
  */
-public class AsyncQuery<TModel extends Model> extends BaseAsyncObject<AsyncModel<TModel>> {
+public class AsyncQuery<TModel extends Model> extends BaseAsyncObject<AsyncQuery<TModel>> {
 
     private final ModelQueriable<TModel> modelQueriable;
     private QueryTransaction.QueryResultCallback<TModel> queryResultCallback;

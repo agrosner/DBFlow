@@ -29,17 +29,17 @@ public class AsyncQueryTest extends FlowTestCase {
         SQLite.select().from(TestModel1.class)
                 .where(TestModel1_Table.name.is("Async"))
                 .async()
-                .query(new QueryTransaction.QueryResultCallback<TestModel1>() {
+                .queryResultCallback(new QueryTransaction.QueryResultCallback<TestModel1>() {
                     @Override
                     public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
 
                     }
-                });
+                }).execute();
 
         SQLite.update(TestModel1.class)
                 .set(TestModel1_Table.name.is("Async2"))
                 .where(TestModel1_Table.name.is("Async"))
-                .async().query(null);
+                .async().execute();
 
         testModel1.async().withListener(new AsyncModel.OnModelChangedListener() {
             @Override
