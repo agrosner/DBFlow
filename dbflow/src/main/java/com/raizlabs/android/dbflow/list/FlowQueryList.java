@@ -30,7 +30,7 @@ import java.util.ListIterator;
 /**
  * Description: Operates very similiar to a {@link java.util.List} except its backed by a table cursor. All of
  * the {@link java.util.List} modifications default to the main thread, but it can be set to
- * run on the {@link DefaultTransactionQueue}. Register a {@link com.raizlabs.android.dbflow.runtime.transaction.TransactionListener}
+ * run on the {@link DefaultTransactionQueue}. Register a {@link Transaction.Success}
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
@@ -222,7 +222,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
                         .add(model).build())
-                .error(errorCallback)
+                .error(internalErrorCallback)
                 .success(internalSuccessCallback).build();
 
         if (transact) {
@@ -261,7 +261,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
                         .addAll(tmpCollection).build())
-                .error(errorCallback)
+                .error(internalErrorCallback)
                 .success(internalSuccessCallback).build();
 
         if (transact) {
@@ -280,7 +280,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new QueryTransaction.Builder<>(
                         SQLite.delete().from(internalCursorList.getTable())).build())
-                .error(errorCallback)
+                .error(internalErrorCallback)
                 .success(internalSuccessCallback)
                 .build();
 
@@ -407,7 +407,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
                         .add(model).build())
-                .error(errorCallback)
+                .error(internalErrorCallback)
                 .success(internalSuccessCallback).build();
 
         if (transact) {
@@ -436,7 +436,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
             Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                     .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
                             .add(model).build())
-                    .error(errorCallback)
+                    .error(internalErrorCallback)
                     .success(internalSuccessCallback).build();
 
             if (transact) {
@@ -466,7 +466,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
                         .addAll(modelCollection).build())
-                .error(errorCallback)
+                .error(internalErrorCallback)
                 .success(internalSuccessCallback).build();
 
         if (transact) {
@@ -492,7 +492,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(tableList, deleteModel)
                         .build())
-                .error(errorCallback)
+                .error(internalErrorCallback)
                 .success(internalSuccessCallback).build();
 
         if (transact) {
@@ -527,7 +527,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(updateModel)
                         .add(object)
                         .build())
-                .error(errorCallback)
+                .error(internalErrorCallback)
                 .success(internalSuccessCallback).build();
 
         if (transact) {
@@ -569,14 +569,6 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
                 @Override
                 public void processModel(TModel model) {
                     model.save();
-                }
-            };
-
-    private final ProcessModelTransaction.ProcessModel<TModel> insertModel =
-            new ProcessModelTransaction.ProcessModel<TModel>() {
-                @Override
-                public void processModel(TModel model) {
-                    model.insert();
                 }
             };
 

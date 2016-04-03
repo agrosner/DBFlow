@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.test.sql;
 
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.AsyncModel;

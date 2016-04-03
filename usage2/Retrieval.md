@@ -51,6 +51,7 @@ DBFlow provides the very-handy `Transaction` system that allows you to place all
 calls to the DB in a queue. Using this system, we recommend placing retrieval queries
 on this queue to help prevent locking and threading issues when using a database.
 
+A quick sample of retrieving data asyncly:
 
 ```java
 
@@ -66,3 +67,37 @@ SQLite.select()
   }).execute();
 
 ```
+
+This is fundamentally equal to:
+
+```java
+
+
+FlowManager.getDatabaseForTable(TestModel1.class)
+                .beginTransactionAsync(new QueryTransaction.Builder<>(
+                    SQLite.select()
+                        .from(TestModel1.class)
+                        .where(TestModel1_Table.name.is("Async")))
+                    .queryResult(new QueryTransaction.QueryResultCallback<TestModel1>() {
+                        @Override
+                        public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
+
+                        }
+                    }).build())
+.build().execute();
+
+```
+
+The first example in this section is more of a convenience for (2).
+
+By default the library uses the `DefaultTransactionManager` which utilizes
+a `DefaultTransactionQueue`. This queue is essentially an ordered queue that
+executes FIFO (first-in-first-out) and blocks itself until new `Transaction` are added.
+
+If you wish to customize and provide a different queue (or map it to an existing system), read up on [Transactions](/usage2/Transactions.md).
+
+
+Compared to pre-3.0 DBFlow, this is a breaking change from the old, priority-based
+queue system. The reason for this change was to simplify the queuing system and
+allow other systems to exist without confusing loss of functionality. To keep the old
+system read [Transactions](/usage2/Transactions.md).

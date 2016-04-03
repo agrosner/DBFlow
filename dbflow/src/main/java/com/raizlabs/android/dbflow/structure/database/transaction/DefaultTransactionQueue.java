@@ -55,8 +55,10 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
 
     @Override
     public void add(Transaction runnable) {
-        if (!queue.contains(runnable)) {
-            queue.add(runnable);
+        synchronized (queue) {
+            if (!queue.contains(runnable)) {
+                queue.add(runnable);
+            }
         }
     }
 

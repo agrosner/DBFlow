@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.structure.database.transaction;
 
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-
 /**
  * Description: Interface for a queue that manages transactions.
  */
@@ -29,7 +27,7 @@ public interface ITransactionQueue {
     /**
      * Cancels a transaction by name.
      *
-     * @param name the {@link BaseTransaction#getName()} property.
+     * @param name the {@link Transaction#name()} property.
      */
     void cancel(String name);
 

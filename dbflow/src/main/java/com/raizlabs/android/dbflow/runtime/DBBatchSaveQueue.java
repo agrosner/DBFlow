@@ -4,9 +4,7 @@ import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionManager;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
@@ -40,11 +38,6 @@ public class DBBatchSaveQueue extends Thread {
     private long modelSaveCheckTime = sMODEL_SAVE_CHECK_TIME;
 
     /**
-     * The shared save queue that all {@link DefaultTransactionManager#saveOnSaveQueue(java.util.Collection)} uses.
-     */
-    private static DBBatchSaveQueue batchSaveQueue;
-
-    /**
      * The list of {@link com.raizlabs.android.dbflow.structure.Model} that we will save here
      */
     private final ArrayList<Model> models;
@@ -53,8 +46,6 @@ public class DBBatchSaveQueue extends Thread {
      * If true, this queue will quit.
      */
     private boolean isQuitting = false;
-
-    private boolean purgeQueueWhenDone = true;
 
     private Transaction.Error errorListener;
     private Transaction.Success successListener;
@@ -74,7 +65,6 @@ public class DBBatchSaveQueue extends Thread {
      * Releases the reference to the shared @link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}
      */
     public static void disposeSharedQueue() {
-        batchSaveQueue = null;
     }
 
     /**
@@ -98,15 +88,6 @@ public class DBBatchSaveQueue extends Thread {
         this.modelSaveCheckTime = time;
     }
 
-    /**
-     * If true, we will awaken the save queue from sleep when the internal {@link TransactionListener} realizes the count of {@link Model}
-     * is smaller than the {@link #modelSaveSize}. Default is true.
-     *
-     * @param purgeQueueWhenDone true to check every batch and if size &lt; {@link #modelSaveSize} in the internal {@link TransactionListener}
-     */
-    public void setPurgeQueueWhenDone(boolean purgeQueueWhenDone) {
-        this.purgeQueueWhenDone = purgeQueueWhenDone;
-    }
 
     /**
      * Listener for errors in each batch {@link Transaction}.
@@ -142,11 +123,11 @@ public class DBBatchSaveQueue extends Thread {
                 //onExecute this on the DBManager thread
 
                 databaseDefinition.beginTransactionAsync(
-                    new ProcessModelTransaction.Builder(modelSaver).build())
-                    .success(successCallback)
-                    .error(errorCallback)
-                    .build()
-                    .execute();
+                        new ProcessModelTransaction.Builder(modelSaver).build())
+                        .success(successCallback)
+                        .error(errorCallback)
+                        .build()
+                        .execute();
             }
 
             try {
