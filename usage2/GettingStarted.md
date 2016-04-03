@@ -28,7 +28,7 @@ class is automatically placed into the main `GeneratedDatabaseHolder`, which hol
 potentially many databases. The name, `AppDatabaseAppDatabase_Database.java`, is generated
 via {DatabaseClassName}{DatabaseFileName}{GeneratedClassSepator, default = "\_"}Database
 
-To learn more about what you can configure in a database (such as SQLCipher), read [here](/usage2/Databases.md)
+To learn more about what you can configure in a database, read [here](/usage2/Databases.md)
 
 ## Initialize FlowManager
 

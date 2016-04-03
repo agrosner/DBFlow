@@ -95,7 +95,7 @@ time in case of failure we create a **third copy of the database** in case trans
 For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper`
 to manage database interactions. To do so, you must implement `OpenHelper`, but
 for convenience you should extend `FlowSQLiteOpenHelper` (for Android databases),
-or `SQLCipherOpenHelper` for SQLCipher.
+or `SQLCipherOpenHelper` for SQLCipher. Read more [here](/usage2/SQLCipherSupport.md)
 
 ```java
 
