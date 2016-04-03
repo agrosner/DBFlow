@@ -62,7 +62,8 @@ IndexModel2_Table.firstIndex.drop(); // turn it off when no longer needed.
 
 ## SQLite Index Wrapper
 
-For flexibility, we also support the SQLite `Index` wrapper object.
+For flexibility, we also support the SQLite `Index` wrapper object, in which the `IndexProperty`
+uses underneath.
 
 ```java
 
