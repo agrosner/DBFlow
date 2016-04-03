@@ -262,8 +262,12 @@ FlowManager.init(builder
 ```
 
 What this does is for the specified database (in this case `AppDatabase`),
-now require each `ITransaction` specified for the database must wrap itself around
-the `PriorityTransactionWrapper`. Otherwise an `IllegalArgumentException` is thrown.
+now require each `ITransaction` specified for the database should wrap itself around
+the `PriorityTransactionWrapper`. Otherwise an the `PriorityTransactionQueue`
+wraps the existing `Transaction` in a `PriorityTransactionWrapper` with normal priority.
+
+
+To specify a priority:
 
 ```java
 
