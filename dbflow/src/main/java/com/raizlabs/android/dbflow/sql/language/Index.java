@@ -2,13 +2,13 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,26 +123,26 @@ public class Index<TModel extends Model> implements Query {
         return isUnique;
     }
 
-    /**
-     * Enables the TRIGGER.
-     */
-    public void enable() {
+    public void enable(DatabaseWrapper databaseWrapper) {
 
         if (table == null) {
             throw new IllegalStateException("Please call on() to set a table to use this index on.");
         } else if (columns == null || columns.isEmpty()) {
             throw new IllegalStateException("There should be at least one column in this index");
         }
-
-        DatabaseDefinition databaseDefinition = FlowManager.getDatabaseForTable(table);
-        databaseDefinition.getWritableDatabase().execSQL(getQuery());
+        databaseWrapper.execSQL(getQuery());
     }
 
-    /**
-     * Disables the TRIGGER
-     */
+    public void enable() {
+        enable(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+    }
+
     public void disable() {
-        SqlUtils.dropIndex(table, indexName);
+        SqlUtils.dropIndex(FlowManager.getDatabaseForTable(table).getWritableDatabase(), indexName);
+    }
+
+    public void disable(DatabaseWrapper databaseWrapper) {
+        SqlUtils.dropIndex(databaseWrapper, indexName);
     }
 
     @Override

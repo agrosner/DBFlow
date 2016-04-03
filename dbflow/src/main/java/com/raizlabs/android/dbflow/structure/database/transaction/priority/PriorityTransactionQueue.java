@@ -157,7 +157,8 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
 
             PriorityEntry<?> that = (PriorityEntry<?>) o;
 
-            return transactionWrapper != null ? transactionWrapper.equals(that.transactionWrapper) : that.transactionWrapper == null;
+            return transactionWrapper != null ? transactionWrapper.equals(that.transactionWrapper)
+                    : that.transactionWrapper == null;
 
         }
 

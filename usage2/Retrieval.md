@@ -6,6 +6,8 @@ the `Model` classes we can map this information to easy-to-use objects.
 DBFlow provides a few different ways to retrieve information from the database. We
 can retrieve synchronously or asynchronous (preferred).
 
+We can also use `ModelView` ([read here](/usage2/ModelViews.md)) and `@Index` ([read here](/usage2/Indexing.md)) to perform faster retrieval on a set of data constantly queried.
+
 ## Synchronous Retrieval
 
 Using the [SQLite query language](/usage2/SQLiteWrapperLanguage.md) we can retrieve

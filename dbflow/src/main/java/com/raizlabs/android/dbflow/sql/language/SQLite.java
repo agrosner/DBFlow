@@ -28,7 +28,7 @@ public class SQLite {
     }
 
     /**
-     * @param table        The tablet to update.
+     * @param table    The tablet to update.
      * @param <TModel> The class that implements {@link Model}.
      * @return A new UPDATE statement.
      */
@@ -37,7 +37,7 @@ public class SQLite {
     }
 
     /**
-     * @param table        The table to insert.
+     * @param table    The table to insert.
      * @param <TModel> The class that implements {@link Model}.
      * @return A new INSERT statement.
      */
@@ -55,11 +55,22 @@ public class SQLite {
     /**
      * Starts a DELETE statement on the specified table.
      *
-     * @param table        The table to delete from.
+     * @param table    The table to delete from.
      * @param <TModel> The class that implements {@link Model}.
      * @return A {@link From} with specified DELETE on table.
      */
     public static <TModel extends Model> From<TModel> delete(Class<TModel> table) {
         return delete().from(table);
+    }
+
+    /**
+     * Starts an INDEX statement on specified table.
+     *
+     * @param name     The name of the index.
+     * @param <TModel> The class that implements {@link Model}.
+     * @return A new INDEX statement.
+     */
+    public static <TModel extends Model> Index<TModel> index(String name) {
+        return new Index<>(name);
     }
 }
