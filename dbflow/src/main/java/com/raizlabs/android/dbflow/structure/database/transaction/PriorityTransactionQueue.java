@@ -1,11 +1,9 @@
-package com.raizlabs.android.dbflow.structure.database.transaction.priority;
+package com.raizlabs.android.dbflow.structure.database.transaction;
 
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.Iterator;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -57,15 +55,11 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
 
     @Override
     public void add(Transaction transaction) {
-        if (transaction != null && transaction.transaction() instanceof PriorityTransactionWrapper) {
-            synchronized (queue) {
-                PriorityEntry<Transaction> priorityEntry = new PriorityEntry<>(transaction);
-                if (!queue.contains(priorityEntry)) {
-                    queue.add(priorityEntry);
-                }
+        synchronized (queue) {
+            PriorityEntry<Transaction> priorityEntry = new PriorityEntry<>(transaction);
+            if (!queue.contains(priorityEntry)) {
+                queue.add(priorityEntry);
             }
-        } else {
-            throwInvalidTransactionType(transaction);
         }
     }
 
@@ -138,7 +132,12 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
 
         public PriorityEntry(E entry) {
             this.entry = entry;
-            transactionWrapper = ((PriorityTransactionWrapper) entry.transaction());
+            if (entry.transaction() instanceof PriorityTransactionWrapper) {
+                transactionWrapper = ((PriorityTransactionWrapper) entry.transaction());
+            } else {
+                transactionWrapper = new PriorityTransactionWrapper.Builder(entry.transaction())
+                        .build();
+            }
         }
 
         public E getEntry() {

@@ -1,10 +1,9 @@
-package com.raizlabs.android.dbflow.structure.database.transaction.priority;
+package com.raizlabs.android.dbflow.structure.database.transaction;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 
 /**
  * Description: Provides transaction with priority. Meant to be used in a {@link PriorityTransactionQueue}.

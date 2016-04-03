@@ -60,7 +60,9 @@ you should use transactions whenever you can.
 Async is the preferred method. Transactions, using the `DefaultTransactionManager`,
  occur on one thread per-database (to prevent flooding from other DB in your app)
   and receive callbacks on the UI. You can override this behavior and roll your own
-  or hook into an existing system, read [here](/usage2/StoringData.md#custom-transactionmanager)
+  or hook into an existing system, read [here](/usage2/StoringData.md#custom-transactionmanager).
+
+Also to use the legacy, priority-based system, read [here](/usage2/StoringData.md#priority-queue).
 
  A basic transaction:
 
@@ -229,5 +231,45 @@ FlowManager.init(builder
                     })
        .build())
     .build());
+
+```
+
+### Priority Queue
+
+In versions pre-3.0, DBFlow utilized a `PriorityBlockingQueue` to manage the asynchronous
+dispatch of `Transaction`. As of 3.0, it has switched to simply a FIFO queue. To
+keep the legacy way, a `PriorityTransactionQueue` was created.
+
+As seen in [Custom Transaction Managers](/usage2/StoringData.md#custom-transactionmanager),
+we provide a custom instance of the  `DefaultTransactionManager` with the `PriorityTransactionQueue` specified:
+
+```java
+
+FlowManager.init(builder
+    .addDatabaseConfig(new DatabaseConfig.Builder(AppDatabase.class)
+       .transactionManagerCreator(new DatabaseConfig.TransactionManagerCreator() {
+                        @Override
+                        public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {
+                          // this will be called once database modules are loaded and created.
+                            return new DefaultTransactionManager(
+                              new PriorityTransactionQueue("DBFlow Priority Queue"),
+                              databaseDefinition);
+                        }
+                    })
+       .build())
+    .build());
+
+```
+
+What this does is for the specified database (in this case `AppDatabase`),
+now require each `ITransaction` specified for the database must wrap itself around
+the `PriorityTransactionWrapper`. Otherwise an `IllegalArgumentException` is thrown.
+
+```java
+
+FlowManager.getDatabase(AppDatabase.class)
+    .beginTransactionAsync(new PriorityTransactionWrapper.Builder(myTransaction)
+        .priority(PriorityTransactionWrapper.PRIORITY_HIGH).build())
+    .build().execute();
 
 ```

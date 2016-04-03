@@ -96,10 +96,10 @@ By default the library uses the `DefaultTransactionManager` which utilizes
 a `DefaultTransactionQueue`. This queue is essentially an ordered queue that
 executes FIFO (first-in-first-out) and blocks itself until new `Transaction` are added.
 
-If you wish to customize and provide a different queue (or map it to an existing system), read up on [Transactions](/usage2/Transactions.md).
+If you wish to customize and provide a different queue (or map it to an existing system), read up on [Transactions](/usage2/StoringData.md).
 
 
 Compared to pre-3.0 DBFlow, this is a breaking change from the old, priority-based
 queue system. The reason for this change was to simplify the queuing system and
 allow other systems to exist without confusing loss of functionality. To keep the old
-system read [Transactions](/usage2/Transactions.md).
+system read [Transactions](/usage2/StoringData.md).
