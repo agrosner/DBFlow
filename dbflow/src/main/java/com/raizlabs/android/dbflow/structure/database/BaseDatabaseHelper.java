@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure.database;
 
 import android.database.sqlite.SQLiteException;
 
+import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -44,13 +45,15 @@ public class BaseDatabaseHelper {
 
     public void onCreate(DatabaseWrapper db) {
         checkForeignKeySupport(db);
-        executeCreations(db);
+        if (!databaseDefinition.skipAutomaticModelCreation())
+            executeCreations(db);
         executeMigrations(db, -1, db.getVersion());
     }
 
     public void onUpgrade(DatabaseWrapper db, int oldVersion, int newVersion) {
         checkForeignKeySupport(db);
-        executeCreations(db);
+        if (!databaseDefinition.skipAutomaticModelCreation())
+            executeCreations(db);
         executeMigrations(db, oldVersion, newVersion);
     }
 
@@ -183,7 +186,7 @@ public class BaseDatabaseHelper {
             String line;
 
             // ends line with SQL
-            String querySuffix = ";";
+            String querySuffix = databaseDefinition.migrationScriptSeparator();
 
             // standard java comments
             String queryCommentPrefix = "\\";
