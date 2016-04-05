@@ -76,4 +76,14 @@ public @interface Database {
      * "TestTable" becomes "TestTable$Table" for a "$" separator.
      */
     String generatedClassSeparator() default "_";
+
+    /**
+     * @return Return the Migration script separator. This can to do be able to create a script to make a trigger
+     * or other db elements that may contain the default ";" separator.
+     */
+    String migrationScriptSeparator() default ";";
+    /**
+     * @return If return true the model automatic creation after database opening will be skipped
+     */
+    boolean skipAutomaticModelCreation() default false;
 }
