@@ -46,7 +46,7 @@ public class BaseDatabaseHelper {
         checkForeignKeySupport(db);
         if (!databaseDefinition.skipAutomaticModelCreation())
             executeCreations(db);
-        executeMigrations(db, -1, db.getVersion());
+        executeMigrations(db, -1, this.databaseDefinition.getDatabaseVersion());
     }
 
     public void onUpgrade(DatabaseWrapper db, int oldVersion, int newVersion) {
