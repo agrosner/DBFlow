@@ -185,7 +185,7 @@ public class BaseDatabaseHelper {
             String line;
 
             // ends line with SQL
-            String querySuffix = ";";
+            String querySuffix = databaseDefinition.migrationScriptSeparator();
 
             // standard java comments
             String queryCommentPrefix = "\\";
