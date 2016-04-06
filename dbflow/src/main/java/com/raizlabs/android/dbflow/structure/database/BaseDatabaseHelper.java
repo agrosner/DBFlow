@@ -44,13 +44,15 @@ public class BaseDatabaseHelper {
 
     public void onCreate(DatabaseWrapper db) {
         checkForeignKeySupport(db);
-        executeCreations(db);
-        executeMigrations(db, -1, db.getVersion());
+        if (!databaseDefinition.skipAutomaticModelCreation())
+            executeCreations(db);
+        executeMigrations(db, -1, this.databaseDefinition.getDatabaseVersion());
     }
 
     public void onUpgrade(DatabaseWrapper db, int oldVersion, int newVersion) {
         checkForeignKeySupport(db);
-        executeCreations(db);
+        if (!databaseDefinition.skipAutomaticModelCreation())
+            executeCreations(db);
         executeMigrations(db, oldVersion, newVersion);
     }
 
@@ -183,7 +185,7 @@ public class BaseDatabaseHelper {
             String line;
 
             // ends line with SQL
-            String querySuffix = ";";
+            String querySuffix = databaseDefinition.migrationScriptSeparator();
 
             // standard java comments
             String queryCommentPrefix = "\\";

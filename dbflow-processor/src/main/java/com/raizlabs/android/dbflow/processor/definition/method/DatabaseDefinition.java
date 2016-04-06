@@ -59,6 +59,10 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
     TypeName sqliteOpenHelperClass;
 
+    public String migrationScriptSeparator;
+
+    public boolean skipAutomaticModelCreation;
+
     public Map<TypeName, TableDefinition> tableDefinitionMap = new HashMap<>();
     public Map<String, TableDefinition> tableNameMap = new HashMap<>();
 
@@ -105,6 +109,9 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             insertConflict = database.insertConflict();
             updateConflict = database.updateConflict();
             isInMemory = database.inMemory();
+
+            migrationScriptSeparator = database.migrationScriptSeparator();
+            skipAutomaticModelCreation = database.skipAutomaticModelCreation();
         }
     }
 
@@ -232,6 +239,18 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             .addAnnotation(Override.class)
             .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
             .addStatement("return $S", databaseName)
+            .returns(ClassName.get(String.class)).build());
+
+        typeBuilder.addMethod(MethodSpec.methodBuilder("skipAutomaticModelCreation")
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $L", skipAutomaticModelCreation)
+            .returns(TypeName.BOOLEAN).build());
+
+        typeBuilder.addMethod(MethodSpec.methodBuilder("migrationScriptSeparator")
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $S", migrationScriptSeparator)
             .returns(ClassName.get(String.class)).build());
     }
 

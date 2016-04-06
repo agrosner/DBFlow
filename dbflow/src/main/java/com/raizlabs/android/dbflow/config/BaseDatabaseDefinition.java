@@ -196,6 +196,16 @@ public abstract class BaseDatabaseDefinition {
     public abstract boolean isInMemory();
 
     /**
+     * @return Return the default migration script separator
+     */
+    public abstract String migrationScriptSeparator();
+
+    /**
+     * @return True if need to skip the default model creation
+     */
+    public abstract boolean skipAutomaticModelCreation();
+
+    /**
      * @return The version of the database currently.
      */
     public abstract int getDatabaseVersion();
