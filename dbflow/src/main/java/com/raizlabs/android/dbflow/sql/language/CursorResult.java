@@ -29,6 +29,18 @@ public class CursorResult<TModel extends Model> implements Closeable {
     }
 
     /**
+     * Swaps the current cursor and will close existing one.
+     */
+    public void swapCursor(@Nullable Cursor cursor) {
+        if (this.cursor != null) {
+            (!this.cursor.isClosed()) {
+                this.cursor.close();
+            }
+        }
+        this.cursor = cursor;
+    }
+
+    /**
      * @return A {@link List} of items from this object. You must call {@link #close()} when finished.
      */
     @Nullable
@@ -59,7 +71,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
     public <TCustom extends BaseQueryModel> List<TCustom> toCustomList(Class<TCustom> customClass) {
         if (cursor != null) {
             return FlowManager.getQueryModelAdapter(customClass)
-                    .getListModelLoader().convertToData(cursor, null);
+                .getListModelLoader().convertToData(cursor, null);
         } else {
             return null;
         }
