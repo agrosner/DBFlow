@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.structure.QueryModelAdapter
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
 
 /**
  * Easily get access to its [DatabaseDefinition] directly.
@@ -61,10 +62,24 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(cros
  */
 inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit) {
     database<TModel>().beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
-                processFunction(it)
-            }).addAll(this).build()
+        ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            processFunction(it)
+        }).addAll(this).build()
     ).build().execute();
+}
+
+/**
+ * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
+ * an action on each individual [Model]. This happens on a non-UI thread.
+ */
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit,
+                                                                                 success: Transaction.Success? = null,
+                                                                                 error: Transaction.Error? = null) {
+    database<TModel>().beginTransactionAsync(
+        ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            processFunction(it)
+        }).addAll(this).build()
+    ).success(success).error(error).build().execute();
 }
 
 /**
