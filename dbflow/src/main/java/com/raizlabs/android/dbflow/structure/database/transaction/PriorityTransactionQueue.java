@@ -36,9 +36,7 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
         PriorityEntry<Transaction> transaction;
         while (true) {
             try {
-                synchronized (queue) {
-                    transaction = queue.take();
-                }
+                transaction = queue.take();
             } catch (InterruptedException e) {
                 if (isQuitting) {
                     synchronized (queue) {
@@ -121,12 +119,12 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
 
     private void throwInvalidTransactionType(Transaction transaction) {
         throw new IllegalArgumentException("Transaction of type:" +
-                (transaction != null ? transaction.transaction().getClass() : "Unknown")
-                + " should be of type PriorityTransactionWrapper");
+            (transaction != null ? transaction.transaction().getClass() : "Unknown")
+            + " should be of type PriorityTransactionWrapper");
     }
 
     class PriorityEntry<E extends Transaction>
-            implements Comparable<PriorityEntry<Transaction>> {
+        implements Comparable<PriorityEntry<Transaction>> {
         final E entry;
         final PriorityTransactionWrapper transactionWrapper;
 
@@ -136,7 +134,7 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
                 transactionWrapper = ((PriorityTransactionWrapper) entry.transaction());
             } else {
                 transactionWrapper = new PriorityTransactionWrapper.Builder(entry.transaction())
-                        .build();
+                    .build();
             }
         }
 
@@ -151,13 +149,17 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             PriorityEntry<?> that = (PriorityEntry<?>) o;
 
             return transactionWrapper != null ? transactionWrapper.equals(that.transactionWrapper)
-                    : that.transactionWrapper == null;
+                : that.transactionWrapper == null;
 
         }
 

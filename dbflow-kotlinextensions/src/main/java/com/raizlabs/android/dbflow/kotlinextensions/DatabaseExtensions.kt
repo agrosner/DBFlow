@@ -83,6 +83,21 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync
 }
 
 /**
+ * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
+ * an action on each individual [Model]. This happens on a non-UI thread.
+ */
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit,
+                                                                                 processListener: ProcessModelTransaction.OnModelProcessListener<TModel>? = null,
+                                                                                 success: Transaction.Success? = null,
+                                                                                 error: Transaction.Error? = null) {
+    database<TModel>().beginTransactionAsync(
+        ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            processFunction(it)
+        }).addAll(this).processListener(processListener).build()
+    ).success(success).error(error).build().execute();
+}
+
+/**
  * Adds the execute method to the [DatabaseWrapper]
  */
 fun DatabaseWrapper.executeUpdateDelete(rawQuery: String) {

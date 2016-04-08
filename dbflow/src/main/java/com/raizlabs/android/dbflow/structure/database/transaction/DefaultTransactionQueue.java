@@ -36,9 +36,7 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
         Transaction transaction;
         while (true) {
             try {
-                synchronized (queue) {
-                    transaction = queue.take();
-                }
+                transaction = queue.take();
             } catch (InterruptedException e) {
                 if (isQuitting) {
                     synchronized (queue) {
