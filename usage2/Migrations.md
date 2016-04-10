@@ -15,6 +15,8 @@ two kinds of modifications that exist: rename table and add a new column.
 
 In DBFlow migrations are not only used to modify the _structure_ of the database, but also other operations such as insert data into a database (for prepopulate), or add an index on a specific table.
 
+Migrations are only run on an existing database _except_ for the "0th" migration. Read [initial database setup](/usage2/Migrations.md#initial-database-setup)
+
 ### Migration Classes
 
 We recommend placing any `Migration` inside an associated `@Database` class so it's apparent the migration is tied to it.
