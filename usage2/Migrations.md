@@ -45,6 +45,11 @@ public class AppDatabase {
 
 The classes provide the ability to set a `priority` on the `Migration` so that an order is established. The higher the priority, that one will execute first.
 
+`Migration` have three methods:
+  1. `onPreMigrate()` - called first, do setup, and construction here.
+  2. `migrate()` -> called with the `DatabaseWrapper` specified, this is where the actual migration code should execute.
+  3. `onPostMigrate()` -> perform some cleanup, or any notifications that it was executed.
+
 ### Migration files
 
 DBFlow also supports `.sql` migration files. The rules on these follows must be followed:
@@ -68,10 +73,43 @@ DBFlow supports `Migration` that run on version "0" of a database. When Android 
 
 In DBFlow we provide a few helper `Migration` subclasses
 to provide default and easier implementation:
-  1. AlterTableMigration
-  2. IndexMigration/IndexPropertyMigration
-  3. UpdateTableMigration
+  1. `AlterTableMigration`
+  2. `IndexMigration/IndexPropertyMigration`
+  3. `UpdateTableMigration`
 
 ### AlterTableMigration
 
 The _structural_ modification of a table is brought to a handy `Migration` subclass.
+
+It performs both of SQLite supported operations:
+  1. Rename tables
+  2. Add columns.
+
+For renaming tables, you should rename the `Model` class' `@Table(name = "{newName}")` before running
+this `Migration`. The reason is that DBFlow will know
+the new name only and the existing database will get caught up on it through this migration. Any new database created on a device will automatically have the new table name.
+
+For adding columns, we only support `SQLiteType` (all supported ones [here](https://www.sqlite.org/datatype3.html)) operations to add or remove columns. This is to enforce that the columns are created properly. If a column needs to be a `TypeConverter` column, use the database value from it. We map the associated type of the database field to a `SQLiteType` in [SQLiteType.java](/dbflow/src/main/java/com/raizlabs/android/dbflow/sql/SQLiteType.java). So if you have a `DateConverter` that specifies a `Date` column converted to `Long`, then you should look up `Long` in the `Map`. In this case `Long` converts to `INTEGER`.
+
+```java
+
+
+@Migration(version = 2, database = AppDatabase.class)
+public class Migration2 extends AlterTableMigration<AModel> {
+
+    public Migration2(Class<AModel> table) {
+        super(table);
+    }
+
+    @Override
+    public void onPreMigrate() {
+        addColumn(SQLiteType.TEXT, "myColumn");
+        addColumn(SQLiteType.REAL, "anotherColumn");
+    }
+}
+
+```
+
+### IndexMigration/IndexPropertyMigration
+
+An `IndexMigration` (and `IndexPropertyMigration`) is used to structurally activate an `Index` on the database at a specific version. See [here](/usage2/Indexing.md) for information on creating them.

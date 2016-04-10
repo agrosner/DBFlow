@@ -2,11 +2,9 @@ package com.raizlabs.android.dbflow.sql.migration;
 
 import android.support.annotation.CallSuper;
 
-import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
-import com.raizlabs.android.dbflow.sql.language.Update;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -15,17 +13,12 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * It ties an SQLite {@link com.raizlabs.android.dbflow.sql.language.Update}
  * to migrations whenever we want to batch update tables in a structured manner.
  */
-public class UpdateTableMigration<TModel extends Model> extends BaseMigration implements Query {
+public class UpdateTableMigration<TModel extends Model> extends BaseMigration {
 
     /**
      * The table to update
      */
     private final Class<TModel> table;
-
-    /**
-     * The query to use
-     */
-    private QueryBuilder query;
 
     /**
      * Builds the conditions for the WHERE part of our query
@@ -70,29 +63,20 @@ public class UpdateTableMigration<TModel extends Model> extends BaseMigration im
         return this;
     }
 
-    private String generateQuery() {
-        query = new QueryBuilder(new Update<>(table)
-                .set(setConditionGroup)
-                .where(whereConditionGroup).getQuery());
-        return query.getQuery();
-    }
-
     @Override
     public final void migrate(DatabaseWrapper database) {
-        database.execSQL(generateQuery());
+        SQLite.update(table)
+                .set(setConditionGroup)
+                .where(whereConditionGroup)
+                .execute(database);
     }
 
     @CallSuper
     @Override
     public void onPostMigrate() {
         // make fields eligible for GC
-        query = null;
         setConditionGroup = null;
         whereConditionGroup = null;
     }
 
-    @Override
-    public String getQuery() {
-        return generateQuery();
-    }
 }

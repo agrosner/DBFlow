@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 /**
  * Description: Defines and enables an Index structurally through a migration.
  */
-public class IndexMigration<TModel extends Model> extends BaseMigration {
+public abstract class IndexMigration<TModel extends Model> extends BaseMigration {
 
     /**
      * The table to index on
@@ -28,10 +28,12 @@ public class IndexMigration<TModel extends Model> extends BaseMigration {
      */
     private Index<TModel> index;
 
-    public IndexMigration(@NonNull String name, @NonNull Class<TModel> onTable) {
+    public IndexMigration(@NonNull Class<TModel> onTable) {
         this.onTable = onTable;
-        this.name = name;
     }
+
+    @NonNull
+    public abstract String getName();
 
     @CallSuper
     @Override

@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.test.sql;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
@@ -17,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MigrationTest extends FlowTestCase {
@@ -99,7 +99,13 @@ public class MigrationTest extends FlowTestCase {
 
     public void testIndexMigration() {
         IndexMigration<TestModel3> indexMigration
-                = new IndexMigration<>("MyIndex", TestModel3.class)
+                = new IndexMigration<TestModel3>(TestModel3.class) {
+            @NonNull
+            @Override
+            public String getName() {
+                return "MyIndex";
+            }
+        }
                 .addColumn(TestModel3_Table.type);
         assertEquals("CREATE INDEX IF NOT EXISTS `MyIndex` ON `TestModel32`(`type`)", indexMigration.getIndexQuery().trim());
     }
