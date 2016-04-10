@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Description: Listens for {@link Model} changes. Register for specific
@@ -34,7 +35,7 @@ import java.util.Set;
  */
 public class FlowContentObserver extends ContentObserver {
 
-    private static final List<FlowContentObserver> OBSERVER_LIST = new ArrayList<>();
+    private static final AtomicInteger REGISTERED_COUNT = new AtomicInteger(0);
     private static boolean forceNotify = false;
 
     /**
@@ -43,7 +44,14 @@ public class FlowContentObserver extends ContentObserver {
      * for efficiency purposes.
      */
     public static boolean shouldNotify() {
-        return forceNotify || !OBSERVER_LIST.isEmpty();
+        return forceNotify || REGISTERED_COUNT.get() > 0;
+    }
+
+    /**
+     * Removes count of observers registered, so we do not send out calls when {@link Model} changes.
+     */
+    public static void clearRegisteredObserverCount() {
+        REGISTERED_COUNT.set(0);
     }
 
     /**
@@ -160,9 +168,7 @@ public class FlowContentObserver extends ContentObserver {
      */
     public void registerForContentChanges(ContentResolver contentResolver, Class<? extends Model> table) {
         contentResolver.registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
-        if (!OBSERVER_LIST.contains(this)) {
-            OBSERVER_LIST.add(this);
-        }
+        REGISTERED_COUNT.incrementAndGet();
         if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table);
         }
@@ -173,7 +179,7 @@ public class FlowContentObserver extends ContentObserver {
      */
     public void unregisterForContentChanges(Context context) {
         context.getContentResolver().unregisterContentObserver(this);
-        OBSERVER_LIST.remove(this);
+        REGISTERED_COUNT.decrementAndGet();
         registeredTables.clear();
     }
 
