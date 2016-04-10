@@ -113,3 +113,25 @@ public class Migration2 extends AlterTableMigration<AModel> {
 ### IndexMigration/IndexPropertyMigration
 
 An `IndexMigration` (and `IndexPropertyMigration`) is used to structurally activate an `Index` on the database at a specific version. See [here](/usage2/Indexing.md) for information on creating them.
+
+`IndexMigration` does not require an `IndexProperty` to run, while `IndexPropertyMigration` makes use of the property to run.
+
+An `IndexMigration`:
+
+```java
+
+@Migration(version = 2, priority = 0, database = MigrationDatabase.class)
+    public static class IndexMigration2 extends IndexMigration<MigrationModel> {
+
+        public IndexMigration2(@NonNull Class<MigrationModel> onTable) {
+            super(onTable);
+        }
+
+        @NonNull
+        @Override
+        public String getName() {
+            return "TestIndex";
+        }
+    }
+
+```
