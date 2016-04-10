@@ -69,16 +69,17 @@ public abstract class DatabaseDefinition {
 
     private BaseTransactionManager transactionManager;
 
+    private DatabaseConfig databaseConfig;
 
     @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
-        DatabaseConfig config = FlowManager.getConfig()
+        databaseConfig = FlowManager.getConfig()
                 .databaseConfigMap().get(getAssociatedDatabaseClassFile());
 
 
-        if (config != null) {
+        if (databaseConfig != null) {
             // initialize configuration if exists.
-            Collection<TableConfig> tableConfigCollection = config.tableConfigMap().values();
+            Collection<TableConfig> tableConfigCollection = databaseConfig.tableConfigMap().values();
             for (TableConfig tableConfig : tableConfigCollection) {
                 ModelAdapter modelAdapter = modelAdapters.get(tableConfig.tableClass());
                 if (modelAdapter == null) {
@@ -97,12 +98,12 @@ public abstract class DatabaseDefinition {
                 }
 
             }
-            helperListener = config.helperListener();
+            helperListener = databaseConfig.helperListener();
         }
-        if (config == null || config.transactionManagerCreator() == null) {
+        if (databaseConfig == null || databaseConfig.transactionManagerCreator() == null) {
             transactionManager = new DefaultTransactionManager(this);
         } else {
-            transactionManager = config.transactionManagerCreator().createManager(this);
+            transactionManager = databaseConfig.transactionManagerCreator().createManager(this);
         }
     }
 
@@ -284,7 +285,15 @@ public abstract class DatabaseDefinition {
     public void reset(Context context) {
         if (!isResetting) {
             isResetting = true;
+            getTransactionManager().stopQueue();
             context.deleteDatabase(getDatabaseFileName());
+
+            // recreate queue after interrupting it.
+            if (databaseConfig == null || databaseConfig.transactionManagerCreator() == null) {
+                transactionManager = new DefaultTransactionManager(this);
+            } else {
+                transactionManager = databaseConfig.transactionManagerCreator().createManager(this);
+            }
             openHelper = null;
             isResetting = false;
             getHelper().getDatabase();
