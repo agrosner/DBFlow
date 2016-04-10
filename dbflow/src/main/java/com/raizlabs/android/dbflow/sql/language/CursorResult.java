@@ -20,7 +20,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
     private final InstanceAdapter<?, TModel> retrievalAdapter;
 
     @Nullable
-    private final Cursor cursor;
+    private Cursor cursor;
 
     @SuppressWarnings("unchecked")
     CursorResult(Class<TModel> modelClass, @Nullable Cursor cursor) {
@@ -33,7 +33,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
      */
     public void swapCursor(@Nullable Cursor cursor) {
         if (this.cursor != null) {
-            (!this.cursor.isClosed()) {
+            if (!this.cursor.isClosed()) {
                 this.cursor.close();
             }
         }
@@ -71,7 +71,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
     public <TCustom extends BaseQueryModel> List<TCustom> toCustomList(Class<TCustom> customClass) {
         if (cursor != null) {
             return FlowManager.getQueryModelAdapter(customClass)
-                .getListModelLoader().convertToData(cursor, null);
+                    .getListModelLoader().convertToData(cursor, null);
         } else {
             return null;
         }

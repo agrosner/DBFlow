@@ -184,7 +184,7 @@ public class BaseDatabaseHelper {
             String querySuffix = ";";
 
             // standard java comments
-            String queryCommentPrefix = "\\";
+            String queryCommentPrefix = "--";
             StringBuffer query = new StringBuffer();
 
             while ((line = reader.readLine()) != null) {
