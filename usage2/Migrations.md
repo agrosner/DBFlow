@@ -121,17 +121,55 @@ An `IndexMigration`:
 ```java
 
 @Migration(version = 2, priority = 0, database = MigrationDatabase.class)
-    public static class IndexMigration2 extends IndexMigration<MigrationModel> {
+public static class IndexMigration2 extends IndexMigration<MigrationModel> {
 
-        public IndexMigration2(@NonNull Class<MigrationModel> onTable) {
-            super(onTable);
-        }
+  public IndexMigration2(@NonNull Class<MigrationModel> onTable) {
+      super(onTable);
+  }
 
-        @NonNull
-        @Override
-        public String getName() {
-            return "TestIndex";
-        }
-    }
+  @NonNull
+  @Override
+  public String getName() {
+      return "TestIndex";
+  }
+}
+```
+
+An `IndexPropertyMigration`:
+
+```java
+
+@Migration(version = 2, priority = 1, database = MigrationDatabase.class)
+public static class IndexPropertyMigration2 extends IndexPropertyMigration {
+
+   @NonNull
+   @Override
+   public IndexProperty getIndexProperty() {
+       return IndexModel_Table.index_customIndex;
+   }
+}
 
 ```
+
+### Update Table Migration
+
+A simple wrapper around `Update`, provides simply a default way to update data during a migration.
+
+```java
+
+
+@Migration(version = 2, priority = 2, database = MigrationDatabase.class)
+public static class UpdateMigration2 extends UpdateTableMigration<MigrationModel> {
+
+   /**
+    * Creates an update migration.
+    *
+    * @param table The table to update
+    */
+   public UpdateMigration2(Class<MigrationModel> table) {
+       super(table);
+       set(MigrationModel_Table.name.eq("New Name"));
+   }
+
+}
+  ```
