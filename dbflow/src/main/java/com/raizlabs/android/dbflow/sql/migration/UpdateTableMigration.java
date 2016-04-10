@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.migration;
 
 import android.support.annotation.CallSuper;
 
+import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -65,10 +66,7 @@ public class UpdateTableMigration<TModel extends Model> extends BaseMigration {
 
     @Override
     public final void migrate(DatabaseWrapper database) {
-        SQLite.update(table)
-                .set(setConditionGroup)
-                .where(whereConditionGroup)
-                .execute(database);
+        getUpdateStatement().execute(database);
     }
 
     @CallSuper
@@ -77,6 +75,12 @@ public class UpdateTableMigration<TModel extends Model> extends BaseMigration {
         // make fields eligible for GC
         setConditionGroup = null;
         whereConditionGroup = null;
+    }
+
+    public BaseQueriable<TModel> getUpdateStatement() {
+        return SQLite.update(table)
+                .set(setConditionGroup)
+                .where(whereConditionGroup);
     }
 
 }

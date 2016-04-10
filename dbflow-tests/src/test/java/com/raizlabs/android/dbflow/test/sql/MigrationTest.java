@@ -76,7 +76,8 @@ public class MigrationTest extends FlowTestCase {
                 .set(MigrationModel_Table.name.is("test")).where(MigrationModel_Table.name.is("notTest"));
         updateTableMigration.onPreMigrate();
 
-        assertEquals("UPDATE `MigrationModel` SET `name`='test' WHERE `name`='notTest'", updateTableMigration.getQuery().trim());
+        assertEquals("UPDATE `MigrationModel` SET `name`='test' WHERE `name`='notTest'", updateTableMigration
+                .getUpdateStatement().getQuery().trim());
 
         updateTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
         updateTableMigration.onPostMigrate();
