@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.widget.ListView;
 
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -126,6 +127,7 @@ public class FlowCursorList<TModel extends Model> {
      * Refreshes the data backing this list, and destroys the Model cache.
      */
     public synchronized void refresh() {
+        warnEmptyCursor();
         if (cursor != null) {
             cursor.close();
         }
@@ -146,6 +148,7 @@ public class FlowCursorList<TModel extends Model> {
      */
     public TModel getItem(long position) {
         throwIfCursorClosed();
+        warnEmptyCursor();
 
         TModel model = null;
         if (cacheModels) {
@@ -166,6 +169,7 @@ public class FlowCursorList<TModel extends Model> {
      */
     public List<TModel> getAll() {
         throwIfCursorClosed();
+        warnEmptyCursor();
         return cursor == null ? new ArrayList<TModel>() :
             FlowManager.getModelAdapter(table).getListModelLoader().convertToData(cursor, null);
     }
@@ -175,6 +179,7 @@ public class FlowCursorList<TModel extends Model> {
      */
     public boolean isEmpty() {
         throwIfCursorClosed();
+        warnEmptyCursor();
         return getCount() == 0;
     }
 
@@ -183,6 +188,7 @@ public class FlowCursorList<TModel extends Model> {
      */
     public int getCount() {
         throwIfCursorClosed();
+        warnEmptyCursor();
         return cursor != null ? cursor.getCount() : 0;
     }
 
@@ -190,6 +196,7 @@ public class FlowCursorList<TModel extends Model> {
      * Closes the cursor backed by this list
      */
     public void close() {
+        warnEmptyCursor();
         if (cursor != null) {
             cursor.close();
         }
@@ -203,6 +210,7 @@ public class FlowCursorList<TModel extends Model> {
     @Nullable
     public Cursor getCursor() {
         throwIfCursorClosed();
+        warnEmptyCursor();
         return cursor;
     }
 
@@ -211,8 +219,14 @@ public class FlowCursorList<TModel extends Model> {
     }
 
     private void throwIfCursorClosed() {
-        if (cursor == null || cursor.isClosed()) {
+        if (cursor != null && cursor.isClosed()) {
             throw new IllegalStateException("Cursor has been closed for FlowCursorList");
+        }
+    }
+
+    private void warnEmptyCursor() {
+        if (cursor == null) {
+            FlowLog.log(FlowLog.Level.W, "Cursor was null for FlowCursorList");
         }
     }
 

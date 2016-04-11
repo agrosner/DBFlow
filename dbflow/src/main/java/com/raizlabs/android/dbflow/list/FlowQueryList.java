@@ -104,7 +104,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      * @return 50 as default. Override for different. Note: some {@link ModelCache} do not respect the size of the cache.
      */
     public int getCacheSize() {
-        return 50;
+        return FlowCursorList.DEFAULT_CACHE_SIZE;
     }
 
     /**

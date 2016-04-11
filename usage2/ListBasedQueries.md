@@ -85,4 +85,18 @@ FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.c
 
 The `FlowCursorList` is simply a wrapper around a standard `Cursor`, giving it the
 ability to cache `Model`, load items at specific position with conversion, and refresh
-it's content easily. 
+it's content easily.
+
+By default the cache size becomes the size of the `Cursor` returned from the query.
+We constrain the size to greater than or equal to 20 unless 0 or not specified, where
+we set it to 50.  **Note** not all caches support a size, read on default provided caches
+[here](/usage2/Caching.md).
+
+The `FlowCursorList` provides these methods:
+
+  1. `getItem(position)` - loads item from `Cursor` at specified position, caching and loading from cache (if enabled)
+  2. `refresh()` - re-queries the underlying `Cursor`, clears out the cache, and reconstructs it
+  3. `getAll()` - returns a `List` of all items from the `Cursor`, no caching used
+  4. `getCount()` - returns count of `Cursor` or 0 if `Cursor` is `null`
+  5. `isEmpty()` - returns if count == 0
+  6. `clearCache()` - manually clears cache
