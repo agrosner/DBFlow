@@ -110,7 +110,7 @@ public class Migration2 extends AlterTableMigration<AModel> {
 
 ```
 
-### IndexMigration/IndexPropertyMigration
+### Index Migrations
 
 An `IndexMigration` (and `IndexPropertyMigration`) is used to structurally activate an `Index` on the database at a specific version. See [here](/usage2/Indexing.md) for information on creating them.
 

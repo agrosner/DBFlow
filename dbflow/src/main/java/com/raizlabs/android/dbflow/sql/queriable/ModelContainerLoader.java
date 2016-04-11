@@ -24,7 +24,7 @@ public class ModelContainerLoader<TModel extends Model> extends ModelLoader<TMod
     }
 
     @Override
-    public ModelContainer<TModel, ?> convertToData(@NonNull Cursor cursor, @Nullable ModelContainer<TModel, ?> data) {
+    public ModelContainer<TModel, ?> convertToData(@NonNull Cursor cursor, @Nullable ModelContainer<TModel, ?> data, boolean moveToFirst) {
         if (data != null) {
             if (cursor.moveToFirst()) {
                 modelContainerAdapter.loadFromCursor(cursor, data);

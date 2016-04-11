@@ -18,6 +18,12 @@ import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.sql.queriable.CacheableListModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.CacheableModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
+import com.raizlabs.android.dbflow.sql.queriable.ModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
@@ -53,6 +59,7 @@ public class SqlUtils {
      *                     values will be bound as Strings.
      * @param <ModelClass> The class implements {@link Model}
      * @return a list of {@link ModelClass}
+     * @deprecated see {@link ListModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
@@ -84,16 +91,17 @@ public class SqlUtils {
      * @param modelCache       The model cache to use when retrieving {@link CacheableClass}.
      * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
+     * @deprecated see {@link CacheableListModelLoader}
      */
     @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
-            Class<CacheableClass> modelClass, Cursor cursor, ModelCache<CacheableClass, ?> modelCache) {
+        Class<CacheableClass> modelClass, Cursor cursor, ModelCache<CacheableClass, ?> modelCache) {
         final List<CacheableClass> entities = new ArrayList<>();
         ModelAdapter<CacheableClass> instanceAdapter = FlowManager.getModelAdapter(modelClass);
         if (instanceAdapter != null) {
             if (!instanceAdapter.cachingEnabled()) {
                 throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
-                        "use one Primary Key or call convertToList()");
+                    "use one Primary Key or call convertToList()");
             } else if (modelCache == null) {
                 throw new IllegalArgumentException("ModelCache specified in convertToCacheableList() must not be null.");
             }
@@ -128,10 +136,11 @@ public class SqlUtils {
      * @param cursor           The cursor from a query.
      * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
+     * @deprecated see {@link CacheableListModelLoader}
      */
     @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
-            Class<CacheableClass> modelClass, Cursor cursor) {
+        Class<CacheableClass> modelClass, Cursor cursor) {
         return convertToCacheableList(modelClass, cursor, FlowManager.getModelAdapter(modelClass).getModelCache());
     }
 
@@ -142,6 +151,7 @@ public class SqlUtils {
      * @param cursor   The cursor from the DB
      * @param <TModel> The class that implements {@link Model}
      * @return An non-null {@link List}
+     * @deprecated see {@link ListModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
@@ -173,6 +183,7 @@ public class SqlUtils {
      * @param cursor          The cursor from the DB
      * @param <TModel>        The class that implements {@link Model}
      * @return A model transformed from the {@link Cursor}
+     * @deprecated see {@link SingleModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
@@ -201,6 +212,7 @@ public class SqlUtils {
      * @param modelContainer  The non-null modelcontainer to populate data into.
      * @param <ModelClass>    The class that implements {@link Model}
      * @return A model transformed from the {@link Cursor}
+     * @deprecated see {@link ModelContainerLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
@@ -231,11 +243,12 @@ public class SqlUtils {
      * @param cursor           The cursor from the DB
      * @param <CacheableClass> The class that implements {@link Model}
      * @return A model transformed from the {@link Cursor}
+     * @deprecated see {@link CacheableModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
     public static <CacheableClass extends Model> CacheableClass convertToCacheableModel(
-            boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
+        boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
         CacheableClass model = null;
         if (dontMoveToFirst || cursor.moveToFirst()) {
             ModelAdapter<CacheableClass> modelAdapter = FlowManager.getModelAdapter(table);
@@ -243,7 +256,7 @@ public class SqlUtils {
             if (modelAdapter != null) {
                 ModelCache<CacheableClass, ?> modelCache = modelAdapter.getModelCache();
                 Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
-                        new Object[modelAdapter.getCachingColumns().length], cursor);
+                    new Object[modelAdapter.getCachingColumns().length], cursor);
                 model = modelCache.get(modelAdapter.getCachingId(values));
                 if (model == null) {
                     model = modelAdapter.newInstance();
@@ -268,6 +281,7 @@ public class SqlUtils {
      *                     values will be bound as Strings.
      * @param <ModelClass> The class implements {@link Model}
      * @return a single {@link ModelClass}
+     * see {@link SingleModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
@@ -341,10 +355,10 @@ public class SqlUtils {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         boolean successful = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
-                adapter.getPrimaryConditionClause(model).getQuery(), null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(
-                        modelAdapter.getUpdateOnConflictAction())) !=
-                0);
+            adapter.getPrimaryConditionClause(model).getQuery(), null,
+            ConflictAction.getSQLiteDatabaseAlgorithmInt(
+                modelAdapter.getUpdateOnConflictAction())) !=
+            0);
         if (successful) {
             notifyModelChanged(model, adapter, modelAdapter, Action.UPDATE);
         }
@@ -379,7 +393,7 @@ public class SqlUtils {
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void delete(final TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
         SQLite.delete((Class<TableClass>) adapter.getModelClass()).where(
-                adapter.getPrimaryConditionClause(model)).execute();
+            adapter.getPrimaryConditionClause(model)).execute();
         notifyModelChanged(model, adapter, modelAdapter, Action.DELETE);
         adapter.updateAutoIncrement(model, 0);
     }
@@ -411,7 +425,7 @@ public class SqlUtils {
     void notifyModelChanged(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter, Action action) {
         if (FlowContentObserver.shouldNotify()) {
             notifyModelChanged(modelAdapter.getModelClass(), action,
-                    adapter.getPrimaryConditionClause(model).getConditions());
+                adapter.getPrimaryConditionClause(model).getConditions());
         }
     }
 
@@ -425,7 +439,7 @@ public class SqlUtils {
      */
     public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, Iterable<SQLCondition> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-                .authority(FlowManager.getTableName(modelClass));
+            .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -448,7 +462,7 @@ public class SqlUtils {
      */
     public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, SQLCondition[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-                .authority(FlowManager.getTableName(modelClass));
+            .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -499,7 +513,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void dropTrigger(Class<ModelClass> mOnTable, String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-                .append(triggerName);
+            .append(triggerName);
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 
@@ -512,7 +526,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
-                .append(QueryBuilder.quoteIfNeeded(indexName));
+            .append(QueryBuilder.quoteIfNeeded(indexName));
         databaseWrapper.execSQL(queryBuilder.getQuery());
     }
 

@@ -30,7 +30,7 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
             modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
             if (!modelAdapter.cachingEnabled()) {
                 throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
-                        "use one Primary Key or call convertToList()");
+                    "use one Primary Key or call convertToList()");
             }
         }
         return modelAdapter;
@@ -44,11 +44,11 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
      */
     @Nullable
     @Override
-    public TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data) {
-        if (cursor.moveToFirst()) {
+    public TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data, boolean moveToFirst) {
+        if (!moveToFirst || cursor.moveToFirst()) {
             ModelCache<TModel, ?> modelCache = getModelAdapter().getModelCache();
             Object[] values = getModelAdapter().getCachingColumnValuesFromCursor(
-                    new Object[getModelAdapter().getCachingColumns().length], cursor);
+                new Object[getModelAdapter().getCachingColumns().length], cursor);
             TModel model = modelCache.get(getModelAdapter().getCachingId(values));
             if (model == null) {
                 if (data == null) {

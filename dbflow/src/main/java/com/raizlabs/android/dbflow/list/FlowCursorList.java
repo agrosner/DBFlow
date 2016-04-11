@@ -1,20 +1,20 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
+import android.widget.ListView;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
-import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
 import java.util.List;
 
 /**
- * Description: A non-modifiable, cursor-backed list that you can use in {@link android.widget.ListView} or other data sources.
+ * Description: A non-modifiable, cursor-backed list that you can use in {@link ListView} or other data sources.
  */
 public class FlowCursorList<TModel extends Model> {
 
@@ -24,6 +24,7 @@ public class FlowCursorList<TModel extends Model> {
     private boolean cacheModels;
     private ModelQueriable<TModel> modelQueriable;
     private int cacheSize;
+    private ModelAdapter<TModel> modelAdapter;
 
     /**
      * Constructs an instance of this list with a specified cache size.
@@ -47,32 +48,9 @@ public class FlowCursorList<TModel extends Model> {
         this.modelQueriable = modelQueriable;
         cursor = this.modelQueriable.query();
         table = modelQueriable.getTable();
+        modelAdapter = FlowManager.getModelAdapter(table);
         this.cacheModels = cacheModels;
         setCacheModels(cacheModels);
-    }
-
-    /**
-     * Constructs an instance of this list.
-     *
-     * @param cacheModels For every call to {@link #getItem(long)}, do we want to keep a reference to it so
-     *                    we do not need to convert the cursor data back into a {@link TModel} again.
-     * @param table       The table to query from
-     * @param conditions  The set of {@link SQLCondition} to query with
-     */
-    public FlowCursorList(boolean cacheModels, Class<TModel> table, SQLCondition... conditions) {
-        this(cacheModels, new Select().from(table).where(conditions));
-    }
-
-    /**
-     * Constructs an instance of this list with a specified cache size.
-     *
-     * @param cacheSize  The size of models to cache.
-     * @param table      The table to query from
-     * @param conditions The set of {@link SQLCondition} to query with
-     */
-    public FlowCursorList(int cacheSize, Class<TModel> table, SQLCondition... conditions) {
-        this(false, new Select().from(table).where(conditions));
-        setCacheModels(true, cacheSize);
     }
 
     /**
@@ -147,7 +125,7 @@ public class FlowCursorList<TModel extends Model> {
         if (cacheModels) {
             model = modelCache.get(position);
             if (model == null && cursor.moveToPosition((int) position)) {
-                model = SqlUtils.convertToModel(true, table, cursor);
+                model = modelAdapter.getSingleModelLoader().convertToData(cursor, null, false);
                 modelCache.addModel(position, model);
             }
         } else if (cursor.moveToPosition((int) position)) {

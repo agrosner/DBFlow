@@ -74,13 +74,13 @@ public interface ModelQueriable<TModel extends Model> extends Queriable {
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
      * cache models dynamically by setting {@link FlowCursorList#setCacheModels(boolean)} to true.
      */
-    FlowCursorList<TModel> queryCursorList();
+    FlowCursorList<TModel> cursorList();
 
     /**
      * @return A cursor-backed {@link List} that handles conversion, retrieval, caching, content changes,
      * and more.
      */
-    FlowQueryList<TModel> queryTableList();
+    FlowQueryList<TModel> flowQueryList();
 
     /**
      * @return an async version of this query to run.

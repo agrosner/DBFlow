@@ -46,7 +46,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
     @Nullable
     public List<TModel> toList() {
         if (cursor != null) {
-            return retrievalAdapter.getListModelLoader().convertToData(cursor, null);
+            return retrievalAdapter.getListModelLoader().convertToData(cursor, null, );
         } else {
             return null;
         }
@@ -71,7 +71,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
     public <TCustom extends BaseQueryModel> List<TCustom> toCustomList(Class<TCustom> customClass) {
         if (cursor != null) {
             return FlowManager.getQueryModelAdapter(customClass)
-                    .getListModelLoader().convertToData(cursor, null);
+                    .getListModelLoader().convertToData(cursor, null, );
         } else {
             return null;
         }
@@ -95,7 +95,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
     @Nullable
     public TModel toModel() {
         if (cursor != null) {
-            return retrievalAdapter.getSingleModelLoader().convertToData(cursor, null);
+            return retrievalAdapter.getSingleModelLoader().convertToData(cursor, null, );
         } else {
             return null;
         }
