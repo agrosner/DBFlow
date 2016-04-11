@@ -19,7 +19,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 public class MultipleCacheableModel extends BaseModel {
 
     @MultiCacheField
-    public static IMultiKeyCacheConverter<String> multiKeyCacheModel = new IMultiKeyCacheConverter<String>() {
+    public static final IMultiKeyCacheConverter<String> multiKeyCacheModel = new IMultiKeyCacheConverter<String>() {
 
         @Override
         @NonNull
