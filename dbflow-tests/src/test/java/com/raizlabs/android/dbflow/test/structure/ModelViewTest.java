@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.test.structure;
 
 import com.raizlabs.android.dbflow.list.FlowCursorList;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
@@ -35,7 +36,7 @@ public class ModelViewTest extends FlowTestCase {
         assertTrue(!testModelViews.isEmpty());
         assertTrue(testModelViews.size() == 1);
 
-        FlowCursorList<TestModelView> list = new FlowCursorList<>(true, TestModelView.class);
+        FlowCursorList<TestModelView> list = new FlowCursorList<>(SQLite.select().from(TestModelView.class));
         assertNotNull(list.getItem(0));
     }
 

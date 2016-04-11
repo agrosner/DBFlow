@@ -218,7 +218,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
             }
             pendingRefresh = true;
         }
-        REFRESH_gitHANDLER.post(refreshRunnable);
+        REFRESH_HANDLER.post(refreshRunnable);
     }
 
     /**

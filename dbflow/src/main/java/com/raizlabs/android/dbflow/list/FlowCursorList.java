@@ -7,8 +7,8 @@ import android.widget.ListView;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
@@ -52,7 +52,7 @@ public class FlowCursorList<TModel extends Model> {
     private boolean cacheModels;
     private ModelQueriable<TModel> modelQueriable;
     private int cacheSize;
-    private ModelAdapter<TModel> modelAdapter;
+    private InstanceAdapter<TModel, TModel> modelAdapter;
 
     private final java.util.Set<OnCursorRefreshListener<TModel>> cursorRefreshListenerSet = new HashSet<>();
 
@@ -82,7 +82,8 @@ public class FlowCursorList<TModel extends Model> {
         this.modelQueriable = modelQueriable;
         cursor = this.modelQueriable.query();
         table = modelQueriable.getTable();
-        modelAdapter = FlowManager.getModelAdapter(table);
+        //noinspection unchecked
+        modelAdapter = FlowManager.getInstanceAdapter(table);
         this.cacheModels = cacheModels;
         setCacheModels(cacheModels);
     }

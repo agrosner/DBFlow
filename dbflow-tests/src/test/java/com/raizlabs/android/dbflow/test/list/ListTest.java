@@ -42,6 +42,8 @@ public class ListTest extends FlowTestCase {
 
         List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 100);
 
+        modelList = new FlowQueryList<>(SQLite.select().from(ListModel.class));
+
         assertTrue(modelList.size() == 100);
 
         assertTrue(modelList.containsAll(testModel1s));
