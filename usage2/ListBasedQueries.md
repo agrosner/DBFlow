@@ -103,12 +103,56 @@ The `FlowCursorList` provides these methods:
 
 ## Flow Query List
 
-This class is a much more powerful version of the `FlowCursorList`. This class
-acts as `List` and can be used wherever a `List` is used. Also, it is a `FlowContentObserver`
+This class is a much more powerful version of the `FlowCursorList`. It contains a `FlowCursorList`,
+which backs it's retrieval operations.
+
+This class acts as `List` and can be used wherever a `List` is used. Also, it is a `FlowContentObserver`
 see [Observability](/usage2/Observability.md), meaning other classes can listen
 for its specific changes and it can auto-refresh itself when content changes.
 
 Feature rundown:
   1. `List` implementation of a Query
   2. `FlowContentObserver`, only for the table that it corresponds to in its initial `ModelQueriable` query statement
-  3. Transact changes to the query asynchronously (note that this refreshes itself every callback)
+  3. Transact changes to the query asynchronously (note that this refreshes itself every callback unless in a transaction state)
+  4. Self refreshes
+  5. Caching
+
+### List Implementation
+
+The `List` implementation is mostly for convenience. Please note that most of the modification
+methods (`add`, `addAll` etc.) may not affect the query that you expect it to, unless the object you pass
+objects that are valid for the query and you enable self refreshes.
+
+The retrieval methods are where the query works as you would expect. `get()` calls
+`getItem()` on the internal `FlowCursorList`, `isEmpty()`, `getCount()`, etc all correspond
+to the `Cursor` underneath.
+
+**Note**: any retrieval operation that turns it into another object (i.e. `subList()`,
+`toArray`, `listIterator`, etc) retrieves all objects contained in the query into memory,
+and then converts it using the associated method on that returned `List`.
+
+### FlowContentObserver Implementation
+
+Using the `FlowContentObserver`, we can enable self-refreshes whenever a model changes
+for the table this query points to. See [Observability](/usage2/Observability.md).
+
+To turn on self-refreshes, call `registerForContentChanges(context)`, which requeries
+the data whenever it changes.
+
+We recommend placing this within a transaction on the `FlowQueryList`, so we only
+refresh content the minimal amount of times:
+
+```java
+
+flowQueryList.beginTransaction();
+
+// perform a bunch of modifications
+
+flowQueryList.endTransactionAndNotify();
+
+```
+
+
+### Transact Changes
+
+If you wish to not get flooded with modification requests

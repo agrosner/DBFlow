@@ -4,6 +4,8 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -33,6 +35,8 @@ import java.util.ListIterator;
  */
 public class FlowQueryList<TModel extends Model> extends FlowContentObserver implements List<TModel> {
 
+    private static final Handler REFRESH_HANDLER = new Handler(Looper.myLooper());
+
     /**
      * Holds the table cursor
      */
@@ -51,6 +55,8 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      * If true, an operation occurred that when we call endTransactionAndNotify, we refresh content.
      */
     private boolean changeInTransaction = false;
+
+    private boolean pendingRefresh = false;
 
     /**
      * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
@@ -128,7 +134,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);
         if (!isInTransaction) {
-            internalCursorList.refresh();
+            refreshAsync();
         } else {
             changeInTransaction = true;
         }
@@ -139,7 +145,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     public void onChange(boolean selfChange, Uri uri) {
         super.onChange(selfChange, uri);
         if (!isInTransaction) {
-            internalCursorList.refresh();
+            refreshAsync();
         } else {
             changeInTransaction = true;
         }
@@ -194,11 +200,28 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     }
 
     /**
+     * Will refresh content at a slightly later time, and multiple subsequent calls to this method within
+     * a short period of time will be combined into one call.
+     */
+    public void refreshAsync() {
+        synchronized (this) {
+            if (pendingRefresh) {
+                return;
+            }
+            pendingRefresh = true;
+        }
+        REFRESH_HANDLER.post(refreshRunnable);
+    }
+
+    /**
      * Registers itself for content changes on the specific table that this list is for. When
      * any model data is changed via the {@link Model} methods, we call {@link #refresh()} on this underlying data.
      * To prevent many refreshes, call {@link #beginTransaction()} before making changes to a set of models,
      * and then when finished call {@link #endTransactionAndNotify()}.
+     *
+     * @deprecated use {@link #registerForContentChanges(Context)}
      */
+    @Deprecated
     public void enableSelfRefreshes(Context context) {
         registerForContentChanges(context);
     }
@@ -616,7 +639,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         @Override
         public void onSuccess(Transaction transaction) {
             if (!isInTransaction) {
-                refresh();
+                refreshAsync();
             } else {
                 changeInTransaction = true;
             }
@@ -624,6 +647,16 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
             if (successCallback != null) {
                 successCallback.onSuccess(transaction);
             }
+        }
+    };
+
+    private final Runnable refreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            synchronized (this) {
+                pendingRefresh = false;
+            }
+            refresh();
         }
     };
 
