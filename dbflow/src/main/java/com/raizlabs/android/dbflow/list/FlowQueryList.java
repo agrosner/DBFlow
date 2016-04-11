@@ -51,29 +51,13 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     private boolean transact = false;
 
     /**
-     * Constructs an instance of this list with the specified conditions.
-     *
-     * @param table      The table to load into this list.
-     * @param conditions The set of conditions to use when querying the DB.
-     */
-    public FlowQueryList(Class<TModel> table, SQLCondition... conditions) {
-        super(null);
-        internalCursorList = new FlowCursorList<TModel>(true, table, conditions) {
-            @Override
-            protected ModelCache<TModel, ?> getBackingCache() {
-                return FlowQueryList.this.getBackingCache(getCacheSize());
-            }
-        };
-    }
-
-    /**
      * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
      *
      * @param modelQueriable The object that can query from a database.
      */
     public FlowQueryList(ModelQueriable<TModel> modelQueriable) {
         super(null);
-        internalCursorList = new FlowCursorList<TModel>(transact, modelQueriable) {
+        internalCursorList = new FlowCursorList<TModel>(true, modelQueriable) {
             @Override
             protected ModelCache<TModel, ?> getBackingCache() {
                 return FlowQueryList.this.getBackingCache(getCacheSize());
@@ -112,7 +96,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     @Override
     public void registerForContentChanges(Context context, Class<? extends Model> table) {
         throw new RuntimeException(
-                "This method is not to be used in the FlowQueryList. call registerForContentChanges(Context) instead");
+            "This method is not to be used in the FlowQueryList. call registerForContentChanges(Context) instead");
     }
 
     @Override
@@ -220,10 +204,10 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     @Override
     public boolean add(TModel model) {
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
-                        .add(model).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
+                .add(model).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -259,10 +243,10 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         final Collection<TModel> tmpCollection = (Collection<TModel>) collection;
 
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
-                        .addAll(tmpCollection).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
+                .addAll(tmpCollection).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -278,11 +262,11 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     @Override
     public void clear() {
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
-                .beginTransactionAsync(new QueryTransaction.Builder<>(
-                        SQLite.delete().from(internalCursorList.getTable())).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback)
-                .build();
+            .beginTransactionAsync(new QueryTransaction.Builder<>(
+                SQLite.delete().from(internalCursorList.getTable())).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback)
+            .build();
 
         if (transact) {
             transaction.execute();
@@ -345,7 +329,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     @Override
     public int indexOf(Object object) {
         throw new UnsupportedOperationException(
-                "We cannot determine which index in the table this item exists at efficiently");
+            "We cannot determine which index in the table this item exists at efficiently");
     }
 
     @Override
@@ -367,7 +351,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     @Override
     public int lastIndexOf(Object object) {
         throw new UnsupportedOperationException(
-                "We cannot determine which index in the table this item exists at efficiently");
+            "We cannot determine which index in the table this item exists at efficiently");
     }
 
     /**
@@ -405,10 +389,10 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         TModel model = internalCursorList.getItem(location);
 
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
-                        .add(model).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                .add(model).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -434,10 +418,10 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             TModel model = ((TModel) object);
             Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
-                    .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
-                            .add(model).build())
-                    .error(internalErrorCallback)
-                    .success(internalSuccessCallback).build();
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                    .add(model).build())
+                .error(internalErrorCallback)
+                .success(internalSuccessCallback).build();
 
             if (transact) {
                 transaction.execute();
@@ -464,10 +448,10 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         // if its a ModelClass
         Collection<TModel> modelCollection = (Collection<TModel>) collection;
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
-                        .addAll(modelCollection).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                .addAll(modelCollection).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -490,10 +474,10 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         List<TModel> tableList = internalCursorList.getAll();
         tableList.removeAll(collection);
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(tableList, deleteModel)
-                        .build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(tableList, deleteModel)
+                .build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -524,11 +508,11 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      */
     public TModel set(TModel object) {
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.getTable())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(updateModel)
-                        .add(object)
-                        .build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(updateModel)
+                .add(object)
+                .build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -565,28 +549,28 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     }
 
     private final ProcessModelTransaction.ProcessModel<TModel> saveModel =
-            new ProcessModelTransaction.ProcessModel<TModel>() {
-                @Override
-                public void processModel(TModel model) {
-                    model.save();
-                }
-            };
+        new ProcessModelTransaction.ProcessModel<TModel>() {
+            @Override
+            public void processModel(TModel model) {
+                model.save();
+            }
+        };
 
     private final ProcessModelTransaction.ProcessModel<TModel> updateModel =
-            new ProcessModelTransaction.ProcessModel<TModel>() {
-                @Override
-                public void processModel(TModel model) {
-                    model.update();
-                }
-            };
+        new ProcessModelTransaction.ProcessModel<TModel>() {
+            @Override
+            public void processModel(TModel model) {
+                model.update();
+            }
+        };
 
     private final ProcessModelTransaction.ProcessModel<TModel> deleteModel =
-            new ProcessModelTransaction.ProcessModel<TModel>() {
-                @Override
-                public void processModel(TModel model) {
-                    model.delete();
-                }
-            };
+        new ProcessModelTransaction.ProcessModel<TModel>() {
+            @Override
+            public void processModel(TModel model) {
+                model.delete();
+            }
+        };
 
     private final Transaction.Error internalErrorCallback = new Transaction.Error() {
         @Override

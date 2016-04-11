@@ -30,7 +30,7 @@ can also manually instantiate them:
 ```java
 
 FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class));
-FlowCursorList<MyTable> list = new FlowCursorList<>(true, SQLite.select().from(MyTable.class));
+FlowCursorList<MyTable> list = new FlowCursorList<>(SQLite.select().from(MyTable.class));
 
 ```
 
@@ -42,8 +42,31 @@ in the same way:
 
 ```java
 
-FlowCursorList list = ...;
-list.setCacheModels(true); // caching enabled
+FlowCursorList<MyTable> list = new FlowCursorList<>(SQLite.select().from(MyTable.class));
+FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class));
+
+// caching on by default.
+// to turn on or off use this method
+list.setCachingEnabled(false); // caching off, will clear cache too
+
+// for FlowQueryList we can pass if on or off in constructor too
+FlowCursorList<MyTable> list = new FlowCursorList<>(false, SQLite.select().from(MyTable.class));
+
+```
+
+To override or specify a custom cache, you must subclass and override the `getBackingCache()`
+method:
+
+
+```java
+
+FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class)) {
+  @Override
+  protected ModelCache<MyTable, ?> getBackingCache() {
+    return
+  }
+}
+
 
 ```
 

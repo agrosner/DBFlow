@@ -26,6 +26,10 @@ public class FlowCursorList<TModel extends Model> {
     private int cacheSize;
     private ModelAdapter<TModel> modelAdapter;
 
+    public FlowCursorList(ModelQueriable<TModel> modelQueriable) {
+        this(true, modelQueriable);
+    }
+
     /**
      * Constructs an instance of this list with a specified cache size.
      *
