@@ -56,13 +56,36 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      * @param modelQueriable The object that can query from a database.
      */
     public FlowQueryList(ModelQueriable<TModel> modelQueriable) {
+        this(true, modelQueriable);
+    }
+
+    /**
+     * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
+     *
+     * @param modelQueriable The object that can query from a database.
+     */
+    public FlowQueryList(boolean cacheModels, ModelQueriable<TModel> modelQueriable) {
         super(null);
-        internalCursorList = new FlowCursorList<TModel>(true, modelQueriable) {
+        internalCursorList = new FlowCursorList<TModel>(cacheModels, modelQueriable) {
             @Override
             protected ModelCache<TModel, ?> getBackingCache() {
                 return FlowQueryList.this.getBackingCache(getCacheSize());
             }
         };
+    }
+
+    /**
+     * @see {@link FlowCursorList#setCacheModels(boolean, int)}
+     */
+    public void setCacheModels(boolean cacheModels, int cacheSize) {
+        internalCursorList.setCacheModels(cacheModels, cacheSize);
+    }
+
+    /**
+     * @see {@link FlowCursorList#setCacheModels(boolean)}
+     */
+    public void setCacheModels(boolean cacheModels) {
+        internalCursorList.setCacheModels(cacheModels);
     }
 
     /**

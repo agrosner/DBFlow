@@ -37,8 +37,11 @@ FlowCursorList<MyTable> list = new FlowCursorList<>(SQLite.select().from(MyTable
 ## Caching
 
 Both of these classes come with the ability to cache `Model` used in it's queries
-so that loading only happens once and performance can remain high once loaded. They are done
-in the same way:
+so that loading only happens once and performance can remain high once loaded. The default
+caching mechanism is a `ModelLruCache`, which provides an `LruCache` to manage
+loading `Model`.
+
+They are done in almost the same way:
 
 ```java
 
@@ -49,13 +52,14 @@ FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.c
 // to turn on or off use this method
 list.setCachingEnabled(false); // caching off, will clear cache too
 
-// for FlowQueryList we can pass if on or off in constructor too
-FlowCursorList<MyTable> list = new FlowCursorList<>(false, SQLite.select().from(MyTable.class));
+// or we can pass if on or off in constructor too
+FlowCursorList<MyTable> list = new FlowCursorList<>(enabled, SQLite.select().from(MyTable.class));
+FlowQueryList<MyTable> list = new FlowQueryList<>(enabled, SQLite.select().from(MyTable.class));
 
 ```
 
 To override or specify a custom cache, you must subclass and override the `getBackingCache()`
-method:
+methods depending on which one you use:
 
 
 ```java
@@ -63,7 +67,14 @@ method:
 FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class)) {
   @Override
   protected ModelCache<MyTable, ?> getBackingCache() {
-    return
+    return new SimpleMapCache<MyTable>(); // stores content in a Map
+  }
+};
+
+FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class)) {
+  @Override
+  protected ModelCache<MyTable, ?> getBackingCache(int size) {
+    return new SimpleMapCache<MyTable>(); // stores content in a Map, size ignored
   }
 }
 
@@ -71,3 +82,7 @@ FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.c
 ```
 
 ## FlowCursorList
+
+The `FlowCursorList` is simply a wrapper around a standard `Cursor`, giving it the
+ability to cache `Model`, load items at specific position with conversion, and refresh
+it's content easily. 

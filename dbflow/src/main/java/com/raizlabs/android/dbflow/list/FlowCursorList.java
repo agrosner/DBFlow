@@ -1,16 +1,17 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
+import android.support.annotation.Nullable;
 import android.widget.ListView;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,19 @@ import java.util.List;
  */
 public class FlowCursorList<TModel extends Model> {
 
+    /**
+     * The default size of the cache if cache size is 0 or not specified.
+     */
+    public static final int DEFAULT_CACHE_SIZE = 50;
+
+    /**
+     * Minimum size that we make the cache (if size is supported in cache)
+     */
+    public static final int MIN_CACHE_SIZE = 20;
+
+    @Nullable
     private Cursor cursor;
+
     private Class<TModel> table;
     private ModelCache<TModel, ?> modelCache;
     private boolean cacheModels;
@@ -66,9 +79,9 @@ public class FlowCursorList<TModel extends Model> {
     public void setCacheModels(boolean cacheModels) {
         if (cacheModels) {
             throwIfCursorClosed();
-            setCacheModels(true, cursor.getCount());
+            setCacheModels(true, cursor == null ? 0 : cursor.getCount());
         } else {
-            setCacheModels(false, cursor.getCount());
+            setCacheModels(false, cursor == null ? 0 : cursor.getCount());
         }
     }
 
@@ -84,6 +97,13 @@ public class FlowCursorList<TModel extends Model> {
             clearCache();
         } else {
             throwIfCursorClosed();
+            if (cacheSize <= MIN_CACHE_SIZE) {
+                if (cacheSize == 0) {
+                    cacheSize = DEFAULT_CACHE_SIZE;
+                } else {
+                    cacheSize = MIN_CACHE_SIZE;
+                }
+            }
             this.cacheSize = cacheSize;
             modelCache = getBackingCache();
         }
@@ -106,12 +126,14 @@ public class FlowCursorList<TModel extends Model> {
      * Refreshes the data backing this list, and destroys the Model cache.
      */
     public synchronized void refresh() {
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
         cursor = modelQueriable.query();
 
         if (cacheModels) {
             modelCache.clear();
-            modelCache = getBackingCache();
+            setCacheModels(true, cursor == null ? 0 : cursor.getCount());
         }
     }
 
@@ -128,12 +150,12 @@ public class FlowCursorList<TModel extends Model> {
         TModel model = null;
         if (cacheModels) {
             model = modelCache.get(position);
-            if (model == null && cursor.moveToPosition((int) position)) {
+            if (model == null && cursor != null && cursor.moveToPosition((int) position)) {
                 model = modelAdapter.getSingleModelLoader().convertToData(cursor, null, false);
                 modelCache.addModel(position, model);
             }
-        } else if (cursor.moveToPosition((int) position)) {
-            model = SqlUtils.convertToModel(true, table, cursor);
+        } else if (cursor != null && cursor.moveToPosition((int) position)) {
+            model = modelAdapter.getSingleModelLoader().convertToData(cursor, null, false);
         }
         return model;
     }
@@ -144,7 +166,8 @@ public class FlowCursorList<TModel extends Model> {
      */
     public List<TModel> getAll() {
         throwIfCursorClosed();
-        return FlowManager.getModelAdapter(table).getListModelLoader().convertToData(cursor, null);
+        return cursor == null ? new ArrayList<TModel>() :
+            FlowManager.getModelAdapter(table).getListModelLoader().convertToData(cursor, null);
     }
 
     /**
@@ -167,7 +190,9 @@ public class FlowCursorList<TModel extends Model> {
      * Closes the cursor backed by this list
      */
     public void close() {
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
         cursor = null;
     }
 
@@ -175,6 +200,7 @@ public class FlowCursorList<TModel extends Model> {
      * @return The cursor backing this list.
      * @throws IllegalStateException when the cursor backing this list is closed.
      */
+    @Nullable
     public Cursor getCursor() {
         throwIfCursorClosed();
         return cursor;
