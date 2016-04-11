@@ -100,3 +100,15 @@ The `FlowCursorList` provides these methods:
   4. `getCount()` - returns count of `Cursor` or 0 if `Cursor` is `null`
   5. `isEmpty()` - returns if count == 0
   6. `clearCache()` - manually clears cache
+
+## Flow Query List
+
+This class is a much more powerful version of the `FlowCursorList`. This class
+acts as `List` and can be used wherever a `List` is used. Also, it is a `FlowContentObserver`
+see [Observability](/usage2/Observability.md), meaning other classes can listen
+for its specific changes and it can auto-refresh itself when content changes.
+
+Feature rundown:
+  1. `List` implementation of a Query
+  2. `FlowContentObserver`, only for the table that it corresponds to in its initial `ModelQueriable` query statement
+  3. Transact changes to the query asynchronously (note that this refreshes itself every callback)

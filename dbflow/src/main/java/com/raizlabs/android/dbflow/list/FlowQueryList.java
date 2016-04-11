@@ -5,14 +5,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
@@ -49,6 +46,11 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      * we will run it on the main thread.
      */
     private boolean transact = false;
+
+    /**
+     * If true, an operation occurred that when we call endTransactionAndNotify, we refresh content.
+     */
+    private boolean changeInTransaction = false;
 
     /**
      * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
@@ -127,6 +129,8 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         super.onChange(selfChange);
         if (!isInTransaction) {
             internalCursorList.refresh();
+        } else {
+            changeInTransaction = true;
         }
     }
 
@@ -136,6 +140,8 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         super.onChange(selfChange, uri);
         if (!isInTransaction) {
             internalCursorList.refresh();
+        } else {
+            changeInTransaction = true;
         }
     }
 
@@ -195,16 +201,17 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      */
     public void enableSelfRefreshes(Context context) {
         registerForContentChanges(context);
-        addModelChangeListener(new OnModelStateChangedListener() {
-            @Override
-            public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
-                if (internalCursorList.getTable().equals(table)) {
-                    refresh();
-                }
-            }
-        });
     }
 
+
+    @Override
+    public void endTransactionAndNotify() {
+        if (changeInTransaction) {
+            changeInTransaction = false;
+            refresh();
+        }
+        super.endTransactionAndNotify();
+    }
 
     /**
      * Adds an item to this table, but does not allow positonal insertion. Same as calling
@@ -608,7 +615,11 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     private final Transaction.Success internalSuccessCallback = new Transaction.Success() {
         @Override
         public void onSuccess(Transaction transaction) {
-            refresh();
+            if (!isInTransaction) {
+                refresh();
+            } else {
+                changeInTransaction = true;
+            }
 
             if (successCallback != null) {
                 successCallback.onSuccess(transaction);
