@@ -13,12 +13,26 @@ import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
  * Description: A non-modifiable, cursor-backed list that you can use in {@link ListView} or other data sources.
  */
 public class FlowCursorList<TModel extends Model> {
+
+    /**
+     * Interface for callbacks when cursor gets refreshed.
+     */
+    public interface OnCursorRefreshListener<TModel extends Model> {
+
+        /**
+         * Callback when cursor refreshes.
+         *
+         * @param cursorList The object that changed.
+         */
+        void onCursorRefreshed(FlowCursorList<TModel> cursorList);
+    }
 
     /**
      * The default size of the cache if cache size is 0 or not specified.
@@ -39,6 +53,8 @@ public class FlowCursorList<TModel extends Model> {
     private ModelQueriable<TModel> modelQueriable;
     private int cacheSize;
     private ModelAdapter<TModel> modelAdapter;
+
+    private final java.util.Set<OnCursorRefreshListener<TModel>> cursorRefreshListenerSet = new HashSet<>();
 
     public FlowCursorList(ModelQueriable<TModel> modelQueriable) {
         this(true, modelQueriable);
@@ -69,6 +85,21 @@ public class FlowCursorList<TModel extends Model> {
         modelAdapter = FlowManager.getModelAdapter(table);
         this.cacheModels = cacheModels;
         setCacheModels(cacheModels);
+    }
+
+    /**
+     * Register listener for when cursor refreshes.
+     */
+    public void addOnCursorRefreshListener(OnCursorRefreshListener<TModel> onCursorRefreshListener) {
+        synchronized (cursorRefreshListenerSet) {
+            cursorRefreshListenerSet.add(onCursorRefreshListener);
+        }
+    }
+
+    public void removeOnCursorRefreshListener(OnCursorRefreshListener<TModel> onCursorRefreshListener) {
+        synchronized (cursorRefreshListenerSet) {
+            cursorRefreshListenerSet.remove(onCursorRefreshListener);
+        }
     }
 
     /**
@@ -136,6 +167,12 @@ public class FlowCursorList<TModel extends Model> {
         if (cacheModels) {
             modelCache.clear();
             setCacheModels(true, cursor == null ? 0 : cursor.getCount());
+        }
+
+        synchronized (cursorRefreshListenerSet) {
+            for (OnCursorRefreshListener<TModel> listener : cursorRefreshListenerSet) {
+                listener.onCursorRefreshed(this);
+            }
         }
     }
 

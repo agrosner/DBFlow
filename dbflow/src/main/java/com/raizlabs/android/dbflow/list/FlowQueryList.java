@@ -124,6 +124,14 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         super.registerForContentChanges(context, internalCursorList.getTable());
     }
 
+    public void addOnCursorRefreshListener(FlowCursorList.OnCursorRefreshListener<TModel> onCursorRefreshListener) {
+        internalCursorList.addOnCursorRefreshListener(onCursorRefreshListener);
+    }
+
+    public void removeOnCursorRefreshListener(FlowCursorList.OnCursorRefreshListener<TModel> onCursorRefreshListener) {
+        internalCursorList.removeOnCursorRefreshListener(onCursorRefreshListener);
+    }
+
     @Override
     public void registerForContentChanges(Context context, Class<? extends Model> table) {
         throw new RuntimeException(
@@ -210,7 +218,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
             }
             pendingRefresh = true;
         }
-        REFRESH_HANDLER.post(refreshRunnable);
+        REFRESH_gitHANDLER.post(refreshRunnable);
     }
 
     /**

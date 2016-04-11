@@ -95,7 +95,7 @@ we set it to 50.  **Note** not all caches support a size, read on default provid
 The `FlowCursorList` provides these methods:
 
   1. `getItem(position)` - loads item from `Cursor` at specified position, caching and loading from cache (if enabled)
-  2. `refresh()` - re-queries the underlying `Cursor`, clears out the cache, and reconstructs it
+  2. `refresh()` - re-queries the underlying `Cursor`, clears out the cache, and reconstructs it. Use a `OnCursorRefreshListener` to get callbacks when this occurs.
   3. `getAll()` - returns a `List` of all items from the `Cursor`, no caching used
   4. `getCount()` - returns count of `Cursor` or 0 if `Cursor` is `null`
   5. `isEmpty()` - returns if count == 0
@@ -112,10 +112,9 @@ for its specific changes and it can auto-refresh itself when content changes.
 
 Feature rundown:
   1. `List` implementation of a Query
-  2. `FlowContentObserver`, only for the table that it corresponds to in its initial `ModelQueriable` query statement
+  2. `FlowContentObserver`, only for the table that it corresponds to in its initial `ModelQueriable` query statement. Mostly used for self refreshes.
   3. Transact changes to the query asynchronously (note that this refreshes itself every callback unless in a transaction state)
-  4. Self refreshes
-  5. Caching
+  5. Caching (almost same implementation as `FlowCursorList`)
 
 ### List Implementation
 
@@ -152,7 +151,25 @@ flowQueryList.endTransactionAndNotify();
 
 ```
 
+To listen for `Cursor` refreshes register a `OnCursorRefreshListener`:
 
-### Transact Changes
+```java
 
-If you wish to not get flooded with modification requests
+modelList
+  .addOnCursorRefreshListener(new FlowCursorList.OnCursorRefreshListener<ListModel>() {
+      @Override
+      public void onCursorRefreshed(FlowCursorList<ListModel> cursorList) {
+
+      }
+  });
+
+```
+
+
+### Transact Changes Asynchronously
+
+If you want to pass or modify the `FlowQueryList` asynchronously, set `setTransact(true)`.
+This will run all modifications in a `Transaction` and when completed, a `Cursor` refresh occurs.
+
+You can also register `Transaction.Error` and `Transaction.Success` callbacks for these modifications
+on the `FlowQueryList` to handle when these `Transaction` finish.
