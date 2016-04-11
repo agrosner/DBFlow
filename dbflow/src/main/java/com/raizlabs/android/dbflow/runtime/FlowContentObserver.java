@@ -232,6 +232,7 @@ public class FlowContentObserver extends ContentObserver {
         onChange(selfChange, uri, false);
     }
 
+    @TargetApi(VERSION_CODES.JELLY_BEAN)
     private void onChange(boolean selfChanges, Uri uri, boolean calledInternally) {
         String fragment = uri.getFragment();
         String tableName = uri.getAuthority();
