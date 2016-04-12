@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.0.0beta5-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.0.0beta6-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
@@ -20,7 +20,7 @@ DBFlow was built with the intention of bringing the best of most features from o
 
 # Changelog
 
-Going forward, changes between versions exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases)
+Visit the [releases tab](https://github.com/Raizlabs/DBFlow/releases)
 
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
@@ -57,7 +57,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
   apply plugin: 'com.neenbedankt.android-apt'
 
-  def dbflow_version = "3.0.0-beta5"
+  def dbflow_version = "3.0.0-beta6"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
