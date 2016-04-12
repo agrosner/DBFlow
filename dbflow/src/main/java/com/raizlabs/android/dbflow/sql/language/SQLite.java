@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.trigger.Trigger;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -72,5 +73,15 @@ public class SQLite {
      */
     public static <TModel extends Model> Index<TModel> index(String name) {
         return new Index<>(name);
+    }
+
+    /**
+     * Starts a TRIGGER statement.
+     *
+     * @param name The name of the trigger.
+     * @return A new TRIGGER statement.
+     */
+    public static Trigger createTrigger(String name) {
+        return Trigger.create(name);
     }
 }

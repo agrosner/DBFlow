@@ -305,3 +305,8 @@ SQLite.insert(SomeTable.class)
     .execute()
 
 ```
+
+## Trigger
+
+Triggers enable SQLite-level listener operations that perform some operation, modification,
+or action to run when a specific database event occurs. [See](https://www.sqlite.org/lang_createtrigger.html) for more documentation on its usage.
