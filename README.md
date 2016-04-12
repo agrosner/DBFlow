@@ -10,7 +10,7 @@ Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on writi
 
 # Why Use DBFlow
 DBFlow was built with the intention of bringing the best of most features from other ORM database libraries and to do it even better. It was also built to not limit how you can code your problems, but make it _significantly_ easier to deal with databases on Android. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
-- **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages. _Also, subclass objects in this library to suit your needs_.
+- **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages.
 - **Speed**: Built with java's annotation processing code generation, there's almost zero runtime performance hit by using this library (only reflection is creation of the main, generated database module's constructor). This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
 - **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
 - **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
@@ -25,41 +25,7 @@ Going forward, changes between versions exist in the [releases tab](https://gith
 for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
 # Usage Docs
-For more detailed usage, check out these sections:
-
-[Getting Started](usage/GettingStarted.md)
-
-[Tables and Database Properties](usage/DBStructure.md)
-
-[Multiple Instances of DBFlow / Database Modules](usage/DatabaseModules.md)
-
-[SQL Statements Using the Wrapper Classes](usage/SQLQuery.md)
-
-[Properties & Conditions](usage/Conditions.md)
-
-[Transactions](usage/Transactions.md)
-
-[Type Converters](usage/TypeConverters.md)
-
-[Powerful Model Caching](usage/ModelCaching.md)
-
-[Query Models](usage/QueryModels.md)
-
-[Content Provider Generation](usage/ContentProviderGenerators.md)
-
-[Migrations](usage/Migrations.md)
-
-[Model Containers](usage/ModelContainers.md)
-
-[Observing Models](usage/ObservableModels.md)
-
-[Queries as Lists](usage/TableList.md)
-
-[Triggers, Indexes, and More](usage/TriggersIndexesAndMore.md)
-
-[SQLCipher Support](usage/SQLCipherSupport.md)
-
-[Kotlin Extensions](usage/KotlinSupport.md)
+For more detailed usage, check out it out [here](/usage2/Intro.md)
 
 # Including in your project
 If you use KAPT (Kotlin's APT), then skip this first step.
@@ -97,7 +63,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
   dependencies {
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
-    // kapt for kotlin apt
+    // use kapt for kotlin apt
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
@@ -116,11 +82,11 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
 # Pull Requests
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
-1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
-2. If its a feature, bugfix, or anything please only change code to what you specify.
-3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :)
-4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.
-5. Have fun!
+  1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
+  2. If its a feature, bugfix, or anything please only change code to what you specify.
+  3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :)
+  4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.
+  5. Have fun!
 
 # Maintained By
 [agrosner](https://github.com/agrosner) ([@agrosner](https://www.twitter.com/agrosner))

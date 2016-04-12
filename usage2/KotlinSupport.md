@@ -141,15 +141,15 @@ var items = SQLite.select()
                .from<TestModel1>().queryList()
 
  // easily delete all these items.
- items.processInTransactionAsync { it.delete() }
+ items.processInTransactionAsync { it, databaseWrapper -> it.delete(databaseWrapper) }
 
  // easily delete all these items with success
- items.processInTransactionAsync({ it.delete() },
-          Transaction.Success {
-              // do something here
-          })
+ items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
+            Transaction.Success {
+                // do something here
+            })
 // delete with all callbacks
-items.processInTransactionAsync({ it.delete() },
+iitems.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
     Transaction.Success {
         // do something here
     },
@@ -166,7 +166,7 @@ If you wish to easily do them _synchronously_ then use:
 
 ```kotlin
 
-items.processInTransaction { it.delete() }
+items.processInTransaction { it, databaseWrapper -> it.delete(databaseWrapper) }
 
 ```
 

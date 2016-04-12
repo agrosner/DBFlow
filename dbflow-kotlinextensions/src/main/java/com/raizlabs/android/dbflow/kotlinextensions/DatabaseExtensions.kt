@@ -50,9 +50,10 @@ inline fun <reified TModel : BaseQueryModel> queryModelAdapter(): QueryModelAdap
 /**
  * Enables a collection of TModel objects to easily operate on them within a synchronous database transaction.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(crossinline processFunction: (TModel) -> Unit) {
-    database<TModel>().executeTransaction {
-        forEach { processFunction(it) }
+inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit) {
+    var wrapper = database<TModel>()
+    wrapper.executeTransaction {
+        forEach { processFunction(it, wrapper.writableDatabase) }
     }
 }
 
@@ -60,10 +61,11 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(cros
  * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit) {
-    database<TModel>().beginTransactionAsync(
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit) {
+    var wrapper = database<TModel>()
+    wrapper.beginTransactionAsync(
         ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
-            processFunction(it)
+            processFunction(it, wrapper.writableDatabase)
         }).addAll(this).build()
     ).build().execute();
 }
@@ -72,12 +74,13 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync
  * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit,
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit,
                                                                                  success: Transaction.Success? = null,
                                                                                  error: Transaction.Error? = null) {
-    database<TModel>().beginTransactionAsync(
+    var wrapper = database<TModel>()
+    wrapper.beginTransactionAsync(
         ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
-            processFunction(it)
+            processFunction(it, wrapper.writableDatabase)
         }).addAll(this).build()
     ).success(success).error(error).build().execute();
 }
@@ -86,13 +89,14 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync
  * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit,
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit,
                                                                                  processListener: ProcessModelTransaction.OnModelProcessListener<TModel>? = null,
                                                                                  success: Transaction.Success? = null,
                                                                                  error: Transaction.Error? = null) {
-    database<TModel>().beginTransactionAsync(
+    var wrapper = database<TModel>()
+    wrapper.beginTransactionAsync(
         ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
-            processFunction(it)
+            processFunction(it, wrapper.writableDatabase)
         }).addAll(this).processListener(processListener).build()
     ).success(success).error(error).build().execute();
 }
