@@ -33,5 +33,4 @@ dependencies {
 
 }
 
-apply from: '../bintray_upload.gradle'
 apply from: '../android-artifacts.gradle'

@@ -49,7 +49,6 @@ buildscript {
     }
 }
 
-apply from: '../bintray_upload.gradle'
 apply from: '../kotlin-artifacts.gradle'
 
 
