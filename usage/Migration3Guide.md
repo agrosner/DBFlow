@@ -4,10 +4,14 @@ DBFlow has undergone the most _significant_ changes in its lifetime in 3.0. This
 A significant portion of the changes include the _complete_ overhaul of the underlying annotation processor, leading to wonderful improvements in maintainability of the code, readability, and stability of the generated code. Now it uses the updated [JavaPoet](https://github.com/square/javapoet) vs the outdated JavaWriter. The changes in this library alone _significantly_ helps out the stability of the generated code.
 
 _note:_
-1. `update` no longer attempts to `insert` if it fails.
-2. Package private fields from other packages are now automatically accessible via generated `_Helper` classes. The referenced fields must be annotated with `@Column`, `@PrimaryKey`, or `@ForeignKey`. if its a legacy `ForeignKeyReference`, `referendFieldIsPackagePrivate()` must be set to true.
-3. `@Column` no longer required in conjunction with `@PrimaryKey` or `@ForeignKey`
-4. Can now have DBFlow in multiple modules, libraries, etc via "Modules"!
+
+_1. `update` no longer attempts to `insert` if it fails._
+
+_2. Package private fields from other packages are now automatically accessible via generated `_Helper` classes. The referenced fields must be annotated with `@Column`, `@PrimaryKey`, or `@ForeignKey`. if its a legacy `ForeignKeyReference`, `referendFieldIsPackagePrivate()` must be set to true._
+
+_3. `@Column` no longer required in conjunction with `@PrimaryKey` or `@ForeignKey`_
+
+_4. Can now have DBFlow in multiple modules, libraries, etc via "Modules"!_
 
 ## Table Of Contents
 1. Database + Table Structure
