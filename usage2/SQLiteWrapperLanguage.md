@@ -134,7 +134,7 @@ For reference, ([JOIN examples](http://www.tutorialspoint.com/sqlite/sqlite_usin
 
 `JOIN` statements are great for combining many-to-many relationships.
 If your query returns non-table fields and cannot map to an existing object,
-see about [query models](usage/QueryModels.md)
+see about [query models](/usage2/QueryModels.md)
 
 For example we have a table named `Customer` and another named `Reservations`.
 
