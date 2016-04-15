@@ -70,9 +70,7 @@ public class OneToManyDefinition extends BaseDefinition {
      */
     public void writeDelete(CodeBlock.Builder codeBuilder) {
         if (isDelete()) {
-            codeBuilder.addStatement("new $T<>($T.withModels($L)).onExecute()",
-                    ClassNames.DELETE_MODEL_LIST_TRANSACTION,
-                    ClassNames.PROCESS_MODEL_INFO, getMethodName());
+            writeLoopWithMethod(codeBuilder, "delete");
 
             codeBuilder.addStatement("$L = null", getVariableName());
         }
@@ -80,26 +78,29 @@ public class OneToManyDefinition extends BaseDefinition {
 
     public void writeSave(CodeBlock.Builder codeBuilder) {
         if (isSave()) {
-            codeBuilder.addStatement("new $T<>($T.withModels($L)).onExecute()",
-                    ClassNames.SAVE_MODEL_LIST_TRANSACTION,
-                    ClassNames.PROCESS_MODEL_INFO, getMethodName());
+            writeLoopWithMethod(codeBuilder, "save");
         }
     }
 
     public void writeUpdate(CodeBlock.Builder codeBuilder) {
         if (isSave()) {
-            codeBuilder.addStatement("new $T<>($T.withModels($L)).onExecute()",
-                    ClassNames.UPDATE_MODEL_LIST_TRANSACTION,
-                    ClassNames.PROCESS_MODEL_INFO, getMethodName());
+            writeLoopWithMethod(codeBuilder, "update");
         }
     }
 
     public void writeInsert(CodeBlock.Builder codeBuilder) {
         if (isSave()) {
-            codeBuilder.addStatement("new $T<>($T.withModels($L)).onExecute()",
-                    ClassNames.INSERT_MODEL_LIST_TRANSACTION,
-                    ClassNames.PROCESS_MODEL_INFO, getMethodName());
+            writeLoopWithMethod(codeBuilder, "insert");
         }
+    }
+
+    private void writeLoopWithMethod(CodeBlock.Builder codeBuilder, String methodName) {
+        codeBuilder
+                .beginControlFlow("if ($L != null) ", getMethodName())
+                .beginControlFlow("for ($T value: $L) ", ClassNames.MODEL, getMethodName())
+                .addStatement("value.$L()", methodName)
+                .endControlFlow()
+                .endControlFlow();
     }
 
     private String getMethodName() {

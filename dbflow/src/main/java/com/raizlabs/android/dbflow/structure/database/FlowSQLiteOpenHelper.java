@@ -4,20 +4,18 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Author: andrewgrosner
- * Description: Wraps around the {@link android.database.sqlite.SQLiteOpenHelper} and provides extra features for use in this library.
+ * Description: Wraps around the {@link SQLiteOpenHelper} and provides extra features for use in this library.
  */
 public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper {
 
     private DatabaseHelperDelegate databaseHelperDelegate;
     private AndroidDatabase androidDatabase;
 
-    public FlowSQLiteOpenHelper(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
+    public FlowSQLiteOpenHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
         super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(), null, databaseDefinition.getDatabaseVersion());
 
         OpenHelper backupHelper = null;
@@ -86,7 +84,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         private AndroidDatabase androidDatabase;
         private final BaseDatabaseHelper baseDatabaseHelper;
 
-        public BackupHelper(Context context, String name, int version, BaseDatabaseDefinition databaseDefinition) {
+        public BackupHelper(Context context, String name, int version, DatabaseDefinition databaseDefinition) {
             super(context, name, null, version);
             this.baseDatabaseHelper = new BaseDatabaseHelper(databaseDefinition);
         }

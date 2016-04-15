@@ -10,7 +10,8 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
  * Description: Provides a base implementation of a {@link com.raizlabs.android.dbflow.structure.Model} backed
  * by a content provider. All operations sync with the content provider in this app from a {@link android.content.ContentProvider}
  */
-public abstract class BaseSyncableProviderModel<TableClass extends BaseSyncableProviderModel> extends BaseModel implements ModelProvider<TableClass> {
+public abstract class BaseSyncableProviderModel
+        extends BaseModel implements ModelProvider {
 
     @Override
     public void insert() {

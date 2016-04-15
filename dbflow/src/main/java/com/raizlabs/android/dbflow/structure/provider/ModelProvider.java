@@ -1,22 +1,21 @@
 package com.raizlabs.android.dbflow.structure.provider;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: A base interface for Models that are connected to providers.
  */
-public interface ModelProvider<TableClass extends Model> {
+public interface ModelProvider {
 
     /**
-     * Queries the {@link android.content.ContentResolver} of the app based on the passed parameters and
+     * Queries the {@link ContentResolver} of the app based on the passed parameters and
      * populates this object with the first row from the returned data.
      *
-     * @param whereConditions     The set of {@link Condition} to filter the query by.
-     * @param whereConditionGroup
+     * @param whereConditionGroup The set of {@link Condition} to filter the query by.
      * @param orderBy             The order by without the ORDER BY
      * @param columns             The list of columns to select. Leave blank for *
      */
@@ -24,7 +23,7 @@ public interface ModelProvider<TableClass extends Model> {
               String orderBy, String... columns);
 
     /**
-     * Queries the {@link android.content.ContentResolver} of the app based on the primary keys of the object and populates
+     * Queries the {@link ContentResolver} of the app based on the primary keys of the object and populates
      * this object with the first row from the returned data.
      */
     void load();

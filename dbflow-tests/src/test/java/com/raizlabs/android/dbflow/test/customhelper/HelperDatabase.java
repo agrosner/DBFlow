@@ -5,8 +5,7 @@ import com.raizlabs.android.dbflow.annotation.Database;
 /**
  * Description:
  */
-@Database(name = HelperDatabase.NAME, version = HelperDatabase.VERSION,
-        sqlHelperClass = CustomOpenHelper.class)
+@Database(name = HelperDatabase.NAME, version = HelperDatabase.VERSION)
 public class HelperDatabase {
 
     public static final String NAME = "Helper";

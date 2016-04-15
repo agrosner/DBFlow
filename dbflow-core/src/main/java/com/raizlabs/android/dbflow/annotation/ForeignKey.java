@@ -14,7 +14,7 @@ public @interface ForeignKey {
 
     /**
      * Defines explicit references for a composite {@link ForeignKey} definition. This is no longer required
-     * as the library will autogenerate references for you based on the other table's primary keys.
+     * as the library will auto-generate references for you based on the other table's primary keys.
      *
      * @return the set of explicit references if you wish to have different values than default generated.
      */

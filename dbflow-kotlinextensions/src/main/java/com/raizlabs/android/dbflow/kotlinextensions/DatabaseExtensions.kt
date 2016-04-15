@@ -1,37 +1,20 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
-import android.content.ContentValues
-import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition
+import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.runtime.TransactionManager
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.BaseQueryModel
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
 
 /**
- * Allows you to do something on the database.
+ * Easily get access to its [DatabaseDefinition] directly.
  */
-inline fun BaseDatabaseDefinition.transact(transaction: () -> Unit) {
-    writableDatabase.beginTransaction()
-    try {
-        transaction()
-        writableDatabase.setTransactionSuccessful()
-    } finally {
-        writableDatabase.endTransaction()
-    }
-}
-
-/**
- * Easily get access to its [BaseDatabaseDefinition] directly.
- */
-inline fun <reified TModel : Model> database(): BaseDatabaseDefinition {
+inline fun <reified TModel : Model> database(): DatabaseDefinition {
     return FlowManager.getDatabaseForTable(TModel::class.java)
 }
 
@@ -67,41 +50,60 @@ inline fun <reified TModel : BaseQueryModel> queryModelAdapter(): QueryModelAdap
 /**
  * Enables a collection of TModel objects to easily operate on them within a synchronous database transaction.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(crossinline processFunction: (TModel) -> Unit) {
-    database<TModel>().transact {
-        forEach { processFunction(it) }
+inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit) {
+    var wrapper = database<TModel>()
+    wrapper.executeTransaction {
+        forEach { processFunction(it, wrapper.writableDatabase) }
     }
 }
 
 /**
- * Places the [Collection] of items on the [DBTransactionQueue]. Use the [processFunction] to perform
+ * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel) -> Unit) {
-    object : ProcessModelTransaction<TModel>(ProcessModelInfo.withModels(this), null) {
-        override fun processModel(model: TModel) {
-            processFunction(model)
-        }
-    }.transact()
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit) {
+    var wrapper = database<TModel>()
+    wrapper.beginTransactionAsync(
+        ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            processFunction(it, wrapper.writableDatabase)
+        }).addAll(this).build()
+    ).build().execute();
 }
 
 /**
- * Transacts a [BaseTransaction] at the end for cleaner feel.
+ * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
+ * an action on each individual [Model]. This happens on a non-UI thread.
  */
-fun <TResult> BaseTransaction<TResult>.transact() {
-    TransactionManager.getInstance().addTransaction(this)
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit,
+                                                                                 success: Transaction.Success? = null,
+                                                                                 error: Transaction.Error? = null) {
+    var wrapper = database<TModel>()
+    wrapper.beginTransactionAsync(
+        ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            processFunction(it, wrapper.writableDatabase)
+        }).addAll(this).build()
+    ).success(success).error(error).build().execute();
+}
+
+/**
+ * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
+ * an action on each individual [Model]. This happens on a non-UI thread.
+ */
+inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit,
+                                                                                 processListener: ProcessModelTransaction.OnModelProcessListener<TModel>? = null,
+                                                                                 success: Transaction.Success? = null,
+                                                                                 error: Transaction.Error? = null) {
+    var wrapper = database<TModel>()
+    wrapper.beginTransactionAsync(
+        ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            processFunction(it, wrapper.writableDatabase)
+        }).addAll(this).processListener(processListener).build()
+    ).success(success).error(error).build().execute();
 }
 
 /**
  * Adds the execute method to the [DatabaseWrapper]
  */
 fun DatabaseWrapper.executeUpdateDelete(rawQuery: String) {
-    SQLiteCompatibilityUtils.executeUpdateDelete(this, rawQuery)
-}
-
-/**
- * Adds the update method to the [DatabaseWrapper]
- */
-fun DatabaseWrapper.updateWithOnConflict(tableName: String, contentValues: ContentValues, where: String?, whereArgs: Array<String>?, conflictAlgorithm: Int): Long {
-    return SQLiteCompatibilityUtils.updateWithOnConflict(this, tableName, contentValues, where, whereArgs, conflictAlgorithm)
+    compileStatement(rawQuery).executeUpdateDelete()
 }

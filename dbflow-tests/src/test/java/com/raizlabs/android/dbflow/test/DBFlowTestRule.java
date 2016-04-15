@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.test;
 
+import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.test.sql.MigrationDatabase;
 
@@ -26,12 +27,12 @@ public class DBFlowTestRule implements TestRule {
 
             @Override
             public void evaluate() throws Throwable {
-                FlowManager.init(RuntimeEnvironment.application);
+                FlowManager.init(new FlowConfig.Builder(RuntimeEnvironment.application).build());
                 try {
                     base.evaluate();
                 } finally {
-                    FlowManager.getDatabase(TestDatabase.NAME).reset(RuntimeEnvironment.application);
-                    FlowManager.getDatabase(MigrationDatabase.NAME).reset(RuntimeEnvironment.application);
+                    FlowManager.getDatabase(TestDatabase.class).reset(RuntimeEnvironment.application);
+                    FlowManager.getDatabase(MigrationDatabase.class).reset(RuntimeEnvironment.application);
                     FlowManager.destroy();
                 }
             }

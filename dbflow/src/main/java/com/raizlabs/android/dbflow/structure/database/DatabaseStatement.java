@@ -1,7 +1,9 @@
 package com.raizlabs.android.dbflow.structure.database;
 
+import android.database.sqlite.SQLiteStatement;
+
 /**
- * Description:
+ * Description: Abstracts out a {@link SQLiteStatement}.
  */
 public interface DatabaseStatement {
 

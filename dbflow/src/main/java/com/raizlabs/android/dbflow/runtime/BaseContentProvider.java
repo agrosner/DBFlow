@@ -5,20 +5,13 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.StringUtils;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.DatabaseHolder;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.sql.language.OrderBy;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 
 /**
  * Description: The base provider class that {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
@@ -36,13 +29,14 @@ public abstract class BaseContentProvider extends ContentProvider {
         IProperty fromName(String columnName);
     }
 
-    protected BaseContentProvider() {}
+    protected BaseContentProvider() {
+    }
 
     protected BaseContentProvider(Class<? extends DatabaseHolder> databaseHolderClass) {
         this.moduleClass = databaseHolderClass;
     }
 
-    protected BaseDatabaseDefinition database;
+    protected DatabaseDefinition database;
 
     @Override
     public boolean onCreate() {
@@ -59,9 +53,9 @@ public abstract class BaseContentProvider extends ContentProvider {
     @Override
     public int bulkInsert(@NonNull final Uri uri, @NonNull final ContentValues[] values) {
         final int[] count = {0};
-        TransactionManager.transact(getDatabase().getWritableDatabase(), new Runnable() {
+        getDatabase().executeTransaction(new ITransaction() {
             @Override
-            public void run() {
+            public void execute(DatabaseWrapper databaseWrapper) {
                 for (ContentValues contentValues : values) {
                     count[0] += bulkInsert(uri, contentValues);
                 }
@@ -76,7 +70,7 @@ public abstract class BaseContentProvider extends ContentProvider {
 
     protected abstract int bulkInsert(Uri uri, ContentValues contentValues);
 
-    protected BaseDatabaseDefinition getDatabase() {
+    protected DatabaseDefinition getDatabase() {
         if (database == null) {
             database = FlowManager.getDatabase(getDatabaseName());
         }

@@ -1,89 +1,50 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
+import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.QueryTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectSingleModelTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
+import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
 import com.raizlabs.android.dbflow.structure.Model;
-
-import java.util.List;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 
 /**
  * Description: Adds async methods to a {@link ModelQueriable}
  */
-public class AsyncQuery<ModelClass extends Model> {
+public class AsyncQuery<TModel extends Model> extends BaseAsyncObject<AsyncQuery<TModel>> {
 
-    private final ModelQueriable<ModelClass> modelQueriable;
-    private final TransactionManager transactionManager;
-    private BaseTransaction currentTransaction;
+    private final ModelQueriable<TModel> modelQueriable;
+    private QueryTransaction.QueryResultCallback<TModel> queryResultCallback;
 
     /**
      * Constructs an instance of this async query.
      *
-     * @param queriable          The queriable object to use to query data.
-     * @param transactionManager The manager to run this query on
+     * @param queriable The queriable object to use to query data.
      */
-    public AsyncQuery(ModelQueriable<ModelClass> queriable, TransactionManager transactionManager) {
+    public AsyncQuery(@NonNull ModelQueriable<TModel> queriable) {
+        super(queriable.getTable());
         this.modelQueriable = queriable;
-        this.transactionManager = transactionManager;
+    }
+
+    /**
+     * @param queryResultCallback Called when query is executed and has a result.
+     */
+    public AsyncQuery<TModel> queryResultCallback(QueryTransaction.QueryResultCallback<TModel> queryResultCallback) {
+        this.queryResultCallback = queryResultCallback;
+        return this;
     }
 
     /**
      * Runs the specified query in the background.
      */
     public void execute() {
-        cancel();
-        transactionManager.addTransaction(currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable));
-    }
-
-    /**
-     * Queries the list on the {@link DBTransactionQueue}
-     *
-     * @param transactionListener Listens for transaction events.
-     */
-    public void queryList(TransactionListener<List<ModelClass>> transactionListener) {
-        cancel();
-        transactionManager.addTransaction(currentTransaction = new SelectListTransaction<>(modelQueriable, transactionListener));
-    }
-
-    /**
-     * Queries a single item on the {@link DBTransactionQueue}
-     *
-     * @param transactionListener Listens for transaction events.
-     */
-    public void querySingle(TransactionListener<ModelClass> transactionListener) {
-        cancel();
-        transactionManager.addTransaction(currentTransaction = new SelectSingleModelTransaction<>(modelQueriable, transactionListener));
+        executeTransaction(new QueryTransaction.Builder<>(modelQueriable)
+                .queryResult(queryResultCallback).build());
     }
 
     /**
      * @return The table this Query is associated with.
      */
-    public Class<ModelClass> getTable() {
+    public Class<TModel> getTable() {
         return modelQueriable.getTable();
     }
 
-    /**
-     * Queries the raw {@link Cursor} object from the contained query.
-     *
-     * @param transactionListener Listens for transaction events.
-     */
-    public void query(TransactionListener<Cursor> transactionListener) {
-        cancel();
-        transactionManager.addTransaction(
-                currentTransaction = new QueryTransaction(DBTransactionInfo.create(), modelQueriable, transactionListener));
-    }
-
-    public void cancel() {
-        if (currentTransaction != null) {
-            transactionManager.cancelTransaction(currentTransaction);
-            currentTransaction = null;
-        }
-    }
 }

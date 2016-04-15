@@ -1,15 +1,14 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.DBTransactionInfo;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,13 +18,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Description: An abstraction from {@link FlowSQLiteOpenHelper} where this can be used in other helper class definitions.
+ * Description: An abstraction from some parts of the {@link SQLiteOpenHelper} where this can be
+ * used in other helper class definitions.
  */
 public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
     public static final String TEMP_DB_NAME = "temp-";
 
-    public static String getTempDbFileName(BaseDatabaseDefinition databaseDefinition) {
+    public static String getTempDbFileName(DatabaseDefinition databaseDefinition) {
         return TEMP_DB_NAME + databaseDefinition.getDatabaseName() + ".db";
     }
 
@@ -34,7 +34,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     @Nullable private final OpenHelper backupHelper;
 
     public DatabaseHelperDelegate(DatabaseHelperListener databaseHelperListener,
-                                  BaseDatabaseDefinition databaseDefinition, @Nullable OpenHelper backupHelper) {
+                                  DatabaseDefinition databaseDefinition, @Nullable OpenHelper backupHelper) {
         super(databaseDefinition);
         this.databaseHelperListener = databaseHelperListener;
         this.backupHelper = backupHelper;
@@ -50,6 +50,10 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
         }
     }
 
+    /**
+     * @param databaseHelperListener Listens for operations the DB and allow you to provide extra
+     *                               functionality.
+     */
     public void setDatabaseHelperListener(DatabaseHelperListener databaseHelperListener) {
         this.databaseHelperListener = databaseHelperListener;
     }
@@ -79,7 +83,8 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     /**
-     * @return the temporary database file name for when we have backups enabled {@link BaseDatabaseDefinition#backupEnabled()}
+     * @return the temporary database file name for when we have backups enabled
+     * {@link DatabaseDefinition#backupEnabled()}
      */
     private String getTempDbFileName() {
         return getTempDbFileName(getDatabaseDefinition());
@@ -200,7 +205,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     /**
-     * Will use the already existing app database if {@link BaseDatabaseDefinition#backupEnabled()} is true. If the existing
+     * Will use the already existing app database if {@link DatabaseDefinition#backupEnabled()} is true. If the existing
      * is not there we will try to use the prepackaged database for that purpose.
      *
      * @param databaseName    The name of the database to restore
@@ -237,19 +242,19 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
 
     /**
-     * Saves the database as a backup on the {@link com.raizlabs.android.dbflow.runtime.DBTransactionQueue} as
-     * the highest priority ever. This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
+     * Saves the database as a backup on the {@link DefaultTransactionQueue}.
+     * This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     public void backupDB() {
         if (!getDatabaseDefinition().backupEnabled() || !getDatabaseDefinition().areConsistencyChecksEnabled()) {
             throw new IllegalStateException("Backups are not enabled for : " + getDatabaseDefinition().getDatabaseName() + ". Please consider adding " +
                     "both backupEnabled and consistency checks enabled to the Database annotation");
         }
-        // highest priority ever!
-        TransactionManager.getInstance().addTransaction(new BaseTransaction(DBTransactionInfo.create(BaseTransaction.PRIORITY_UI + 1)) {
-            @Override
-            public Object onExecute() {
 
+        getDatabaseDefinition().beginTransactionAsync(new ITransaction() {
+            @SuppressWarnings("ResultOfMethodCallIgnored")
+            @Override
+            public void execute(DatabaseWrapper databaseWrapper) {
                 Context context = FlowManager.getContext();
                 File backup = context.getDatabasePath(getTempDbFileName());
                 File temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + getDatabaseDefinition().getDatabaseFileName());
@@ -274,10 +279,9 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
                     FlowLog.logError(e);
 
                 }
-                return null;
             }
+        }).build().execute();
 
-        });
     }
 
     public DatabaseWrapper getWritableDatabase() {

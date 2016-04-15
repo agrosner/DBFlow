@@ -1,63 +1,38 @@
 package com.raizlabs.android.dbflow;
 
 import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.os.Build;
 
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.structure.database.AndroidDatabase;
+import com.raizlabs.android.dbflow.structure.database.AndroidDatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Provides some backwards compatibility with database operations in Android.
  */
+@Deprecated
 public class SQLiteCompatibilityUtils {
 
     /**
      * Performs an {@link android.database.sqlite.SQLiteStatement#executeUpdateDelete()} with support for
-     * previous versions.
+     * previous versions. This method is no longer necessary due to {@link AndroidDatabaseStatement}
+     * providing support.
      *
-     * @param database The database handle
-     * @param rawQuery The query to use.
-     * @return The count of rows changed.
+     * @deprecated Use {@link DatabaseWrapper#compileStatement(String)},
+     * then {@link DatabaseStatement#executeUpdateDelete()}
      */
+    @Deprecated
     public static long executeUpdateDelete(DatabaseWrapper database, String rawQuery) {
-        long count = 0;
-        DatabaseStatement sqLiteStatement = database.compileStatement(rawQuery);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            count = sqLiteStatement.executeUpdateDelete();
-        } else {
-            sqLiteStatement.execute();
-
-            Cursor cursor = null;
-            try {
-                cursor = database.rawQuery("SELECT changes() AS affected_row_count", null);
-                if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
-                    count = cursor.getLong(cursor.getColumnIndex("affected_row_count"));
-                }
-            } catch (SQLException e) {
-                // Handle exception here.
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-        }
-        return count;
+        return database.compileStatement(rawQuery).executeUpdateDelete();
     }
 
     /**
-     * Updates the specified table with the specified values. It does not support {@link com.raizlabs.android.dbflow.annotation.ConflictAction}
-     * for pre-froyo devices.
-     *
-     * @param database          The database handle
-     * @param tableName         The name of the table
-     * @param contentValues     The values to update a {@link com.raizlabs.android.dbflow.structure.Model} with.
-     * @param where             The string query to use for WHERE
-     * @param whereArgs         The arguments to the WHERE
-     * @param conflictAlgorithm The algorithm to use for conflicts.
-     * @return The count of rows changed.
+     * Updates the specified table with the specified values. It does not support {@link ConflictAction}
+     * for pre-froyo devices. This method is no longer necessary due to {@link AndroidDatabase}
+     * providing support.
      */
+    @Deprecated
     public static long updateWithOnConflict(DatabaseWrapper database, String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm) {
         return database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
     }

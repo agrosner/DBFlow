@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.trigger.Trigger;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -28,20 +29,20 @@ public class SQLite {
     }
 
     /**
-     * @param table        The tablet to update.
-     * @param <ModelClass> The class that implements {@link Model}.
+     * @param table    The tablet to update.
+     * @param <TModel> The class that implements {@link Model}.
      * @return A new UPDATE statement.
      */
-    public static <ModelClass extends Model> Update<ModelClass> update(Class<ModelClass> table) {
+    public static <TModel extends Model> Update<TModel> update(Class<TModel> table) {
         return new Update<>(table);
     }
 
     /**
-     * @param table        The table to insert.
-     * @param <ModelClass> The class that implements {@link Model}.
+     * @param table    The table to insert.
+     * @param <TModel> The class that implements {@link Model}.
      * @return A new INSERT statement.
      */
-    public static <ModelClass extends Model> Insert<ModelClass> insert(Class<ModelClass> table) {
+    public static <TModel extends Model> Insert<TModel> insert(Class<TModel> table) {
         return new Insert<>(table);
     }
 
@@ -55,11 +56,32 @@ public class SQLite {
     /**
      * Starts a DELETE statement on the specified table.
      *
-     * @param table        The table to delete from.
-     * @param <ModelClass> The class that implements {@link Model}.
+     * @param table    The table to delete from.
+     * @param <TModel> The class that implements {@link Model}.
      * @return A {@link From} with specified DELETE on table.
      */
-    public static <ModelClass extends Model> From<ModelClass> delete(Class<ModelClass> table) {
+    public static <TModel extends Model> From<TModel> delete(Class<TModel> table) {
         return delete().from(table);
+    }
+
+    /**
+     * Starts an INDEX statement on specified table.
+     *
+     * @param name     The name of the index.
+     * @param <TModel> The class that implements {@link Model}.
+     * @return A new INDEX statement.
+     */
+    public static <TModel extends Model> Index<TModel> index(String name) {
+        return new Index<>(name);
+    }
+
+    /**
+     * Starts a TRIGGER statement.
+     *
+     * @param name The name of the trigger.
+     * @return A new TRIGGER statement.
+     */
+    public static Trigger createTrigger(String name) {
+        return Trigger.create(name);
     }
 }
