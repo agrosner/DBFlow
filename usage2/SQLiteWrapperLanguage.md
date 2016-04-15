@@ -220,7 +220,7 @@ DBFlow supports two kind of UPDATE:
 
 For simple `UPDATE` for a single or few, concrete set of `Model` stick with (1).
 For powerful multiple `Model` update that can span many rows, use (2). In this
-section we speak on (2). **Note:** using model caching, you'll need to clear it out
+section we speak on (2). **Note:** if using model caching, you'll need to clear it out
 post an operation from (2).
 
 
@@ -255,7 +255,7 @@ The `Set` part of the `Update` supports different kinds of values:
 
 For simple `DELETE` for a single or few, concrete set of `Model` stick with (1).
 For powerful multiple `Model` deletion that can span many rows, use (2). In this
-section we speak on (2). **Note:** using model caching, you'll need to clear it out
+section we speak on (2). **Note:** if using model caching, you'll need to clear it out
 post an operation from (2).
 
 
@@ -310,3 +310,12 @@ SQLite.insert(SomeTable.class)
 
 Triggers enable SQLite-level listener operations that perform some operation, modification,
 or action to run when a specific database event occurs. [See](https://www.sqlite.org/lang_createtrigger.html) for more documentation on its usage.
+
+```java
+
+Trigger.create("SomeTrigger")
+                .after().insert(ConditionModel.class).begin(new Update<>(TestUpdateModel.class)
+                        .set(TestUpdateModel_Table.value.is("Fired"))).enable(); // enables the trigger if it does not exist, so subsequent calls are OK
+
+
+```
