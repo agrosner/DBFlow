@@ -53,7 +53,6 @@ public class TransactionsTest extends FlowTestCase {
         transaction.execute();
 
         assertTrue(called.get());
-
     }
 
     @Test
@@ -81,17 +80,17 @@ public class TransactionsTest extends FlowTestCase {
         final AtomicBoolean processCalled = new AtomicBoolean(false);
         final AtomicInteger modelProcessedCount = new AtomicInteger(0);
         ProcessModelTransaction<TestModel1> processModelTransaction =
-                new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<TestModel1>() {
-                    @Override
-                    public void processModel(TestModel1 model) {
-                        processCalled.set(true);
-                    }
-                }).processListener(new ProcessModelTransaction.OnModelProcessListener<TestModel1>() {
-                    @Override
-                    public void onModelProcessed(long current, long total, TestModel1 modifiedModel) {
-                        modelProcessedCount.incrementAndGet();
-                    }
-                }).addAll(testModel1List).build();
+            new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<TestModel1>() {
+                @Override
+                public void processModel(TestModel1 model) {
+                    processCalled.set(true);
+                }
+            }).processListener(new ProcessModelTransaction.OnModelProcessListener<TestModel1>() {
+                @Override
+                public void onModelProcessed(long current, long total, TestModel1 modifiedModel) {
+                    modelProcessedCount.incrementAndGet();
+                }
+            }).addAll(testModel1List).build();
         Transaction transaction = new Transaction.Builder(processModelTransaction, database).build();
         new MockTransaction(transaction, database).execute();
 
@@ -117,9 +116,9 @@ public class TransactionsTest extends FlowTestCase {
 
         final AtomicBoolean called = new AtomicBoolean(false);
         QueryTransaction<TestModel1> queryTransaction = new QueryTransaction.Builder<>(
-                SQLite.select()
-                        .from(TestModel1.class)
-                        .where(TestModel1_Table.name.like("%test1"))
+            SQLite.select()
+                .from(TestModel1.class)
+                .where(TestModel1_Table.name.like("%test1"))
         ).queryResult(new QueryTransaction.QueryResultCallback<TestModel1>() {
             @Override
             public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {

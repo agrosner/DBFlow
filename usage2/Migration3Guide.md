@@ -14,15 +14,16 @@ This doc is to provide some basic examples of what has changed, but read all of 
 Starting with [Intro](/usage2/Intro.md)
 
 ## Table Of Contents
-  1. Initialization
-  2. Database + Table Structure
-  3. Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
-  4. ModelContainers
-  5. ModelViews
-  6. Caching
-  7. Database Modules
+  1. [Initialization](/usage2/Migration3Guide.md#initialization)
+  2. [Database + Table Structure](/usage2/Migration3Guide.md#database-and-table-structure)
+  3. [Transactions Overhaul](/usage2/Migration3Guide.md#transactions-overhaul)
+  4. [Properties](/usage2/Migration3Guide.md#properties)
+  5. [ModelContainers](/usage2/Migration3Guide.md#modelcontainers)
+  6. [ModelViews](/usage2/Migration3Guide.md#modelviews)
+  7. [Caching](/usage2/Migration3Guide.md#caching)
+  8. [Database Modules](/usage2/Migration3Guide.md#database-modules)
 
-## Intialization
+## Initialization
 
 Previously DBFlow was intialized via:
 
@@ -54,7 +55,7 @@ public class ExampleApplication extends Application {
 
 See more of what you can customize [here](/usage2/GettingStarted.md)
 
-## Database + Table Structure
+## Database And Table Structure
 ### Database changes
 The default `generatedClassSeparator` is now `_` instead of `$` to play nice with Kotlin by default. A simple addition of:
 
@@ -257,10 +258,177 @@ The result is _significantly_ cleaner and less overhead to maintain.
 
 If you wish to keep old references, please keep in mind that `foreignColumnName` is now `foreignKeyColumnName`.
 
-## Properties, Conditions, Queries, Replacement of ConditionQueryBuilder and more
+## Transactions Overhaul
+
+In 3.0, Transactions got a serious facelift and should be easier to use and handle.
+Also their logic and use are much more consolidated a focused. There is no longer
+just one `TransactionManager`, rather each database has its own instance so that
+operations between databases don't interfere.
+
+### Inserting Data
+The format of how to declare them has changed:
+Previously to run a transaction, you had to set it up as so:
+
+```java
+ProcessModelInfo<SomeModel> processModelInfo = ProcessModelInfo<SomeModel>.withModels(models)
+                                                                          .result(resultReceiver)
+                                                                          .info(myInfo);
+TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(processModelInfo))
+TransactionManager.getInstance().addTransaction(new UpdateModelListTransaction<>(processModelInfo))
+TransactionManager.getInstance().addTransaction(new DeleteModelListTransaction<>(processModelInfo))
+
+
+```
+
+In 3.0, we have dropped the individual transaction types, use a new builder notation,
+and with _every_ `Transaction` you get completion and error handling:
+
+```java
+
+FlowManager.getDatabase(AppDatabase.class)
+          .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+          new ProcessModelTransaction.ProcessModel<Model>() {
+              @Override
+              public void processModel(Model model) {
+
+              }
+          }).build())
+          .error(new Transaction.Error() {
+              @Override
+              public void onError(Transaction transaction, Throwable error) {
+
+              }
+          })
+          .success(new Transaction.Success() {
+              @Override
+              public void onSuccess(Transaction transaction) {
+
+              }
+          }).build().execute();
+
+```
+
+One thing to note about the `Transaction.Error` is that if specified, _all_ exceptions
+are caught and passed to the callback, otherwise any exception that happens in the Transaction system
+gets thrown.
+
+You still can use the `DBBatchSaveQueue` for batch saves:
+
+Previously:
+
+```java
+
+TransactionManager.getInstance().saveOnSaveQueue(models);
+
+```
+
+In 3.0:
+
+```java
+
+FlowManager.getDatabase(AppDatabase.class).getTransactionManager()
+  .getSaveQueue().addAll(models);
+
+
+```
+
+### Querying Data
+
+Previously when you queried data you have a few different classes that did almost same thing
+such as `SelectListTransaction`, `BaseResultTransaction`, `QueryTransaction`, etc.
+3.0 consolidates these into much simpler operations via:
+
+Previously:
+
+```java
+
+TransactionManager.getInstance().addTransaction(new SelectListTransaction<>(new TransactionListenerAdapter<TestModel.class>() {
+     @Override
+    public void onResultReceived(List<TestModel> testModels) {
+
+    }
+  }, TestModel.class, condition1, condition2,..);
+
+
+```
+In 3.0:
+
+```java
+
+database.beginTransactionAsync(
+            new QueryTransaction.Builder<>(
+                SQLite.select().from(TestModel1.class))
+                .queryResult(new QueryTransaction.QueryResultCallback<TestModel1>() {
+                    @Override
+                    public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> result) {
+
+                    }
+                }).build()).build();
+
+```
+
+The `QueryResultCallback` gives back a `CursorResult`, which is a wrapper around abstract
+`Cursor` that lets you retrieve easily `Models` from that cursor:
+
+```java
+List<TestModel1> models = result.toListClose();
+TestModel1 singleModel = result.toModelClose();
+```
+
+Just ensure that you close the `Cursor`.
+
+### Callback Changes
+
+With 3.0, we modified the callback for a `Transaction`. Instead of having the
+3 methods:
+
+```java
+public interface TransactionListener<ResultClass> {
+
+    void onResultReceived(ResultClass result);
+
+    boolean onReady(BaseTransaction<ResultClass> transaction);
+
+    boolean hasResult(BaseTransaction<ResultClass> transaction, ResultClass result);
+
+}
+```
+
+Each `Transaction` automatically gives you ability to handle callbacks:
+
+```java
+
+
+FlowManager.getDatabase(AppDatabase.class)
+          .beginTransactionAsync(new ITransaction() {
+                @Override
+                public void execute(DatabaseWrapper databaseWrapper) {
+                    // do anything you want here.
+                }
+            }).build())
+          .error(new Transaction.Error() {
+              @Override
+              public void onError(Transaction transaction, Throwable error) {
+
+              }
+          })
+          .success(new Transaction.Success() {
+              @Override
+              public void onSuccess(Transaction transaction) {
+
+              }
+          }).build().execute();
+
+```
+
+For more usage on the new system, including the ability to roll your own `TransactionManager`,
+visit [Transactions](/usage2/Transactions.md)
+
+
+## Properties
 Perhaps the most significant external change to this library is making queries, conditions, and interactions with the database much stricter and more type-safe.
 
-### Properties
+### Property
 Properties replace `String` column names generated in the "$Table" classes. They also match exact case to the column name. They have methods that generate `Condition` that drastically simplify queries. (Please note the `Condition` class has moved to the `.language` package).
 
 Properties are represented by the interface `IProperty` which are subclassed into `Property<T>`, `Method`, and the primitive properties (`IntProperty`, `CharProperty`, etc).
@@ -335,7 +503,7 @@ SQLite.select()
   .and(SomeTable_Table.name.eq("MyHome"))
 ```
 
-## ModelContainer Changes
+## ModelContainers
 Now `ModelContainer` objects have a multitude of type-safe methods to ensure that they  can convert their contained object's data into the field they associate with. What  this means is that if our `Model` has a `long` field, while the data object for  the `ModelContainer` has a `Integer` object. Previously, we would get a classcastexception. Now what it does is "coerce" the value into the type you need.  Supported Types:
 1. Integer/int
 2. Double/Double
@@ -361,7 +529,7 @@ For the `toModel()` conversion/parse method from `ModelContainer` to `Model`, yo
 1. Have `@Column` excluded from it via `excludeFromToModelMethod()`
 2. include other fields in the method as well by adding the `@ContainerKey` annotation to them.
 
-## ModelView changes
+## ModelViews
 No longer do we need to specify the query for the `ModelView` in the annotation without ability to use the wrappper classes. We define a `@ModelViewQuery` field to use and then it simply becomes:
 
 ```java
@@ -372,7 +540,7 @@ No longer do we need to specify the query for the `ModelView` in the annotation 
 
 What this means is that its easier than before to use Views.
 
-## Caching Changes
+## Caching
 I significantly revamped model caching in this release to make it easier, support more tables, and more consistent. Some of the significant changes:
 
 Previously you needed to extend `BaseCacheableModel` to enable model caching. No longer! The code that was there now generates in the corresponding `ModelAdapter` by setting `cachingEnabled = true` in the `@Table` annotation.
