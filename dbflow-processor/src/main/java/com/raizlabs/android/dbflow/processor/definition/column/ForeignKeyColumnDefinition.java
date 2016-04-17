@@ -315,7 +315,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     DefinitionUtils.getLoadFromCursorMethodString(referenceDefinition.columnClassName,
                         referenceDefinition.columnAccess), indexName).build();
                 ClassName generatedTableRef = ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName()
-                    + tableDefinition.databaseDefinition.classSeparator + TableDefinition.DBFLOW_TABLE_TAG);
+                    + tableDefinition.databaseDefinition.fieldRefSeparator + TableDefinition.DBFLOW_TABLE_TAG);
                 if (!isForeignKeyContainer) {
                     selectBuilder.add("\n.and($L.$L.eq($L))", generatedTableRef,
                         referenceDefinition.foreignColumnName, loadFromCursorBlock);

@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -52,6 +53,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
     public ConflictAction updateConflict;
 
     public String classSeparator;
+    public String fieldRefSeparator; // safe field for javapoet
 
     public boolean isInMemory;
 
@@ -82,6 +84,17 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             backupEnabled = database.backupEnabled();
 
             classSeparator = database.generatedClassSeparator();
+
+            if (!StringUtils.isNullOrEmpty(classSeparator)) {
+                // all are $
+                if (classSeparator.matches("[$]+")) {
+                    fieldRefSeparator = classSeparator + classSeparator; // duplicate to be safe
+                } else {
+                    fieldRefSeparator = classSeparator;
+                }
+            } else {
+                fieldRefSeparator = classSeparator;
+            }
 
             setOutputClassName(databaseName + classSeparator + "Database");
 

@@ -97,7 +97,7 @@ public class ColumnDefinition extends BaseDefinition {
         }
 
         if (isPackagePrivate) {
-            columnAccess = PackagePrivateAccess.from(processorManager, element, baseTableDefinition.databaseDefinition.classSeparator);
+            columnAccess = PackagePrivateAccess.from(processorManager, element, baseTableDefinition.databaseDefinition.fieldRefSeparator);
 
             // register to ensure we only generate methods that are referenced by these columns.
             PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, columnName);
