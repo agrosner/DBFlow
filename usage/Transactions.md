@@ -53,9 +53,9 @@ For massive `save()` operations, the preferred method is through the `DBBatchSav
 
 ```java
 
-  ProcessModelInfo<SomeModel> processModelInfo = ProcessModelInfo<SomeModel>.withModels(models)
-                                                                            .result(resultReceiver)
-                                                                            .info(myInfo);
+  ProcessModelInfo<SomeModel> processModelInfo = ProcessModelInfo.withModels(models)
+                                                                 .result(resultReceiver)
+                                                                 .info(myInfo);
 
   TransactionManager.getInstance().saveOnSaveQueue(models);
 
