@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -95,8 +96,8 @@ public class FlowContentObserver extends ContentObserver {
         void onTableChanged(@Nullable Class<? extends Model> tableChanged, Action action);
     }
 
-    private final Set<OnModelStateChangedListener> modelChangeListeners = new HashSet<>();
-    private final Set<OnTableChangedListener> onTableChangedListeners = new HashSet<>();
+    private final Set<OnModelStateChangedListener> modelChangeListeners = new CopyOnWriteArraySet<>();
+    private final Set<OnTableChangedListener> onTableChangedListeners = new CopyOnWriteArraySet<>();
     private final Map<String, Class<? extends Model>> registeredTables = new HashMap<>();
     private final Set<Uri> notificationUris = new HashSet<>();
     private final Set<Uri> tableUris = new HashSet<>();
