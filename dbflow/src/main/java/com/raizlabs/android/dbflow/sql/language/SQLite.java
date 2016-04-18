@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.trigger.Trigger;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -83,5 +85,15 @@ public class SQLite {
      */
     public static Trigger createTrigger(String name) {
         return Trigger.create(name);
+    }
+
+    /**
+     * Starts a CASE statement.
+     *
+     * @param condition The condition to check for in the WHEN.
+     * @return A new {@link CaseCondition}.
+     */
+    public static CaseCondition when(@NonNull SQLCondition condition) {
+        return new Case().when(condition);
     }
 }
