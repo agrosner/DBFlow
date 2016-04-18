@@ -121,7 +121,7 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
         /**
          * Adds a {@link Collection} of {@link Model} to the existing {@link ArrayList}.
          */
-        public Builder<TModel> addAll(Collection<TModel> models) {
+        public Builder<TModel> addAll(Collection<? extends TModel> models) {
             this.models.addAll(models);
             return this;
         }
