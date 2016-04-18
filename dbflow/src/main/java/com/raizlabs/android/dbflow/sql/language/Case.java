@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.sql.language;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
-import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,16 +37,17 @@ public class Case<TReturn> implements Query {
      * @return The final name given to this case.
      */
     public Property<Case<TReturn>> end(String columnName) {
-        this.columnName = columnName;
-        return PropertyFactory.from(this);
+        this.columnName = QueryBuilder.quoteIfNeeded(columnName);
+        return new Property<>(null, new NameAlias(getQuery(), false).tickName(false));
     }
 
     @Override
     public String getQuery() {
-        QueryBuilder queryBuilder = new QueryBuilder("CASE ");
-        queryBuilder.append(BaseCondition.joinArguments("", caseConditions));
+        QueryBuilder queryBuilder = new QueryBuilder(" CASE");
+        //noinspection unchecked
+        queryBuilder.appendList(caseConditions);
         if (elseSpecified) {
-            queryBuilder.appendSpace().append(BaseCondition.convertValueToString(elseValue, false));
+            queryBuilder.append(" ELSE ").append(BaseCondition.convertValueToString(elseValue, false));
         }
         queryBuilder.append(" END " + columnName);
         return queryBuilder.getQuery();

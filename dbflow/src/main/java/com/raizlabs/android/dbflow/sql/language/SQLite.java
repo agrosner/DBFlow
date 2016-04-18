@@ -93,7 +93,7 @@ public class SQLite {
      * @param condition The condition to check for in the WHEN.
      * @return A new {@link CaseCondition}.
      */
-    public static CaseCondition when(@NonNull SQLCondition condition) {
-        return new Case().when(condition);
+    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLCondition condition) {
+        return new Case<TReturn>().when(condition);
     }
 }

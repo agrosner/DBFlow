@@ -28,7 +28,12 @@ public class CaseCondition<TReturn> implements Query {
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(" WHEN ");
         sqlCondition.appendConditionToQuery(queryBuilder);
-        queryBuilder.append(" THEN").append(BaseCondition.convertValueToString(thenValue, false));
+        queryBuilder.append(" THEN ").append(BaseCondition.convertValueToString(thenValue, false));
         return queryBuilder.getQuery();
+    }
+
+    @Override
+    public String toString() {
+        return getQuery();
     }
 }
