@@ -25,8 +25,6 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter<TModel, TModel>
         implements InternalAdapter<TModel> {
 
-    private DatabaseStatement insertStatement;
-    private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
     private ModelSaver modelSaver;
@@ -42,12 +40,8 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      * @return The precompiled insert statement for this table model adapter
      */
     public DatabaseStatement getInsertStatement() {
-        if (insertStatement == null) {
-            insertStatement = getInsertStatement(
-                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
-        }
-
-        return insertStatement;
+        return getInsertStatement(
+            FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
     }
 
     /**
@@ -63,12 +57,8 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      * @return The precompiled full statement for this table model adapter
      */
     public DatabaseStatement getCompiledStatement() {
-        if (compiledStatement == null) {
-            compiledStatement = getCompiledStatement(
-                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
-        }
-
-        return compiledStatement;
+        return getCompiledStatement(
+            FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
     }
 
     /**

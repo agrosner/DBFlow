@@ -76,6 +76,7 @@ public class ModelSaver {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
+        insertStatement.close();
         if (id > -1) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
@@ -89,6 +90,7 @@ public class ModelSaver {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
+        insertStatement.close();
         if (id > -1) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
