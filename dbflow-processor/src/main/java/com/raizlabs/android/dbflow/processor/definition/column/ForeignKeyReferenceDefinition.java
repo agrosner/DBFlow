@@ -72,8 +72,9 @@ public class ForeignKeyReferenceDefinition {
             columnAccess = new PrivateColumnAccess(referencedColumn.column, false);
         } else if (isReferencedFieldPackagePrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PackagePrivateAccess(referencedColumn.packageName,
-                foreignKeyColumnDefinition.tableDefinition.databaseDefinition.fieldRefSeparator,
+                foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
                 ClassName.get((TypeElement) referencedColumn.element.getEnclosingElement()).simpleName());
+            PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, foreignColumnName);
         } else {
             if (foreignKeyColumnDefinition.isModelContainer) {
                 columnAccess = new ModelContainerAccess(tableColumnAccess, foreignColumnName);
@@ -109,7 +110,7 @@ public class ForeignKeyReferenceDefinition {
             columnAccess = new PrivateColumnAccess(foreignKeyReference);
         } else if (isReferencedFieldPackagePrivate && !foreignKeyColumnDefinition.isModelContainer) {
             columnAccess = new PackagePrivateAccess(foreignKeyColumnDefinition.referencedTableClassName.packageName(),
-                foreignKeyColumnDefinition.tableDefinition.databaseDefinition.fieldRefSeparator,
+                foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
                 foreignKeyColumnDefinition.referencedTableClassName.simpleName());
             PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, foreignColumnName);
         } else {

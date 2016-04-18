@@ -132,13 +132,13 @@ public class ProcessorManager implements Handler {
 
     public void addModelContainerDefinition(ModelContainerDefinition modelContainerDefinition) {
         databaseDefinitionMap.get(modelContainerDefinition.getDatabaseName())
-            .modelContainerDefinitionMap.put(modelContainerDefinition.elementClassName,
-            modelContainerDefinition);
+                .modelContainerDefinitionMap.put(modelContainerDefinition.elementClassName,
+                modelContainerDefinition);
     }
 
     public void addQueryModelDefinition(QueryModelDefinition queryModelDefinition) {
         databaseDefinitionMap.get(queryModelDefinition.databaseTypeName).queryModelDefinitionMap.
-            put(queryModelDefinition.elementClassName, queryModelDefinition);
+                put(queryModelDefinition.elementClassName, queryModelDefinition);
     }
 
     public void addTableDefinition(TableDefinition tableDefinition) {
@@ -171,7 +171,7 @@ public class ProcessorManager implements Handler {
 
     public void addModelViewDefinition(ModelViewDefinition modelViewDefinition) {
         databaseDefinitionMap.get(modelViewDefinition.databaseName).modelViewDefinitionMap
-            .put(modelViewDefinition.elementClassName, modelViewDefinition);
+                .put(modelViewDefinition.elementClassName, modelViewDefinition);
     }
 
     public Set<TypeConverterDefinition> getTypeConverters() {
@@ -213,7 +213,7 @@ public class ProcessorManager implements Handler {
 
     public void addMigrationDefinition(MigrationDefinition migrationDefinition) {
         Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = migrations.get(
-            migrationDefinition.databaseName);
+                migrationDefinition.databaseName);
         if (migrationDefinitionMap == null) {
             migrationDefinitionMap = Maps.newHashMap();
             migrations.put(migrationDefinition.databaseName, migrationDefinitionMap);
@@ -245,10 +245,10 @@ public class ProcessorManager implements Handler {
 
     public void putTableEndpointForProvider(TableEndpointDefinition tableEndpointDefinition) {
         ContentProviderDefinition contentProviderDefinition = providerMap.get(
-            tableEndpointDefinition.contentProviderName);
+                tableEndpointDefinition.contentProviderName);
         if (contentProviderDefinition == null) {
             logError("Content Provider %1s was not found for the @TableEndpoint %1s",
-                tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
+                    tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
         } else {
             contentProviderDefinition.endpointDefinitions.add(tableEndpointDefinition);
         }
@@ -300,14 +300,13 @@ public class ProcessorManager implements Handler {
 
 
                 JavaFile.builder(databaseDefinition.packageName, databaseDefinition.getTypeSpec())
-                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+                        .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
 
 
                 Collection<TableDefinition> tableDefinitions = databaseDefinition.tableDefinitionMap.values();
 
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
-                    tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                 }
 
                 tableDefinitions = databaseDefinition.tableDefinitionMap.values();
@@ -323,15 +322,25 @@ public class ProcessorManager implements Handler {
                 Collection<ModelViewDefinition> modelViewDefinitions = databaseDefinition.modelViewDefinitionMap.values();
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
                     WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
-                    modelViewDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     modelViewDefinition.writeViewTable();
                 }
 
                 Collection<QueryModelDefinition> queryModelDefinitions = databaseDefinition.queryModelDefinitionMap.values();
                 for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
                     WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
-                    queryModelDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     queryModelDefinition.writeAdapter(processorManager.getProcessingEnvironment());
+                }
+
+                for (TableDefinition tableDefinition : tableDefinitions) {
+                    tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
+                }
+
+                for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
+                    modelViewDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
+                }
+
+                for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
+                    queryModelDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                 }
             } catch (IOException e) {
             }
@@ -341,8 +350,8 @@ public class ProcessorManager implements Handler {
 
             try {
                 JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                    new FlowManagerHolderDefinition(processorManager).getTypeSpec())
-                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+                        new FlowManagerHolderDefinition(processorManager).getTypeSpec())
+                        .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
             } catch (IOException e) {
             }
         }

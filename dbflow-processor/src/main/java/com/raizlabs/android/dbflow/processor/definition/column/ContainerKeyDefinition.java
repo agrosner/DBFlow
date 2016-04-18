@@ -40,7 +40,7 @@ public class ContainerKeyDefinition extends BaseDefinition {
         }
 
         if (isPackagePrivate) {
-            columnAccess = PackagePrivateAccess.from(processorManager, element, baseTableDefinition.databaseDefinition.fieldRefSeparator);
+            columnAccess = PackagePrivateAccess.from(processorManager, element, baseTableDefinition.databaseDefinition.classSeparator);
 
             // register to ensure we only generate methods that are referenced by these columns.
             PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, this.containerKeyName);
