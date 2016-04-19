@@ -39,6 +39,24 @@ public class LongProperty extends BaseProperty<LongProperty> {
     }
 
     @Override
+    public LongProperty dividedBy(IProperty iProperty) {
+        return new LongProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public LongProperty multipliedBy(IProperty iProperty) {
+        return new LongProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public LongProperty mod(IProperty iProperty) {
+        return new LongProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public LongProperty as(String aliasName) {
         return new LongProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }

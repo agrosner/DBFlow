@@ -36,6 +36,24 @@ public class CharProperty extends BaseProperty<CharProperty> {
     }
 
     @Override
+    public CharProperty dividedBy(IProperty iProperty) {
+        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public CharProperty multipliedBy(IProperty iProperty) {
+        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public CharProperty mod(IProperty iProperty) {
+        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public CharProperty as(String aliasName) {
         return new CharProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }

@@ -44,6 +44,24 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
     }
 
     @Override
+    public ByteProperty dividedBy(IProperty iProperty) {
+        return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public ByteProperty multipliedBy(IProperty iProperty) {
+        return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public ByteProperty mod(IProperty iProperty) {
+        return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public ByteProperty distinct() {
         return new ByteProperty(table, getDistinctAliasName());
     }

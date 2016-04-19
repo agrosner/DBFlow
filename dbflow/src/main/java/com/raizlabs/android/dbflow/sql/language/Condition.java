@@ -366,7 +366,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
             operation = String.format("%1s %1s ", operation, Operation.PLUS);
         } else {
             throw new IllegalArgumentException(
-                String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
+                    String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
         }
         this.value = value;
         isValueSet = true;
@@ -439,6 +439,12 @@ public class Condition extends BaseCondition implements ITypeConditional {
          * Number subtraction
          */
         public static final String MINUS = "-";
+
+        public static final String DIVISION = "/";
+
+        public static final String MULTIPLY = "*";
+
+        public static final String MOD = "%";
 
         /**
          * If something is LIKE another (a case insensitive search).
@@ -555,10 +561,10 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                .append(isRaw ? value() : BaseCondition.convertValueToString(value(), true))
-                .appendSpaceSeparated(Operation.AND)
-                .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue(), true))
-                .appendSpace().appendOptional(postArgument());
+                    .append(isRaw ? value() : BaseCondition.convertValueToString(value(), true))
+                    .appendSpaceSeparated(Operation.AND)
+                    .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue(), true))
+                    .appendSpace().appendOptional(postArgument());
         }
 
     }
@@ -607,7 +613,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                .append("(").append(ConditionGroup.joinArguments(",", inArguments)).append(")");
+                    .append("(").append(ConditionGroup.joinArguments(",", inArguments)).append(")");
         }
     }
 

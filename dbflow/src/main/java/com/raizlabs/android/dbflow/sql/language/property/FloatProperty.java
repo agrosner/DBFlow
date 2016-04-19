@@ -39,6 +39,24 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
     }
 
     @Override
+    public FloatProperty dividedBy(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty multipliedBy(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty mod(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public FloatProperty as(String aliasName) {
         return new FloatProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }

@@ -39,6 +39,24 @@ public class IntProperty extends BaseProperty<IntProperty> {
     }
 
     @Override
+    public IntProperty dividedBy(IProperty iProperty) {
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public IntProperty multipliedBy(IProperty iProperty) {
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public IntProperty mod(IProperty iProperty) {
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+                nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
     public IntProperty as(String aliasName) {
         return new IntProperty(table, nameAlias.getAliasNameRaw(), aliasName);
     }
