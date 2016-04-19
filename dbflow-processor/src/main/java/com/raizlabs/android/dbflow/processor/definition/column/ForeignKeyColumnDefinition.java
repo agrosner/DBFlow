@@ -31,7 +31,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 
 /**
  * Description:
@@ -72,6 +75,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             referencedTableClassName = ClassName.get(manager.getElements().getTypeElement(mte.getTypeMirror().toString()));
         }
 
+        TypeElement erasedElement = manager.getElements().getTypeElement(
+                manager.getTypeUtils().erasure(typeElement.asType()).toString());
+
         // hopefully intentionally left blank
         if (referencedTableClassName.equals(TypeName.OBJECT)) {
             if (elementTypeName instanceof ParameterizedTypeName) {
@@ -81,7 +87,32 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     isModelContainer = true;
                 }
             } else {
-                referencedTableClassName = ClassName.bestGuess(elementTypeName.toString());
+                if (ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                        ClassNames.MODEL_CONTAINER.toString(), erasedElement)) {
+                    Types types = manager.getTypeUtils();
+
+                    DeclaredType superContainer = null;
+                    DeclaredType modelContainer = manager.getTypeUtils().getDeclaredType(manager.getElements().getTypeElement(ClassNames.MODEL_CONTAINER.toString()),
+                            types.getWildcardType(manager.getElements()
+                                    .getTypeElement(ClassNames.MODEL.toString()).asType(), null),
+                            types.getWildcardType(null, null));
+                    for (TypeMirror superType : types.directSupertypes(erasedElement.asType())) {
+                        if (types.isAssignable(superType, modelContainer)) {
+                            superContainer = (DeclaredType) superType;
+                        }
+                    }
+
+                    if (superContainer != null) {
+                        List<? extends TypeMirror> typeArgs = superContainer.getTypeArguments();
+                        referencedTableClassName = ClassName.get(manager.getElements()
+                                .getTypeElement(typeArgs.get(0).toString()));
+                        isModelContainer = true;
+                    }
+                }
+
+                if (referencedTableClassName == null || referencedTableClassName.equals(ClassName.OBJECT)) {
+                    referencedTableClassName = ClassName.bestGuess(elementTypeName.toString());
+                }
             }
         }
 
@@ -89,12 +120,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             manager.logError("Referenced was null for %1s within %1s", typeElement, elementTypeName);
         }
 
-        TypeElement element = manager.getElements().getTypeElement(
-                manager.getTypeUtils().erasure(typeElement.asType()).toString());
-
-        isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), element);
-        isModelContainer = isModelContainer || ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL_CONTAINER.toString(), element);
-        isForeignKeyContainer = isModelContainer && ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.FOREIGN_KEY_CONTAINER.toString(), element);
+        isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), erasedElement);
+        isModelContainer = isModelContainer || ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL_CONTAINER.toString(), erasedElement);
+        isForeignKeyContainer = isModelContainer && ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.FOREIGN_KEY_CONTAINER.toString(), erasedElement);
 
         nonModelColumn = !isModel && !isModelContainer;
 
@@ -330,10 +358,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
             if (isForeignKeyContainer) {
 
-                builder.addStatement("$T $L = new $T<>($T.class)",
-                        ParameterizedTypeName.get(ClassNames.FOREIGN_KEY_CONTAINER, referencedTableClassName),
+                builder.addStatement("$T $L = new $T($T.class)",
+                        elementTypeName,
                         foreignKeyContainerRefName,
-                        ClassNames.FOREIGN_KEY_CONTAINER, referencedTableClassName);
+                        elementTypeName, referencedTableClassName);
 
                 builder.add(selectBuilder.build()).add("\n");
 
@@ -516,8 +544,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     private void checkNeedsReferences() {
         TableDefinition referencedTableDefinition = manager.getTableDefinition(tableDefinition.databaseTypeName, referencedTableClassName);
         if (referencedTableDefinition == null) {
-            manager.logError("Could not find the referenced table definition %1s from %1s. Ensure it exists in the same" +
-                    "database %1s", referencedTableClassName, tableDefinition.tableName, tableDefinition.databaseTypeName);
+            manager.logError(ForeignKeyColumnDefinition.class,
+                    "Could not find the referenced table definition %1s from %1s. Ensure it exists in the same" +
+                            "database %1s", referencedTableClassName, tableDefinition.tableName, tableDefinition.databaseTypeName);
         } else {
             if (needsReferences) {
                 List<ColumnDefinition> primaryColumns = referencedTableDefinition.getPrimaryColumnDefinitions();
