@@ -11,7 +11,8 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 public class CaseCondition<TReturn> implements Query {
 
     private final Case<TReturn> caze;
-    private final SQLCondition sqlCondition;
+    private TReturn whenValue;
+    private SQLCondition sqlCondition;
     private TReturn thenValue;
 
     CaseCondition(Case<TReturn> caze, @NonNull SQLCondition sqlCondition) {
@@ -19,6 +20,14 @@ public class CaseCondition<TReturn> implements Query {
         this.sqlCondition = sqlCondition;
     }
 
+    CaseCondition(Case<TReturn> caze, TReturn whenValue) {
+        this.caze = caze;
+        this.whenValue = whenValue;
+    }
+
+    /**
+     * THEN part of this query, the value that gets set on column if condition is true.
+     */
     public Case<TReturn> then(TReturn value) {
         thenValue = value;
         return caze;
@@ -27,7 +36,11 @@ public class CaseCondition<TReturn> implements Query {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(" WHEN ");
-        sqlCondition.appendConditionToQuery(queryBuilder);
+        if (caze.isEfficientCase()) {
+            queryBuilder.append(BaseCondition.convertValueToString(whenValue, false));
+        } else {
+            sqlCondition.appendConditionToQuery(queryBuilder);
+        }
         queryBuilder.append(" THEN ").append(BaseCondition.convertValueToString(thenValue, false));
         return queryBuilder.getQuery();
     }

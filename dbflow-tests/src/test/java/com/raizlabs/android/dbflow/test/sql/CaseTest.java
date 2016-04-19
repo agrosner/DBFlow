@@ -42,6 +42,18 @@ public class CaseTest extends FlowTestCase {
         assertEquals("SELECT `customerId`,`firstName`,`lastName`, CASE WHEN `country`='USA' " +
                 "THEN 'Domestic' ELSE 'Foreign' END `CustomerGroup` FROM `CaseModel`", queriable.getQuery().trim());
 
+        queriable = SQLite.select(CaseModel_Table.customerId,
+                CaseModel_Table.firstName,
+                CaseModel_Table.lastName,
+                SQLite._case(CaseModel_Table.country)
+                        .when("USA")
+                        .then("Domestic")
+                        ._else("Foreign").end("CustomerGroup")).from(CaseModel.class);
+
+        assertEquals("SELECT `customerId`,`firstName`,`lastName`, CASE `country` WHEN 'USA' " +
+                "THEN 'Domestic' ELSE 'Foreign' END `CustomerGroup` FROM `CaseModel`", queriable.getQuery().trim());
+
+
         Delete.table(CaseModel.class);
     }
 }
