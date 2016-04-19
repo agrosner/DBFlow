@@ -319,3 +319,43 @@ Trigger.create("SomeTrigger")
 
 
 ```
+
+## Case
+
+The SQLite `CASE` operator is very useful to evaluate a set of conditions and "map" them
+to a certain value that returns in a SELECT query.
+
+We have two kinds of case:
+1. Simple
+2. Searched
+
+The simple CASE query in DBFlow:
+
+```java
+
+SQLite.select(CaseModel_Table.customerId,
+        CaseModel_Table.firstName,
+        CaseModel_Table.lastName,
+        SQLite._case(CaseModel_Table.country)
+                .when("USA").then("Domestic")
+                  ._else("Foreign")
+                .end("CustomerGroup")).from(CaseModel.class)
+
+```
+
+The CASE is returned as `CustomerGroup` with the valyes of "Domestic" if the country is from
+the 'USA' otherwise we mark the value as "Foreign". These appear alongside the results
+set from the SELECT.
+
+The search CASE is a little more complicated in that each `when()` statement
+represents a `SQLCondition`, which return a `boolean` expression:
+
+```java
+
+SQLite.select(CaseModel_Table.customerId,
+    CaseModel_Table.firstName,
+    CaseModel_Table.lastName,
+    SQLite.caseWhen(CaseModel_Table.country.eq("USA"))
+            .then("Domestic")
+            ._else("Foreign").end("CustomerGroup")).from(CaseModel.class);
+```
