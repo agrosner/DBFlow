@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.test.sql;
+package com.raizlabs.android.dbflow.test.sql.unique;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description:
  */
 @Table(database = TestDatabase.class,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.ROLLBACK),
+        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.IGNORE),
                 @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.REPLACE)})
 public class UniqueModel extends BaseModel {
 
@@ -26,7 +26,7 @@ public class UniqueModel extends BaseModel {
     String uniqueName;
 
     @Column
-    @Unique(uniqueGroups = 2, onUniqueConflict = ConflictAction.ROLLBACK)
+    @Unique(uniqueGroups = 2, onUniqueConflict = ConflictAction.IGNORE)
     String anotherUnique;
 
     @Column
