@@ -29,31 +29,37 @@ public class LongProperty extends BaseProperty<LongProperty> {
     @Override
     public LongProperty plus(IProperty iProperty) {
         return new LongProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public LongProperty minus(IProperty iProperty) {
         return new LongProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public LongProperty dividedBy(IProperty iProperty) {
         return new LongProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public LongProperty multipliedBy(IProperty iProperty) {
         return new LongProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public LongProperty mod(IProperty iProperty) {
         return new LongProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public LongProperty concat(IProperty iProperty) {
+        return new LongProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override

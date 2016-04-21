@@ -29,31 +29,37 @@ public class IntProperty extends BaseProperty<IntProperty> {
     @Override
     public IntProperty plus(IProperty iProperty) {
         return new IntProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty minus(IProperty iProperty) {
         return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty dividedBy(IProperty iProperty) {
         return new IntProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty multipliedBy(IProperty iProperty) {
         return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty mod(IProperty iProperty) {
         return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public IntProperty concat(IProperty iProperty) {
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
