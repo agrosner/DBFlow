@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
-import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
@@ -14,6 +13,8 @@ import com.raizlabs.android.dbflow.processor.definition.TypeDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
+import com.raizlabs.android.dbflow.processor.validator.ModelViewValidator;
+import com.raizlabs.android.dbflow.processor.validator.TableValidator;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -61,7 +62,6 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
     public Map<String, TableDefinition> tableNameMap = new HashMap<>();
 
     public Map<TypeName, QueryModelDefinition> queryModelDefinitionMap = new HashMap<>();
-    public Map<TypeName, ModelContainerDefinition> modelContainerDefinitionMap = new HashMap<>();
     public Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
     public Map<TypeName, ManyToManyDefinition> manyToManyDefinitionMap = new HashMap<>();
 
@@ -77,7 +77,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             }
             if (!isValidDatabaseName(databaseName)) {
                 throw new Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                        "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
+                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
             }
 
             consistencyChecksEnabled = database.consistencyCheckEnabled();
@@ -114,16 +114,56 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
-
         writeConstructor(typeBuilder);
         writeGetters(typeBuilder);
+    }
+
+    public void validateAndPrepareToWrite() {
+        prepareDefinitions();
+        validateDefinitions();
+    }
+
+    private void validateDefinitions() {
+        // TODO: validate them here before preparing them
+        Map<TypeName, TableDefinition> map = new HashMap<>();
+        TableValidator tableValidator = new TableValidator();
+        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
+            if (tableValidator.validate(ProcessorManager.getManager(), tableDefinition)) {
+                map.put(tableDefinition.elementClassName, tableDefinition);
+            }
+        }
+        manager.setTableDefinitions(map, elementClassName);
+
+        Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
+        ModelViewValidator modelViewValidator = new ModelViewValidator();
+        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
+            if (modelViewValidator.validate(ProcessorManager.getManager(), modelViewDefinition)) {
+                modelViewDefinitionMap.put(modelViewDefinition.elementClassName, modelViewDefinition);
+            }
+        }
+        manager.setModelViewDefinitions(modelViewDefinitionMap, elementClassName);
+
+    }
+
+    private void prepareDefinitions() {
+        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
+            tableDefinition.prepareForWrite();
+        }
+
+        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
+            modelViewDefinition.prepareForWrite();
+        }
+
+        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
+            queryModelDefinition.prepareForWrite();
+        }
     }
 
     private void writeConstructor(TypeSpec.Builder builder) {
 
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(ClassNames.DATABASE_HOLDER, "holder");
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(ClassNames.DATABASE_HOLDER, "holder");
 
         for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
             constructor.addStatement("holder.putDatabaseForTable($T.class, this)", tableDefinition.elementClassName);
@@ -150,12 +190,12 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
                     }
                 });
                 constructor.addStatement("$T migrations$L = new $T()", ParameterizedTypeName.get(ClassName.get(List.class), ClassNames.MIGRATION),
-                        version, ParameterizedTypeName.get(ArrayList.class));
+                    version, ParameterizedTypeName.get(ArrayList.class));
                 constructor.addStatement("$L.put($L, migrations$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
-                        version, version);
+                    version, version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {
                     constructor.addStatement("migrations$L.add(new $T$L)", version, migrationDefinition.elementClassName,
-                            migrationDefinition.getConstructorName());
+                        migrationDefinition.getConstructorName());
                 }
             }
         }
@@ -164,23 +204,22 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($S, $T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                    tableDefinition.elementClassName, tableDefinition.getAdapterClassName());
-        }
-
-        for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(elementClassName)) {
-            constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
-                    modelContainerDefinition.elementClassName, modelContainerDefinition.outputClassName);
+                tableDefinition.elementClassName, tableDefinition.getAdapterClassName());
+            if (tableDefinition.modelContainerDefinition != null) {
+                constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
+                    tableDefinition.modelContainerDefinition.elementClassName, tableDefinition.modelContainerDefinition.outputClassName);
+            }
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName);
             constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                    modelViewDefinition.elementClassName, modelViewDefinition.outputClassName);
+                modelViewDefinition.elementClassName, modelViewDefinition.outputClassName);
         }
 
         for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
             constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                    queryModelDefinition.elementClassName, queryModelDefinition.getAdapterClassName());
+                queryModelDefinition.elementClassName, queryModelDefinition.getAdapterClassName());
         }
 
         builder.addMethod(constructor.build());
@@ -189,46 +228,46 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
     private void writeGetters(TypeSpec.Builder typeBuilder) {
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getAssociatedDatabaseClassFile")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $T.class", elementTypeName)
-                .returns(ParameterizedTypeName.get(Class.class)).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $T.class", elementTypeName)
+            .returns(ParameterizedTypeName.get(Class.class)).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("isForeignKeysSupported")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $L", foreignKeysSupported)
-                .returns(TypeName.BOOLEAN).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $L", foreignKeysSupported)
+            .returns(TypeName.BOOLEAN).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("isInMemory")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $L", isInMemory)
-                .returns(TypeName.BOOLEAN).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $L", isInMemory)
+            .returns(TypeName.BOOLEAN).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("backupEnabled")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $L", backupEnabled)
-                .returns(TypeName.BOOLEAN).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $L", backupEnabled)
+            .returns(TypeName.BOOLEAN).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("areConsistencyChecksEnabled")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $L", consistencyChecksEnabled)
-                .returns(TypeName.BOOLEAN).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $L", consistencyChecksEnabled)
+            .returns(TypeName.BOOLEAN).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseVersion")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $L", databaseVersion)
-                .returns(TypeName.INT).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $L", databaseVersion)
+            .returns(TypeName.INT).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $S", databaseName)
-                .returns(ClassName.get(String.class)).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $S", databaseName)
+            .returns(ClassName.get(String.class)).build());
     }
 
     /**

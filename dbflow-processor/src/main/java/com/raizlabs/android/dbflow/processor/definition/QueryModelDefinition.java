@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility;
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
-import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
@@ -64,12 +63,6 @@ public class QueryModelDefinition extends BaseTableDefinition {
             } catch (MirroredTypeException mte) {
                 databaseTypeName = TypeName.get(mte.getTypeMirror());
             }
-
-            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
-            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
-            allFields = queryModel.allFields();
-            adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
-
         }
 
         processorManager.addModelToDatabase(elementClassName, databaseTypeName);
@@ -85,8 +78,24 @@ public class QueryModelDefinition extends BaseTableDefinition {
             new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue)
         };
 
-        if (typeElement instanceof TypeElement) {
-            createColumnDefinitions(((TypeElement) typeElement));
+    }
+
+    @Override
+    public void prepareForWrite() {
+        classElementLookUpMap.clear();
+        columnDefinitions.clear();
+        packagePrivateList.clear();
+
+        QueryModel queryModel = typeElement.getAnnotation(QueryModel.class);
+        if (queryModel != null) {
+            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
+            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
+            allFields = queryModel.allFields();
+            adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
+
+            if (typeElement instanceof TypeElement) {
+                createColumnDefinitions(typeElement);
+            }
         }
     }
 

@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.InheritedPrimaryKey;
 import com.raizlabs.android.dbflow.annotation.ModelCacheField;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.MultiCacheField;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -120,6 +121,8 @@ public class TableDefinition extends BaseTableDefinition {
     public List<String> inheritedFieldNameList = new ArrayList<>();
     public Map<String, InheritedPrimaryKey> inheritedPrimaryKeyMap = new HashMap<>();
 
+    public ModelContainerDefinition modelContainerDefinition;
+
     public TableDefinition(ProcessorManager manager, TypeElement element) {
         super(element, manager);
 
@@ -144,30 +147,7 @@ public class TableDefinition extends BaseTableDefinition {
 
             cachingEnabled = table.cachingEnabled();
             cacheSize = table.cacheSize();
-            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
-            if (databaseDefinition == null) {
-                manager.logError("DatabaseDefinition was null for : " + tableName + " for db type: " + databaseTypeName);
-            }
 
-            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_TABLE_TAG);
-            this.adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
-
-
-            // globular default
-            ConflictAction insertConflict = table.insertConflict();
-            if (insertConflict.equals(ConflictAction.NONE) && !databaseDefinition.insertConflict.equals(ConflictAction.NONE)) {
-                insertConflict = databaseDefinition.insertConflict;
-            }
-
-            ConflictAction updateConflict = table.updateConflict();
-            if (updateConflict.equals(ConflictAction.NONE) && !databaseDefinition.updateConflict.equals(ConflictAction.NONE)) {
-                updateConflict = databaseDefinition.updateConflict;
-            }
-
-            insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
-                : insertConflict.name();
-            updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
-                : updateConflict.name();
 
             allFields = table.allFields();
             useIsForPrivateBooleans = table.useIsForPrivateBooleans();
@@ -193,7 +173,84 @@ public class TableDefinition extends BaseTableDefinition {
                 inheritedPrimaryKeyMap.put(inheritedColumn.fieldName(), inheritedColumn);
             }
 
-            createColumnDefinitions(element);
+            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element);
+
+            implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                ClassNames.CONTENT_VALUES_LISTENER.toString(), element);
+
+            implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element);
+        }
+
+        if (element.getAnnotation(ModelContainer.class) != null) {
+            modelContainerDefinition = new ModelContainerDefinition(element, manager);
+        }
+
+        methods = new MethodDefinition[]
+            {
+                new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
+                new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
+                new BindToStatementMethod(this, true, false),
+                new BindToStatementMethod(this, false, false),
+                new InsertStatementQueryMethod(this, true),
+                new InsertStatementQueryMethod(this, false),
+                new CreationQueryMethod(this),
+                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
+                new ExistenceMethod(this, false),
+                new PrimaryConditionMethod(this, false),
+                new OneToManyDeleteMethod(this, false),
+                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE),
+                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT),
+                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE)
+            };
+    }
+
+    @Override
+    public void prepareForWrite() {
+        columnDefinitions = new ArrayList<>();
+        mColumnMap.clear();
+        classElementLookUpMap.clear();
+        autoIncrementDefinition = null;
+        primaryColumnDefinitions.clear();
+        uniqueGroupsDefinitions.clear();
+        indexGroupsDefinitions.clear();
+        foreignKeyDefinitions.clear();
+        columnUniqueMap.clear();
+        containerKeyDefinitions.clear();
+        oneToManyDefinitions.clear();
+        customCacheFieldName = null;
+        customMultiCacheFieldName = null;
+
+        Table table = element.getAnnotation(Table.class);
+        if (table != null) {
+            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
+            if (databaseDefinition == null) {
+                manager.logError("DatabaseDefinition was null for : " + tableName + " for db type: " + databaseTypeName);
+            }
+
+            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_TABLE_TAG);
+            this.adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
+
+
+            // globular default
+            ConflictAction insertConflict = table.insertConflict();
+            if (insertConflict.equals(ConflictAction.NONE) && !databaseDefinition.insertConflict.equals(ConflictAction.NONE)) {
+                insertConflict = databaseDefinition.insertConflict;
+            }
+
+            ConflictAction updateConflict = table.updateConflict();
+            if (updateConflict.equals(ConflictAction.NONE) && !databaseDefinition.updateConflict.equals(ConflictAction.NONE)) {
+                updateConflict = databaseDefinition.updateConflict;
+            }
+
+            insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
+                : insertConflict.name();
+            updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
+                : updateConflict.name();
+
+
+            createColumnDefinitions(typeElement);
 
             UniqueGroup[] groups = table.uniqueColumnGroups();
             Set<Integer> uniqueNumbersSet = new HashSet<>();
@@ -226,38 +283,11 @@ public class TableDefinition extends BaseTableDefinition {
                 indexGroupsDefinitions.add(definition);
                 uniqueNumbersSet.add(indexGroup.number());
             }
-
-            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element);
-
-            implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.CONTENT_VALUES_LISTENER.toString(), element);
-
-            implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element);
         }
 
-        methods = new MethodDefinition[]
-
-            {
-                new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
-                new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
-                new BindToStatementMethod(this, true, false),
-                new BindToStatementMethod(this, false, false),
-                new InsertStatementQueryMethod(this, true),
-                new InsertStatementQueryMethod(this, false),
-                new CreationQueryMethod(this),
-                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
-                new ExistenceMethod(this, false),
-                new PrimaryConditionMethod(this, false),
-                new OneToManyDeleteMethod(this, false),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE)
-            }
-
-        ;
-
+        if (modelContainerDefinition != null) {
+            modelContainerDefinition.prepareForWrite();
+        }
     }
 
     @Override
@@ -361,25 +391,25 @@ public class TableDefinition extends BaseTableDefinition {
                 containerKeyDefinitions.add(containerKeyDefinition);
             } else if (element.getAnnotation(ModelCacheField.class) != null) {
                 if (!element.getModifiers().contains(Modifier.PUBLIC)) {
-                    manager.logError("ModelCacheField must be public");
+                    manager.logError("ModelCacheField must be public from: " + typeElement);
                 }
                 if (!element.getModifiers().contains(Modifier.STATIC)) {
-                    manager.logError("ModelCacheField must be static");
+                    manager.logError("ModelCacheField must be static from: " + typeElement);
                 }
                 if (!StringUtils.isNullOrEmpty(customCacheFieldName)) {
-                    manager.logError("ModelCacheField can only be declared once");
+                    manager.logError("ModelCacheField can only be declared once from: " + typeElement);
                 } else {
                     customCacheFieldName = element.getSimpleName().toString();
                 }
             } else if (element.getAnnotation(MultiCacheField.class) != null) {
                 if (!element.getModifiers().contains(Modifier.PUBLIC)) {
-                    manager.logError("MultiCacheField must be public");
+                    manager.logError("MultiCacheField must be public from: " + typeElement);
                 }
                 if (!element.getModifiers().contains(Modifier.STATIC)) {
-                    manager.logError("MultiCacheField must be static");
+                    manager.logError("MultiCacheField must be static from: " + typeElement);
                 }
                 if (!StringUtils.isNullOrEmpty(customMultiCacheFieldName)) {
-                    manager.logError("MultiCacheField can only be declared once");
+                    manager.logError("MultiCacheField can only be declared once from: " + typeElement);
                 } else {
                     customMultiCacheFieldName = element.getSimpleName().toString();
                 }
