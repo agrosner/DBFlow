@@ -37,7 +37,7 @@ SQLite().select()
         .where(Automobile_Table.year.is(2001))
         .and(Automobile_Table.model.is("Camry"))
         .async()
-        .query(new QueryTransaction.QueryResultCallback<TestModel1>() {
+        .queryResultCallback(new QueryTransaction.QueryResultCallback<TestModel1>() {
             @Override
             public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
               // called when query returns on UI thread
@@ -49,7 +49,7 @@ SQLite().select()
             public void onError(Transaction transaction, Throwable error) {
               // handle any errors
             }
-        });
+        }).execute();
 
 // run a transaction synchronous easily.
 DatabaseDefinition database = FlowManager.getDatabase(AppDatabase.class);
