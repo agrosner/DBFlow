@@ -6,7 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: andrewgrosner
  * Description: Creates a new database to use in the application.
  * <p>
  * If we specify one DB, then all models do not need to specify a DB. As soon as we specify two, then each
@@ -53,11 +52,6 @@ public @interface Database {
      * @return true if you want it to be in-memory, false if not.
      */
     boolean inMemory() default false;
-
-    /**
-     * @return A custom FlowSQLiteOpenHelper that you can define custom.
-     */
-    Class<?> sqlHelperClass() default Void.class;
 
     /**
      * @return Global default insert conflict that can be applied to any table when it leaves

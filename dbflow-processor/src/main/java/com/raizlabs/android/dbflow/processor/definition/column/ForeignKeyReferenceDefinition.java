@@ -74,6 +74,7 @@ public class ForeignKeyReferenceDefinition {
             columnAccess = new PackagePrivateAccess(referencedColumn.packageName,
                 foreignKeyColumnDefinition.tableDefinition.databaseDefinition.classSeparator,
                 ClassName.get((TypeElement) referencedColumn.element.getEnclosingElement()).simpleName());
+            PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, foreignColumnName);
         } else {
             if (foreignKeyColumnDefinition.isModelContainer) {
                 columnAccess = new ModelContainerAccess(tableColumnAccess, foreignColumnName);

@@ -6,10 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: andrewgrosner
- * Description: Add this to a {@link com.raizlabs.android.dbflow.annotation.Column}
+ * Description: Add this to a {@link Column}
  * field to specify the key for a ModelContainer object that the column references. It
- * enables different key than column name.
+ * enables a different key than column name.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.SOURCE)

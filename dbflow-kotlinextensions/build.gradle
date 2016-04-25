@@ -1,6 +1,11 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+group= 'com.raizlabs.android'
+
+project.ext.artifactId = bt_name
+
+
 repositories {
     mavenCentral()
 }
@@ -13,7 +18,7 @@ android {
         minSdkVersion 7
         targetSdkVersion 23
         versionCode 1
-        versionName "1.0"
+        versionName = version_code
     }
     buildTypes {
         release {
@@ -43,5 +48,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
+apply from: '../kotlin-artifacts.gradle'
 
 

@@ -13,13 +13,13 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
-public class Set<ModelClass extends Model> extends BaseQueriable<ModelClass> implements WhereBase<ModelClass>, Queriable, Transformable<ModelClass> {
+public class Set<TModel extends Model> extends BaseQueriable<TModel> implements WhereBase<TModel>, Queriable, Transformable<TModel> {
 
     private ConditionGroup conditionGroup;
 
     private Query update;
 
-    Set(Query update, Class<ModelClass> table) {
+    Set(Query update, Class<TModel> table) {
         super(table);
         this.update = update;
         conditionGroup = new ConditionGroup();
@@ -32,7 +32,7 @@ public class Set<ModelClass extends Model> extends BaseQueriable<ModelClass> imp
      * @param conditions The varg of conditions
      * @return This instance.
      */
-    public Set<ModelClass> conditions(SQLCondition... conditions) {
+    public Set<TModel> conditions(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
@@ -43,7 +43,7 @@ public class Set<ModelClass extends Model> extends BaseQueriable<ModelClass> imp
      * @param contentValues The set of values to append.
      * @return This instance.
      */
-    public Set<ModelClass> conditionValues(ContentValues contentValues) {
+    public Set<TModel> conditionValues(ContentValues contentValues) {
         SqlUtils.addContentValues(contentValues, conditionGroup);
         return this;
     }
@@ -54,47 +54,47 @@ public class Set<ModelClass extends Model> extends BaseQueriable<ModelClass> imp
      * @param conditions The conditions to fill the WHERE with.
      * @return The where piece of this query.
      */
-    public Where<ModelClass> where(SQLCondition... conditions) {
+    public Where<TModel> where(SQLCondition... conditions) {
         return new Where<>(this, conditions);
     }
 
     @Override
-    public Where<ModelClass> groupBy(NameAlias... nameAliases) {
+    public Where<TModel> groupBy(NameAlias... nameAliases) {
         return where().groupBy(nameAliases);
     }
 
     @Override
-    public Where<ModelClass> groupBy(IProperty... properties) {
+    public Where<TModel> groupBy(IProperty... properties) {
         return where().groupBy(properties);
     }
 
     @Override
-    public Where<ModelClass> orderBy(NameAlias nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 
     @Override
-    public Where<ModelClass> orderBy(IProperty property, boolean ascending) {
+    public Where<TModel> orderBy(IProperty property, boolean ascending) {
         return where().orderBy(property, ascending);
     }
 
     @Override
-    public Where<ModelClass> orderBy(OrderBy orderBy) {
+    public Where<TModel> orderBy(OrderBy orderBy) {
         return where().orderBy(orderBy);
     }
 
     @Override
-    public Where<ModelClass> limit(int count) {
+    public Where<TModel> limit(int count) {
         return where().limit(count);
     }
 
     @Override
-    public Where<ModelClass> offset(int offset) {
+    public Where<TModel> offset(int offset) {
         return where().offset(offset);
     }
 
     @Override
-    public Where<ModelClass> having(SQLCondition... conditions) {
+    public Where<TModel> having(SQLCondition... conditions) {
         return where().having(conditions);
     }
 

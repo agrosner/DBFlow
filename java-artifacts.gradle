@@ -1,3 +1,5 @@
+apply plugin: 'com.github.dcendents.android-maven'
+
 install {
     repositories.mavenInstaller {
         pom {

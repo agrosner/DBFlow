@@ -1,14 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Index;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Description: Defines an INDEX in Sqlite. It basically speeds up data retrieval over large datasets.
@@ -17,50 +14,35 @@ import java.util.List;
  */
 public class IndexProperty<T extends Model> {
 
-    private final List<IProperty> propertyList = new ArrayList<>();
-
-    private final Class<T> table;
-    private final boolean unique;
-    private String indexName;
+    private final Index<T> index;
 
     public IndexProperty(String indexName, boolean unique, Class<T> table, IProperty... properties) {
-        this.indexName = indexName;
-        Collections.addAll(propertyList, properties);
-        this.table = table;
-        this.unique = unique;
+        index = SQLite.index(indexName);
+        index.on(table, properties)
+                .unique(unique);
     }
 
     public void createIfNotExists(DatabaseWrapper wrapper) {
-        wrapper.execSQL(getCreateQuery());
+        index.enable(wrapper);
     }
 
     public void createIfNotExists() {
-        createIfNotExists(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+        index.enable();
     }
 
     public void drop() {
-        drop(FlowManager.getDatabaseForTable(table).getWritableDatabase());
+        index.disable();
     }
 
     public void drop(DatabaseWrapper writableDatabase) {
-        writableDatabase.execSQL(getDropQuery());
+        index.disable(writableDatabase);
     }
 
-    public String getCreateQuery() {
-        return new StringBuilder("CREATE ").append(unique ? "UNIQUE " : "").append("INDEX IF NOT EXISTS ")
-                .append(getIndexName())
-                .append(" ON ")
-                .append(FlowManager.getTableName(table))
-                .append("(")
-                .append(QueryBuilder.join(",", propertyList))
-                .append(")").toString();
-    }
-
-    public String getDropQuery() {
-        return "DROP INDEX" + getIndexName();
+    public Index<T> getIndex() {
+        return index;
     }
 
     public String getIndexName() {
-        return QueryBuilder.quote(indexName);
+        return QueryBuilder.quoteIfNeeded(index.getIndexName());
     }
 }

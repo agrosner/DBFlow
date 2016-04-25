@@ -1,9 +1,8 @@
 package com.raizlabs.android.dbflow.test;
 
 import com.raizlabs.android.dbflow.annotation.Migration;
+import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
-import com.raizlabs.android.dbflow.sql.migration.BaseMigration;
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description:
@@ -15,4 +14,9 @@ public class Migration1 extends AlterTableMigration<AModel> {
         super(table);
     }
 
+    @Override
+    public void onPreMigrate() {
+        addColumn(SQLiteType.TEXT, "myColumn");
+        addColumn(SQLiteType.REAL, "anotherColumn");
+    }
 }

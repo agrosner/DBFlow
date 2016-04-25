@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinitio
 import com.raizlabs.android.dbflow.processor.definition.FlowManagerHolderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
-import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
@@ -19,6 +18,7 @@ import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 
@@ -130,12 +130,6 @@ public class ProcessorManager implements Handler {
         return databaseDefinitionMap.get(databaseTypeName).databaseName;
     }
 
-    public void addModelContainerDefinition(ModelContainerDefinition modelContainerDefinition) {
-        databaseDefinitionMap.get(modelContainerDefinition.getDatabaseName())
-            .modelContainerDefinitionMap.put(modelContainerDefinition.elementClassName,
-            modelContainerDefinition);
-    }
-
     public void addQueryModelDefinition(QueryModelDefinition queryModelDefinition) {
         databaseDefinitionMap.get(queryModelDefinition.databaseTypeName).queryModelDefinitionMap.
             put(queryModelDefinition.elementClassName, queryModelDefinition);
@@ -178,20 +172,19 @@ public class ProcessorManager implements Handler {
         return Sets.newHashSet(typeConverters.values());
     }
 
-    public Set<ModelContainerDefinition> getModelContainers(TypeName databaseName) {
+    public Set<TableDefinition> getTableDefinitions(TypeName databaseName) {
         DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
         if (databaseDefinition != null) {
-            return Sets.newHashSet(databaseDefinition.modelContainerDefinitionMap.values());
+            return Sets.newHashSet(databaseDefinition.tableDefinitionMap.values());
         }
         return Sets.newHashSet();
     }
 
-    public Set<TableDefinition> getTableDefinitions(TypeName databaseName) {
+    public void setTableDefinitions(Map<TypeName, TableDefinition> tableDefinitionSet, TypeName databaseName) {
         DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
         if (databaseDefinition != null) {
-            return Sets.newHashSet(databaseDefinition.tableNameMap.values());
+            databaseDefinition.tableDefinitionMap = tableDefinitionSet;
         }
-        return Sets.newHashSet();
     }
 
     public Set<ModelViewDefinition> getModelViewDefinitions(TypeName databaseName) {
@@ -200,6 +193,14 @@ public class ProcessorManager implements Handler {
             return Sets.newHashSet(databaseDefinition.modelViewDefinitionMap.values());
         }
         return Sets.newHashSet();
+    }
+
+
+    public void setModelViewDefinitions(Map<TypeName, ModelViewDefinition> modelViewDefinitionMap, ClassName elementClassName) {
+        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(elementClassName);
+        if (databaseDefinition != null) {
+            databaseDefinition.modelViewDefinitionMap = modelViewDefinitionMap;
+        }
     }
 
     public Set<QueryModelDefinition> getQueryModelDefinitions(TypeName databaseName) {
@@ -256,6 +257,10 @@ public class ProcessorManager implements Handler {
 
     public void logError(String error, Object... args) {
         getMessager().printMessage(Diagnostic.Kind.ERROR, String.format("*==========*\n" + error + "\n*==========*", args));
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTrace : stackTraceElements) {
+            getMessager().printMessage(Diagnostic.Kind.ERROR, stackTrace + "");
+        }
     }
 
     public void logError(Class callingClass, String error, Object... args) {
@@ -298,6 +303,7 @@ public class ProcessorManager implements Handler {
                     continue;
                 }
 
+                databaseDefinition.validateAndPrepareToWrite();
 
                 JavaFile.builder(databaseDefinition.packageName, databaseDefinition.getTypeSpec())
                     .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
@@ -307,31 +313,38 @@ public class ProcessorManager implements Handler {
 
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
-                    tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                 }
 
                 tableDefinitions = databaseDefinition.tableDefinitionMap.values();
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
-                }
-
-                Collection<ModelContainerDefinition> modelContainerDefinitions = databaseDefinition.modelContainerDefinitionMap.values();
-                for (ModelContainerDefinition modelContainerDefinition : modelContainerDefinitions) {
-                    WriterUtils.writeBaseDefinition(modelContainerDefinition, processorManager);
+                    if (tableDefinition.modelContainerDefinition != null) {
+                        WriterUtils.writeBaseDefinition(tableDefinition.modelContainerDefinition, processorManager);
+                    }
                 }
 
                 Collection<ModelViewDefinition> modelViewDefinitions = databaseDefinition.modelViewDefinitionMap.values();
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
                     WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
-                    modelViewDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     modelViewDefinition.writeViewTable();
                 }
 
                 Collection<QueryModelDefinition> queryModelDefinitions = databaseDefinition.queryModelDefinitionMap.values();
                 for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
                     WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
-                    queryModelDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     queryModelDefinition.writeAdapter(processorManager.getProcessingEnvironment());
+                }
+
+                for (TableDefinition tableDefinition : tableDefinitions) {
+                    tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
+                }
+
+                for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
+                    modelViewDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
+                }
+
+                for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
+                    queryModelDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                 }
             } catch (IOException e) {
             }

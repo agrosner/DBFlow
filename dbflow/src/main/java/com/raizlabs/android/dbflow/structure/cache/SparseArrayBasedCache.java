@@ -8,13 +8,13 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: A cache backed by a {@link android.util.SparseArray}
  */
-public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<ModelClass, SparseArray<ModelClass>> {
+public class SparseArrayBasedCache<TModel extends Model> extends ModelCache<TModel, SparseArray<TModel>> {
 
     /**
      * Constructs new instance with a {@link android.util.SparseArray} cache
      */
     public SparseArrayBasedCache() {
-        super(new SparseArray<ModelClass>());
+        super(new SparseArray<TModel>());
     }
 
     /**
@@ -23,7 +23,7 @@ public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<
      * @param initialCapacity The initial capacity of the sparse array
      */
     public SparseArrayBasedCache(int initialCapacity) {
-        super(new SparseArray<ModelClass>(initialCapacity));
+        super(new SparseArray<TModel>(initialCapacity));
     }
 
     /**
@@ -31,12 +31,12 @@ public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<
      *
      * @param sparseArray The sparse array to use.
      */
-    public SparseArrayBasedCache(SparseArray<ModelClass> sparseArray) {
+    public SparseArrayBasedCache(SparseArray<TModel> sparseArray) {
         super(sparseArray);
     }
 
     @Override
-    public void addModel(Object id, ModelClass model) {
+    public void addModel(Object id, TModel model) {
         if (id instanceof Number) {
             synchronized (getCache()) {
                 getCache().put(((Number) id).intValue(), model);
@@ -48,8 +48,8 @@ public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<
     }
 
     @Override
-    public ModelClass removeModel(Object id) {
-        ModelClass model = get(id);
+    public TModel removeModel(Object id) {
+        TModel model = get(id);
         synchronized (getCache()) {
             getCache().remove(((Number) id).intValue());
         }
@@ -69,7 +69,7 @@ public class SparseArrayBasedCache<ModelClass extends Model> extends ModelCache<
     }
 
     @Override
-    public ModelClass get(Object id) {
+    public TModel get(Object id) {
         if (id instanceof Number) {
             return getCache().get(((Number) id).intValue());
         } else {

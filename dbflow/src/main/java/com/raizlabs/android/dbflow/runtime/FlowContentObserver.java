@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.runtime;
 
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.net.Uri;
@@ -18,12 +19,12 @@ import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Description: Listens for {@link Model} changes. Register for specific
@@ -33,7 +34,7 @@ import java.util.Set;
  */
 public class FlowContentObserver extends ContentObserver {
 
-    private static final List<FlowContentObserver> OBSERVER_LIST = new ArrayList<>();
+    private static final AtomicInteger REGISTERED_COUNT = new AtomicInteger(0);
     private static boolean forceNotify = false;
 
     /**
@@ -42,7 +43,14 @@ public class FlowContentObserver extends ContentObserver {
      * for efficiency purposes.
      */
     public static boolean shouldNotify() {
-        return forceNotify || !OBSERVER_LIST.isEmpty();
+        return forceNotify || REGISTERED_COUNT.get() > 0;
+    }
+
+    /**
+     * Removes count of observers registered, so we do not send out calls when {@link Model} changes.
+     */
+    public static void clearRegisteredObserverCount() {
+        REGISTERED_COUNT.set(0);
     }
 
     /**
@@ -73,9 +81,26 @@ public class FlowContentObserver extends ContentObserver {
         void onModelStateChanged(@Nullable Class<? extends Model> table, Action action, @NonNull SQLCondition[] primaryKeyValues);
     }
 
-    private final List<OnModelStateChangedListener> modelChangeListeners = new ArrayList<>();
+    /**
+     * Interface for when a generic change on a table occurs.
+     */
+    public interface OnTableChangedListener {
+
+        /**
+         * Called when table changes.
+         *
+         * @param tableChanged The table that has changed. NULL unless version of app is {@link VERSION_CODES#JELLY_BEAN}
+         *                     or higher.
+         * @param action       The action that occurred.
+         */
+        void onTableChanged(@Nullable Class<? extends Model> tableChanged, Action action);
+    }
+
+    private final Set<OnModelStateChangedListener> modelChangeListeners = new CopyOnWriteArraySet<>();
+    private final Set<OnTableChangedListener> onTableChangedListeners = new CopyOnWriteArraySet<>();
     private final Map<String, Class<? extends Model>> registeredTables = new HashMap<>();
     private final Set<Uri> notificationUris = new HashSet<>();
+    private final Set<Uri> tableUris = new HashSet<>();
 
     protected boolean isInTransaction = false;
     private boolean notifyAllUris = false;
@@ -121,9 +146,18 @@ public class FlowContentObserver extends ContentObserver {
             } else {
                 synchronized (notificationUris) {
                     for (Uri uri : notificationUris) {
-                        onChange(true, uri);
+                        onChange(true, uri, true);
                     }
                     notificationUris.clear();
+                }
+                synchronized (tableUris) {
+                    for (Uri uri : tableUris) {
+                        for (OnTableChangedListener onTableChangedListener : onTableChangedListeners) {
+                            onTableChangedListener.onTableChanged(registeredTables.get(uri.getAuthority()),
+                                    Action.valueOf(uri.getFragment()));
+                        }
+                    }
+                    tableUris.clear();
                 }
             }
         }
@@ -147,14 +181,27 @@ public class FlowContentObserver extends ContentObserver {
         modelChangeListeners.remove(modelChangeListener);
     }
 
+    public void addOnTableChangedListener(OnTableChangedListener onTableChangedListener) {
+        onTableChangedListeners.add(onTableChangedListener);
+    }
+
+    public void removeTableChangedListener(OnTableChangedListener onTableChangedListener) {
+        onTableChangedListeners.remove(onTableChangedListener);
+    }
+
     /**
      * Registers the observer for model change events for specific class.
      */
     public void registerForContentChanges(Context context, Class<? extends Model> table) {
-        context.getContentResolver().registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
-        if (!OBSERVER_LIST.contains(this)) {
-            OBSERVER_LIST.add(this);
-        }
+        registerForContentChanges(context.getContentResolver(), table);
+    }
+
+    /**
+     * Registers the observer for model change events for specific class.
+     */
+    public void registerForContentChanges(ContentResolver contentResolver, Class<? extends Model> table) {
+        contentResolver.registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
+        REGISTERED_COUNT.incrementAndGet();
         if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table);
         }
@@ -165,7 +212,7 @@ public class FlowContentObserver extends ContentObserver {
      */
     public void unregisterForContentChanges(Context context) {
         context.getContentResolver().unregisterContentObserver(this);
-        OBSERVER_LIST.remove(this);
+        REGISTERED_COUNT.decrementAndGet();
         registeredTables.clear();
     }
 
@@ -174,11 +221,20 @@ public class FlowContentObserver extends ContentObserver {
         for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
             modelChangeListener.onModelStateChanged(null, Action.CHANGE, new SQLCondition[0]);
         }
+
+        for (OnTableChangedListener onTableChangedListener : onTableChangedListeners) {
+            onTableChangedListener.onTableChanged(null, Action.CHANGE);
+        }
     }
 
     @TargetApi(VERSION_CODES.JELLY_BEAN)
     @Override
     public void onChange(boolean selfChange, Uri uri) {
+        onChange(selfChange, uri, false);
+    }
+
+    @TargetApi(VERSION_CODES.JELLY_BEAN)
+    private void onChange(boolean selfChanges, Uri uri, boolean calledInternally) {
         String fragment = uri.getFragment();
         String tableName = uri.getAuthority();
 
@@ -198,22 +254,33 @@ public class FlowContentObserver extends ContentObserver {
         }
 
         Class<? extends Model> table = registeredTables.get(tableName);
+        Action action = Action.valueOf(fragment);
         if (!isInTransaction) {
 
-            Action action = Action.valueOf(fragment);
             if (action != null) {
                 for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
                     modelChangeListener.onModelStateChanged(table, action, columnsChanged);
                 }
             }
+
+            if (!calledInternally) {
+                for (OnTableChangedListener onTableChangeListener : onTableChangedListeners) {
+                    onTableChangeListener.onTableChanged(table, action);
+                }
+            }
         } else {
             // convert this uri to a CHANGE op if we don't care about individual changes.
             if (!notifyAllUris) {
-                uri = SqlUtils.getNotificationUri(table, Action.CHANGE);
+                action = Action.CHANGE;
+                uri = SqlUtils.getNotificationUri(table, action);
             }
             synchronized (notificationUris) {
                 // add and keep track of unique notification uris for when transaction completes.
                 notificationUris.add(uri);
+            }
+
+            synchronized (tableUris) {
+                tableUris.add(SqlUtils.getNotificationUri(table, action));
             }
         }
     }

@@ -29,10 +29,42 @@ public interface IProperty<P extends IProperty> extends Query {
     /**
      * Subtracts another property and returns as a new property. i.e p1 - p2
      *
-     * @param iProperty the property to add.
+     * @param iProperty the property to subtract.
      * @return A new instance.
      */
     P minus(IProperty iProperty);
+
+    /**
+     * Divides another property and returns as a new property. i.e p1 / p2
+     *
+     * @param iProperty the property to divide.
+     * @return A new instance.
+     */
+    P dividedBy(IProperty iProperty);
+
+    /**
+     * Multiplies another property and returns as a new property. i.e p1 * p2
+     *
+     * @param iProperty the property to multiply.
+     * @return A new instance.
+     */
+    P multipliedBy(IProperty iProperty);
+
+    /**
+     * Modulous another property and returns as a new property. i.e p1 % p2
+     *
+     * @param iProperty the property to mod.
+     * @return A new instance.
+     */
+    P mod(IProperty iProperty);
+
+    /**
+     * Concats another property and returns as a new propert.y i.e. p1 || p2
+     *
+     * @param iProperty The property to concatenate.
+     * @return A new instance.
+     */
+    P concatenate(IProperty iProperty);
 
     /**
      * @return Appends DISTINCT to the property name. This is handy in {@link Method} queries.

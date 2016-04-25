@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.test.sqlcipher;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.dbflow.android.sqlcipher.SQLCipherOpenHelper;
 
 /**
@@ -9,7 +9,7 @@ import com.raizlabs.dbflow.android.sqlcipher.SQLCipherOpenHelper;
  */
 public class SQLCipherHelperImpl extends SQLCipherOpenHelper {
 
-    public SQLCipherHelperImpl(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
+    public SQLCipherHelperImpl(DatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
         super(databaseDefinition, listener);
     }
 

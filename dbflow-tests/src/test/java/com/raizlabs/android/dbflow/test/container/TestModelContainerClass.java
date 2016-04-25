@@ -34,16 +34,16 @@ public class TestModelContainerClass extends TestModel1 {
 
     @Column
     @ForeignKey(
-        saveForeignKeyModel = true,
-        onDelete = ForeignKeyAction.CASCADE,
-        onUpdate = ForeignKeyAction.CASCADE,
-        references =
-            {@ForeignKeyReference(columnName = "testName",
-                columnType = String.class,
-                referencedFieldIsPackagePrivate = true,
-                foreignKeyColumnName = "name"),
-                @ForeignKeyReference(columnName = "testType",
-                    columnType = String.class,
-                    foreignKeyColumnName = "type")})
+            saveForeignKeyModel = true,
+            onDelete = ForeignKeyAction.CASCADE,
+            onUpdate = ForeignKeyAction.CASCADE,
+            references =
+                    {@ForeignKeyReference(columnName = "testName",
+                            columnType = String.class,
+                            referencedFieldIsPackagePrivate = true,
+                            foreignKeyColumnName = "name"),
+                            @ForeignKeyReference(columnName = "testType",
+                                    columnType = String.class,
+                                    foreignKeyColumnName = "type")})
     ParentModel testModel;
 }

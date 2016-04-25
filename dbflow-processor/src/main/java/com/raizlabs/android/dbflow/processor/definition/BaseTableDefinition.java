@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Lists;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateAccess;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -56,9 +57,11 @@ public abstract class BaseTableDefinition extends BaseDefinition {
 
     public abstract ClassName getPropertyClassName();
 
+    public abstract void prepareForWrite();
+
     public TypeName getParameterClassName(boolean isModelContainerAdapter) {
         return isModelContainerAdapter ? ModelUtils.getModelContainerType(manager, elementClassName)
-                : elementClassName;
+            : elementClassName;
     }
 
     public String addColumnForCustomTypeConverter(ColumnDefinition columnDefinition, ClassName typeConverterName) {
@@ -89,18 +92,27 @@ public abstract class BaseTableDefinition extends BaseDefinition {
 
         if (!packagePrivateList.isEmpty()) {
             TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(elementClassName.simpleName() + databaseDefinition.classSeparator + "Helper")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             for (ColumnDefinition columnDefinition : packagePrivateList) {
                 String helperClassName = manager.getElements().getPackageOf(columnDefinition.element).toString() + "." + ClassName.get((TypeElement) columnDefinition.element.getEnclosingElement()).simpleName()
-                        + databaseDefinition.classSeparator + "Helper";
+                    + databaseDefinition.classSeparator + "Helper";
+                if (columnDefinition instanceof ForeignKeyColumnDefinition) {
+                    TableDefinition tableDefinition = databaseDefinition.tableDefinitionMap
+                        .get(((ForeignKeyColumnDefinition) columnDefinition).referencedTableClassName);
+                    if (tableDefinition != null) {
+                        helperClassName = manager.getElements().getPackageOf(tableDefinition.element).toString() + "." + ClassName.get((TypeElement) tableDefinition.element).simpleName()
+                            + databaseDefinition.classSeparator + "Helper";
+                    }
+                }
                 ClassName className = ClassName.bestGuess(helperClassName);
+
                 if (PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
 
                     MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
-                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.getVariable(false))
-                            .returns(columnDefinition.elementTypeName);
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .addParameter(elementTypeName, ModelUtils.getVariable(false))
+                        .returns(columnDefinition.elementTypeName);
                     boolean samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element);
 
                     if (samePackage) {
@@ -112,9 +124,9 @@ public abstract class BaseTableDefinition extends BaseDefinition {
                     typeBuilder.addMethod(method.build());
 
                     method = MethodSpec.methodBuilder("set" + StringUtils.capitalize(columnDefinition.columnName))
-                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.getVariable(false))
-                            .addParameter(columnDefinition.elementTypeName, "var");
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .addParameter(elementTypeName, ModelUtils.getVariable(false))
+                        .addParameter(columnDefinition.elementTypeName, "var");
 
                     if (samePackage) {
                         method.addStatement("$L.$L = $L", ModelUtils.getVariable(false), columnDefinition.elementName, "var");

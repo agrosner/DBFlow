@@ -3,17 +3,18 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.processor.ClassNames;
-import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition;
-import com.raizlabs.android.dbflow.processor.definition.ModelContainerDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
+import com.raizlabs.android.dbflow.processor.validator.ModelViewValidator;
+import com.raizlabs.android.dbflow.processor.validator.TableValidator;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -30,7 +31,6 @@ import java.util.regex.Pattern;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.TypeMirror;
 
 /**
  * Description: Writes {@link com.raizlabs.android.dbflow.annotation.Database} definitions,
@@ -54,16 +54,14 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
     public ConflictAction updateConflict;
 
     public String classSeparator;
+    public String fieldRefSeparator; // safe field for javapoet
 
     public boolean isInMemory;
-
-    TypeName sqliteOpenHelperClass;
 
     public Map<TypeName, TableDefinition> tableDefinitionMap = new HashMap<>();
     public Map<String, TableDefinition> tableNameMap = new HashMap<>();
 
     public Map<TypeName, QueryModelDefinition> queryModelDefinitionMap = new HashMap<>();
-    public Map<TypeName, ModelContainerDefinition> modelContainerDefinitionMap = new HashMap<>();
     public Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
     public Map<TypeName, ManyToManyDefinition> manyToManyDefinitionMap = new HashMap<>();
 
@@ -82,20 +80,21 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
                     "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!");
             }
 
-            TypeMirror openHelper = ProcessorUtils.getOpenHelperClass(database);
-            if (openHelper != null) {
-                sqliteOpenHelperClass = TypeName.get(openHelper);
-                if (sqliteOpenHelperClass.equals(TypeName.VOID.box())) {
-                    sqliteOpenHelperClass = ClassNames.FLOW_SQLITE_OPEN_HELPER;
-                }
-            } else {
-                sqliteOpenHelperClass = ClassNames.FLOW_SQLITE_OPEN_HELPER;
-            }
-
             consistencyChecksEnabled = database.consistencyCheckEnabled();
             backupEnabled = database.backupEnabled();
 
             classSeparator = database.generatedClassSeparator();
+
+            if (!StringUtils.isNullOrEmpty(classSeparator)) {
+                // all are $
+                if (classSeparator.matches("[$]+")) {
+                    fieldRefSeparator = classSeparator + classSeparator; // duplicate to be safe
+                } else {
+                    fieldRefSeparator = classSeparator;
+                }
+            } else {
+                fieldRefSeparator = classSeparator;
+            }
 
             setOutputClassName(databaseName + classSeparator + "Database");
 
@@ -115,9 +114,49 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
-
         writeConstructor(typeBuilder);
         writeGetters(typeBuilder);
+    }
+
+    public void validateAndPrepareToWrite() {
+        prepareDefinitions();
+        validateDefinitions();
+    }
+
+    private void validateDefinitions() {
+        // TODO: validate them here before preparing them
+        Map<TypeName, TableDefinition> map = new HashMap<>();
+        TableValidator tableValidator = new TableValidator();
+        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
+            if (tableValidator.validate(ProcessorManager.getManager(), tableDefinition)) {
+                map.put(tableDefinition.elementClassName, tableDefinition);
+            }
+        }
+        manager.setTableDefinitions(map, elementClassName);
+
+        Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
+        ModelViewValidator modelViewValidator = new ModelViewValidator();
+        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
+            if (modelViewValidator.validate(ProcessorManager.getManager(), modelViewDefinition)) {
+                modelViewDefinitionMap.put(modelViewDefinition.elementClassName, modelViewDefinition);
+            }
+        }
+        manager.setModelViewDefinitions(modelViewDefinitionMap, elementClassName);
+
+    }
+
+    private void prepareDefinitions() {
+        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
+            tableDefinition.prepareForWrite();
+        }
+
+        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
+            modelViewDefinition.prepareForWrite();
+        }
+
+        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
+            queryModelDefinition.prepareForWrite();
+        }
     }
 
     private void writeConstructor(TypeSpec.Builder builder) {
@@ -164,23 +203,22 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
         for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName);
             constructor.addStatement("$L.put($S, $T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName);
-            constructor.addStatement("$L.put($T.class, new $T(holder))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
+            constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
                 tableDefinition.elementClassName, tableDefinition.getAdapterClassName());
-        }
-
-        for (ModelContainerDefinition modelContainerDefinition : manager.getModelContainers(elementClassName)) {
-            constructor.addStatement("$L.put($T.class, new $T(holder))", DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
-                modelContainerDefinition.elementClassName, modelContainerDefinition.outputClassName);
+            if (tableDefinition.modelContainerDefinition != null) {
+                constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_CONTAINER_ADAPTER_MAP_FIELD_NAME,
+                    tableDefinition.modelContainerDefinition.elementClassName, tableDefinition.modelContainerDefinition.outputClassName);
+            }
         }
 
         for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName);
-            constructor.addStatement("$L.put($T.class, new $T(holder))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
+            constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
                 modelViewDefinition.elementClassName, modelViewDefinition.outputClassName);
         }
 
         for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
-            constructor.addStatement("$L.put($T.class, new $T(holder))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
+            constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
                 queryModelDefinition.elementClassName, queryModelDefinition.getAdapterClassName());
         }
 
@@ -189,14 +227,11 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
     private void writeGetters(TypeSpec.Builder typeBuilder) {
 
-        // create helper
-        if (!TypeName.VOID.equals(sqliteOpenHelperClass)) {
-            typeBuilder.addMethod(MethodSpec.methodBuilder("createHelper")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return new $T(this, internalHelperListener)", sqliteOpenHelperClass)
-                .returns(ClassNames.OPEN_HELPER).build());
-        }
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getAssociatedDatabaseClassFile")
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $T.class", elementTypeName)
+            .returns(ParameterizedTypeName.get(Class.class)).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("isForeignKeysSupported")
             .addAnnotation(Override.class)

@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.test.TestDatabase;
@@ -20,7 +21,7 @@ public class RealContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        FlowManager.init(getContext());
+        FlowManager.init(new FlowConfig.Builder(getContext()).build());
         database = FlowManager.getDatabase(databaseName).getWritableDatabase();
         return true;
     }

@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Description: The SQLite INSERT command
  */
-public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> {
+public class Insert<TModel extends Model> extends BaseQueriable<TModel> {
 
 
     /**
@@ -40,7 +40,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @param table The table to insert into
      */
-    public Insert(Class<ModelClass> table) {
+    public Insert(Class<TModel> table) {
         super(table);
     }
 
@@ -50,9 +50,9 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @param columns The columns to use
      */
-    public Insert<ModelClass> columns(String... columns) {
+    public Insert<TModel> columns(String... columns) {
         this.columns = new IProperty[columns.length];
-        ModelAdapter<ModelClass> modelClassModelAdapter = FlowManager.getModelAdapter(getTable());
+        ModelAdapter<TModel> modelClassModelAdapter = FlowManager.getModelAdapter(getTable());
         for (int i = 0; i < columns.length; i++) {
             String column = columns[i];
             this.columns[i] = modelClassModelAdapter.getProperty(column);
@@ -60,7 +60,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
         return this;
     }
 
-    public Insert<ModelClass> columns(IProperty... properties) {
+    public Insert<TModel> columns(IProperty... properties) {
         this.columns = new IProperty[properties.length];
         for (int i = 0; i < properties.length; i++) {
             columns[i] = properties[i];
@@ -68,7 +68,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
         return this;
     }
 
-    public Insert<ModelClass> columns(List<IProperty> properties) {
+    public Insert<TModel> columns(List<IProperty> properties) {
         if (properties != null) {
             this.columns = new IProperty[properties.size()];
             for (int i = 0; i < properties.size(); i++) {
@@ -79,9 +79,9 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
     }
 
     /**
-     * @return Appends a list of columns to this INSERT statement from the associated {@link ModelClass}.
+     * @return Appends a list of columns to this INSERT statement from the associated {@link TModel}.
      */
-    public Insert<ModelClass> asColumns() {
+    public Insert<TModel> asColumns() {
         columns(FlowManager.getModelAdapter(getTable()).getAllColumnProperties());
         return this;
     }
@@ -92,7 +92,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @param values The non type-converted values
      */
-    public Insert<ModelClass> values(Object... values) {
+    public Insert<TModel> values(Object... values) {
         this.values = values;
         return this;
     }
@@ -102,7 +102,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
-    public Insert<ModelClass> columnValues(SQLCondition... conditions) {
+    public Insert<TModel> columnValues(SQLCondition... conditions) {
 
         String[] columns = new String[conditions.length];
         Object[] values = new Object[conditions.length];
@@ -121,7 +121,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @param conditionGroup The ConditionGroup to use
      */
-    public Insert<ModelClass> columnValues(ConditionGroup conditionGroup) {
+    public Insert<TModel> columnValues(ConditionGroup conditionGroup) {
 
         int size = conditionGroup.size();
         String[] columns = new String[size];
@@ -136,7 +136,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
         return columns(columns).values(values);
     }
 
-    public Insert<ModelClass> columnValues(ContentValues contentValues) {
+    public Insert<TModel> columnValues(ContentValues contentValues) {
         java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
         int count = 0;
         String[] columns = new String[contentValues.size()];
@@ -156,7 +156,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @param selectFrom The from that is continuation of {@link Select}.
      */
-    public Insert<ModelClass> select(From<? extends Model> selectFrom) {
+    public Insert<TModel> select(From<? extends Model> selectFrom) {
         this.selectFrom = selectFrom;
         return this;
     }
@@ -168,7 +168,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      * @param action The conflict action to use
      * @return
      */
-    public Insert<ModelClass> or(ConflictAction action) {
+    public Insert<TModel> or(ConflictAction action) {
         conflictAction = action;
         return this;
     }
@@ -178,7 +178,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @return
      */
-    public Insert<ModelClass> orReplace() {
+    public Insert<TModel> orReplace() {
         return or(ConflictAction.REPLACE);
     }
 
@@ -187,7 +187,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @return
      */
-    public Insert<ModelClass> orRollback() {
+    public Insert<TModel> orRollback() {
         return or(ConflictAction.ROLLBACK);
     }
 
@@ -197,7 +197,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @return
      */
-    public Insert<ModelClass> orAbort() {
+    public Insert<TModel> orAbort() {
         return or(ConflictAction.ABORT);
     }
 
@@ -207,7 +207,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @return
      */
-    public Insert<ModelClass> orFail() {
+    public Insert<TModel> orFail() {
         return or(ConflictAction.FAIL);
     }
 
@@ -216,7 +216,7 @@ public class Insert<ModelClass extends Model> extends BaseQueriable<ModelClass> 
      *
      * @return
      */
-    public Insert<ModelClass> orIgnore() {
+    public Insert<TModel> orIgnore() {
         return or(ConflictAction.IGNORE);
     }
 

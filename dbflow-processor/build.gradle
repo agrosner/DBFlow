@@ -9,9 +9,8 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     compile project("${dbflow_project_prefix}dbflow-core")
-    compile 'com.squareup:javapoet:1.4.0'
+    compile 'com.squareup:javapoet:1.6.1'
     compile 'com.google.auto.service:auto-service:1.0-rc2'
 }
 
-apply from: 'https://raw.githubusercontent.com/Raizlabs/maven-releases/master/bintray_upload.gradle'
 apply from: '../java-artifacts.gradle'

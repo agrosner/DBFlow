@@ -51,10 +51,10 @@ public class Select implements Query {
      * Passes this statement to the {@link From}
      *
      * @param table        The model table to run this query on
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TModel> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return the From part of this query
      */
-    public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
+    public <TModel extends Model> From<TModel> from(Class<TModel> table) {
         return new From<>(this, table);
     }
 

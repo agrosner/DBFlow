@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.config;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
@@ -19,11 +18,13 @@ import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Description: The main entry point into the generated database code. It uses reflection to look up
@@ -32,29 +33,29 @@ import java.util.Map;
  */
 public class FlowManager {
 
-
     private static class GlobalDatabaseHolder extends DatabaseHolder {
         public void add(DatabaseHolder holder) {
-            managerMap.putAll(holder.managerMap);
-            managerNameMap.putAll(holder.managerNameMap);
+            databaseDefinitionMap.putAll(holder.databaseDefinitionMap);
+            databaseNameMap.putAll(holder.databaseNameMap);
             typeConverters.putAll(holder.typeConverters);
+            databaseClassLookupMap.putAll(holder.databaseClassLookupMap);
         }
+
     }
 
-    private static Context context;
+    static FlowConfig config;
 
     private static GlobalDatabaseHolder globalDatabaseHolder = new GlobalDatabaseHolder();
 
     private static HashSet<Class<? extends DatabaseHolder>> loadedModules = new HashSet<>();
 
-
     private static final String DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder";
 
     private static final String DEFAULT_DATABASE_HOLDER_PACKAGE_NAME =
-            FlowManager.class.getPackage().getName();
+        FlowManager.class.getPackage().getName();
 
     private static final String DEFAULT_DATABASE_HOLDER_CLASSNAME =
-            DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
+        DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
 
     /**
      * Returns the table name for the specific model class
@@ -69,7 +70,7 @@ public class FlowManager {
         String tableName = null;
         if (modelAdapter == null) {
             ModelViewAdapter modelViewAdapter = getDatabaseForTable(table).getModelViewAdapterForTable(
-                    (Class<? extends BaseModelView>) table);
+                (Class<? extends BaseModelView>) table);
             if (modelViewAdapter != null) {
                 tableName = modelViewAdapter.getViewName();
             }
@@ -85,46 +86,86 @@ public class FlowManager {
      * @return The associated table class for the specified name.
      */
     public static Class<? extends Model> getTableClassForName(String databaseName, String tableName) {
-        BaseDatabaseDefinition databaseDefinition = getDatabase(databaseName);
+        DatabaseDefinition databaseDefinition = getDatabase(databaseName);
         if (databaseDefinition == null) {
             throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
-                    "Did you forget to add the @Database?", databaseName));
+                "Did you forget to add the @Database?", databaseName));
         }
         Class<? extends Model> modelClass = databaseDefinition.getModelClassForName(tableName);
         if (modelClass == null) {
             throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
-                            "Did you forget to add the @Table annotation and point it to %1s?",
-                    tableName, databaseName));
+                    "Did you forget to add the @Table annotation and point it to %1s?",
+                tableName, databaseName));
         }
         return modelClass;
     }
 
     /**
      * @param table The table to lookup the database for.
-     * @return the corresponding {@link BaseDatabaseDefinition} for the specified model
+     * @return the corresponding {@link DatabaseDefinition} for the specified model
      */
-    public static BaseDatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
-        BaseDatabaseDefinition flowManager = globalDatabaseHolder.getDatabaseForTable(table);
-        if (flowManager == null) {
+    public static DatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
+        DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabaseForTable(table);
+        if (databaseDefinition == null) {
             throw new InvalidDBConfiguration("Table: " + table.getName() + " is not registered with a Database. " +
-                    "Did you forget the @Table annotation?");
+                "Did you forget the @Table annotation?");
         }
-        return flowManager;
+        return databaseDefinition;
+    }
+
+    public static DatabaseDefinition getDatabase(Class<?> databaseClass) {
+        DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabase(databaseClass);
+        if (databaseDefinition == null) {
+            throw new InvalidDBConfiguration("Database: " + databaseClass.getName() + " is not a registered Database. " +
+                "Did you forget the @Database annotation?");
+        }
+        return databaseDefinition;
+    }
+
+    public static DatabaseWrapper getWritableDatabaseForTable(Class<? extends Model> table) {
+        return getDatabaseForTable(table).getWritableDatabase();
     }
 
     /**
      * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
-     * @return the {@link BaseDatabaseDefinition} for the specified database
+     * @return the {@link DatabaseDefinition} for the specified database
      */
-    public static BaseDatabaseDefinition getDatabase(String databaseName) {
-        BaseDatabaseDefinition database = globalDatabaseHolder.getDatabase(databaseName);
+    public static DatabaseDefinition getDatabase(String databaseName) {
+        DatabaseDefinition database = globalDatabaseHolder.getDatabase(databaseName);
 
         if (database != null) {
             return database;
         }
 
         throw new InvalidDBConfiguration("The specified database" + databaseName + " was not found. " +
-                "Did you forget the @Database annotation?");
+            "Did you forget the @Database annotation?");
+    }
+
+    public static DatabaseWrapper getWritableDatabase(String databaseName) {
+        return getDatabase(databaseName).getWritableDatabase();
+    }
+
+    public static DatabaseWrapper getWritableDatabase(Class<?> databaseClass) {
+        return getDatabase(databaseClass).getWritableDatabase();
+    }
+
+    /**
+     * Loading the module Database holder via reflection.
+     * <p>
+     * It is assumed FlowManager.init() is called by the application that uses the
+     * module database. This method should only be called if you need to load databases
+     * that are part of a module. Building once will give you the ability to add the class.
+     */
+    public static void initModule(Class<? extends DatabaseHolder> generatedClassName) {
+        loadDatabaseHolder(generatedClassName);
+    }
+
+    public static FlowConfig getConfig() {
+        if (config == null) {
+            throw new IllegalStateException("Configuration is not initialized. " +
+                "Please call init(FlowConfig) in your application class.");
+        }
+        return config;
     }
 
     /**
@@ -146,31 +187,45 @@ public class FlowManager {
                 loadedModules.add(holderClass);
             }
         } catch (Throwable e) {
+            e.printStackTrace();
             throw new ModuleNotFoundException("Cannot load " + holderClass, e);
         }
     }
 
     /**
-     * Will throw an exception if this class is not initialized yet in {@link #init(Context)}
+     * Resets all databases and associated files.
+     */
+    public static void reset() {
+        Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet = globalDatabaseHolder.databaseClassLookupMap.entrySet();
+        for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
+            value.getValue().reset(getContext());
+        }
+        globalDatabaseHolder.reset();
+        loadedModules.clear();
+    }
+
+    /**
+     * Will throw an exception if this class is not initialized yet in {@link #init(FlowConfig)}
      *
      * @return The shared context.
      */
+    @NonNull
     public static Context getContext() {
-        if (context == null) {
-            throw new IllegalStateException("Context cannot be null for FlowManager");
+        if (config == null) {
+            throw new IllegalStateException("You must provide a valid FlowConfig instance. " +
+                "We recommend calling init() in your application class.");
         }
-        return context;
+        return config.getContext();
     }
 
     /**
      * Initializes DBFlow, loading the main application Database holder via reflection one time only.
      * This will trigger all creations, updates, and instantiation for each database defined.
      *
-     * @param context The shared context for database usage.
+     * @param flowConfig The configuration instance that will help shape how DBFlow gets constructed.
      */
-    public static void init(@NonNull Context context) {
-        // Initialize the context, then load the default database holder.
-        initContext(context);
+    public static void init(@NonNull FlowConfig flowConfig) {
+        FlowManager.config = flowConfig;
 
         try {
             //noinspection unchecked
@@ -185,35 +240,20 @@ public class FlowManager {
             // warning if a library uses DBFlow with module support but the app you're using doesn't support it.
             FlowLog.log(FlowLog.Level.W, "Could not find the default GeneratedDatabaseHolder");
         }
-    }
 
-    /**
-     * Loading the module Database holder via reflection. This will trigger all creations,
-     * updates, and instantiation for each database defined.
-     * <p/>
-     * It is assumed FlowManager.init() is called by the application that uses the
-     * module database. This method should only be called if you need to load databases
-     * that are part of a module. Building once will give you the ability to add the class.
-     */
-    public static void initModule(Class<? extends DatabaseHolder> generatedClassName) {
-        loadDatabaseHolder(generatedClassName);
-    }
-
-    private static void initContext(@NonNull Context context) {
-        // only initialize Context once.
-        if (FlowManager.context == null) {
-            FlowManager.context = context.getApplicationContext();
+        if (flowConfig.databaseHolders() != null && !flowConfig.databaseHolders().isEmpty()) {
+            for (Class<? extends DatabaseHolder> holder : flowConfig.databaseHolders()) {
+                loadDatabaseHolder(holder);
+            }
         }
-    }
 
-    /**
-     * Registers a listener for database creation/update events. Call this before running any query.
-     *
-     * @param databaseName           The name of the database. Will throw an exception if the database doesn't exist.
-     * @param databaseHelperListener Provides callbacks for database events.
-     */
-    public static void setDatabaseListener(String databaseName, DatabaseHelperListener databaseHelperListener) {
-        getDatabase(databaseName).setHelperListener(databaseHelperListener);
+        if (flowConfig.openDatabasesOnInit()) {
+            List<DatabaseDefinition> databaseDefinitions = globalDatabaseHolder.getDatabaseDefinitions();
+            for (DatabaseDefinition databaseDefinition : databaseDefinitions) {
+                // triggers open, create, migrations.
+                databaseDefinition.getWritableDatabase();
+            }
+        }
     }
 
     /**
@@ -228,10 +268,10 @@ public class FlowManager {
     // region Getters
 
     /**
-     * Release reference to context
+     * Release reference to context and {@link FlowConfig}
      */
     public static synchronized void destroy() {
-        context = null;
+        config = null;
 
         // Reset the global database holder.
         globalDatabaseHolder = new GlobalDatabaseHolder();
@@ -249,10 +289,10 @@ public class FlowManager {
         if (internalAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getModelViewAdapter(
-                        (Class<? extends BaseModelView<? extends Model>>) modelClass);
+                    (Class<? extends BaseModelView<? extends Model>>) modelClass);
             } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getQueryModelAdapter(
-                        (Class<? extends BaseQueryModel>) modelClass);
+                    (Class<? extends BaseQueryModel>) modelClass);
             }
         }
 
@@ -260,52 +300,52 @@ public class FlowManager {
     }
 
     /**
-     * @param modelClass   The class of the table
-     * @param <ModelClass> The class that implements {@link Model}
+     * @param modelClass The class of the table
+     * @param <TModel>   The class that implements {@link Model}
      * @return The associated model adapter (DAO) that is generated from a {@link Table} class. Handles
      * interactions with the database. This method is meant for internal usage only.
      * We strongly prefer you use the built-in methods associated with {@link Model} and {@link BaseModel}.
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ModelAdapter<ModelClass> getModelAdapter(Class<ModelClass> modelClass) {
+    public static <TModel extends Model> ModelAdapter<TModel> getModelAdapter(Class<TModel> modelClass) {
         return FlowManager.getDatabaseForTable(modelClass).getModelAdapterForTable(modelClass);
     }
 
     /**
-     * @param modelClass   The class of the table
-     * @param <ModelClass> The class that implements {@link Model}
+     * @param modelClass The class of the table
+     * @param <TModel>   The class that implements {@link Model}
      * @return the container adapter for the specified table. These are only generated when you specify {@link ModelContainer}
      * in your model class so it can be used for containers. These are not generated by default as a means to keep app size down.
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model> ModelContainerAdapter<ModelClass> getContainerAdapter(
-            Class<ModelClass> modelClass) {
+    public static <TModel extends Model> ModelContainerAdapter<TModel> getContainerAdapter(
+        Class<TModel> modelClass) {
         return FlowManager.getDatabaseForTable(modelClass).getModelContainerAdapterForTable(modelClass);
     }
 
     /**
      * Returns the model view adapter for a SQLite VIEW. These are only created with the {@link com.raizlabs.android.dbflow.annotation.ModelView} annotation.
      *
-     * @param modelViewClass   The class of the VIEW
-     * @param <ModelViewClass> The class that extends {@link BaseModelView}
+     * @param modelViewClass The class of the VIEW
+     * @param <TModelView>   The class that extends {@link BaseModelView}
      * @return The model view adapter for the specified model view.
      */
     @SuppressWarnings("unchecked")
-    public static <ModelViewClass extends BaseModelView<? extends Model>> ModelViewAdapter<? extends Model, ModelViewClass> getModelViewAdapter(
-            Class<ModelViewClass> modelViewClass) {
+    public static <TModelView extends BaseModelView<? extends Model>> ModelViewAdapter<? extends Model, TModelView> getModelViewAdapter(
+        Class<TModelView> modelViewClass) {
         return FlowManager.getDatabaseForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
     }
 
     /**
-     * Returns the query model adapter for an undefined query. These are only created with the {@link QueryModel} annotation.
+     * Returns the query model adapter for an undefined query. These are only created with the {@link TQueryModel} annotation.
      *
-     * @param queryModel   The class of the query
-     * @param <QueryModel> The class that extends {@link BaseQueryModel}
+     * @param queryModel    The class of the query
+     * @param <TQueryModel> The class that extends {@link BaseQueryModel}
      * @return The query model adapter for the specified model query.
      */
     @SuppressWarnings("unchecked")
-    public static <QueryModel extends BaseQueryModel> QueryModelAdapter<QueryModel> getQueryModelAdapter(
-            Class<QueryModel> queryModel) {
+    public static <TQueryModel extends BaseQueryModel> QueryModelAdapter<TQueryModel> getQueryModelAdapter(
+        Class<TQueryModel> queryModel) {
         return FlowManager.getDatabaseForTable(queryModel).getQueryModelAdapterForQueryClass(queryModel);
     }
 

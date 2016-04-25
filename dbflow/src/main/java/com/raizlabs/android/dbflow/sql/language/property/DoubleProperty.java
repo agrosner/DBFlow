@@ -29,13 +29,37 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
     @Override
     public DoubleProperty plus(IProperty iProperty) {
         return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public DoubleProperty minus(IProperty iProperty) {
         return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public DoubleProperty dividedBy(IProperty iProperty) {
+        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public DoubleProperty multipliedBy(IProperty iProperty) {
+        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public DoubleProperty mod(IProperty iProperty) {
+        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public DoubleProperty concatenate(IProperty iProperty) {
+        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override

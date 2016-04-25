@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.Condition;
@@ -18,6 +18,12 @@ import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.sql.queriable.CacheableListModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.CacheableModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
+import com.raizlabs.android.dbflow.sql.queriable.ModelLoader;
+import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
@@ -53,12 +59,13 @@ public class SqlUtils {
      *                     values will be bound as Strings.
      * @param <ModelClass> The class implements {@link Model}
      * @return a list of {@link ModelClass}
+     * @deprecated see {@link ListModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
     public static <ModelClass extends Model> List<ModelClass> queryList(Class<ModelClass> modelClass, String sql,
                                                                         String... args) {
-        BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
+        DatabaseDefinition flowManager = FlowManager.getDatabaseForTable(modelClass);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         List<ModelClass> list = null;
         try {
@@ -84,6 +91,7 @@ public class SqlUtils {
      * @param modelCache       The model cache to use when retrieving {@link CacheableClass}.
      * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
+     * @deprecated see {@link CacheableListModelLoader}
      */
     @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
@@ -128,6 +136,7 @@ public class SqlUtils {
      * @param cursor           The cursor from a query.
      * @param <CacheableClass> The class that extends {@link Model} with {@link Table#cachingEnabled()}.
      * @return A {@link List} of {@link CacheableClass}.
+     * @deprecated see {@link CacheableListModelLoader}
      */
     @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
@@ -136,17 +145,18 @@ public class SqlUtils {
     }
 
     /**
-     * Loops through a cursor and builds a list of {@link ModelClass} objects.
+     * Loops through a cursor and builds a list of {@link TModel} objects.
      *
-     * @param table        The model class that we convert the cursor data into.
-     * @param cursor       The cursor from the DB
-     * @param <ModelClass> The class that implements {@link Model}
+     * @param table    The model class that we convert the cursor data into.
+     * @param cursor   The cursor from the DB
+     * @param <TModel> The class that implements {@link Model}
      * @return An non-null {@link List}
+     * @deprecated see {@link ListModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
-    public static <ModelClass extends Model> List<ModelClass> convertToList(Class<ModelClass> table, Cursor cursor) {
-        final List<ModelClass> entities = new ArrayList<>();
+    public static <TModel extends Model> List<TModel> convertToList(Class<TModel> table, Cursor cursor) {
+        final List<TModel> entities = new ArrayList<>();
         InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
         if (modelAdapter != null) {
             // Ensure that we aren't iterating over this cursor concurrently from different threads
@@ -155,7 +165,7 @@ public class SqlUtils {
                     do {
                         Model model = modelAdapter.newInstance();
                         modelAdapter.loadFromCursor(cursor, model);
-                        entities.add((ModelClass) model);
+                        entities.add((TModel) model);
                     }
                     while (cursor.moveToNext());
                 }
@@ -166,24 +176,25 @@ public class SqlUtils {
     }
 
     /**
-     * Takes first {@link ModelClass} from the cursor
+     * Takes first {@link TModel} from the cursor
      *
      * @param dontMoveToFirst If it's a list or at a specific position, do not reset the cursor
      * @param table           The model class that we convert the cursor data into.
      * @param cursor          The cursor from the DB
-     * @param <ModelClass>    The class that implements {@link Model}
+     * @param <TModel>        The class that implements {@link Model}
      * @return A model transformed from the {@link Cursor}
+     * @deprecated see {@link SingleModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
-    public static <ModelClass extends Model> ModelClass convertToModel(boolean dontMoveToFirst, Class<ModelClass> table,
-                                                                       Cursor cursor) {
-        ModelClass model = null;
+    public static <TModel extends Model> TModel convertToModel(boolean dontMoveToFirst, Class<TModel> table,
+                                                               Cursor cursor) {
+        TModel model = null;
         if (dontMoveToFirst || cursor.moveToFirst()) {
             InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
 
             if (modelAdapter != null) {
-                model = (ModelClass) modelAdapter.newInstance();
+                model = (TModel) modelAdapter.newInstance();
                 modelAdapter.loadFromCursor(cursor, model);
             }
         }
@@ -201,6 +212,7 @@ public class SqlUtils {
      * @param modelContainer  The non-null modelcontainer to populate data into.
      * @param <ModelClass>    The class that implements {@link Model}
      * @return A model transformed from the {@link Cursor}
+     * @deprecated see {@link ModelContainerLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
@@ -231,6 +243,7 @@ public class SqlUtils {
      * @param cursor           The cursor from the DB
      * @param <CacheableClass> The class that implements {@link Model}
      * @return A model transformed from the {@link Cursor}
+     * @deprecated see {@link CacheableModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
@@ -268,6 +281,7 @@ public class SqlUtils {
      *                     values will be bound as Strings.
      * @param <ModelClass> The class implements {@link Model}
      * @return a single {@link ModelClass}
+     * see {@link SingleModelLoader}
      */
     @SuppressWarnings("unchecked")
     @Deprecated
@@ -290,7 +304,7 @@ public class SqlUtils {
 
     @Deprecated
     public static <ModelClass extends Model> boolean hasData(Class<ModelClass> table, String sql, String... args) {
-        BaseDatabaseDefinition flowManager = FlowManager.getDatabaseForTable(table);
+        DatabaseDefinition flowManager = FlowManager.getDatabaseForTable(table);
         Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
         boolean hasData = (cursor.getCount() > 0);
         cursor.close();
@@ -510,10 +524,14 @@ public class SqlUtils {
      * @param indexName    The name of the index.
      * @param <ModelClass> The class that implements {@link Model}
      */
-    public static <ModelClass extends Model> void dropIndex(Class<ModelClass> mOnTable, String indexName) {
+    public static <ModelClass extends Model> void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
             .append(QueryBuilder.quoteIfNeeded(indexName));
-        FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
+        databaseWrapper.execSQL(queryBuilder.getQuery());
+    }
+
+    public static <ModelClass extends Model> void dropIndex(Class<ModelClass> onTable, String indexName) {
+        dropIndex(FlowManager.getDatabaseForTable(onTable).getWritableDatabase(), indexName);
     }
 
     /**

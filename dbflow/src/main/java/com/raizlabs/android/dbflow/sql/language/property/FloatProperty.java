@@ -29,13 +29,37 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
     @Override
     public FloatProperty plus(IProperty iProperty) {
         return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public FloatProperty minus(IProperty iProperty) {
         return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.getName(), iProperty.toString()));
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty dividedBy(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty multipliedBy(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty mod(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+            nameAlias.getName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty concatenate(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
+            nameAlias.getName(), iProperty.toString()));
     }
 
     @Override

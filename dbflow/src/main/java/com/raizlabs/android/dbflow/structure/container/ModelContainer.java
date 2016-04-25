@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.structure.container;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -11,35 +12,33 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import java.util.Iterator;
 
 /**
- * Author: andrewgrosner
- * Description: The primary interface for converting data that acts like a {@link com.raizlabs.android.dbflow.structure.Model} into a model object
- * that it corresponds to. It is also used in {@link com.raizlabs.android.dbflow.structure.Column#FOREIGN_KEY} to save
- * and retrieve values of objects.
+ * Description: The primary interface for converting data that acts like a {@link Model} into a model object
+ * that it corresponds to. It is also used in {@link ForeignKey} to save and retrieve values of objects.
  */
-public interface ModelContainer<ModelClass extends Model, DataClass> extends Model {
+public interface ModelContainer<TModel extends Model, DataClass> extends Model {
 
     /**
-     * Will convert the object into {@link ModelClass}. It simply converts whatever is stored in this object
-     * into a {@link ModelClass} representation of it. If fields are missing, they will be empty or null.
+     * Will convert the object into {@link TModel}. It simply converts whatever is stored in this object
+     * into a {@link TModel} representation of it. If fields are missing, they will be empty or null.
      *
      * @return A model from this object's data. This will be cached for performance. To force a reload call {@link #toModelForce()}.
      */
     @Nullable
-    ModelClass toModel();
+    TModel toModel();
 
     /**
-     * Forces a re-conversion of the underlying data into a {@link ModelClass}/
+     * Forces a re-conversion of the underlying data into a {@link TModel}/
      *
      * @return The model from this object's data.
      */
     @Nullable
-    ModelClass toModelForce();
+    TModel toModelForce();
 
     /**
      * @return The model object contained (if converted).
      */
     @Nullable
-    ModelClass getModel();
+    TModel getModel();
 
     /**
      * @return The underlying data object that this container uses to imitate a model.
@@ -48,7 +47,7 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     DataClass getData();
 
     /**
-     * Changes the underlying data. This method should also invalidate the {@link ModelClass} in this container.
+     * Changes the underlying data. This method should also invalidate the {@link TModel} in this container.
      *
      * @param data The data to back this object.
      */
@@ -64,7 +63,7 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
      * @param inValue     The data to construct a new instance from
      * @param columnClass The Model type
      * @return new instance of this container with a different Model class when we have
-     * children who are {@link com.raizlabs.android.dbflow.structure.Model}
+     * children who are {@link Model}
      */
     BaseModelContainer getInstance(Object inValue, Class<? extends Model> columnClass);
 
@@ -236,12 +235,12 @@ public interface ModelContainer<ModelClass extends Model, DataClass> extends Mod
     void putDefault(IProperty property);
 
     /**
-     * @return The associated model adapter from the table for this {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
+     * @return The associated model adapter from the table for this {@link ModelContainer}
      */
-    ModelAdapter<ModelClass> getModelAdapter();
+    ModelAdapter<TModel> getModelAdapter();
 
     /**
      * @return the table that's associated with this container
      */
-    Class<ModelClass> getTable();
+    Class<TModel> getTable();
 }

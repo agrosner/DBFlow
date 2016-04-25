@@ -15,12 +15,12 @@ import java.util.List;
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
-public class AlterTableMigration<ModelClass extends Model> extends BaseMigration {
+public class AlterTableMigration<TModel extends Model> extends BaseMigration {
 
     /**
      * The table to ALTER
      */
-    private final Class<ModelClass> table;
+    private final Class<TModel> table;
 
     /**
      * The query we use
@@ -42,7 +42,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      */
     private String oldTableName;
 
-    public AlterTableMigration(Class<ModelClass> table) {
+    public AlterTableMigration(Class<TModel> table) {
         this.table = table;
     }
 
@@ -88,21 +88,21 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @param oldName The new name to call the table.
      * @return This instance
      */
-    public AlterTableMigration<ModelClass> renameFrom(@NonNull String oldName) {
+    public AlterTableMigration<TModel> renameFrom(@NonNull String oldName) {
         oldTableName = oldName;
         renameQuery = new QueryBuilder().append(" RENAME").appendSpaceSeparated("TO");
         return this;
     }
 
     /**
-     * Add a column to the DB. This does not necessarily need to be reflected in the {@link ModelClass},
+     * Add a column to the DB. This does not necessarily need to be reflected in the {@link TModel},
      * but it is recommended.
      *
      * @param sqLiteType The type of column represented in the DB.
      * @param columnName The name of the column to add. Use the "_Table" class for the specified table.
      * @return This instance
      */
-    public AlterTableMigration<ModelClass> addColumn(@NonNull SQLiteType sqLiteType, @NonNull String columnName) {
+    public AlterTableMigration<TModel> addColumn(@NonNull SQLiteType sqLiteType, @NonNull String columnName) {
         if (columnDefinitions == null) {
             columnDefinitions = new ArrayList<>();
         }
@@ -115,7 +115,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
     }
 
     /**
-     * Add a column to the DB. This does not necessarily need to be reflected in the {@link ModelClass},
+     * Add a column to the DB. This does not necessarily need to be reflected in the {@link TModel},
      * but it is recommended.
      *
      * @param columnType      The type of column that pertains to an {@link SQLiteType}
@@ -123,7 +123,7 @@ public class AlterTableMigration<ModelClass extends Model> extends BaseMigration
      * @param referenceClause The clause of the references that this foreign key points to.
      * @return This instance
      */
-    public AlterTableMigration<ModelClass> addForeignKeyColumn(SQLiteType sqLiteType, String columnName, String referenceClause) {
+    public AlterTableMigration<TModel> addForeignKeyColumn(SQLiteType sqLiteType, String columnName, String referenceClause) {
         if (columnDefinitions == null) {
             columnDefinitions = new ArrayList<>();
         }

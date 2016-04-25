@@ -6,9 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Author: andrewgrosner
  * Description: Marks a field as corresponding to a column in the DB.
- * When adding new columns or changing names, you need to define a new {@link com.raizlabs.android.dbflow.annotation.Migration}.
+ * When adding new columns or changing names, you need to define a new {@link Migration}.
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
@@ -30,7 +29,9 @@ public @interface Column {
     Collate collate() default Collate.NONE;
 
     /**
-     * @return Adds a default value for this column when saving. Note this will place it in when saving
+     * @return Adds a default value for this column when saving. This is a string representation
+     * of the value.
+     * Note this will place it in when saving
      * to the DB because we cannot know the intention of missing data from a query.
      */
     String defaultValue() default "";

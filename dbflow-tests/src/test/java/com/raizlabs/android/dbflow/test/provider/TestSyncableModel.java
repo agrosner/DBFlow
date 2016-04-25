@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.structure.provider.BaseSyncableProviderModel;
  * Description:
  */
 @Table(database = ContentDatabase.class)
-public class TestSyncableModel extends BaseSyncableProviderModel<TestSyncableModel> {
+public class TestSyncableModel extends BaseSyncableProviderModel {
 
     @Column
     @PrimaryKey(autoincrement = true)
