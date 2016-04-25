@@ -81,6 +81,8 @@ the configuration is highly minimal:
 
 ## Sections
 
+For migrating from 2.x to 3.0, read [here](/usage2/Migration3Guide.md)
+
 The list of documentation is listed here:
 
   [Getting Started](/usage2/GettingStarted.md)
@@ -97,8 +99,26 @@ The list of documentation is listed here:
 
   [The SQLite Wrapper Language](/usage2/SQLiteWrapperLanguage.md)
 
+  [Caching](/usage2/Caching.md)
+
+  [List-Based Queries](/usage2/ListBasedQueries.md)
+
+  [Migrations](/usage2/Migrations.md)
+
+  [Observability](/usage2/Observability.md)
+
+  [Type Converters](/usage2/TypeConverters.md)
+
 For advanced DBFlow usages:
+
+  [Kotlin Support](/usage2/KotlinSupport.md)
 
   [Multiple Modules](/usage2/MultipleModules.md)
 
+  [Views](/usage2/ModelViews.md)
+
   [Query Models](/usage2/QueryModels.md)
+
+  [Model Containers](/usage2/ModelContainers.md)
+
+  [Indexing](/usage2/Indexing.md)
