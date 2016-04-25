@@ -57,7 +57,7 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
     }
 
     @Override
-    public ShortProperty concat(IProperty iProperty) {
+    public ShortProperty concatenate(IProperty iProperty) {
         return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
                 nameAlias.getName(), iProperty.toString()));
     }

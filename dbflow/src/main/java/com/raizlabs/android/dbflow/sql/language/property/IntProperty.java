@@ -57,7 +57,7 @@ public class IntProperty extends BaseProperty<IntProperty> {
     }
 
     @Override
-    public IntProperty concat(IProperty iProperty) {
+    public IntProperty concatenate(IProperty iProperty) {
         return new IntProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
             nameAlias.getName(), iProperty.toString()));
     }

@@ -57,7 +57,7 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
     }
 
     @Override
-    public FloatProperty concat(IProperty iProperty) {
+    public FloatProperty concatenate(IProperty iProperty) {
         return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
             nameAlias.getName(), iProperty.toString()));
     }
