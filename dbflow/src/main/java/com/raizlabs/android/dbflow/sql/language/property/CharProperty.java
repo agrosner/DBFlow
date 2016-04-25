@@ -55,7 +55,7 @@ public class CharProperty extends BaseProperty<CharProperty> {
 
     @Override
     public CharProperty concat(IProperty iProperty) {
-        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
             nameAlias.getName(), iProperty.toString()));
     }
 

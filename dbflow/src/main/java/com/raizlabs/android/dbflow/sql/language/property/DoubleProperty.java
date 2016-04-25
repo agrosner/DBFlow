@@ -58,7 +58,7 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
 
     @Override
     public DoubleProperty concat(IProperty iProperty) {
-        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
             nameAlias.getName(), iProperty.toString()));
     }
 

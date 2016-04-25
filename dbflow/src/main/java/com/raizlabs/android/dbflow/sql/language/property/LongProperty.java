@@ -58,7 +58,7 @@ public class LongProperty extends BaseProperty<LongProperty> {
 
     @Override
     public LongProperty concat(IProperty iProperty) {
-        return new LongProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+        return new LongProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
             nameAlias.getName(), iProperty.toString()));
     }
 

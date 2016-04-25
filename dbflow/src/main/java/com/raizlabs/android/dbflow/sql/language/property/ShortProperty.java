@@ -29,37 +29,37 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
     @Override
     public ShortProperty plus(IProperty iProperty) {
         return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty minus(IProperty iProperty) {
         return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty dividedBy(IProperty iProperty) {
         return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty multipliedBy(IProperty iProperty) {
         return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty mod(IProperty iProperty) {
         return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.getName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty concat(IProperty iProperty) {
-        return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-            nameAlias.getName(), iProperty.toString()));
+        return new ShortProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
+                nameAlias.getName(), iProperty.toString()));
     }
 
     @Override

@@ -2,12 +2,12 @@ package com.raizlabs.dbflow.android.sqlcipher;
 
 import android.content.Context;
 
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
-import com.raizlabs.android.dbflow.annotation.Database;
+import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.BaseDatabaseHelper;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
@@ -15,7 +15,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 /**
- * Description: The replacement {@link OpenHelper} for SQLCipher. Specify a subclass of this is {@link Database#sqlHelperClass()}
+ * Description: The replacement {@link OpenHelper} for SQLCipher. Specify a subclass of this is {@link DatabaseConfig#databaseClass()}
  * of your database to get it to work with specifying the secret you use for the database.
  */
 public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements OpenHelper {
@@ -31,7 +31,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                databaseDefinition.getDatabaseVersion(), databaseDefinition);
+                    databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
         databaseHelperDelegate = new DatabaseHelperDelegate(listener, databaseDefinition, backupHelper);
