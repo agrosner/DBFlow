@@ -76,8 +76,8 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
     }
 
     @Override
-    public Property<T> concat(IProperty iProperty) {
-        return new Property<>(table, NameAlias.joinNames(Condition.Operation.MOD,
+    public Property<T> concatenate(IProperty iProperty) {
+        return new Property<>(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
             nameAlias.getName(), iProperty.toString()));
     }
 

@@ -61,10 +61,10 @@ public interface IProperty<P extends IProperty> extends Query {
     /**
      * Concats another property and returns as a new propert.y i.e. p1 || p2
      *
-     * @param iProperty The property to concat.
+     * @param iProperty The property to concatenate.
      * @return A new instance.
      */
-    P concat(IProperty iProperty);
+    P concatenate(IProperty iProperty);
 
     /**
      * @return Appends DISTINCT to the property name. This is handy in {@link Method} queries.

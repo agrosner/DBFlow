@@ -20,12 +20,14 @@ public class ComplexModelTest extends FlowTestCase {
 
         JSONModel<TestModel1> jsonModel = new JSONModel<>(TestModel1.class);
         jsonModel.put(name, "Test");
+        jsonModel.save();
 
         complexModel.testModel1 = jsonModel;
 
         MapModelContainer<TestModel2> mapModelContainer = new MapModelContainer<>(TestModel2.class);
         mapModelContainer.put(name, "Test1");
         mapModelContainer.put(model_order, 1);
+        mapModelContainer.save();
 
         complexModel.mapModelContainer = mapModelContainer;
 

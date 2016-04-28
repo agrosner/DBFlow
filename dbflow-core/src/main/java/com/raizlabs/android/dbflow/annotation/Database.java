@@ -54,11 +54,6 @@ public @interface Database {
     boolean inMemory() default false;
 
     /**
-     * @return A custom FlowSQLiteOpenHelper that you can define custom.
-     */
-    Class<?> sqlHelperClass() default Void.class;
-
-    /**
      * @return Global default insert conflict that can be applied to any table when it leaves
      * its {@link ConflictAction} as NONE.
      */

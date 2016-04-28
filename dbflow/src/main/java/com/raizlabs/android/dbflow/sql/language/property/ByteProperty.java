@@ -62,9 +62,10 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
     }
 
     @Override
-    public ByteProperty concat(IProperty iProperty) {
+    public ByteProperty concatenate(IProperty iProperty) {
         return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
-            nameAlias.getName(), iProperty.toString()));    }
+                nameAlias.getName(), iProperty.toString()));
+    }
 
     @Override
     public ByteProperty distinct() {
