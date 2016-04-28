@@ -14,4 +14,6 @@ public interface OpenHelper {
     void backupDB();
 
     void setDatabaseListener(DatabaseHelperListener helperListener);
+
+    void closeDB();
 }

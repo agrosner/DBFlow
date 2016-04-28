@@ -74,7 +74,7 @@ public abstract class DatabaseDefinition {
     @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
         databaseConfig = FlowManager.getConfig()
-                .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+            .databaseConfigMap().get(getAssociatedDatabaseClassFile());
 
 
         if (databaseConfig != null) {
@@ -206,7 +206,7 @@ public abstract class DatabaseDefinition {
     public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                    .get(getAssociatedDatabaseClassFile());
+                .get(getAssociatedDatabaseClassFile());
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {
@@ -286,6 +286,7 @@ public abstract class DatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             getTransactionManager().stopQueue();
+            getHelper().closeDB();
             context.deleteDatabase(getDatabaseFileName());
 
             // recreate queue after interrupting it.
