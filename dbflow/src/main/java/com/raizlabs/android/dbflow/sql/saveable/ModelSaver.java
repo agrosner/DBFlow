@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
 import android.content.ContentValues;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -20,6 +22,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * an update, execute a {@link DatabaseStatement}, or delete an object via the {@link Delete} wrapper.
  */
 public class ModelSaver {
+
+    private static final Handler CLEAN_UP_HANDLER = new Handler(Looper.getMainLooper());
 
     public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
@@ -76,7 +80,7 @@ public class ModelSaver {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
-        insertStatement.close();
+        closeInsertStatementAsync(insertStatement);
         if (id > -1) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
@@ -90,7 +94,7 @@ public class ModelSaver {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
-        insertStatement.close();
+        closeInsertStatementAsync(insertStatement);
         if (id > -1) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
@@ -114,5 +118,14 @@ public class ModelSaver {
         }
         adapter.updateAutoIncrement(model, 0);
         return successful;
+    }
+
+    private void closeInsertStatementAsync(final DatabaseStatement insertStatement) {
+        CLEAN_UP_HANDLER.post(new Runnable() {
+            @Override
+            public void run() {
+                insertStatement.close();
+            }
+        });
     }
 }
