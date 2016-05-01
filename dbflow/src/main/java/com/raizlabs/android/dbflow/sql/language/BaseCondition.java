@@ -124,7 +124,7 @@ abstract class BaseCondition implements SQLCondition {
     /**
      * The column name
      */
-    protected NameAlias nameAlias;
+    protected NameAlias2 nameAlias;
 
     /**
      * A custom SQL statement after the value of the Condition
@@ -146,7 +146,7 @@ abstract class BaseCondition implements SQLCondition {
      */
     protected boolean isValueSet;
 
-    BaseCondition(NameAlias nameAlias) {
+    BaseCondition(NameAlias2 nameAlias) {
         this.nameAlias = nameAlias;
     }
 
@@ -202,7 +202,7 @@ abstract class BaseCondition implements SQLCondition {
     /**
      * @return internal alias used for subclasses.
      */
-    NameAlias columnAlias() {
+    NameAlias2 columnAlias() {
         return nameAlias;
     }
 

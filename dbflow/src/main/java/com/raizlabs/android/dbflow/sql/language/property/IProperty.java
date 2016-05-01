@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.NameAlias2;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 
@@ -88,12 +89,12 @@ public interface IProperty<P extends IProperty> extends Query {
      * <p/>
      * The resulting column name becomes `tableName`.`columnName`.
      */
-    P withTable(NameAlias tableNameAlias);
+    P withTable(NameAlias2 tableNameAlias);
 
     /**
      * @return The underlying {@link NameAlias} that represents the name of this property.
      */
-    NameAlias getNameAlias();
+    NameAlias2 getNameAlias();
 
     /**
      * @return The key used in {@link ModelContainer} referencing.

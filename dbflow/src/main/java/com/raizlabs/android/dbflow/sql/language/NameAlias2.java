@@ -9,20 +9,49 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
  */
 public class NameAlias2 implements Query {
 
+    /**
+     * Combines any number of names into a single {@link NameAlias} separated by some operation.
+     *
+     * @param operation The operation to separate into.
+     * @param names     The names to join.
+     * @return The new namealias object.
+     */
+    public static NameAlias2 joinNames(String operation, String... names) {
+        if (names.length == 0) {
+            return null;
+        }
+        String newName = "";
+        for (int i = 0; i < names.length; i++) {
+            if (i > 0) {
+                newName += " " + operation + " ";
+            }
+            newName += names[i];
+        }
+        return new Builder(newName).shouldStripIdentifier(false).build();
+    }
+
     private final String name;
     private final String aliasName;
     private final String tableName;
+    private final String keyword;
     private final boolean shouldStripIdentifier;
+    private final boolean shouldStripAliasName;
 
-    public NameAlias2(Builder builder) {
+    private NameAlias2(Builder builder) {
         if (builder.shouldStripIdentifier) {
             name = QueryBuilder.stripQuotes(builder.name);
         } else {
             name = builder.name;
         }
-        aliasName = builder.aliasName;
+        keyword = builder.keyword;
+        if (builder.shouldStripAliasName) {
+            aliasName = QueryBuilder.stripQuotes(builder.aliasName);
+        } else {
+            aliasName = builder.aliasName;
+        }
         tableName = builder.tableName;
         shouldStripIdentifier = builder.shouldStripIdentifier;
+        shouldStripAliasName = builder.shouldStripAliasName;
     }
 
     /**
@@ -40,10 +69,24 @@ public class NameAlias2 implements Query {
     }
 
     /**
+     * @return The alias name, stripped from identifier syntax completely.
+     */
+    public String aliasNameRaw() {
+        return shouldStripAliasName ? aliasName : QueryBuilder.stripQuotes(aliasName);
+    }
+
+    /**
      * @return the table name of this query, if specified.
      */
     public String tableName() {
         return tableName;
+    }
+
+    /**
+     * @return The keyword that prefixes this alias.
+     */
+    public String keyword() {
+        return keyword;
     }
 
     /**
@@ -54,10 +97,17 @@ public class NameAlias2 implements Query {
     }
 
     /**
-     * @return The `{tableName}`.`{name}`.
+     * @return true if the alias was stripped from identifier, false if not.
+     */
+    public boolean shouldStripAliasName() {
+        return shouldStripAliasName;
+    }
+
+    /**
+     * @return The `{tableName}`.`{name}`. If {@link #tableName()} specified.
      */
     public String fullName() {
-        return tableName() + "." + name();
+        return (StringUtils.isNotNullOrEmpty(tableName()) ? (tableName() + ".") : "") + name();
     }
 
     /**
@@ -67,10 +117,33 @@ public class NameAlias2 implements Query {
     @Override
     public String getQuery() {
         if (StringUtils.isNotNullOrEmpty(aliasName())) {
-            return fullName();
-        } else {
             return aliasName();
+        } else {
+            return fullName();
         }
+    }
+
+    /**
+     * @return The full query that represents itself with `{tableName}`.`{name}` AS `{aliasName}`
+     */
+    public String getFullQuery() {
+        String query = fullName() + " AS " + aliasName();
+        if (StringUtils.isNotNullOrEmpty(keyword)) {
+            query = keyword + " " + query;
+        }
+        return query;
+    }
+
+    /**
+     * @return Constructs a builder as a new instance that can be modified without fear.
+     */
+    public Builder newBuilder() {
+        return new Builder(name)
+                .keyword(keyword)
+                .as(aliasName)
+                .shouldStripAliasName(shouldStripAliasName)
+                .shouldStripIdentifier(shouldStripIdentifier)
+                .withTable(tableName);
     }
 
 
@@ -79,10 +152,27 @@ public class NameAlias2 implements Query {
         private final String name;
         private String aliasName;
         private String tableName;
-        private boolean shouldStripIdentifier;
+        private boolean shouldStripIdentifier = true;
+        private boolean shouldStripAliasName = true;
+        private String keyword;
 
         public Builder(String name) {
             this.name = name;
+        }
+
+        /**
+         * Appends a DISTINCT that prefixes this alias class.
+         */
+        public Builder distinct() {
+            return keyword("DISTINCT");
+        }
+
+        /**
+         * Appends a keyword that prefixes this alias class.
+         */
+        public Builder keyword(String keyword) {
+            this.keyword = keyword;
+            return this;
         }
 
         /**
@@ -107,6 +197,15 @@ public class NameAlias2 implements Query {
          */
         public Builder shouldStripIdentifier(boolean shouldStripIdentifier) {
             this.shouldStripIdentifier = shouldStripIdentifier;
+            return this;
+        }
+
+        /**
+         * @param shouldStripAliasName If true, we normalize the identifier {@link #aliasName} from any
+         *                             ticks around the name. If false, we leave it as such.
+         */
+        public Builder shouldStripAliasName(boolean shouldStripAliasName) {
+            this.shouldStripAliasName = shouldStripAliasName;
             return this;
         }
 

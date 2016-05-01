@@ -23,27 +23,6 @@ public class NameAlias implements Query {
     boolean shouldStripTicks;
 
     /**
-     * Combines any number of names into a single {@link NameAlias} separated by some operation.
-     *
-     * @param operation The operation to separate into.
-     * @param names     The names to join.
-     * @return The new namealias object.
-     */
-    public static NameAlias joinNames(String operation, String... names) {
-        if (names.length == 0) {
-            return null;
-        }
-        String newName = "";
-        for (int i = 0; i < names.length; i++) {
-            if (i > 0) {
-                newName += " " + operation + " ";
-            }
-            newName += names[i];
-        }
-        return new NameAlias(newName, false).tickName(false);
-    }
-
-    /**
      * Internal usage only. We don't strip out ticks in a name ot preserve its compound name state.
      *
      * @param name             The name of this {@link NameAlias}.

@@ -133,7 +133,7 @@ public class Method extends Property {
     }
 
     @Override
-    public NameAlias getNameAlias() {
+    public NameAlias2 getNameAlias() {
         if (nameAlias == null) {
             String query = methodProperty.getQuery();
             if (query == null) {
