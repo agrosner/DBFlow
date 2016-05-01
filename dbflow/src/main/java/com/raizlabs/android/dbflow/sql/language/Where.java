@@ -110,7 +110,7 @@ public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
     }
 
     @Override
-    public Where<TModel> groupBy(NameAlias... columns) {
+    public Where<TModel> groupBy(NameAlias2... columns) {
         Collections.addAll(groupByList, columns);
         return this;
     }
@@ -136,7 +136,7 @@ public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
     }
 
     @Override
-    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias2 nameAlias, boolean ascending) {
         orderByList.add(new OrderBy(nameAlias, ascending));
         return this;
     }

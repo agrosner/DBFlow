@@ -21,7 +21,7 @@ public class Index<TModel extends Model> implements Query {
 
     private final String indexName;
     private Class<TModel> table;
-    private List<NameAlias> columns;
+    private List<NameAlias2> columns;
     private boolean isUnique = false;
 
     /**
@@ -67,10 +67,10 @@ public class Index<TModel extends Model> implements Query {
      * @param columns The columns to create an index for.
      * @return This instance.
      */
-    public Index<TModel> on(@NonNull Class<TModel> table, NameAlias firstAlias, NameAlias... columns) {
+    public Index<TModel> on(@NonNull Class<TModel> table, NameAlias2 firstAlias, NameAlias2... columns) {
         this.table = table;
         and(firstAlias);
-        for (NameAlias column : columns) {
+        for (NameAlias2 column : columns) {
             and(column);
         }
         return this;
@@ -95,7 +95,7 @@ public class Index<TModel extends Model> implements Query {
      * @param columnName The name of the column. If already exists, this column will not be added
      * @return This instance.
      */
-    public Index<TModel> and(NameAlias columnName) {
+    public Index<TModel> and(NameAlias2 columnName) {
         if (!columns.contains(columnName)) {
             columns.add(columnName);
         }

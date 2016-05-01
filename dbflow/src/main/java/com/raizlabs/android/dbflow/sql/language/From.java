@@ -29,7 +29,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     /**
      * An alias for the table
      */
-    private NameAlias tableAlias;
+    private NameAlias2 tableAlias;
 
     /**
      * Enables the SQL JOIN statement
@@ -45,7 +45,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     public From(Query querybase, Class<TModel> table) {
         super(table);
         queryBase = querybase;
-        tableAlias = new NameAlias(FlowManager.getTableName(table));
+        tableAlias = new NameAlias2.Builder(FlowManager.getTableName(table)).build();
     }
 
     /**
@@ -55,7 +55,10 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      * @return This FROM statement
      */
     public From<TModel> as(String alias) {
-        tableAlias.as(alias);
+        tableAlias = tableAlias
+                .newBuilder()
+                .as(alias)
+                .build();
         return this;
     }
 
@@ -75,7 +78,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     /**
      * Adds a {@link Join.JoinType#CROSS} join on a specific table for this query.
      *
-     * @param table       The table to join on.
+     * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
@@ -86,7 +89,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     /**
      * Adds a {@link Join.JoinType#INNER} join on a specific table for this query.
      *
-     * @param table       The table to join on.
+     * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
@@ -97,7 +100,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     /**
      * Adds a {@link Join.JoinType#LEFT_OUTER} join on a specific table for this query.
      *
-     * @param table       The table to join on.
+     * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
@@ -186,7 +189,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     }
 
     @Override
-    public Where<TModel> groupBy(NameAlias... nameAliases) {
+    public Where<TModel> groupBy(NameAlias2... nameAliases) {
         return where().groupBy(nameAliases);
     }
 
@@ -196,7 +199,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     }
 
     @Override
-    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias2 nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 

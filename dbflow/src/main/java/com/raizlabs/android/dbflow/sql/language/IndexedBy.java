@@ -31,7 +31,7 @@ public class IndexedBy<TModel extends Model> implements WhereBase<TModel>, Trans
     }
 
     @Override
-    public Where<TModel> groupBy(NameAlias... nameAliases) {
+    public Where<TModel> groupBy(NameAlias2... nameAliases) {
         return where().groupBy(nameAliases);
     }
 
@@ -41,7 +41,7 @@ public class IndexedBy<TModel extends Model> implements WhereBase<TModel>, Trans
     }
 
     @Override
-    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias2 nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 

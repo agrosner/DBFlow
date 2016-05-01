@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.sql.language.property;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
-import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.NameAlias2;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -15,57 +14,59 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class ShortProperty extends BaseProperty<ShortProperty> {
 
-    public ShortProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public ShortProperty(Class<? extends Model> table, NameAlias2 nameAlias) {
         super(table, nameAlias);
     }
 
     public ShortProperty(Class<? extends Model> table, String columnName) {
-        this(table, new NameAlias(columnName));
+        this(table, new NameAlias2.Builder(columnName).build());
     }
 
     public ShortProperty(Class<? extends Model> table, String columnName, String aliasName) {
-        this(table, new NameAlias(columnName, aliasName));
+        this(table, new NameAlias2.Builder(columnName).as(aliasName).build());
     }
 
     @Override
     public ShortProperty plus(IProperty iProperty) {
         return new ShortProperty(table, NameAlias2.joinNames(Condition.Operation.PLUS,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty minus(IProperty iProperty) {
         return new ShortProperty(table, NameAlias2.joinNames(Condition.Operation.MINUS,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty dividedBy(IProperty iProperty) {
         return new ShortProperty(table, NameAlias2.joinNames(Condition.Operation.DIVISION,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty multipliedBy(IProperty iProperty) {
         return new ShortProperty(table, NameAlias2.joinNames(Condition.Operation.MULTIPLY,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty mod(IProperty iProperty) {
         return new ShortProperty(table, NameAlias2.joinNames(Condition.Operation.MOD,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty concatenate(IProperty iProperty) {
         return new ShortProperty(table, NameAlias2.joinNames(Condition.Operation.CONCATENATE,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ShortProperty as(String aliasName) {
-        return new ShortProperty(table, nameAlias.getAliasNameRaw(), aliasName);
+        return new ShortProperty(table, nameAlias
+                .newBuilder()
+                .as(aliasName).build());
     }
 
     @Override
@@ -75,7 +76,10 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
 
     @Override
     public ShortProperty withTable(NameAlias2 tableNameAlias) {
-        return new ShortProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
+        return new ShortProperty(table, nameAlias
+                .newBuilder()
+                .withTable(tableNameAlias.getQuery())
+                .build());
     }
 
     public Condition is(short value) {

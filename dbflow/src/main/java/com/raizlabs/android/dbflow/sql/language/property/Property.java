@@ -41,12 +41,6 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
         }
     }
 
-    Property(Class<? extends Model> table, String columnName, String aliasName, boolean shouldTickName, boolean shouldStripTicks) {
-        this(table, new NameAlias2.Builder(columnName)
-                .shouldStripIdentifier(shouldStripTicks)
-                .as(aliasName).tickName(shouldTickName));
-    }
-
     @Override
     public Property<T> plus(IProperty iProperty) {
         return new Property<>(table, NameAlias2.joinNames(Condition.Operation.PLUS,

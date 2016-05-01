@@ -123,6 +123,11 @@ public class NameAlias2 implements Query {
         }
     }
 
+    @Override
+    public String toString() {
+        return getFullQuery();
+    }
+
     /**
      * @return The full query that represents itself with `{tableName}`.`{name}` AS `{aliasName}`
      */

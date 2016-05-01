@@ -67,7 +67,7 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
     /**
      * The alias to name the JOIN
      */
-    private NameAlias alias;
+    private NameAlias2 alias;
 
     /**
      * The ON conditions
@@ -88,7 +88,7 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
         this.from = from;
         this.table = table;
         type = joinType;
-        alias = new NameAlias(FlowManager.getTableName(table));
+        alias = new NameAlias2.Builder(FlowManager.getTableName(table)).build();
     }
 
     /**
@@ -98,7 +98,10 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
      * @return This instance
      */
     public Join<TModel, TFromModel> as(String alias) {
-        this.alias.as(alias);
+        this.alias = this.alias
+                .newBuilder()
+                .as(alias)
+                .build();
         return this;
     }
 
@@ -147,7 +150,7 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
 
         queryBuilder.append("JOIN")
                 .appendSpace()
-                .append(alias.getDefinition())
+                .append(alias.getFullQuery())
                 .appendSpace();
 
         if (on != null) {
