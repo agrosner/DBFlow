@@ -150,7 +150,8 @@ public class Method extends Property {
 
             }
             query += ")";
-            nameAlias = new NameAlias2.Builder(query).shouldStripIdentifier(false).build();
+            nameAlias = NameAlias2.Builder.rawBuilder(query)
+                    .build();
         }
         return nameAlias;
     }

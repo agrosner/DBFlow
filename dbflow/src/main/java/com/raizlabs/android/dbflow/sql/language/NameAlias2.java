@@ -36,6 +36,8 @@ public class NameAlias2 implements Query {
     private final String keyword;
     private final boolean shouldStripIdentifier;
     private final boolean shouldStripAliasName;
+    private final boolean shouldAddIdentifierToQuery;
+    private final boolean shouldAddIdentifierToAliasName;
 
     private NameAlias2(Builder builder) {
         if (builder.shouldStripIdentifier) {
@@ -49,23 +51,25 @@ public class NameAlias2 implements Query {
         } else {
             aliasName = builder.aliasName;
         }
-        tableName = builder.tableName;
+        tableName = QueryBuilder.quoteIfNeeded(builder.tableName);
         shouldStripIdentifier = builder.shouldStripIdentifier;
         shouldStripAliasName = builder.shouldStripAliasName;
+        shouldAddIdentifierToQuery = builder.shouldAddIdentifierToQuery;
+        shouldAddIdentifierToAliasName = builder.shouldAddIdentifierToAliasName;
     }
 
     /**
      * @return The real column name.
      */
     public String name() {
-        return name;
+        return shouldAddIdentifierToQuery ? QueryBuilder.quoteIfNeeded(name) : name;
     }
 
     /**
      * @return The name used as part of the AS query.
      */
     public String aliasName() {
-        return aliasName;
+        return shouldAddIdentifierToAliasName ? QueryBuilder.quoteIfNeeded(aliasName) : aliasName;
     }
 
     /**
@@ -132,7 +136,10 @@ public class NameAlias2 implements Query {
      * @return The full query that represents itself with `{tableName}`.`{name}` AS `{aliasName}`
      */
     public String getFullQuery() {
-        String query = fullName() + " AS " + aliasName();
+        String query = fullName();
+        if (StringUtils.isNotNullOrEmpty(aliasName())) {
+            query += " AS " + aliasName();
+        }
         if (StringUtils.isNotNullOrEmpty(keyword)) {
             query = keyword + " " + query;
         }
@@ -159,7 +166,23 @@ public class NameAlias2 implements Query {
         private String tableName;
         private boolean shouldStripIdentifier = true;
         private boolean shouldStripAliasName = true;
+        private boolean shouldAddIdentifierToQuery = true;
+        private boolean shouldAddIdentifierToAliasName = true;
         private String keyword;
+
+        public static Builder builder(String name) {
+            return new Builder(name);
+        }
+
+        /**
+         * @param name The raw name of this alias.
+         * @return A new instance without adding identifier `` to any part of the query.
+         */
+        public static Builder rawBuilder(String name) {
+            return new Builder(name)
+                    .shouldStripIdentifier(false)
+                    .shouldAddIdentifierToName(false);
+        }
 
         public Builder(String name) {
             this.name = name;
@@ -211,6 +234,23 @@ public class NameAlias2 implements Query {
          */
         public Builder shouldStripAliasName(boolean shouldStripAliasName) {
             this.shouldStripAliasName = shouldStripAliasName;
+            return this;
+        }
+
+        /**
+         * @param shouldAddIdentifierToName If true (default), we add the identifier to the name: `{name}`
+         */
+        public Builder shouldAddIdentifierToName(boolean shouldAddIdentifierToName) {
+            this.shouldAddIdentifierToQuery = shouldAddIdentifierToName;
+            return this;
+        }
+
+        /**
+         * @param shouldAddIdentifierToAliasName If true (default), we add an identifier to the alias
+         *                                       name. `{aliasName}`
+         */
+        public Builder shouldAddIdentifierToAliasName(boolean shouldAddIdentifierToAliasName) {
+            this.shouldAddIdentifierToAliasName = shouldAddIdentifierToAliasName;
             return this;
         }
 

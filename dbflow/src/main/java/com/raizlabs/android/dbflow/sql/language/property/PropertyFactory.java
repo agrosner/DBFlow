@@ -20,8 +20,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static CharProperty from(char c) {
-        return new CharProperty(null, new NameAlias2.Builder("'" + c + "'")
-                .shouldStripIdentifier(false)
+        return new CharProperty(null, NameAlias2.Builder.rawBuilder("'" + c + "'")
                 .build());
     }
 
@@ -32,8 +31,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static IntProperty from(int i) {
-        return new IntProperty(null, new NameAlias2.Builder(i + "")
-                .shouldStripIdentifier(false)
+        return new IntProperty(null, NameAlias2.Builder.rawBuilder(i + "")
                 .build());
     }
 
@@ -44,8 +42,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static DoubleProperty from(double d) {
-        return new DoubleProperty(null, new NameAlias2.Builder(d + "")
-                .shouldStripIdentifier(false)
+        return new DoubleProperty(null, NameAlias2.Builder.rawBuilder(d + "")
                 .build());
     }
 
@@ -56,8 +53,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static LongProperty from(long l) {
-        return new LongProperty(null, new NameAlias2.Builder(l + "")
-                .shouldStripIdentifier(false)
+        return new LongProperty(null, NameAlias2.Builder.rawBuilder(l + "")
                 .build());
     }
 
@@ -68,8 +64,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static FloatProperty from(float f) {
-        return new FloatProperty(null, new NameAlias2.Builder(f + "")
-                .shouldStripIdentifier(false)
+        return new FloatProperty(null, NameAlias2.Builder.rawBuilder(f + "")
                 .build());
     }
 
@@ -80,8 +75,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static ShortProperty from(short s) {
-        return new ShortProperty(null, new NameAlias2.Builder(s + "")
-                .shouldStripIdentifier(false)
+        return new ShortProperty(null, NameAlias2.Builder.rawBuilder(s + "")
                 .build());
     }
 
@@ -92,8 +86,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static ByteProperty from(byte b) {
-        return new ByteProperty(null, new NameAlias2.Builder(b + "")
-                .shouldStripIdentifier(false)
+        return new ByteProperty(null, NameAlias2.Builder.rawBuilder(b + "")
                 .build());
     }
 
@@ -109,9 +102,8 @@ public class PropertyFactory {
      * @return A new property with its type.
      */
     public static <T> Property<T> from(@Nullable T type) {
-        return new Property<>(null, new NameAlias2.Builder(
-                Condition.convertValueToString(type)).
-                shouldStripIdentifier(false)
+        return new Property<>(null, NameAlias2.Builder.rawBuilder(
+                Condition.convertValueToString(type))
                 .build());
     }
 
@@ -135,8 +127,7 @@ public class PropertyFactory {
      * @return A new property with its type.
      */
     public static <T> Property<T> from(@Nullable Class<T> type, String stringRepresentation) {
-        return new Property<>(null, new NameAlias2.Builder(stringRepresentation)
-                .shouldStripIdentifier(false)
+        return new Property<>(null, NameAlias2.Builder.rawBuilder(stringRepresentation)
                 .build());
     }
 }
