@@ -151,12 +151,11 @@ public class ProcessorManager implements Handler {
 
     public void addManyToManyDefinition(ManyToManyDefinition manyToManyDefinition) {
         DatabaseHolderDefinition databaseHolderDefinition = getOrPutDatabase(manyToManyDefinition.databaseTypeName);
-        databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinition);
-        if (databaseHolderDefinition.manyToManyDefinitionMap.containsKey(manyToManyDefinition.outputClassName)) {
-            logError("Found duplicate table %1s for database %1s", manyToManyDefinition.outputClassName,
+        if (databaseHolderDefinition.manyToManyDefinitionMap.containsKey(manyToManyDefinition.elementClassName)) {
+            logError("Found duplicate table %1s for database %1s", manyToManyDefinition.elementClassName,
                     manyToManyDefinition.databaseTypeName);
         } else {
-            databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.outputClassName, manyToManyDefinition);
+            databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinition);
         }
     }
 
@@ -286,19 +285,20 @@ public class ProcessorManager implements Handler {
         for (DatabaseHolderDefinition databaseDefinition : databaseDefinitions) {
             try {
 
+                if (databaseDefinition.getDatabaseDefinition() == null) {
+                    continue;
+                }
+
                 Collection<ManyToManyDefinition> manyToManyDefinitions =
                         databaseDefinition.manyToManyDefinitionMap.values();
                 for (ManyToManyDefinition manyToMany : manyToManyDefinitions) {
+                    manyToMany.prepareForWrite();
                     WriterUtils.writeBaseDefinition(manyToMany, processorManager);
                 }
 
                 if (!manyToManyDefinitions.isEmpty()) {
                     // process database on later round.
                     manyToManyDefinitions.clear();
-                    continue;
-                }
-
-                if (databaseDefinition.getDatabaseDefinition() == null) {
                     continue;
                 }
 

@@ -50,6 +50,9 @@ public class ManyToManyDefinition extends BaseDefinition {
             databaseTypeName = TypeName.get(mte.getTypeMirror());
         }
 
+    }
+
+    public void prepareForWrite() {
         DatabaseDefinition databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).getDatabaseDefinition();
         if (databaseDefinition == null) {
             manager.logError("DatabaseDefinition was null for : " + elementName);

@@ -136,8 +136,10 @@ public class NameAlias2 implements Query {
     public String getQuery() {
         if (StringUtils.isNotNullOrEmpty(aliasName)) {
             return aliasName();
-        } else {
+        } else if (StringUtils.isNotNullOrEmpty(name)) {
             return fullName();
+        } else {
+            return "";
         }
     }
 
