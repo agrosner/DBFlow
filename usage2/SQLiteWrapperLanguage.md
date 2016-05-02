@@ -148,7 +148,7 @@ List<CustomTable> customers = new Select()
   .from(Customer.class).as("C")   
   .join(Reservations.class, JoinType.INNER).as("R")    
   .on(Customer_Table.customerId
-      .withTable(new NameAlias("C"))
+      .withTable(NameAlias.builder("C").build())
     .eq(Reservations_Table.customerId.withTable("R"))
     .queryCustomList(CustomTable.class);
 ```
