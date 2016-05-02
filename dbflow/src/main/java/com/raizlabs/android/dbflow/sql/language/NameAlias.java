@@ -28,7 +28,21 @@ public class NameAlias implements Query {
             }
             newName += names[i];
         }
-        return new Builder(newName).shouldStripIdentifier(false).build();
+        return rawBuilder(newName).build();
+    }
+
+    public static Builder builder(String name) {
+        return new Builder(name);
+    }
+
+    /**
+     * @param name The raw name of this alias.
+     * @return A new instance without adding identifier `` to any part of the query.
+     */
+    public static Builder rawBuilder(String name) {
+        return new Builder(name)
+                .shouldStripIdentifier(false)
+                .shouldAddIdentifierToName(false);
     }
 
     private final String name;
@@ -199,20 +213,6 @@ public class NameAlias implements Query {
         private boolean shouldAddIdentifierToQuery = true;
         private boolean shouldAddIdentifierToAliasName = true;
         private String keyword;
-
-        public static Builder builder(String name) {
-            return new Builder(name);
-        }
-
-        /**
-         * @param name The raw name of this alias.
-         * @return A new instance without adding identifier `` to any part of the query.
-         */
-        public static Builder rawBuilder(String name) {
-            return new Builder(name)
-                    .shouldStripIdentifier(false)
-                    .shouldAddIdentifierToName(false);
-        }
 
         public Builder(String name) {
             this.name = name;

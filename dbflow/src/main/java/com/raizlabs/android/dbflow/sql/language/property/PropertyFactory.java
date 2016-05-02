@@ -20,7 +20,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static CharProperty from(char c) {
-        return new CharProperty(null, NameAlias.Builder.rawBuilder("'" + c + "'")
+        return new CharProperty(null, NameAlias.rawBuilder("'" + c + "'")
                 .build());
     }
 
@@ -31,7 +31,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static IntProperty from(int i) {
-        return new IntProperty(null, NameAlias.Builder.rawBuilder(i + "")
+        return new IntProperty(null, NameAlias.rawBuilder(i + "")
                 .build());
     }
 
@@ -42,7 +42,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static DoubleProperty from(double d) {
-        return new DoubleProperty(null, NameAlias.Builder.rawBuilder(d + "")
+        return new DoubleProperty(null, NameAlias.rawBuilder(d + "")
                 .build());
     }
 
@@ -53,7 +53,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static LongProperty from(long l) {
-        return new LongProperty(null, NameAlias.Builder.rawBuilder(l + "")
+        return new LongProperty(null, NameAlias.rawBuilder(l + "")
                 .build());
     }
 
@@ -64,7 +64,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static FloatProperty from(float f) {
-        return new FloatProperty(null, NameAlias.Builder.rawBuilder(f + "")
+        return new FloatProperty(null, NameAlias.rawBuilder(f + "")
                 .build());
     }
 
@@ -75,7 +75,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static ShortProperty from(short s) {
-        return new ShortProperty(null, NameAlias.Builder.rawBuilder(s + "")
+        return new ShortProperty(null, NameAlias.rawBuilder(s + "")
                 .build());
     }
 
@@ -86,7 +86,7 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static ByteProperty from(byte b) {
-        return new ByteProperty(null, NameAlias.Builder.rawBuilder(b + "")
+        return new ByteProperty(null, NameAlias.rawBuilder(b + "")
                 .build());
     }
 
@@ -102,7 +102,7 @@ public class PropertyFactory {
      * @return A new property with its type.
      */
     public static <T> Property<T> from(@Nullable T type) {
-        return new Property<>(null, NameAlias.Builder.rawBuilder(
+        return new Property<>(null, NameAlias.rawBuilder(
                 Condition.convertValueToString(type))
                 .build());
     }
@@ -127,7 +127,7 @@ public class PropertyFactory {
      * @return A new property with its type.
      */
     public static <T> Property<T> from(@Nullable Class<T> type, String stringRepresentation) {
-        return new Property<>(null, NameAlias.Builder.rawBuilder(stringRepresentation)
+        return new Property<>(null, NameAlias.rawBuilder(stringRepresentation)
                 .build());
     }
 }
