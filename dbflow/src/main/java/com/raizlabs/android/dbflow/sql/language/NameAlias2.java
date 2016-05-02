@@ -66,6 +66,13 @@ public class NameAlias2 implements Query {
     }
 
     /**
+     * @return The name, stripped from identifier syntax completely.
+     */
+    public String nameRaw() {
+        return shouldStripIdentifier ? name : QueryBuilder.stripQuotes(name);
+    }
+
+    /**
      * @return The name used as part of the AS query.
      */
     public String aliasName() {

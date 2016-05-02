@@ -26,7 +26,7 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
         @Override
         public String toString() {
             // don't tick the *
-            return nameAlias.getQuery();
+            return nameAlias.nameRaw();
         }
     };
 
