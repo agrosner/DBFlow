@@ -194,7 +194,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
 
     @Override
     public String getContainerKey() {
-        return getNameAlias().aliasNameRaw();
+        return getNameAlias().getNameAsKey();
     }
 
     @Override

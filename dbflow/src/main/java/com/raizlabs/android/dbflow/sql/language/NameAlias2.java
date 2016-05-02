@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language;
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 
 /**
  * Description: Rewritten from the ground up, this class makes it easier to build an alias.
@@ -51,7 +52,11 @@ public class NameAlias2 implements Query {
         } else {
             aliasName = builder.aliasName;
         }
-        tableName = QueryBuilder.quoteIfNeeded(builder.tableName);
+        if (StringUtils.isNotNullOrEmpty(builder.tableName)) {
+            tableName = QueryBuilder.quoteIfNeeded(builder.tableName);
+        } else {
+            tableName = null;
+        }
         shouldStripIdentifier = builder.shouldStripIdentifier;
         shouldStripAliasName = builder.shouldStripAliasName;
         shouldAddIdentifierToQuery = builder.shouldAddIdentifierToQuery;
@@ -118,7 +123,7 @@ public class NameAlias2 implements Query {
      * @return The `{tableName}`.`{name}`. If {@link #tableName()} specified.
      */
     public String fullName() {
-        return (StringUtils.isNotNullOrEmpty(tableName()) ? (tableName() + ".") : "") + name();
+        return (StringUtils.isNotNullOrEmpty(tableName) ? (tableName() + ".") : "") + name();
     }
 
     /**
@@ -127,10 +132,22 @@ public class NameAlias2 implements Query {
      */
     @Override
     public String getQuery() {
-        if (StringUtils.isNotNullOrEmpty(aliasName())) {
+        if (StringUtils.isNotNullOrEmpty(aliasName)) {
             return aliasName();
         } else {
             return fullName();
+        }
+    }
+
+    /**
+     * @return The value used as a key in a {@link ModelContainer}. Uses either the {@link #aliasNameRaw()}
+     * or the {@link #nameRaw()}, depending on what's specified.
+     */
+    public String getNameAsKey() {
+        if (StringUtils.isNotNullOrEmpty(aliasName)) {
+            return aliasNameRaw();
+        } else {
+            return nameRaw();
         }
     }
 
@@ -144,7 +161,7 @@ public class NameAlias2 implements Query {
      */
     public String getFullQuery() {
         String query = fullName();
-        if (StringUtils.isNotNullOrEmpty(aliasName())) {
+        if (StringUtils.isNotNullOrEmpty(aliasName)) {
             query += " AS " + aliasName();
         }
         if (StringUtils.isNotNullOrEmpty(keyword)) {
