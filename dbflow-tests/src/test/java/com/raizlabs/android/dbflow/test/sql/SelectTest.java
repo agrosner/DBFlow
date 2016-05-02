@@ -104,7 +104,7 @@ public class SelectTest extends FlowTestCase {
     @Test
     public void test_withTableAs() {
         String query = SQLite.select(TestModel1_Table.name.withTable().as("program_id")).getQuery();
-        assertEquals("SELECT `TestModel`.`name` AS `program_id`", query.trim());
+        assertEquals("SELECT `TestModel1`.`name` AS `program_id`", query.trim());
     }
 
     @Test

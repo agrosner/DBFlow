@@ -83,7 +83,7 @@ public class Method extends Property {
     public Method(String methodName, IProperty... properties) {
         super(null, (String) null);
 
-        methodProperty = new Property(null, new NameAlias2.Builder(methodName).build());
+        methodProperty = new Property(null, NameAlias2.Builder.rawBuilder(methodName).build());
 
         if (properties.length == 0) {
             propertyList.add(Property.ALL_PROPERTY);

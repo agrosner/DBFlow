@@ -49,10 +49,8 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
                 continue;
             }
 
-            synchronized (this) {
-                if (!isQuitting) {
-                    transaction.executeSync();
-                }
+            if (!isQuitting) {
+                transaction.executeSync();
             }
         }
     }
