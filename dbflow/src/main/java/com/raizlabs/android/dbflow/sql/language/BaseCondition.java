@@ -37,8 +37,8 @@ abstract class BaseCondition implements SQLCondition {
             } else {
                 if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
                     stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
-                } else if (value instanceof NameAlias) {
-                    stringVal = ((NameAlias) value).getQuery();
+                } else if (value instanceof NameAlias2) {
+                    stringVal = ((NameAlias2) value).getQuery();
                 } else if (value instanceof SQLCondition) {
                     QueryBuilder queryBuilder = new QueryBuilder();
                     ((SQLCondition) value).appendConditionToQuery(queryBuilder);

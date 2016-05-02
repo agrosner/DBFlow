@@ -38,7 +38,7 @@ public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
      */
     private ConditionGroup conditionGroup;
 
-    private final List<NameAlias> groupByList = new ArrayList<>();
+    private final List<NameAlias2> groupByList = new ArrayList<>();
 
     private final List<OrderBy> orderByList = new ArrayList<>();
 
@@ -192,7 +192,7 @@ public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
 
     /**
      * Executes a SQL statement that retrieves the count of results in the DB. Within a {@link Set} or {@link Delete}
-     * this will execute an {@link DatabaseStatement#executeUpdateDelete(DatabaseWrapper, String)},
+     * this will execute an {@link DatabaseStatement#executeUpdateDelete()},
      * which returns number of rows affected.
      *
      * @return The number of rows this query returns or affects.

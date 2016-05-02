@@ -83,7 +83,7 @@ public class Method extends Property {
     public Method(String methodName, IProperty... properties) {
         super(null, (String) null);
 
-        methodProperty = new Property(null, new NameAlias(methodName, false).tickName(false));
+        methodProperty = new Property(null, new NameAlias2.Builder(methodName).build());
 
         if (properties.length == 0) {
             propertyList.add(Property.ALL_PROPERTY);
@@ -150,7 +150,7 @@ public class Method extends Property {
 
             }
             query += ")";
-            nameAlias = new NameAlias(query, false).tickName(false);
+            nameAlias = new NameAlias2.Builder(query).shouldStripIdentifier(false).build();
         }
         return nameAlias;
     }

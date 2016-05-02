@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 public class NameAlias2 implements Query {
 
     /**
-     * Combines any number of names into a single {@link NameAlias} separated by some operation.
+     * Combines any number of names into a single {@link NameAlias2} separated by some operation.
      *
      * @param operation The operation to separate into.
      * @param names     The names to join.
