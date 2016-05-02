@@ -63,6 +63,7 @@ public class ProcessorManager implements Handler {
     private List<BaseContainerHandler> handlers = new ArrayList<>();
     private Map<TypeName, ContentProviderDefinition> providerMap = Maps.newHashMap();
 
+
     public ProcessorManager(ProcessingEnvironment processingEnv) {
         processingEnvironment = processingEnv;
         setManager(this);
@@ -191,7 +192,6 @@ public class ProcessorManager implements Handler {
         return Sets.newHashSet(databaseDefinition.modelViewDefinitionMap.values());
     }
 
-
     public void setModelViewDefinitions(Map<TypeName, ModelViewDefinition> modelViewDefinitionMap, ClassName elementClassName) {
         DatabaseHolderDefinition databaseDefinition = getOrPutDatabase(elementClassName);
         databaseDefinition.modelViewDefinitionMap = modelViewDefinitionMap;
@@ -231,6 +231,8 @@ public class ProcessorManager implements Handler {
     }
 
     public void addContentProviderDefinition(ContentProviderDefinition contentProviderDefinition) {
+        DatabaseHolderDefinition holderDefinition = getOrPutDatabase(contentProviderDefinition.databaseName);
+        holderDefinition.providerMap.put(contentProviderDefinition.elementTypeName, contentProviderDefinition);
         providerMap.put(contentProviderDefinition.elementTypeName, contentProviderDefinition);
     }
 
@@ -280,14 +282,6 @@ public class ProcessorManager implements Handler {
             containerHandler.handle(processorManager, roundEnvironment);
         }
 
-        ContentProviderValidator validator = new ContentProviderValidator();
-        Collection<ContentProviderDefinition> contentProviderDefinitions = providerMap.values();
-        for (ContentProviderDefinition contentProviderDefinition : contentProviderDefinitions) {
-            contentProviderDefinition.prepareForWrite();
-            if (validator.validate(processorManager, contentProviderDefinition)) {
-                WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager);
-            }
-        }
         List<DatabaseHolderDefinition> databaseDefinitions = getDatabaseDefinitionMap();
         for (DatabaseHolderDefinition databaseDefinition : databaseDefinitions) {
             try {
@@ -302,6 +296,19 @@ public class ProcessorManager implements Handler {
                     // process database on later round.
                     manyToManyDefinitions.clear();
                     continue;
+                }
+
+                if (databaseDefinition.getDatabaseDefinition() == null) {
+                    continue;
+                }
+
+                ContentProviderValidator validator = new ContentProviderValidator();
+                Collection<ContentProviderDefinition> contentProviderDefinitions = databaseDefinition.providerMap.values();
+                for (ContentProviderDefinition contentProviderDefinition : contentProviderDefinitions) {
+                    contentProviderDefinition.prepareForWrite();
+                    if (validator.validate(processorManager, contentProviderDefinition)) {
+                        WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager);
+                    }
                 }
 
                 databaseDefinition.getDatabaseDefinition().validateAndPrepareToWrite();

@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.method;
 
+import com.google.common.collect.Maps;
+import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition;
@@ -23,6 +25,8 @@ public class DatabaseHolderDefinition {
     public Map<TypeName, QueryModelDefinition> queryModelDefinitionMap = new HashMap<>();
     public Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
     public Map<TypeName, ManyToManyDefinition> manyToManyDefinitionMap = new HashMap<>();
+    public Map<TypeName, ContentProviderDefinition> providerMap = Maps.newHashMap();
+
 
     public void setDatabaseDefinition(DatabaseDefinition databaseDefinition) {
         this.databaseDefinition = databaseDefinition;

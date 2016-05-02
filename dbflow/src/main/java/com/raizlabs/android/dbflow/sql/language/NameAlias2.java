@@ -67,7 +67,8 @@ public class NameAlias2 implements Query {
      * @return The real column name.
      */
     public String name() {
-        return shouldAddIdentifierToQuery ? QueryBuilder.quoteIfNeeded(name) : name;
+        return (StringUtils.isNotNullOrEmpty(name) && shouldAddIdentifierToQuery) ?
+                QueryBuilder.quoteIfNeeded(name) : name;
     }
 
     /**
@@ -81,7 +82,8 @@ public class NameAlias2 implements Query {
      * @return The name used as part of the AS query.
      */
     public String aliasName() {
-        return shouldAddIdentifierToAliasName ? QueryBuilder.quoteIfNeeded(aliasName) : aliasName;
+        return (StringUtils.isNotNullOrEmpty(aliasName) && shouldAddIdentifierToAliasName) ?
+                QueryBuilder.quoteIfNeeded(aliasName) : aliasName;
     }
 
     /**
