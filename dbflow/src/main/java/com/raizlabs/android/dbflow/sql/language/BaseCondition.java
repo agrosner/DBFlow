@@ -37,8 +37,8 @@ abstract class BaseCondition implements SQLCondition {
             } else {
                 if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
                     stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
-                } else if (value instanceof NameAlias2) {
-                    stringVal = ((NameAlias2) value).getQuery();
+                } else if (value instanceof NameAlias) {
+                    stringVal = ((NameAlias) value).getQuery();
                 } else if (value instanceof SQLCondition) {
                     QueryBuilder queryBuilder = new QueryBuilder();
                     ((SQLCondition) value).appendConditionToQuery(queryBuilder);
@@ -124,7 +124,7 @@ abstract class BaseCondition implements SQLCondition {
     /**
      * The column name
      */
-    protected NameAlias2 nameAlias;
+    protected NameAlias nameAlias;
 
     /**
      * A custom SQL statement after the value of the Condition
@@ -146,7 +146,7 @@ abstract class BaseCondition implements SQLCondition {
      */
     protected boolean isValueSet;
 
-    BaseCondition(NameAlias2 nameAlias) {
+    BaseCondition(NameAlias nameAlias) {
         this.nameAlias = nameAlias;
     }
 
@@ -202,7 +202,7 @@ abstract class BaseCondition implements SQLCondition {
     /**
      * @return internal alias used for subclasses.
      */
-    NameAlias2 columnAlias() {
+    NameAlias columnAlias() {
         return nameAlias;
     }
 

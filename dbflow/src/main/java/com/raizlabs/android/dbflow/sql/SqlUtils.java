@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
-import com.raizlabs.android.dbflow.sql.language.NameAlias2;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.CacheableListModelLoader;
@@ -488,7 +488,7 @@ public class SqlUtils {
     public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, String notifyKey, Object notifyValue) {
         Condition condition = null;
         if (StringUtils.isNotNullOrEmpty(notifyKey)) {
-            condition = Condition.column(new NameAlias2.Builder(notifyKey).build()).value(notifyValue);
+            condition = Condition.column(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
         }
         return getNotificationUri(modelClass, action, new SQLCondition[]{condition});
     }
@@ -544,7 +544,7 @@ public class SqlUtils {
 
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
-            conditionGroup.and(Condition.column(new NameAlias2.Builder(key).build())
+            conditionGroup.and(Condition.column(new NameAlias.Builder(key).build())
                     .is(contentValues.get(key)));
         }
     }

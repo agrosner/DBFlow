@@ -8,16 +8,16 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 /**
  * Description: Rewritten from the ground up, this class makes it easier to build an alias.
  */
-public class NameAlias2 implements Query {
+public class NameAlias implements Query {
 
     /**
-     * Combines any number of names into a single {@link NameAlias2} separated by some operation.
+     * Combines any number of names into a single {@link NameAlias} separated by some operation.
      *
      * @param operation The operation to separate into.
      * @param names     The names to join.
      * @return The new namealias object.
      */
-    public static NameAlias2 joinNames(String operation, String... names) {
+    public static NameAlias joinNames(String operation, String... names) {
         if (names.length == 0) {
             return null;
         }
@@ -40,7 +40,7 @@ public class NameAlias2 implements Query {
     private final boolean shouldAddIdentifierToQuery;
     private final boolean shouldAddIdentifierToAliasName;
 
-    private NameAlias2(Builder builder) {
+    private NameAlias(Builder builder) {
         if (builder.shouldStripIdentifier) {
             name = QueryBuilder.stripQuotes(builder.name);
         } else {
@@ -282,8 +282,8 @@ public class NameAlias2 implements Query {
             return this;
         }
 
-        public NameAlias2 build() {
-            return new NameAlias2(this);
+        public NameAlias build() {
+            return new NameAlias(this);
         }
 
     }

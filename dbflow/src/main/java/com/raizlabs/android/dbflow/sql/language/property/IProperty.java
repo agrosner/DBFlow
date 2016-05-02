@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language.property;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
-import com.raizlabs.android.dbflow.sql.language.NameAlias2;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 
@@ -82,18 +82,18 @@ public interface IProperty<P extends IProperty> extends Query {
 
     /**
      * @param tableNameAlias The name of the table to append. This may be different because of complex queries
-     *                       that use a {@link NameAlias2} for the table name.
+     *                       that use a {@link NameAlias} for the table name.
      * @return A property that represents the {@link Model} from which it belongs to. This is useful
      * in {@link Join} queries to represent this property.
      * <p/>
      * The resulting column name becomes `tableName`.`columnName`.
      */
-    P withTable(NameAlias2 tableNameAlias);
+    P withTable(NameAlias tableNameAlias);
 
     /**
-     * @return The underlying {@link NameAlias2} that represents the name of this property.
+     * @return The underlying {@link NameAlias} that represents the name of this property.
      */
-    NameAlias2 getNameAlias();
+    NameAlias getNameAlias();
 
     /**
      * @return The key used in {@link ModelContainer} referencing.

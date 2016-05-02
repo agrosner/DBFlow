@@ -14,7 +14,7 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.NameAlias2;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -248,7 +248,7 @@ public class FlowContentObserver extends ContentObserver {
             for (String key : queryNames) {
                 param = Uri.decode(uri.getQueryParameter(key));
                 columnName = Uri.decode(key);
-                columnsChanged[index] = Condition.column(new NameAlias2.Builder(columnName).build())
+                columnsChanged[index] = Condition.column(new NameAlias.Builder(columnName).build())
                         .value(param);
                 index++;
             }

@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language.property;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
-import com.raizlabs.android.dbflow.sql.language.NameAlias2;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
@@ -14,51 +14,51 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class IntProperty extends BaseProperty<IntProperty> {
 
-    public IntProperty(Class<? extends Model> table, NameAlias2 nameAlias) {
+    public IntProperty(Class<? extends Model> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
     public IntProperty(Class<? extends Model> table, String columnName) {
-        this(table, new NameAlias2.Builder(columnName).build());
+        this(table, new NameAlias.Builder(columnName).build());
     }
 
     public IntProperty(Class<? extends Model> table, String columnName, String aliasName) {
-        this(table, new NameAlias2.Builder(columnName).as(aliasName).build());
+        this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 
     @Override
     public IntProperty plus(IProperty iProperty) {
-        return new IntProperty(table, NameAlias2.joinNames(Condition.Operation.PLUS,
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
                 nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty minus(IProperty iProperty) {
-        return new IntProperty(table, NameAlias2.joinNames(Condition.Operation.MINUS,
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
                 nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty dividedBy(IProperty iProperty) {
-        return new IntProperty(table, NameAlias2.joinNames(Condition.Operation.DIVISION,
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
                 nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty multipliedBy(IProperty iProperty) {
-        return new IntProperty(table, NameAlias2.joinNames(Condition.Operation.MULTIPLY,
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
                 nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty mod(IProperty iProperty) {
-        return new IntProperty(table, NameAlias2.joinNames(Condition.Operation.MOD,
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
                 nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public IntProperty concatenate(IProperty iProperty) {
-        return new IntProperty(table, NameAlias2.joinNames(Condition.Operation.CONCATENATE,
+        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
                 nameAlias.fullName(), iProperty.toString()));
     }
 
@@ -76,7 +76,7 @@ public class IntProperty extends BaseProperty<IntProperty> {
     }
 
     @Override
-    public IntProperty withTable(NameAlias2 tableNameAlias) {
+    public IntProperty withTable(NameAlias tableNameAlias) {
         return new IntProperty(table, nameAlias
                 .newBuilder()
                 .withTable(tableNameAlias.getQuery())

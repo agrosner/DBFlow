@@ -13,7 +13,7 @@ public class OrderBy implements Query {
 
     public static final String DESCENDING = "DESC";
 
-    private NameAlias2 column;
+    private NameAlias column;
 
     private boolean isAscending;
 
@@ -24,7 +24,7 @@ public class OrderBy implements Query {
         return new OrderBy(property.getNameAlias());
     }
 
-    public static OrderBy fromNameAlias(NameAlias2 nameAlias) {
+    public static OrderBy fromNameAlias(NameAlias nameAlias) {
         return new OrderBy(nameAlias);
     }
 
@@ -32,11 +32,11 @@ public class OrderBy implements Query {
         return new OrderBy(orderByString);
     }
 
-    OrderBy(NameAlias2 column) {
+    OrderBy(NameAlias column) {
         this.column = column;
     }
 
-    OrderBy(NameAlias2 column, boolean isAscending) {
+    OrderBy(NameAlias column, boolean isAscending) {
         this(column);
         this.isAscending = isAscending;
     }

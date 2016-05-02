@@ -22,7 +22,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         return BaseCondition.convertValueToString(value, false);
     }
 
-    public static Condition column(NameAlias2 column) {
+    public static Condition column(NameAlias column) {
         return new Condition(column);
     }
 
@@ -31,7 +31,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      *
      * @param nameAlias The name of the column in the DB
      */
-    Condition(NameAlias2 nameAlias) {
+    Condition(NameAlias nameAlias) {
         super(nameAlias);
     }
 

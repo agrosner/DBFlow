@@ -67,7 +67,7 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
     /**
      * The alias to name the JOIN
      */
-    private NameAlias2 alias;
+    private NameAlias alias;
 
     /**
      * The ON conditions
@@ -88,7 +88,7 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
         this.from = from;
         this.table = table;
         type = joinType;
-        alias = new NameAlias2.Builder(FlowManager.getTableName(table)).build();
+        alias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
     }
 
     /**

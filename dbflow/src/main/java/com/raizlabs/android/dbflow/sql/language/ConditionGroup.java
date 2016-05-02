@@ -35,7 +35,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
     private boolean allCommaSeparated;
     private boolean useParenthesis = true;
 
-    protected ConditionGroup(NameAlias2 columnName) {
+    protected ConditionGroup(NameAlias columnName) {
         super(columnName);
 
         // default is AND

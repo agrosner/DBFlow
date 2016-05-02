@@ -9,11 +9,11 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 interface Transformable<T extends Model> {
 
-    Where<T> groupBy(NameAlias2... nameAliases);
+    Where<T> groupBy(NameAlias... nameAliases);
 
     Where<T> groupBy(IProperty... properties);
 
-    Where<T> orderBy(NameAlias2 nameAlias, boolean ascending);
+    Where<T> orderBy(NameAlias nameAlias, boolean ascending);
 
     Where<T> orderBy(IProperty property, boolean ascending);
 

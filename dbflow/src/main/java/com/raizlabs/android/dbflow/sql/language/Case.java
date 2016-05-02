@@ -65,7 +65,7 @@ public class Case<TReturn> implements Query {
      */
     public Property<Case<TReturn>> end(String columnName) {
         this.columnName = QueryBuilder.quoteIfNeeded(columnName);
-        return new Property<>(null, NameAlias2.Builder.rawBuilder(getQuery())
+        return new Property<>(null, NameAlias.Builder.rawBuilder(getQuery())
                 .build());
     }
 

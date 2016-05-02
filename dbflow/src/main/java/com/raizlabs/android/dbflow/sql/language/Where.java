@@ -38,7 +38,7 @@ public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
      */
     private ConditionGroup conditionGroup;
 
-    private final List<NameAlias2> groupByList = new ArrayList<>();
+    private final List<NameAlias> groupByList = new ArrayList<>();
 
     private final List<OrderBy> orderByList = new ArrayList<>();
 
@@ -110,7 +110,7 @@ public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
     }
 
     @Override
-    public Where<TModel> groupBy(NameAlias2... columns) {
+    public Where<TModel> groupBy(NameAlias... columns) {
         Collections.addAll(groupByList, columns);
         return this;
     }
@@ -136,7 +136,7 @@ public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
     }
 
     @Override
-    public Where<TModel> orderBy(NameAlias2 nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
         orderByList.add(new OrderBy(nameAlias, ascending));
         return this;
     }

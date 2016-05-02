@@ -83,7 +83,7 @@ public class Method extends Property {
     public Method(String methodName, IProperty... properties) {
         super(null, (String) null);
 
-        methodProperty = new Property(null, NameAlias2.Builder.rawBuilder(methodName).build());
+        methodProperty = new Property(null, NameAlias.Builder.rawBuilder(methodName).build());
 
         if (properties.length == 0) {
             propertyList.add(Property.ALL_PROPERTY);
@@ -133,7 +133,7 @@ public class Method extends Property {
     }
 
     @Override
-    public NameAlias2 getNameAlias() {
+    public NameAlias getNameAlias() {
         if (nameAlias == null) {
             String query = methodProperty.getQuery();
             if (query == null) {
@@ -150,7 +150,7 @@ public class Method extends Property {
 
             }
             query += ")";
-            nameAlias = NameAlias2.Builder.rawBuilder(query)
+            nameAlias = NameAlias.Builder.rawBuilder(query)
                     .build();
         }
         return nameAlias;

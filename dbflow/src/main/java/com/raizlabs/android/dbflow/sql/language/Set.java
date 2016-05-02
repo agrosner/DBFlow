@@ -59,7 +59,7 @@ public class Set<TModel extends Model> extends BaseQueriable<TModel> implements 
     }
 
     @Override
-    public Where<TModel> groupBy(NameAlias2... nameAliases) {
+    public Where<TModel> groupBy(NameAlias... nameAliases) {
         return where().groupBy(nameAliases);
     }
 
@@ -69,7 +69,7 @@ public class Set<TModel extends Model> extends BaseQueriable<TModel> implements 
     }
 
     @Override
-    public Where<TModel> orderBy(NameAlias2 nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 

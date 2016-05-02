@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.IConditional;
-import com.raizlabs.android.dbflow.sql.language.NameAlias2;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
@@ -15,16 +15,16 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 public abstract class BaseProperty<P extends IProperty> implements IProperty<P>, IConditional {
 
     final Class<? extends Model> table;
-    protected NameAlias2 nameAlias;
+    protected NameAlias nameAlias;
 
-    protected BaseProperty(Class<? extends Model> table, NameAlias2 nameAlias) {
+    protected BaseProperty(Class<? extends Model> table, NameAlias nameAlias) {
         this.table = table;
         this.nameAlias = nameAlias;
     }
 
     @Override
     public P withTable() {
-        return withTable(new NameAlias2.Builder(FlowManager.getTableName(table)).build());
+        return withTable(new NameAlias.Builder(FlowManager.getTableName(table)).build());
     }
 
     @Override
@@ -188,7 +188,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     @Override
-    public NameAlias2 getNameAlias() {
+    public NameAlias getNameAlias() {
         return nameAlias;
     }
 
@@ -219,7 +219,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     /**
      * @return helper method to construct it in a {@link #distinct()} call.
      */
-    protected NameAlias2 getDistinctAliasName() {
+    protected NameAlias getDistinctAliasName() {
         return getNameAlias()
                 .newBuilder()
                 .distinct()

@@ -29,7 +29,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     /**
      * An alias for the table
      */
-    private NameAlias2 tableAlias;
+    private NameAlias tableAlias;
 
     /**
      * Enables the SQL JOIN statement
@@ -45,7 +45,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     public From(Query querybase, Class<TModel> table) {
         super(table);
         queryBase = querybase;
-        tableAlias = new NameAlias2.Builder(FlowManager.getTableName(table)).build();
+        tableAlias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
     }
 
     /**
@@ -189,7 +189,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     }
 
     @Override
-    public Where<TModel> groupBy(NameAlias2... nameAliases) {
+    public Where<TModel> groupBy(NameAlias... nameAliases) {
         return where().groupBy(nameAliases);
     }
 
@@ -199,7 +199,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     }
 
     @Override
-    public Where<TModel> orderBy(NameAlias2 nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 
