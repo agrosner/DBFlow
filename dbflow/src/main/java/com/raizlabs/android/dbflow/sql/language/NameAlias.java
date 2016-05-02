@@ -183,6 +183,8 @@ public class NameAlias implements Query {
                 .as(aliasName)
                 .shouldStripAliasName(shouldStripAliasName)
                 .shouldStripIdentifier(shouldStripIdentifier)
+                .shouldAddIdentifierToName(shouldAddIdentifierToQuery)
+                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAliasName)
                 .withTable(tableName);
     }
 
