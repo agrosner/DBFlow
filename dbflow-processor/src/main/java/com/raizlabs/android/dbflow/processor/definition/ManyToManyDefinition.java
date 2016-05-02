@@ -50,7 +50,7 @@ public class ManyToManyDefinition extends BaseDefinition {
             databaseTypeName = TypeName.get(mte.getTypeMirror());
         }
 
-        DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
+        DatabaseDefinition databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).getDatabaseDefinition();
         if (databaseDefinition == null) {
             manager.logError("DatabaseDefinition was null for : " + elementName);
         } else {
@@ -72,13 +72,13 @@ public class ManyToManyDefinition extends BaseDefinition {
 
         if (generateAutoIncrement) {
             typeBuilder.addField(FieldSpec.builder(TypeName.LONG, "_id")
-                .addAnnotation(AnnotationSpec.builder(PrimaryKey.class).addMember("autoincrement", "true").build())
-                .build());
+                    .addAnnotation(AnnotationSpec.builder(PrimaryKey.class).addMember("autoincrement", "true").build())
+                    .build());
             typeBuilder.addMethod(MethodSpec.methodBuilder("getId")
-                .returns(TypeName.LONG)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $L", "_id")
-                .build());
+                    .returns(TypeName.LONG)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return $L", "_id")
+                    .build());
         }
 
         appendColumnDefinitions(typeBuilder, referencedDefinition, 0);
@@ -98,21 +98,21 @@ public class ManyToManyDefinition extends BaseDefinition {
         }
 
         FieldSpec.Builder fieldBuilder = FieldSpec.builder(referencedDefinition.elementClassName, fieldName)
-            .addAnnotation(AnnotationSpec.builder(ForeignKey.class)
-                .addMember("saveForeignKeyModel", saveForeignKeyModels + "").build());
+                .addAnnotation(AnnotationSpec.builder(ForeignKey.class)
+                        .addMember("saveForeignKeyModel", saveForeignKeyModels + "").build());
         if (!generateAutoIncrement) {
             fieldBuilder.addAnnotation(AnnotationSpec.builder(PrimaryKey.class).build());
         }
         typeBuilder.addField(fieldBuilder.build()).build();
         typeBuilder.addMethod(MethodSpec.methodBuilder("get" + StringUtils.capitalize(fieldName))
-            .returns(referencedDefinition.elementClassName)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addStatement("return $L", fieldName)
-            .build());
+                .returns(referencedDefinition.elementClassName)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return $L", fieldName)
+                .build());
         typeBuilder.addMethod(MethodSpec.methodBuilder("set" + StringUtils.capitalize(fieldName))
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addParameter(referencedDefinition.elementClassName, "param")
-            .addStatement("$L = param", fieldName)
-            .build());
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(referencedDefinition.elementClassName, "param")
+                .addStatement("$L = param", fieldName)
+                .build());
     }
 }

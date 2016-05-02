@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseHolderDefinition;
 import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.Handler;
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils;
@@ -58,7 +59,7 @@ public class ProcessorManager implements Handler {
     private Map<TypeName, TypeConverterDefinition> typeConverters = Maps.newHashMap();
     private Map<TypeName, Map<Integer, List<MigrationDefinition>>> migrations = Maps.newHashMap();
 
-    private Map<TypeName, DatabaseDefinition> databaseDefinitionMap = Maps.newHashMap();
+    private Map<TypeName, DatabaseHolderDefinition> databaseDefinitionMap = Maps.newHashMap();
     private List<BaseContainerHandler> handlers = new ArrayList<>();
     private Map<TypeName, ContentProviderDefinition> providerMap = Maps.newHashMap();
 
@@ -98,14 +99,15 @@ public class ProcessorManager implements Handler {
     }
 
     public void addFlowManagerWriter(DatabaseDefinition databaseDefinition) {
-        databaseDefinitionMap.put(databaseDefinition.elementClassName, databaseDefinition);
+        DatabaseHolderDefinition holderDefinition = getOrPutDatabase(databaseDefinition.elementClassName);
+        holderDefinition.setDatabaseDefinition(databaseDefinition);
     }
 
-    public List<DatabaseDefinition> getDatabaseDefinitionMap() {
+    public List<DatabaseHolderDefinition> getDatabaseDefinitionMap() {
         return new ArrayList<>(databaseDefinitionMap.values());
     }
 
-    public DatabaseDefinition getDatabaseWriter(TypeName databaseName) {
+    public DatabaseHolderDefinition getDatabaseHolderDefinition(TypeName databaseName) {
         return databaseDefinitionMap.get(databaseName);
     }
 
@@ -127,45 +129,47 @@ public class ProcessorManager implements Handler {
     }
 
     public String getDatabaseName(TypeName databaseTypeName) {
-        return databaseDefinitionMap.get(databaseTypeName).databaseName;
+        return getOrPutDatabase(databaseTypeName).getDatabaseDefinition().databaseName;
     }
 
     public void addQueryModelDefinition(QueryModelDefinition queryModelDefinition) {
-        databaseDefinitionMap.get(queryModelDefinition.databaseTypeName).queryModelDefinitionMap.
-            put(queryModelDefinition.elementClassName, queryModelDefinition);
+        getOrPutDatabase(queryModelDefinition.databaseTypeName).queryModelDefinitionMap.
+                put(queryModelDefinition.elementClassName, queryModelDefinition);
     }
 
     public void addTableDefinition(TableDefinition tableDefinition) {
-        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(tableDefinition.databaseTypeName);
-        databaseDefinition.tableDefinitionMap.put(tableDefinition.elementClassName, tableDefinition);
-        if (databaseDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
-            logError("Found duplicate table %1s for database %1s", tableDefinition.tableName, databaseDefinition.databaseName);
+        DatabaseHolderDefinition holderDefinition = getOrPutDatabase(tableDefinition.databaseTypeName);
+        holderDefinition.tableDefinitionMap.put(tableDefinition.elementClassName, tableDefinition);
+        if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
+            logError("Found duplicate table %1s for database %1s", tableDefinition.tableName,
+                    holderDefinition.getDatabaseDefinition().databaseName);
         } else {
-            databaseDefinition.tableNameMap.put(tableDefinition.tableName, tableDefinition);
+            holderDefinition.tableNameMap.put(tableDefinition.tableName, tableDefinition);
         }
     }
 
     public void addManyToManyDefinition(ManyToManyDefinition manyToManyDefinition) {
-        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(manyToManyDefinition.databaseTypeName);
-        databaseDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinition);
-        if (databaseDefinition.manyToManyDefinitionMap.containsKey(manyToManyDefinition.outputClassName)) {
-            logError("Found duplicate table %1s for database %1s", manyToManyDefinition.outputClassName, databaseDefinition.databaseName);
+        DatabaseHolderDefinition databaseHolderDefinition = getOrPutDatabase(manyToManyDefinition.databaseTypeName);
+        databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinition);
+        if (databaseHolderDefinition.manyToManyDefinitionMap.containsKey(manyToManyDefinition.outputClassName)) {
+            logError("Found duplicate table %1s for database %1s", manyToManyDefinition.outputClassName,
+                    manyToManyDefinition.databaseTypeName);
         } else {
-            databaseDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.outputClassName, manyToManyDefinition);
+            databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.outputClassName, manyToManyDefinition);
         }
     }
 
     public TableDefinition getTableDefinition(TypeName databaseName, TypeName typeName) {
-        return databaseDefinitionMap.get(databaseName).tableDefinitionMap.get(typeName);
+        return getOrPutDatabase(databaseName).tableDefinitionMap.get(typeName);
     }
 
     public TableDefinition getTableDefinition(TypeName databaseName, String tableName) {
-        return databaseDefinitionMap.get(databaseName).tableNameMap.get(tableName);
+        return getOrPutDatabase(databaseName).tableNameMap.get(tableName);
     }
 
     public void addModelViewDefinition(ModelViewDefinition modelViewDefinition) {
-        databaseDefinitionMap.get(modelViewDefinition.databaseName).modelViewDefinitionMap
-            .put(modelViewDefinition.elementClassName, modelViewDefinition);
+        getOrPutDatabase(modelViewDefinition.databaseName).modelViewDefinitionMap
+                .put(modelViewDefinition.elementClassName, modelViewDefinition);
     }
 
     public Set<TypeConverterDefinition> getTypeConverters() {
@@ -173,48 +177,34 @@ public class ProcessorManager implements Handler {
     }
 
     public Set<TableDefinition> getTableDefinitions(TypeName databaseName) {
-        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
-        if (databaseDefinition != null) {
-            return Sets.newHashSet(databaseDefinition.tableDefinitionMap.values());
-        }
-        return Sets.newHashSet();
+        DatabaseHolderDefinition databaseHolderDefinition = getOrPutDatabase(databaseName);
+        return Sets.newHashSet(databaseHolderDefinition.tableDefinitionMap.values());
     }
 
     public void setTableDefinitions(Map<TypeName, TableDefinition> tableDefinitionSet, TypeName databaseName) {
-        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
-        if (databaseDefinition != null) {
-            databaseDefinition.tableDefinitionMap = tableDefinitionSet;
-        }
+        DatabaseHolderDefinition databaseDefinition = getOrPutDatabase(databaseName);
+        databaseDefinition.tableDefinitionMap = tableDefinitionSet;
     }
 
     public Set<ModelViewDefinition> getModelViewDefinitions(TypeName databaseName) {
-        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
-        if (databaseDefinition != null) {
-            return Sets.newHashSet(databaseDefinition.modelViewDefinitionMap.values());
-        }
-        return Sets.newHashSet();
+        DatabaseHolderDefinition databaseDefinition = getOrPutDatabase(databaseName);
+        return Sets.newHashSet(databaseDefinition.modelViewDefinitionMap.values());
     }
 
 
     public void setModelViewDefinitions(Map<TypeName, ModelViewDefinition> modelViewDefinitionMap, ClassName elementClassName) {
-        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(elementClassName);
-        if (databaseDefinition != null) {
-            databaseDefinition.modelViewDefinitionMap = modelViewDefinitionMap;
-        }
+        DatabaseHolderDefinition databaseDefinition = getOrPutDatabase(elementClassName);
+        databaseDefinition.modelViewDefinitionMap = modelViewDefinitionMap;
     }
 
     public Set<QueryModelDefinition> getQueryModelDefinitions(TypeName databaseName) {
-        DatabaseDefinition databaseDefinition = databaseDefinitionMap.get(databaseName);
-        if (databaseDefinition != null) {
-            return Sets.newHashSet(databaseDefinition.queryModelDefinitionMap.values());
-        } else {
-            return Sets.newHashSet();
-        }
+        DatabaseHolderDefinition databaseDefinition = getOrPutDatabase(databaseName);
+        return Sets.newHashSet(databaseDefinition.queryModelDefinitionMap.values());
     }
 
     public void addMigrationDefinition(MigrationDefinition migrationDefinition) {
         Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = migrations.get(
-            migrationDefinition.databaseName);
+                migrationDefinition.databaseName);
         if (migrationDefinitionMap == null) {
             migrationDefinitionMap = Maps.newHashMap();
             migrations.put(migrationDefinition.databaseName, migrationDefinitionMap);
@@ -246,10 +236,10 @@ public class ProcessorManager implements Handler {
 
     public void putTableEndpointForProvider(TableEndpointDefinition tableEndpointDefinition) {
         ContentProviderDefinition contentProviderDefinition = providerMap.get(
-            tableEndpointDefinition.contentProviderName);
+                tableEndpointDefinition.contentProviderName);
         if (contentProviderDefinition == null) {
             logError("Content Provider %1s was not found for the @TableEndpoint %1s",
-                tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
+                    tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
         } else {
             contentProviderDefinition.endpointDefinitions.add(tableEndpointDefinition);
         }
@@ -275,6 +265,15 @@ public class ProcessorManager implements Handler {
         logWarning(callingClass + ":" + error, args);
     }
 
+    private DatabaseHolderDefinition getOrPutDatabase(TypeName databaseName) {
+        DatabaseHolderDefinition holderDefinition = databaseDefinitionMap.get(databaseName);
+        if (holderDefinition == null) {
+            holderDefinition = new DatabaseHolderDefinition();
+            databaseDefinitionMap.put(databaseName, holderDefinition);
+        }
+        return holderDefinition;
+    }
+
     @Override
     public void handle(ProcessorManager processorManager, RoundEnvironment roundEnvironment) {
         for (BaseContainerHandler containerHandler : handlers) {
@@ -284,15 +283,17 @@ public class ProcessorManager implements Handler {
         ContentProviderValidator validator = new ContentProviderValidator();
         Collection<ContentProviderDefinition> contentProviderDefinitions = providerMap.values();
         for (ContentProviderDefinition contentProviderDefinition : contentProviderDefinitions) {
+            contentProviderDefinition.prepareForWrite();
             if (validator.validate(processorManager, contentProviderDefinition)) {
                 WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager);
             }
         }
-        List<DatabaseDefinition> databaseDefinitions = getDatabaseDefinitionMap();
-        for (DatabaseDefinition databaseDefinition : databaseDefinitions) {
+        List<DatabaseHolderDefinition> databaseDefinitions = getDatabaseDefinitionMap();
+        for (DatabaseHolderDefinition databaseDefinition : databaseDefinitions) {
             try {
 
-                Collection<ManyToManyDefinition> manyToManyDefinitions = databaseDefinition.manyToManyDefinitionMap.values();
+                Collection<ManyToManyDefinition> manyToManyDefinitions =
+                        databaseDefinition.manyToManyDefinitionMap.values();
                 for (ManyToManyDefinition manyToMany : manyToManyDefinitions) {
                     WriterUtils.writeBaseDefinition(manyToMany, processorManager);
                 }
@@ -303,10 +304,11 @@ public class ProcessorManager implements Handler {
                     continue;
                 }
 
-                databaseDefinition.validateAndPrepareToWrite();
+                databaseDefinition.getDatabaseDefinition().validateAndPrepareToWrite();
 
-                JavaFile.builder(databaseDefinition.packageName, databaseDefinition.getTypeSpec())
-                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+                JavaFile.builder(databaseDefinition.getDatabaseDefinition().packageName,
+                        databaseDefinition.getDatabaseDefinition().getTypeSpec())
+                        .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
 
 
                 Collection<TableDefinition> tableDefinitions = databaseDefinition.tableDefinitionMap.values();
@@ -354,8 +356,8 @@ public class ProcessorManager implements Handler {
 
             try {
                 JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                    new FlowManagerHolderDefinition(processorManager).getTypeSpec())
-                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+                        new FlowManagerHolderDefinition(processorManager).getTypeSpec())
+                        .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
             } catch (IOException e) {
             }
         }

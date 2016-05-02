@@ -124,7 +124,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
         ModelView modelView = element.getAnnotation(ModelView.class);
         if (modelView != null) {
-            databaseDefinition = manager.getDatabaseWriter(databaseName);
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseName).getDatabaseDefinition();
             this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;
 
             setOutputClassName(databaseDefinition.classSeparator + DBFLOW_MODEL_VIEW_TAG);

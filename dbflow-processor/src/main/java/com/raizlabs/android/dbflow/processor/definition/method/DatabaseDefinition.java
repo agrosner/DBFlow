@@ -58,12 +58,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
     public boolean isInMemory;
 
-    public Map<TypeName, TableDefinition> tableDefinitionMap = new HashMap<>();
-    public Map<String, TableDefinition> tableNameMap = new HashMap<>();
-
-    public Map<TypeName, QueryModelDefinition> queryModelDefinitionMap = new HashMap<>();
-    public Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
-    public Map<TypeName, ManyToManyDefinition> manyToManyDefinitionMap = new HashMap<>();
+    private DatabaseHolderDefinition holderDefinition;
 
     public DatabaseDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
@@ -105,6 +100,14 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             updateConflict = database.updateConflict();
             isInMemory = database.inMemory();
         }
+    }
+
+    public DatabaseHolderDefinition getHolderDefinition() {
+        return holderDefinition;
+    }
+
+    public void setHolderDefinition(DatabaseHolderDefinition holderDefinition) {
+        this.holderDefinition = holderDefinition;
     }
 
     @Override
