@@ -286,6 +286,9 @@ public class ProcessorManager implements Handler {
             try {
 
                 if (databaseDefinition.getDatabaseDefinition() == null) {
+                    ProcessorManager.getManager().logError("Found null db with: %1s tables, %1s modelviews: " +
+                                    databaseDefinition.tableNameMap.values().size(),
+                            databaseDefinition.modelViewDefinitionMap.values().size());
                     continue;
                 }
 
@@ -296,8 +299,8 @@ public class ProcessorManager implements Handler {
                     WriterUtils.writeBaseDefinition(manyToMany, processorManager);
                 }
 
+                // process all in next round.
                 if (!manyToManyDefinitions.isEmpty()) {
-                    // process database on later round.
                     manyToManyDefinitions.clear();
                     continue;
                 }
