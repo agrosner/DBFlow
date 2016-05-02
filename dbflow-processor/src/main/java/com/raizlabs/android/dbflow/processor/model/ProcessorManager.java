@@ -286,8 +286,9 @@ public class ProcessorManager implements Handler {
             try {
 
                 if (databaseDefinition.getDatabaseDefinition() == null) {
-                    ProcessorManager.getManager().logError("Found null db with: %1s tables, %1s modelviews: " +
-                                    databaseDefinition.tableNameMap.values().size(),
+                    ProcessorManager.getManager().logError("Found null db with: %1s tables, %1s modelviews. " +
+                                    "Attempt to rebuild project should fix this intermittant issue.",
+                            databaseDefinition.tableNameMap.values().size(),
                             databaseDefinition.modelViewDefinitionMap.values().size());
                     continue;
                 }
