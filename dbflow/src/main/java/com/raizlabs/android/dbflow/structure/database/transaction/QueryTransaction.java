@@ -44,7 +44,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
          * @param transaction The transaction that ran.
          * @param tResult     The {@link List} result of the query.
          */
-        void onListQueryResult(QueryTransaction transaction, @NonNull List<TResult> tResult);
+        void onListQueryResult(QueryTransaction transaction, @Nullable List<TResult> tResult);
     }
 
     /**
