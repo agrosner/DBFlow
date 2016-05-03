@@ -21,14 +21,14 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  */
 public class ModelSaver {
 
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         DatabaseWrapper wrapper = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
         save(modelAdapter, adapter, model, wrapper);
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
               TTable model, DatabaseWrapper wrapper) {
         if (model == null) {
@@ -48,7 +48,7 @@ public class ModelSaver {
         SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.SAVE);
     }
 
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         return update(modelAdapter, adapter, model,
                 FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
