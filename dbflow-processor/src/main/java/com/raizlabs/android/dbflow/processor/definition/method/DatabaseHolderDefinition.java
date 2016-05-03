@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.squareup.javapoet.TypeName;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,7 +25,7 @@ public class DatabaseHolderDefinition {
 
     public Map<TypeName, QueryModelDefinition> queryModelDefinitionMap = new HashMap<>();
     public Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
-    public Map<TypeName, ManyToManyDefinition> manyToManyDefinitionMap = new HashMap<>();
+    public Map<TypeName, List<ManyToManyDefinition>> manyToManyDefinitionMap = new HashMap<>();
     public Map<TypeName, ContentProviderDefinition> providerMap = Maps.newHashMap();
 
 
