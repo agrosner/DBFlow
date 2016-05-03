@@ -144,8 +144,8 @@ public class TransactionsTest extends FlowTestCase {
         Delete.tables(TestModel1.class, TestModel2.class);
 
         List<Model> modelList = new ArrayList<>();
-        modelList.addAll(GenerationUtils.generateRandomModels(TestModel1.class, 50));
-        modelList.addAll(GenerationUtils.generateRandomModels(TestModel2.class, 50));
+        modelList.addAll(GenerationUtils.generateRandomModels(TestModel1.class, 5000));
+        modelList.addAll(GenerationUtils.generateRandomModels(TestModel2.class, 5000));
 
         final long startTime = System.currentTimeMillis();
 
@@ -156,12 +156,7 @@ public class TransactionsTest extends FlowTestCase {
                     public void processModel(Model model) {
                         model.save();
                     }
-                }).addAll(modelList).processListener(new ProcessModelTransaction.OnModelProcessListener<Model>() {
-                @Override
-                public void onModelProcessed(long current, long total, Model modifiedModel) {
-                    System.out.println("Processing: " + current + " for a total of: " + total);
-                }
-            }).build())
+                }).addAll(modelList).build())
         ).successCallback(new Transaction.Success() {
             @Override
             public void onSuccess(Transaction transaction) {

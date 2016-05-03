@@ -135,7 +135,7 @@ public class ProcessorManager implements Handler {
 
     public void addQueryModelDefinition(QueryModelDefinition queryModelDefinition) {
         getOrPutDatabase(queryModelDefinition.databaseTypeName).queryModelDefinitionMap.
-                put(queryModelDefinition.elementClassName, queryModelDefinition);
+            put(queryModelDefinition.elementClassName, queryModelDefinition);
     }
 
     public void addTableDefinition(TableDefinition tableDefinition) {
@@ -143,7 +143,7 @@ public class ProcessorManager implements Handler {
         holderDefinition.tableDefinitionMap.put(tableDefinition.elementClassName, tableDefinition);
         if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
             logError("Found duplicate table %1s for database %1s", tableDefinition.tableName,
-                    holderDefinition.getDatabaseDefinition().databaseName);
+                holderDefinition.getDatabaseDefinition().databaseName);
         } else {
             holderDefinition.tableNameMap.put(tableDefinition.tableName, tableDefinition);
         }
@@ -153,7 +153,7 @@ public class ProcessorManager implements Handler {
         DatabaseHolderDefinition databaseHolderDefinition = getOrPutDatabase(manyToManyDefinition.databaseTypeName);
         if (databaseHolderDefinition.manyToManyDefinitionMap.containsKey(manyToManyDefinition.elementClassName)) {
             logError("Found duplicate table %1s for database %1s", manyToManyDefinition.elementClassName,
-                    manyToManyDefinition.databaseTypeName);
+                manyToManyDefinition.databaseTypeName);
         } else {
             databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinition);
         }
@@ -169,7 +169,7 @@ public class ProcessorManager implements Handler {
 
     public void addModelViewDefinition(ModelViewDefinition modelViewDefinition) {
         getOrPutDatabase(modelViewDefinition.databaseName).modelViewDefinitionMap
-                .put(modelViewDefinition.elementClassName, modelViewDefinition);
+            .put(modelViewDefinition.elementClassName, modelViewDefinition);
     }
 
     public Set<TypeConverterDefinition> getTypeConverters() {
@@ -203,7 +203,7 @@ public class ProcessorManager implements Handler {
 
     public void addMigrationDefinition(MigrationDefinition migrationDefinition) {
         Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = migrations.get(
-                migrationDefinition.databaseName);
+            migrationDefinition.databaseName);
         if (migrationDefinitionMap == null) {
             migrationDefinitionMap = Maps.newHashMap();
             migrations.put(migrationDefinition.databaseName, migrationDefinitionMap);
@@ -237,10 +237,10 @@ public class ProcessorManager implements Handler {
 
     public void putTableEndpointForProvider(TableEndpointDefinition tableEndpointDefinition) {
         ContentProviderDefinition contentProviderDefinition = providerMap.get(
-                tableEndpointDefinition.contentProviderName);
+            tableEndpointDefinition.contentProviderName);
         if (contentProviderDefinition == null) {
             logError("Content Provider %1s was not found for the @TableEndpoint %1s",
-                    tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
+                tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
         } else {
             contentProviderDefinition.endpointDefinitions.add(tableEndpointDefinition);
         }
@@ -287,14 +287,16 @@ public class ProcessorManager implements Handler {
 
                 if (databaseDefinition.getDatabaseDefinition() == null) {
                     ProcessorManager.getManager().logError("Found null db with: %1s tables, %1s modelviews. " +
-                                    "Attempt to rebuild project should fix this intermittant issue.",
-                            databaseDefinition.tableNameMap.values().size(),
-                            databaseDefinition.modelViewDefinitionMap.values().size());
+                            "Attempt to rebuild project should fix this intermittant issue.",
+                        databaseDefinition.tableNameMap.values().size(),
+                        databaseDefinition.modelViewDefinitionMap.values().size());
+                    ProcessorManager.getManager().logError("Found tables: " +
+                        databaseDefinition.tableNameMap.values());
                     continue;
                 }
 
                 Collection<ManyToManyDefinition> manyToManyDefinitions =
-                        databaseDefinition.manyToManyDefinitionMap.values();
+                    databaseDefinition.manyToManyDefinitionMap.values();
                 for (ManyToManyDefinition manyToMany : manyToManyDefinitions) {
                     manyToMany.prepareForWrite();
                     WriterUtils.writeBaseDefinition(manyToMany, processorManager);
@@ -318,8 +320,8 @@ public class ProcessorManager implements Handler {
                 databaseDefinition.getDatabaseDefinition().validateAndPrepareToWrite();
 
                 JavaFile.builder(databaseDefinition.getDatabaseDefinition().packageName,
-                        databaseDefinition.getDatabaseDefinition().getTypeSpec())
-                        .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+                    databaseDefinition.getDatabaseDefinition().getTypeSpec())
+                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
 
 
                 Collection<TableDefinition> tableDefinitions = databaseDefinition.tableDefinitionMap.values();
@@ -365,8 +367,8 @@ public class ProcessorManager implements Handler {
 
         try {
             JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                    new FlowManagerHolderDefinition(processorManager).getTypeSpec())
-                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+                new FlowManagerHolderDefinition(processorManager).getTypeSpec())
+                .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
         } catch (IOException e) {
             e.printStackTrace();
         }
