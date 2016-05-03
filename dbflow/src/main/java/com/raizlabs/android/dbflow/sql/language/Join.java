@@ -93,10 +93,11 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
         alias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
     }
 
-    Join(From<TFromModel> from, @NonNull JoinType joinType, ModelQueriable modelQueriable) {
+    Join(From<TFromModel> from, @NonNull JoinType joinType, ModelQueriable<TModel> modelQueriable) {
         this.from = from;
         type = joinType;
-        alias = PropertyFactory.from(modelQueriable)
+        this.table = modelQueriable.getTable();
+        alias = PropertyFactory.from(modelQueriable).getNameAlias();
     }
 
     /**

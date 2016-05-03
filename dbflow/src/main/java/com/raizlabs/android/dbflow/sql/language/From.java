@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -76,9 +75,11 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
         return join;
     }
 
-    public Join<?, TModel> join(@NonNull Join.JoinType joinType, ModelQueriable modelQueriable) {
-        Join<?, TModel> join = new Join<>(this, null, joinType);
-
+    public <TJoin extends Model> Join<TJoin, TModel>
+    join(ModelQueriable<TJoin> modelQueriable, @NonNull Join.JoinType joinType) {
+        Join<TJoin, TModel> join = new Join<>(this, joinType, modelQueriable);
+        joins.add(join);
+        return join;
     }
 
     /**
@@ -93,6 +94,17 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     }
 
     /**
+     * Adds a {@link Join.JoinType#CROSS} join on a specific table for this query.
+     *
+     * @param modelQueriable The query to join on.
+     * @param <TJoin>        The class of the join table.
+     * @return The join contained in this FROM statement.
+     */
+    public <TJoin extends Model> Join<TJoin, TModel> crossJoin(ModelQueriable<TJoin> modelQueriable) {
+        return join(modelQueriable, Join.JoinType.CROSS);
+    }
+
+    /**
      * Adds a {@link Join.JoinType#INNER} join on a specific table for this query.
      *
      * @param table   The table to join on.
@@ -104,6 +116,17 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
     }
 
     /**
+     * Adds a {@link Join.JoinType#INNER} join on a specific table for this query.
+     *
+     * @param modelQueriable The query to join on.
+     * @param <TJoin>        The class of the join table.
+     * @return The join contained in this FROM statement.
+     */
+    public <TJoin extends Model> Join<TJoin, TModel> innerJoin(ModelQueriable<TJoin> modelQueriable) {
+        return join(modelQueriable, Join.JoinType.INNER);
+    }
+
+    /**
      * Adds a {@link Join.JoinType#LEFT_OUTER} join on a specific table for this query.
      *
      * @param table   The table to join on.
@@ -112,6 +135,17 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      */
     public <TJoin extends Model> Join<TJoin, TModel> leftOuterJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.LEFT_OUTER);
+    }
+
+    /**
+     * Adds a {@link Join.JoinType#LEFT_OUTER} join on a specific table for this query.
+     *
+     * @param modelQueriable The query to join on.
+     * @param <TJoin>        The class of the join table.
+     * @return The join contained in this FROM statement.
+     */
+    public <TJoin extends Model> Join<TJoin, TModel> leftOuterJoin(ModelQueriable<TJoin> modelQueriable) {
+        return join(modelQueriable, Join.JoinType.LEFT_OUTER);
     }
 
     /**
