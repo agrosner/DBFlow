@@ -4,8 +4,14 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+import com.raizlabs.android.dbflow.test.sql.DefaultModel;
+import com.raizlabs.android.dbflow.test.sql.DefaultModel_Table;
+import com.raizlabs.android.dbflow.test.structure.TestModel1;
+import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
 import org.junit.Test;
 
@@ -131,5 +137,26 @@ public class JoinTest extends FlowTestCase {
         assertEquals(departmentJoin.name, "James");
 
         Delete.tables(Company.class, Department.class);
+    }
+
+    @Test
+    public void test_queryJoinValidation() {
+        String query = SQLite.select()
+                .from(TestModel1.class)
+                .innerJoin(
+                        SQLite.select(DefaultModel_Table.count,
+                                Method.max(DefaultModel_Table.name).as("MaxName"))
+                                .from(DefaultModel.class)
+                                .groupBy(DefaultModel_Table.date)).as("topmsg")
+                .on(TestModel1_Table.name.withTable().eq(
+                        PropertyFactory.from(null, "`MaxName`").withTable(NameAlias.
+                                builder("topmsg").build()))).getQuery();
+
+        assertEquals("SELECT * FROM `TestModel1`" +
+                        " INNER JOIN (SELECT `count`,MAX(`name`) AS `MaxName`" +
+                        " FROM `DefaultModel`" +
+                        " GROUP BY `date` ) AS `topmsg`" +
+                        " ON `TestModel1`.`name`=`topmsg`.`MaxName`",
+                query.trim());
     }
 }
