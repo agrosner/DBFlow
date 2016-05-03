@@ -55,7 +55,7 @@ public class ModelSaver {
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
                    TTable model, DatabaseWrapper wrapper) {
         ContentValues contentValues = new ContentValues();
@@ -70,7 +70,7 @@ public class ModelSaver {
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
                 TTable model, DatabaseWrapper wrapper) {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
@@ -84,7 +84,7 @@ public class ModelSaver {
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
@@ -96,14 +96,14 @@ public class ModelSaver {
         return id;
     }
 
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         return delete(modelAdapter, adapter, model,
                 FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
+    public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model, DatabaseWrapper wrapper) {
         boolean successful = SQLite.delete((Class<TTable>) adapter.getModelClass()).where(
                 adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
