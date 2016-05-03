@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.handler;
 
 import com.raizlabs.android.dbflow.annotation.ManyToMany;
+import com.raizlabs.android.dbflow.annotation.MultipleManyToMany;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
@@ -29,6 +30,14 @@ public class TableHandler extends BaseContainerHandler<Table> {
             if (element.getAnnotation(ManyToMany.class) != null) {
                 ManyToManyDefinition manyToManyDefinition = new ManyToManyDefinition((TypeElement) element, processorManager);
                 processorManager.addManyToManyDefinition(manyToManyDefinition);
+            }
+
+            if (element.getAnnotation(MultipleManyToMany.class) != null) {
+                MultipleManyToMany multipleManyToMany = element.getAnnotation(MultipleManyToMany.class);
+                for (ManyToMany manyToMany : multipleManyToMany.value()) {
+                    ManyToManyDefinition manyToManyDefinition = new ManyToManyDefinition((TypeElement) element, processorManager, manyToMany);
+                    processorManager.addManyToManyDefinition(manyToManyDefinition);
+                }
             }
         }
     }

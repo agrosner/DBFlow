@@ -151,12 +151,14 @@ public class ProcessorManager implements Handler {
 
     public void addManyToManyDefinition(ManyToManyDefinition manyToManyDefinition) {
         DatabaseHolderDefinition databaseHolderDefinition = getOrPutDatabase(manyToManyDefinition.databaseTypeName);
-        if (databaseHolderDefinition.manyToManyDefinitionMap.containsKey(manyToManyDefinition.elementClassName)) {
-            logError("Found duplicate table %1s for database %1s", manyToManyDefinition.elementClassName,
-                manyToManyDefinition.databaseTypeName);
-        } else {
-            databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinition);
+
+        List<ManyToManyDefinition> manyToManyDefinitions = databaseHolderDefinition.manyToManyDefinitionMap.get(manyToManyDefinition.elementClassName);
+        if (manyToManyDefinitions == null) {
+            manyToManyDefinitions = new ArrayList<>();
+            databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinitions);
         }
+
+        manyToManyDefinitions.add(manyToManyDefinition);
     }
 
     public TableDefinition getTableDefinition(TypeName databaseName, TypeName typeName) {
@@ -295,11 +297,13 @@ public class ProcessorManager implements Handler {
                     continue;
                 }
 
-                Collection<ManyToManyDefinition> manyToManyDefinitions =
+                Collection<List<ManyToManyDefinition>> manyToManyDefinitions =
                     databaseDefinition.manyToManyDefinitionMap.values();
-                for (ManyToManyDefinition manyToMany : manyToManyDefinitions) {
-                    manyToMany.prepareForWrite();
-                    WriterUtils.writeBaseDefinition(manyToMany, processorManager);
+                for (List<ManyToManyDefinition> manyToManyList : manyToManyDefinitions) {
+                    for (ManyToManyDefinition manyToMany : manyToManyList) {
+                        manyToMany.prepareForWrite();
+                        WriterUtils.writeBaseDefinition(manyToMany, processorManager);
+                    }
                 }
 
                 // process all in next round.
