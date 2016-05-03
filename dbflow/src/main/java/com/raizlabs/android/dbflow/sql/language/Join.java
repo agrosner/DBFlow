@@ -6,6 +6,8 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -89,6 +91,12 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
         this.table = table;
         type = joinType;
         alias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
+    }
+
+    Join(From<TFromModel> from, @NonNull JoinType joinType, ModelQueriable modelQueriable) {
+        this.from = from;
+        type = joinType;
+        alias = PropertyFactory.from(modelQueriable)
     }
 
     /**

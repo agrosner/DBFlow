@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.queriable;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Set;
@@ -13,7 +14,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: The most basic interface that some of the classes such as {@link Insert}, {@link ModelQueriable},
  * {@link Set}, and more implement for convenience.
  */
-public interface Queriable {
+public interface Queriable extends Query {
 
     /**
      * @return A cursor from the DB based on this query

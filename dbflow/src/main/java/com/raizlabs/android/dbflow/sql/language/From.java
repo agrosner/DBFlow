@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -73,6 +74,11 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
         Join<TJoin, TModel> join = new Join<>(this, table, joinType);
         joins.add(join);
         return join;
+    }
+
+    public Join<?, TModel> join(@NonNull Join.JoinType joinType, ModelQueriable modelQueriable) {
+        Join<?, TModel> join = new Join<>(this, null, joinType);
+
     }
 
     /**

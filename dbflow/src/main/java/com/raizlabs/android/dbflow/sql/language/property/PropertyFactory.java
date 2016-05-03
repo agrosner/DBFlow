@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.sql.language.property;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -114,7 +114,7 @@ public class PropertyFactory {
      * @param <TModel>  The model class of the query.
      * @return A new property that is a query.
      */
-    public static <TModel extends Model> Property<TModel> from(@NonNull BaseQueriable<TModel> queriable) {
+    public static <TModel extends Model> Property<TModel> from(@NonNull ModelQueriable<TModel> queriable) {
         return from(queriable.getTable(), "(" + queriable.getQuery() + ")");
     }
 
