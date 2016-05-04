@@ -51,6 +51,11 @@ public class MigrationTest extends FlowTestCase {
         Cursor cursor = new Select().from(MigrationModel.class).where().query();
         assertTrue(cursor.getColumnNames().length == columnNames.size() + 1);
 
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+        }
+
         // make sure column exists now
         for (int i = 0; i < columns.size(); i++) {
             assertTrue(cursor.getColumnIndex(columns.get(i)) != -1);
