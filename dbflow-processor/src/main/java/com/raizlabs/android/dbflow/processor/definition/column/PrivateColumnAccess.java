@@ -14,24 +14,24 @@ public class PrivateColumnAccess extends BaseColumnAccess {
 
     private String getterName;
     private String setterName;
-    public final boolean useIsForGetter;
+    public final boolean useBooleanSetters;
 
-    public PrivateColumnAccess(Column column, boolean useIsForGetter) {
+    public PrivateColumnAccess(Column column, boolean useBooleanSetters) {
         if (column != null) {
             getterName = column.getterName();
             setterName = column.setterName();
         }
-        this.useIsForGetter = useIsForGetter;
+        this.useBooleanSetters = useBooleanSetters;
     }
 
     public PrivateColumnAccess(ForeignKeyReference reference) {
         getterName = reference.referencedGetterName();
         setterName = reference.referencedSetterName();
-        this.useIsForGetter = false;
+        this.useBooleanSetters = false;
     }
 
-    public PrivateColumnAccess(boolean useIsForGetter) {
-        this.useIsForGetter = useIsForGetter;
+    public PrivateColumnAccess(boolean useBooleanSetters) {
+        this.useBooleanSetters = useBooleanSetters;
     }
 
     @Override
@@ -67,9 +67,9 @@ public class PrivateColumnAccess extends BaseColumnAccess {
 
     public String getGetterNameElement(String elementName) {
         if (StringUtils.isNullOrEmpty(getterName)) {
-            if (useIsForGetter && !elementName.startsWith("is")) {
+            if (useBooleanSetters && !elementName.startsWith("is")) {
                 return "is" + StringUtils.capitalize(elementName);
-            } else if (!useIsForGetter && !elementName.startsWith("get")) {
+            } else if (!useBooleanSetters && !elementName.startsWith("get")) {
                 return "get" + StringUtils.capitalize(elementName);
             } else {
                 return StringUtils.lower(elementName);
@@ -82,6 +82,9 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     public String getSetterNameElement(String elementName) {
         if (StringUtils.isNullOrEmpty(setterName)) {
             if (!elementName.startsWith("set")) {
+                if (useBooleanSetters && elementName.startsWith("is")) {
+                    elementName = elementName.replaceFirst("is", "");
+                }
                 return "set" + StringUtils.capitalize(elementName);
             } else {
                 return StringUtils.lower(elementName);

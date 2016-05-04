@@ -150,7 +150,7 @@ public class TableDefinition extends BaseTableDefinition {
 
 
             allFields = table.allFields();
-            useIsForPrivateBooleans = table.useIsForPrivateBooleans();
+            useIsForPrivateBooleans = table.useBooleanGetterSetters();
 
             manager.addModelToDatabase(elementClassName, databaseTypeName);
 
