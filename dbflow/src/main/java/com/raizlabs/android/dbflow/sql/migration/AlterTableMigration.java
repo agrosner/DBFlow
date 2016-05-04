@@ -70,7 +70,7 @@ public class AlterTableMigration<TModel extends Model> extends BaseMigration {
         // ADD COLUMN columnName {type}
         if (columnDefinitions != null) {
 
-            Cursor cursorToCheckColumnFor = SQLite.select().from(table).limit(0).query();
+            Cursor cursorToCheckColumnFor = SQLite.select().from(table).limit(0).query(database);
             if (cursorToCheckColumnFor != null) {
                 try {
                     sql = new QueryBuilder(sql).append(tableName).toString();
