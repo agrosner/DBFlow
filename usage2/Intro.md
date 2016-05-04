@@ -122,3 +122,5 @@ For advanced DBFlow usages:
   [Model Containers](/usage2/ModelContainers.md)
 
   [Indexing](/usage2/Indexing.md)
+  
+  [SQLCipher](/usage2/SQLCipherSupport.md)
