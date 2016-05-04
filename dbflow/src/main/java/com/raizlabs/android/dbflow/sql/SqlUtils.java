@@ -6,9 +6,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.StringUtils;
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -17,7 +15,6 @@ import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.CacheableListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.CacheableModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
@@ -94,13 +91,13 @@ public class SqlUtils {
      */
     @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
-            Class<CacheableClass> modelClass, Cursor cursor, ModelCache<CacheableClass, ?> modelCache) {
+        Class<CacheableClass> modelClass, Cursor cursor, ModelCache<CacheableClass, ?> modelCache) {
         final List<CacheableClass> entities = new ArrayList<>();
         ModelAdapter<CacheableClass> instanceAdapter = FlowManager.getModelAdapter(modelClass);
         if (instanceAdapter != null) {
             if (!instanceAdapter.cachingEnabled()) {
                 throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
-                        "use one Primary Key or call convertToList()");
+                    "use one Primary Key or call convertToList()");
             } else if (modelCache == null) {
                 throw new IllegalArgumentException("ModelCache specified in convertToCacheableList() must not be null.");
             }
@@ -139,7 +136,7 @@ public class SqlUtils {
      */
     @Deprecated
     public static <CacheableClass extends Model> List<CacheableClass> convertToCacheableList(
-            Class<CacheableClass> modelClass, Cursor cursor) {
+        Class<CacheableClass> modelClass, Cursor cursor) {
         return convertToCacheableList(modelClass, cursor, FlowManager.getModelAdapter(modelClass).getModelCache());
     }
 
@@ -175,229 +172,6 @@ public class SqlUtils {
     }
 
     /**
-     * Takes first {@link TModel} from the cursor
-     *
-     * @param dontMoveToFirst If it's a list or at a specific position, do not reset the cursor
-     * @param table           The model class that we convert the cursor data into.
-     * @param cursor          The cursor from the DB
-     * @param <TModel>        The class that implements {@link Model}
-     * @return A model transformed from the {@link Cursor}
-     * @deprecated see {@link SingleModelLoader}
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public static <TModel extends Model> TModel convertToModel(boolean dontMoveToFirst, Class<TModel> table,
-                                                               Cursor cursor) {
-        TModel model = null;
-        if (dontMoveToFirst || cursor.moveToFirst()) {
-            InstanceAdapter modelAdapter = FlowManager.getInstanceAdapter(table);
-
-            if (modelAdapter != null) {
-                model = (TModel) modelAdapter.newInstance();
-                modelAdapter.loadFromCursor(cursor, model);
-            }
-        }
-
-        return model;
-    }
-
-    /**
-     * Takes first row from the cursor and returns a {@link ModelContainer} representation
-     * of it.
-     *
-     * @param dontMoveToFirst If it's a list or at a specific position, do not reset the cursor
-     * @param table           The model class that we convert the cursor data into.
-     * @param cursor          The cursor from the DB
-     * @param modelContainer  The non-null modelcontainer to populate data into.
-     * @param <ModelClass>    The class that implements {@link Model}
-     * @return A model transformed from the {@link Cursor}
-     * @deprecated see {@link ModelContainerLoader}
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public static <ModelClass extends Model, ModelContainerClass extends ModelContainer<ModelClass, ?>>
-    ModelContainerClass convertToModelContainer(boolean dontMoveToFirst, @NonNull Class<ModelClass> table,
-                                                @Nullable Cursor cursor, @NonNull ModelContainerClass modelContainer) {
-        if (cursor != null) {
-            try {
-                if (dontMoveToFirst || cursor.moveToFirst()) {
-                    ModelContainerAdapter modelAdapter = FlowManager.getContainerAdapter(table);
-                    if (modelAdapter != null) {
-                        modelAdapter.loadFromCursor(cursor, modelContainer);
-                    }
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-
-        return modelContainer;
-    }
-
-    /**
-     * Takes a {@link CacheableClass} from either cache (if exists) else it reads from the cursor
-     *
-     * @param dontMoveToFirst  If it's a list or at a specific position, do not reset the cursor
-     * @param table            The model class that we convert the cursor data into.
-     * @param cursor           The cursor from the DB
-     * @param <CacheableClass> The class that implements {@link Model}
-     * @return A model transformed from the {@link Cursor}
-     * @deprecated see {@link CacheableModelLoader}
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public static <CacheableClass extends Model> CacheableClass convertToCacheableModel(
-            boolean dontMoveToFirst, Class<CacheableClass> table, Cursor cursor) {
-        CacheableClass model = null;
-        if (dontMoveToFirst || cursor.moveToFirst()) {
-            ModelAdapter<CacheableClass> modelAdapter = FlowManager.getModelAdapter(table);
-
-            if (modelAdapter != null) {
-                ModelCache<CacheableClass, ?> modelCache = modelAdapter.getModelCache();
-                Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
-                        new Object[modelAdapter.getCachingColumns().length], cursor);
-                model = modelCache.get(modelAdapter.getCachingId(values));
-                if (model == null) {
-                    model = modelAdapter.newInstance();
-                    modelAdapter.loadFromCursor(cursor, model);
-                } else {
-                    modelAdapter.reloadRelationships(model, cursor);
-                }
-            }
-        }
-
-        return model;
-    }
-
-    /**
-     * Queries the DB and returns the first {@link Model} it finds. Note:
-     * this may return more than one object, but only will return the first item in the list.
-     *
-     * @param modelClass   The class to construct the data from the DB into
-     * @param sql          The SQL command to perform, must not be ; terminated.
-     * @param args         You may include ?s in where clause in the query,
-     *                     which will be replaced by the values from selectionArgs. The
-     *                     values will be bound as Strings.
-     * @param <ModelClass> The class implements {@link Model}
-     * @return a single {@link ModelClass}
-     * see {@link SingleModelLoader}
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public static <ModelClass extends Model> ModelClass querySingle(Class<ModelClass> modelClass, String sql,
-                                                                    String... args) {
-        Cursor cursor = FlowManager.getDatabaseForTable(modelClass).getWritableDatabase().rawQuery(sql, args);
-        ModelClass retModel = null;
-        try {
-            ModelAdapter modelAdapter = FlowManager.getModelAdapter(modelClass);
-            if (modelAdapter != null && modelAdapter.cachingEnabled()) {
-                retModel = convertToCacheableModel(false, modelClass, cursor);
-            } else {
-                retModel = convertToModel(false, modelClass, cursor);
-            }
-        } finally {
-            cursor.close();
-        }
-        return retModel;
-    }
-
-    @Deprecated
-    public static <ModelClass extends Model> boolean hasData(Class<ModelClass> table, String sql, String... args) {
-        DatabaseDefinition flowManager = FlowManager.getDatabaseForTable(table);
-        Cursor cursor = flowManager.getWritableDatabase().rawQuery(sql, args);
-        boolean hasData = (cursor.getCount() > 0);
-        cursor.close();
-        return hasData;
-    }
-
-    /**
-     * Saves the model into the DB based on whether it exists or not.
-     *
-     * @param model        The model to save
-     * @param modelAdapter The {@link ModelAdapter} to use
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
-    void save(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        if (model == null) {
-            throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
-        }
-
-        boolean exists = adapter.exists(model);
-
-        if (exists) {
-            exists = update(model, adapter, modelAdapter);
-        }
-
-        if (!exists) {
-            insert(model, adapter, modelAdapter);
-        }
-
-        notifyModelChanged(model, adapter, modelAdapter, Action.SAVE);
-    }
-
-    /**
-     * Updates the model if it exists. Returns false if fails. NOTE: this no longer will attempt to
-     * insert {@link Model} in the database. If you need to do either update or insert, call {@link #save(Model, RetrievalAdapter, ModelAdapter)}
-     * or more  simply {@link Model#save()}
-     *
-     * @param model        The model to update
-     * @param modelAdapter The adapter to use
-     * @return true if model updated successfully, false if not.
-     */
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
-    boolean update(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        DatabaseWrapper db = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        adapter.bindToContentValues(contentValues, model);
-        boolean successful = (SQLiteCompatibilityUtils.updateWithOnConflict(db, modelAdapter.getTableName(), contentValues,
-                adapter.getPrimaryConditionClause(model).getQuery(), null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(
-                        modelAdapter.getUpdateOnConflictAction())) !=
-                0);
-        if (successful) {
-            notifyModelChanged(model, adapter, modelAdapter, Action.UPDATE);
-        }
-        return successful;
-    }
-
-    /**
-     * Will attempt to insert the {@link ModelContainer} into the DB.
-     *
-     * @param model        The model to insert.
-     * @param modelAdapter The adapter to use.
-     */
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
-    void insert(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
-        adapter.bindToInsertStatement(insertStatement, model);
-        long id = insertStatement.executeInsert();
-        adapter.updateAutoIncrement(model, id);
-        notifyModelChanged(model, adapter, modelAdapter, Action.INSERT);
-    }
-
-
-    /**
-     * Deletes {@link Model} from the database using the specfied {@link FlowManager}
-     *
-     * @param model The model to delete
-     */
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
-    void delete(final TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter) {
-        SQLite.delete((Class<TableClass>) adapter.getModelClass()).where(
-                adapter.getPrimaryConditionClause(model)).execute();
-        notifyModelChanged(model, adapter, modelAdapter, Action.DELETE);
-        adapter.updateAutoIncrement(model, 0);
-    }
-
-    /**
      * Notifies the {@link android.database.ContentObserver} that the model has changed.
      *
      * @param action The {@link Action} enum
@@ -424,7 +198,7 @@ public class SqlUtils {
     void notifyModelChanged(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter, Action action) {
         if (FlowContentObserver.shouldNotify()) {
             notifyModelChanged(modelAdapter.getModelClass(), action,
-                    adapter.getPrimaryConditionClause(model).getConditions());
+                adapter.getPrimaryConditionClause(model).getConditions());
         }
     }
 
@@ -438,7 +212,7 @@ public class SqlUtils {
      */
     public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, Iterable<SQLCondition> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-                .authority(FlowManager.getTableName(modelClass));
+            .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -461,7 +235,7 @@ public class SqlUtils {
      */
     public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, SQLCondition[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-                .authority(FlowManager.getTableName(modelClass));
+            .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -512,7 +286,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void dropTrigger(Class<ModelClass> mOnTable, String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-                .append(triggerName);
+            .append(triggerName);
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 
@@ -525,7 +299,7 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
-                .append(QueryBuilder.quoteIfNeeded(indexName));
+            .append(QueryBuilder.quoteIfNeeded(indexName));
         databaseWrapper.execSQL(queryBuilder.getQuery());
     }
 
@@ -545,7 +319,7 @@ public class SqlUtils {
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
             conditionGroup.and(Condition.column(new NameAlias.Builder(key).build())
-                    .is(contentValues.get(key)));
+                .is(contentValues.get(key)));
         }
     }
 

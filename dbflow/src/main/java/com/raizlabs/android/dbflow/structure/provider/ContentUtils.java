@@ -5,9 +5,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -29,9 +29,9 @@ public class ContentUtils {
     /**
      * Constructs an Uri with the {@link #BASE_CONTENT_URI} and authority. Add paths to append to the Uri.
      *
-     * @param authority The authority for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param authority The authority for a {@link ContentProvider}
      * @param paths     The list of paths to append.
-     * @return A complete Uri for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @return A complete Uri for a {@link ContentProvider}
      */
     public static Uri buildUriWithAuthority(String authority, String... paths) {
         return buildUri(BASE_CONTENT_URI, authority, paths);
@@ -40,10 +40,10 @@ public class ContentUtils {
     /**
      * Constructs an Uri with the specified basecontent uri and authority. Add paths to append to the Uri.
      *
-     * @param baseContentUri The base content URI for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
-     * @param authority      The authority for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param baseContentUri The base content URI for a {@link ContentProvider}
+     * @param authority      The authority for a {@link ContentProvider}
      * @param paths          The list of paths to append.
-     * @return A complete Uri for a {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @return A complete Uri for a {@link ContentProvider}
      */
     public static Uri buildUri(String baseContentUri, String authority, String... paths) {
         Uri.Builder builder = Uri.parse(baseContentUri + authority).buildUpon();
@@ -57,9 +57,9 @@ public class ContentUtils {
      * Inserts the model into the {@link android.content.ContentResolver}. Uses the insertUri to resolve
      * the reference and the model to convert its data into {@link android.content.ContentValues}
      *
-     * @param insertUri    A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider} class definition.
+     * @param insertUri    A {@link android.net.Uri} from the {@link ContentProvider} class definition.
      * @param model        The model to insert.
-     * @param <TableClass> The class that implemets {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass> The class that implemets {@link Model}
      * @return A Uri of the inserted data.
      */
     public static <TableClass extends Model> Uri insert(Uri insertUri, TableClass model) {
@@ -70,10 +70,10 @@ public class ContentUtils {
      * Inserts the model into the {@link android.content.ContentResolver}. Uses the insertUri to resolve
      * the reference and the model to convert its data into {@link android.content.ContentValues}
      *
-     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
-     * @param insertUri       A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider} class definition.
+     * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
+     * @param insertUri       A {@link android.net.Uri} from the {@link ContentProvider} class definition.
      * @param model           The model to insert.
-     * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass>    The class that implements {@link Model}
      * @return The Uri of the inserted data.
      */
     @SuppressWarnings("unchecked")
@@ -93,7 +93,7 @@ public class ContentUtils {
      * autoincrementing primary keys the ROWID will not be properly updated from this method. If you care
      * use {@link #insert(ContentResolver, Uri, Model)} instead.
      *
-     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
+     * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param bulkInsertUri   The URI to bulk insert with
      * @param table           The table to insert into
      * @param models          The models to insert.
@@ -133,9 +133,9 @@ public class ContentUtils {
      * Updates the model through the {@link android.content.ContentResolver}. Uses the updateUri to
      * resolve the reference and the model to convert its data in {@link android.content.ContentValues}
      *
-     * @param updateUri    A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param updateUri    A {@link android.net.Uri} from the {@link ContentProvider}
      * @param model        A model to update
-     * @param <TableClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass> The class that implements {@link Model}
      * @return The number of rows updated.
      */
     public static <TableClass extends Model> int update(Uri updateUri, TableClass model) {
@@ -146,10 +146,10 @@ public class ContentUtils {
      * Updates the model through the {@link android.content.ContentResolver}. Uses the updateUri to
      * resolve the reference and the model to convert its data in {@link android.content.ContentValues}
      *
-     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
-     * @param updateUri       A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
+     * @param updateUri       A {@link android.net.Uri} from the {@link ContentProvider}
      * @param model           The model to update
-     * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass>    The class that implements {@link Model}
      * @return The number of rows updated.
      */
     @SuppressWarnings("unchecked")
@@ -167,11 +167,11 @@ public class ContentUtils {
 
     /**
      * Deletes the specified model through the {@link android.content.ContentResolver}. Uses the deleteUri
-     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryConditions(com.raizlabs.android.dbflow.structure.Model)}
+     * to resolve the reference and the model to {@link ModelAdapter#getPrimaryConditionClause(Model)}
      *
-     * @param deleteUri    A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param deleteUri    A {@link android.net.Uri} from the {@link ContentProvider}
      * @param model        The model to delete
-     * @param <TableClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass> The class that implements {@link Model}
      * @return The number of rows deleted.
      */
     @SuppressWarnings("unchecked")
@@ -181,12 +181,12 @@ public class ContentUtils {
 
     /**
      * Deletes the specified model through the {@link android.content.ContentResolver}. Uses the deleteUri
-     * to resolve the reference and the model to {@link com.raizlabs.android.dbflow.structure.ModelAdapter#getPrimaryConditions(com.raizlabs.android.dbflow.structure.Model)}
+     * to resolve the reference and the model to {@link ModelAdapter#getPrimaryConditionClause(Model)}
      *
-     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
-     * @param deleteUri       A {@link android.net.Uri} from the {@link com.raizlabs.android.dbflow.annotation.provider.ContentProvider}
+     * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
+     * @param deleteUri       A {@link android.net.Uri} from the {@link ContentProvider}
      * @param model           The model to delete
-     * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass>    The class that implements {@link Model}
      * @return The number of rows deleted.
      */
     @SuppressWarnings("unchecked")
@@ -208,7 +208,7 @@ public class ContentUtils {
      * Queries the {@link android.content.ContentResolver} with the specified query uri. It generates
      * the correct query and returns a {@link android.database.Cursor}
      *
-     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
+     * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
@@ -230,7 +230,7 @@ public class ContentUtils {
      * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
     public static <TableClass extends Model> List<TableClass> queryList(Uri queryUri, Class<TableClass> table,
@@ -244,13 +244,13 @@ public class ContentUtils {
      * Queries the {@link android.content.ContentResolver} with the specified queryUri. It will generate
      * the correct query and return a list of {@link TableClass}
      *
-     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
+     * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param table           The table to get from.
      * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
     public static <TableClass extends Model> List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
@@ -258,9 +258,9 @@ public class ContentUtils {
                                                                         String orderBy, String... columns) {
         Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
         if (cursor != null) {
-            List<TableClass> list = SqlUtils.convertToList(table, cursor);
-            cursor.close();
-            return list;
+            return FlowManager.getModelAdapter(table)
+                .getListModelLoader()
+                .load(cursor);
         }
 
         return new ArrayList<>();
@@ -275,7 +275,7 @@ public class ContentUtils {
      * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass>    The class that implements {@link Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass extends Model> TableClass querySingle(Uri queryUri, Class<TableClass> table,
@@ -288,13 +288,13 @@ public class ContentUtils {
      * Queries the {@link android.content.ContentResolver} with the specified queryUri. It will generate
      * the correct query and return a the first item from the list of {@link TableClass}
      *
-     * @param contentResolver The content resolver to use (if different from {@link com.raizlabs.android.dbflow.config.FlowManager#getContext()})
+     * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param table           The table to get from
      * @param whereConditions The set of {@link Condition} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TableClass>    The class that implements {@link Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass extends Model> TableClass querySingle(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,

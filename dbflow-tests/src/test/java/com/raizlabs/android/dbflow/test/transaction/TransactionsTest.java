@@ -156,7 +156,9 @@ public class TransactionsTest extends FlowTestCase {
                     public void processModel(Model model) {
                         model.save();
                     }
-                }).addAll(modelList).build())
+                })
+                .runProcessListenerOnSameThread(true)
+                .addAll(modelList).build())
         ).successCallback(new Transaction.Success() {
             @Override
             public void onSuccess(Transaction transaction) {
