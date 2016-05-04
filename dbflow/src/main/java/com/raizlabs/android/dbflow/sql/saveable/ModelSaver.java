@@ -21,6 +21,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  */
 public class ModelSaver {
 
+    private static final int INSERT_FAILED = -1;
+
     public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         DatabaseWrapper wrapper = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
@@ -51,7 +53,7 @@ public class ModelSaver {
     public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         return update(modelAdapter, adapter, model,
-                FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
+            FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
@@ -61,8 +63,8 @@ public class ModelSaver {
         ContentValues contentValues = new ContentValues();
         adapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-                adapter.getPrimaryConditionClause(model).getQuery(), null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
+            adapter.getPrimaryConditionClause(model).getQuery(), null,
+            ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.UPDATE);
         }
@@ -76,7 +78,7 @@ public class ModelSaver {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
-        if (id > -1) {
+        if (id > INSERT_FAILED) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
         }
@@ -89,7 +91,7 @@ public class ModelSaver {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
-        if (id > -1) {
+        if (id > INSERT_FAILED) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
         }
@@ -99,14 +101,14 @@ public class ModelSaver {
     public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
         return delete(modelAdapter, adapter, model,
-                FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
+            FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
     public synchronized <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model, DatabaseWrapper wrapper) {
         boolean successful = SQLite.delete((Class<TTable>) adapter.getModelClass()).where(
-                adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
+            adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);
         }
