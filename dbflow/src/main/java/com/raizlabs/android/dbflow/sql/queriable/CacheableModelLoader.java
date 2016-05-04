@@ -30,7 +30,7 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
             modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
             if (!modelAdapter.cachingEnabled()) {
                 throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
-                    "use one Primary Key or call convertToList()");
+                    "use one Primary Key or use the MultiCacheKeyConverter");
             }
         }
         return modelAdapter;
