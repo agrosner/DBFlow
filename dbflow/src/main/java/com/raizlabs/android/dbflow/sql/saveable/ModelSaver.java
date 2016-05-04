@@ -24,6 +24,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 public class ModelSaver {
 
     private static final Handler CLEAN_UP_HANDLER = new Handler(Looper.getMainLooper());
+    private final Object closeInsertStatementRunnableLock = new Object();
+    private Runnable closeInsertStatementRunnable;
 
     public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
@@ -77,10 +79,11 @@ public class ModelSaver {
     public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
                 TTable model, DatabaseWrapper wrapper) {
+        cancelInsertStatementClosing();
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
-        closeInsertStatementAsync(insertStatement);
+        closeInsertStatementAsync(insertStatement, modelAdapter);
         if (id > -1) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
@@ -91,10 +94,11 @@ public class ModelSaver {
     @SuppressWarnings("unchecked")
     public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
     long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
+        cancelInsertStatementClosing();
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
-        closeInsertStatementAsync(insertStatement);
+        closeInsertStatementAsync(insertStatement, modelAdapter);
         if (id > -1) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
@@ -120,12 +124,26 @@ public class ModelSaver {
         return successful;
     }
 
-    private void closeInsertStatementAsync(final DatabaseStatement insertStatement) {
-        CLEAN_UP_HANDLER.post(new Runnable() {
-            @Override
-            public void run() {
-                insertStatement.close();
-            }
-        });
+    private void closeInsertStatementAsync(final DatabaseStatement insertStatement, final ModelAdapter modelAdapter) {
+        if (closeInsertStatementRunnable == null) {
+            closeInsertStatementRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (closeInsertStatementRunnableLock) {
+                        modelAdapter.resetInsertStatement();
+                        insertStatement.close();
+                    }
+                }
+            };
+        }
+        synchronized (closeInsertStatementRunnableLock) {
+            CLEAN_UP_HANDLER.post(closeInsertStatementRunnable);
+        }
+    }
+
+    private void cancelInsertStatementClosing() {
+        synchronized (closeInsertStatementRunnableLock) {
+            CLEAN_UP_HANDLER.removeCallbacksAndMessages(closeInsertStatementRunnable);
+        }
     }
 }
