@@ -22,7 +22,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.getDatabaseVersion(), databaseDefinition);
+                databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
         databaseHelperDelegate = new DatabaseHelperDelegate(listener, databaseDefinition, backupHelper);
@@ -74,6 +74,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
     @Override
     public void onOpen(SQLiteDatabase db) {
         databaseHelperDelegate.onOpen(AndroidDatabase.from(db));
+    }
+
+    @Override
+    public void closeDB() {
+        getDatabase();
+        androidDatabase.getDatabase().close();
     }
 
     /**
@@ -128,6 +134,10 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         @Override
         public void onOpen(SQLiteDatabase db) {
             baseDatabaseHelper.onOpen(AndroidDatabase.from(db));
+        }
+
+        @Override
+        public void closeDB() {
         }
     }
 

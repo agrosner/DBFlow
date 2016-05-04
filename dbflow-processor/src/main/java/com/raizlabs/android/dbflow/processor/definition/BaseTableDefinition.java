@@ -57,6 +57,8 @@ public abstract class BaseTableDefinition extends BaseDefinition {
 
     public abstract ClassName getPropertyClassName();
 
+    public abstract void prepareForWrite();
+
     public TypeName getParameterClassName(boolean isModelContainerAdapter) {
         return isModelContainerAdapter ? ModelUtils.getModelContainerType(manager, elementClassName)
                 : elementClassName;
@@ -96,7 +98,8 @@ public abstract class BaseTableDefinition extends BaseDefinition {
                 String helperClassName = manager.getElements().getPackageOf(columnDefinition.element).toString() + "." + ClassName.get((TypeElement) columnDefinition.element.getEnclosingElement()).simpleName()
                         + databaseDefinition.classSeparator + "Helper";
                 if (columnDefinition instanceof ForeignKeyColumnDefinition) {
-                    TableDefinition tableDefinition = databaseDefinition.tableDefinitionMap
+                    TableDefinition tableDefinition = databaseDefinition.getHolderDefinition()
+                            .tableDefinitionMap
                             .get(((ForeignKeyColumnDefinition) columnDefinition).referencedTableClassName);
                     if (tableDefinition != null) {
                         helperClassName = manager.getElements().getPackageOf(tableDefinition.element).toString() + "." + ClassName.get((TypeElement) tableDefinition.element).simpleName()

@@ -34,31 +34,32 @@ public class ModelContainerDefinition extends BaseDefinition {
 
     public ModelContainerDefinition(TypeElement classElement, ProcessorManager manager) {
         super(classElement, manager);
+    }
 
-        ModelContainer containerKey = classElement.getAnnotation(ModelContainer.class);
+    public void prepareForWrite() {
+        ModelContainer containerKey = typeElement.getAnnotation(ModelContainer.class);
         if (containerKey != null) {
-            boolean putDefaultValue = containerKey.putDefault();
-
             tableDefinition = manager.getTableDefinition(manager.getDatabase(elementTypeName), elementTypeName);
 
             if (tableDefinition == null) {
                 manager.logError("Could not find a table definition for " + elementClassName + " ensure" +
-                        "that you have added a @Table definition for it.");
+                    "that you have added a @Table definition for it.");
                 return;
             }
             setOutputClassName(tableDefinition.databaseDefinition.classSeparator + DBFLOW_MODEL_CONTAINER_TAG);
 
+            boolean putDefaultValue = containerKey.putDefault();
 
             methods = new MethodDefinition[]{
-                    new BindToContentValuesMethod(tableDefinition, true, true, tableDefinition.implementsContentValuesListener),
-                    new BindToContentValuesMethod(tableDefinition, false, true, tableDefinition.implementsContentValuesListener),
-                    new BindToStatementMethod(tableDefinition, true, true),
-                    new BindToStatementMethod(tableDefinition, false, true),
-                    new ExistenceMethod(tableDefinition, true),
-                    new PrimaryConditionMethod(tableDefinition, true),
-                    new ToModelMethod(tableDefinition),
-                    new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener, putDefaultValue),
-                    new ForeignKeyContainerMethod(tableDefinition)
+                new BindToContentValuesMethod(tableDefinition, true, true, tableDefinition.implementsContentValuesListener),
+                new BindToContentValuesMethod(tableDefinition, false, true, tableDefinition.implementsContentValuesListener),
+                new BindToStatementMethod(tableDefinition, true, true),
+                new BindToStatementMethod(tableDefinition, false, true),
+                new ExistenceMethod(tableDefinition, true),
+                new PrimaryConditionMethod(tableDefinition, true),
+                new ToModelMethod(tableDefinition),
+                new LoadFromCursorMethod(tableDefinition, true, tableDefinition.implementsLoadFromCursorListener, putDefaultValue),
+                new ForeignKeyContainerMethod(tableDefinition)
             };
         }
     }
@@ -83,15 +84,15 @@ public class ModelContainerDefinition extends BaseDefinition {
 
         for (ColumnDefinition columnDefinition : tableDefinition.columnDefinitions) {
             constructorCode.addStatement("$L.put($S, $T.class)", "columnMap", columnDefinition.columnName,
-                    columnDefinition.erasedTypeName);
+                columnDefinition.erasedTypeName);
         }
         customTypeConverterPropertyMethod.addCode(constructorCode);
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
-                .addParameter(ClassNames.DATABASE_HOLDER, "holder")
-                .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
-                .addCode(constructorCode.build())
-                .addModifiers(Modifier.PUBLIC).build());
+            .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+            .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
+            .addCode(constructorCode.build())
+            .addModifiers(Modifier.PUBLIC).build());
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
         InternalAdapterHelper.writeGetTableName(typeBuilder, tableDefinition.tableName);
@@ -103,4 +104,5 @@ public class ModelContainerDefinition extends BaseDefinition {
             }
         }
     }
+
 }

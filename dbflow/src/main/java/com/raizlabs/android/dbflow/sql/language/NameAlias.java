@@ -1,26 +1,14 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
+import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 
 /**
- * Description: Represents a column name as an alias to its original name. EX: SELECT `money` AS `myMoney`. However
- * if a an asName is not specified, then at its base this simply represents a column.
+ * Description: Rewritten from the ground up, this class makes it easier to build an alias.
  */
 public class NameAlias implements Query {
-
-    private String name;
-
-    private String aliasName;
-
-    private boolean tickName = true;
-
-    private String prefixName;
-
-    boolean shouldStripTicks;
 
     /**
      * Combines any number of names into a single {@link NameAlias} separated by some operation.
@@ -40,144 +28,265 @@ public class NameAlias implements Query {
             }
             newName += names[i];
         }
-        return new NameAlias(newName, false).tickName(false);
+        return rawBuilder(newName).build();
+    }
+
+    public static Builder builder(String name) {
+        return new Builder(name);
     }
 
     /**
-     * Internal usage only. We don't strip out ticks in a name ot preserve its compound name state.
-     *
-     * @param name             The name of this {@link NameAlias}.
-     * @param shouldStripTicks True we strip ticks from name, false we preserve them.
+     * @param name The raw name of this alias.
+     * @return A new instance without adding identifier `` to any part of the query.
      */
-    public NameAlias(@NonNull String name, boolean shouldStripTicks) {
-        this.shouldStripTicks = shouldStripTicks;
-        if (shouldStripTicks) {
-            this.name = QueryBuilder.stripQuotes(name);
+    public static Builder rawBuilder(String name) {
+        return new Builder(name)
+                .shouldStripIdentifier(false)
+                .shouldAddIdentifierToName(false);
+    }
+
+    private final String name;
+    private final String aliasName;
+    private final String tableName;
+    private final String keyword;
+    private final boolean shouldStripIdentifier;
+    private final boolean shouldStripAliasName;
+    private final boolean shouldAddIdentifierToQuery;
+    private final boolean shouldAddIdentifierToAliasName;
+
+    private NameAlias(Builder builder) {
+        if (builder.shouldStripIdentifier) {
+            name = QueryBuilder.stripQuotes(builder.name);
         } else {
-            this.name = name;
+            name = builder.name;
+        }
+        keyword = builder.keyword;
+        if (builder.shouldStripAliasName) {
+            aliasName = QueryBuilder.stripQuotes(builder.aliasName);
+        } else {
+            aliasName = builder.aliasName;
+        }
+        if (StringUtils.isNotNullOrEmpty(builder.tableName)) {
+            tableName = QueryBuilder.quoteIfNeeded(builder.tableName);
+        } else {
+            tableName = null;
+        }
+        shouldStripIdentifier = builder.shouldStripIdentifier;
+        shouldStripAliasName = builder.shouldStripAliasName;
+        shouldAddIdentifierToQuery = builder.shouldAddIdentifierToQuery;
+        shouldAddIdentifierToAliasName = builder.shouldAddIdentifierToAliasName;
+    }
+
+    /**
+     * @return The real column name.
+     */
+    public String name() {
+        return (StringUtils.isNotNullOrEmpty(name) && shouldAddIdentifierToQuery) ?
+                QueryBuilder.quoteIfNeeded(name) : name;
+    }
+
+    /**
+     * @return The name, stripped from identifier syntax completely.
+     */
+    public String nameRaw() {
+        return shouldStripIdentifier ? name : QueryBuilder.stripQuotes(name);
+    }
+
+    /**
+     * @return The name used as part of the AS query.
+     */
+    public String aliasName() {
+        return (StringUtils.isNotNullOrEmpty(aliasName) && shouldAddIdentifierToAliasName) ?
+                QueryBuilder.quoteIfNeeded(aliasName) : aliasName;
+    }
+
+    /**
+     * @return The alias name, stripped from identifier syntax completely.
+     */
+    public String aliasNameRaw() {
+        return shouldStripAliasName ? aliasName : QueryBuilder.stripQuotes(aliasName);
+    }
+
+    /**
+     * @return the table name of this query, if specified.
+     */
+    public String tableName() {
+        return tableName;
+    }
+
+    /**
+     * @return The keyword that prefixes this alias.
+     */
+    public String keyword() {
+        return keyword;
+    }
+
+    /**
+     * @return true if the name was stripped from identifier, false if not.
+     */
+    public boolean shouldStripIdentifier() {
+        return shouldStripIdentifier;
+    }
+
+    /**
+     * @return true if the alias was stripped from identifier, false if not.
+     */
+    public boolean shouldStripAliasName() {
+        return shouldStripAliasName;
+    }
+
+    /**
+     * @return The `{tableName}`.`{name}`. If {@link #tableName()} specified.
+     */
+    public String fullName() {
+        return (StringUtils.isNotNullOrEmpty(tableName) ? (tableName() + ".") : "") + name();
+    }
+
+    /**
+     * @return The name used in queries. If an alias is specified, use that, otherwise use the name
+     * of the property with a table name (if specified).
+     */
+    @Override
+    public String getQuery() {
+        if (StringUtils.isNotNullOrEmpty(aliasName)) {
+            return aliasName();
+        } else if (StringUtils.isNotNullOrEmpty(name)) {
+            return fullName();
+        } else {
+            return "";
         }
     }
 
-    public NameAlias(@NonNull String name) {
-        this.name = QueryBuilder.stripQuotes(name);
-    }
-
-    public NameAlias(@NonNull String name, @NonNull String aliasName) {
-        this(name);
-        as(aliasName);
-    }
-
     /**
-     * Copy constructor.
-     *
-     * @param existing
+     * @return The value used as a key in a {@link ModelContainer}. Uses either the {@link #aliasNameRaw()}
+     * or the {@link #nameRaw()}, depending on what's specified.
      */
-    public NameAlias(@NonNull NameAlias existing) {
-        this(existing.name, existing.aliasName);
-        tickName(existing.shouldTickName());
-    }
-
-    public NameAlias as(@NonNull String aliasName) {
-        this.aliasName = QueryBuilder.stripQuotes(aliasName);
-        return this;
-    }
-
-    public NameAlias withTable(@NonNull String prefixName) {
-        this.prefixName = QueryBuilder.stripQuotes(prefixName);
-        return this;
-    }
-
-    /**
-     * @param shouldTickName if true the names are quoted. False we leave out the quotes.
-     * @return This instance.
-     */
-    public NameAlias tickName(boolean shouldTickName) {
-        this.tickName = shouldTickName;
-        return this;
-    }
-
-    @Override
-    public String getQuery() {
-        return getAliasName();
+    public String getNameAsKey() {
+        if (StringUtils.isNotNullOrEmpty(aliasName)) {
+            return aliasNameRaw();
+        } else {
+            return nameRaw();
+        }
     }
 
     @Override
     public String toString() {
-        return getDefinition();
+        return getFullQuery();
     }
 
     /**
-     * @return The full definition name that this Alias uses to define its definition.
-     * E.g: `firstName` AS `FN`.
+     * @return The full query that represents itself with `{tableName}`.`{name}` AS `{aliasName}`
      */
-    @NonNull
-    public String getDefinition() {
-        StringBuilder definition = new StringBuilder();
-        definition.append(getName());
-        if (hasAlias()) {
-            definition.append(" AS ").append(getAliasName());
+    public String getFullQuery() {
+        String query = fullName();
+        if (StringUtils.isNotNullOrEmpty(aliasName)) {
+            query += " AS " + aliasName();
         }
-        return definition.toString();
-    }
-
-    /**
-     * @return True if this has an actual alias.
-     */
-    public boolean hasAlias() {
-        return aliasName != null;
-    }
-
-    /**
-     * @return The alias name of this table. If none is defined, it returns {@link #getName()}.
-     */
-    @NonNull
-    public String getAliasName() {
-        return aliasName != null ? QueryBuilder.quote(getAliasNameRaw()) : getName();
-    }
-
-    public boolean shouldStripTicks() {
-        return shouldStripTicks;
-    }
-
-    /**
-     * @return The value of the aliasName. It may be null.
-     */
-    @Nullable
-    public String getAliasPropertyRaw() {
-        return aliasName;
-    }
-
-    /**
-     * @return The alias name for this table without any quotes. If none is defined it returns {@link #getNamePropertyRaw()}.
-     */
-    public String getAliasNameRaw() {
-        return aliasName != null ? aliasName : name;
-    }
-
-    public boolean shouldTickName() {
-        return tickName;
-    }
-
-    /**
-     * @return The original name of this alias.
-     */
-    @NonNull
-    public String getName() {
-        String fullName = "";
-        if (prefixName != null) {
-            fullName += (tickName ? QueryBuilder.quoteIfNeeded(prefixName) : prefixName) + ".";
+        if (StringUtils.isNotNullOrEmpty(keyword)) {
+            query = keyword + " " + query;
         }
-        if (name != null) {
-            fullName += (tickName ? QueryBuilder.quote(name) : getNamePropertyRaw());
-        }
-        return fullName;
+        return query;
     }
 
     /**
-     * @return The name of this alias.
+     * @return Constructs a builder as a new instance that can be modified without fear.
      */
-    @NonNull
-    public String getNamePropertyRaw() {
-        return name;
+    public Builder newBuilder() {
+        return new Builder(name)
+                .keyword(keyword)
+                .as(aliasName)
+                .shouldStripAliasName(shouldStripAliasName)
+                .shouldStripIdentifier(shouldStripIdentifier)
+                .shouldAddIdentifierToName(shouldAddIdentifierToQuery)
+                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAliasName)
+                .withTable(tableName);
+    }
+
+
+    public static class Builder {
+
+        private final String name;
+        private String aliasName;
+        private String tableName;
+        private boolean shouldStripIdentifier = true;
+        private boolean shouldStripAliasName = true;
+        private boolean shouldAddIdentifierToQuery = true;
+        private boolean shouldAddIdentifierToAliasName = true;
+        private String keyword;
+
+        public Builder(String name) {
+            this.name = name;
+        }
+
+        /**
+         * Appends a DISTINCT that prefixes this alias class.
+         */
+        public Builder distinct() {
+            return keyword("DISTINCT");
+        }
+
+        /**
+         * Appends a keyword that prefixes this alias class.
+         */
+        public Builder keyword(String keyword) {
+            this.keyword = keyword;
+            return this;
+        }
+
+        /**
+         * Provide an alias that is used `{name}` AS `{aliasName}`
+         */
+        public Builder as(String aliasName) {
+            this.aliasName = aliasName;
+            return this;
+        }
+
+        /**
+         * Provide a table-name prefix as such: `{tableName}`.`{name}`
+         */
+        public Builder withTable(String tableName) {
+            this.tableName = tableName;
+            return this;
+        }
+
+        /**
+         * @param shouldStripIdentifier If true, we normalize the identifier {@link #name} from any
+         *                              ticks around the name. If false, we leave it as such.
+         */
+        public Builder shouldStripIdentifier(boolean shouldStripIdentifier) {
+            this.shouldStripIdentifier = shouldStripIdentifier;
+            return this;
+        }
+
+        /**
+         * @param shouldStripAliasName If true, we normalize the identifier {@link #aliasName} from any
+         *                             ticks around the name. If false, we leave it as such.
+         */
+        public Builder shouldStripAliasName(boolean shouldStripAliasName) {
+            this.shouldStripAliasName = shouldStripAliasName;
+            return this;
+        }
+
+        /**
+         * @param shouldAddIdentifierToName If true (default), we add the identifier to the name: `{name}`
+         */
+        public Builder shouldAddIdentifierToName(boolean shouldAddIdentifierToName) {
+            this.shouldAddIdentifierToQuery = shouldAddIdentifierToName;
+            return this;
+        }
+
+        /**
+         * @param shouldAddIdentifierToAliasName If true (default), we add an identifier to the alias
+         *                                       name. `{aliasName}`
+         */
+        public Builder shouldAddIdentifierToAliasName(boolean shouldAddIdentifierToAliasName) {
+            this.shouldAddIdentifierToAliasName = shouldAddIdentifierToAliasName;
+            return this;
+        }
+
+        public NameAlias build() {
+            return new NameAlias(this);
+        }
+
     }
 }

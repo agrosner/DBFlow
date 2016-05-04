@@ -151,7 +151,7 @@ public class FlowManager {
 
     /**
      * Loading the module Database holder via reflection.
-     * <p>
+     * <p/>
      * It is assumed FlowManager.init() is called by the application that uses the
      * module database. This method should only be called if you need to load databases
      * that are part of a module. Building once will give you the ability to add the class.

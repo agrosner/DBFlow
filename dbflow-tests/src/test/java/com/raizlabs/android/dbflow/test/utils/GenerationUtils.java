@@ -21,7 +21,7 @@ public class GenerationUtils {
     public static <TestClass extends TestModel1> List<TestClass> generateRandomModels(Class<TestClass> testClass, int size) {
         List<TestClass> testModel1s = new ArrayList<>();
         TestClass testModel1;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < size; i++) {
             testModel1 = FlowManager.getModelAdapter(testClass).newInstance();
             testModel1.setName(UUID.randomUUID().toString());
             testModel1.save();

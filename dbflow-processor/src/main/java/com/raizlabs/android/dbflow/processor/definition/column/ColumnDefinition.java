@@ -379,6 +379,10 @@ public class ColumnDefinition extends BaseDefinition {
             String columnAccessString = getColumnAccessString(isModelContainerAdapter, false);
             if (columnAccess instanceof BlobColumnAccess) {
                 columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(".getBlob()"));
+            } else if (columnAccess instanceof EnumColumnAccess) {
+                columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(".name()"));
+            } else if (columnAccess instanceof BooleanTypeColumnAccess) {
+                columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(" ? 1 : 0"));
             }
             codeBuilder.add(columnAccessString);
         }
@@ -405,7 +409,7 @@ public class ColumnDefinition extends BaseDefinition {
         }
 
         if (unique) {
-            codeBlockBuilder.add(" UNIQUE");
+            codeBlockBuilder.add(" UNIQUE ON CONFLICT $L", onUniqueConflict);
         }
 
         if (notNull) {

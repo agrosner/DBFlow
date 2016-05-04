@@ -19,28 +19,55 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
     }
 
     public FloatProperty(Class<? extends Model> table, String columnName) {
-        this(table, new NameAlias(columnName));
+        this(table, new NameAlias.Builder(columnName).build());
     }
 
     public FloatProperty(Class<? extends Model> table, String columnName, String aliasName) {
-        this(table, new NameAlias(columnName, aliasName));
+        this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 
     @Override
     public FloatProperty plus(IProperty iProperty) {
         return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public FloatProperty minus(IProperty iProperty) {
         return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty dividedBy(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
+                nameAlias.fullName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty multipliedBy(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
+                nameAlias.fullName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty mod(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
+                nameAlias.fullName(), iProperty.toString()));
+    }
+
+    @Override
+    public FloatProperty concatenate(IProperty iProperty) {
+        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public FloatProperty as(String aliasName) {
-        return new FloatProperty(table, nameAlias.getAliasNameRaw(), aliasName);
+        return new FloatProperty(table, nameAlias
+                .newBuilder()
+                .as(aliasName)
+                .build());
     }
 
     @Override
@@ -50,7 +77,10 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
 
     @Override
     public FloatProperty withTable(NameAlias tableNameAlias) {
-        return new FloatProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
+        return new FloatProperty(table, nameAlias
+                .newBuilder()
+                .withTable(tableNameAlias.getQuery())
+                .build());
     }
 
     public Condition is(float value) {

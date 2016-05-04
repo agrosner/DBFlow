@@ -21,7 +21,7 @@ public abstract class FixPrimaryKeyMigration<TableClass extends Model> extends B
 
     @Override
     public void migrate(DatabaseWrapper database) {
-        Cursor tableSchema = getSelectTableQuery().query();
+        Cursor tableSchema = getSelectTableQuery().query(database);
 
         if (tableSchema != null && tableSchema.moveToFirst()) {
             String creationQuery = tableSchema.getString(0);

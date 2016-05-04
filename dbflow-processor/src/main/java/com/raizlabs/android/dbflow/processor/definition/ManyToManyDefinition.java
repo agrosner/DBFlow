@@ -33,9 +33,12 @@ public class ManyToManyDefinition extends BaseDefinition {
     boolean saveForeignKeyModels;
 
     public ManyToManyDefinition(TypeElement element, ProcessorManager processorManager) {
+        this(element, processorManager, element.getAnnotation(ManyToMany.class));
+    }
+
+    public ManyToManyDefinition(TypeElement element, ProcessorManager processorManager, ManyToMany manyToMany) {
         super(element, processorManager);
 
-        ManyToMany manyToMany = element.getAnnotation(ManyToMany.class);
         referencedTable = TypeName.get(ModelUtils.getReferencedClassFromAnnotation(manyToMany));
         generateAutoIncrement = manyToMany.generateAutoIncrement();
         generatedTableClassName = manyToMany.generatedTableClassName();
@@ -49,8 +52,10 @@ public class ManyToManyDefinition extends BaseDefinition {
         } catch (MirroredTypeException mte) {
             databaseTypeName = TypeName.get(mte.getTypeMirror());
         }
+    }
 
-        DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
+    public void prepareForWrite() {
+        DatabaseDefinition databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).getDatabaseDefinition();
         if (databaseDefinition == null) {
             manager.logError("DatabaseDefinition was null for : " + elementName);
         } else {

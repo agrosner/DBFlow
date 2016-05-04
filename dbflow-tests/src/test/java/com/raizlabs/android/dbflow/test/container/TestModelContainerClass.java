@@ -34,7 +34,7 @@ public class TestModelContainerClass extends TestModel1 {
 
     @Column
     @ForeignKey(
-        saveForeignKeyModel = true,
+            saveForeignKeyModel = true,
             onDelete = ForeignKeyAction.CASCADE,
             onUpdate = ForeignKeyAction.CASCADE,
             references =

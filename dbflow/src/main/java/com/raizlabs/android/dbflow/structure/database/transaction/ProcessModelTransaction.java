@@ -50,30 +50,36 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
     final OnModelProcessListener<TModel> processListener;
     final List<TModel> models;
     final ProcessModel<TModel> processModel;
+    final boolean runProcessListenerOnSameThread;
 
     ProcessModelTransaction(Builder<TModel> builder) {
         processListener = builder.processListener;
         models = builder.models;
         processModel = builder.processModel;
+        runProcessListenerOnSameThread = builder.runProcessListenerOnSameThread;
     }
 
     @Override
     public void execute(DatabaseWrapper databaseWrapper) {
-        if (models != null && models.size() > 0) {
+        if (models != null) {
             final int size = models.size();
             for (int i = 0; i < size; i++) {
                 final TModel model = models.get(i);
                 processModel.processModel(model);
 
-                final int finalI = i;
-                Transaction.TRANSACTION_HANDLER.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (processListener != null) {
-                            processListener.onModelProcessed(finalI, size, model);
-                        }
+                if (processListener != null) {
+                    if (runProcessListenerOnSameThread) {
+                        processListener.onModelProcessed(i, size, model);
+                    } else {
+                        final int finalI = i;
+                        Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                processListener.onModelProcessed(finalI, size, model);
+                            }
+                        });
                     }
-                });
+                }
             }
         }
     }
@@ -88,6 +94,7 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
         private final ProcessModel<TModel> processModel;
         OnModelProcessListener<TModel> processListener;
         List<TModel> models = new ArrayList<>();
+        private boolean runProcessListenerOnSameThread;
 
 
         public Builder(@NonNull ProcessModel<TModel> processModel) {
@@ -132,6 +139,16 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
          */
         public Builder<TModel> processListener(OnModelProcessListener<TModel> processListener) {
             this.processListener = processListener;
+            return this;
+        }
+
+        /**
+         * @param runProcessListenerOnSameThread Default is false. If true we return callback
+         *                                       on same calling thread, if false we push the callback
+         *                                       to the UI thread.
+         */
+        public Builder<TModel> runProcessListenerOnSameThread(boolean runProcessListenerOnSameThread) {
+            this.runProcessListenerOnSameThread = runProcessListenerOnSameThread;
             return this;
         }
 

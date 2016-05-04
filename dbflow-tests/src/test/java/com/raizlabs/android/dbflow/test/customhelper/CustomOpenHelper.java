@@ -40,4 +40,8 @@ public class CustomOpenHelper implements OpenHelper {
     public void setDatabaseListener(DatabaseHelperListener helperListener) {
 
     }
+
+    @Override
+    public void closeDB() {
+    }
 }

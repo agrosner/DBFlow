@@ -13,6 +13,8 @@ public class AsyncQuery<TModel extends Model> extends BaseAsyncObject<AsyncQuery
 
     private final ModelQueriable<TModel> modelQueriable;
     private QueryTransaction.QueryResultCallback<TModel> queryResultCallback;
+    private QueryTransaction.QueryResultListCallback<TModel> queryResultListCallback;
+    private QueryTransaction.QueryResultSingleCallback<TModel> queryResultSingleCallback;
 
     /**
      * Constructs an instance of this async query.
@@ -33,11 +35,30 @@ public class AsyncQuery<TModel extends Model> extends BaseAsyncObject<AsyncQuery
     }
 
     /**
+     * @param queryResultSingleCallback Called when query is executed and has a result.
+     */
+    public AsyncQuery<TModel> querySingleResultCallback(QueryTransaction.QueryResultSingleCallback<TModel> queryResultSingleCallback) {
+        this.queryResultSingleCallback = queryResultSingleCallback;
+        return this;
+    }
+
+    /**
+     * @param queryResultListCallback Called when query is executed and has a result.
+     */
+    public AsyncQuery<TModel> queryListResultCallback(QueryTransaction.QueryResultListCallback<TModel> queryResultListCallback) {
+        this.queryResultListCallback = queryResultListCallback;
+        return this;
+    }
+
+    /**
      * Runs the specified query in the background.
      */
     public void execute() {
         executeTransaction(new QueryTransaction.Builder<>(modelQueriable)
-                .queryResult(queryResultCallback).build());
+            .queryResult(queryResultCallback)
+            .queryListResult(queryResultListCallback)
+            .querySingleResult(queryResultSingleCallback)
+            .build());
     }
 
     /**

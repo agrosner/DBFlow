@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.IConditional;
-import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -25,36 +24,36 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
 
     @Override
     public P withTable() {
-        return withTable(new NameAlias(FlowManager.getTableName(table)));
+        return withTable(new NameAlias.Builder(FlowManager.getTableName(table)).build());
     }
 
     @Override
-    public Condition is(ITypeConditional conditional) {
+    public Condition is(IConditional conditional) {
         return column(getNameAlias()).is(conditional);
     }
 
     @Override
-    public Condition eq(ITypeConditional conditional) {
+    public Condition eq(IConditional conditional) {
         return column(getNameAlias()).eq(conditional);
     }
 
     @Override
-    public Condition isNot(ITypeConditional conditional) {
+    public Condition isNot(IConditional conditional) {
         return column(getNameAlias()).isNot(conditional);
     }
 
     @Override
-    public Condition notEq(ITypeConditional conditional) {
+    public Condition notEq(IConditional conditional) {
         return column(getNameAlias()).notEq(conditional);
     }
 
     @Override
-    public Condition like(ITypeConditional conditional) {
+    public Condition like(IConditional conditional) {
         return column(getNameAlias()).like(conditional);
     }
 
     @Override
-    public Condition glob(ITypeConditional conditional) {
+    public Condition glob(IConditional conditional) {
         return column(getNameAlias()).glob(conditional);
     }
 
@@ -69,37 +68,37 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     @Override
-    public Condition greaterThan(ITypeConditional conditional) {
+    public Condition greaterThan(IConditional conditional) {
         return column(getNameAlias()).greaterThan(conditional);
     }
 
     @Override
-    public Condition greaterThanOrEq(ITypeConditional conditional) {
+    public Condition greaterThanOrEq(IConditional conditional) {
         return column(getNameAlias()).greaterThanOrEq(conditional);
     }
 
     @Override
-    public Condition lessThan(ITypeConditional conditional) {
+    public Condition lessThan(IConditional conditional) {
         return column(getNameAlias()).lessThan(conditional);
     }
 
     @Override
-    public Condition lessThanOrEq(ITypeConditional conditional) {
+    public Condition lessThanOrEq(IConditional conditional) {
         return column(getNameAlias()).lessThanOrEq(conditional);
     }
 
     @Override
-    public Condition.Between between(ITypeConditional conditional) {
+    public Condition.Between between(IConditional conditional) {
         return column(getNameAlias()).between(conditional);
     }
 
     @Override
-    public Condition.In in(ITypeConditional firstConditional, ITypeConditional... conditionals) {
+    public Condition.In in(IConditional firstConditional, IConditional... conditionals) {
         return column(getNameAlias()).in(firstConditional, conditionals);
     }
 
     @Override
-    public Condition.In notIn(ITypeConditional firstConditional, ITypeConditional... conditionals) {
+    public Condition.In notIn(IConditional firstConditional, IConditional... conditionals) {
         return column(getNameAlias()).notIn(firstConditional, conditionals);
     }
 
@@ -179,7 +178,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     @Override
-    public Condition concatenate(ITypeConditional conditional) {
+    public Condition concatenate(IConditional conditional) {
         return column(getNameAlias()).concatenate(conditional);
     }
 
@@ -195,7 +194,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
 
     @Override
     public String getContainerKey() {
-        return getNameAlias().getAliasNameRaw();
+        return getNameAlias().getNameAsKey();
     }
 
     @Override
@@ -209,7 +208,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     public String getDefinition() {
-        return getNameAlias().getDefinition();
+        return getNameAlias().getFullQuery();
     }
 
     @Override
@@ -221,6 +220,9 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
      * @return helper method to construct it in a {@link #distinct()} call.
      */
     protected NameAlias getDistinctAliasName() {
-        return new NameAlias("DISTINCT " + getNameAlias().getName(), getNameAlias().getAliasPropertyRaw()).tickName(false);
+        return getNameAlias()
+                .newBuilder()
+                .distinct()
+                .build();
     }
 }

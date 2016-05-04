@@ -21,4 +21,8 @@ public class DefaultModel extends TestModel1 {
 
     @Column(defaultValue = "1")
     Boolean aBoolean;
+
+    @Column(defaultValue = "\"\"")
+    String emptyString;
+
 }
