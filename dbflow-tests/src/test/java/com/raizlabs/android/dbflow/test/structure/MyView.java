@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-@ModelView(database = TestDatabase.class, name = "v_view")
+@ModelView(database = TestDatabase.class, name = "v_view", priority = 3)
 public class MyView extends BaseModelView<MyView> {
 
     @ModelViewQuery

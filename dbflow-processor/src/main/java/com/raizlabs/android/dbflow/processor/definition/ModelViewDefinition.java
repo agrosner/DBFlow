@@ -40,7 +40,7 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Description: Used in writing ModelViewAdapters
  */
-public class ModelViewDefinition extends BaseTableDefinition {
+public class ModelViewDefinition extends BaseTableDefinition implements Comparable<ModelViewDefinition> {
 
     private static final String DBFLOW_MODEL_VIEW_TAG = "View";
 
@@ -62,6 +62,8 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
     public boolean allFields;
 
+    public int priority;
+
     public ModelViewDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
 
@@ -81,6 +83,7 @@ public class ModelViewDefinition extends BaseTableDefinition {
             if (name == null || name.isEmpty()) {
                 name = getModelClassName();
             }
+            this.priority = modelView.priority();
         }
 
         DeclaredType typeAdapterInterface = null;
@@ -268,5 +271,10 @@ public class ModelViewDefinition extends BaseTableDefinition {
             .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
             .addStatement("return new $T()", elementClassName)
             .returns(elementClassName).build());
+    }
+
+    @Override
+    public int compareTo(ModelViewDefinition o) {
+        return Integer.valueOf(priority).compareTo(o.priority);
     }
 }

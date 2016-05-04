@@ -33,4 +33,10 @@ public @interface ModelView {
      * or {@link PrimaryKey#autoincrement()}.
      */
     boolean allFields() default false;
+
+    /**
+     * @return The higher the number, the order by which the creation of this class gets called.
+     * Useful for creating ones that depend on another {@link ModelView}.
+     */
+    int priority() default -1;
 }
