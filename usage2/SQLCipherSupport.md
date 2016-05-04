@@ -15,7 +15,7 @@ Next, you need to subclass the provided `SQLCipherOpenHelper` (taken from test f
 ```java
 public class SQLCipherHelperImpl extends SQLCipherOpenHelper {
 
-    public SQLCipherHelperImpl(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
+    public SQLCipherHelperImpl(DatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
         super(databaseDefinition, listener);
     }
 
@@ -26,7 +26,7 @@ public class SQLCipherHelperImpl extends SQLCipherOpenHelper {
 }
 ```
 
-_Note:_ that the constructor with `BaseDatabaseDefinition` and `DatabaseHelperListener` is required.
+_Note:_ that the constructor with `DatabaseDefinition` and `DatabaseHelperListener` is required.
 
 Then in your application class when initializing DBFlow:
 
