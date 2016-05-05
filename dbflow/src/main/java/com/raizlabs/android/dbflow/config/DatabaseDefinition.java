@@ -213,6 +213,7 @@ public abstract class DatabaseDefinition {
             } else {
                 openHelper = config.helperCreator().createHelper(this, helperListener);
             }
+            openHelper.performRestoreFromBackup();
         }
         return openHelper;
     }

@@ -38,6 +38,11 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
     }
 
     @Override
+    public void performRestoreFromBackup() {
+        databaseHelperDelegate.performRestoreFromBackup();
+    }
+
+    @Override
     public DatabaseHelperDelegate getDelegate() {
         return databaseHelperDelegate;
     }
@@ -115,6 +120,10 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
                 sqlCipherDatabase = SQLCipherDatabase.from(getWritableDatabase(getCipherSecret()));
             }
             return sqlCipherDatabase;
+        }
+
+        @Override
+        public void performRestoreFromBackup() {
         }
 
         @Override

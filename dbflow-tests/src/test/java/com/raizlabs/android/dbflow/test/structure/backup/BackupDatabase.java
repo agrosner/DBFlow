@@ -5,7 +5,8 @@ import com.raizlabs.android.dbflow.annotation.Database;
 /**
  * Description:
  */
-@Database(name = BackupDatabase.NAME, version = BackupDatabase.VERSION, backupEnabled = true)
+@Database(name = BackupDatabase.NAME, version = BackupDatabase.VERSION,
+    backupEnabled = true, consistencyCheckEnabled = true)
 public class BackupDatabase {
 
     public static final String NAME = "BackupDB";

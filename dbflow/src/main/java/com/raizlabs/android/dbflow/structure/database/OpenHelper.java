@@ -5,6 +5,8 @@ package com.raizlabs.android.dbflow.structure.database;
  */
 public interface OpenHelper {
 
+    void performRestoreFromBackup();
+
     DatabaseWrapper getDatabase();
 
     DatabaseHelperDelegate getDelegate();
