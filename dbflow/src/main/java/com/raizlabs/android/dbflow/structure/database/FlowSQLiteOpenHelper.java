@@ -29,6 +29,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
     }
 
     @Override
+    public void performRestoreFromBackup() {
+        databaseHelperDelegate.performRestoreFromBackup();
+    }
+
+    @Override
     public DatabaseHelperDelegate getDelegate() {
         return databaseHelperDelegate;
     }
@@ -101,6 +106,10 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
                 androidDatabase = AndroidDatabase.from(getWritableDatabase());
             }
             return androidDatabase;
+        }
+
+        @Override
+        public void performRestoreFromBackup() {
         }
 
         @Override
