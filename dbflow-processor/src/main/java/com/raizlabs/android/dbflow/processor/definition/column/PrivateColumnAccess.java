@@ -61,7 +61,12 @@ public class PrivateColumnAccess extends BaseColumnAccess {
         if (isModelContainerAdapter) {
             return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
         } else {
-            return String.format("%1s.%1s(%1s)", variableNameString, getSetterNameElement(elementName), formattedAccess);
+            // append . when specify something, if not then we leave blank.
+            String varNameFull = variableNameString;
+            if (!StringUtils.isNullOrEmpty(varNameFull)) {
+                varNameFull += ".";
+            }
+            return String.format("%s%1s(%1s)", varNameFull, getSetterNameElement(elementName), formattedAccess);
         }
     }
 
