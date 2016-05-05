@@ -153,7 +153,7 @@ public abstract class DatabaseDefinition {
      * @param table The table that has a {@link ModelContainer} annotation.
      * @return the associated {@link ModelContainerAdapter} within this
      * database for the specified table. These are used for {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
-     * and require {@link com.raizlabs.android.dbflow.structure.Model} to add the {@link ModelContainer}.
+     * and require {@link Model} to add the {@link ModelContainer}.
      */
     public ModelContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
         return modelContainerAdapters.get(table);
@@ -213,6 +213,7 @@ public abstract class DatabaseDefinition {
             } else {
                 openHelper = config.helperCreator().createHelper(this, helperListener);
             }
+            openHelper.performRestoreFromBackup();
         }
         return openHelper;
     }

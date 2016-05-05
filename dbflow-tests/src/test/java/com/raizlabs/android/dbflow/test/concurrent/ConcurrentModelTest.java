@@ -10,13 +10,11 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
 import org.junit.Test;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.raizlabs.android.dbflow.sql.language.SQLite.select;
 import static com.raizlabs.android.dbflow.sql.language.SQLite.selectCountOf;
 import static junit.framework.Assert.assertEquals;
 
@@ -38,11 +36,6 @@ public class ConcurrentModelTest extends FlowTestCase {
         executorService.awaitTermination(CONCURRENT_INSERT_TIMEOUT, TimeUnit.MILLISECONDS);
 
         long modelCount = selectCountOf().from(TestModel1.class).count();
-
-        List<TestModel1> models = select().from(TestModel1.class).queryList();
-        for (TestModel1 model : models) {
-            System.out.println("Found: " + model.getName());
-        }
         assertEquals(CONCURRENT_INSERT_COUNT, modelCount);
     }
 
@@ -57,9 +50,6 @@ public class ConcurrentModelTest extends FlowTestCase {
             TestModel1 indexModel = new TestModel1();
             indexModel.setName(uuid);
             indexModel.insert();
-
-            System.out.println("Inserting: " + indexModel.getName());
-
         }
     }
 
@@ -72,7 +62,7 @@ public class ConcurrentModelTest extends FlowTestCase {
             String uuid = UUID.randomUUID().toString();
 
             Insert insert = SQLite.insert(TestModel1.class).orFail()
-                    .values(uuid);
+                .values(uuid);
 
             FlowManager.getDatabase(TestDatabase.NAME).getWritableDatabase().execSQL(insert.getQuery());
         }

@@ -3,6 +3,9 @@ package com.raizlabs.android.dbflow.processor.definition;
 import com.google.common.collect.Lists;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.definition.column.BaseColumnAccess;
+import com.raizlabs.android.dbflow.processor.definition.column.PrivateColumnAccess;
+import com.raizlabs.android.dbflow.processor.definition.column.SimpleColumnAccess;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.CodeBlock;
@@ -23,6 +26,8 @@ public class OneToManyDefinition extends BaseDefinition {
 
     public List<OneToMany.Method> methods = Lists.newArrayList();
 
+    private BaseColumnAccess columnAccess;
+
     public OneToManyDefinition(ExecutableElement typeElement,
                                ProcessorManager processorManager) {
         super(typeElement, processorManager);
@@ -36,6 +41,12 @@ public class OneToManyDefinition extends BaseDefinition {
             variableName = variableName.substring(0, 1).toLowerCase() + variableName.substring(1);
         }
         methods.addAll(Arrays.asList(oneToMany.methods()));
+
+        if (oneToMany.isVariablePrivate()) {
+            columnAccess = new PrivateColumnAccess(false);
+        } else {
+            columnAccess = new SimpleColumnAccess();
+        }
     }
 
     public boolean isLoad() {
@@ -72,7 +83,8 @@ public class OneToManyDefinition extends BaseDefinition {
         if (isDelete()) {
             writeLoopWithMethod(codeBuilder, "delete");
 
-            codeBuilder.addStatement("$L = null", getVariableName());
+            codeBuilder.addStatement(columnAccess.setColumnAccessString(null, variableName, variableName,
+                false, ModelUtils.getVariable(false), CodeBlock.of("null"), false));
         }
     }
 
@@ -96,11 +108,11 @@ public class OneToManyDefinition extends BaseDefinition {
 
     private void writeLoopWithMethod(CodeBlock.Builder codeBuilder, String methodName) {
         codeBuilder
-                .beginControlFlow("if ($L != null) ", getMethodName())
-                .beginControlFlow("for ($T value: $L) ", ClassNames.MODEL, getMethodName())
-                .addStatement("value.$L()", methodName)
-                .endControlFlow()
-                .endControlFlow();
+            .beginControlFlow("if ($L != null) ", getMethodName())
+            .beginControlFlow("for ($T value: $L) ", ClassNames.MODEL, getMethodName())
+            .addStatement("value.$L()", methodName)
+            .endControlFlow()
+            .endControlFlow();
     }
 
     private String getMethodName() {

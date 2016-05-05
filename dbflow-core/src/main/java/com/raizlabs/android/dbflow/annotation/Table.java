@@ -45,9 +45,10 @@ public @interface Table {
     boolean allFields() default false;
 
     /**
-     * @return If true, all private boolean fields will use "is" instead of "get" for its getter.
+     * @return If true, all private boolean fields will use "is" instead of "get" for its getter and
+     * "set" without the "is" if it starts with "is"
      */
-    boolean useIsForPrivateBooleans() default false;
+    boolean useBooleanGetterSetters() default true;
 
     /**
      * @return If true, caching mechanism is enabled. This works for single primary key tables. For

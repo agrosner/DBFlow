@@ -38,14 +38,20 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
         super(databaseDefinition);
         this.databaseHelperListener = databaseHelperListener;
         this.backupHelper = backupHelper;
-        movePrepackagedDB(getDatabaseDefinition().getDatabaseFileName(), getDatabaseDefinition().getDatabaseFileName());
+    }
 
-        if (databaseDefinition.backupEnabled()) {
-            restoreDatabase(getTempDbFileName(), getDatabaseDefinition().getDatabaseFileName());
+    public void performRestoreFromBackup() {
+        movePrepackagedDB(getDatabaseDefinition().getDatabaseFileName(),
+            getDatabaseDefinition().getDatabaseFileName(),
+            getWritableDatabase(),
+            backupHelper != null ? backupHelper.getDatabase() : null);
+
+        if (getDatabaseDefinition().backupEnabled()) {
             if (backupHelper == null) {
                 throw new IllegalStateException("the passed backup helper was null, even though backup is enabled. " +
-                        "Ensure that its passed in.");
+                    "Ensure that its passed in.");
             }
+            restoreDatabase(getTempDbFileName(), getDatabaseDefinition().getDatabaseFileName());
             backupHelper.getDatabase();
         }
     }
@@ -97,12 +103,14 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
      * @param databaseName    The name of the database to copy over
      * @param prepackagedName The name of the prepackaged db file
      */
-    public void movePrepackagedDB(String databaseName, String prepackagedName) {
+    public void movePrepackagedDB(String databaseName, String prepackagedName,
+                                  DatabaseWrapper databaseWrapper,
+                                  DatabaseWrapper backupDatabaseWrapper) {
         final File dbPath = FlowManager.getContext().getDatabasePath(databaseName);
 
         // If the database already exists, and is ok return
         if (dbPath.exists() && (!getDatabaseDefinition().areConsistencyChecksEnabled() ||
-                (getDatabaseDefinition().areConsistencyChecksEnabled() && isDatabaseIntegrityOk()))) {
+            (getDatabaseDefinition().areConsistencyChecksEnabled() && isDatabaseIntegrityOk(databaseWrapper)))) {
             return;
         }
 
@@ -116,7 +124,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
             InputStream inputStream;
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
             if (existingDb.exists() && (!getDatabaseDefinition().backupEnabled() || getDatabaseDefinition().backupEnabled()
-                    && FlowManager.isDatabaseIntegrityOk(backupHelper))) {
+                && isDatabaseIntegrityOk(backupDatabaseWrapper))) {
                 inputStream = new FileInputStream(existingDb);
             } else {
                 inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
@@ -136,11 +144,22 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
      * @return true if the database is ok, false if the consistency has been compromised.
      */
     public boolean isDatabaseIntegrityOk() {
+        return isDatabaseIntegrityOk(getWritableDatabase());
+    }
+
+    /**
+     * Pulled partially from code, it runs a "PRAGMA quick_check(1)" to see if the database is ok.
+     * This method will {@link #restoreBackUp()} if they are enabled on the database if this check fails. So
+     * use with caution and ensure that you backup the database often!
+     *
+     * @return true if the database is ok, false if the consistency has been compromised.
+     */
+    public boolean isDatabaseIntegrityOk(DatabaseWrapper databaseWrapper) {
         boolean integrityOk = true;
 
         DatabaseStatement prog = null;
         try {
-            prog = getWritableDatabase().compileStatement("PRAGMA quick_check(1)");
+            prog = databaseWrapper.compileStatement("PRAGMA quick_check(1)");
             String rslt = prog.simpleQueryForString();
             if (!rslt.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases
@@ -228,8 +247,8 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
             File existingDb = FlowManager.getContext().getDatabasePath(getDatabaseDefinition().getDatabaseFileName());
             InputStream inputStream;
             // if it exists and the integrity is ok
-            if (existingDb.exists() && (getDatabaseDefinition().backupEnabled() && FlowManager.isDatabaseIntegrityOk(
-                    backupHelper))) {
+            if (existingDb.exists() && (getDatabaseDefinition().backupEnabled()
+                && backupHelper != null && isDatabaseIntegrityOk(backupHelper.getDatabase()))) {
                 inputStream = new FileInputStream(existingDb);
             } else {
                 inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
@@ -248,7 +267,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     public void backupDB() {
         if (!getDatabaseDefinition().backupEnabled() || !getDatabaseDefinition().areConsistencyChecksEnabled()) {
             throw new IllegalStateException("Backups are not enabled for : " + getDatabaseDefinition().getDatabaseName() + ". Please consider adding " +
-                    "both backupEnabled and consistency checks enabled to the Database annotation");
+                "both backupEnabled and consistency checks enabled to the Database annotation");
         }
 
         getDatabaseDefinition().beginTransactionAsync(new ITransaction() {

@@ -29,9 +29,9 @@ public class Queen extends BaseModel {
     @ForeignKey(saveForeignKeyModel = false)
     Colony colony;
 
-    List<Ant> ants;
+    private List<Ant> ants;
 
-    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
+    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants", isVariablePrivate = true)
     public List<Ant> getMyAnts() {
         if (ants == null || ants.isEmpty()) {
             ants = SQLite.select()
@@ -40,5 +40,9 @@ public class Queen extends BaseModel {
                 .queryList();
         }
         return ants;
+    }
+
+    public void setAnts(List<Ant> ants) {
+        this.ants = ants;
     }
 }

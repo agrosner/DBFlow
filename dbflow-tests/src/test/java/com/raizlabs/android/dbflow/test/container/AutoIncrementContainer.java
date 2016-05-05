@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@Table(database = TestDatabase.class, useIsForPrivateBooleans = true)
+@Table(database = TestDatabase.class, useBooleanGetterSetters = true)
 @ModelContainer
 public class AutoIncrementContainer extends BaseModel {
 
@@ -27,11 +27,22 @@ public class AutoIncrementContainer extends BaseModel {
     @Column
     private boolean aBoolean;
 
+    @Column
+    private boolean isEnabled;
+
     public boolean isABoolean() {
         return aBoolean;
     }
 
     public void setABoolean(boolean aBoolean) {
         this.aBoolean = aBoolean;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
     }
 }

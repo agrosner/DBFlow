@@ -17,6 +17,10 @@ public class CustomOpenHelper implements OpenHelper {
     }
 
     @Override
+    public void performRestoreFromBackup() {
+    }
+
+    @Override
     public DatabaseWrapper getDatabase() {
         return null;
     }

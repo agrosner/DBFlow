@@ -153,11 +153,6 @@ public abstract class BaseCondition implements SQLCondition {
     protected String separator;
 
     /**
-     * If it is a raw condition, we will not attempt to escape or convert the values.
-     */
-    protected boolean isRaw;
-
-    /**
      * If true, the value is set and we should append it. (to prevent false positive nulls)
      */
     protected boolean isValueSet;
