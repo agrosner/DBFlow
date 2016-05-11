@@ -67,44 +67,58 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
     final QueryResultCallback<TResult> queryResultCallback;
     final QueryResultListCallback<TResult> queryResultListCallback;
     final QueryResultSingleCallback<TResult> queryResultSingleCallback;
+    final boolean runResultCallbacksOnSameThread;
 
     QueryTransaction(Builder<TResult> builder) {
         modelQueriable = builder.modelQueriable;
         queryResultCallback = builder.queryResultCallback;
         queryResultListCallback = builder.queryResultListCallback;
         queryResultSingleCallback = builder.queryResultSingleCallback;
+        runResultCallbacksOnSameThread = builder.runResultCallbacksOnSameThread;
     }
 
     @Override
     public void execute(DatabaseWrapper databaseWrapper) {
         final CursorResult<TResult> cursorResult = modelQueriable.queryResults();
         if (queryResultCallback != null) {
-            Transaction.TRANSACTION_HANDLER.post(new Runnable() {
-                @Override
-                public void run() {
-                    queryResultCallback.onQueryResult(QueryTransaction.this, cursorResult);
-                }
-            });
+            if (runResultCallbacksOnSameThread) {
+                queryResultCallback.onQueryResult(this, cursorResult);
+            } else {
+                Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        queryResultCallback.onQueryResult(QueryTransaction.this, cursorResult);
+                    }
+                });
+            }
         }
 
         if (queryResultListCallback != null) {
             final List<TResult> resultList = cursorResult.toListClose();
-            Transaction.TRANSACTION_HANDLER.post(new Runnable() {
-                @Override
-                public void run() {
-                    queryResultListCallback.onListQueryResult(QueryTransaction.this, resultList);
-                }
-            });
+            if (runResultCallbacksOnSameThread) {
+                queryResultListCallback.onListQueryResult(this, resultList);
+            } else {
+                Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        queryResultListCallback.onListQueryResult(QueryTransaction.this, resultList);
+                    }
+                });
+            }
         }
 
         if (queryResultSingleCallback != null) {
             final TResult result = cursorResult.toModelClose();
-            Transaction.TRANSACTION_HANDLER.post(new Runnable() {
-                @Override
-                public void run() {
-                    queryResultSingleCallback.onSingleQueryResult(QueryTransaction.this, result);
-                }
-            });
+            if (runResultCallbacksOnSameThread) {
+                queryResultSingleCallback.onSingleQueryResult(this, result);
+            } else {
+                Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        queryResultSingleCallback.onSingleQueryResult(QueryTransaction.this, result);
+                    }
+                });
+            }
         }
     }
 
@@ -119,6 +133,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
         QueryResultCallback<TResult> queryResultCallback;
         QueryResultListCallback<TResult> queryResultListCallback;
         QueryResultSingleCallback<TResult> queryResultSingleCallback;
+        boolean runResultCallbacksOnSameThread;
 
         public Builder(@NonNull ModelQueriable<TResult> modelQueriable) {
             this.modelQueriable = modelQueriable;
@@ -145,6 +160,15 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
          */
         public Builder<TResult> querySingleResult(QueryResultSingleCallback<TResult> queryResultSingleCallback) {
             this.queryResultSingleCallback = queryResultSingleCallback;
+            return this;
+        }
+
+        /**
+         * Runs result callback on UI thread by default. setting this to true would run the callback
+         * synchrously on the same thread this transaction executes from.
+         */
+        public Builder<TResult> runResultCallbacksOnSameThread(boolean runResultCallbacksOnSameThread) {
+            this.runResultCallbacksOnSameThread = runResultCallbacksOnSameThread;
             return this;
         }
 
