@@ -108,5 +108,6 @@ unixepoch - A modifier used to specify that the column passed ate datetime() fun
 localtime - A modifier used to inform to the datetime() function that the user wanna the final result with as a date and time considering his timezone.
 
 ## Considerations
-If you wanna see the full documentation to the SQLite data types click here [releases tab](https://www.sqlite.org/datatype3.html)
-If you wanna see the full documentation to the SQLite data and time functions click here [releases tab](https://www.sqlite.org/lang_datefunc.html)
+If you wanna see the full documentation of:
+ * SQLite data types click [here](https://www.sqlite.org/datatype3.html).
+ * SQLite data and time functions click [here](https://www.sqlite.org/lang_datefunc.html).
