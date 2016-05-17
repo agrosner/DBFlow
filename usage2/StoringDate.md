@@ -1,6 +1,6 @@
 # Storing Date
 
-DBFlow provide a few mechanisms by which we store date to the database. The difference of options
+DBFlow provide few mechanisms to store date into the database. The difference of options
 should not provide confusion but rather allow flexibility in what you decide is the best way
 to store information.
 
@@ -11,7 +11,7 @@ DBFlow support two of the three types of date storage existents in the SQLite an
 
 ## How the storage works under the hood
 
-Well in your java code you has two ways to declare columns that will storage date values, those ways are declare
+Well, in your java code you has two ways to declare columns that will storage date values, those ways are declare
 the attributes of your model class as String or as Date:
 
 An example using String:
@@ -45,7 +45,7 @@ public class Delivery extends BaseModel {
 ```
 
 The difference between the examples is actually in how DBFlow perform the storing of the values getter from deliveryDate.
-When a date will be storage as String DBFlow jus perform the insertion of the value as a type TEXT for the SQLite because is allowed, but when we wanna store deliveryDate as a Date, DBFlow will convert this Date object to a INTEGER value that represents a unixexpoch time, doing something like:
+When a date is stored as String, the DBFlow just perform the insertion of the value as a type TEXT for the SQLite, because is allowed. But when we want to store deliveryDate as a Date, the DBFlow will convert this Date object to a INTEGER value that represents a unixexpoch time, doing something like:
  
 ```java 
 long unixepoch = deliveryDate.getTime() / 1000;
@@ -57,14 +57,13 @@ But unixepoch is the amount of **seconds** since January 1, 1970 without time zo
 
 ## Why do we need this
 
-We need this because if our dates aren't storage on those ways we'll be incapable to use the SQLite date and time functions because of our dates are storage
-in another ways the SQLite will not be able to recognize this date and precess them for us.
+We need this because if our dates aren't stored on those ways we'll be incapable to use the SQLite date and time functions because of our dates are stored in another way the SQLite will not be able to recognize this date and precess them for us.
 
 ## Retrieval 
 
-So let's say that we wanna retrieve all the deliveries orders from some day to check if all ordered deliveries are ok, and lets considere that our date inquestion is '15-02-2016 20:35:34'.
+So let's say that we wanna retrieve all the deliveries orders from some day to check if all ordered deliveries are ok, and lets consider that our date inquestion is '15-02-2016 20:35:34'.
 
-if you have storage your date values using String them you can query data by date doing something like the following code:
+If you have stored your date values using String them you can query data by date doing something like the following code:
 
 ```java 
 public List<Delivery> getDeliveries(String comparisonDate) {
@@ -72,7 +71,7 @@ public List<Delivery> getDeliveries(String comparisonDate) {
 }
 ```
 
-if you have storage your date values using Date to query deliveries by date them you query will be a little different and will probably will looks like:
+If you have stored your date values using Date to query deliveries by date them you query will be a little different and probably will looks like:
 
 ```java
 public List<Delivery> getDeliveries(String comparisonDate) {
@@ -80,7 +79,7 @@ public List<Delivery> getDeliveries(String comparisonDate) {
 }
 ```
  
-if you wanna get those data and format the comparisonDate to a specific date time format your queries will looks like:
+If you wanna get those data and format the comparisonDate to a specific date time format your queries will looks like:
 
 An example using String:
 
