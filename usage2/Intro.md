@@ -97,6 +97,8 @@ The list of documentation is listed here:
 
   [Retrieval](/usage2/Retrieval.md)
 
+  [Storing and querying date](/usage2/StoringDate.md)
+  
   [The SQLite Wrapper Language](/usage2/SQLiteWrapperLanguage.md)
 
   [Caching](/usage2/Caching.md)
