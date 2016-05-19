@@ -45,15 +45,9 @@ public class Delivery extends BaseModel {
 ```
 
 The difference between the examples is actually in how DBFlow perform the storing of the values getter from deliveryDate.
-<<<<<<< HEAD
-When a date will be storage as String DBFlow jus perform the insertion of the value as a type TEXT for the SQLite because is allowed, but when we wanna store deliveryDate as a Date, DBFlow will convert this Date object to a INTEGER value that represents a unixexpoch time, doing something like:
-
-```java
-=======
 When a date is stored as String, the DBFlow just perform the insertion of the value as a type TEXT for the SQLite, because is allowed. But when we want to store deliveryDate as a Date, the DBFlow will convert this Date object to a INTEGER value that represents a unixexpoch time, doing something like:
  
 ```java 
->>>>>>> 6547c1a0b20b0c7fc7d0dbb92cccb0a9f16723a7
 long unixepoch = deliveryDate.getTime() / 1000;
 SQLiteStatement insertStatement = "INSERT INTO (dalivieryDate) VALUES(" + unixepoch + ")";
 ```
@@ -84,13 +78,8 @@ public List<Delivery> getDeliveries(String comparisonDate) {
     new Select().from(Delivery.class).where(datetime(deliveryDate, 'unixepoch', 'localtime') = ?, comparisonDate).querySingle();
 }
 ```
-<<<<<<< HEAD
-
-if you wanna get those data and format the comparisonDate to a specific date time format your queries will looks like:
-=======
  
 If you wanna get those data and format the comparisonDate to a specific date time format your queries will looks like:
->>>>>>> 6547c1a0b20b0c7fc7d0dbb92cccb0a9f16723a7
 
 An example using String:
 
