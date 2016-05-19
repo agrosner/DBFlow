@@ -99,8 +99,8 @@ public List<Delivery> getDeliveries(String comparisonDate) {
 
 
 In the above case we are using two SQLite functions and they are:
-strftime() - The strftime() routine returns the date formatted according to the format string specified as the first argument.
-datetime() - This function returns "YYYY-MM-DD HH:MM:SS".
+ * strftime() - The strftime() routine returns the date formatted according to the format string specified as the first argument.
+ * datetime() - This function returns "YYYY-MM-DD HH:MM:SS".
 
 At the datetime() function we have informed what column we want to get and them we have passed two more modifiers and they are:
 unixepoch - A modifier used to specify that the column passed ate datetime() function was stored as a unixepoch value.
