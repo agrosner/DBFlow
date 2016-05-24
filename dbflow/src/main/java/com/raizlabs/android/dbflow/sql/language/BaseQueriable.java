@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDoneException;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -37,7 +36,9 @@ public abstract class BaseQueriable<TModel extends Model> implements Queriable {
     @Override
     public long count(DatabaseWrapper databaseWrapper) {
         try {
-            return SqlUtils.longForQuery(databaseWrapper, getQuery());
+            String query = getQuery();
+            FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
+            return SqlUtils.longForQuery(databaseWrapper, query);
         } catch (SQLiteDoneException sde) {
             // catch exception here, log it but return 0;
             FlowLog.log(FlowLog.Level.E, sde);
@@ -68,7 +69,9 @@ public abstract class BaseQueriable<TModel extends Model> implements Queriable {
 
     @Override
     public Cursor query(DatabaseWrapper databaseWrapper) {
-        databaseWrapper.execSQL(getQuery());
+        String query = getQuery();
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
+        databaseWrapper.execSQL(query);
         return null;
     }
 
@@ -95,7 +98,9 @@ public abstract class BaseQueriable<TModel extends Model> implements Queriable {
 
     @Override
     public DatabaseStatement compileStatement(DatabaseWrapper databaseWrapper) {
-        return databaseWrapper.compileStatement(getQuery());
+        String query = getQuery();
+        FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: " + query);
+        return databaseWrapper.compileStatement(query);
     }
 
 
