@@ -162,16 +162,18 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
 
     @Override
     public void appendConditionToQuery(QueryBuilder queryBuilder) {
-        if (useParenthesis && conditionsList.size() > 0) {
+        int conditionListSize = conditionsList.size();
+        if (useParenthesis && conditionListSize > 0) {
             queryBuilder.append("(");
         }
-        for (SQLCondition condition : conditionsList) {
+        for (int i = 0; i < conditionListSize; i++) {
+            SQLCondition condition = conditionsList.get(i);
             condition.appendConditionToQuery(queryBuilder);
-            if (condition.hasSeparator()) {
+            if (condition.hasSeparator() && i < conditionListSize - 1) {
                 queryBuilder.appendSpaceSeparated(condition.separator());
             }
         }
-        if (useParenthesis && conditionsList.size() > 0) {
+        if (useParenthesis && conditionListSize > 0) {
             queryBuilder.append(")");
         }
     }
