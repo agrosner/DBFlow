@@ -113,7 +113,9 @@ transaction.cancel();
 ### ProcessModelTransaction
 
 `ProcessModelTransaction` allows you to easily operate on a set of `Model` in a
-`Transaction` easily.
+`Transaction` easily. It holds a list of `Model` by which you provide the modification
+method in the `Builder`. You can listen for when each are processed inside a normal
+`Transaction`.
 
 It is a convenient way to operate on them:
 
@@ -123,7 +125,10 @@ ProcessModelTransaction<TestModel1> processModelTransaction =
         new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<TestModel1>() {
             @Override
             public void processModel(TestModel1 model) {
-                processCalled.set(true);
+                // call some operation on model here
+                model.save();
+                model.insert(); // or
+                model.delete(); // or
             }
         }).processListener(new ProcessModelTransaction.OnModelProcessListener<TestModel1>() {
             @Override
@@ -136,22 +141,19 @@ transaction.execute();
 
 ```
 
-In Kotlin (with dbflow-kotlinextensions), this becomes as simple as:
+In Kotlin (with `dbflow-kotlinextensions`), we can drastically simplify:
 
 ```java
 
-database<TestModel1>().beginTransactionAsync {
-    ProcessModelTransaction.Builder<TestModel1>({ it.save() })
-            .processListener(ProcessModelTransaction
-                    .OnModelProcessListener<TestModel1> { current, total, item ->
-                      // do something here on UI thread.
-                    })
-            .addAll(items).build()
-}.build().execute()
+items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
+    ProcessModelTransaction.OnModelProcessListener { current, size, model ->
+      modelProcessedCount.incrementAndGet();
+    })
 
 ```
 You can listen to when operations complete for each model via the `OnModelProcessListener`.
-These callbacks occur on the UI thread.
+These callbacks occur on the UI thread. If you wish to run them on same thread (great for tests),
+set `runProcessListenerOnSameThread()` to `true`.
 
 ### Custom TransactionManager
 
