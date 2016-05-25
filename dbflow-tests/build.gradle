@@ -60,7 +60,7 @@ android.applicationVariants.all { variant ->
     variant.javaCompile.dependsOn ':dbflow-processor:jar'
 }
 buildscript {
-    ext.kotlin_version = '1.0.0'
+    ext.kotlin_version = '1.0.2'
     repositories {
         mavenCentral()
     }
