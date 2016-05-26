@@ -11,7 +11,8 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description: Test code gen of many to many with {@link ManyToMany#generateAutoIncrement()} false.
  */
 @Table(database = TestDatabase.class)
-@ManyToMany(referencedTable = TestModel1.class, generateAutoIncrement = false)
+@ManyToMany(referencedTable = TestModel1.class, generateAutoIncrement = false,
+        thisTableColumnName = "many", referencedTableColumnName = "test")
 public class ManyToManyModel2 extends BaseModel {
 
     @PrimaryKey

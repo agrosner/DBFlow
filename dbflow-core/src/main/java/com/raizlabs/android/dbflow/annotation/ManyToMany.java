@@ -20,6 +20,17 @@ public @interface ManyToMany {
     Class<?> referencedTable();
 
     /**
+     * @return A name that we use as the column name for the referenced table in the
+     * generated ManyToMany table class.
+     */
+    String referencedTableColumnName() default "";
+
+    /**
+     * @return A name that we use as the column name for this specific table's name.
+     */
+    String thisTableColumnName() default "";
+
+    /**
      * @return By default, we generate an auto-incrementing {@link Long} {@link PrimaryKey}.
      * If false, all {@link PrimaryKey} of the corresponding tables will be placed as {@link ForeignKey} and {@link PrimaryKey}
      * of the generated table instead of using an autoincrementing Long {@link PrimaryKey}.
