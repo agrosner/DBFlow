@@ -201,6 +201,14 @@ This annotation makes it very easy to generate "join" tables for you to use in t
 _Note_: This annotation is only a helper to generate tables that otherwise you
 would have to write yourself. It is expected that management still is done by you, the developer.
 
+### Custom Column Names
+
+You can change the name of the columns that are generated. By default they are simply
+lower case first letter version of the table name.
+
+`referencedTableColumnName` -> Refers to the referenced table.
+`thisTableColumnName` -> Refers to the table that is creating the reference.
+
 ### Multiple ManyToMany
 
 You can also specify `@MultipleManyToMany` which enables you to define more
