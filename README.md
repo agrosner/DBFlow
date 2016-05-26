@@ -9,8 +9,8 @@ The library is built on speed, performance, and approachability. It not only eli
 Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on writing amazing apps.
 
 # Why Use DBFlow
-DBFlow was built with the intention of bringing the best of most features from other ORM database libraries and to do it even better. It was also built to not limit how you can code your problems, but make it _significantly_ easier to deal with databases on Android. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
-- **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages.
+DBFlow is built from a collection of the best features of many database libraries in the most efficient way possible. Also, it is built to not only make it _significantly_ easier to deal with databases on Android, but also to provide extensibility. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
+- **Extensibility**: The main table object, `Model`, is just an interface. No subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages.
 - **Speed**: Built with java's annotation processing code generation, there's almost zero runtime performance hit by using this library (only reflection is creation of the main, generated database module's constructor). This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
 - **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
 - **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
@@ -20,9 +20,9 @@ DBFlow was built with the intention of bringing the best of most features from o
 
 # Changelog
 
-Visit the [releases tab](https://github.com/Raizlabs/DBFlow/releases)
+Starting with 3.0.0-beta1+, Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases).
 
-for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
+For pre-3.0 changes, check out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
 # Usage Docs
 For more detailed usage, check out it out [here](/usage2/Intro.md)
@@ -57,7 +57,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
   apply plugin: 'com.neenbedankt.android-apt'
 
-  def dbflow_version = "3.0.0-beta6"
+  def dbflow_version = "3.0.0"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
