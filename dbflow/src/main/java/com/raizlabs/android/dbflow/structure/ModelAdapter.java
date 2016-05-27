@@ -44,7 +44,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
             insertStatement = getInsertStatement(
-                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return insertStatement;
@@ -60,12 +60,20 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     }
 
     /**
+     * Resets the cached insert statement so that it will be regenerated the next time
+     * {@link #getInsertStatement()} is called.
+     */
+    public void resetInsertStatement() {
+        insertStatement = null;
+    }
+
+    /**
      * @return The precompiled full statement for this table model adapter
      */
     public DatabaseStatement getCompiledStatement() {
         if (compiledStatement == null) {
             compiledStatement = getCompiledStatement(
-                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return compiledStatement;
@@ -78,6 +86,14 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     public DatabaseStatement getCompiledStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getCompiledStatementQuery());
+    }
+
+    /**
+     * Resets the cached compiled statement so that it will be regenerated the next time
+     * {@link #getCompiledStatement()} is called.
+     */
+    public void resetCompiledStatement() {
+        compiledStatement = null;
     }
 
     /**
