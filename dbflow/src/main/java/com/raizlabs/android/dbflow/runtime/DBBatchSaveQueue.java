@@ -123,11 +123,13 @@ public class DBBatchSaveQueue extends Thread {
                 //onExecute this on the DBManager thread
 
                 databaseDefinition.beginTransactionAsync(
-                        new ProcessModelTransaction.Builder(modelSaver).build())
-                        .success(successCallback)
-                        .error(errorCallback)
-                        .build()
-                        .execute();
+                    new ProcessModelTransaction.Builder(modelSaver)
+                        .addAll(tmpModels)
+                        .build())
+                    .success(successCallback)
+                    .error(errorCallback)
+                    .build()
+                    .execute();
             }
 
             try {
