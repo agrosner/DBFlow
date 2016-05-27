@@ -120,8 +120,6 @@ public class DBBatchSaveQueue extends Thread {
                 models.clear();
             }
             if (tmpModels.size() > 0) {
-                //onExecute this on the DBManager thread
-
                 databaseDefinition.beginTransactionAsync(
                     new ProcessModelTransaction.Builder(modelSaver)
                         .addAll(tmpModels)
