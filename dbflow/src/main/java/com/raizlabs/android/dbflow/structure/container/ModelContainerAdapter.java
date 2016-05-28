@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.config.TableConfig;
 import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
@@ -27,7 +28,7 @@ public abstract class ModelContainerAdapter<TModel extends Model>
         implements InternalAdapter<ModelContainer<TModel, ?>> {
 
     private ModelContainerLoader<TModel> modelContainerLoader;
-    private ModelSaver modelSaver;
+    private ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelSaver;
     private ModelAdapter<TModel> modelAdapter;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
@@ -35,8 +36,14 @@ public abstract class ModelContainerAdapter<TModel extends Model>
     public ModelContainerAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
 
-        if (getTableConfig() != null && getTableConfig().modelContainerLoader() != null) {
-            modelContainerLoader = getTableConfig().modelContainerLoader();
+        TableConfig<TModel> tableConfig = getTableConfig();
+        if (tableConfig != null) {
+            if (tableConfig.modelContainerLoader() != null) {
+                modelContainerLoader = tableConfig.modelContainerLoader();
+            }
+            if (tableConfig.modelContainerModelSaver() != null) {
+                modelSaver = tableConfig.modelContainerModelSaver();
+            }
         }
     }
 
@@ -98,9 +105,9 @@ public abstract class ModelContainerAdapter<TModel extends Model>
         getModelSaver().delete(model, databaseWrapper);
     }
 
-    public ModelSaver getModelSaver() {
+    public ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver(modelAdapter, adapter);
+            modelSaver = new ModelSaver<>(modelAdapter, this);
         }
         return modelSaver;
     }
@@ -117,7 +124,7 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver modelSaver) {
+    public void setModelSaver(ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelSaver) {
         this.modelSaver = modelSaver;
     }
 

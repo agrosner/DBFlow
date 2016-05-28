@@ -122,7 +122,7 @@ public class ConfigIntegrationTest {
                         .addTableConfig(new TableConfig.Builder<>(TestModel1.class)
                                 .singleModelLoader(singleModelLoader)
                                 .listModelLoader(customListModelLoader)
-                                .modelSaver(modelSaver)
+                                .modelAdapterModelSaver(modelSaver)
                                 .build())
                         .build())
                 .build());

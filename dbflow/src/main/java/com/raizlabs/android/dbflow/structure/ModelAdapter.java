@@ -29,7 +29,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
-    private ModelSaver modelSaver;
+    private ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver;
 
     public ModelAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
@@ -256,9 +256,9 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
     }
 
-    public ModelSaver getModelSaver() {
+    public ModelSaver<TModel, TModel, ModelAdapter<TModel>> getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver(modelAdapter, adapter);
+            modelSaver = new ModelSaver<>(this, this);
         }
         return modelSaver;
     }
@@ -268,7 +268,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver modelSaver) {
+    public void setModelSaver(ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver) {
         this.modelSaver = modelSaver;
     }
 
