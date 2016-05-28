@@ -90,7 +90,15 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
 
     @SuppressWarnings("unchecked")
     public synchronized long insert(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
-        return insert(model, modelAdapter.getInsertStatement(wrapper));
+        DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
+        long result = 0;
+        try {
+            result = insert(model, insertStatement);
+        } finally {
+            // since we generate an insert every time, we can safely close the statement here.
+            insertStatement.close();
+        }
+        return result;
     }
 
     @SuppressWarnings("unchecked")
