@@ -12,12 +12,15 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+
+import java.util.Collection;
 
 /**
  * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
@@ -30,6 +33,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
     private ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver;
+    private ListModelSaver<TModel, TModel, ModelAdapter<TModel>> listModelSaver;
 
     public ModelAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
@@ -105,6 +109,16 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     @Override
     public void save(TModel model, DatabaseWrapper databaseWrapper) {
         getModelSaver().save(model, databaseWrapper);
+    }
+
+    @Override
+    public void saveAll(Collection<TModel> models) {
+        getListModelSaver().saveAll(models);
+    }
+
+    @Override
+    public void saveAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
+        getListModelSaver().saveAll(models, databaseWrapper);
     }
 
     /**
@@ -261,6 +275,13 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
             modelSaver = new ModelSaver<>(this, this);
         }
         return modelSaver;
+    }
+
+    public ListModelSaver<TModel, TModel, ModelAdapter<TModel>> getListModelSaver() {
+        if (listModelSaver == null) {
+            listModelSaver = new ListModelSaver<>(getModelSaver());
+        }
+        return listModelSaver;
     }
 
     /**

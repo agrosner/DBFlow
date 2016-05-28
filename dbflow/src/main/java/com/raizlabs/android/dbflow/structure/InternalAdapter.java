@@ -9,6 +9,8 @@ import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import java.util.Collection;
+
 /**
  * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}
  * or {@link ModelContainerAdapter}
@@ -36,6 +38,21 @@ public interface InternalAdapter<TModel extends Model> {
     void save(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
+     * Saves a {@link Collection} of models to the DB.
+     *
+     * @param models The {@link Collection} of models to save.
+     */
+    void saveAll(Collection<TModel> models);
+
+    /**
+     * Saves a {@link Collection} of models to the DB.
+     *
+     * @param models          The {@link Collection} of models to save.
+     * @param databaseWrapper The manually specified wrapper
+     */
+    void saveAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
+
+    /**
      * Inserts the specified model into the DB.
      *
      * @param model The model to insert.
@@ -51,6 +68,21 @@ public interface InternalAdapter<TModel extends Model> {
     void insert(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
+     * Inserts a {@link Collection} of models into the DB.
+     *
+     * @param models The {@link Collection} of models to save.
+     */
+    void insertAll(Collection<TModel> models);
+
+    /**
+     * Inserts a {@link Collection} of models into the DB.
+     *
+     * @param models          The {@link Collection} of models to save.
+     * @param databaseWrapper The manually specified wrapper
+     */
+    void insertAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
+
+    /**
      * Updates the specified model into the DB.
      *
      * @param model The model to update.
@@ -64,6 +96,21 @@ public interface InternalAdapter<TModel extends Model> {
      * @param databaseWrapper The manually specified wrapper.
      */
     void update(TModel model, DatabaseWrapper databaseWrapper);
+
+    /**
+     * Updates a {@link Collection} of models in the DB.
+     *
+     * @param models The {@link Collection} of models to save.
+     */
+    void updateAll(Collection<TModel> models);
+
+    /**
+     * Updates a {@link Collection} of models in the DB.
+     *
+     * @param models          The {@link Collection} of models to save.
+     * @param databaseWrapper The manually specified wrapper
+     */
+    void updateAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
 
     /**
      * Deletes the model from the DB

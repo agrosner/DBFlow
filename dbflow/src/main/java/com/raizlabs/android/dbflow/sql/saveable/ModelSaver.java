@@ -34,19 +34,24 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
     }
 
     public synchronized void save(@NonNull TTable model) {
-        save(model, getWritableDatabase(modelAdapter));
+        save(model, getWritableDatabase(), modelAdapter.getInsertStatement(), new ContentValues());
+    }
+
+    public synchronized void save(@NonNull TTable model, DatabaseWrapper wrapper) {
+        save(model, getWritableDatabase(), modelAdapter.getInsertStatement(wrapper), new ContentValues());
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized void save(@NonNull TTable model, DatabaseWrapper wrapper) {
+    public synchronized void save(@NonNull TTable model, DatabaseWrapper wrapper,
+                                  DatabaseStatement insertStatement, ContentValues contentValues) {
         boolean exists = adapter.exists(model, wrapper);
 
         if (exists) {
-            exists = update(model, wrapper);
+            exists = update(model, wrapper, contentValues);
         }
 
         if (!exists) {
-            exists = insert(model, wrapper) > INSERT_FAILED;
+            exists = insert(model, insertStatement) > INSERT_FAILED;
         }
 
         if (exists) {
@@ -55,7 +60,7 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
     }
 
     public synchronized boolean update(@NonNull TTable model) {
-        return update(model, getWritableDatabase(modelAdapter), new ContentValues());
+        return update(model, getWritableDatabase(), new ContentValues());
     }
 
     public synchronized boolean update(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
@@ -97,7 +102,7 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
     }
 
     public synchronized boolean delete(@NonNull TTable model) {
-        return delete(model, getWritableDatabase(modelAdapter));
+        return delete(model, getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
@@ -112,7 +117,16 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
         return successful;
     }
 
-    protected DatabaseWrapper getWritableDatabase(ModelAdapter<TModel> modelAdapter) {
+    protected DatabaseWrapper getWritableDatabase() {
         return FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
     }
+
+    public TAdapter getAdapter() {
+        return adapter;
+    }
+
+    public ModelAdapter<TModel> getModelAdapter() {
+        return modelAdapter;
+    }
 }
+
