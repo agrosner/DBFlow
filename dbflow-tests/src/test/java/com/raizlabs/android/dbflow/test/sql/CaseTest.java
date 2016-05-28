@@ -56,4 +56,12 @@ public class CaseTest extends FlowTestCase {
 
         Delete.table(CaseModel.class);
     }
+
+    @Test
+    public void test_caseProperty() {
+        String query = SQLite._case(CaseModel_Table.country)
+                .when(CaseModel_Table.firstName)
+                .then(CaseModel_Table.lastName).getQuery();
+        assertEquals("CASE `country` WHEN `firstName` THEN `lastName`", query.trim());
+    }
 }

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -19,46 +20,59 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: Defines how models get saved into the DB. It will bind values to {@link android.content.ContentValues} for
  * an update, execute a {@link DatabaseStatement}, or delete an object via the {@link Delete} wrapper.
  */
-public class ModelSaver {
+public class ModelSaver<TModel extends Model, TTable extends Model,
+        TAdapter extends RetrievalAdapter & InternalAdapter> {
 
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
-    void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
-        DatabaseWrapper wrapper = FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
-        save(modelAdapter, adapter, model, wrapper);
+    private static final int INSERT_FAILED = -1;
+
+    private ModelAdapter<TModel> modelAdapter;
+    private TAdapter adapter;
+
+    public void setModelAdapter(ModelAdapter<TModel> modelAdapter) {
+        this.modelAdapter = modelAdapter;
+    }
+
+    public void setAdapter(TAdapter adapter) {
+        this.adapter = adapter;
+    }
+
+    public synchronized void save(@NonNull TTable model) {
+        save(model, getWritableDatabase(), modelAdapter.getInsertStatement(), new ContentValues());
+    }
+
+    public synchronized void save(@NonNull TTable model, DatabaseWrapper wrapper) {
+        save(model, getWritableDatabase(), modelAdapter.getInsertStatement(wrapper), new ContentValues());
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
-    void save(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
-              TTable model, DatabaseWrapper wrapper) {
-        if (model == null) {
-            throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
-        }
-
+    public synchronized void save(@NonNull TTable model, DatabaseWrapper wrapper,
+                                  DatabaseStatement insertStatement, ContentValues contentValues) {
         boolean exists = adapter.exists(model, wrapper);
 
         if (exists) {
-            exists = update(modelAdapter, adapter, model, wrapper);
+            exists = update(model, wrapper, contentValues);
         }
 
         if (!exists) {
-            insert(modelAdapter, adapter, model, wrapper);
+            exists = insert(model, insertStatement) > INSERT_FAILED;
         }
 
-        SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.SAVE);
+        if (exists) {
+            SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.SAVE);
+        }
     }
 
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
-    boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
-        return update(modelAdapter, adapter, model,
-                FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
+    public synchronized boolean update(@NonNull TTable model) {
+        return update(model, getWritableDatabase(), new ContentValues());
+    }
+
+    public synchronized boolean update(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
+        return update(model, wrapper, new ContentValues());
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
-    boolean update(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
-                   TTable model, DatabaseWrapper wrapper) {
-        ContentValues contentValues = new ContentValues();
+    public synchronized boolean update(@NonNull TTable model, @NonNull DatabaseWrapper wrapper,
+                                       @NonNull ContentValues contentValues) {
         adapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
                 adapter.getPrimaryConditionClause(model).getQuery(), null,
@@ -70,47 +84,60 @@ public class ModelSaver {
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
-    long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter,
-                TTable model, DatabaseWrapper wrapper) {
+    public synchronized long insert(@NonNull TTable model) {
+        return insert(model, modelAdapter.getInsertStatement());
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized long insert(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
+        long result = 0;
+        try {
+            result = insert(model, insertStatement);
+        } finally {
+            // since we generate an insert every time, we can safely close the statement here.
+            insertStatement.close();
+        }
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized long insert(@NonNull TTable model, @NonNull DatabaseStatement insertStatement) {
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
-        if (id > -1) {
+        if (id > INSERT_FAILED) {
             adapter.updateAutoIncrement(model, id);
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
         }
         return id;
     }
 
-    @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
-    long insert(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
-        DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
-        adapter.bindToInsertStatement(insertStatement, model);
-        long id = insertStatement.executeInsert();
-        if (id > -1) {
-            adapter.updateAutoIncrement(model, id);
-            SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
-        }
-        return id;
-    }
-
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
-    boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model) {
-        return delete(modelAdapter, adapter, model,
-                FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase());
+    public synchronized boolean delete(@NonNull TTable model) {
+        return delete(model, getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model, TTable extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
-    boolean delete(ModelAdapter<TModel> modelAdapter, TAdapter adapter, TTable model, DatabaseWrapper wrapper) {
-        boolean successful = SQLite.delete((Class<TTable>) adapter.getModelClass()).where(
-                adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
+    public synchronized boolean delete(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
+        boolean successful = SQLite.delete(modelAdapter.getModelClass())
+                .where(adapter.getPrimaryConditionClause(model))
+                .count(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);
         }
         adapter.updateAutoIncrement(model, 0);
         return successful;
     }
+
+    protected DatabaseWrapper getWritableDatabase() {
+        return FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
+    }
+
+    public TAdapter getAdapter() {
+        return adapter;
+    }
+
+    public ModelAdapter<TModel> getModelAdapter() {
+        return modelAdapter;
+    }
 }
+

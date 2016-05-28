@@ -24,29 +24,12 @@ import static org.junit.Assert.assertTrue;
 public class SelectTest extends FlowTestCase {
 
     @Test
-    public void testSelectStatement() {
+    public void testSimpleSelectStatement() {
         Where<TestModel1> where = new Select(name).from(TestModel1.class)
                 .where(name.is("test"));
 
         assertEquals("SELECT `name` FROM `TestModel1` WHERE `name`='test'", where.getQuery().trim());
         where.query();
-
-        Where<TestModel3> where1 = new Select(name, type).from(TestModel3.class)
-                .where(name.is("test"),
-                        type.is("test"));
-
-        assertEquals("SELECT `name`,`type` FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where1.getQuery().trim());
-
-        Where<TestModel3> where2 = new Select().distinct().from(TestModel3.class).where();
-
-        assertEquals("SELECT DISTINCT * FROM `TestModel32`", where2.getQuery().trim());
-        where2.query();
-
-        Where<TestModel3> where3 = new Select(Method.count()).from(TestModel3.class).where();
-
-        assertEquals("SELECT COUNT(*) FROM `TestModel32`", where3.getQuery().trim());
-        where3.query();
-
 
         Where<TestModel3> where4 = new Select().from(TestModel3.class)
                 .where(name.eq("test"))
@@ -54,12 +37,50 @@ public class SelectTest extends FlowTestCase {
 
         assertEquals("SELECT * FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where4.getQuery().trim());
 
+
+    }
+
+    @Test
+    public void test_multipleProjectionAndSelection() {
+        Where<TestModel3> where1 = new Select(name, type).from(TestModel3.class)
+                .where(name.is("test"),
+                        type.is("test"));
+
+        assertEquals("SELECT `name`,`type` FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where1.getQuery().trim());
+    }
+
+    @Test
+    public void test_distinctClause() {
+        Where<TestModel3> where2 = new Select().distinct().from(TestModel3.class).where();
+
+        assertEquals("SELECT DISTINCT * FROM `TestModel32`", where2.getQuery().trim());
+        where2.query();
+    }
+
+    @Test
+    public void test_countClause() {
+        Where<TestModel3> where3 = new Select(Method.count()).from(TestModel3.class).where();
+
+        assertEquals("SELECT COUNT(*) FROM `TestModel32`", where3.getQuery().trim());
+        where3.query();
+
         Where<TestModel3> where6 = new Select(Method.count(type))
                 .from(TestModel3.class)
                 .orderBy(name, true)
                 .orderBy(type, true);
         assertEquals("SELECT COUNT(`type`) FROM `TestModel32` ORDER BY `name` ASC,`type` ASC", where6.getQuery().trim());
 
+    }
+
+    @Test
+    public void test_maxSelect() {
+        String methodQuery = SQLite.select(Method.max(TestModel3_Table.type).as("troop"))
+                .from(TestModel3.class).getQuery();
+        assertEquals("SELECT MAX(`type`) AS `troop` FROM `TestModel32`", methodQuery.trim());
+    }
+
+    @Test
+    public void test_nestedSelect() {
         String query = SQLite.select()
                 .from(TestModel3.class)
                 .where(TestModel3_Table.type
@@ -68,16 +89,22 @@ public class SelectTest extends FlowTestCase {
                                 .where(TestModel2_Table.name.is("Test")))).getQuery();
         assertEquals("SELECT * FROM `TestModel32` WHERE `type` IN " +
                 "(SELECT `name` FROM `TestModel2` WHERE `name`='Test' )", query.trim());
+    }
 
+
+    @Test
+    public void test_complicatedSum() {
         String operationalQuery = SQLite.select(new Method(Method.sum(TestModel3_Table.name))
                 .minus(Method.sum(TestModel3_Table.type)).as("troop"), TestModel3_Table.type)
                 .from(TestModel3.class).getQuery();
 
         assertEquals("SELECT (SUM(`name`) - SUM(`type`)) AS `troop`,`type` FROM `TestModel32`", operationalQuery.trim());
+    }
 
-        String methodQuery = SQLite.select(Method.max(TestModel3_Table.type).as("troop"))
-                .from(TestModel3.class).getQuery();
-        assertEquals("SELECT MAX(`type`) AS `troop` FROM `TestModel32`", methodQuery.trim());
+    @Test
+    public void test_withTableAs() {
+        String query = SQLite.select(TestModel1_Table.name.withTable().as("program_id")).getQuery();
+        assertEquals("SELECT `TestModel1`.`name` AS `program_id`", query.trim());
     }
 
     @Test

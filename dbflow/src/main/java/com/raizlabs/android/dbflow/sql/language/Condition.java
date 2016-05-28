@@ -42,7 +42,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         // Do not use value for certain operators
         // If is raw, we do not want to convert the value to a string.
         if (isValueSet) {
-            queryBuilder.append(isRaw ? value() : BaseCondition.convertValueToString(value(), true));
+            queryBuilder.append(BaseCondition.convertValueToString(value(), true));
         }
 
         if (postArgument() != null) {
@@ -353,7 +353,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
     @Override
     public Condition concatenate(Object value) {
         operation = new QueryBuilder(Operation.EQUALS).append(columnName()).toString();
-        if (value != null && !isRaw) {
+        if (value != null) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
                 //noinspection unchecked
@@ -366,7 +366,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
             operation = String.format("%1s %1s ", operation, Operation.PLUS);
         } else {
             throw new IllegalArgumentException(
-                    String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
+                String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
         }
         this.value = value;
         isValueSet = true;
@@ -561,10 +561,10 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append(isRaw ? value() : BaseCondition.convertValueToString(value(), true))
-                    .appendSpaceSeparated(Operation.AND)
-                    .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue(), true))
-                    .appendSpace().appendOptional(postArgument());
+                .append(BaseCondition.convertValueToString(value(), true))
+                .appendSpaceSeparated(Operation.AND)
+                .append(BaseCondition.convertValueToString(secondValue(), true))
+                .appendSpace().appendOptional(postArgument());
         }
 
     }
@@ -602,7 +602,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
          * Appends another value to this In statement
          *
          * @param argument The non-type converted value of the object. The value will be converted
-         *                 in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}.
+         *                 in a {@link ConditionGroup}.
          * @return
          */
         public In and(Object argument) {
@@ -613,7 +613,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append("(").append(ConditionGroup.joinArguments(",", inArguments)).append(")");
+                .append("(").append(ConditionGroup.joinArguments(",", inArguments)).append(")");
         }
     }
 

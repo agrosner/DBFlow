@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.sql.language.property;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -20,7 +20,8 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static CharProperty from(char c) {
-        return new CharProperty(null, new NameAlias("'" + c + "'", false).tickName(false));
+        return new CharProperty(null, NameAlias.rawBuilder("'" + c + "'")
+                .build());
     }
 
     /**
@@ -30,7 +31,8 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static IntProperty from(int i) {
-        return new IntProperty(null, new NameAlias(i + "", false).tickName(false));
+        return new IntProperty(null, NameAlias.rawBuilder(i + "")
+                .build());
     }
 
     /**
@@ -40,7 +42,8 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static DoubleProperty from(double d) {
-        return new DoubleProperty(null, new NameAlias(d + "", false).tickName(false));
+        return new DoubleProperty(null, NameAlias.rawBuilder(d + "")
+                .build());
     }
 
     /**
@@ -50,7 +53,8 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static LongProperty from(long l) {
-        return new LongProperty(null, new NameAlias(l + "", false).tickName(false));
+        return new LongProperty(null, NameAlias.rawBuilder(l + "")
+                .build());
     }
 
     /**
@@ -60,7 +64,8 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static FloatProperty from(float f) {
-        return new FloatProperty(null, new NameAlias(f + "", false).tickName(false));
+        return new FloatProperty(null, NameAlias.rawBuilder(f + "")
+                .build());
     }
 
     /**
@@ -70,7 +75,8 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static ShortProperty from(short s) {
-        return new ShortProperty(null, new NameAlias(s + "", false).tickName(false));
+        return new ShortProperty(null, NameAlias.rawBuilder(s + "")
+                .build());
     }
 
     /**
@@ -80,7 +86,8 @@ public class PropertyFactory {
      * @return A new property.
      */
     public static ByteProperty from(byte b) {
-        return new ByteProperty(null, new NameAlias(b + "", false).tickName(false));
+        return new ByteProperty(null, NameAlias.rawBuilder(b + "")
+                .build());
     }
 
     /**
@@ -95,7 +102,9 @@ public class PropertyFactory {
      * @return A new property with its type.
      */
     public static <T> Property<T> from(@Nullable T type) {
-        return new Property<>(null, new NameAlias(Condition.convertValueToString(type)).tickName(false));
+        return new Property<>(null, NameAlias.rawBuilder(
+                Condition.convertValueToString(type))
+                .build());
     }
 
     /**
@@ -105,7 +114,7 @@ public class PropertyFactory {
      * @param <TModel>  The model class of the query.
      * @return A new property that is a query.
      */
-    public static <TModel extends Model> Property<TModel> from(@NonNull BaseQueriable<TModel> queriable) {
+    public static <TModel extends Model> Property<TModel> from(@NonNull ModelQueriable<TModel> queriable) {
         return from(queriable.getTable(), "(" + queriable.getQuery() + ")");
     }
 
@@ -118,6 +127,7 @@ public class PropertyFactory {
      * @return A new property with its type.
      */
     public static <T> Property<T> from(@Nullable Class<T> type, String stringRepresentation) {
-        return new Property<>(null, new NameAlias(stringRepresentation, false).tickName(false));
+        return new Property<>(null, NameAlias.rawBuilder(stringRepresentation)
+                .build());
     }
 }

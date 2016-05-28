@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-@ModelView(database = TestDatabase.class, name = "v_view")
+@ModelView(database = TestDatabase.class, name = "v_view", priority = 3)
 public class MyView extends BaseModelView<MyView> {
 
     @ModelViewQuery
@@ -21,4 +21,26 @@ public class MyView extends BaseModelView<MyView> {
 
     @Column
     public Boolean isSet;
+
+    @Column(name = "is_up_next", getterName = "isUpNext", setterName = "setUpNext")
+    private boolean mIsUpNext;
+
+    @Column(name = "is_favorite", getterName = "isFavorite", setterName = "setFavorite")
+    private boolean mIsFavorite;
+
+    public boolean isUpNext() {
+        return mIsUpNext;
+    }
+
+    public void setUpNext(boolean mIsUpNext) {
+        this.mIsUpNext = mIsUpNext;
+    }
+
+    public boolean isFavorite() {
+        return mIsFavorite;
+    }
+
+    public void setFavorite(boolean mIsFavorite) {
+        this.mIsFavorite = mIsFavorite;
+    }
 }

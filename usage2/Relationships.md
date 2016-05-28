@@ -197,3 +197,39 @@ public final class User_Follower extends BaseModel {
 ```
 
 This annotation makes it very easy to generate "join" tables for you to use in the app for a ManyToMany relationship. It only generates the table you need. To use it you must reference it in code as normal.
+
+_Note_: This annotation is only a helper to generate tables that otherwise you
+would have to write yourself. It is expected that management still is done by you, the developer.
+
+### Custom Column Names
+
+You can change the name of the columns that are generated. By default they are simply
+lower case first letter version of the table name.
+
+`referencedTableColumnName` -> Refers to the referenced table.
+`thisTableColumnName` -> Refers to the table that is creating the reference.
+
+### Multiple ManyToMany
+
+You can also specify `@MultipleManyToMany` which enables you to define more
+than a single `@ManyToMany` relationship on the table.
+
+A class can use both:
+
+```java
+@Table(database = TestDatabase.class)
+@ManyToMany(referencedTable = TestModel1.class)
+@MultipleManyToMany({@ManyToMany(referencedTable = TestModel2.class),
+    @ManyToMany(referencedTable = com.raizlabs.android.dbflow.test.sql.TestModel3.class)})
+public class ManyToManyModel extends BaseModel {
+
+    @PrimaryKey
+    String name;
+
+    @PrimaryKey
+    int id;
+
+    @Column
+    char anotherColumn;
+}
+```

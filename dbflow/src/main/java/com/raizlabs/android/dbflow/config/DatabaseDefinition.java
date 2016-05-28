@@ -27,6 +27,7 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,9 +49,9 @@ public abstract class DatabaseDefinition {
 
     final List<Class<? extends BaseModelView>> modelViews = new ArrayList<>();
 
-    final Map<Class<? extends BaseModelView>, ModelViewAdapter> modelViewAdapterMap = new HashMap<>();
+    final Map<Class<? extends BaseModelView>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
 
-    final Map<Class<? extends BaseQueryModel>, QueryModelAdapter> queryModelAdapterMap = new HashMap<>();
+    final Map<Class<? extends BaseQueryModel>, QueryModelAdapter> queryModelAdapterMap = new LinkedHashMap<>();
 
     /**
      * The helper that manages database changes and initialization
@@ -74,7 +75,7 @@ public abstract class DatabaseDefinition {
     @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
         databaseConfig = FlowManager.getConfig()
-                .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+            .databaseConfigMap().get(getAssociatedDatabaseClassFile());
 
 
         if (databaseConfig != null) {
@@ -152,7 +153,7 @@ public abstract class DatabaseDefinition {
      * @param table The table that has a {@link ModelContainer} annotation.
      * @return the associated {@link ModelContainerAdapter} within this
      * database for the specified table. These are used for {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
-     * and require {@link com.raizlabs.android.dbflow.structure.Model} to add the {@link ModelContainer}.
+     * and require {@link Model} to add the {@link ModelContainer}.
      */
     public ModelContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
         return modelContainerAdapters.get(table);
@@ -206,12 +207,13 @@ public abstract class DatabaseDefinition {
     public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                    .get(getAssociatedDatabaseClassFile());
+                .get(getAssociatedDatabaseClassFile());
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {
                 openHelper = config.helperCreator().createHelper(this, helperListener);
             }
+            openHelper.performRestoreFromBackup();
         }
         return openHelper;
     }
@@ -286,6 +288,7 @@ public abstract class DatabaseDefinition {
         if (!isResetting) {
             isResetting = true;
             getTransactionManager().stopQueue();
+            getHelper().closeDB();
             context.deleteDatabase(getDatabaseFileName());
 
             // recreate queue after interrupting it.

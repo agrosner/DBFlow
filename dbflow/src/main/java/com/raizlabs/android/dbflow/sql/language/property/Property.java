@@ -26,7 +26,7 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
         @Override
         public String toString() {
             // don't tick the *
-            return nameAlias.getAliasNameRaw();
+            return nameAlias.nameRaw();
         }
     };
 
@@ -37,54 +37,52 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
     public Property(Class<? extends Model> table, String columnName) {
         super(table, null);
         if (columnName != null) {
-            nameAlias = new NameAlias(columnName);
+            nameAlias = new NameAlias.Builder(columnName).build();
         }
-    }
-
-    Property(Class<? extends Model> table, String columnName, String aliasName, boolean shouldTickName, boolean shouldStripTicks) {
-        this(table, new NameAlias(columnName, shouldStripTicks).as(aliasName).tickName(shouldTickName));
     }
 
     @Override
     public Property<T> plus(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Condition.Operation.PLUS,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public Property<T> minus(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Condition.Operation.MINUS,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public Property<T> dividedBy(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public Property<T> multipliedBy(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public Property<T> mod(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Condition.Operation.MOD,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public Property<T> concatenate(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public Property<T> as(String aliasName) {
-        return new Property<>(table, getNameAlias().getAliasNameRaw(), aliasName,
-            getNameAlias().shouldTickName(), getNameAlias().shouldStripTicks());
+        return new Property<>(table, getNameAlias()
+                .newBuilder()
+                .as(aliasName)
+                .build());
     }
 
     @Override
@@ -94,7 +92,10 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
 
     @Override
     public Property<T> withTable(NameAlias tableNameAlias) {
-        return new Property<>(table, new NameAlias(getNameAlias()).withTable(tableNameAlias.getAliasName()));
+        return new Property<>(table, getNameAlias()
+                .newBuilder()
+                .withTable(tableNameAlias.getQuery())
+                .build());
     }
 
     @Override

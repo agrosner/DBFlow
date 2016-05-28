@@ -17,6 +17,10 @@ public class CustomOpenHelper implements OpenHelper {
     }
 
     @Override
+    public void performRestoreFromBackup() {
+    }
+
+    @Override
     public DatabaseWrapper getDatabase() {
         return null;
     }
@@ -39,5 +43,9 @@ public class CustomOpenHelper implements OpenHelper {
     @Override
     public void setDatabaseListener(DatabaseHelperListener helperListener) {
 
+    }
+
+    @Override
+    public void closeDB() {
     }
 }

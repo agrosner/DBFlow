@@ -38,16 +38,20 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
             try {
                 transaction = queue.take();
             } catch (InterruptedException e) {
-                if (isQuitting) {
-                    synchronized (queue) {
-                        queue.clear();
+                synchronized (this) {
+                    if (isQuitting) {
+                        synchronized (queue) {
+                            queue.clear();
+                        }
+                        return;
                     }
-                    return;
                 }
                 continue;
             }
 
-            transaction.executeSync();
+            if (!isQuitting) {
+                transaction.executeSync();
+            }
         }
     }
 
@@ -111,7 +115,9 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
      */
     @Override
     public void quit() {
-        isQuitting = true;
+        synchronized (this) {
+            isQuitting = true;
+        }
         interrupt();
     }
 }

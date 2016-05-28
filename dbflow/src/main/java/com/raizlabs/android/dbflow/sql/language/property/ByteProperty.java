@@ -19,52 +19,55 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
     }
 
     public ByteProperty(Class<? extends Model> table, String columnName) {
-        this(table, new NameAlias(columnName));
+        this(table, new NameAlias.Builder(columnName).build());
     }
 
     public ByteProperty(Class<? extends Model> table, String columnName, String aliasName) {
-        this(table, new NameAlias(columnName, aliasName));
+        this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 
     @Override
     public ByteProperty as(String aliasName) {
-        return new ByteProperty(table, nameAlias.getAliasNameRaw(), aliasName);
+        return new ByteProperty(table, nameAlias
+                .newBuilder()
+                .as(aliasName)
+                .build());
     }
 
     @Override
     public ByteProperty plus(IProperty iProperty) {
         return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ByteProperty minus(IProperty iProperty) {
         return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ByteProperty dividedBy(IProperty iProperty) {
         return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ByteProperty multipliedBy(IProperty iProperty) {
         return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ByteProperty mod(IProperty iProperty) {
         return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public ByteProperty concatenate(IProperty iProperty) {
         return new ByteProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
-                nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
@@ -74,7 +77,10 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
 
     @Override
     public ByteProperty withTable(NameAlias tableNameAlias) {
-        return new ByteProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
+        return new ByteProperty(table, nameAlias
+                .newBuilder()
+                .withTable(tableNameAlias.getQuery())
+                .build());
     }
 
     public Condition is(byte value) {

@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
+import com.raizlabs.android.dbflow.processor.definition.method.DatabaseHolderDefinition;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.MethodSpec;
@@ -49,8 +50,10 @@ public class FlowManagerHolderDefinition implements TypeDefinition {
                 typeConverterDefinition.getClassName());
         }
 
-        for (DatabaseDefinition databaseDefinition : processorManager.getDatabaseDefinitionMap()) {
-            constructor.addStatement("new $T(this)", databaseDefinition.outputClassName);
+        for (DatabaseHolderDefinition databaseDefinition : processorManager.getDatabaseDefinitionMap()) {
+            if (databaseDefinition.getDatabaseDefinition() != null) {
+                constructor.addStatement("new $T(this)", databaseDefinition.getDatabaseDefinition().outputClassName);
+            }
         }
 
         typeBuilder.addMethod(constructor.build());

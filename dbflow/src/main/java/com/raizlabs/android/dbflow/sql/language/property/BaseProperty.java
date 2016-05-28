@@ -24,7 +24,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
 
     @Override
     public P withTable() {
-        return withTable(new NameAlias(FlowManager.getTableName(table)));
+        return withTable(new NameAlias.Builder(FlowManager.getTableName(table)).build());
     }
 
     @Override
@@ -194,7 +194,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
 
     @Override
     public String getContainerKey() {
-        return getNameAlias().getAliasNameRaw();
+        return getNameAlias().getNameAsKey();
     }
 
     @Override
@@ -208,7 +208,7 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     public String getDefinition() {
-        return getNameAlias().getDefinition();
+        return getNameAlias().getFullQuery();
     }
 
     @Override
@@ -220,6 +220,9 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
      * @return helper method to construct it in a {@link #distinct()} call.
      */
     protected NameAlias getDistinctAliasName() {
-        return new NameAlias("DISTINCT " + getNameAlias().getName(), getNameAlias().getAliasPropertyRaw()).tickName(false);
+        return getNameAlias()
+                .newBuilder()
+                .distinct()
+                .build();
     }
 }

@@ -2,12 +2,14 @@ package com.raizlabs.android.dbflow.config;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
+import com.raizlabs.android.dbflow.structure.container.ModelContainer;
+import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 
 import java.util.List;
 
@@ -18,24 +20,27 @@ import java.util.List;
 public final class TableConfig<TModel extends Model> {
 
     private final Class<TModel> tableClass;
-    private final ModelSaver modelSaver;
+    private final ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver;
     private final SingleModelLoader<TModel> singleModelLoader;
     private final ListModelLoader<TModel> listModelLoader;
     private final ModelContainerLoader<TModel> modelContainerLoader;
+    private final ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>>
+            modelContainerModelSaver;
 
     TableConfig(Builder<TModel> builder) {
         tableClass = builder.tableClass;
-        modelSaver = builder.modelSaver;
+        modelSaver = builder.modelAdapterModelSaver;
         singleModelLoader = builder.singleModelLoader;
         listModelLoader = builder.listModelLoader;
         modelContainerLoader = builder.modelContainerLoader;
+        modelContainerModelSaver = builder.modelContainerModelSaver;
     }
 
     public Class<? extends Model> tableClass() {
         return tableClass;
     }
 
-    public ModelSaver modelSaver() {
+    public ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver() {
         return modelSaver;
     }
 
@@ -51,10 +56,15 @@ public final class TableConfig<TModel extends Model> {
         return modelContainerLoader;
     }
 
+    public ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelContainerModelSaver() {
+        return modelContainerModelSaver;
+    }
+
     public static final class Builder<TModel extends Model> {
 
         final Class<TModel> tableClass;
-        ModelSaver modelSaver;
+        ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelAdapterModelSaver;
+        ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelContainerModelSaver;
         SingleModelLoader<TModel> singleModelLoader;
         ListModelLoader<TModel> listModelLoader;
         ModelContainerLoader<TModel> modelContainerLoader;
@@ -64,11 +74,21 @@ public final class TableConfig<TModel extends Model> {
         }
 
         /**
-         * Define how the table saves data into the DB from its associated {@link TModel}. This
+         * Define how the {@link ModelAdapter} saves data into the DB from its associated {@link TModel}. This
          * will override the default.
          */
-        public Builder<TModel> modelSaver(@NonNull ModelSaver modelSaver) {
-            this.modelSaver = modelSaver;
+        public Builder<TModel> modelAdapterModelSaver(@NonNull ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver) {
+            this.modelAdapterModelSaver = modelSaver;
+            return this;
+        }
+
+        /**
+         * Define how the {@link ModelContainerAdapter} saves data into the DB from its associated {@link TModel}. This
+         * will override the default.
+         */
+        public Builder<TModel> modelContainerModelSaver(@NonNull ModelSaver<TModel, ModelContainer<TModel, ?>,
+                ModelContainerAdapter<TModel>> modelSaver) {
+            this.modelContainerModelSaver = modelSaver;
             return this;
         }
 

@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.annotation;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
@@ -8,6 +10,7 @@ import java.lang.annotation.Target;
  * the annotation and its assumed that they use primary keys only. The generated
  * class will contain an auto-incrementing primary key by default.
  */
+@Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface ManyToMany {
 
@@ -15,6 +18,17 @@ public @interface ManyToMany {
      * @return The other table class by which this will get merged.
      */
     Class<?> referencedTable();
+
+    /**
+     * @return A name that we use as the column name for the referenced table in the
+     * generated ManyToMany table class.
+     */
+    String referencedTableColumnName() default "";
+
+    /**
+     * @return A name that we use as the column name for this specific table's name.
+     */
+    String thisTableColumnName() default "";
 
     /**
      * @return By default, we generate an auto-incrementing {@link Long} {@link PrimaryKey}.

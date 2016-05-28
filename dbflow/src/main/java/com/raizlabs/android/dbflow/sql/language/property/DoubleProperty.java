@@ -19,52 +19,54 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
     }
 
     public DoubleProperty(Class<? extends Model> table, String columnName) {
-        this(table, new NameAlias(columnName));
+        this(table, new NameAlias.Builder(columnName).build());
     }
 
     public DoubleProperty(Class<? extends Model> table, String columnName, String aliasName) {
-        this(table, new NameAlias(columnName, aliasName));
+        this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 
     @Override
     public DoubleProperty plus(IProperty iProperty) {
         return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public DoubleProperty minus(IProperty iProperty) {
         return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public DoubleProperty dividedBy(IProperty iProperty) {
         return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public DoubleProperty multipliedBy(IProperty iProperty) {
         return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public DoubleProperty mod(IProperty iProperty) {
         return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public DoubleProperty concatenate(IProperty iProperty) {
         return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
-            nameAlias.getName(), iProperty.toString()));
+                nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
     public DoubleProperty as(String aliasName) {
-        return new DoubleProperty(table, nameAlias.getAliasNameRaw(), aliasName);
+        return new DoubleProperty(table, nameAlias
+                .newBuilder()
+                .as(aliasName).build());
     }
 
     @Override
@@ -74,7 +76,10 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
 
     @Override
     public DoubleProperty withTable(NameAlias tableNameAlias) {
-        return new DoubleProperty(table, new NameAlias(nameAlias).withTable(tableNameAlias.getAliasName()));
+        return new DoubleProperty(table, nameAlias
+                .newBuilder()
+                .withTable(tableNameAlias.getQuery())
+                .build());
     }
 
     public Condition is(double value) {

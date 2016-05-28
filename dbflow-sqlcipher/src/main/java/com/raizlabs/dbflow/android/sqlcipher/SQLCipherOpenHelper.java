@@ -31,10 +31,15 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.getDatabaseVersion(), databaseDefinition);
+                databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
         databaseHelperDelegate = new DatabaseHelperDelegate(listener, databaseDefinition, backupHelper);
+    }
+
+    @Override
+    public void performRestoreFromBackup() {
+        databaseHelperDelegate.performRestoreFromBackup();
     }
 
     @Override
@@ -85,6 +90,12 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         databaseHelperDelegate.onOpen(SQLCipherDatabase.from(db));
     }
 
+    @Override
+    public void closeDB() {
+        getDatabase();
+        cipherDatabase.getDatabase().close();
+    }
+
     /**
      * @return The SQLCipher secret for opening this database.
      */
@@ -112,6 +123,10 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         }
 
         @Override
+        public void performRestoreFromBackup() {
+        }
+
+        @Override
         public DatabaseHelperDelegate getDelegate() {
             return null;
         }
@@ -123,6 +138,10 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
 
         @Override
         public void backupDB() {
+        }
+
+        @Override
+        public void closeDB() {
         }
 
         @Override

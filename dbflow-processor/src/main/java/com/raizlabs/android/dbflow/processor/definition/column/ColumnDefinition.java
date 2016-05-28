@@ -381,6 +381,8 @@ public class ColumnDefinition extends BaseDefinition {
                 columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(".getBlob()"));
             } else if (columnAccess instanceof EnumColumnAccess) {
                 columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(".name()"));
+            } else if (columnAccess instanceof BooleanTypeColumnAccess) {
+                columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(" ? 1 : 0"));
             }
             codeBuilder.add(columnAccessString);
         }

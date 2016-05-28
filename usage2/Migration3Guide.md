@@ -96,6 +96,24 @@ was a valid specifier, which might lead to typos or errors.
 ## Table Changes
 `@Table` have some significant changes.
 
+Private boolean fields by default have changed.
+`useIsForPrivateBooleans()` has changed to `useBooleanGetterSetters()`. By default
+this is enabled, meaning `boolean` variables follow the convention:
+
+```java
+
+private boolean isEnabled;
+
+public boolean isEnabled() {
+  return isEnabled;
+}
+
+public void setEnabled(boolean isEnabled) {
+  this.isEnabled = isEnabled;
+}
+
+```
+
 Instead of generating just `String` column name within a corresponding `$Table` class, it now generates `Property` fields. These fields are significantly smarter and more powerful. They considerably aid in the simplification of many complex queries and make the code in general more readable, type-safe, and just overall better. _NOTE: the properties are no longer capitalized, rather they match exact casing of  the Column name._
 
 Previously, when you defined a class as:

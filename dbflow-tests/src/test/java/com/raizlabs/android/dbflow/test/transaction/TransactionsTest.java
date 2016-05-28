@@ -5,8 +5,10 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
@@ -15,6 +17,8 @@ import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
+import com.raizlabs.android.dbflow.test.structure.TestModel2;
+import com.raizlabs.android.dbflow.test.utils.GenerationUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -133,6 +137,40 @@ public class TransactionsTest extends FlowTestCase {
         new MockTransaction(transaction, database).execute();
 
         assertTrue(called.get());
+    }
+
+    @Test
+    public void test_bunchaModels() {
+        Delete.tables(TestModel2.class);
+
+        List<TestModel2> modelList = new ArrayList<>();
+        modelList.addAll(GenerationUtils.generateRandomModels(TestModel2.class, 10000));
+
+        long startTime = System.currentTimeMillis();
+
+        FlowManager.getDatabase(TestDatabase.class)
+                .executeTransaction(new ProcessModelTransaction.Builder<>(
+                        new ProcessModelTransaction.ProcessModel<TestModel2>() {
+                            @Override
+                            public void processModel(TestModel2 model) {
+                                model.save();
+                            }
+                        })
+                        .addAll(modelList).build());
+
+        System.out.println("Transaction completed in: " + (System.currentTimeMillis()
+                - startTime));
+
+        Delete.tables(TestModel2.class);
+        startTime = System.currentTimeMillis();
+        FlowManager.getDatabase(TestDatabase.class)
+                .executeTransaction(FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(TestModel2.class))
+                        .addAll(modelList)
+                        .build());
+
+        System.out.println("Faster Transaction completed in: " + (System.currentTimeMillis()
+                - startTime));
+
     }
 
 }

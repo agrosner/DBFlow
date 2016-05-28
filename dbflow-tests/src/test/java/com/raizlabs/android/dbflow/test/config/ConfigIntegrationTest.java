@@ -115,14 +115,14 @@ public class ConfigIntegrationTest {
 
         ListModelLoader<TestModel1> customListModelLoader = new ListModelLoader<>(TestModel1.class);
         SingleModelLoader<TestModel1> singleModelLoader = new SingleModelLoader<>(TestModel1.class);
-        ModelSaver modelSaver = new ModelSaver();
+        ModelSaver<TestModel1, TestModel1, ModelAdapter<TestModel1>> modelSaver = new ModelSaver<>();
 
         FlowManager.init(builder
                 .addDatabaseConfig(new DatabaseConfig.Builder(TestDatabase.class)
                         .addTableConfig(new TableConfig.Builder<>(TestModel1.class)
                                 .singleModelLoader(singleModelLoader)
                                 .listModelLoader(customListModelLoader)
-                                .modelSaver(modelSaver)
+                                .modelAdapterModelSaver(modelSaver)
                                 .build())
                         .build())
                 .build());
@@ -140,10 +140,10 @@ public class ConfigIntegrationTest {
         assertEquals(config.listModelLoader(), customListModelLoader);
         assertEquals(config.singleModelLoader(), singleModelLoader);
 
-        ModelAdapter<TestModel1> adapter = FlowManager.getModelAdapter(TestModel1.class);
-        assertEquals(adapter.getListModelLoader(), customListModelLoader);
-        assertEquals(adapter.getSingleModelLoader(), singleModelLoader);
-        assertEquals(adapter.getModelSaver(), modelSaver);
+        ModelAdapter<TestModel1> modelAdapter = FlowManager.getModelAdapter(TestModel1.class);
+        assertEquals(modelAdapter.getListModelLoader(), customListModelLoader);
+        assertEquals(modelAdapter.getSingleModelLoader(), singleModelLoader);
+        assertEquals(modelAdapter.getModelSaver(), modelSaver);
     }
 
     private static class CustomTransactionManagerCreator implements DatabaseConfig.TransactionManagerCreator {

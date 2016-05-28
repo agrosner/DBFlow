@@ -19,7 +19,6 @@ import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -151,7 +150,7 @@ public class FlowManager {
 
     /**
      * Loading the module Database holder via reflection.
-     * <p>
+     * <p/>
      * It is assumed FlowManager.init() is called by the application that uses the
      * module database. This method should only be called if you need to load databases
      * that are part of a module. Building once will give you the ability to add the class.
@@ -364,35 +363,7 @@ public class FlowManager {
      * @return true if it's integrity is OK.
      */
     public static boolean isDatabaseIntegrityOk(String databaseName) {
-        return isDatabaseIntegrityOk(getDatabase(databaseName).getHelper());
-    }
-
-
-    /**
-     * Checks a standard database helper for integrity using quick_check(1).
-     *
-     * @param openHelper The helper to user to look up integrity.
-     * @return true if it's integrity is OK.
-     */
-    public static boolean isDatabaseIntegrityOk(OpenHelper openHelper) {
-        boolean integrityOk = true;
-
-        DatabaseStatement prog = null;
-        try {
-            prog = openHelper.getDatabase().compileStatement("PRAGMA quick_check(1)");
-            String rslt = prog.simpleQueryForString();
-            if (!rslt.equalsIgnoreCase("ok")) {
-                // integrity_checker failed on main or attached databases
-                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on temp DB returned: " + rslt);
-
-                integrityOk = false;
-            }
-        } finally {
-            if (prog != null) {
-                prog.close();
-            }
-        }
-        return integrityOk;
+        return getDatabase(databaseName).getHelper().isDatabaseIntegrityOk();
     }
 
     // endregion

@@ -6,7 +6,9 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.config.TableConfig;
 import com.raizlabs.android.dbflow.sql.queriable.ModelContainerLoader;
+import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -15,6 +17,7 @@ import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +30,8 @@ public abstract class ModelContainerAdapter<TModel extends Model>
         implements InternalAdapter<ModelContainer<TModel, ?>> {
 
     private ModelContainerLoader<TModel> modelContainerLoader;
-    private ModelSaver modelSaver;
+    private ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelSaver;
+    private ListModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> listModelSaver;
     private ModelAdapter<TModel> modelAdapter;
 
     protected final Map<String, Class> columnMap = new HashMap<>();
@@ -35,8 +39,16 @@ public abstract class ModelContainerAdapter<TModel extends Model>
     public ModelContainerAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
 
-        if (getTableConfig() != null && getTableConfig().modelContainerLoader() != null) {
-            modelContainerLoader = getTableConfig().modelContainerLoader();
+        TableConfig<TModel> tableConfig = getTableConfig();
+        if (tableConfig != null) {
+            if (tableConfig.modelContainerLoader() != null) {
+                modelContainerLoader = tableConfig.modelContainerLoader();
+            }
+            if (tableConfig.modelContainerModelSaver() != null) {
+                modelSaver = tableConfig.modelContainerModelSaver();
+                modelSaver.setAdapter(this);
+                modelSaver.setModelAdapter(getModelAdapter());
+            }
         }
     }
 
@@ -47,62 +59,88 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      */
     @Override
     public void save(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().save(getModelAdapter(), this, modelContainer);
+        getModelSaver().save(modelContainer);
     }
 
     @Override
     public void save(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().save(getModelAdapter(), this, model, databaseWrapper);
+        getModelSaver().save(model, databaseWrapper);
     }
 
-    /**
-     * Inserts the specified model into the DB.
-     *
-     * @param modelContainer The model container to insert.
-     */
+    @Override
+    public void saveAll(Collection<ModelContainer<TModel, ?>> modelContainers) {
+        getListModelSaver().saveAll(modelContainers);
+    }
+
+    @Override
+    public void saveAll(Collection<ModelContainer<TModel, ?>> modelContainers, DatabaseWrapper databaseWrapper) {
+        getListModelSaver().saveAll(modelContainers, databaseWrapper);
+    }
+
+    @Override
     public void insert(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().insert(getModelAdapter(), this, modelContainer);
+        getModelSaver().insert(modelContainer);
     }
 
     @Override
     public void insert(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().insert(getModelAdapter(), this, model, databaseWrapper);
+        getModelSaver().insert(model, databaseWrapper);
     }
 
-    /**
-     * Updates the specified model into the DB.
-     *
-     * @param modelContainer The model to update.
-     */
+    @Override
+    public void insertAll(Collection<ModelContainer<TModel, ?>> modelContainers) {
+        getListModelSaver().insertAll(modelContainers);
+    }
+
+    @Override
+    public void insertAll(Collection<ModelContainer<TModel, ?>> modelContainers, DatabaseWrapper databaseWrapper) {
+        getListModelSaver().insertAll(modelContainers, databaseWrapper);
+    }
+
+    @Override
     public void update(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().update(getModelAdapter(), this, modelContainer);
+        getModelSaver().update(modelContainer);
     }
 
     @Override
     public void update(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().update(getModelAdapter(), this, model, databaseWrapper);
+        getModelSaver().update(model, databaseWrapper);
     }
 
-    /**
-     * Deletes the specified container using the primary key values contained in it.
-     *
-     * @param modelContainer The container to delete.
-     */
+    @Override
+    public void updateAll(Collection<ModelContainer<TModel, ?>> modelContainers) {
+        getListModelSaver().updateAll(modelContainers);
+    }
+
+    @Override
+    public void updateAll(Collection<ModelContainer<TModel, ?>> modelContainers, DatabaseWrapper databaseWrapper) {
+        getListModelSaver().updateAll(modelContainers, databaseWrapper);
+    }
+
     @Override
     public void delete(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().delete(getModelAdapter(), this, modelContainer);
+        getModelSaver().delete(modelContainer);
     }
 
     @Override
     public void delete(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().delete(getModelAdapter(), this, model, databaseWrapper);
+        getModelSaver().delete(model, databaseWrapper);
     }
 
-    public ModelSaver getModelSaver() {
+    public ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver();
+            modelSaver = new ModelSaver<>();
+            modelSaver.setModelAdapter(getModelAdapter());
+            modelSaver.setAdapter(this);
         }
         return modelSaver;
+    }
+
+    public ListModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> getListModelSaver() {
+        if (listModelSaver == null) {
+            listModelSaver = new ListModelSaver<>(getModelSaver());
+        }
+        return listModelSaver;
     }
 
     public ModelAdapter<TModel> getModelAdapter() {
@@ -117,7 +155,7 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver modelSaver) {
+    public void setModelSaver(ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> modelSaver) {
         this.modelSaver = modelSaver;
     }
 

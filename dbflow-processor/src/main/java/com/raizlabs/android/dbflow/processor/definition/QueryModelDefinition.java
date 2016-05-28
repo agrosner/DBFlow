@@ -69,13 +69,13 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
         if (element instanceof TypeElement) {
             implementsLoadFromCursorListener = ProcessorUtils
-                .implementsClass(manager.getProcessingEnvironment(), ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
-                    (TypeElement) element);
+                    .implementsClass(manager.getProcessingEnvironment(), ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
+                            (TypeElement) element);
         }
 
 
         methods = new MethodDefinition[]{
-            new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue)
+                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue)
         };
 
     }
@@ -88,7 +88,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
         QueryModel queryModel = typeElement.getAnnotation(QueryModel.class);
         if (queryModel != null) {
-            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).getDatabaseDefinition();
             setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
             allFields = queryModel.allFields();
             adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
@@ -155,8 +155,8 @@ public class QueryModelDefinition extends BaseTableDefinition {
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
 
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(adapterName)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .superclass(ParameterizedTypeName.get(ClassNames.QUERY_MODEL_ADAPTER, elementClassName));
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .superclass(ParameterizedTypeName.get(ClassNames.QUERY_MODEL_ADAPTER, elementClassName));
 
         CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);
         customTypeConverterPropertyMethod.addToType(typeBuilder);
@@ -168,10 +168,10 @@ public class QueryModelDefinition extends BaseTableDefinition {
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
-            .addParameter(ClassNames.DATABASE_HOLDER, "holder")
-            .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
-            .addCode(constructorCode.build())
-            .addModifiers(Modifier.PUBLIC).build());
+                .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+                .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
+                .addCode(constructorCode.build())
+                .addModifiers(Modifier.PUBLIC).build());
 
         for (MethodDefinition method : methods) {
             MethodSpec methodSpec = method.getMethodSpec();
@@ -181,10 +181,10 @@ public class QueryModelDefinition extends BaseTableDefinition {
         }
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
-            .addAnnotation(Override.class)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .returns(elementClassName)
-            .addStatement("return new $T()", elementClassName).build());
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .returns(elementClassName)
+                .addStatement("return new $T()", elementClassName).build());
 
         JavaFile javaFile = JavaFile.builder(packageName, typeBuilder.build()).build();
         javaFile.writeTo(processingEnvironment.getFiler());
