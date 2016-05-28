@@ -47,12 +47,12 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      */
     @Override
     public void save(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().save(getModelAdapter(), this, modelContainer);
+        getModelSaver().save(modelContainer);
     }
 
     @Override
     public void save(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().save(getModelAdapter(), this, model, databaseWrapper);
+        getModelSaver().save(model, databaseWrapper);
     }
 
     /**
@@ -61,12 +61,12 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      * @param modelContainer The model container to insert.
      */
     public void insert(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().insert(getModelAdapter(), this, modelContainer);
+        getModelSaver().insert(modelContainer);
     }
 
     @Override
     public void insert(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().insert(getModelAdapter(), this, model, databaseWrapper);
+        getModelSaver().insert(model, databaseWrapper);
     }
 
     /**
@@ -75,12 +75,12 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      * @param modelContainer The model to update.
      */
     public void update(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().update(getModelAdapter(), this, modelContainer);
+        getModelSaver().update(modelContainer);
     }
 
     @Override
     public void update(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().update(getModelAdapter(), this, model, databaseWrapper);
+        getModelSaver().update(model, databaseWrapper);
     }
 
     /**
@@ -90,17 +90,17 @@ public abstract class ModelContainerAdapter<TModel extends Model>
      */
     @Override
     public void delete(ModelContainer<TModel, ?> modelContainer) {
-        getModelSaver().delete(getModelAdapter(), this, modelContainer);
+        getModelSaver().delete(modelContainer);
     }
 
     @Override
     public void delete(ModelContainer<TModel, ?> model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().delete(getModelAdapter(), this, model, databaseWrapper);
+        getModelSaver().delete(model, databaseWrapper);
     }
 
     public ModelSaver getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver();
+            modelSaver = new ModelSaver(modelAdapter, adapter);
         }
         return modelSaver;
     }

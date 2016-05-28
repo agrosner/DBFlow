@@ -99,12 +99,12 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     @Override
     public void save(TModel model) {
-        getModelSaver().save(this, this, model);
+        getModelSaver().save(model);
     }
 
     @Override
     public void save(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().save(this, this, model, databaseWrapper);
+        getModelSaver().save(model, databaseWrapper);
     }
 
     /**
@@ -114,12 +114,12 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     @Override
     public void insert(TModel model) {
-        getModelSaver().insert(this, this, model);
+        getModelSaver().insert(model);
     }
 
     @Override
     public void insert(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().insert(this, this, model, databaseWrapper);
+        getModelSaver().insert(model, databaseWrapper);
     }
 
     /**
@@ -129,12 +129,12 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     @Override
     public void update(TModel model) {
-        getModelSaver().update(this, this, model);
+        getModelSaver().update(model);
     }
 
     @Override
     public void update(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().update(this, this, model, databaseWrapper);
+        getModelSaver().update(model, databaseWrapper);
     }
 
     /**
@@ -144,12 +144,12 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     @Override
     public void delete(TModel model) {
-        getModelSaver().delete(this, this, model);
+        getModelSaver().delete(model);
     }
 
     @Override
     public void delete(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().delete(this, this, model, databaseWrapper);
+        getModelSaver().delete(model, databaseWrapper);
     }
 
     @Override
@@ -258,7 +258,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
 
     public ModelSaver getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver();
+            modelSaver = new ModelSaver(modelAdapter, adapter);
         }
         return modelSaver;
     }

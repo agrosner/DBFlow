@@ -115,7 +115,7 @@ public class ConfigIntegrationTest {
 
         ListModelLoader<TestModel1> customListModelLoader = new ListModelLoader<>(TestModel1.class);
         SingleModelLoader<TestModel1> singleModelLoader = new SingleModelLoader<>(TestModel1.class);
-        ModelSaver modelSaver = new ModelSaver();
+        ModelSaver modelSaver = new ModelSaver(modelAdapter, adapter);
 
         FlowManager.init(builder
                 .addDatabaseConfig(new DatabaseConfig.Builder(TestDatabase.class)
