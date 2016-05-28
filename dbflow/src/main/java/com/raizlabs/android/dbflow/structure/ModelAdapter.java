@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
@@ -96,11 +95,6 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         return model;
     }
 
-    /**
-     * Saves the specified model to the DB using the specified saveMode in {@link SqlUtils}.
-     *
-     * @param model The model to save/insert/update
-     */
     @Override
     public void save(TModel model) {
         getModelSaver().save(model);
@@ -121,11 +115,6 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         getListModelSaver().saveAll(models, databaseWrapper);
     }
 
-    /**
-     * Inserts the specified model into the DB.
-     *
-     * @param model The model to insert.
-     */
     @Override
     public void insert(TModel model) {
         getModelSaver().insert(model);
@@ -136,11 +125,16 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         getModelSaver().insert(model, databaseWrapper);
     }
 
-    /**
-     * Updates the specified model into the DB.
-     *
-     * @param model The model to update.
-     */
+    @Override
+    public void insertAll(Collection<TModel> models) {
+        getListModelSaver().insertAll(models);
+    }
+
+    @Override
+    public void insertAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
+        getListModelSaver().insertAll(models, databaseWrapper);
+    }
+
     @Override
     public void update(TModel model) {
         getModelSaver().update(model);
@@ -151,11 +145,16 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         getModelSaver().update(model, databaseWrapper);
     }
 
-    /**
-     * Deletes the model from the DB
-     *
-     * @param model The model to delete
-     */
+    @Override
+    public void updateAll(Collection<TModel> models) {
+        getListModelSaver().updateAll(models);
+    }
+
+    @Override
+    public void updateAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
+        getListModelSaver().updateAll(models, databaseWrapper);
+    }
+
     @Override
     public void delete(TModel model) {
         getModelSaver().delete(model);
