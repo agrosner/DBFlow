@@ -46,6 +46,8 @@ public abstract class ModelContainerAdapter<TModel extends Model>
             }
             if (tableConfig.modelContainerModelSaver() != null) {
                 modelSaver = tableConfig.modelContainerModelSaver();
+                modelSaver.setAdapter(this);
+                modelSaver.setModelAdapter(getModelAdapter());
             }
         }
     }
@@ -127,7 +129,9 @@ public abstract class ModelContainerAdapter<TModel extends Model>
 
     public ModelSaver<TModel, ModelContainer<TModel, ?>, ModelContainerAdapter<TModel>> getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver<>(modelAdapter, this);
+            modelSaver = new ModelSaver<>();
+            modelSaver.setModelAdapter(getModelAdapter());
+            modelSaver.setAdapter(this);
         }
         return modelSaver;
     }

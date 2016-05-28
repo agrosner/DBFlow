@@ -38,6 +38,8 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         super(databaseDefinition);
         if (getTableConfig() != null && getTableConfig().modelSaver() != null) {
             modelSaver = getTableConfig().modelSaver();
+            modelSaver.setAdapter(this);
+            modelSaver.setModelAdapter(this);
         }
     }
 
@@ -271,7 +273,9 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
 
     public ModelSaver<TModel, TModel, ModelAdapter<TModel>> getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver<>(this, this);
+            modelSaver = new ModelSaver<>();
+            modelSaver.setAdapter(this);
+            modelSaver.setModelAdapter(this);
         }
         return modelSaver;
     }

@@ -25,11 +25,14 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
 
     private static final int INSERT_FAILED = -1;
 
-    private final ModelAdapter<TModel> modelAdapter;
-    private final TAdapter adapter;
+    private ModelAdapter<TModel> modelAdapter;
+    private TAdapter adapter;
 
-    public ModelSaver(ModelAdapter<TModel> modelAdapter, TAdapter adapter) {
+    public void setModelAdapter(ModelAdapter<TModel> modelAdapter) {
         this.modelAdapter = modelAdapter;
+    }
+
+    public void setAdapter(TAdapter adapter) {
         this.adapter = adapter;
     }
 
@@ -107,7 +110,7 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
 
     @SuppressWarnings("unchecked")
     public synchronized boolean delete(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
-        boolean successful = SQLite.delete(model.getClass())
+        boolean successful = SQLite.delete(modelAdapter.getModelClass())
                 .where(adapter.getPrimaryConditionClause(model))
                 .count(wrapper) != 0;
         if (successful) {
