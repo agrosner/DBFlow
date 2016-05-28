@@ -112,7 +112,7 @@ transaction.cancel();
 
 ### ProcessModelTransaction
 
-`ProcessModelTransaction` allows you to easily operate on a set of `Model` in a
+`ProcessModelTransaction` allows for more flexibility and for you to easily operate on a set of `Model` in a
 `Transaction` easily. It holds a list of `Model` by which you provide the modification
 method in the `Builder`. You can listen for when each are processed inside a normal
 `Transaction`.
@@ -154,6 +154,30 @@ items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapp
 You can listen to when operations complete for each model via the `OnModelProcessListener`.
 These callbacks occur on the UI thread. If you wish to run them on same thread (great for tests),
 set `runProcessListenerOnSameThread()` to `true`.
+
+### FastStoreModelTransaction
+
+The `FastStoreModelTransaction` is the quickest, lightest way to store a `List` of
+`Model` into the database through a `Transaction`. It comes with some restrictions when compared to `ProcessModelTransaction`:
+  1. All `Model` must be from same Table/Model Class.
+  2. No progress listening
+  3. Can only `save`, `insert`, or `update` the whole list entirely.
+
+```java
+
+FastStoreModelTransaction
+  .insertBuilder(FlowManager.getModelAdapter(TestModel2.class))
+    .addAll(modelList)
+    .build()
+
+    // updateBuilder + saveBuilder also available.
+
+```
+
+What it provides:
+  1. Reuses `ContentValues`, `DatabaseStatement`, and other classes where possible.
+  2. Opens and closes own `DatabaseStatement` per total execution.
+  3. Significant speed bump over `ProcessModelTransaction` at the expense of flexibility.
 
 ### Custom TransactionManager
 

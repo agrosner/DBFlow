@@ -164,7 +164,7 @@ public class TransactionsTest extends FlowTestCase {
         Delete.tables(TestModel2.class);
         startTime = System.currentTimeMillis();
         FlowManager.getDatabase(TestDatabase.class)
-                .executeTransaction(FastStoreModelTransaction.saveBuilder(FlowManager.getModelAdapter(TestModel2.class))
+                .executeTransaction(FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(TestModel2.class))
                         .addAll(modelList)
                         .build());
 
