@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -32,16 +33,12 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
         this.adapter = adapter;
     }
 
-    public synchronized void save(TTable model) {
+    public synchronized void save(@NonNull TTable model) {
         save(model, getWritableDatabase(modelAdapter));
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized void save(TTable model, DatabaseWrapper wrapper) {
-        if (model == null) {
-            throw new IllegalArgumentException("Model from " + modelAdapter.getModelClass() + " was null");
-        }
-
+    public synchronized void save(@NonNull TTable model, DatabaseWrapper wrapper) {
         boolean exists = adapter.exists(model, wrapper);
 
         if (exists) {
@@ -57,13 +54,17 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
         }
     }
 
-    public synchronized boolean update(TTable model) {
-        return update(model, getWritableDatabase(modelAdapter));
+    public synchronized boolean update(@NonNull TTable model) {
+        return update(model, getWritableDatabase(modelAdapter), new ContentValues());
+    }
+
+    public synchronized boolean update(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
+        return update(model, wrapper, new ContentValues());
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized boolean update(TTable model, DatabaseWrapper wrapper) {
-        ContentValues contentValues = new ContentValues();
+    public synchronized boolean update(@NonNull TTable model, @NonNull DatabaseWrapper wrapper,
+                                       @NonNull ContentValues contentValues) {
         adapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
                 adapter.getPrimaryConditionClause(model).getQuery(), null,
@@ -75,20 +76,17 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized long insert(TTable model, DatabaseWrapper wrapper) {
-        DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
-        adapter.bindToInsertStatement(insertStatement, model);
-        long id = insertStatement.executeInsert();
-        if (id > INSERT_FAILED) {
-            adapter.updateAutoIncrement(model, id);
-            SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.INSERT);
-        }
-        return id;
+    public synchronized long insert(@NonNull TTable model) {
+        return insert(model, modelAdapter.getInsertStatement());
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized long insert(TTable model) {
-        DatabaseStatement insertStatement = modelAdapter.getInsertStatement();
+    public synchronized long insert(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
+        return insert(model, modelAdapter.getInsertStatement(wrapper));
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized long insert(@NonNull TTable model, @NonNull DatabaseStatement insertStatement) {
         adapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
         if (id > INSERT_FAILED) {
@@ -98,14 +96,15 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
         return id;
     }
 
-    public synchronized boolean delete(TTable model) {
+    public synchronized boolean delete(@NonNull TTable model) {
         return delete(model, getWritableDatabase(modelAdapter));
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized boolean delete(TTable model, DatabaseWrapper wrapper) {
-        boolean successful = SQLite.delete((Class<TTable>) adapter.getModelClass()).where(
-                adapter.getPrimaryConditionClause(model)).count(wrapper) != 0;
+    public synchronized boolean delete(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
+        boolean successful = SQLite.delete(model.getClass())
+                .where(adapter.getPrimaryConditionClause(model))
+                .count(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);
         }
