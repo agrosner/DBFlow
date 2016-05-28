@@ -86,7 +86,7 @@ public class BaseDatabaseHelper {
             List<ModelViewAdapter> modelViews = databaseDefinition.getModelViewAdapters();
             for (ModelViewAdapter modelView : modelViews) {
                 QueryBuilder queryBuilder = new QueryBuilder()
-                        .append("CREATE VIEW")
+                        .append("CREATE VIEW IF NOT EXISTS")
                         .appendSpaceSeparated(modelView.getViewName())
                         .append("AS ")
                         .append(modelView.getCreationQuery());
