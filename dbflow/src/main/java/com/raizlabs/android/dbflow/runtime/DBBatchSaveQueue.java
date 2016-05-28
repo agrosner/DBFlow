@@ -33,12 +33,12 @@ public class DBBatchSaveQueue extends Thread {
     private int modelSaveSize = MODEL_SAVE_SIZE;
 
     /**
-     * Sets the time we check periodically for leftover {@link com.raizlabs.android.dbflow.structure.Model} in our queue to save.
+     * Sets the time we check periodically for leftover {@link Model} in our queue to save.
      */
     private long modelSaveCheckTime = sMODEL_SAVE_CHECK_TIME;
 
     /**
-     * The list of {@link com.raizlabs.android.dbflow.structure.Model} that we will save here
+     * The list of {@link Model} that we will save here
      */
     private final ArrayList<Model> models;
 
@@ -53,18 +53,12 @@ public class DBBatchSaveQueue extends Thread {
     private DatabaseDefinition databaseDefinition;
 
     /**
-     * Creates a new instance of this class to batch save {@link com.raizlabs.android.dbflow.structure.Model} classes.
+     * Creates a new instance of this class to batch save {@link Model} classes.
      */
     DBBatchSaveQueue(DatabaseDefinition databaseDefinition) {
         super("DBBatchSaveQueue");
         this.databaseDefinition = databaseDefinition;
         models = new ArrayList<>();
-    }
-
-    /**
-     * Releases the reference to the shared @link com.raizlabs.android.dbflow.runtime.DBBatchSaveQueue}
-     */
-    public static void disposeSharedQueue() {
     }
 
     /**
@@ -79,7 +73,7 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Sets how long, in millis that this queue will check for leftover {@link com.raizlabs.android.dbflow.structure.Model} that have not been saved yet.
+     * Sets how long, in millis that this queue will check for leftover {@link Model} that have not been saved yet.
      * The default is {@link #sMODEL_SAVE_CHECK_TIME}
      *
      * @param time The time, in millis that queue automatically checks for leftover {@link Model} in this queue.
@@ -121,13 +115,13 @@ public class DBBatchSaveQueue extends Thread {
             }
             if (tmpModels.size() > 0) {
                 databaseDefinition.beginTransactionAsync(
-                    new ProcessModelTransaction.Builder(modelSaver)
-                        .addAll(tmpModels)
-                        .build())
-                    .success(successCallback)
-                    .error(errorCallback)
-                    .build()
-                    .execute();
+                        new ProcessModelTransaction.Builder(modelSaver)
+                                .addAll(tmpModels)
+                                .build())
+                        .success(successCallback)
+                        .error(errorCallback)
+                        .build()
+                        .execute();
             }
 
             try {
@@ -151,7 +145,7 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Adds a {@link com.raizlabs.android.dbflow.structure.Model} to this queue.
+     * Adds a {@link Model} to this queue.
      *
      * @param inModel
      */
@@ -166,12 +160,12 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Adds a {@link java.util.Collection} of {@link com.raizlabs.android.dbflow.structure.Model} to this queue
+     * Adds a {@link java.util.Collection} of {@link Model} to this queue
      *
      * @param list
      * @param <TModel>
      */
-    public <TModel extends Model> void addAll(final Collection<TModel> list) {
+    public void addAll(final Collection<Model> list) {
         synchronized (models) {
             models.addAll(list);
 
@@ -182,7 +176,7 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Removes a {@link com.raizlabs.android.dbflow.structure.Model} from this queue before it is processed.
+     * Removes a {@link Model} from this queue before it is processed.
      *
      * @param outModel
      */
@@ -193,12 +187,10 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Removes a {@link java.util.Collection} of {@link com.raizlabs.android.dbflow.structure.Model} from this queue
+     * Removes a {@link java.util.Collection} of {@link Model} from this queue
      * before it is processed.
-     *
-     * @param outCollection
      */
-    public void removeAll(final Collection<? extends Model> outCollection) {
+    public void removeAll(final Collection<Model> outCollection) {
         synchronized (models) {
             models.removeAll(outCollection);
         }
