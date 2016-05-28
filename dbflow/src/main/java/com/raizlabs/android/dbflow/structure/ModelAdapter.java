@@ -44,7 +44,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     }
 
     /**
-     * @return The precompiled insert statement for this table model adapter
+     * @return The pre-compiled insert statement for this table model adapter. This is reused and cached.
      */
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
@@ -57,7 +57,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
 
     /**
      * @param databaseWrapper The database used to do an insert statement.
-     * @return a new compiled {@link DatabaseStatement} representing insert.
+     * @return a new compiled {@link DatabaseStatement} representing insert. Not cached, always generated.
      * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
      */
     public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
