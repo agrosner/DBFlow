@@ -146,39 +146,30 @@ public class TransactionsTest extends FlowTestCase {
         List<TestModel2> modelList = new ArrayList<>();
         modelList.addAll(GenerationUtils.generateRandomModels(TestModel2.class, 10000));
 
-        final long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
-        new SynchronizedTransaction(FlowManager.getDatabase(TestDatabase.class)
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+        FlowManager.getDatabase(TestDatabase.class)
+                .executeTransaction(new ProcessModelTransaction.Builder<>(
                         new ProcessModelTransaction.ProcessModel<TestModel2>() {
                             @Override
                             public void processModel(TestModel2 model) {
                                 model.save();
                             }
                         })
-                        .runProcessListenerOnSameThread(true)
-                        .addAll(modelList).build())
-        ).successCallback(new Transaction.Success() {
-            @Override
-            public void onSuccess(Transaction transaction) {
-                System.out.println("Transaction completed in: " + (System.currentTimeMillis()
-                        - startTime));
-            }
-        }).execute();
+                        .addAll(modelList).build());
+
+        System.out.println("Transaction completed in: " + (System.currentTimeMillis()
+                - startTime));
 
         Delete.tables(TestModel2.class);
-        final long startTime2 = System.currentTimeMillis();
-        new SynchronizedTransaction(FlowManager.getDatabase(TestDatabase.class)
-                .beginTransactionAsync(FastStoreModelTransaction.saveBuilder(FlowManager.getModelAdapter(TestModel2.class))
+        startTime = System.currentTimeMillis();
+        FlowManager.getDatabase(TestDatabase.class)
+                .executeTransaction(FastStoreModelTransaction.saveBuilder(FlowManager.getModelAdapter(TestModel2.class))
                         .addAll(modelList)
-                        .build()))
-                .successCallback(new Transaction.Success() {
-                    @Override
-                    public void onSuccess(Transaction transaction) {
-                        System.out.println("Faster Transaction completed in: " + (System.currentTimeMillis()
-                                - startTime2));
-                    }
-                }).execute();
+                        .build());
+
+        System.out.println("Faster Transaction completed in: " + (System.currentTimeMillis()
+                - startTime));
 
     }
 
