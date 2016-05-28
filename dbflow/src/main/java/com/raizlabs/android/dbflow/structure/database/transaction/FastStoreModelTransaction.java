@@ -18,15 +18,42 @@ import java.util.List;
  */
 public class FastStoreModelTransaction<TModel extends Model> implements ITransaction {
 
+    public static <TModel extends Model> Builder<TModel> saveBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
+        return new Builder<>(new ProcessModelList<TModel>() {
+            @Override
+            public void processModel(@NonNull List<TModel> tModels, InternalAdapter<TModel> adapter, DatabaseWrapper wrapper) {
+                adapter.saveAll(tModels, wrapper);
+            }
+        }, internalAdapter);
+    }
+
+    public static <TModel extends Model> Builder<TModel> insertBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
+        return new Builder<>(new ProcessModelList<TModel>() {
+            @Override
+            public void processModel(@NonNull List<TModel> tModels, InternalAdapter<TModel> adapter, DatabaseWrapper wrapper) {
+                adapter.insertAll(tModels, wrapper);
+            }
+        }, internalAdapter);
+    }
+
+    public static <TModel extends Model> Builder<TModel> updateBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
+        return new Builder<>(new ProcessModelList<TModel>() {
+            @Override
+            public void processModel(@NonNull List<TModel> tModels, InternalAdapter<TModel> adapter, DatabaseWrapper wrapper) {
+                adapter.updateAll(tModels, wrapper);
+            }
+        }, internalAdapter);
+    }
+
     /**
      * Description: Simple interface for acting on a model in a Transaction or list of {@link Model}
      */
-    public interface ProcessModelList<TModel extends Model> {
+    interface ProcessModelList<TModel extends Model> {
 
         /**
          * Called when processing models
          *
-         * @param model The model to process
+         * @param modelList The model list to process
          */
         void processModel(@NonNull List<TModel> modelList, InternalAdapter<TModel> adapter,
                           DatabaseWrapper wrapper);
@@ -60,16 +87,8 @@ public class FastStoreModelTransaction<TModel extends Model> implements ITransac
         @NonNull private final InternalAdapter<TModel> internalAdapter;
         List<TModel> models = new ArrayList<>();
 
-        public Builder(@NonNull ProcessModelList<TModel> processModelList,
-                       @NonNull InternalAdapter<TModel> internalAdapter,
-                       @NonNull Collection<TModel> models) {
-            this.processModelList = processModelList;
-            this.internalAdapter = internalAdapter;
-            this.models = new ArrayList<>(models);
-        }
-
-        public Builder(@NonNull ProcessModelList<TModel> processModelList,
-                       @NonNull InternalAdapter<TModel> internalAdapter) {
+        Builder(@NonNull ProcessModelList<TModel> processModelList,
+                @NonNull InternalAdapter<TModel> internalAdapter) {
             this.processModelList = processModelList;
             this.internalAdapter = internalAdapter;
         }
