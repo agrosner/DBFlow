@@ -76,8 +76,11 @@ public class FastModelTest extends FlowTestCase {
 
         startTime = System.currentTimeMillis();
         list = SQLite.select().from(FastModel.class).queryList();
-
         System.out.println("Loading for fast took: " + (System.currentTimeMillis() - startTime));
+
+        startTime = System.currentTimeMillis();
+        list = SQLite.select().from(FastModel.class).flowQueryList();
+        System.out.println("Loading for query list took: " + (System.currentTimeMillis() - startTime));
 
     }
 
