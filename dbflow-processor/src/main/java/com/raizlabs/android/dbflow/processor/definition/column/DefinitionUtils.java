@@ -196,7 +196,7 @@ public class DefinitionUtils {
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
                 isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), cursorAssignment.build(), false));
 
-        if (putDefaultValue) {
+        if (putDefaultValue && assignDefaultValuesFromCursor) {
             codeBuilder.nextControlFlow("else");
             if (isModelContainerAdapter) {
                 codeBuilder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);

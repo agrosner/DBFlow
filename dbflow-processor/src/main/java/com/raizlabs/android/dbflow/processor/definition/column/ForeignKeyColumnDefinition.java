@@ -347,10 +347,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     ifNullBuilder.add(" && ");
                 }
 
-                if (!tableDefinition.orderedCursorLookUp) {
+                if (!tableDefinition.orderedCursorLookUp || index.intValue() == -1) {
                     ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
                 } else {
-                    ifNullBuilder.add("!$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
+                    ifNullBuilder.add("!$L.isNull($L)", LoadFromCursorMethod.PARAM_CURSOR, indexName);
                 }
 
                 CodeBlock loadFromCursorBlock = CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR,
@@ -403,11 +403,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
                 putDefaultValue = putContainerDefaultValue;
             }
-            if (putDefaultValue) {
+            if (putDefaultValue && tableDefinition.assignDefaultValuesFromCursor) {
                 builder.nextControlFlow("else");
                 builder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);
             }
-            if (endNonPrimitiveIf) {
+            if (endNonPrimitiveIf || !tableDefinition.assignDefaultValuesFromCursor) {
                 builder.endControlFlow();
             }
             return builder.build();
