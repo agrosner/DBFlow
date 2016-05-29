@@ -199,10 +199,14 @@ public class TableDefinition extends BaseTableDefinition {
                         new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
                         new ExistenceMethod(this, false),
                         new PrimaryConditionMethod(this, false),
-                        new OneToManyDeleteMethod(this, false),
-                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE),
-                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT),
-                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE)
+                        new OneToManyDeleteMethod(this, false, false),
+                        new OneToManyDeleteMethod(this, false, true),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, false),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, false),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, false),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, true),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, true),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, true)
                 };
     }
 
