@@ -16,6 +16,7 @@ import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 public class CacheableModelLoader<TModel extends Model> extends SingleModelLoader<TModel> {
 
     private ModelAdapter<TModel> modelAdapter;
+    private ModelCache<TModel, ?> modelCache;
 
     public CacheableModelLoader(Class<TModel> modelClass) {
         super(modelClass);
@@ -30,10 +31,17 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
             modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
             if (!modelAdapter.cachingEnabled()) {
                 throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
-                    "use one Primary Key or use the MultiCacheKeyConverter");
+                        "use one Primary Key or use the MultiCacheKeyConverter");
             }
         }
         return modelAdapter;
+    }
+
+    public ModelCache<TModel, ?> getModelCache() {
+        if (modelCache == null) {
+            modelCache = getModelAdapter().getModelCache();
+        }
+        return modelCache;
     }
 
     /**
@@ -46,10 +54,9 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
     @Override
     public TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data, boolean moveToFirst) {
         if (!moveToFirst || cursor.moveToFirst()) {
-            ModelCache<TModel, ?> modelCache = getModelAdapter().getModelCache();
             Object[] values = getModelAdapter().getCachingColumnValuesFromCursor(
-                new Object[getModelAdapter().getCachingColumns().length], cursor);
-            TModel model = modelCache.get(getModelAdapter().getCachingId(values));
+                    new Object[getModelAdapter().getCachingColumns().length], cursor);
+            TModel model = getModelCache().get(getModelAdapter().getCachingId(values));
             if (model == null) {
                 if (data == null) {
                     model = getModelAdapter().newInstance();
@@ -57,7 +64,7 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
                     model = data;
                 }
                 getModelAdapter().loadFromCursor(cursor, model);
-                modelCache.addModel(getModelAdapter().getCachingId(values), model);
+                getModelCache().addModel(getModelAdapter().getCachingId(values), model);
             } else {
                 getModelAdapter().reloadRelationships(model, cursor);
             }

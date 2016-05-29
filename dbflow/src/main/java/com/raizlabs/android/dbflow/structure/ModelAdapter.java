@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.structure;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -244,6 +245,15 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     }
 
     /**
+     * @param cursor The cursor to load caching id from.
+     * @return The single cache column from cursor (if single).
+     */
+    public Object getCachingColumnValueFromCursor(Cursor cursor) {
+        throwSingleCachingError();
+        return null;
+    }
+
+    /**
      * Loads all primary keys from the {@link TModel} into the inValues. The size of the array must
      * match all primary keys. This method gets generated when caching is enabled. It converts the primary fields
      * of the {@link TModel} into the array of values the caching mechanism uses.
@@ -254,6 +264,15 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     public Object[] getCachingColumnValuesFromModel(Object[] inValues, TModel TModel) {
         throwCachingError();
+        return null;
+    }
+
+    /**
+     * @param model The model to load cache column data from.
+     * @return The single cache column from model (if single).
+     */
+    public Object getCachingColumnValueFromModel(TModel model) {
+        throwSingleCachingError();
         return null;
     }
 
@@ -387,6 +406,13 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         throw new InvalidDBConfiguration(
                 String.format("This method may have been called in error. The model class %1s must contain" +
                                 "an auto-incrementing or at least one primary key (if used in a ModelCache, this method may be called)",
+                        getModelClass()));
+    }
+
+    private void throwSingleCachingError() {
+        throw new InvalidDBConfiguration(
+                String.format("This method may have been called in error. The model class %1s must contain" +
+                                "an auto-incrementing or one primary key (if used in a ModelCache, this method may be called)",
                         getModelClass()));
     }
 }
