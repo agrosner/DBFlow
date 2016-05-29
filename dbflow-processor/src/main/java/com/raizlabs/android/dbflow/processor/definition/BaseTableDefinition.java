@@ -36,6 +36,9 @@ public abstract class BaseTableDefinition extends BaseDefinition {
     protected Map<ClassName, List<ColumnDefinition>> globalTypeConverters = new HashMap<>();
     protected final List<ColumnDefinition> packagePrivateList = Lists.newArrayList();
 
+    public boolean orderedCursorLookUp;
+    public boolean assignDefaultValuesFromCursor = true;
+
     public Map<String, Element> classElementLookUpMap = new HashMap<>();
 
     private String modelClassName;

@@ -57,6 +57,18 @@ public @interface Table {
     boolean cachingEnabled() default false;
 
     /**
+     * @return If true, we throw away checks for column indexing and simply assume that the cursor returns
+     * all our columns in order. This may provide a slight performance boost.
+     */
+    boolean orderedCursorLookUp() default false;
+
+    /**
+     * @return When true, we reassign the corresponding Model's fields to default values when loading
+     * from cursor. If false, we assign values only if present in Cursor.
+     */
+    boolean assignDefaultValuesFromCursor() default true;
+
+    /**
      * @return The cache size for this Table.
      */
     int cacheSize() default 25;

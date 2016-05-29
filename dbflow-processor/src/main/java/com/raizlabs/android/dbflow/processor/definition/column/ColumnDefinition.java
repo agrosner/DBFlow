@@ -292,15 +292,17 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter,
-                                             boolean endNonPrimitiveIf) {
+                                             boolean endNonPrimitiveIf, AtomicInteger index) {
         boolean putDefaultValue = putNullForContainerAdapter;
         if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
             putDefaultValue = putContainerDefaultValue;
         } else if (!isModelContainerAdapter) {
             putDefaultValue = true;
         }
-        return DefinitionUtils.getLoadFromCursorMethod(containerKeyName, elementName,
-                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
+        return DefinitionUtils.getLoadFromCursorMethod(index.intValue(), elementName,
+                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess,
+                tableDefinition.orderedCursorLookUp, tableDefinition.assignDefaultValuesFromCursor,
+                containerKeyName).build();
     }
 
     /**
