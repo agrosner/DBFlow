@@ -50,33 +50,63 @@ public class InternalAdapterHelper {
 
     public static void writeGetCachingId(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
                                          List<ColumnDefinition> primaryColumns, boolean isModelContainer) {
-        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromModel")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ArrayTypeName.of(Object.class), "inValues")
-                .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer));
-        for (int i = 0; i < primaryColumns.size(); i++) {
-            ColumnDefinition column = primaryColumns.get(i);
-            methodBuilder.addStatement("inValues[$L] = $L", i, column.getColumnAccessString(isModelContainer, false));
-        }
-        methodBuilder.addStatement("return $L", "inValues")
-                .returns(ArrayTypeName.of(Object.class));
-        typeBuilder.addMethod(methodBuilder.build());
+        if (primaryColumns.size() > 1) {
+            MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromModel")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ArrayTypeName.of(Object.class), "inValues")
+                    .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer));
+            for (int i = 0; i < primaryColumns.size(); i++) {
+                ColumnDefinition column = primaryColumns.get(i);
+                methodBuilder.addStatement("inValues[$L] = $L", i, column.getColumnAccessString(isModelContainer, false));
+            }
+            methodBuilder.addStatement("return $L", "inValues")
+                    .returns(ArrayTypeName.of(Object.class));
+            typeBuilder.addMethod(methodBuilder.build());
 
-        methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromCursor")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ArrayTypeName.of(Object.class), "inValues")
-                .addParameter(ClassNames.CURSOR, "cursor");
-        for (int i = 0; i < primaryColumns.size(); i++) {
-            ColumnDefinition column = primaryColumns.get(i);
+            methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromCursor")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ArrayTypeName.of(Object.class), "inValues")
+                    .addParameter(ClassNames.CURSOR, "cursor");
+            for (int i = 0; i < primaryColumns.size(); i++) {
+                ColumnDefinition column = primaryColumns.get(i);
+                String method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.columnAccess);
+                methodBuilder.addStatement("inValues[$L] = $L.$L($L.getColumnIndex($S))", i, LoadFromCursorMethod.PARAM_CURSOR,
+                        method, LoadFromCursorMethod.PARAM_CURSOR, column.columnName);
+            }
+            methodBuilder.addStatement("return $L", "inValues")
+                    .returns(ArrayTypeName.of(Object.class));
+            typeBuilder.addMethod(methodBuilder.build());
+        } else {
+            // single primary key
+            MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCachingColumnValueFromModel")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer));
+            methodBuilder.addStatement("return $L",
+                    primaryColumns.get(0).getColumnAccessString(isModelContainer, false))
+                    .returns(Object.class);
+            typeBuilder.addMethod(methodBuilder.build());
+
+            methodBuilder = MethodSpec.methodBuilder("getCachingColumnValueFromCursor")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ClassNames.CURSOR, "cursor");
+            ColumnDefinition column = primaryColumns.get(0);
             String method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.columnAccess);
-            methodBuilder.addStatement("inValues[$L] = $L.$L($L.getColumnIndex($S))", i, LoadFromCursorMethod.PARAM_CURSOR,
-                    method, LoadFromCursorMethod.PARAM_CURSOR, column.columnName);
+            methodBuilder.addStatement("return $L.$L($L.getColumnIndex($S))", LoadFromCursorMethod.PARAM_CURSOR,
+                    method, LoadFromCursorMethod.PARAM_CURSOR, column.columnName)
+                    .returns(Object.class);
+            typeBuilder.addMethod(methodBuilder.build());
+
+            methodBuilder = MethodSpec.methodBuilder("getCachingId")
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
+                    .addStatement("return getCachingColumnValueFromModel($L)", ModelUtils.getVariable(isModelContainer))
+                    .returns(TypeName.OBJECT);
+            typeBuilder.addMethod(methodBuilder.build());
         }
-        methodBuilder.addStatement("return $L", "inValues")
-                .returns(ArrayTypeName.of(Object.class));
-        typeBuilder.addMethod(methodBuilder.build());
     }
 
 }

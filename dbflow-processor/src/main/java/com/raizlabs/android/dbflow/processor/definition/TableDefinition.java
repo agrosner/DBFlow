@@ -531,16 +531,21 @@ public class TableDefinition extends BaseTableDefinition {
 
             // TODO: pass in model cache loaders.
 
+            boolean singlePrimaryKey = getPrimaryColumnDefinitions().size() == 1;
             typeBuilder.addMethod(MethodSpec.methodBuilder("createSingleModelLoader")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_MODEL_LOADER)
+                    .addStatement("return new $T<>(getModelClass())",
+                            singlePrimaryKey ? ClassNames.SINGLE_KEY_CACHEABLE_MODEL_LOADER :
+                                    ClassNames.CACHEABLE_MODEL_LOADER)
                     .returns(ClassNames.SINGLE_MODEL_LOADER).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("createListModelLoader")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_LIST_MODEL_LOADER)
+                    .addStatement("return new $T<>(getModelClass())",
+                            singlePrimaryKey ? ClassNames.SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER :
+                                    ClassNames.CACHEABLE_LIST_MODEL_LOADER)
                     .returns(ClassNames.LIST_MODEL_LOADER).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("createListModelSaver")

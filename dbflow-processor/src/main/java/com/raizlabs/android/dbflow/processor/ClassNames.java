@@ -110,4 +110,7 @@ public class ClassNames {
     public static final ClassName UNSAFE_STRING_CONDITION = ClassName.get(LANGUAGE, "UnSafeStringCondition");
 
     public static final ClassName CACHEABLE_LIST_MODEL_SAVER = ClassName.get(SAVEABLE, "CacheableListModelSaver");
+
+    public static final ClassName SINGLE_KEY_CACHEABLE_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableModelLoader");
+    public static final ClassName SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader");
 }
