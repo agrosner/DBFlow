@@ -32,7 +32,7 @@ public class SingleKeyCacheableListModelLoader<TModel extends Model> extends Cac
                 TModel model = getModelCache().get(cacheValue);
                 if (model != null) {
                     getModelAdapter().reloadRelationships(model, cursor);
-                    data.add(model);`
+                    data.add(model);
                 } else {
                     model = getModelAdapter().newInstance();
                     getModelAdapter().loadFromCursor(cursor, model);
