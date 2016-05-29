@@ -80,4 +80,8 @@ public class ListModelSaver<TModel extends Model, TTable extends Model,
             modelSaver.update(model, wrapper, contentValues);
         }
     }
+
+    public ModelSaver<TModel, TTable, TAdapter> getModelSaver() {
+        return modelSaver;
+    }
 }

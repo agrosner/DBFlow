@@ -36,17 +36,17 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
         this.adapter = adapter;
     }
 
-    public synchronized void save(@NonNull TTable model) {
-        save(model, getWritableDatabase(), modelAdapter.getInsertStatement(), new ContentValues());
+    public synchronized boolean save(@NonNull TTable model) {
+        return save(model, getWritableDatabase(), modelAdapter.getInsertStatement(), new ContentValues());
     }
 
-    public synchronized void save(@NonNull TTable model, DatabaseWrapper wrapper) {
-        save(model, getWritableDatabase(), modelAdapter.getInsertStatement(wrapper), new ContentValues());
+    public synchronized boolean save(@NonNull TTable model, DatabaseWrapper wrapper) {
+        return save(model, getWritableDatabase(), modelAdapter.getInsertStatement(wrapper), new ContentValues());
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized void save(@NonNull TTable model, DatabaseWrapper wrapper,
-                                  DatabaseStatement insertStatement, ContentValues contentValues) {
+    public synchronized boolean save(@NonNull TTable model, DatabaseWrapper wrapper,
+                                     DatabaseStatement insertStatement, ContentValues contentValues) {
         boolean exists = adapter.exists(model, wrapper);
 
         if (exists) {
@@ -60,6 +60,9 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
         if (exists) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.SAVE);
         }
+
+        // return successful store into db.
+        return exists;
     }
 
     public synchronized boolean update(@NonNull TTable model) {

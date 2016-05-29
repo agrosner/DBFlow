@@ -110,6 +110,12 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     @Override
     public void saveAll(Collection<TModel> models) {
         getListModelSaver().saveAll(models);
+
+        if (cachingEnabled()) {
+            for (TModel model : models) {
+                getModelCache().addModel(getCachingId(model), model);
+            }
+        }
     }
 
     @Override
@@ -202,7 +208,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
+                String.format("This method may have been called in error. The model class %1s must contain " +
                                 "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
                         getModelClass()));
     }
@@ -251,6 +257,10 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         return null;
     }
 
+    public void storeModelInCache(@NonNull TModel model) {
+        getModelCache().addModel(getCachingId(model), model);
+    }
+
     public ModelCache<TModel, ?> getModelCache() {
         if (modelCache == null) {
             modelCache = createModelCache();
@@ -282,9 +292,13 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
 
     public ListModelSaver<TModel, TModel, ModelAdapter<TModel>> getListModelSaver() {
         if (listModelSaver == null) {
-            listModelSaver = new ListModelSaver<>(getModelSaver());
+            listModelSaver = createListModelSaver();
         }
         return listModelSaver;
+    }
+
+    protected ListModelSaver<TModel, TModel, ModelAdapter<TModel>> createListModelSaver() {
+        return new ListModelSaver<>(getModelSaver());
     }
 
     /**

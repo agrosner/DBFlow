@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.method;
 
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -17,10 +18,13 @@ public class OneToManyDeleteMethod implements MethodDefinition {
     private final TableDefinition tableDefinition;
 
     private final boolean isModelContainerAdapter;
+    private final boolean useWrapper;
 
-    public OneToManyDeleteMethod(TableDefinition tableDefinition, boolean isModelContainerAdapter) {
+    public OneToManyDeleteMethod(TableDefinition tableDefinition, boolean isModelContainerAdapter,
+                                 boolean useWrapper) {
         this.tableDefinition = tableDefinition;
         this.isModelContainerAdapter = isModelContainerAdapter;
+        this.useWrapper = useWrapper;
     }
 
     @Override
@@ -37,21 +41,26 @@ public class OneToManyDeleteMethod implements MethodDefinition {
 
             CodeBlock.Builder builder = CodeBlock.builder();
             for (OneToManyDefinition oneToManyDefinition : tableDefinition.oneToManyDefinitions) {
-                oneToManyDefinition.writeDelete(builder);
+                oneToManyDefinition.writeDelete(builder, useWrapper);
             }
 
             if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
                 builder.addStatement("getModelCache().removeModel(getCachingId($L))", ModelUtils.getVariable(isModelContainerAdapter));
             }
 
-            builder.addStatement("super.delete($L)", ModelUtils.getVariable(isModelContainerAdapter));
+            builder.addStatement("super.delete($L$L)", ModelUtils.getVariable(isModelContainerAdapter),
+                    useWrapper ? (", " + ModelUtils.getWrapper()) : "");
 
-            return MethodSpec.methodBuilder("delete")
+            MethodSpec.Builder delete = MethodSpec.methodBuilder("delete")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter))
                     .addCode(builder.build())
-                    .returns(TypeName.VOID).build();
+                    .returns(TypeName.VOID);
+            if (useWrapper) {
+                delete.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.getWrapper());
+            }
+            return delete.build();
         }
         return null;
     }

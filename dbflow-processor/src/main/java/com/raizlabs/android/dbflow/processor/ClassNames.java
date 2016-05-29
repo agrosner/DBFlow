@@ -28,6 +28,7 @@ public class ClassNames {
     public static final String TRANSACTION = RUNTIME + ".transaction";
     public static final String DATABASE_TRANSACTION = DATABASE + ".transaction";
     public static final String PROCESS = TRANSACTION + ".process";
+    public static final String SAVEABLE = SQL + ".saveable";
 
     public static final ClassName DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder");
     public static final ClassName FLOW_MANAGER = ClassName.get(CONFIG, "FlowManager");
@@ -107,4 +108,6 @@ public class ClassNames {
     public static final ClassName SQLITE = ClassName.get(LANGUAGE, "SQLite");
 
     public static final ClassName UNSAFE_STRING_CONDITION = ClassName.get(LANGUAGE, "UnSafeStringCondition");
+
+    public static final ClassName CACHEABLE_LIST_MODEL_SAVER = ClassName.get(SAVEABLE, "CacheableListModelSaver");
 }

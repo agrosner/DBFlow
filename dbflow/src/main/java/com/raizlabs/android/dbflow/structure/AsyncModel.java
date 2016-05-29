@@ -54,7 +54,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
                     public void processModel(TModel model) {
                         model.save();
                     }
-                }).build());
+                }).add(model).build());
     }
 
     @Override
@@ -65,7 +65,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
                     public void processModel(TModel model) {
                         model.delete();
                     }
-                }).build());
+                }).add(model).build());
     }
 
     @Override
@@ -76,7 +76,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
                     public void processModel(TModel model) {
                         model.update();
                     }
-                }).build());
+                }).add(model).build());
     }
 
     @Override
@@ -87,7 +87,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
                     public void processModel(TModel model) {
                         model.insert();
                     }
-                }).build());
+                }).add(model).build());
     }
 
     @Override

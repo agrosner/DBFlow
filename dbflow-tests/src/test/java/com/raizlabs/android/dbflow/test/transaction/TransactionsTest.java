@@ -7,6 +7,8 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
+import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
@@ -29,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -171,6 +174,54 @@ public class TransactionsTest extends FlowTestCase {
         System.out.println("Faster Transaction completed in: " + (System.currentTimeMillis()
                 - startTime));
 
+    }
+
+    @Test
+    public void test_cachingABunchModels() {
+        Delete.tables(TrCacheableModel.class);
+
+        ModelAdapter<TrCacheableModel> modelAdapter = FlowManager.getModelAdapter(TrCacheableModel.class);
+        ModelCache<TrCacheableModel, ?> modelCache = modelAdapter.getModelCache();
+
+        List<TrCacheableModel> modelList = new ArrayList<>();
+        modelList.addAll(GenerationUtils.generateRandomModels(TrCacheableModel.class, 10000));
+
+        long startTime = System.currentTimeMillis();
+
+        FlowManager.getDatabase(TestDatabase.class)
+                .executeTransaction(new ProcessModelTransaction.Builder<>(
+                        new ProcessModelTransaction.ProcessModel<TrCacheableModel>() {
+                            @Override
+                            public void processModel(TrCacheableModel model) {
+                                model.save();
+                            }
+                        })
+                        .addAll(modelList).build());
+
+        System.out.println("Transaction completed in: " + (System.currentTimeMillis()
+                - startTime));
+
+        // exists in cache
+        for (TrCacheableModel model : modelList) {
+            assertNotNull(modelCache.get(modelAdapter.getCachingId(model)));
+        }
+
+        Delete.tables(TrCacheableModel.class);
+        modelCache.clear();
+        startTime = System.currentTimeMillis();
+        FlowManager.getDatabase(TestDatabase.class)
+                .executeTransaction(FastStoreModelTransaction
+                        .insertBuilder(modelAdapter)
+                        .addAll(modelList)
+                        .build());
+
+        // exists in cache
+        for (TrCacheableModel model : modelList) {
+            assertNotNull(modelCache.get(modelAdapter.getCachingId(model)));
+        }
+
+        System.out.println("Faster Transaction completed in: " + (System.currentTimeMillis()
+                - startTime));
     }
 
 }
