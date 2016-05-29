@@ -238,7 +238,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      */
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
+                String.format("This method may have been called in error. The model class %1s must contain " +
                                 "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
                         getModelClass()));
     }
