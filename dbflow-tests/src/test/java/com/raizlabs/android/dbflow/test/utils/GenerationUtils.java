@@ -24,7 +24,6 @@ public class GenerationUtils {
         for (int i = 0; i < size; i++) {
             testModel1 = FlowManager.getModelAdapter(testClass).newInstance();
             testModel1.setName(UUID.randomUUID().toString());
-            testModel1.save();
             testModel1s.add(testModel1);
         }
 

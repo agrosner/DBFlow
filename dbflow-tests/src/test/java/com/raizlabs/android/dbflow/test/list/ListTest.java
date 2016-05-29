@@ -4,10 +4,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.utils.GenerationUtils;
 
@@ -41,6 +43,12 @@ public class ListTest extends FlowTestCase {
     public void testTableList() {
 
         List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 100);
+
+        FlowManager.getDatabaseForTable(ListModel.class)
+                .executeTransaction(FastStoreModelTransaction
+                        .saveBuilder(FlowManager.getModelAdapter(ListModel.class))
+                        .addAll(testModel1s)
+                        .build());
 
         modelList = new FlowQueryList<>(SQLite.select().from(ListModel.class));
 
