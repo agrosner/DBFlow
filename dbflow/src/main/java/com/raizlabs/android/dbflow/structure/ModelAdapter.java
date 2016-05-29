@@ -121,12 +121,6 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     @Override
     public void saveAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
         getListModelSaver().saveAll(models, databaseWrapper);
-
-        if (cachingEnabled()) {
-            for (TModel model : models) {
-                getModelCache().addModel(getCachingId(model), model);
-            }
-        }
     }
 
     @Override
@@ -142,23 +136,11 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     @Override
     public void insertAll(Collection<TModel> models) {
         getListModelSaver().insertAll(models);
-
-        if (cachingEnabled()) {
-            for (TModel model : models) {
-                getModelCache().addModel(getCachingId(model), model);
-            }
-        }
     }
 
     @Override
     public void insertAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
         getListModelSaver().insertAll(models, databaseWrapper);
-
-        if (cachingEnabled()) {
-            for (TModel model : models) {
-                getModelCache().addModel(getCachingId(model), model);
-            }
-        }
     }
 
     @Override
@@ -174,23 +156,11 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     @Override
     public void updateAll(Collection<TModel> models) {
         getListModelSaver().updateAll(models);
-
-        if (cachingEnabled()) {
-            for (TModel model : models) {
-                getModelCache().addModel(getCachingId(model), model);
-            }
-        }
     }
 
     @Override
     public void updateAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
         getListModelSaver().updateAll(models, databaseWrapper);
-
-        if (cachingEnabled()) {
-            for (TModel model : models) {
-                getModelCache().addModel(getCachingId(model), model);
-            }
-        }
     }
 
     @Override
