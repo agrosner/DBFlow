@@ -543,6 +543,14 @@ public class TableDefinition extends BaseTableDefinition {
                     .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_LIST_MODEL_LOADER)
                     .returns(ClassNames.LIST_MODEL_LOADER).build());
 
+            typeBuilder.addMethod(MethodSpec.methodBuilder("createListModelSaver")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return new $T<>(getModelSaver())", ClassNames.CACHEABLE_LIST_MODEL_SAVER)
+                    .returns(ParameterizedTypeName.get(ClassNames.CACHEABLE_LIST_MODEL_SAVER,
+                            elementClassName,
+                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementTypeName))).build());
+
             typeBuilder.addMethod(MethodSpec.methodBuilder("cachingEnabled")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)

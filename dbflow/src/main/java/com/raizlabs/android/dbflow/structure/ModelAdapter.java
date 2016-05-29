@@ -287,6 +287,10 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         return null;
     }
 
+    public void storeModelInCache(@NonNull TModel model) {
+        getModelCache().addModel(getCachingId(model), model);
+    }
+
     public ModelCache<TModel, ?> getModelCache() {
         if (modelCache == null) {
             modelCache = createModelCache();
@@ -318,9 +322,13 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
 
     public ListModelSaver<TModel, TModel, ModelAdapter<TModel>> getListModelSaver() {
         if (listModelSaver == null) {
-            listModelSaver = new ListModelSaver<>(getModelSaver());
+            listModelSaver = createListModelSaver();
         }
         return listModelSaver;
+    }
+
+    protected ListModelSaver<TModel, TModel, ModelAdapter<TModel>> createListModelSaver() {
+        return new ListModelSaver<>(getModelSaver());
     }
 
     /**

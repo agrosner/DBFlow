@@ -70,14 +70,18 @@ public class ListModelSaver<TModel extends Model, TTable extends Model,
     }
 
     public synchronized void updateAll(@NonNull Collection<TTable> tableCollection, DatabaseWrapper wrapper) {
-        // skip if empty.
-        if (tableCollection.isEmpty()) {
-            return;
-        }
+            // skip if empty.
+            if (tableCollection.isEmpty()) {
+                return;
+            }
 
-        ContentValues contentValues = new ContentValues();
-        for (TTable model : tableCollection) {
-            modelSaver.update(model, wrapper, contentValues);
-        }
+            ContentValues contentValues = new ContentValues();
+            for (TTable model : tableCollection) {
+                modelSaver.update(model, wrapper, contentValues);
+            }
+    }
+
+    public ModelSaver<TModel, TTable, TAdapter> getModelSaver() {
+        return modelSaver;
     }
 }
