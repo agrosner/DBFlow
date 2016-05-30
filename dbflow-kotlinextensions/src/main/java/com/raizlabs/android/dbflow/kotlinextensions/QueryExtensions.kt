@@ -25,7 +25,7 @@ infix fun <T : Model> Insert<T>.orReplace(pairFunction: () -> Array<out Pair<IPr
     return this
 }
 
-fun <T : Model> into(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> {
+fun into(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> {
     return pairs
 }
 
