@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
+import com.raizlabs.android.dbflow.sql.language.Condition
 import com.raizlabs.android.dbflow.sql.language.property.*
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.Model
@@ -38,6 +39,19 @@ val <T : Model> ModelQueriable<T>.property: Property<T>
 inline fun <reified T : Any> T.propertyString(stringRepresentation: String?): Property<T> {
     return PropertyFactory.from(T::class.java, stringRepresentation)
 }
+
+infix fun <T> Property<T>.eq(value: T): Condition {
+    return this.eq(value)
+}
+
+infix fun <T> Property<T>.`is`(value: T): Condition {
+    return this.`is`(value)
+}
+
+infix fun <T> Property<T>.isNot(value: T): Condition {
+    return this.isNot(value)
+}
+
 
 
 

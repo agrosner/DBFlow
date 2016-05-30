@@ -24,8 +24,8 @@ class QueryExtensionsTest : FlowTestCase() {
 
         var query = select(TestModel1_Table.name) {
             from<TestModel1> {
-                where { TestModel1_Table.name.eq("test") }
-                        .and { TestModel1_Table.name.isNot("something") }
+                where { TestModel1_Table.name `is` "test" }
+                        .and { TestModel1_Table.name isNot "something" }
             }
         }.query
 
