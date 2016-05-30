@@ -103,3 +103,11 @@ Compared to pre-3.0 DBFlow, this is a breaking change from the old, priority-bas
 queue system. The reason for this change was to simplify the queuing system and
 allow other systems to exist without confusing loss of functionality. To keep the old
 system read [Transactions](/usage2/StoringData.md).
+
+## Faster Retrieval
+
+In an effort to squeeze out more speed at the potential cost of flexibility, DBFlow provides a
+couple ways to optimize loads from the DB. If you simply retrieve a `List` of `Model`
+without any projection from your DB, you can take advantage of 2 features:
+    1. `@Table(orderedCursorLookUp = true)` -> We do not call `Cursor.getColumnIndex()` and assume that the `Cursor` is ordered by column declarations in the class.
+    2. `@Table(assignDefaultValuesFromCursor = false)` -> We do not expect to reuse an object from the DB (or care) if the corresponding fields aren't assigned a value when missing from the `Cursor`.
