@@ -33,6 +33,10 @@ infix fun <T : Model> Update<T>.set(sqlCondition: SQLCondition) = set(sqlConditi
 
 infix fun <T : Model> Select.from(modelClass: KClass<T>): From<T> = from(modelClass.java)
 
+infix fun <T : Model> From<T>.whereExists(where: Where<T>): Where<T> {
+    return where().exists(where)
+}
+
 infix fun <T : Model> From<T>.where(sqlCondition: SQLCondition): Where<T> = where(sqlCondition)
 
 infix fun <T : Model> Set<T>.where(sqlCondition: SQLCondition): Where<T> = where(sqlCondition)

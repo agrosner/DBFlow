@@ -3,10 +3,11 @@ package com.raizlabs.android.dbflow.test.kotlin
 import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.sql.language.SQLite.select
 import com.raizlabs.android.dbflow.test.FlowTestCase
+import com.raizlabs.android.dbflow.test.kotlin.KotlinTestModel_Table.id
+import com.raizlabs.android.dbflow.test.kotlin.KotlinTestModel_Table.name
 import com.raizlabs.android.dbflow.test.sql.TestModel3
 import com.raizlabs.android.dbflow.test.sql.TestModel3_Table
 import com.raizlabs.android.dbflow.test.structure.TestModel1
-import com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name
 import com.raizlabs.android.dbflow.test.structure.TestModel2
 import com.raizlabs.android.dbflow.test.structure.TestModel2_Table
 import org.junit.Assert.assertEquals
@@ -22,11 +23,11 @@ class QueryExtensionsTest : FlowTestCase() {
     fun test_canEquals() {
 
         val query = ((select(name)
-                from TestModel1::class
+                from KotlinTestModel::class
                 where (name `is` "test")
                 and (name isNot "something")).query)
 
-        assertEquals(query.trim(), "SELECT `name` FROM `TestModel1` WHERE `name`='test' AND `name`!='something'")
+        assertEquals(query.trim(), "SELECT `name` FROM `KotlinTestModel` WHERE `name`='test' AND `name`!='something'")
 
         val another = (select
                 from TestModel1::class
@@ -59,7 +60,7 @@ class QueryExtensionsTest : FlowTestCase() {
     fun test_insertBuilders() {
 
         var query = insert(TestModel1::class) orReplace {
-            into(KotlinTestModel_Table.id to 5, KotlinTestModel_Table.name to "5")
+            into(id to 5, name to "5")
         }
 
     }
