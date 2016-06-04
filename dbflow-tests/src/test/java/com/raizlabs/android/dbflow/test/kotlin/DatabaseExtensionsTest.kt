@@ -1,9 +1,6 @@
 package com.raizlabs.android.dbflow.test.kotlin
 
-import com.raizlabs.android.dbflow.kotlinextensions.database
-import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.processInTransaction
-import com.raizlabs.android.dbflow.kotlinextensions.async
+import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
@@ -30,16 +27,16 @@ class DatabaseExtensionsTest : FlowTestCase() {
             // do something here
         }
 
-        items.async { it, databaseWrapper -> it.save(databaseWrapper) }
+        items.processInTransactionAsync { it, databaseWrapper -> it.save(databaseWrapper) }
 
-        items.async({ it, databaseWrapper -> it.delete(databaseWrapper) },
+        items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
                 Transaction.Success {
                     // do something here
                 },
                 Transaction.Error { transaction, throwable ->
 
                 })
-        items.async({ it, databaseWrapper -> it.delete(databaseWrapper) },
+        items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
                 ProcessModelTransaction.OnModelProcessListener { current, size, model ->
                     // do something here
                 })

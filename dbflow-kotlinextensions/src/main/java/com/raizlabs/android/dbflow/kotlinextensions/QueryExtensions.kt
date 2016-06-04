@@ -23,9 +23,7 @@ val select: Select
 
 inline fun <reified TModel : Model> Select.from(): From<TModel> = from(TModel::class.java)
 
-
 fun <T : Model> delete(modelClass: KClass<T>): From<T> = SQLite.delete(modelClass.java)
-
 
 infix fun <T : Model> Select.from(modelClass: KClass<T>): From<T> = from(modelClass.java)
 
@@ -40,7 +38,6 @@ infix fun <T : Model> Set<T>.where(sqlCondition: SQLCondition): Where<T> = where
 infix fun <T : Model> Where<T>.and(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
 
 infix fun <T : Model> Where<T>.or(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
-
 
 // queriable extensions
 
@@ -64,7 +61,6 @@ val <T : Model> ModelQueriable<T>.result: T?
 
 val <T : Model> ModelQueriable<T>.cursorResult: CursorResult<T>
     get() = queryResults()
-
 
 // async extensions
 
