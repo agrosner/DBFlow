@@ -83,7 +83,7 @@ infix fun <T : Model> AsyncQuery<T>.cursorResult(callback: (QueryTransaction<*>,
         = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
         .execute()
 
-val <T : BaseModel> T.async: AsyncModel<BaseModel>
+val BaseModel.async: AsyncModel<BaseModel>
     get() = async()
 
 infix fun <T : Model> AsyncModel<T>.insert(listener: (T) -> Unit) = withListener { listener(it) }.insert()
