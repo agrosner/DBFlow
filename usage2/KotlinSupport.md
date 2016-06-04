@@ -132,15 +132,15 @@ In Kotlin, we can use a combo of DSL and extension methods to:
 var items = (select from TestModel1::class).list
 
  // easily delete all these items.
- items.processInTransactionAsync { it, databaseWrapper -> it.delete(databaseWrapper) }
+ items.async { it, databaseWrapper -> it.delete(databaseWrapper) }
 
  // easily delete all these items with success
- items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
+ items.async({ it, databaseWrapper -> it.delete(databaseWrapper) },
             Transaction.Success {
                 // do something here
             })
 // delete with all callbacks
-iitems.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
+items.async({ it, databaseWrapper -> it.delete(databaseWrapper) },
     Transaction.Success {
         // do something here
     },
