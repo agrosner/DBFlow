@@ -32,8 +32,8 @@ class QueryExtensionsTest : FlowTestCase() {
         val another = (select
                 from TestModel1::class
                 innerJoin TestModel2::class
-                on TestModel2_Table.name.withTable().eq(name.withTable()) leftOuterJoin
-                TestModel3::class on name.withTable().eq(TestModel3_Table.name.withTable()))
+                on (TestModel2_Table.name.withTable() eq (name.withTable()))
+                leftOuterJoin TestModel3::class on (name.withTable() eq TestModel3_Table.name.withTable()))
 
         assertEquals(another.query.trim(), "SELECT * FROM `TestModel1` " +
                 "INNER JOIN `TestModel2` ON `TestModel2`.`name`=`TestModel1`.`name`  " +
@@ -43,7 +43,7 @@ class QueryExtensionsTest : FlowTestCase() {
     @Test
     @Throws(Exception::class)
     fun test_updateBuilders() {
-        val query = update(TestModel1::class) set(name `is` "yes") where(name eq "no") and(name eq "maybe")
+        val query = update(TestModel1::class) set (name `is` "yes") where (name eq "no") and (name eq "maybe")
         assertEquals(query.query.trim(), "UPDATE `TestModel1` SET `name`='yes' WHERE `name`='no' AND `name`='maybe'")
     }
 
