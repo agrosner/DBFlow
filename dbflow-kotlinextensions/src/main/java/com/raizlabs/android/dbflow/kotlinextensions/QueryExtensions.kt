@@ -4,10 +4,12 @@ import android.database.Cursor
 import com.raizlabs.android.dbflow.sql.language.*
 import com.raizlabs.android.dbflow.sql.language.Set
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
+import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.sql.queriable.Queriable
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction
 import kotlin.reflect.KClass
 
 /**
@@ -60,6 +62,21 @@ val <T : Model> ModelQueriable<T>.result: T?
 
 val <T : Model> ModelQueriable<T>.cursorResult: CursorResult<T>
     get() = queryResults()
+
+val <T : Model> ModelQueriable<T>.async: AsyncQuery<T>
+    get() = async()
+
+infix fun <T : Model> AsyncQuery<T>.list(callback: (QueryTransaction<*>, MutableList<T>?) -> Unit)
+        = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
+        .execute()
+
+infix fun <T : Model> AsyncQuery<T>.result(callback: (QueryTransaction<*>, T?) -> Unit)
+        = querySingleResultCallback { queryTransaction, model -> callback(queryTransaction, model) }
+        .execute()
+
+infix fun <T : Model> AsyncQuery<T>.cursorResult(callback: (QueryTransaction<*>, CursorResult<T>) -> Unit)
+        = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
+        .execute()
 
 
 // Transformable methods

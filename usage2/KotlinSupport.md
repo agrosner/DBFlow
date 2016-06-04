@@ -43,8 +43,10 @@ val results = (select
               from Result::class
               where (column eq 6)
               and (column2 in("5", "6", "9"))
-              groupBy column)
-              .queryList())
+              groupBy column).list
+              // can call .result for single result
+              // .hasData if it has results
+              // .statement for a compiled statement
 ```
 
 Enabling us to write code that is closer in syntax to SQLite!
@@ -54,6 +56,31 @@ This supported for almost any SQLite operator that this library provides includi
   2. `Insert`
   3. `Update`
   4. `Delete`
+
+**Async Operations**:
+With extensions we also support `async` operations on queries:
+
+```kotlin
+
+// easy async list query
+(select
+    from Result::class
+    where (column eq 6))
+.async list { transaction, list ->
+    // do something here
+    updateUI(list)
+}
+
+// easy single result query
+(select
+    from Result::class
+    where (column eq 6))
+.async result { transaction, model ->
+    // do something here
+    updateUI(model)
+}
+
+```
 
 #### Query DSL
 
