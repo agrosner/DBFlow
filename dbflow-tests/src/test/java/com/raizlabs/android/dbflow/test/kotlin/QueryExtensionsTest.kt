@@ -43,16 +43,18 @@ class QueryExtensionsTest : FlowTestCase() {
     @Test
     @Throws(Exception::class)
     fun test_updateBuilders() {
-        val query = update(TestModel1::class) set (name `is` "yes") where (name eq "no") and (name eq "maybe")
+        val query = (update(TestModel1::class)
+                set (name `is` "yes")
+                where (name eq "no")
+                and (name eq "maybe"))
         assertEquals(query.query.trim(), "UPDATE `TestModel1` SET `name`='yes' WHERE `name`='no' AND `name`='maybe'")
     }
 
     @Test
     @Throws(Exception::class)
     fun test_deleteBuilders() {
-        var query = delete(TestModel1::class) where
-                name.eq("test")
-
+        val query = (delete(TestModel1::class)
+                where (name eq "test"))
     }
 
     @Test
