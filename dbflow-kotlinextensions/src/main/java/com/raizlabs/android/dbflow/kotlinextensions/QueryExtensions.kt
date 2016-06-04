@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.sql.queriable.Queriable
+import com.raizlabs.android.dbflow.structure.AsyncModel
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction
@@ -78,6 +79,13 @@ infix fun <T : Model> AsyncQuery<T>.cursorResult(callback: (QueryTransaction<*>,
         = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
         .execute()
 
+infix fun <T : Model> AsyncModel<T>.insert(listener: (T) -> Unit) = withListener { listener(it) }.insert()
+
+infix fun <T : Model> AsyncModel<T>.update(listener: (T) -> Unit) = withListener { listener(it) }.update()
+
+infix fun <T : Model> AsyncModel<T>.delete(listener: (T) -> Unit) = withListener { listener(it) }.delete()
+
+infix fun <T : Model> AsyncModel<T>.save(listener: (T) -> Unit) = withListener { listener(it) }.save()
 
 // Transformable methods
 
