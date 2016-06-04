@@ -21,7 +21,41 @@ dependencies {
 
 Note that these features are incubating and may change or get removed in a later version.
 
-__Query DSL__:
+
+#### Query LINQ Syntax
+
+Kotlin has nice support for custim `infix` operators. Using this we can convert a regular, Plain old java query into a C#-like LINQ syntax.
+
+java:
+```
+
+List<Result> = SQLite.select()
+                .from(Result.class)
+                .where(Result_Table.column.eq(6))
+                .and(Result_Table.column2.in("5", "6", "9")).queryList()
+
+```
+
+kotlin:
+
+```
+val results = (select
+              from Result::class
+              where (column eq 6)
+              and (column2 in("5", "6", "9"))
+              groupBy column)
+              .queryList())
+```
+
+Enabling us to write code that is closer in syntax to SQLite!
+
+This supported for almost any SQLite operator that this library provides including:
+  1. `Select`
+  2. `Insert`
+  3. `Update`
+  4. `Delete`
+
+#### Query DSL
 
 Select
 

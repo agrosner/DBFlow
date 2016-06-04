@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
-import com.raizlabs.android.dbflow.sql.language.Condition
 import com.raizlabs.android.dbflow.sql.language.property.*
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.Model

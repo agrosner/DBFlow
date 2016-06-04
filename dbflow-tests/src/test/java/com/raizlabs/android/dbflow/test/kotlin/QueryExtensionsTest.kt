@@ -62,11 +62,12 @@ class QueryExtensionsTest : FlowTestCase() {
     @Throws(Exception::class)
     fun test_insertBuilders() {
 
-        var query = insert(TestModel1::class) orReplace {
-            into(id to 5, name to "5")
-        }
+        var query = (insert(TestModel1::class)
+                orReplace  (into(id to 5, name to "5")))
+
 
     }
 }
+
 
 
