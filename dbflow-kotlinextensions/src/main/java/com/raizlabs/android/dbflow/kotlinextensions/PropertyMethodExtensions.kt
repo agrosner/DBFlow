@@ -54,129 +54,129 @@ infix fun <T> Property<T>.notIn(values: Collection<T>): Condition.In = this.notI
 
 infix fun <T> Property<T>.concatenate(value: T): Condition = this.concatenate(value)
 
-infix fun <T : IProperty<*>> BaseProperty<T>.eq(value: IConditional): Condition = this.eq(value)
+infix fun IConditional.eq(value: IConditional): Condition = this.eq(value)
 
-infix fun <T : IProperty<*>> BaseProperty<T>.`is`(conditional: IConditional): Condition {
+infix fun IConditional.`is`(conditional: IConditional): Condition {
     return this.`is`(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.isNot(conditional: IConditional): Condition {
+infix fun IConditional.isNot(conditional: IConditional): Condition {
     return this.isNot(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.notEq(conditional: IConditional): Condition {
+infix fun IConditional.notEq(conditional: IConditional): Condition {
     return this.notEq(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.like(conditional: IConditional): Condition {
+infix fun IConditional.like(conditional: IConditional): Condition {
     return this.like(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.glob(conditional: IConditional): Condition {
+infix fun IConditional.glob(conditional: IConditional): Condition {
     return this.glob(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.like(value: String): Condition {
+infix fun IConditional.like(value: String): Condition {
     return this.like(value)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.glob(value: String): Condition {
+infix fun IConditional.glob(value: String): Condition {
     return this.glob(value)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.greaterThan(conditional: IConditional): Condition {
+infix fun IConditional.greaterThan(conditional: IConditional): Condition {
     return this.greaterThan(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.greaterThanOrEq(conditional: IConditional): Condition {
+infix fun IConditional.greaterThanOrEq(conditional: IConditional): Condition {
     return this.greaterThanOrEq(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.lessThan(conditional: IConditional): Condition {
+infix fun IConditional.lessThan(conditional: IConditional): Condition {
     return this.lessThan(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.lessThanOrEq(conditional: IConditional): Condition {
+infix fun IConditional.lessThanOrEq(conditional: IConditional): Condition {
     return this.lessThanOrEq(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.between(conditional: IConditional): Condition.Between {
+infix fun IConditional.between(conditional: IConditional): Condition.Between {
     return this.between(conditional)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.`in`(values: Array<IConditional>): Condition.In {
+infix fun IConditional.`in`(values: Array<IConditional>): Condition.In {
     return when (values.size) {
         1 -> `in`(values[0])
         else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
     }
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.notIn(values: Array<IConditional>): Condition.In {
+infix fun IConditional.notIn(values: Array<IConditional>): Condition.In {
     return when (values.size) {
         1 -> notIn(values[0])
         else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
     }
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.`is`(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.`is`(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.`is`(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.eq(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.eq(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.eq(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.isNot(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.isNot(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.isNot(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.notEq(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.notEq(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.notEq(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.like(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.like(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.like(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.glob(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.glob(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.glob(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.greaterThan(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.greaterThan(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.greaterThan(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.greaterThanOrEq(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.greaterThanOrEq(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.greaterThanOrEq(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.lessThan(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.lessThan(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.lessThan(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.lessThanOrEq(baseModelQueriable: BaseModelQueriable<Model>): Condition {
+infix fun IConditional.lessThanOrEq(baseModelQueriable: BaseModelQueriable<Model>): Condition {
     return this.lessThanOrEq(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.between(baseModelQueriable: BaseModelQueriable<Model>): Condition.Between {
+infix fun IConditional.between(baseModelQueriable: BaseModelQueriable<Model>): Condition.Between {
     return this.between(baseModelQueriable)
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.`in`(values: Array<BaseModelQueriable<Model>>): Condition.In {
+infix fun IConditional.`in`(values: Array<BaseModelQueriable<Model>>): Condition.In {
     return when (values.size) {
         1 -> `in`(values[0])
         else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
     }
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.notIn(values: Array<BaseModelQueriable<Model>>): Condition.In {
+infix fun IConditional.notIn(values: Array<BaseModelQueriable<Model>>): Condition.In {
     return when (values.size) {
         1 -> notIn(values[0])
         else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
     }
 }
 
-infix fun <T : IProperty<*>> BaseProperty<T>.concatenate(conditional: IConditional): Condition {
+infix fun IConditional.concatenate(conditional: IConditional): Condition {
     return this.concatenate(conditional)
 }
 
