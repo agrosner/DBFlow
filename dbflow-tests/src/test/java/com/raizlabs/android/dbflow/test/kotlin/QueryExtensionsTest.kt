@@ -35,9 +35,10 @@ class QueryExtensionsTest : FlowTestCase() {
                 on (TestModel2_Table.name.withTable() eq (name.withTable()))
                 leftOuterJoin TestModel3::class on (name.withTable() eq TestModel3_Table.name.withTable()))
 
-        assertEquals(another.query.trim(), "SELECT * FROM `TestModel1` " +
-                "INNER JOIN `TestModel2` ON `TestModel2`.`name`=`TestModel1`.`name`  " +
-                "LEFT OUTER JOIN `TestModel32` ON `TestModel1`.`name`=`TestModel32`.`name`")
+        assertEquals("SELECT * FROM `TestModel1` " +
+                "INNER JOIN `TestModel2` ON `TestModel2`.`name`=`KotlinTestModel`.`name`  " +
+                "LEFT OUTER JOIN `TestModel32` ON `KotlinTestModel`.`name`=`TestModel32`.`name`",
+                another.query.trim())
     }
 
     @Test
