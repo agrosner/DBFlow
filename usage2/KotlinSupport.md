@@ -21,73 +21,71 @@ dependencies {
 
 Note that these features are incubating and may change or get removed in a later version.
 
-__Query DSL__:
 
-Select
+#### Query LINQ Syntax
+
+Kotlin has nice support for custim `infix` operators. Using this we can convert a regular, Plain old java query into a C#-like LINQ syntax.
+
+java:
+```
+
+List<Result> = SQLite.select()
+                .from(Result.class)
+                .where(Result_Table.column.eq(6))
+                .and(Result_Table.column2.in("5", "6", "9")).queryList()
+
+```
+
+kotlin:
+
+```
+val results = (select
+              from Result::class
+              where (column eq 6)
+              and (column2 `in`("5", "6", "9"))
+              groupBy column).list
+              // can call .result for single result
+              // .hasData if it has results
+              // .statement for a compiled statement
+```
+
+Enabling us to write code that is closer in syntax to SQLite!
+
+This supported for almost any SQLite operator that this library provides including:
+  1. `Select`
+  2. `Insert`
+  3. `Update`
+  4. `Delete`
+
+**Async Operations**:
+With extensions we also support `async` operations on queries:
 
 ```kotlin
 
-var items = select {
-  from<SomeTable> {
-    where {
-      SomeTable_Table.name.eq("something")
-    }.
-    and {
-      SomeTable_Table.job.eq("Software Engineer")
-    }
-  }
-}.queryList()
-
-var another = select {
-    from<TestModel1> {
-        join<TestModel1, TestModel2>(INNER) {
-            on { TestModel2_Table.name.withTable().eq(TestModel1_Table.name.withTable()) }
-        }
-
-        join<TestModel1, TestModel3>(LEFT_OUTER) {
-            on { TestModel1_Table.name.withTable().eq(TestModel3_Table.name.withTable()) }
-        }
-    }
+// easy async list query
+(select
+    from Result::class
+    where (column eq 6))
+.async list { transaction, list ->
+    // do something here
+    updateUI(list)
 }
 
-```
+// easy single result query
+(select
+    from Result::class
+    where (column eq 6))
+.async result { transaction, model ->
+    // do something here
+    updateUI(model)
+}
 
-Insert
+val model = Result()
 
-```kotlin
+model.async save {
+  // completed, now do something with model
+}
 
-var query = insert<TestModel1> {
-           orReplace()
-           into(KotlinTestModel_Table.id to 5, KotlinTestModel_Table.name to "5")
-       }
-
-```
-
-We added an `into` method that takes in a `Pair<IProperty<*>, *>` to allow you
-to specify values a little easier when using `Insert` statement wrappers.
-
-Delete
-
-```kotlin
-
-delete<TestModel1> {
-    where {
-        TestModel1_Table.name.eq("test")
-    }
-}.execute()
-
-```
-
-Update
-
-```kotlin
-update<TestModel1> {
-    set {
-        conditions(TestModel1_Table.name.`is`("yes"))
-        where { TestModel1_Table.name.eq("no") }
-                .and { TestModel1_Table.name.eq("maybe") }
-    }
-}.execute()
 ```
 
 ### Property Extensions
@@ -100,11 +98,11 @@ method for `from` to streamline the query even more.
 
 ```kotlin
 
-var query = SQLite.select()
-  .from<TestModel>()
-  .where(5.property.lessThan(TestModel_Table.column))
-  .and(ConditionGroup.clause().and(date.property.between(TestModel_Table.start_date)
-      .and(TestModel_Table.end_date)))
+var query = (select
+  from TestModel::class
+  where (5.property lessThan column)
+  and (clause(date.property between start_date)
+        and(end_date)))
 
 
 ```
@@ -137,19 +135,18 @@ In Kotlin, we can use a combo of DSL and extension methods to:
 
 ```kotlin
 
-var items = SQLite.select()
-               .from<TestModel1>().queryList()
+var items = (select from TestModel1::class).list
 
  // easily delete all these items.
- items.processInTransactionAsync { it, databaseWrapper -> it.delete(databaseWrapper) }
+ items.async { it, databaseWrapper -> it.delete(databaseWrapper) }
 
  // easily delete all these items with success
- items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
+ items.async({ it, databaseWrapper -> it.delete(databaseWrapper) },
             Transaction.Success {
                 // do something here
             })
 // delete with all callbacks
-iitems.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
+items.async({ it, databaseWrapper -> it.delete(databaseWrapper) },
     Transaction.Success {
         // do something here
     },
