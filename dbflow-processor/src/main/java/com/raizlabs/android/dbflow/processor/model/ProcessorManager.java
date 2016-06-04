@@ -399,11 +399,18 @@ public class ProcessorManager implements Handler {
             }
         }
 
-        try {
-            JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                    new FlowManagerHolderDefinition(processorManager).getTypeSpec())
-                    .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
-        } catch (IOException e) {
+        if (roundEnvironment.processingOver())
+        {
+            try
+            {
+                JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
+                                 new FlowManagerHolderDefinition(processorManager).getTypeSpec())
+                        .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
+            }
+            catch (IOException e)
+            {
+                logError(e.getMessage());
+            }
         }
     }
 }
