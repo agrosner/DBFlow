@@ -37,7 +37,6 @@ public @interface Table {
      */
     ConflictAction insertConflict() default ConflictAction.NONE;
 
-
     /**
      * @return An optional {@link ConflictAction} that we append to creation for conflict handling in PK.
      */

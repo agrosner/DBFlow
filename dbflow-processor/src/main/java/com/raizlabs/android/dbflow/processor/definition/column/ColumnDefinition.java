@@ -406,6 +406,11 @@ public class ColumnDefinition extends BaseDefinition {
             codeBlockBuilder.add("($L)", length);
         }
 
+        if (isPrimaryKeyAutoIncrement && tableDefinition instanceof TableDefinition
+                && !StringUtils.isNullOrEmpty(((TableDefinition) tableDefinition).primaryKeyConflictActionName)) {
+            codeBlockBuilder.add(" ON CONFLICT $L", ((TableDefinition) tableDefinition).primaryKeyConflictActionName);
+        }
+
         if (!collate.equals(Collate.NONE)) {
             codeBlockBuilder.add(" COLLATE $L", collate);
         }
@@ -413,6 +418,7 @@ public class ColumnDefinition extends BaseDefinition {
         if (unique) {
             codeBlockBuilder.add(" UNIQUE ON CONFLICT $L", onUniqueConflict);
         }
+
 
         if (notNull) {
             codeBlockBuilder.add(" NOT NULL");

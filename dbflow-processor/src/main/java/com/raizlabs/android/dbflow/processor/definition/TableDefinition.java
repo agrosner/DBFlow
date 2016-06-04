@@ -85,6 +85,8 @@ public class TableDefinition extends BaseTableDefinition {
 
     public String updateConflictActionName;
 
+    public String primaryKeyConflictActionName;
+
     public List<ColumnDefinition> primaryColumnDefinitions;
     public List<ForeignKeyColumnDefinition> foreignKeyDefinitions;
     public List<UniqueGroupsDefinition> uniqueGroupsDefinitions;
@@ -251,10 +253,14 @@ public class TableDefinition extends BaseTableDefinition {
                 updateConflict = databaseDefinition.updateConflict;
             }
 
+            ConflictAction primaryKeyConflict = table.primaryKeyConflict();
+
             insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
                     : insertConflict.name();
             updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
                     : updateConflict.name();
+            primaryKeyConflictActionName = primaryKeyConflict.equals(ConflictAction.NONE) ? ""
+                    : primaryKeyConflict.name();
 
 
             createColumnDefinitions(typeElement);

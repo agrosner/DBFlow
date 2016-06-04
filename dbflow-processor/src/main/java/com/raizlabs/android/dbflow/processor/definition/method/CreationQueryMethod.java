@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.processor.definition.UniqueGroupsDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyReferenceDefinition;
+import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -31,14 +32,14 @@ public class CreationQueryMethod implements MethodDefinition {
     @Override
     public MethodSpec getMethodSpec() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCreationQuery")
-            .addAnnotation(Override.class)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .returns(ClassName.get(String.class));
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .returns(ClassName.get(String.class));
 
         CodeBlock.Builder creationBuilder = CodeBlock.builder()
-            .add("CREATE TABLE IF NOT EXISTS ")
-            .add(QueryBuilder.quote(tableDefinition.tableName))
-            .add("(");
+                .add("CREATE TABLE IF NOT EXISTS ")
+                .add(QueryBuilder.quote(tableDefinition.tableName))
+                .add("(");
 
         for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
             if (i > 0) {
@@ -71,6 +72,9 @@ public class CreationQueryMethod implements MethodDefinition {
 
                 if (i == primarySize - 1) {
                     creationBuilder.add(")");
+                    if (!StringUtils.isNullOrEmpty(tableDefinition.primaryKeyConflictActionName)) {
+                        creationBuilder.add(" ON CONFLICT " + tableDefinition.primaryKeyConflictActionName);
+                    }
                 }
             }
         }
@@ -102,7 +106,7 @@ public class CreationQueryMethod implements MethodDefinition {
             foreignKeyBlocks.add(foreignKeyBuilder.build());
 
             tableNameBlocks.add(CodeBlock.builder().add("$T.getTableName($T.class)",
-                ClassNames.FLOW_MANAGER, foreignKeyColumnDefinition.referencedTableClassName).build());
+                    ClassNames.FLOW_MANAGER, foreignKeyColumnDefinition.referencedTableClassName).build());
 
             referenceBuilder.add("(");
             for (int j = 0; j < foreignKeyColumnDefinition.foreignKeyReferenceDefinitionList.size(); j++) {
@@ -113,12 +117,12 @@ public class CreationQueryMethod implements MethodDefinition {
                 referenceBuilder.add("$L", QueryBuilder.quote(referenceDefinition.foreignColumnName));
             }
             referenceBuilder.add(") ON UPDATE $L ON DELETE $L", foreignKeyColumnDefinition.onUpdate.name().replace("_", " "),
-                foreignKeyColumnDefinition.onDelete.name().replace("_", " "));
+                    foreignKeyColumnDefinition.onDelete.name().replace("_", " "));
             referenceKeyBlocks.add(referenceBuilder.build());
         }
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder()
-            .add("return $S", creationBuilder.build().toString());
+                .add("return $S", creationBuilder.build().toString());
 
         if (foreignSize > 0) {
             for (int i = 0; i < foreignSize; i++) {
