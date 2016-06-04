@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
  * Description: A file containing extensions for adding query syntactic sugar.
  */
 
-val Any.select: Select
+val select: Select
     get() = SQLite.select()
 
 fun <T : Model> update(modelClass: KClass<T>): Update<T> = SQLite.update(modelClass.java)
