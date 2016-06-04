@@ -42,7 +42,7 @@ kotlin:
 val results = (select
               from Result::class
               where (column eq 6)
-              and (column2 in("5", "6", "9"))
+              and (column2 `in`("5", "6", "9"))
               groupBy column).list
               // can call .result for single result
               // .hasData if it has results
