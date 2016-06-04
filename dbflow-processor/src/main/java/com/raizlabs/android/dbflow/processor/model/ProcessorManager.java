@@ -325,8 +325,7 @@ public class ProcessorManager implements Handler {
 
                 databaseDefinition.getDatabaseDefinition().validateAndPrepareToWrite();
 
-                if (roundEnvironment.processingOver())
-                {
+                if (roundEnvironment.processingOver()) {
                     JavaFile.builder(databaseDefinition.getDatabaseDefinition().packageName,
                                      databaseDefinition.getDatabaseDefinition().getTypeSpec())
                             .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
@@ -341,8 +340,7 @@ public class ProcessorManager implements Handler {
 
                 tableDefinitions = databaseDefinition.tableDefinitionMap.values();
                 for (TableDefinition tableDefinition : tableDefinitions) {
-                    try
-                    {
+                    try {
                         tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
                     }
                     catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
@@ -355,8 +353,7 @@ public class ProcessorManager implements Handler {
                 Collections.sort(modelViewDefinitions);
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
                     WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
-                    try
-                    {
+                    try {
                         modelViewDefinition.writeViewTable();
                     }
                     catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
@@ -365,32 +362,28 @@ public class ProcessorManager implements Handler {
                 Collection<QueryModelDefinition> queryModelDefinitions = databaseDefinition.queryModelDefinitionMap.values();
                 for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
                     WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
-                    try
-                    {
+                    try {
                         queryModelDefinition.writeAdapter(processorManager.getProcessingEnvironment());
                     }
                     catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 for (TableDefinition tableDefinition : tableDefinitions) {
-                    try
-                    {
+                    try {
                         tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     }
                     catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
-                    try
-                    {
+                    try {
                         modelViewDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     }
                     catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
-                    try
-                    {
+                    try {
                         queryModelDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
                     }
                     catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
@@ -399,16 +392,13 @@ public class ProcessorManager implements Handler {
             }
         }
 
-        if (roundEnvironment.processingOver())
-        {
-            try
-            {
+        if (roundEnvironment.processingOver()) {
+            try {
                 JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
                                  new FlowManagerHolderDefinition(processorManager).getTypeSpec())
                         .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
             }
-            catch (IOException e)
-            {
+            catch (IOException e) {
                 logError(e.getMessage());
             }
         }
