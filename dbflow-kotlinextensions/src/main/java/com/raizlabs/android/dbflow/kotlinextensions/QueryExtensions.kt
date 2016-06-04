@@ -1,9 +1,13 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
+import android.database.Cursor
 import com.raizlabs.android.dbflow.sql.language.*
 import com.raizlabs.android.dbflow.sql.language.Set
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
+import com.raizlabs.android.dbflow.sql.queriable.Queriable
 import com.raizlabs.android.dbflow.structure.Model
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import kotlin.reflect.KClass
 
 /**
@@ -32,6 +36,30 @@ infix fun <T : Model> Set<T>.where(sqlCondition: SQLCondition): Where<T> = where
 infix fun <T : Model> Where<T>.and(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
 
 infix fun <T : Model> Where<T>.or(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
+
+
+// queriable extensions
+
+val Queriable.count: Long
+    get() = count()
+
+val Queriable.cursor: Cursor?
+    get() = query()
+
+val Queriable.hasData: Boolean
+    get() = hasData()
+
+val Queriable.statement: DatabaseStatement
+    get() = compileStatement()
+
+val <T : Model> ModelQueriable<T>.list: MutableList<T>
+    get() = queryList()
+
+val <T : Model> ModelQueriable<T>.result: T?
+    get() = querySingle()
+
+val <T : Model> ModelQueriable<T>.cursorResult: CursorResult<T>
+    get() = queryResults()
 
 
 // Transformable methods
