@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.sql.queriable.Queriable
 import com.raizlabs.android.dbflow.structure.AsyncModel
+import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction
@@ -64,6 +65,9 @@ val <T : Model> ModelQueriable<T>.result: T?
 val <T : Model> ModelQueriable<T>.cursorResult: CursorResult<T>
     get() = queryResults()
 
+
+// async extensions
+
 val <T : Model> ModelQueriable<T>.async: AsyncQuery<T>
     get() = async()
 
@@ -78,6 +82,9 @@ infix fun <T : Model> AsyncQuery<T>.result(callback: (QueryTransaction<*>, T?) -
 infix fun <T : Model> AsyncQuery<T>.cursorResult(callback: (QueryTransaction<*>, CursorResult<T>) -> Unit)
         = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
         .execute()
+
+val <T : BaseModel> T.async: AsyncModel<BaseModel>
+    get() = async()
 
 infix fun <T : Model> AsyncModel<T>.insert(listener: (T) -> Unit) = withListener { listener(it) }.insert()
 

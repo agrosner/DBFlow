@@ -80,6 +80,12 @@ With extensions we also support `async` operations on queries:
     updateUI(model)
 }
 
+val model = Result()
+
+model.async save {
+  // completed, now do something with model
+}
+
 ```
 
 ### Property Extensions
