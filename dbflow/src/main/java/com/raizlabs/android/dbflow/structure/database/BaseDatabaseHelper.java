@@ -79,7 +79,11 @@ public class BaseDatabaseHelper {
             database.beginTransaction();
             List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
             for (ModelAdapter modelAdapter : modelAdapters) {
-                database.execSQL(modelAdapter.getCreationQuery());
+                try {
+                    database.execSQL(modelAdapter.getCreationQuery());
+                } catch (SQLiteException e) {
+                    FlowLog.logError(e);
+                }
             }
 
             // create our model views
@@ -90,11 +94,13 @@ public class BaseDatabaseHelper {
                         .appendSpaceSeparated(modelView.getViewName())
                         .append("AS ")
                         .append(modelView.getCreationQuery());
-                database.execSQL(queryBuilder.getQuery());
+                try {
+                    database.execSQL(queryBuilder.getQuery());
+                } catch (SQLiteException e) {
+                    FlowLog.logError(e);
+                }
             }
             database.setTransactionSuccessful();
-        } catch (SQLiteException e) {
-            FlowLog.logError(e);
         } finally {
             database.endTransaction();
         }

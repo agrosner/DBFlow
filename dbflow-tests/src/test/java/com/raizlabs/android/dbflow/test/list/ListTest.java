@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -118,8 +119,8 @@ public class ListTest extends FlowTestCase {
 
         TestModelAdapter modelAdapter = new TestModelAdapter(flowCursorList);
 
-        assertTrue(testModel1s.size() == modelAdapter.getCount());
-        assertTrue(flowCursorList.getAll().size() == testModel1s.size());
+        assertEquals(testModel1s.size(), modelAdapter.getCount());
+        assertEquals(flowCursorList.getAll().size(), testModel1s.size());
 
     }
 }
