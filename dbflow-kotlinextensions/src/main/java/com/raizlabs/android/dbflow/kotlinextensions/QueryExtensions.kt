@@ -141,19 +141,19 @@ inline fun <reified TModel : Model> delete(deleteClause: From<TModel>.() -> Base
 
 // insert methods
 
-fun <T : Model> insert(modelClass: KClass<T>): Insert<T> = SQLite.insert(modelClass.java)
+fun <T : Model> insert(modelClass: KClass<T>) = SQLite.insert(modelClass.java)
 
-infix fun <T : Model> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>): Insert<T> = orReplace().into(*into)
+infix fun <T : Model> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().into(*into)
 
-infix fun <T : Model> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>): Insert<T> = orRollback().into(*into)
+infix fun <T : Model> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().into(*into)
 
-infix fun <T : Model> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>): Insert<T> = orAbort().into(*into)
+infix fun <T : Model> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().into(*into)
 
-infix fun <T : Model> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>): Insert<T> = orFail().into(*into)
+infix fun <T : Model> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().into(*into)
 
-infix fun <T : Model> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>): Insert<T> = orIgnore().into(*into)
+infix fun <T : Model> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().into(*into)
 
-infix fun <T : Model> Insert<T>.select(from: From<*>): Insert<T> = select(from)
+infix fun <T : Model> Insert<T>.select(from: From<*>) = select(from)
 
 fun into(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
 
