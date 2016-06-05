@@ -38,10 +38,3 @@ val <T : Model> ModelQueriable<T>.property: Property<T>
 inline fun <reified T : Any> T.propertyString(stringRepresentation: String?): Property<T> {
     return PropertyFactory.from(T::class.java, stringRepresentation)
 }
-
-
-
-
-
-
-
