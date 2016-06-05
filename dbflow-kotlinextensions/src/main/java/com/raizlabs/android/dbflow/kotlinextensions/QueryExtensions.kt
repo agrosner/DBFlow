@@ -39,6 +39,20 @@ infix fun <T : Model> Where<T>.and(sqlCondition: SQLCondition): Where<T> = and(s
 
 infix fun <T : Model> Where<T>.or(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
 
+infix fun <T> Case<T>.`when`(sqlCondition: SQLCondition) = `when`(sqlCondition)
+
+infix fun <T> Case<T>.`when`(property: IProperty<*>) = `when`(property)
+
+infix fun <T> Case<T>.`when`(value: T?) = `when`(value)
+
+infix fun <T> CaseCondition<T>.then(value: T?) = then(value)
+
+infix fun <T> CaseCondition<T>.then(property: IProperty<*>) = then(property)
+
+infix fun <T> Case<T>.`else`(value: T?) = _else(value)
+
+infix fun <T> Case<T>.end(columnName: String) = end(columnName)
+
 // queriable extensions
 
 val Queriable.count: Long
