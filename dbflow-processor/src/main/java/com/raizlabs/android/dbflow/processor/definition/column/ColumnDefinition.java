@@ -399,16 +399,18 @@ public class ColumnDefinition extends BaseDefinition {
         CodeBlock.Builder codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName);
 
         if (isPrimaryKeyAutoIncrement && !isRowId) {
-            codeBlockBuilder.add(" PRIMARY KEY AUTOINCREMENT");
+            codeBlockBuilder.add(" PRIMARY KEY ");
+
+            if (tableDefinition instanceof TableDefinition
+                    && !StringUtils.isNullOrEmpty(((TableDefinition) tableDefinition).primaryKeyConflictActionName)) {
+                codeBlockBuilder.add("ON CONFLICT $L ", ((TableDefinition) tableDefinition).primaryKeyConflictActionName);
+            }
+
+            codeBlockBuilder.add("AUTOINCREMENT");
         }
 
         if (length > -1) {
             codeBlockBuilder.add("($L)", length);
-        }
-
-        if (isPrimaryKeyAutoIncrement && tableDefinition instanceof TableDefinition
-                && !StringUtils.isNullOrEmpty(((TableDefinition) tableDefinition).primaryKeyConflictActionName)) {
-            codeBlockBuilder.add(" ON CONFLICT $L", ((TableDefinition) tableDefinition).primaryKeyConflictActionName);
         }
 
         if (!collate.equals(Collate.NONE)) {
