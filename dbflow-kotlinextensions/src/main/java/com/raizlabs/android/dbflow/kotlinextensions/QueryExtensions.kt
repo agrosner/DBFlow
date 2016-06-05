@@ -25,19 +25,17 @@ inline fun <reified TModel : Model> Select.from(): From<TModel> = from(TModel::c
 
 fun <T : Model> delete(modelClass: KClass<T>): From<T> = SQLite.delete(modelClass.java)
 
-infix fun <T : Model> Select.from(modelClass: KClass<T>): From<T> = from(modelClass.java)
+infix fun <T : Model> Select.from(modelClass: KClass<T>) = from(modelClass.java)
 
-infix fun <T : Model> From<T>.whereExists(where: Where<T>): Where<T> {
-    return where().exists(where)
-}
+infix fun <T : Model> From<T>.whereExists(where: Where<T>) = where().exists(where)
 
-infix fun <T : Model> From<T>.where(sqlCondition: SQLCondition): Where<T> = where(sqlCondition)
+infix fun <T : Model> From<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
 
-infix fun <T : Model> Set<T>.where(sqlCondition: SQLCondition): Where<T> = where(sqlCondition)
+infix fun <T : Model> Set<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
 
-infix fun <T : Model> Where<T>.and(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
+infix fun <T : Model> Where<T>.and(sqlCondition: SQLCondition) = and(sqlCondition)
 
-infix fun <T : Model> Where<T>.or(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
+infix fun <T : Model> Where<T>.or(sqlCondition: SQLCondition) = and(sqlCondition)
 
 infix fun <T> Case<T>.`when`(sqlCondition: SQLCondition) = `when`(sqlCondition)
 
@@ -106,27 +104,27 @@ infix fun <T : Model> AsyncModel<T>.save(listener: (T) -> Unit) = withListener {
 
 // Transformable methods
 
-infix fun <T : Model> Transformable<T>.groupBy(nameAlias: NameAlias): Where<T> = groupBy(nameAlias)
+infix fun <T : Model> Transformable<T>.groupBy(nameAlias: NameAlias) = groupBy(nameAlias)
 
-infix fun <T : Model> Transformable<T>.groupBy(property: IProperty<*>): Where<T> = groupBy(property)
+infix fun <T : Model> Transformable<T>.groupBy(property: IProperty<*>) = groupBy(property)
 
-infix fun <T : Model> Transformable<T>.orderBy(orderBy: OrderBy): Where<T> = orderBy(orderBy)
+infix fun <T : Model> Transformable<T>.orderBy(orderBy: OrderBy) = orderBy(orderBy)
 
-infix fun <T : Model> Transformable<T>.limit(limit: Int): Where<T> = limit(limit)
+infix fun <T : Model> Transformable<T>.limit(limit: Int) = limit(limit)
 
-infix fun <T : Model> Transformable<T>.offset(offset: Int): Where<T> = offset(offset)
+infix fun <T : Model> Transformable<T>.offset(offset: Int) = offset(offset)
 
 infix fun <T : Model> Transformable<T>.having(sqlCondition: SQLCondition) = having(sqlCondition)
 
 // join
 
-infix fun <T : Model, V : Model> From<V>.innerJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.INNER)
+infix fun <T : Model, V : Model> From<V>.innerJoin(joinTable: KClass<T>) = join(joinTable.java, Join.JoinType.INNER)
 
-infix fun <T : Model, V : Model> From<V>.crossJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.CROSS)
+infix fun <T : Model, V : Model> From<V>.crossJoin(joinTable: KClass<T>) = join(joinTable.java, Join.JoinType.CROSS)
 
-infix fun <T : Model, V : Model> From<V>.leftOuterJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.LEFT_OUTER)
+infix fun <T : Model, V : Model> From<V>.leftOuterJoin(joinTable: KClass<T>) = join(joinTable.java, Join.JoinType.LEFT_OUTER)
 
-infix fun <T : Model, V : Model> Join<T, V>.on(sqlCondition: SQLCondition): From<V> = on(sqlCondition)
+infix fun <T : Model, V : Model> Join<T, V>.on(sqlCondition: SQLCondition) = on(sqlCondition)
 
 // update methods
 
@@ -137,9 +135,9 @@ infix fun <T : Model> Update<T>.set(sqlCondition: SQLCondition) = set(sqlConditi
 
 // delete
 
-inline fun <reified TModel : Model> delete(): BaseModelQueriable<TModel> = SQLite.delete(TModel::class.java)
+inline fun <reified TModel : Model> delete() = SQLite.delete(TModel::class.java)
 
-inline fun <reified TModel : Model> delete(deleteClause: From<TModel>.() -> BaseModelQueriable<TModel>): BaseModelQueriable<TModel> = deleteClause(SQLite.delete(TModel::class.java))
+inline fun <reified TModel : Model> delete(deleteClause: From<TModel>.() -> BaseModelQueriable<TModel>) = deleteClause(SQLite.delete(TModel::class.java))
 
 // insert methods
 
@@ -173,7 +171,8 @@ fun <TModel : Model> Insert<TModel>.into(vararg pairs: Pair<IProperty<*>, *>): I
 
 // DSL
 
-fun <TModel : Model> select(vararg property: IProperty<out IProperty<*>>, init: Select.() -> BaseModelQueriable<TModel>): BaseModelQueriable<TModel> {
+fun <TModel : Model> select(vararg property: IProperty<out IProperty<*>>,
+                            init: Select.() -> BaseModelQueriable<TModel>): BaseModelQueriable<TModel> {
     val select = SQLite.select(*property)
     return init(select)
 }
@@ -184,13 +183,13 @@ fun <TModel : Model> select(init: Select.() -> BaseModelQueriable<TModel>):
 inline fun <reified TModel : Model> Select.from(fromClause: From<TModel>.() -> Where<TModel>):
         BaseModelQueriable<TModel> = fromClause(from(TModel::class.java))
 
-inline fun <TModel : Model> From<TModel>.where(sqlConditionClause: () -> SQLCondition): Where<TModel> = where(sqlConditionClause())
+inline fun <TModel : Model> From<TModel>.where(sqlConditionClause: () -> SQLCondition) = where(sqlConditionClause())
 
-inline fun <TModel : Model> Set<TModel>.where(sqlConditionClause: () -> SQLCondition): Where<TModel> = where(sqlConditionClause())
+inline fun <TModel : Model> Set<TModel>.where(sqlConditionClause: () -> SQLCondition) = where(sqlConditionClause())
 
-inline fun <TModel : Model> Where<TModel>.and(sqlConditionClause: () -> SQLCondition): Where<TModel> = and(sqlConditionClause())
+inline fun <TModel : Model> Where<TModel>.and(sqlConditionClause: () -> SQLCondition) = and(sqlConditionClause())
 
-inline fun <TModel : Model> Where<TModel>.or(sqlConditionClause: () -> SQLCondition): Where<TModel> = or(sqlConditionClause())
+inline fun <TModel : Model> Where<TModel>.or(sqlConditionClause: () -> SQLCondition) = or(sqlConditionClause())
 
 inline fun <TModel : Model, reified TJoin : Model> From<TModel>.join(joinType: Join.JoinType, function: Join<TJoin, TModel>.() -> Unit): Where<TModel> {
     function(join(TJoin::class.java, joinType))
