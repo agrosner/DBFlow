@@ -52,9 +52,6 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      */
     private boolean transact = false;
 
-    /**
-     * If true, an operation occurred that when we call endTransactionAndNotify, we refresh content.
-     */
     private boolean changeInTransaction = false;
 
     private boolean pendingRefresh = false;
@@ -78,7 +75,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
      *
      * @param modelQueriable The object that can query from a database.
-     * @deprecated use {@link Builder}
+     * @deprecated use {@link Builder#modelQueriable(ModelQueriable)}
      */
     @Deprecated
     public FlowQueryList(ModelQueriable<TModel> modelQueriable) {
@@ -89,7 +86,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
      * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
      *
      * @param modelQueriable The object that can query from a database.
-     * @deprecated use {@link Builder}
+     * @deprecated use {@link Builder#modelQueriable(ModelQueriable)}, {@link Builder#cacheModels(boolean)}
      */
     @Deprecated
     public FlowQueryList(boolean cacheModels, ModelQueriable<TModel> modelQueriable) {
@@ -97,6 +94,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
         internalCursorList = new FlowCursorList.Builder<>(modelQueriable.getTable())
                 .modelQueriable(modelQueriable)
                 .cacheModels(cacheModels)
+                .cacheSize(getCacheSize())
                 .modelCache(getBackingCache(getCacheSize()))
                 .build();
     }
@@ -105,6 +103,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     /**
      * @deprecated use {@link Builder#cacheModels(boolean)}, {@link Builder#cacheSize(int)}
      */
+    @Deprecated
     public void setCacheModels(boolean cacheModels, int cacheSize) {
         internalCursorList.setCacheModels(cacheModels, cacheSize);
     }
@@ -221,9 +220,31 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
 
     /**
      * @return The {@link FlowCursorList} that backs this table list.
+     * @deprecated use {@link #cursorList()}
      */
+    @Deprecated
     public FlowCursorList<TModel> getCursorList() {
         return internalCursorList;
+    }
+
+    public FlowCursorList<TModel> cursorList() {
+        return internalCursorList;
+    }
+
+    public Transaction.Error error() {
+        return errorCallback;
+    }
+
+    public Transaction.Success success() {
+        return successCallback;
+    }
+
+    public boolean changeInTransaction() {
+        return changeInTransaction;
+    }
+
+    public boolean transact() {
+        return transact;
     }
 
     /**
@@ -259,7 +280,6 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     public void enableSelfRefreshes(Context context) {
         registerForContentChanges(context);
     }
-
 
     @Override
     public void endTransactionAndNotify() {
@@ -465,8 +485,9 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     }
 
     /**
-     * Removes the {@link TModel} from its table on the {@link DefaultTransactionQueue} .
-     * If {@link #transact} is true, the delete does not happen immediately.
+     * Deletes a {@link TModel} at a specific position within the stored {@link Cursor}.
+     * If {@link #transact} is true, the delete does not happen immediately. Avoid using this operation
+     * many times. If you need to remove multiple, use {@link #removeAll(Collection)}
      *
      * @param location The location within the table to remove the item from
      * @return The removed item.
@@ -733,6 +754,9 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
             return this;
         }
 
+        /**
+         * If true, when an operation occurs when we call endTransactionAndNotify, we refresh content.
+         */
         public Builder<TModel> changeInTransaction(boolean changeInTransaction) {
             this.changeInTransaction = changeInTransaction;
             return this;

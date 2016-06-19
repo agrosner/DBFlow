@@ -6,6 +6,7 @@ import android.widget.ListView;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -57,9 +58,15 @@ public class FlowCursorList<TModel extends Model> {
     private final java.util.Set<OnCursorRefreshListener<TModel>> cursorRefreshListenerSet = new HashSet<>();
 
     private FlowCursorList(final Builder<TModel> builder) {
+        table = builder.modelClass;
         modelQueriable = builder.modelQueriable;
         if (builder.modelQueriable == null) {
             cursor = builder.cursor;
+            // no cursor or queriable, we formulate query from table data.
+            if (cursor == null) {
+                modelQueriable = SQLite.select().from(table);
+                cursor = modelQueriable.query();
+            }
         } else {
             cursor = builder.modelQueriable.query();
         }
@@ -75,7 +82,7 @@ public class FlowCursorList<TModel extends Model> {
     }
 
     /**
-     * @deprecated use {@link Builder}
+     * @deprecated use {@link Builder#modelQueriable(ModelQueriable)}
      */
     @Deprecated
     public FlowCursorList(ModelQueriable<TModel> modelQueriable) {
@@ -87,7 +94,7 @@ public class FlowCursorList<TModel extends Model> {
      *
      * @param cacheSize      The size of models to cache.
      * @param modelQueriable The SQL where query to use when doing a query.
-     * @deprecated use {@link Builder}
+     * @deprecated use {@link Builder#cacheSize(int)}, {@link Builder#modelQueriable(ModelQueriable)}
      */
     @Deprecated
     public FlowCursorList(int cacheSize, ModelQueriable<TModel> modelQueriable) {
@@ -101,7 +108,7 @@ public class FlowCursorList<TModel extends Model> {
      * @param cacheModels    For every call to {@link #getItem(long)}, we want to keep a reference to it so
      *                       we do not need to convert the cursor data back into a {@link TModel} again.
      * @param modelQueriable The SQL where query to use when doing a query.
-     * @deprecated use {@link Builder}
+     * @deprecated use {@link Builder#cacheModels(boolean)}, {@link Builder#modelQueriable(ModelQueriable)}
      */
     @Deprecated
     public FlowCursorList(boolean cacheModels, ModelQueriable<TModel> modelQueriable) {
@@ -134,7 +141,7 @@ public class FlowCursorList<TModel extends Model> {
      * The cache size will default to the {@link android.database.Cursor#getCount()}
      *
      * @param cacheModels true, will cache models. If false, any and future caching is cleared.
-     * @deprecated use {@link Builder}
+     * @deprecated use {@link Builder#cacheModels(boolean)}
      */
     @Deprecated
     public void setCacheModels(boolean cacheModels) {
@@ -151,7 +158,7 @@ public class FlowCursorList<TModel extends Model> {
      *
      * @param cacheModels true, will cache models. If false, any and future caching is cleared.
      * @param cacheSize   The size of models to cache.
-     * @deprecated use {@link Builder}
+     * @deprecated use {@link Builder#cacheModels(boolean)}, {@link Builder#cacheSize(int)}
      */
     @Deprecated
     public void setCacheModels(boolean cacheModels, int cacheSize) {
@@ -175,7 +182,7 @@ public class FlowCursorList<TModel extends Model> {
     }
 
     /**
-     * @deprecated use {@link Builder#cacheSize(int)}
+     * @deprecated use {@link Builder#modelCache(ModelCache)}
      */
     @Deprecated
     protected ModelCache<TModel, ?> getBackingCache() {
@@ -211,6 +218,10 @@ public class FlowCursorList<TModel extends Model> {
                 listener.onCursorRefreshed(this);
             }
         }
+    }
+
+    public ModelQueriable<TModel> modelQueriable() {
+        return modelQueriable;
     }
 
     /**
@@ -266,6 +277,18 @@ public class FlowCursorList<TModel extends Model> {
         return cursor != null ? cursor.getCount() : 0;
     }
 
+    public int cacheSize() {
+        return cacheSize;
+    }
+
+    public ModelCache<TModel, ?> modelCache() {
+        return modelCache;
+    }
+
+    public boolean cachingEnabled() {
+        return cacheModels;
+    }
+
     /**
      * Closes the cursor backed by this list
      */
@@ -277,17 +300,32 @@ public class FlowCursorList<TModel extends Model> {
         cursor = null;
     }
 
-    /**
-     * @return The cursor backing this list.
-     * @throws IllegalStateException when the cursor backing this list is closed.
-     */
     @Nullable
-    public Cursor getCursor() {
+    public Cursor cursor() {
         throwIfCursorClosed();
         warnEmptyCursor();
         return cursor;
     }
 
+    /**
+     * @return The cursor backing this list.
+     * @throws IllegalStateException when the cursor backing this list is closed.
+     * @deprecated use {@link #cursor()}
+     */
+    @Deprecated
+    @Nullable
+    public Cursor getCursor() {
+        return cursor();
+    }
+
+    public Class<TModel> table() {
+        return table;
+    }
+
+    /**
+     * @deprecated use {@link #table()}
+     */
+    @Deprecated
     public Class<TModel> getTable() {
         return table;
     }
