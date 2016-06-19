@@ -248,6 +248,18 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     }
 
     /**
+     * @return Constructs a new {@link Builder} that reuses the underlying {@link Cursor}, cache,
+     * callbacks, and other properties.
+     */
+    public Builder<TModel> newBuilder() {
+        return new Builder<>(internalCursorList)
+                .success(successCallback)
+                .error(errorCallback)
+                .changeInTransaction(changeInTransaction)
+                .transact(transact);
+    }
+
+    /**
      * Refreshes the content backing this list.
      */
     public void refresh() {
@@ -729,6 +741,15 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
 
         private Transaction.Success success;
         private Transaction.Error error;
+
+        private Builder(FlowCursorList<TModel> cursorList) {
+            table = cursorList.table();
+            cursor = cursorList.cursor();
+            cacheModels = cursorList.cachingEnabled();
+            cacheSize = cursorList.cacheSize();
+            modelQueriable = cursorList.modelQueriable();
+            modelCache = cursorList.modelCache();
+        }
 
         public Builder(Class<TModel> table) {
             this.table = table;

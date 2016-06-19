@@ -343,6 +343,19 @@ public class FlowCursorList<TModel extends Model> {
     }
 
     /**
+     * @return A new {@link Builder} that contains the same cache, query statement, and other
+     * underlying data, but allows for modification.
+     */
+    public Builder<TModel> newBuilder() {
+        return new Builder<>(table)
+                .modelQueriable(modelQueriable)
+                .cursor(cursor)
+                .cacheSize(cacheSize)
+                .cacheModels(cacheModels)
+                .modelCache(modelCache);
+    }
+
+    /**
      * Provides easy way to construct a {@link FlowCursorList}.
      *
      * @param <TModel>
