@@ -4,39 +4,87 @@ import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.structure.Model;
 
-import java.util.Iterator;
+import java.util.ConcurrentModificationException;
+import java.util.ListIterator;
 
 /**
- * Description:
+ * Description: Provides iteration capabilitie to a {@link FlowCursorList}.
  */
-public class CursorIterator<TModel extends Model> implements Iterator<TModel> {
+public class CursorIterator<TModel extends Model> implements ListIterator<TModel> {
 
     private final FlowCursorList<TModel> cursorList;
-    private int count;
+    private int reverseIndex;
+    private int startingCount;
 
     public CursorIterator(FlowCursorList<TModel> cursorList) {
+        this(cursorList, 0);
+    }
+
+    public CursorIterator(FlowCursorList<TModel> cursorList, int startingLocation) {
         this.cursorList = cursorList;
         Cursor cursor = cursorList.cursor();
         if (cursor != null) {
-            cursor.moveToPosition(-1);
-            count = cursor.getCount();
+            cursor.moveToPosition(startingLocation - 1);
+            reverseIndex = startingCount = cursor.getCount();
         }
     }
 
     @Override
+    public void add(TModel object) {
+        throw new UnsupportedOperationException("Cursor Iterator: Cannot add a model in the iterator");
+    }
+
+    @Override
     public boolean hasNext() {
-        return count > 0;
+        checkSizes();
+        return reverseIndex > 0;
+    }
+
+    @Override
+    public boolean hasPrevious() {
+        checkSizes();
+        return reverseIndex < cursorList.getCount();
     }
 
     @Override
     public TModel next() {
-        TModel item = cursorList.getItem(cursorList.getCount() - count);
-        count--;
+        checkSizes();
+        TModel item = cursorList.getItem(cursorList.getCount() - reverseIndex);
+        reverseIndex--;
         return item;
+    }
+
+    @Override
+    public int nextIndex() {
+        return reverseIndex + 1;
+    }
+
+    @Override
+    public TModel previous() {
+        checkSizes();
+        TModel item = cursorList.getItem(cursorList.getCount() - reverseIndex);
+        reverseIndex++;
+        return item;
+    }
+
+    @Override
+    public int previousIndex() {
+        return reverseIndex;
     }
 
     @Override
     public void remove() {
         throw new UnsupportedOperationException("Cursor Iterator: cannot remove from an active Iterator ");
+    }
+
+    @Override
+    public void set(TModel object) {
+        throw new UnsupportedOperationException("Cursor Iterator: cannot set on an active Iterator ");
+    }
+
+    private void checkSizes() {
+        if (startingCount != cursorList.getCount()) {
+            throw new ConcurrentModificationException("Cannot change Cursor data during iteration.");
+        }
     }
 }

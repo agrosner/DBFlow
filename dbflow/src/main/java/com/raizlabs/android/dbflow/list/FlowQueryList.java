@@ -463,8 +463,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     @NonNull
     @Override
     public Iterator<TModel> iterator() {
-        List<TModel> tableList = internalCursorList.getAll();
-        return tableList.iterator();
+        return new CursorIterator<>(internalCursorList);
     }
 
     @Override
@@ -480,8 +479,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     @NonNull
     @Override
     public ListIterator<TModel> listIterator() {
-        List<TModel> tableList = internalCursorList.getAll();
-        return tableList.listIterator();
+        return new CursorIterator<>(internalCursorList);
     }
 
     /**
@@ -492,8 +490,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     @NonNull
     @Override
     public ListIterator<TModel> listIterator(int location) {
-        List<TModel> tableList = internalCursorList.getAll();
-        return tableList.listIterator(location);
+        return new CursorIterator<TModel>(internalCursorList, location);
     }
 
     /**
