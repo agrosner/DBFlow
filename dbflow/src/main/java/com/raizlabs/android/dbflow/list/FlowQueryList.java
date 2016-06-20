@@ -22,6 +22,8 @@ import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTr
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +36,8 @@ import java.util.ListIterator;
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
-public class FlowQueryList<TModel extends Model> extends FlowContentObserver implements List<TModel> {
+public class FlowQueryList<TModel extends Model> extends FlowContentObserver
+        implements List<TModel>, Closeable {
 
     private static final Handler REFRESH_HANDLER = new Handler(Looper.myLooper());
 
@@ -663,6 +666,11 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver imp
     public <T> T[] toArray(T[] array) {
         List<TModel> tableList = internalCursorList.getAll();
         return tableList.toArray(array);
+    }
+
+    @Override
+    public void close() throws IOException {
+        internalCursorList.close();
     }
 
     private final ProcessModelTransaction.ProcessModel<TModel> saveModel =
