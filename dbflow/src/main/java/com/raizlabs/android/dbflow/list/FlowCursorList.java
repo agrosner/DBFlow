@@ -15,12 +15,13 @@ import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * Description: A non-modifiable, cursor-backed list that you can use in {@link ListView} or other data sources.
  */
-public class FlowCursorList<TModel extends Model> {
+public class FlowCursorList<TModel extends Model> implements Iterable<TModel> {
 
     /**
      * Interface for callbacks when cursor gets refreshed.
@@ -119,6 +120,11 @@ public class FlowCursorList<TModel extends Model> {
         modelAdapter = FlowManager.getInstanceAdapter(table);
         this.cacheModels = cacheModels;
         setCacheModels(cacheModels);
+    }
+
+    @Override
+    public Iterator<TModel> iterator() {
+        return new CursorIterator<>(this);
     }
 
     /**

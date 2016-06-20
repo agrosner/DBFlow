@@ -1,18 +1,25 @@
 package com.raizlabs.android.dbflow.test.list;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
+import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.querymodel.TestQueryModel;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -75,4 +82,29 @@ public class FlowCursorListTest extends FlowTestCase {
         list.close();
     }
 
+    @Test
+    public void test_canIterateCursor() {
+        List<TestModel1> models = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            TestModel1 model = new TestModel1();
+            model.setName("" + i);
+            models.add(model);
+        }
+        FlowManager.getDatabase(TestDatabase.class)
+                .executeTransaction(FastStoreModelTransaction
+                        .insertBuilder(FlowManager.getModelAdapter(TestModel1.class))
+                        .addAll(models)
+                        .build());
+
+        FlowCursorList<TestModel1> cursorList = SQLite.select()
+                .from(TestModel1.class).cursorList();
+        assertNotEquals(0, cursorList.getCount());
+        assertEquals(50, cursorList.getCount());
+        int count = 0;
+        for (TestModel1 model : cursorList) {
+            assertEquals(count + "", model.getName());
+            count++;
+        }
+
+    }
 }
