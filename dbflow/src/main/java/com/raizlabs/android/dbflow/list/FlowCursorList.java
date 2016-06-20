@@ -22,7 +22,8 @@ import java.util.List;
 /**
  * Description: A non-modifiable, cursor-backed list that you can use in {@link ListView} or other data sources.
  */
-public class FlowCursorList<TModel extends Model> implements Iterable<TModel>, Closeable {
+public class FlowCursorList<TModel extends Model> implements
+        Iterable<TModel>, Closeable, IFlowCursorIterator<TModel> {
 
     /**
      * Interface for callbacks when cursor gets refreshed.
@@ -125,7 +126,7 @@ public class FlowCursorList<TModel extends Model> implements Iterable<TModel>, C
 
     @Override
     public Iterator<TModel> iterator() {
-        return new CursorIterator<>(this);
+        return new FlowCursorIterator<>(this);
     }
 
     /**
@@ -238,6 +239,7 @@ public class FlowCursorList<TModel extends Model> implements Iterable<TModel>, C
      * @param position The row number in the {@link android.database.Cursor} to look at
      * @return The {@link TModel} converted from the cursor
      */
+    @Override
     public TModel getItem(long position) {
         throwIfCursorClosed();
         warnEmptyCursor();
@@ -278,6 +280,7 @@ public class FlowCursorList<TModel extends Model> implements Iterable<TModel>, C
     /**
      * @return the count of the rows in the {@link android.database.Cursor} backed by this list.
      */
+    @Override
     public int getCount() {
         throwIfCursorClosed();
         warnEmptyCursor();
@@ -308,6 +311,7 @@ public class FlowCursorList<TModel extends Model> implements Iterable<TModel>, C
         cursor = null;
     }
 
+    @Override
     @Nullable
     public Cursor cursor() {
         throwIfCursorClosed();
@@ -373,7 +377,7 @@ public class FlowCursorList<TModel extends Model> implements Iterable<TModel>, C
         private final Class<TModel> modelClass;
         private Cursor cursor;
         private ModelQueriable<TModel> modelQueriable;
-        private boolean cacheModels;
+        private boolean cacheModels = true;
         private int cacheSize;
         private ModelCache<TModel, ?> modelCache;
 

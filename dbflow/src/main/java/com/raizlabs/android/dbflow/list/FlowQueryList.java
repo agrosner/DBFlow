@@ -37,7 +37,7 @@ import java.util.ListIterator;
  * on the underlying table.
  */
 public class FlowQueryList<TModel extends Model> extends FlowContentObserver
-        implements List<TModel>, Closeable {
+        implements List<TModel>, Closeable, IFlowCursorIterator<TModel> {
 
     private static final Handler REFRESH_HANDLER = new Handler(Looper.myLooper());
 
@@ -435,6 +435,21 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
         return contains;
     }
 
+    @Override
+    public int getCount() {
+        return internalCursorList.getCount();
+    }
+
+    @Override
+    public TModel getItem(long position) {
+        return internalCursorList.getItem(position);
+    }
+
+    @Override
+    public Cursor cursor() {
+        return internalCursorList.cursor();
+    }
+
     /**
      * Returns the item from the backing {@link FlowCursorList}. First call
      * will load the model from the cursor, while subsequent calls will use the cache.
@@ -466,7 +481,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
     @NonNull
     @Override
     public Iterator<TModel> iterator() {
-        return new CursorIterator<>(internalCursorList);
+        return new FlowCursorIterator<>(this);
     }
 
     @Override
@@ -482,7 +497,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
     @NonNull
     @Override
     public ListIterator<TModel> listIterator() {
-        return new CursorIterator<>(internalCursorList);
+        return new FlowCursorIterator<>(this);
     }
 
     /**
@@ -493,7 +508,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
     @NonNull
     @Override
     public ListIterator<TModel> listIterator(int location) {
-        return new CursorIterator<TModel>(internalCursorList, location);
+        return new FlowCursorIterator<>(this, location);
     }
 
     /**
@@ -739,7 +754,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
         private boolean transact;
         private boolean changeInTransaction;
         private Cursor cursor;
-        private boolean cacheModels;
+        private boolean cacheModels = true;
         private int cacheSize;
         private ModelQueriable<TModel> modelQueriable;
         private ModelCache<TModel, ?> modelCache;

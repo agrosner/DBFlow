@@ -10,17 +10,17 @@ import java.util.ListIterator;
 /**
  * Description: Provides iteration capabilitie to a {@link FlowCursorList}.
  */
-public class CursorIterator<TModel extends Model> implements ListIterator<TModel> {
+public class FlowCursorIterator<TModel extends Model> implements ListIterator<TModel> {
 
-    private final FlowCursorList<TModel> cursorList;
+    private final IFlowCursorIterator<TModel> cursorList;
     private int reverseIndex;
     private int startingCount;
 
-    public CursorIterator(FlowCursorList<TModel> cursorList) {
+    public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList) {
         this(cursorList, 0);
     }
 
-    public CursorIterator(FlowCursorList<TModel> cursorList, int startingLocation) {
+    public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList, int startingLocation) {
         this.cursorList = cursorList;
         Cursor cursor = cursorList.cursor();
         if (cursor != null) {

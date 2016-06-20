@@ -9,6 +9,8 @@ can lazy-load each row from the query/table.
 DBFlow makes it easy using the `FlowCursorList`, for simple `BaseAdapter`-like methods,
 or the `FlowQueryList`, which implements the `List` interface.
 
+As of 3.1.+, we recommend using the corresponding `Builder` classes to make constructing these collections even easier.
+
 Getting one of these lists is as simple as:
 
 ```java
@@ -22,6 +24,8 @@ FlowCursorList<MyTable> list = SQLite.select()
     .where(...) // some conditions
     .cursorList();
 
+    list.close(); // ensure you close these, as they utilize active cursors :)
+
 ```
 
 Any query method allows you to retrieve a default implementation of each. You
@@ -29,8 +33,16 @@ can also manually instantiate them:
 
 ```java
 
-FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class));
-FlowCursorList<MyTable> list = new FlowCursorList<>(SQLite.select().from(MyTable.class));
+FlowQueryList<MyTable> list = new FlowQueryList.Builder<>(MyTable.class)
+  .modelQueriable(SQLite.select().from(MyTable.class))
+  .cachingEnabled(false) // caching enabled by default
+  .build();
+
+FlowCursorList<MyTable> list = new FlowCursorList.Builder<>(MyTable.class)
+  .modelQueriable(SQLite.select().from(MyTable.class))
+  .cachingEnabled(true)
+  .modelCache(cache) // provide custom cache for this list
+  .build();
 
 ```
 
@@ -45,39 +57,15 @@ They are done in almost the same way:
 
 ```java
 
-FlowCursorList<MyTable> list = new FlowCursorList<>(SQLite.select().from(MyTable.class));
-FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class));
-
-// caching on by default.
-// to turn on or off use this method
-list.setCachingEnabled(false); // caching off, will clear cache too
-
-// or we can pass if on or off in constructor too
-FlowCursorList<MyTable> list = new FlowCursorList<>(enabled, SQLite.select().from(MyTable.class));
-FlowQueryList<MyTable> list = new FlowQueryList<>(enabled, SQLite.select().from(MyTable.class));
-
-```
-
-To override or specify a custom cache, you must subclass and override the `getBackingCache()`
-methods depending on which one you use:
-
-
-```java
-
-FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class)) {
-  @Override
-  protected ModelCache<MyTable, ?> getBackingCache() {
-    return new SimpleMapCache<MyTable>(); // stores content in a Map
-  }
-};
-
-FlowQueryList<MyTable> list = new FlowQueryList<>(SQLite.select().from(MyTable.class)) {
-  @Override
-  protected ModelCache<MyTable, ?> getBackingCache(int size) {
-    return new SimpleMapCache<MyTable>(); // stores content in a Map, size ignored
-  }
-}
-
+FlowCursorList<MyTable> list = new FlowCursorList.Builder<>(MyTable.class)
+  .modelQueriable(SQLite.select().from(MyTable.class))
+  .cachingEnabled(true)
+  .modelCache(cache) // provide custom cache for this list
+  .build();
+FlowQueryList<MyTable> list = new FlowQueryList.Builder<>(MyTable.class)
+  .modelQueriable(SQLite.select().from(MyTable.class))
+  .modelCache(cache)
+  .build();
 
 ```
 
@@ -126,8 +114,12 @@ The retrieval methods are where the query works as you would expect. `get()` cal
 `getItem()` on the internal `FlowCursorList`, `isEmpty()`, `getCount()`, etc all correspond
 to the `Cursor` underneath.
 
+Both `FlowQueryList` and `FlowTableList` support `Iterator` and provide a very
+efficient class: `FlowCursorIterator` that iterates through each row in a `Cursor`
+and provides efficient operations.
+
 **Note**: any retrieval operation that turns it into another object (i.e. `subList()`,
-`toArray`, `listIterator`, etc) retrieves all objects contained in the query into memory,
+`toArray`, etc) retrieves all objects contained in the query into memory,
 and then converts it using the associated method on that returned `List`.
 
 ### FlowContentObserver Implementation
