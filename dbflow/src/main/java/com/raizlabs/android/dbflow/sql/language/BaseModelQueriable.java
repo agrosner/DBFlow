@@ -83,12 +83,15 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
 
     @Override
     public FlowCursorList<TModel> cursorList() {
-        return new FlowCursorList<>(false, this);
+        return new FlowCursorList.Builder<>(getTable())
+                .modelQueriable(this).build();
     }
 
     @Override
     public FlowQueryList<TModel> flowQueryList() {
-        return new FlowQueryList<>(this);
+        return new FlowQueryList.Builder<>(getTable())
+                .modelQueriable(this)
+                .build();
     }
 
     @Override

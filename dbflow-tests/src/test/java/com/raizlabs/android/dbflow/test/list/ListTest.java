@@ -114,8 +114,17 @@ public class ListTest extends FlowTestCase {
     public void testCursorList() {
 
         final List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 50);
+        FlowManager.getDatabase(ListDatabase.class)
+                .executeTransaction(FastStoreModelTransaction
+                        .insertBuilder(FlowManager.getModelAdapter(ListModel.class))
+                        .addAll(testModel1s)
+                        .build());
 
-        FlowCursorList<ListModel> flowCursorList = new FlowCursorList<>(true, SQLite.select().from(ListModel.class));
+        FlowCursorList<ListModel> flowCursorList = new FlowCursorList.Builder<>(ListModel.class)
+                .cacheModels(true)
+                .modelQueriable(SQLite.select()
+                        .from(ListModel.class))
+                .build();
 
         TestModelAdapter modelAdapter = new TestModelAdapter(flowCursorList);
 

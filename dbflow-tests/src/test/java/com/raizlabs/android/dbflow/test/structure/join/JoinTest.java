@@ -155,7 +155,7 @@ public class JoinTest extends FlowTestCase {
         assertEquals("SELECT * FROM `TestModel1`" +
                         " INNER JOIN (SELECT `count`,MAX(`name`) AS `MaxName`" +
                         " FROM `DefaultModel`" +
-                        " GROUP BY `date` ) AS `topmsg`" +
+                        " GROUP BY `date`) AS `topmsg`" +
                         " ON `TestModel1`.`name`=`topmsg`.`MaxName`",
                 query.trim());
     }
