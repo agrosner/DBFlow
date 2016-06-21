@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -57,7 +56,7 @@ public class FlowCursorListTest extends FlowTestCase {
                 .build();
 
         assertEquals(TestQueryModel.class, cursorList.getTable());
-        assertFalse(cursorList.cachingEnabled());
+        assertTrue(cursorList.cachingEnabled());
         assertEquals(0, cursorList.cacheSize());
 
         cursorList.close();
