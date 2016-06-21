@@ -26,6 +26,11 @@ public class FlowCursorIterator<TModel extends Model> implements ListIterator<TM
         if (cursor != null) {
             cursor.moveToPosition(startingLocation - 1);
             reverseIndex = startingCount = cursor.getCount();
+            reverseIndex -= startingLocation;
+
+            if (reverseIndex < 0) {
+                reverseIndex = 0;
+            }
         }
     }
 
