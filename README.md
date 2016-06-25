@@ -46,7 +46,7 @@ buildscript {
 allProjects {
   repositories {
     // required to find the project's artifacts
-    maven { url "https://jitpack.io" }
+    maven { url "https://www.jitpack.io" }
   }
 }
 ```
