@@ -41,7 +41,7 @@ public class FlowCursorListTest extends FlowTestCase {
         assertEquals(50, cursorList.cacheSize());
         assertTrue(cursorList.modelCache() instanceof ModelLruCache);
         assertEquals(true, cursorList.cachingEnabled());
-        assertNotNull(cursorList.getCursor());
+        assertNotNull(cursorList.cursor());
 
         cursorList.close();
     }
@@ -55,7 +55,7 @@ public class FlowCursorListTest extends FlowTestCase {
                         .from(TestModel1.class).query())
                 .build();
 
-        assertEquals(TestQueryModel.class, cursorList.getTable());
+        assertEquals(TestQueryModel.class, cursorList.table());
         assertTrue(cursorList.cachingEnabled());
         assertEquals(0, cursorList.cacheSize());
 

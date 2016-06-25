@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config;
  * Description:
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.LOLLIPOP, shadows = {ShadowContentResolver2.class})
+@Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.LOLLIPOP)
 public abstract class FlowTestCase {
 
     @Rule
