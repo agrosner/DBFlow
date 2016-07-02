@@ -209,8 +209,9 @@ public class BaseDatabaseHelper {
                 }
             }
 
-            if (query.length() > 0) {
-                db.execSQL(query.toString());
+            String queryString = query.toString();
+            if (queryString.trim().length() > 0) {
+                db.execSQL(queryString);
             }
         } catch (IOException e) {
             FlowLog.log(FlowLog.Level.E, "Failed to execute " + file, e);
