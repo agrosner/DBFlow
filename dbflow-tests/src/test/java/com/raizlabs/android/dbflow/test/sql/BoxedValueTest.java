@@ -76,7 +76,7 @@ public class BoxedValueTest extends FlowTestCase {
             fail("Was able to save model");
         } catch (SQLiteException s) {
             // not null should fail
-            assertEquals(s.getMessage(), "Cannot execute for last inserted row ID, base error code: 19");
+            assertEquals(s.getMessage(), "Cannot execute for last inserted row ID");
         }
     }
 

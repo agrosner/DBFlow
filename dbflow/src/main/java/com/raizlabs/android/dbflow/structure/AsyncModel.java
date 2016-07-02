@@ -17,16 +17,16 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
     /**
      * Listens for when this {@link Model} modification completes.
      */
-    public interface OnModelChangedListener {
+    public interface OnModelChangedListener<T> {
 
         /**
          * Called when the change finishes on the {@link DefaultTransactionQueue}. This method is called on the UI thread.
          */
-        void onModelChanged(Model model);
+        void onModelChanged(T model);
     }
 
     private final TModel model;
-    private transient WeakReference<OnModelChangedListener> onModelChangedListener;
+    private transient WeakReference<OnModelChangedListener<TModel>> onModelChangedListener;
 
 
     public AsyncModel(@NonNull TModel referenceModel) {
@@ -40,7 +40,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
      *
      * @param onModelChangedListener The listener to use for a corresponding call to a method.
      */
-    public AsyncModel<TModel> withListener(OnModelChangedListener onModelChangedListener) {
+    public AsyncModel<TModel> withListener(OnModelChangedListener<TModel> onModelChangedListener) {
         this.onModelChangedListener = new WeakReference<>(onModelChangedListener);
         return this;
     }

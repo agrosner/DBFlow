@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.Nullable;
+
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
@@ -21,6 +23,8 @@ public class Case<TReturn> implements Query {
 
     // when true, only WHEN value is supported. Not WHEN condition
     private boolean efficientCase = false;
+
+    private boolean endSpecified = false;
 
     Case() {
     }
@@ -71,12 +75,22 @@ public class Case<TReturn> implements Query {
 
     /**
      * @param columnName The name of the case that we return in a column.
-     * @return The final name given to this case.
+     * @return The case completed as a property.
      */
-    public Property<Case<TReturn>> end(String columnName) {
-        this.columnName = QueryBuilder.quoteIfNeeded(columnName);
+    public Property<Case<TReturn>> end(@Nullable String columnName) {
+        endSpecified = true;
+        if (columnName != null) {
+            this.columnName = QueryBuilder.quoteIfNeeded(columnName);
+        }
         return new Property<>(null, NameAlias.rawBuilder(getQuery())
                 .build());
+    }
+
+    /**
+     * @return The case completed as a property.
+     */
+    public Property<Case<TReturn>> end() {
+        return end(null);
     }
 
     boolean isEfficientCase() {
@@ -94,8 +108,8 @@ public class Case<TReturn> implements Query {
         if (elseSpecified) {
             queryBuilder.append(" ELSE ").append(BaseCondition.convertValueToString(elseValue, false));
         }
-        if (columnName != null) {
-            queryBuilder.append(" END " + columnName);
+        if (endSpecified) {
+            queryBuilder.append(" END " + (columnName != null ? columnName : ""));
         }
         return queryBuilder.getQuery();
     }

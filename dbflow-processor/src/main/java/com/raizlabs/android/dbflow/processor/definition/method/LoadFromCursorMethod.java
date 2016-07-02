@@ -11,6 +11,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.lang.model.element.Modifier;
 
@@ -47,9 +48,11 @@ public class LoadFromCursorMethod implements MethodDefinition {
                 .returns(TypeName.VOID);
 
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
+        AtomicInteger index = new AtomicInteger(0);
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
             methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod(isModelContainerAdapter,
-                    putNullForContainerAdapter, true));
+                    putNullForContainerAdapter, true, index));
+            index.incrementAndGet();
         }
 
         if (baseTableDefinition instanceof TableDefinition && !isModelContainerAdapter) {

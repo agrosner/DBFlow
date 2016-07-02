@@ -61,7 +61,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     public boolean saveForeignKeyModel;
 
-    public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition, Element typeElement, boolean isPackagePrivate) {
+    public ForeignKeyColumnDefinition(ProcessorManager manager, TableDefinition tableDefinition,
+                                      Element typeElement, boolean isPackagePrivate) {
         super(manager, typeElement, tableDefinition, isPackagePrivate);
         this.tableDefinition = tableDefinition;
 
@@ -315,9 +316,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
     @Override
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter,
-                                             boolean endNonPrimitiveIf) {
+                                             boolean endNonPrimitiveIf, AtomicInteger index) {
         if (nonModelColumn) {
-            return super.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter, endNonPrimitiveIf);
+            return super.getLoadFromCursorMethod(isModelContainerAdapter, putNullForContainerAdapter, endNonPrimitiveIf, index);
         } else {
             checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder()
@@ -330,13 +331,27 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             String foreignKeyContainerRefName = "ref" + columnName;
 
             for (int i = 0; i < foreignKeyReferenceDefinitionList.size(); i++) {
+                if (i > 0) {
+                    index.incrementAndGet();
+                }
                 ForeignKeyReferenceDefinition referenceDefinition = foreignKeyReferenceDefinitionList.get(i);
-                String indexName = "index" + referenceDefinition.columnName;
-                builder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, referenceDefinition.columnName);
+
+                String indexName;
+                if (!tableDefinition.orderedCursorLookUp || index.intValue() == -1) {
+                    indexName = "index" + referenceDefinition.columnName;
+                    builder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, referenceDefinition.columnName);
+                } else {
+                    indexName = index.intValue() + "";
+                }
                 if (i > 0) {
                     ifNullBuilder.add(" && ");
                 }
-                ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
+
+                if (!tableDefinition.orderedCursorLookUp || index.intValue() == -1) {
+                    ifNullBuilder.add("$L != -1 && !$L.isNull($L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
+                } else {
+                    ifNullBuilder.add("!$L.isNull($L)", LoadFromCursorMethod.PARAM_CURSOR, indexName);
+                }
 
                 CodeBlock loadFromCursorBlock = CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR,
                         DefinitionUtils.getLoadFromCursorMethodString(referenceDefinition.columnClassName,
@@ -388,11 +403,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
                 putDefaultValue = putContainerDefaultValue;
             }
-            if (putDefaultValue) {
+            if (putDefaultValue && tableDefinition.assignDefaultValuesFromCursor) {
                 builder.nextControlFlow("else");
                 builder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);
             }
-            if (endNonPrimitiveIf) {
+            if (endNonPrimitiveIf || !tableDefinition.assignDefaultValuesFromCursor) {
                 builder.endControlFlow();
             }
             return builder.build();

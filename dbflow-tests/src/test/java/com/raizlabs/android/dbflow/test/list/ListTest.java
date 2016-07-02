@@ -4,10 +4,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.utils.GenerationUtils;
 
@@ -17,6 +19,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -41,6 +44,12 @@ public class ListTest extends FlowTestCase {
     public void testTableList() {
 
         List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 100);
+
+        FlowManager.getDatabaseForTable(ListModel.class)
+                .executeTransaction(FastStoreModelTransaction
+                        .saveBuilder(FlowManager.getModelAdapter(ListModel.class))
+                        .addAll(testModel1s)
+                        .build());
 
         modelList = new FlowQueryList<>(SQLite.select().from(ListModel.class));
 
@@ -105,13 +114,22 @@ public class ListTest extends FlowTestCase {
     public void testCursorList() {
 
         final List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 50);
+        FlowManager.getDatabase(ListDatabase.class)
+                .executeTransaction(FastStoreModelTransaction
+                        .insertBuilder(FlowManager.getModelAdapter(ListModel.class))
+                        .addAll(testModel1s)
+                        .build());
 
-        FlowCursorList<ListModel> flowCursorList = new FlowCursorList<>(true, SQLite.select().from(ListModel.class));
+        FlowCursorList<ListModel> flowCursorList = new FlowCursorList.Builder<>(ListModel.class)
+                .cacheModels(true)
+                .modelQueriable(SQLite.select()
+                        .from(ListModel.class))
+                .build();
 
         TestModelAdapter modelAdapter = new TestModelAdapter(flowCursorList);
 
-        assertTrue(testModel1s.size() == modelAdapter.getCount());
-        assertTrue(flowCursorList.getAll().size() == testModel1s.size());
+        assertEquals(testModel1s.size(), modelAdapter.getCount());
+        assertEquals(flowCursorList.getAll().size(), testModel1s.size());
 
     }
 }

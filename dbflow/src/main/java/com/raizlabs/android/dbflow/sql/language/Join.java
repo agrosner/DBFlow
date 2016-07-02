@@ -74,7 +74,7 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
     /**
      * The ON conditions
      */
-    private ConditionGroup on;
+    private ConditionGroup onGroup;
 
     /**
      * What columns to use.
@@ -131,8 +131,8 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
      * @return The FROM that this JOIN came from
      */
     public From<TFromModel> on(SQLCondition... onConditions) {
-        on = new ConditionGroup();
-        on.andAll(onConditions);
+        onGroup = new ConditionGroup();
+        onGroup.andAll(onConditions);
         return from;
     }
 
@@ -162,10 +162,10 @@ public class Join<TModel extends Model, TFromModel extends Model> implements Que
                 .append(alias.getFullQuery())
                 .appendSpace();
 
-        if (on != null) {
+        if (onGroup != null) {
             queryBuilder.append("ON")
                     .appendSpace()
-                    .append(on.getQuery())
+                    .append(onGroup.getQuery())
                     .appendSpace();
         } else if (!using.isEmpty()) {
             queryBuilder.append("USING (")

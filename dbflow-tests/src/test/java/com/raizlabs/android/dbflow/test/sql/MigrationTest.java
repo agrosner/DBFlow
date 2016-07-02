@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -34,10 +35,10 @@ public class MigrationTest extends FlowTestCase {
 
         AlterTableMigration<MigrationModel> alterTableMigration = new AlterTableMigration<>(MigrationModel.class);
         alterTableMigration.addColumn(SQLiteType.REAL, "fraction")
-            .addColumn(SQLiteType.INTEGER, "time")
-            .addColumn(SQLiteType.TEXT, "name2")
-            .addColumn(SQLiteType.INTEGER, "number")
-            .addColumn(SQLiteType.BLOB, "blobby");
+                .addColumn(SQLiteType.INTEGER, "time")
+                .addColumn(SQLiteType.TEXT, "name2")
+                .addColumn(SQLiteType.INTEGER, "number")
+                .addColumn(SQLiteType.BLOB, "blobby");
         alterTableMigration.onPreMigrate();
 
         List<String> columnDefinitions = alterTableMigration.getColumnDefinitions();
@@ -49,7 +50,7 @@ public class MigrationTest extends FlowTestCase {
 
         // test the column sizes
         Cursor cursor = new Select().from(MigrationModel.class).where().query();
-        assertTrue(cursor.getColumnNames().length == columnNames.size() + 1);
+        assertTrue(cursor.getColumnNames().length == columnNames.size() + 2);
 
         try {
             Thread.sleep(200);
@@ -68,12 +69,12 @@ public class MigrationTest extends FlowTestCase {
     @Test
     public void testUpdateMigration() {
         UpdateTableMigration<MigrationModel> updateTableMigration
-            = new UpdateTableMigration<>(MigrationModel.class)
-            .set(MigrationModel_Table.name.is("test")).where(MigrationModel_Table.name.is("notTest"));
+                = new UpdateTableMigration<>(MigrationModel.class)
+                .set(MigrationModel_Table.name.is("test")).where(MigrationModel_Table.name.is("notTest"));
         updateTableMigration.onPreMigrate();
 
         assertEquals("UPDATE `MigrationModel` SET `name`='test' WHERE `name`='notTest'", updateTableMigration
-            .getUpdateStatement().getQuery().trim());
+                .getUpdateStatement().getQuery().trim());
 
         updateTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
         updateTableMigration.onPostMigrate();
@@ -81,7 +82,7 @@ public class MigrationTest extends FlowTestCase {
 
     @Test
     public void testSqlFile() {
-        /*MigrationModel migrationModel = new MigrationModel();
+        MigrationModel migrationModel = new MigrationModel();
         migrationModel.setName("test");
         migrationModel.save();
         Cursor cursor = new Select().from(MigrationModel.class).query();
@@ -90,20 +91,20 @@ public class MigrationTest extends FlowTestCase {
         int addedColumIndex = cursor.getColumnIndex("addedColumn");
         assertFalse(addedColumIndex == -1);
 
-        cursor.close();*/
+        cursor.close();
         // broken with junit tests
     }
 
     public void testIndexMigration() {
         IndexMigration<TestModel3> indexMigration
-            = new IndexMigration<TestModel3>(TestModel3.class) {
+                = new IndexMigration<TestModel3>(TestModel3.class) {
             @NonNull
             @Override
             public String getName() {
                 return "MyIndex";
             }
         }
-            .addColumn(TestModel3_Table.type);
+                .addColumn(TestModel3_Table.type);
         assertEquals("CREATE INDEX IF NOT EXISTS `MyIndex` ON `TestModel32`(`type`)", indexMigration.getIndexQuery().trim());
     }
 

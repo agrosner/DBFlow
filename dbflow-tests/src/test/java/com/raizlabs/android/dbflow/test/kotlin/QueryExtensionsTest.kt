@@ -1,13 +1,13 @@
 package com.raizlabs.android.dbflow.test.kotlin
 
 import com.raizlabs.android.dbflow.kotlinextensions.*
-import com.raizlabs.android.dbflow.sql.language.Join.JoinType.INNER
-import com.raizlabs.android.dbflow.sql.language.Join.JoinType.LEFT_OUTER
+import com.raizlabs.android.dbflow.sql.language.SQLite.select
 import com.raizlabs.android.dbflow.test.FlowTestCase
+import com.raizlabs.android.dbflow.test.kotlin.KotlinTestModel_Table.id
+import com.raizlabs.android.dbflow.test.kotlin.KotlinTestModel_Table.name
 import com.raizlabs.android.dbflow.test.sql.TestModel3
 import com.raizlabs.android.dbflow.test.sql.TestModel3_Table
 import com.raizlabs.android.dbflow.test.structure.TestModel1
-import com.raizlabs.android.dbflow.test.structure.TestModel1_Table
 import com.raizlabs.android.dbflow.test.structure.TestModel2
 import com.raizlabs.android.dbflow.test.structure.TestModel2_Table
 import org.junit.Assert.assertEquals
@@ -22,68 +22,52 @@ class QueryExtensionsTest : FlowTestCase() {
     @Throws(Exception::class)
     fun test_canEquals() {
 
-        var query = select(TestModel1_Table.name) {
-            from<TestModel1> {
-                where { TestModel1_Table.name.eq("test") }
-                        .and { TestModel1_Table.name.isNot("something") }
-            }
-        }.query
+        val query = ((select(name)
+                from KotlinTestModel::class
+                where (name `is` "test")
+                and (name isNot "something")).query)
 
-        assertEquals(query.trim(), "SELECT `name` FROM `TestModel1` WHERE `name`='test' AND `name`!='something'")
+        assertEquals(query.trim(), "SELECT `name` FROM `KotlinTestModel` WHERE `name`='test' AND `name`!='something'")
 
-        var another = select {
-            from<TestModel1> {
-                join<TestModel1, TestModel2>(INNER) {
-                    on { TestModel2_Table.name.withTable().eq(TestModel1_Table.name.withTable()) }
-                }
+        val another = (select
+                from TestModel1::class
+                innerJoin TestModel2::class
+                on (TestModel2_Table.name.withTable() eq (name.withTable()))
+                leftOuterJoin TestModel3::class on (name.withTable() eq TestModel3_Table.name.withTable()))
 
-                join<TestModel1, TestModel3>(LEFT_OUTER) {
-                    on { TestModel1_Table.name.withTable().eq(TestModel3_Table.name.withTable()) }
-                }
-            }
-        }
-
-        assertEquals(another.query.trim(), "SELECT * FROM `TestModel1` " +
-                "INNER JOIN `TestModel2` ON `TestModel2`.`name`=`TestModel1`.`name`  " +
-                "LEFT OUTER JOIN `TestModel32` ON `TestModel1`.`name`=`TestModel32`.`name`")
+        assertEquals("SELECT * FROM `TestModel1` " +
+                "INNER JOIN `TestModel2` ON `TestModel2`.`name`=`KotlinTestModel`.`name`  " +
+                "LEFT OUTER JOIN `TestModel32` ON `KotlinTestModel`.`name`=`TestModel32`.`name`",
+                another.query.trim())
     }
 
     @Test
     @Throws(Exception::class)
     fun test_updateBuilders() {
-
-        var query = update<TestModel1> {
-            set {
-                conditions(TestModel1_Table.name.`is`("yes"))
-                where { TestModel1_Table.name.eq("no") }
-                        .and { TestModel1_Table.name.eq("maybe") }
-            }
-        }
-
+        val query = (update(TestModel1::class)
+                set (name `is` "yes")
+                where (name eq "no")
+                and (name eq "maybe"))
         assertEquals(query.query.trim(), "UPDATE `TestModel1` SET `name`='yes' WHERE `name`='no' AND `name`='maybe'")
     }
 
     @Test
     @Throws(Exception::class)
     fun test_deleteBuilders() {
-
-        var query = delete<TestModel1> {
-            where {
-                TestModel1_Table.name.eq("test")
-            }
-        }
-
+        val query = (delete(TestModel1::class)
+                where (name eq "test"))
     }
 
     @Test
     @Throws(Exception::class)
     fun test_insertBuilders() {
 
-        var query = insert<TestModel1> {
-            orReplace()
-            into(KotlinTestModel_Table.id to 5, KotlinTestModel_Table.name to "5")
-        }
+        var query = (insert(TestModel1::class)
+                orReplace  (into(id to 5, name to "5")))
+
+
     }
 }
+
 
 

@@ -57,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -83,6 +84,8 @@ public class TableDefinition extends BaseTableDefinition {
     public String insertConflictActionName;
 
     public String updateConflictActionName;
+
+    public String primaryKeyConflictActionName;
 
     public List<ColumnDefinition> primaryColumnDefinitions;
     public List<ForeignKeyColumnDefinition> foreignKeyDefinitions;
@@ -148,6 +151,8 @@ public class TableDefinition extends BaseTableDefinition {
             cachingEnabled = table.cachingEnabled();
             cacheSize = table.cacheSize();
 
+            orderedCursorLookUp = table.orderedCursorLookUp();
+            assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor();
 
             allFields = table.allFields();
             useIsForPrivateBooleans = table.useBooleanGetterSetters();
@@ -248,10 +253,14 @@ public class TableDefinition extends BaseTableDefinition {
                 updateConflict = databaseDefinition.updateConflict;
             }
 
+            ConflictAction primaryKeyConflict = table.primaryKeyConflict();
+
             insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
                     : insertConflict.name();
             updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
                     : updateConflict.name();
+            primaryKeyConflictActionName = primaryKeyConflict.equals(ConflictAction.NONE) ? ""
+                    : primaryKeyConflict.name();
 
 
             createColumnDefinitions(typeElement);
@@ -319,8 +328,8 @@ public class TableDefinition extends BaseTableDefinition {
 
         ColumnValidator columnValidator = new ColumnValidator();
         OneToManyValidator oneToManyValidator = new OneToManyValidator();
+        AtomicInteger integer = new AtomicInteger(0);
         for (Element element : elements) {
-
             // no private static or final fields for all columns, or any inherited columns here.
             boolean isAllFields = ElementUtility.isValidAllFields(allFields, element);
 
@@ -345,9 +354,11 @@ public class TableDefinition extends BaseTableDefinition {
                     columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
                             inherited.column(), null);
                 } else if (isForeign) {
-                    columnDefinition = new ForeignKeyColumnDefinition(manager, this, element, isPackagePrivateNotInSamePackage);
+                    columnDefinition = new ForeignKeyColumnDefinition(manager, this,
+                            element, isPackagePrivateNotInSamePackage);
                 } else {
-                    columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage);
+                    columnDefinition = new ColumnDefinition(manager, element,
+                            this, isPackagePrivateNotInSamePackage);
                 }
 
                 if (columnValidator.validate(manager, columnDefinition)) {
@@ -531,16 +542,21 @@ public class TableDefinition extends BaseTableDefinition {
 
             // TODO: pass in model cache loaders.
 
+            boolean singlePrimaryKey = getPrimaryColumnDefinitions().size() == 1;
             typeBuilder.addMethod(MethodSpec.methodBuilder("createSingleModelLoader")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_MODEL_LOADER)
+                    .addStatement("return new $T<>(getModelClass())",
+                            singlePrimaryKey ? ClassNames.SINGLE_KEY_CACHEABLE_MODEL_LOADER :
+                                    ClassNames.CACHEABLE_MODEL_LOADER)
                     .returns(ClassNames.SINGLE_MODEL_LOADER).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("createListModelLoader")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_LIST_MODEL_LOADER)
+                    .addStatement("return new $T<>(getModelClass())",
+                            singlePrimaryKey ? ClassNames.SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER :
+                                    ClassNames.CACHEABLE_LIST_MODEL_LOADER)
                     .returns(ClassNames.LIST_MODEL_LOADER).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("createListModelSaver")
@@ -611,9 +627,10 @@ public class TableDefinition extends BaseTableDefinition {
                     .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
             CodeBlock.Builder loadStatements = CodeBlock.builder();
+            AtomicInteger noIndex = new AtomicInteger(-1);
             for (ColumnDefinition foreignColumn : foreignKeyDefinitions) {
                 CodeBlock.Builder codeBuilder = foreignColumn.getLoadFromCursorMethod(false, false,
-                        false).toBuilder();
+                        false, noIndex).toBuilder();
                 if (!foreignColumn.elementTypeName.isPrimitive()) {
                     codeBuilder.nextControlFlow("else");
                     codeBuilder.addStatement(foreignColumn.setColumnAccessString(CodeBlock.builder().add("null").build(), false));

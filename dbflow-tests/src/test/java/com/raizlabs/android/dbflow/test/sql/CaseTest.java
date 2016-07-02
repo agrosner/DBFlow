@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.test.sql;
 
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
@@ -63,5 +64,14 @@ public class CaseTest extends FlowTestCase {
                 .when(CaseModel_Table.firstName)
                 .then(CaseModel_Table.lastName).getQuery();
         assertEquals("CASE `country` WHEN `firstName` THEN `lastName`", query.trim());
+    }
+
+    @Test
+    public void test_emptyEndCase() {
+        String query = Method.count(SQLite._case(CaseModel_Table.country)
+                .when(CaseModel_Table.firstName)
+                .then(CaseModel_Table.lastName).end()).getQuery();
+        assertEquals("COUNT( CASE `country` WHEN `firstName` THEN `lastName` END )", query.trim());
+
     }
 }
