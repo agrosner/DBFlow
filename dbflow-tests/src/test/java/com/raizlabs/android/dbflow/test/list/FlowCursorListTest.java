@@ -57,7 +57,7 @@ public class FlowCursorListTest extends FlowTestCase {
 
         assertEquals(TestQueryModel.class, cursorList.table());
         assertTrue(cursorList.cachingEnabled());
-        assertEquals(0, cursorList.cacheSize());
+        assertEquals(50, cursorList.cacheSize());
 
         cursorList.close();
     }
