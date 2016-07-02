@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDoneException;
+import android.database.sqlite.SQLiteStatement;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -31,7 +32,9 @@ public abstract class BaseQueriable<TModel extends Model> implements Queriable {
     }
 
     /**
-     * @return Exeuctes and returns the count of rows affected by this query.
+     * Execute a statement that returns a 1 by 1 table with a numeric value.
+     * For example, SELECT COUNT(*) FROM table.
+     * Please see {@link SQLiteStatement#simpleQueryForLong()}.
      */
     @Override
     public long count(DatabaseWrapper databaseWrapper) {
@@ -46,6 +49,11 @@ public abstract class BaseQueriable<TModel extends Model> implements Queriable {
         return 0;
     }
 
+    /**
+     * Execute a statement that returns a 1 by 1 table with a numeric value.
+     * For example, SELECT COUNT(*) FROM table.
+     * Please see {@link SQLiteStatement#simpleQueryForLong()}.
+     */
     @Override
     public long count() {
         return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
