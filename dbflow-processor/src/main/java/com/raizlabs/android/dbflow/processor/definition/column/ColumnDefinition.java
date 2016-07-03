@@ -86,15 +86,16 @@ public class ColumnDefinition extends BaseDefinition {
         this.column = column;
         if (column != null) {
             this.columnName = column.name().equals("") ? element.getSimpleName()
-                .toString() : column.name();
+                    .toString() : column.name();
             length = column.length();
             collate = column.collate();
             defaultValue = column.defaultValue();
             excludeFromToModelMethod = column.excludeFromToModelMethod();
         } else {
             this.columnName = element.getSimpleName()
-                .toString();
+                    .toString();
         }
+
 
         if (isPackagePrivate) {
             columnAccess = PackagePrivateAccess.from(processorManager, element, baseTableDefinition.databaseDefinition.classSeparator);
@@ -103,10 +104,10 @@ public class ColumnDefinition extends BaseDefinition {
             PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, columnName);
         } else {
             boolean isPrivate = element.getModifiers()
-                .contains(Modifier.PRIVATE);
+                    .contains(Modifier.PRIVATE);
             if (isPrivate) {
                 boolean useIs = elementTypeName.box().equals(TypeName.BOOLEAN.box())
-                    && (baseTableDefinition instanceof TableDefinition) && ((TableDefinition) baseTableDefinition).useIsForPrivateBooleans;
+                        && (baseTableDefinition instanceof TableDefinition) && ((TableDefinition) baseTableDefinition).useIsForPrivateBooleans;
                 columnAccess = new PrivateColumnAccess(column, useIs);
             } else {
                 columnAccess = new SimpleColumnAccess();
@@ -180,7 +181,7 @@ public class ColumnDefinition extends BaseDefinition {
             TypeConverterDefinition typeConverterDefinition = new TypeConverterDefinition(typeConverterElement, manager);
             if (!typeConverterDefinition.getModelTypeName().equals(elementTypeName)) {
                 manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                    typeConverterDefinition.getModelTypeName(), typeConverterClassName, elementTypeName);
+                        typeConverterDefinition.getModelTypeName(), typeConverterClassName, elementTypeName);
             } else {
                 hasCustomConverter = true;
                 String fieldName = baseTableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName);
@@ -200,7 +201,7 @@ public class ColumnDefinition extends BaseDefinition {
                     // do nothing.
                 } else if (elementTypeName instanceof ArrayTypeName) {
                     processorManager.getMessager()
-                        .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
+                            .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");
                 } else {
                     if (elementTypeName.equals(TypeName.BOOLEAN.box())) {
                         isBoolean = true;
@@ -229,7 +230,7 @@ public class ColumnDefinition extends BaseDefinition {
     public ColumnDefinition(ProcessorManager processorManager, Element element,
                             BaseTableDefinition baseTableDefinition, boolean isPackagePrivate) {
         this(processorManager, element, baseTableDefinition, isPackagePrivate,
-            element.getAnnotation(Column.class), element.getAnnotation(PrimaryKey.class));
+                element.getAnnotation(Column.class), element.getAnnotation(PrimaryKey.class));
 
     }
 
@@ -251,8 +252,8 @@ public class ColumnDefinition extends BaseDefinition {
             propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box());
         }
         typeBuilder.addField(FieldSpec.builder(propParam,
-            columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-            .initializer("new $T($T.class, $S)", propParam, tableClass, columnName).build());
+                columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .initializer("new $T($T.class, $S)", propParam, tableClass, columnName).build());
     }
 
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {
@@ -261,41 +262,47 @@ public class ColumnDefinition extends BaseDefinition {
         methodBuilder.endControlFlow();
     }
 
+    public void addColumnName(CodeBlock.Builder codeBuilder) {
+        codeBuilder.add(columnName);
+    }
+
     public CodeBlock getInsertStatementColumnName() {
         return CodeBlock.builder()
-            .add("$L", QueryBuilder.quote(columnName))
-            .build();
+                .add("$L", QueryBuilder.quote(columnName))
+                .build();
     }
 
     public CodeBlock getInsertStatementValuesString() {
         return CodeBlock.builder()
-            .add("?")
-            .build();
+                .add("?")
+                .build();
     }
 
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         return DefinitionUtils.getContentValuesStatement(containerKeyName, elementName,
-            columnName, elementTypeName, isModelContainerAdapter, columnAccess,
-            ModelUtils.getVariable(isModelContainerAdapter), defaultValue,
-            tableDefinition.outputClassName).build();
+                columnName, elementTypeName, isModelContainerAdapter, columnAccess,
+                ModelUtils.getVariable(isModelContainerAdapter), defaultValue,
+                tableDefinition.outputClassName).build();
     }
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index, boolean isModelContainerAdapter) {
         return DefinitionUtils.getSQLiteStatementMethod(index, containerKeyName, elementName,
-            elementTypeName, isModelContainerAdapter, columnAccess,
-            ModelUtils.getVariable(isModelContainerAdapter), isPrimaryKeyAutoIncrement || isRowId, defaultValue).build();
+                elementTypeName, isModelContainerAdapter, columnAccess,
+                ModelUtils.getVariable(isModelContainerAdapter), isPrimaryKeyAutoIncrement || isRowId, defaultValue).build();
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter,
-                                             boolean endNonPrimitiveIf) {
+                                             boolean endNonPrimitiveIf, AtomicInteger index) {
         boolean putDefaultValue = putNullForContainerAdapter;
         if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
             putDefaultValue = putContainerDefaultValue;
         } else if (!isModelContainerAdapter) {
             putDefaultValue = true;
         }
-        return DefinitionUtils.getLoadFromCursorMethod(containerKeyName, elementName,
-            elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
+        return DefinitionUtils.getLoadFromCursorMethod(index.intValue(), elementName,
+                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess,
+                tableDefinition.orderedCursorLookUp, tableDefinition.assignDefaultValuesFromCursor,
+                containerKeyName).build();
     }
 
     /**
@@ -305,12 +312,12 @@ public class ColumnDefinition extends BaseDefinition {
      */
     public CodeBlock getUpdateAutoIncrementMethod(boolean isModelContainerAdapter) {
         return DefinitionUtils.getUpdateAutoIncrementMethod(containerKeyName, elementName, elementTypeName,
-            isModelContainerAdapter, columnAccess).build();
+                isModelContainerAdapter, columnAccess).build();
     }
 
     public String setColumnAccessString(CodeBlock formattedAccess, boolean toModelMethod) {
         return columnAccess.setColumnAccessString(elementTypeName, containerKeyName, elementName,
-            false, ModelUtils.getVariable(false), formattedAccess, toModelMethod);
+                false, ModelUtils.getVariable(false), formattedAccess, toModelMethod);
     }
 
     public CodeBlock getToModelMethod() {
@@ -319,7 +326,7 @@ public class ColumnDefinition extends BaseDefinition {
             if (columnAccess instanceof EnumColumnAccess) {
                 method = SQLiteHelper.getModelContainerMethod(ClassName.get(String.class));
             } else {
-                if (columnAccess instanceof TypeConverterAccess) {
+                if (columnAccess instanceof TypeConverterAccess && ((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
                     method = SQLiteHelper.getModelContainerMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
                 }
                 if (method == null) {
@@ -329,18 +336,20 @@ public class ColumnDefinition extends BaseDefinition {
             }
         }
         CodeBlock.Builder codeBuilder = CodeBlock.builder()
-            .add("$L.$LValue($S)", ModelUtils.getVariable(true), method, containerKeyName);
+                .add("$L.$LValue($S)", ModelUtils.getVariable(true), method, containerKeyName);
 
         BaseColumnAccess columnAccessToUse = columnAccess;
         if (columnAccess instanceof BooleanColumnAccess ||
-            (columnAccess instanceof TypeConverterAccess && ((TypeConverterAccess) columnAccess)
-                .typeConverterDefinition.getModelTypeName().equals(TypeName.BOOLEAN.box()))) {
+                (columnAccess instanceof TypeConverterAccess &&
+                        ((TypeConverterAccess) columnAccess).typeConverterDefinition != null &&
+                        ((TypeConverterAccess) columnAccess)
+                                .typeConverterDefinition.getModelTypeName().equals(TypeName.BOOLEAN.box()))) {
             columnAccessToUse = ((TypeConverterAccess) columnAccess).existingColumnAccess;
         }
         return CodeBlock.builder()
-            .addStatement(columnAccessToUse.setColumnAccessString(elementTypeName, containerKeyName, elementName,
-                false, ModelUtils.getVariable(false), codeBuilder.build(), true))
-            .build();
+                .addStatement(columnAccessToUse.setColumnAccessString(elementTypeName, containerKeyName, elementName,
+                        false, ModelUtils.getVariable(false), codeBuilder.build(), true))
+                .build();
     }
 
     public String getColumnAccessString(boolean isModelContainerAdapter, boolean isSqliteStatment) {
@@ -359,17 +368,25 @@ public class ColumnDefinition extends BaseDefinition {
             TypeConverterDefinition converterDefinition = converterAccess.typeConverterDefinition;
             if (!isModelContainerAdapter) {
                 codeBuilder.add(converterAccess.existingColumnAccess.getColumnAccessString(converterDefinition.getDbTypeName(), containerKeyName, elementName,
-                    ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false));
+                        ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false));
             } else {
                 codeBuilder.add(CodeBlock.builder()
-                    .add("$L.getTypeConvertedPropertyValue($T.class, $S)",
-                        ModelUtils.getVariable(isModelContainerAdapter),
-                        converterAccess.typeConverterDefinition.getModelTypeName(),
-                        containerKeyName)
-                    .build());
+                        .add("$L.getTypeConvertedPropertyValue($T.class, $S)",
+                                ModelUtils.getVariable(isModelContainerAdapter),
+                                converterAccess.typeConverterDefinition.getModelTypeName(),
+                                containerKeyName)
+                        .build());
             }
         } else {
-            codeBuilder.add(getColumnAccessString(isModelContainerAdapter, false));
+            String columnAccessString = getColumnAccessString(isModelContainerAdapter, false);
+            if (columnAccess instanceof BlobColumnAccess) {
+                columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(".getBlob()"));
+            } else if (columnAccess instanceof EnumColumnAccess) {
+                columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(".name()"));
+            } else if (columnAccess instanceof BooleanTypeColumnAccess) {
+                columnAccessString = columnAccessString.substring(0, columnAccessString.lastIndexOf(" ? 1 : 0"));
+            }
+            codeBuilder.add(columnAccessString);
         }
         codeBuilder.add("));");
     }
@@ -382,7 +399,14 @@ public class ColumnDefinition extends BaseDefinition {
         CodeBlock.Builder codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName);
 
         if (isPrimaryKeyAutoIncrement && !isRowId) {
-            codeBlockBuilder.add(" PRIMARY KEY AUTOINCREMENT");
+            codeBlockBuilder.add(" PRIMARY KEY ");
+
+            if (tableDefinition instanceof TableDefinition
+                    && !StringUtils.isNullOrEmpty(((TableDefinition) tableDefinition).primaryKeyConflictActionName)) {
+                codeBlockBuilder.add("ON CONFLICT $L ", ((TableDefinition) tableDefinition).primaryKeyConflictActionName);
+            }
+
+            codeBlockBuilder.add("AUTOINCREMENT");
         }
 
         if (length > -1) {
@@ -394,8 +418,9 @@ public class ColumnDefinition extends BaseDefinition {
         }
 
         if (unique) {
-            codeBlockBuilder.add(" UNIQUE");
+            codeBlockBuilder.add(" UNIQUE ON CONFLICT $L", onUniqueConflict);
         }
+
 
         if (notNull) {
             codeBlockBuilder.add(" NOT NULL");
@@ -412,8 +437,8 @@ public class ColumnDefinition extends BaseDefinition {
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         codeBuilder.addStatement("$L.put($T.$L, $L)", ModelUtils.getVariable(true), tableClassName, columnName,
-            columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
-                ModelUtils.getVariable(false), false, false));
+                columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+                        ModelUtils.getVariable(false), false, false));
         return codeBuilder.build();
     }
 

@@ -1,7 +1,9 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.Cursor;
+import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Set;
@@ -12,11 +14,12 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: The most basic interface that some of the classes such as {@link Insert}, {@link ModelQueriable},
  * {@link Set}, and more implement for convenience.
  */
-public interface Queriable {
+public interface Queriable extends Query {
 
     /**
      * @return A cursor from the DB based on this query
      */
+    @Nullable
     Cursor query();
 
     /**
@@ -25,6 +28,7 @@ public interface Queriable {
      * @param databaseWrapper The wrapper to pass in.
      * @return A cursor from the DB based on this query
      */
+    @Nullable
     Cursor query(DatabaseWrapper databaseWrapper);
 
 
@@ -52,6 +56,18 @@ public interface Queriable {
      * number of rows affected from a {@link Set} or {@link Delete} statement.
      */
     long count(DatabaseWrapper databaseWrapper);
+
+    /**
+     * @return True if this query has data. It will run a {@link #count()} greater than 0.
+     */
+    boolean hasData();
+
+    /**
+     * Allows you to pass in a {@link DatabaseWrapper} manually.
+     *
+     * @return True if this query has data. It will run a {@link #count()} greater than 0.
+     */
+    boolean hasData(DatabaseWrapper databaseWrapper);
 
     /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when

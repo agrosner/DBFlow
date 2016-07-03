@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Description: A simple implementation that keeps {@link Model} you interact with in memory.
  */
-public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelClass, Map<Object, ModelClass>> {
+public class SimpleMapCache<TModel extends Model> extends ModelCache<TModel, Map<Object, TModel>> {
 
     /**
      * Constructs new instance with a {@link HashMap} with the specified capacity.
@@ -17,7 +17,7 @@ public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelCl
      * @param capacity The capacity to use on the hashmap.
      */
     public SimpleMapCache(int capacity) {
-        super(new HashMap<Object, ModelClass>(capacity));
+        super(new HashMap<Object, TModel>(capacity));
     }
 
     /**
@@ -25,17 +25,17 @@ public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelCl
      *
      * @param cache The arbitrary underlying cache class.
      */
-    public SimpleMapCache(Map<Object, ModelClass> cache) {
+    public SimpleMapCache(Map<Object, TModel> cache) {
         super(cache);
     }
 
     @Override
-    public void addModel(Object id, ModelClass model) {
+    public void addModel(Object id, TModel model) {
         getCache().put(id, model);
     }
 
     @Override
-    public ModelClass removeModel(Object id) {
+    public TModel removeModel(Object id) {
         return getCache().remove(id);
     }
 
@@ -45,7 +45,7 @@ public class SimpleMapCache<ModelClass extends Model> extends ModelCache<ModelCl
     }
 
     @Override
-    public ModelClass get(Object id) {
+    public TModel get(Object id) {
         return getCache().get(id);
     }
 

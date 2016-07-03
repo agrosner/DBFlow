@@ -9,21 +9,21 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
  */
-public class Update<ModelClass extends Model> implements Query {
+public class Update<TModel extends Model> implements Query {
 
     /**
      * The conflict action to resolve updates.
      */
     private ConflictAction conflictAction = ConflictAction.NONE;
 
-    private final Class<ModelClass> table;
+    private final Class<TModel> table;
 
     /**
      * Constructs new instace of an UPDATE query with the specified table.
      *
      * @param table The table to use.
      */
-    public Update(Class<ModelClass> table) {
+    public Update(Class<TModel> table) {
         this.table = table;
     }
 
@@ -78,7 +78,7 @@ public class Update<ModelClass extends Model> implements Query {
      * @param conditions The array of conditions that define this SET statement
      * @return A SET query piece of this statement
      */
-    public Set<ModelClass> set(SQLCondition... conditions) {
+    public Set<TModel> set(SQLCondition... conditions) {
         return new Set<>(this, table).conditions(conditions);
     }
 

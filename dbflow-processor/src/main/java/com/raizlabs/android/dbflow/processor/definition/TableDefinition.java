@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.InheritedPrimaryKey;
 import com.raizlabs.android.dbflow.annotation.ModelCacheField;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.MultiCacheField;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -20,7 +21,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ContainerKeyDefinition;
-import com.raizlabs.android.dbflow.processor.definition.column.ExternalForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -84,6 +85,8 @@ public class TableDefinition extends BaseTableDefinition {
     public String insertConflictActionName;
 
     public String updateConflictActionName;
+
+    public String primaryKeyConflictActionName;
 
     public List<ColumnDefinition> primaryColumnDefinitions;
     public List<ForeignKeyColumnDefinition> foreignKeyDefinitions;
@@ -122,6 +125,8 @@ public class TableDefinition extends BaseTableDefinition {
     public List<String> inheritedFieldNameList = new ArrayList<>();
     public Map<String, InheritedPrimaryKey> inheritedPrimaryKeyMap = new HashMap<>();
 
+    public ModelContainerDefinition modelContainerDefinition;
+
     public TableDefinition(ProcessorManager manager, TypeElement element) {
         super(element, manager);
 
@@ -133,6 +138,11 @@ public class TableDefinition extends BaseTableDefinition {
         Table table = element.getAnnotation(Table.class);
         if (table != null) {
             this.tableName = table.name();
+
+            if (tableName == null || tableName.isEmpty()) {
+                tableName = element.getSimpleName().toString();
+            }
+
             try {
                 table.database();
             } catch (MirroredTypeException mte) {
@@ -141,39 +151,15 @@ public class TableDefinition extends BaseTableDefinition {
 
             cachingEnabled = table.cachingEnabled();
             cacheSize = table.cacheSize();
-            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
-            if (databaseDefinition == null) {
-                manager.logError("DatabaseDefinition was null for : " + tableName);
-            }
 
-            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_TABLE_TAG);
-            this.adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
-
-
-            // globular default
-            ConflictAction insertConflict = table.insertConflict();
-            if (insertConflict.equals(ConflictAction.NONE) && !databaseDefinition.insertConflict.equals(ConflictAction.NONE)) {
-                insertConflict = databaseDefinition.insertConflict;
-            }
-
-            ConflictAction updateConflict = table.updateConflict();
-            if (updateConflict.equals(ConflictAction.NONE) && !databaseDefinition.updateConflict.equals(ConflictAction.NONE)) {
-                updateConflict = databaseDefinition.updateConflict;
-            }
-
-            insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
-                : insertConflict.name();
-            updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
-                : updateConflict.name();
+            orderedCursorLookUp = table.orderedCursorLookUp();
+            assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor();
 
             allFields = table.allFields();
-            useIsForPrivateBooleans = table.useIsForPrivateBooleans();
+            useIsForPrivateBooleans = table.useBooleanGetterSetters();
 
             manager.addModelToDatabase(elementClassName, databaseTypeName);
 
-            if (tableName == null || tableName.isEmpty()) {
-                tableName = element.getSimpleName().toString();
-            }
 
             InheritedColumn[] inheritedColumns = table.inheritedColumns();
             for (InheritedColumn inheritedColumn : inheritedColumns) {
@@ -193,7 +179,92 @@ public class TableDefinition extends BaseTableDefinition {
                 inheritedPrimaryKeyMap.put(inheritedColumn.fieldName(), inheritedColumn);
             }
 
-            createColumnDefinitions(element);
+            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element);
+
+            implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                    ClassNames.CONTENT_VALUES_LISTENER.toString(), element);
+
+            implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
+                    ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element);
+        }
+
+        if (element.getAnnotation(ModelContainer.class) != null) {
+            modelContainerDefinition = new ModelContainerDefinition(element, manager);
+        }
+
+        methods = new MethodDefinition[]
+                {
+                        new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
+                        new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
+                        new BindToStatementMethod(this, true, false),
+                        new BindToStatementMethod(this, false, false),
+                        new InsertStatementQueryMethod(this, true),
+                        new InsertStatementQueryMethod(this, false),
+                        new CreationQueryMethod(this),
+                        new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
+                        new ExistenceMethod(this, false),
+                        new PrimaryConditionMethod(this, false),
+                        new OneToManyDeleteMethod(this, false, false),
+                        new OneToManyDeleteMethod(this, false, true),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, false),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, false),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, false),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, true),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, true),
+                        new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, true)
+                };
+    }
+
+    @Override
+    public void prepareForWrite() {
+        columnDefinitions = new ArrayList<>();
+        mColumnMap.clear();
+        classElementLookUpMap.clear();
+        autoIncrementDefinition = null;
+        primaryColumnDefinitions.clear();
+        uniqueGroupsDefinitions.clear();
+        indexGroupsDefinitions.clear();
+        foreignKeyDefinitions.clear();
+        columnUniqueMap.clear();
+        containerKeyDefinitions.clear();
+        oneToManyDefinitions.clear();
+        customCacheFieldName = null;
+        customMultiCacheFieldName = null;
+
+        Table table = element.getAnnotation(Table.class);
+        if (table != null) {
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).getDatabaseDefinition();
+            if (databaseDefinition == null) {
+                manager.logError("DatabaseDefinition was null for : " + tableName + " for db type: " + databaseTypeName);
+            }
+
+            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_TABLE_TAG);
+            this.adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
+
+
+            // globular default
+            ConflictAction insertConflict = table.insertConflict();
+            if (insertConflict.equals(ConflictAction.NONE) && !databaseDefinition.insertConflict.equals(ConflictAction.NONE)) {
+                insertConflict = databaseDefinition.insertConflict;
+            }
+
+            ConflictAction updateConflict = table.updateConflict();
+            if (updateConflict.equals(ConflictAction.NONE) && !databaseDefinition.updateConflict.equals(ConflictAction.NONE)) {
+                updateConflict = databaseDefinition.updateConflict;
+            }
+
+            ConflictAction primaryKeyConflict = table.primaryKeyConflict();
+
+            insertConflictActionName = insertConflict.equals(ConflictAction.NONE) ? ""
+                    : insertConflict.name();
+            updateConflictActionName = updateConflict.equals(ConflictAction.NONE) ? ""
+                    : updateConflict.name();
+            primaryKeyConflictActionName = primaryKeyConflict.equals(ConflictAction.NONE) ? ""
+                    : primaryKeyConflict.name();
+
+
+            createColumnDefinitions(typeElement);
 
             UniqueGroup[] groups = table.uniqueColumnGroups();
             Set<Integer> uniqueNumbersSet = new HashSet<>();
@@ -226,38 +297,11 @@ public class TableDefinition extends BaseTableDefinition {
                 indexGroupsDefinitions.add(definition);
                 uniqueNumbersSet.add(indexGroup.number());
             }
-
-            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element);
-
-            implementsContentValuesListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.CONTENT_VALUES_LISTENER.toString(), element);
-
-            implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element);
         }
 
-        methods = new MethodDefinition[]
-
-            {
-                new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
-                new BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
-                new BindToStatementMethod(this, true, false),
-                new BindToStatementMethod(this, false, false),
-                new InsertStatementQueryMethod(this, true),
-                new InsertStatementQueryMethod(this, false),
-                new CreationQueryMethod(this),
-                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
-                new ExistenceMethod(this, false),
-                new PrimaryConditionMethod(this, false),
-                new OneToManyDeleteMethod(this, false),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT),
-                new OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE)
-            }
-
-        ;
-
+        if (modelContainerDefinition != null) {
+            modelContainerDefinition.prepareForWrite();
+        }
     }
 
     @Override
@@ -285,8 +329,8 @@ public class TableDefinition extends BaseTableDefinition {
 
         ColumnValidator columnValidator = new ColumnValidator();
         OneToManyValidator oneToManyValidator = new OneToManyValidator();
+        AtomicInteger integer = new AtomicInteger(0);
         for (Element element : elements) {
-
             // no private static or final fields for all columns, or any inherited columns here.
             boolean isAllFields = ElementUtility.isValidAllFields(allFields, element);
 
@@ -299,25 +343,24 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isPrimary = element.getAnnotation(PrimaryKey.class) != null;
             boolean isInherited = inheritedColumnMap.containsKey(element.getSimpleName().toString());
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
-
-            if (element.getAnnotation(Column.class) != null || isForeign || isExternalForeign || isPrimary
-                || isAllFields || isInherited || isInheritedPrimaryKey) {
+            if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
+                    || isAllFields || isInherited || isInheritedPrimaryKey) {
 
                 ColumnDefinition columnDefinition;
                 if (isInheritedPrimaryKey) {
                     InheritedPrimaryKey inherited = inheritedPrimaryKeyMap.get(element.getSimpleName().toString());
                     columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
-                        inherited.column(), inherited.primaryKey());
+                            inherited.column(), inherited.primaryKey());
                 } else if (isInherited) {
                     InheritedColumn inherited = inheritedColumnMap.get(element.getSimpleName().toString());
                     columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
-                        inherited.column(), null);
+                            inherited.column(), null);
                 } else if (isForeign) {
-                    columnDefinition = new ForeignKeyColumnDefinition(manager, this, element, isPackagePrivateNotInSamePackage);
-                } else if (isExternalForeign) {
-                    columnDefinition = new ExternalForeignKeyColumnDefinition(manager, this, element, isPackagePrivateNotInSamePackage);
+                    columnDefinition = new ForeignKeyColumnDefinition(manager, this,
+                            element, isPackagePrivateNotInSamePackage);
                 } else {
-                    columnDefinition = new ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage);
+                    columnDefinition = new ColumnDefinition(manager, element,
+                            this, isPackagePrivateNotInSamePackage);
                 }
 
                 if (columnValidator.validate(manager, columnDefinition)) {
@@ -365,25 +408,25 @@ public class TableDefinition extends BaseTableDefinition {
                 containerKeyDefinitions.add(containerKeyDefinition);
             } else if (element.getAnnotation(ModelCacheField.class) != null) {
                 if (!element.getModifiers().contains(Modifier.PUBLIC)) {
-                    manager.logError("ModelCacheField must be public");
+                    manager.logError("ModelCacheField must be public from: " + typeElement);
                 }
                 if (!element.getModifiers().contains(Modifier.STATIC)) {
-                    manager.logError("ModelCacheField must be static");
+                    manager.logError("ModelCacheField must be static from: " + typeElement);
                 }
                 if (!StringUtils.isNullOrEmpty(customCacheFieldName)) {
-                    manager.logError("ModelCacheField can only be declared once");
+                    manager.logError("ModelCacheField can only be declared once from: " + typeElement);
                 } else {
                     customCacheFieldName = element.getSimpleName().toString();
                 }
             } else if (element.getAnnotation(MultiCacheField.class) != null) {
                 if (!element.getModifiers().contains(Modifier.PUBLIC)) {
-                    manager.logError("MultiCacheField must be public");
+                    manager.logError("MultiCacheField must be public from: " + typeElement);
                 }
                 if (!element.getModifiers().contains(Modifier.STATIC)) {
-                    manager.logError("MultiCacheField must be static");
+                    manager.logError("MultiCacheField must be static from: " + typeElement);
                 }
                 if (!StringUtils.isNullOrEmpty(customMultiCacheFieldName)) {
-                    manager.logError("MultiCacheField can only be declared once");
+                    manager.logError("MultiCacheField can only be declared once from: " + typeElement);
                 } else {
                     customMultiCacheFieldName = element.getSimpleName().toString();
                 }
@@ -418,30 +461,44 @@ public class TableDefinition extends BaseTableDefinition {
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
         FieldSpec.Builder propertyConverter = FieldSpec.builder(ClassNames.PROPERTY_CONVERTER, "PROPERTY_CONVERTER", Modifier.FINAL, Modifier.PUBLIC, Modifier.STATIC)
-            .initializer(CodeBlock.builder()
-                .add("new $T(){ \n", ClassNames.PROPERTY_CONVERTER)
-                .add("public $T fromName(String columnName) {\n", ClassNames.IPROPERTY)
-                .add("return $L.getProperty(columnName); \n}\n}", getPropertyClassName())
-                .build());
+                .initializer(CodeBlock.builder()
+                        .add("new $T(){ \n", ClassNames.PROPERTY_CONVERTER)
+                        .add("public $T fromName(String columnName) {\n", ClassNames.IPROPERTY)
+                        .add("return $L.getProperty(columnName); \n}\n}", getPropertyClassName())
+                        .build());
         typeBuilder.addField(propertyConverter.build());
 
         MethodSpec.Builder getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addParameter(String.class, "columnName")
-            .returns(ClassNames.BASE_PROPERTY);
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(String.class, "columnName")
+                .returns(ClassNames.BASE_PROPERTY);
+
+        MethodSpec.Builder getAllColumnPropertiesMethod = MethodSpec.methodBuilder("getAllColumnProperties")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .returns(ArrayTypeName.of(ClassNames.IPROPERTY));
+        CodeBlock.Builder getPropertiesBuilder = CodeBlock.builder();
 
         getPropertyForNameMethod.addStatement("columnName = $T.quoteIfNeeded(columnName)", ClassName.get(QueryBuilder.class));
 
         getPropertyForNameMethod.beginControlFlow("switch ($L) ", "columnName");
-        for (ColumnDefinition columnDefinition : columnDefinitions) {
+        for (int i = 0; i < columnDefinitions.size(); i++) {
+            if (i > 0) {
+                getPropertiesBuilder.add(",");
+            }
+            ColumnDefinition columnDefinition = columnDefinitions.get(i);
             columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
             columnDefinition.addPropertyCase(getPropertyForNameMethod);
+            columnDefinition.addColumnName(getPropertiesBuilder);
+
         }
         getPropertyForNameMethod.beginControlFlow("default: ");
         getPropertyForNameMethod.addStatement("throw new $T($S)", IllegalArgumentException.class,
-            "Invalid column name passed. Ensure you are calling the correct table's column");
+                "Invalid column name passed. Ensure you are calling the correct table's column");
         getPropertyForNameMethod.endControlFlow();
         getPropertyForNameMethod.endControlFlow();
+
+        getAllColumnPropertiesMethod.addStatement("return new $T[]{$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString());
+        typeBuilder.addMethod(getAllColumnPropertiesMethod.build());
 
         // add index properties here
         for (IndexGroupsDefinition indexGroupsDefinition : indexGroupsDefinitions) {
@@ -454,50 +511,69 @@ public class TableDefinition extends BaseTableDefinition {
     public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
 
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(adapterName)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .superclass(ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName));
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .superclass(ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName));
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
         InternalAdapterHelper.writeGetTableName(typeBuilder, tableName);
 
         if (hasAutoIncrement || hasRowID) {
             InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName,
-                autoIncrementDefinition, false);
+                    autoIncrementDefinition, false);
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingId")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(elementClassName, ModelUtils.getVariable(false))
-                .addStatement("return $L", autoIncrementDefinition.getColumnAccessString(false, false))
-                .returns(ClassName.get(Number.class)).build());
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(elementClassName, ModelUtils.getVariable(false))
+                    .addStatement("return $L", autoIncrementDefinition.getColumnAccessString(false, false))
+                    .returns(ClassName.get(Number.class)).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingColumnName")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return $S", QueryBuilder.stripQuotes(autoIncrementDefinition.columnName))
+                    .returns(ClassName.get(String.class)).build());
+        }
+
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getAllColumnProperties")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $S", QueryBuilder.stripQuotes(autoIncrementDefinition.columnName))
-                .returns(ClassName.get(String.class)).build());
-        }
+                .addStatement("return $T.getAllColumnProperties()", outputClassName)
+                .returns(ArrayTypeName.of(ClassNames.IPROPERTY)).build());
 
         if (cachingEnabled) {
 
             // TODO: pass in model cache loaders.
 
+            boolean singlePrimaryKey = getPrimaryColumnDefinitions().size() == 1;
             typeBuilder.addMethod(MethodSpec.methodBuilder("createSingleModelLoader")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_MODEL_LOADER)
-                .returns(ClassNames.SINGLE_MODEL_LOADER).build());
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return new $T<>(getModelClass())",
+                            singlePrimaryKey ? ClassNames.SINGLE_KEY_CACHEABLE_MODEL_LOADER :
+                                    ClassNames.CACHEABLE_MODEL_LOADER)
+                    .returns(ClassNames.SINGLE_MODEL_LOADER).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("createListModelLoader")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return new $T<>(getModelClass())", ClassNames.CACHEABLE_LIST_MODEL_LOADER)
-                .returns(ClassNames.LIST_MODEL_LOADER).build());
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return new $T<>(getModelClass())",
+                            singlePrimaryKey ? ClassNames.SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER :
+                                    ClassNames.CACHEABLE_LIST_MODEL_LOADER)
+                    .returns(ClassNames.LIST_MODEL_LOADER).build());
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("createListModelSaver")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return new $T<>(getModelSaver())", ClassNames.CACHEABLE_LIST_MODEL_SAVER)
+                    .returns(ParameterizedTypeName.get(ClassNames.CACHEABLE_LIST_MODEL_SAVER,
+                            elementClassName,
+                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementTypeName))).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("cachingEnabled")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $L", true)
-                .returns(TypeName.BOOLEAN).build());
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return $L", true)
+                    .returns(TypeName.BOOLEAN).build());
 
             List<ColumnDefinition> primaries = primaryColumnDefinitions;
             if (primaries == null || primaries.isEmpty()) {
@@ -506,8 +582,8 @@ public class TableDefinition extends BaseTableDefinition {
             InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, primaries, false);
 
             MethodSpec.Builder cachingbuilder = MethodSpec.methodBuilder("createCachingColumns")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
             String columns = "return new String[]{";
             for (int i = 0; i < primaries.size(); i++) {
                 ColumnDefinition column = primaries.get(i);
@@ -519,43 +595,44 @@ public class TableDefinition extends BaseTableDefinition {
             columns += "}";
 
             cachingbuilder.addStatement(columns)
-                .returns(ArrayTypeName.of(ClassName.get(String.class)));
+                    .returns(ArrayTypeName.of(ClassName.get(String.class)));
 
             typeBuilder.addMethod(cachingbuilder.build());
 
             if (cacheSize != Table.DEFAULT_CACHE_SIZE) {
                 typeBuilder.addMethod(MethodSpec.methodBuilder("getCacheSize")
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return $L", cacheSize)
-                    .returns(TypeName.INT).build());
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addStatement("return $L", cacheSize)
+                        .returns(TypeName.INT).build());
             }
 
             if (!StringUtils.isNullOrEmpty(customCacheFieldName)) {
                 typeBuilder.addMethod(MethodSpec.methodBuilder("createModelCache")
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return $T.$L", elementClassName, customCacheFieldName)
-                    .returns(ParameterizedTypeName.get(ClassNames.MODEL_CACHE, elementClassName, WildcardTypeName.subtypeOf(Object.class))).build());
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addStatement("return $T.$L", elementClassName, customCacheFieldName)
+                        .returns(ParameterizedTypeName.get(ClassNames.MODEL_CACHE, elementClassName, WildcardTypeName.subtypeOf(Object.class))).build());
             }
 
             if (!StringUtils.isNullOrEmpty(customMultiCacheFieldName)) {
                 typeBuilder.addMethod(MethodSpec.methodBuilder("getCacheConverter")
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return $T.$L", elementClassName, customMultiCacheFieldName)
-                    .returns(ParameterizedTypeName.get(ClassNames.MULTI_KEY_CACHE_CONVERTER, WildcardTypeName.subtypeOf(Object.class))).build());
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addStatement("return $T.$L", elementClassName, customMultiCacheFieldName)
+                        .returns(ParameterizedTypeName.get(ClassNames.MULTI_KEY_CACHE_CONVERTER, WildcardTypeName.subtypeOf(Object.class))).build());
             }
 
             MethodSpec.Builder reloadMethod = MethodSpec.methodBuilder("reloadRelationships")
-                .addAnnotation(Override.class)
-                .addParameter(elementClassName, ModelUtils.getVariable(false))
-                .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+                    .addAnnotation(Override.class)
+                    .addParameter(elementClassName, ModelUtils.getVariable(false))
+                    .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
             CodeBlock.Builder loadStatements = CodeBlock.builder();
+            AtomicInteger noIndex = new AtomicInteger(-1);
             for (ColumnDefinition foreignColumn : foreignKeyDefinitions) {
                 CodeBlock.Builder codeBuilder = foreignColumn.getLoadFromCursorMethod(false, false,
-                    false).toBuilder();
+                        false, noIndex).toBuilder();
                 if (!foreignColumn.elementTypeName.isPrimitive()) {
                     codeBuilder.nextControlFlow("else");
                     codeBuilder.addStatement(foreignColumn.setColumnAccessString(CodeBlock.builder().add("null").build(), false));
@@ -571,13 +648,14 @@ public class TableDefinition extends BaseTableDefinition {
         customTypeConverterPropertyMethod.addToType(typeBuilder);
 
         CodeBlock.Builder constructorCode = CodeBlock.builder();
-
+        constructorCode.addStatement("super(databaseDefinition)");
         customTypeConverterPropertyMethod.addCode(constructorCode);
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
-            .addParameter(ClassNames.DATABASE_HOLDER, "holder")
-            .addCode(constructorCode.build())
-            .addModifiers(Modifier.PUBLIC).build());
+                .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+                .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
+                .addCode(constructorCode.build())
+                .addModifiers(Modifier.PUBLIC).build());
 
         for (MethodDefinition methodDefinition : methods) {
             MethodSpec spec = methodDefinition.getMethodSpec();
@@ -587,35 +665,35 @@ public class TableDefinition extends BaseTableDefinition {
         }
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
-            .addAnnotation(Override.class)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addStatement("return new $T()", elementClassName)
-            .returns(elementClassName)
-            .build());
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return new $T()", elementClassName)
+                .returns(elementClassName)
+                .build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getProperty")
-            .addAnnotation(Override.class)
-            .addParameter(ClassName.get(String.class), "name")
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addStatement("return $T.getProperty($L)", outputClassName, "name")
-            .returns(ClassNames.BASE_PROPERTY)
-            .build());
+                .addAnnotation(Override.class)
+                .addParameter(ClassName.get(String.class), "name")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return $T.getProperty($L)", outputClassName, "name")
+                .returns(ClassNames.BASE_PROPERTY)
+                .build());
 
         if (!updateConflictActionName.isEmpty()) {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getUpdateOnConflictAction")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, updateConflictActionName)
-                .returns(ClassNames.CONFLICT_ACTION)
-                .build());
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, updateConflictActionName)
+                    .returns(ClassNames.CONFLICT_ACTION)
+                    .build());
         }
 
         if (!insertConflictActionName.isEmpty()) {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getInsertOnConflictAction")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
-                .returns(ClassNames.CONFLICT_ACTION).build());
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
+                    .returns(ClassNames.CONFLICT_ACTION).build());
         }
 
 

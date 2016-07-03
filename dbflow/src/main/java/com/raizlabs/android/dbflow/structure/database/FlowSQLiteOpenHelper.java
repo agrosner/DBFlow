@@ -4,30 +4,33 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Author: andrewgrosner
- * Description: Wraps around the {@link android.database.sqlite.SQLiteOpenHelper} and provides extra features for use in this library.
+ * Description: Wraps around the {@link SQLiteOpenHelper} and provides extra features for use in this library.
  */
 public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper {
 
     private DatabaseHelperDelegate databaseHelperDelegate;
     private AndroidDatabase androidDatabase;
 
-    public FlowSQLiteOpenHelper(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
+    public FlowSQLiteOpenHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
         super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(), null, databaseDefinition.getDatabaseVersion());
 
         OpenHelper backupHelper = null;
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.getDatabaseVersion(), databaseDefinition);
+                databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
         databaseHelperDelegate = new DatabaseHelperDelegate(listener, databaseDefinition, backupHelper);
+    }
+
+    @Override
+    public void performRestoreFromBackup() {
+        databaseHelperDelegate.performRestoreFromBackup();
     }
 
     @Override
@@ -78,6 +81,12 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         databaseHelperDelegate.onOpen(AndroidDatabase.from(db));
     }
 
+    @Override
+    public void closeDB() {
+        getDatabase();
+        androidDatabase.getDatabase().close();
+    }
+
     /**
      * Simple helper to manage backup.
      */
@@ -86,7 +95,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         private AndroidDatabase androidDatabase;
         private final BaseDatabaseHelper baseDatabaseHelper;
 
-        public BackupHelper(Context context, String name, int version, BaseDatabaseDefinition databaseDefinition) {
+        public BackupHelper(Context context, String name, int version, DatabaseDefinition databaseDefinition) {
             super(context, name, null, version);
             this.baseDatabaseHelper = new BaseDatabaseHelper(databaseDefinition);
         }
@@ -97,6 +106,10 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
                 androidDatabase = AndroidDatabase.from(getWritableDatabase());
             }
             return androidDatabase;
+        }
+
+        @Override
+        public void performRestoreFromBackup() {
         }
 
         @Override
@@ -130,6 +143,10 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         @Override
         public void onOpen(SQLiteDatabase db) {
             baseDatabaseHelper.onOpen(AndroidDatabase.from(db));
+        }
+
+        @Override
+        public void closeDB() {
         }
     }
 

@@ -1,10 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDoneException;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.SQLiteCompatibilityUtils;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -12,6 +13,7 @@ import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
@@ -21,15 +23,15 @@ import java.util.List;
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelClass>
-    implements Query, ModelQueriable<ModelClass>, Transformable<ModelClass> {
+public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
+        implements Query, ModelQueriable<TModel>, Transformable<TModel> {
 
     private static final int VALUE_UNSET = -1;
 
     /**
      * The first chunk of the SQL statement before this query.
      */
-    private final WhereBase<ModelClass> whereBase;
+    private final WhereBase<TModel> whereBase;
 
     /**
      * Helps to build the where statement easily
@@ -54,7 +56,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      *
      * @param whereBase The FROM or SET statement chunk
      */
-    Where(WhereBase<ModelClass> whereBase, SQLCondition... conditions) {
+    Where(WhereBase<TModel> whereBase, SQLCondition... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
         conditionGroup = new ConditionGroup();
@@ -69,7 +71,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param condition The {@link SQLCondition} to use
      * @return
      */
-    public Where<ModelClass> and(SQLCondition condition) {
+    public Where<TModel> and(SQLCondition condition) {
         conditionGroup.and(condition);
         return this;
     }
@@ -80,7 +82,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param condition
      * @return
      */
-    public Where<ModelClass> or(SQLCondition condition) {
+    public Where<TModel> or(SQLCondition condition) {
         conditionGroup.or(condition);
         return this;
     }
@@ -91,7 +93,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param conditions The list of {@link SQLCondition}
      * @return
      */
-    public Where<ModelClass> andAll(List<SQLCondition> conditions) {
+    public Where<TModel> andAll(List<SQLCondition> conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
@@ -102,19 +104,19 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param conditions The array of {@link SQLCondition}
      * @return
      */
-    public Where<ModelClass> andAll(SQLCondition... conditions) {
+    public Where<TModel> andAll(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
 
     @Override
-    public Where<ModelClass> groupBy(NameAlias... columns) {
+    public Where<TModel> groupBy(NameAlias... columns) {
         Collections.addAll(groupByList, columns);
         return this;
     }
 
     @Override
-    public Where<ModelClass> groupBy(IProperty... properties) {
+    public Where<TModel> groupBy(IProperty... properties) {
         for (IProperty property : properties) {
             groupByList.add(property.getNameAlias());
         }
@@ -128,25 +130,25 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @return
      */
     @Override
-    public Where<ModelClass> having(SQLCondition... conditions) {
+    public Where<TModel> having(SQLCondition... conditions) {
         havingGroup.andAll(conditions);
         return this;
     }
 
     @Override
-    public Where<ModelClass> orderBy(NameAlias nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
         orderByList.add(new OrderBy(nameAlias, ascending));
         return this;
     }
 
     @Override
-    public Where<ModelClass> orderBy(IProperty property, boolean ascending) {
+    public Where<TModel> orderBy(IProperty property, boolean ascending) {
         orderByList.add(new OrderBy(property.getNameAlias(), ascending));
         return this;
     }
 
     @Override
-    public Where<ModelClass> orderBy(OrderBy orderBy) {
+    public Where<TModel> orderBy(OrderBy orderBy) {
         orderByList.add(orderBy);
         return this;
     }
@@ -157,7 +159,7 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param orderBies The order by.
      * @return this instance.
      */
-    public Where<ModelClass> orderByAll(List<OrderBy> orderBies) {
+    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
         if (orderBies != null) {
             orderByList.addAll(orderBies);
         }
@@ -165,13 +167,13 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     @Override
-    public Where<ModelClass> limit(int count) {
+    public Where<TModel> limit(int count) {
         this.limit = count;
         return this;
     }
 
     @Override
-    public Where<ModelClass> offset(int offset) {
+    public Where<TModel> offset(int offset) {
         this.offset = offset;
         return this;
     }
@@ -182,15 +184,16 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
      * @param where The query to use in the EXISTS clause. Such as SELECT * FROM `MyTable` WHERE ... etc.
      * @return This where with an EXISTS clause.
      */
-    public Where<ModelClass> exists(@NonNull Where where) {
+    public Where<TModel> exists(@NonNull Where where) {
         conditionGroup.and(new ExistenceCondition()
-            .where(where));
+                .where(where));
         return this;
     }
 
     /**
-     * Executes a SQL statement that retrieves the count of results in the DB. This may return the
-     * number of rows affected from a {@link Set} or {@link Delete} statement.
+     * Executes a SQL statement that retrieves the count of results in the DB. Within a {@link Set} or {@link Delete}
+     * this will execute an {@link DatabaseStatement#executeUpdateDelete()},
+     * which returns number of rows affected.
      *
      * @return The number of rows this query returns or affects.
      */
@@ -198,26 +201,27 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     public long count(DatabaseWrapper databaseWrapper) {
         long count;
         if ((whereBase instanceof Set) || whereBase.getQueryBuilderBase() instanceof Delete) {
-            count = SQLiteCompatibilityUtils.executeUpdateDelete(databaseWrapper, getQuery());
+            count = databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
         } else {
-            count = SqlUtils.longForQuery(databaseWrapper, getQuery());
+            try {
+                count = SqlUtils.longForQuery(databaseWrapper, getQuery());
+            } catch (SQLiteDoneException sde) {
+                // catch exception here, log it but return 0;
+                FlowLog.log(FlowLog.Level.E, sde);
+                count = 0;
+            }
         }
         return count;
-    }
-
-    @Override
-    public long count() {
-        return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
     @Override
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-            .appendQualifier("WHERE", conditionGroup.getQuery())
-            .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-            .appendQualifier("HAVING", havingGroup.getQuery())
-            .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
+                .appendQualifier("WHERE", conditionGroup.getQuery())
+                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+                .appendQualifier("HAVING", havingGroup.getQuery())
+                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
@@ -252,12 +256,12 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Queries for all of the results this statement returns from a DB cursor in the form of the {@link ModelClass}
+     * Queries for all of the results this statement returns from a DB cursor in the form of the {@link TModel}
      *
-     * @return All of the entries in the DB converted into {@link ModelClass}
+     * @return All of the entries in the DB converted into {@link TModel}
      */
     @Override
-    public List<ModelClass> queryList() {
+    public List<TModel> queryList() {
         checkSelect("query");
         return super.queryList();
     }
@@ -269,25 +273,16 @@ public class Where<ModelClass extends Model> extends BaseModelQueriable<ModelCla
     }
 
     /**
-     * Queries and returns only the first {@link ModelClass} result from the DB. Will enforce a limit of 1 item
+     * Queries and returns only the first {@link TModel} result from the DB. Will enforce a limit of 1 item
      * returned from the database.
      *
      * @return The first result of this query. Note: this query forces a limit of 1 from the database.
      */
     @Override
-    public ModelClass querySingle() {
+    public TModel querySingle() {
         checkSelect("query");
         limit(1);
         return super.querySingle();
     }
 
-    /**
-     * Returns whether the DB {@link android.database.Cursor} returns with a count of at least 1
-     *
-     * @return if {@link android.database.Cursor}.count &lt; 0
-     */
-    public boolean hasData() {
-        checkSelect("query");
-        return SqlUtils.hasData(whereBase.getTable(), getQuery());
-    }
 }

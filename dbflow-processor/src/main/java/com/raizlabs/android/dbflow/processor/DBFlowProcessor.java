@@ -14,7 +14,6 @@ import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
 import com.raizlabs.android.dbflow.processor.handler.ContentProviderHandler;
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
 import com.raizlabs.android.dbflow.processor.handler.MigrationHandler;
-import com.raizlabs.android.dbflow.processor.handler.ModelContainerHandler;
 import com.raizlabs.android.dbflow.processor.handler.ModelViewHandler;
 import com.raizlabs.android.dbflow.processor.handler.QueryModelHandler;
 import com.raizlabs.android.dbflow.processor.handler.TableEndpointHandler;
@@ -96,7 +95,6 @@ public class DBFlowProcessor extends AbstractProcessor {
                 new DatabaseHandler(),
                 new TableHandler(),
                 new QueryModelHandler(),
-                new ModelContainerHandler(),
                 new ModelViewHandler(),
                 new ContentProviderHandler(),
                 new TableEndpointHandler());

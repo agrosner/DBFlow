@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.test.sql;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
@@ -16,8 +16,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MigrationTest extends FlowTestCase {
@@ -46,25 +46,22 @@ public class MigrationTest extends FlowTestCase {
             assertEquals("ALTER TABLE `MigrationModel` ADD COLUMN " + columnNames.get(i), columnDefinitions.get(i));
         }
 
-        try {
-            alterTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
-        } catch (SQLiteException e) {
-            if (e.getMessage().startsWith("duplicate column name: fraction (code 1):")) {
-                // ignore since we've already added the column.
-            } else {
-                // some other issue
-                throw new RuntimeException(e);
-            }
-        }
+        alterTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
 
         // test the column sizes
         Cursor cursor = new Select().from(MigrationModel.class).where().query();
-        assertTrue(cursor.getColumnNames().length == columnNames.size() + 1);
+        assertTrue(cursor.getColumnNames().length == columnNames.size() + 2);
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+        }
 
         // make sure column exists now
         for (int i = 0; i < columns.size(); i++) {
             assertTrue(cursor.getColumnIndex(columns.get(i)) != -1);
         }
+        cursor.close();
 
         alterTableMigration.onPostMigrate();
     }
@@ -76,7 +73,8 @@ public class MigrationTest extends FlowTestCase {
                 .set(MigrationModel_Table.name.is("test")).where(MigrationModel_Table.name.is("notTest"));
         updateTableMigration.onPreMigrate();
 
-        assertEquals("UPDATE `MigrationModel` SET `name`='test' WHERE `name`='notTest'", updateTableMigration.getQuery().trim());
+        assertEquals("UPDATE `MigrationModel` SET `name`='test' WHERE `name`='notTest'", updateTableMigration
+                .getUpdateStatement().getQuery().trim());
 
         updateTableMigration.migrate(FlowManager.getDatabaseForTable(MigrationModel.class).getWritableDatabase());
         updateTableMigration.onPostMigrate();
@@ -84,7 +82,7 @@ public class MigrationTest extends FlowTestCase {
 
     @Test
     public void testSqlFile() {
-        /*MigrationModel migrationModel = new MigrationModel();
+        MigrationModel migrationModel = new MigrationModel();
         migrationModel.setName("test");
         migrationModel.save();
         Cursor cursor = new Select().from(MigrationModel.class).query();
@@ -93,13 +91,19 @@ public class MigrationTest extends FlowTestCase {
         int addedColumIndex = cursor.getColumnIndex("addedColumn");
         assertFalse(addedColumIndex == -1);
 
-        cursor.close();*/
+        cursor.close();
         // broken with junit tests
     }
 
     public void testIndexMigration() {
         IndexMigration<TestModel3> indexMigration
-                = new IndexMigration<>("MyIndex", TestModel3.class)
+                = new IndexMigration<TestModel3>(TestModel3.class) {
+            @NonNull
+            @Override
+            public String getName() {
+                return "MyIndex";
+            }
+        }
                 .addColumn(TestModel3_Table.type);
         assertEquals("CREATE INDEX IF NOT EXISTS `MyIndex` ON `TestModel32`(`type`)", indexMigration.getIndexQuery().trim());
     }

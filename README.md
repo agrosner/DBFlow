@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.0.0beta3-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.1.0-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
@@ -8,123 +8,85 @@ The library is built on speed, performance, and approachability. It not only eli
 
 Let DBFlow make SQL code _flow_ like a _steady_ stream so you can focus on writing amazing apps.
 
-# Why Use DBFlow vs other solutions
-DBFlow was built with the intention of bringing the best of all features from other ORM database libraries and to do it even better. It was also built to not limit how you can code your problems, but make it _significantly_ easier to make amazing applications. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
-- **Extensibility**: `Model` is just an interface, no subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages. _Also, subclass objects in this library to suit your needs_.
-- **Speed**: Built with java's annotation processing code generation, there's zero runtime performance hit by using this library. This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
+# Why Use DBFlow
+DBFlow is built from a collection of the best features of many database libraries in the most efficient way possible. Also, it is built to not only make it _significantly_ easier to deal with databases on Android, but also to provide extensibility. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
+- **Extensibility**: The main table object, `Model`, is just an interface. No subclass required, but as a convenience we recommend using `BaseModel`. You can extend non-`Model` classes in different packages and use them as your DB tables. Also you can subclass other `Model` to join the `@Column` together, and again they can be in different packages.
+- **Speed**: Built with java's annotation processing code generation, there's almost zero runtime performance hit by using this library (only reflection is creation of the main, generated database module's constructor). This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
 - **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
 - **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
-- **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in database request queue to perform operations on same thread, and many more features.
+- **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in ways to manage database access, and many more features.
 - **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, database modules using DBFlow in other dependencies, simultaneously.
 - **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
 
 # Changelog
 
-Going forward, changes between versions exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases)
+Starting with 3.0.0-beta1+, Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases).
 
-for older changes, from other xx.xx versions, check it out [here](https://github.com/Raizlabs/DBFlow/wiki)
+For pre-3.0 changes, check out [here](https://github.com/Raizlabs/DBFlow/wiki)
 
 # Usage Docs
-For more detailed usage, check out these sections:
-
-[Getting Started](https://github.com/Raizlabs/DBFlow/blob/master/usage/GettingStarted.md)
-
-[Tables and Database Properties](https://github.com/Raizlabs/DBFlow/blob/master/usage/DBStructure.md)
-
-[Multiple Instances of DBFlow / Database Modules](https://github.com/Raizlabs/DBFlow/blob/master/usage/DatabaseModules.md)
-
-[SQL Statements Using the Wrapper Classes](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLQuery.md)
-
-[Properties & Conditions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Conditions.md)
-
-[Transactions](https://github.com/Raizlabs/DBFlow/blob/master/usage/Transactions.md)
-
-[Type Converters](https://github.com/Raizlabs/DBFlow/blob/master/usage/TypeConverters.md)
-
-[Powerful Model Caching](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelCaching.md)
-
-[Content Provider Generation](https://github.com/Raizlabs/DBFlow/blob/master/usage/ContentProviderGenerators.md)
-
-[Migrations](https://github.com/Raizlabs/DBFlow/blob/master/usage/Migrations.md)
-
-[Model Containers](https://github.com/Raizlabs/DBFlow/blob/master/usage/ModelContainers.md)
-
-[Observing Models](https://github.com/Raizlabs/DBFlow/blob/master/usage/ObservableModels.md)
-
-[Queries as Lists](https://github.com/Raizlabs/DBFlow/blob/master/usage/TableList.md)
-
-[Triggers, Indexes, and More](https://github.com/Raizlabs/DBFlow/blob/master/usage/TriggersIndexesAndMore.md)
-
-[SQLCipher Support](https://github.com/Raizlabs/DBFlow/blob/master/usage/SQLCipherSupport.md)
+For more detailed usage, check out it out [here](/usage2/Intro.md)
 
 # Including in your project
+If you use KAPT (Kotlin's APT), then skip this first step.
+
 We need to include the [apt plugin](https://bitbucket.org/hvisser/android-apt) in our classpath to enable Annotation Processing:
 
 ```groovy
 
 buildscript {
     repositories {
-      // required for this library, don't use mavenCentral()
         jcenter()
     }
     dependencies {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
-```
 
-Add this maven url to your project.
-
-```groovy
 allProjects {
   repositories {
-    maven { url "https://jitpack.io" }
+    // required to find the project's artifacts
+    maven { url "https://www.jitpack.io" }
   }
 }
 ```
 
-Add the library to the project-level build.gradle, using the  to enable Annotation Processing:
+Add the library to the project-level build.gradle, using the apt plugin to enable Annotation Processing:
 
 ```groovy
 
   apply plugin: 'com.neenbedankt.android-apt'
 
-  def dbflow_version = "3.0.0-beta3"
+  def dbflow_version = "3.1.0"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
+    // use kapt for kotlin apt
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
     // sql-cipher database encyrption (optional)
     compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
+
+    // kotlin extensions
+    compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}"
+  }
+
+// if you're building with Kotlin
+  kapt {
+    generateStubs = true
   }
 ```
 
-You can also specify a commit hash instead of `develop-SNAPSHOT` to grab a specific commit.
-
 # Pull Requests
 I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
-1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
-2. If its a feature, bugfix, or anything please only change code to what you specify.
-3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :)
-4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.
-5. Have fun!
+  1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
+  2. If its a feature, bugfix, or anything please only change code to what you specify.
+  3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :)
+  4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.
+  5. Have fun!
 
-# Maintainers
+# Maintained By
 [agrosner](https://github.com/agrosner) ([@agrosner](https://www.twitter.com/agrosner))
-
-# Contributors
-[wongcain](https://github.com/wongcain)
-
-[mozarcik](https://github.com/mozarcik)
-
-[mickele](https://github.com/mickele)
-
-[intrications](https://github.com/intrications)
-
-[mcumings](https://github.com/mcumings)
-
-[ktzouno](https://github.com/ktzouno)

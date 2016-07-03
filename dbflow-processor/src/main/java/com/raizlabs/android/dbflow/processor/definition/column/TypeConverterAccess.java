@@ -98,12 +98,11 @@ public class TypeConverterAccess extends WrapperColumnAccess {
 
             String newCursorAccess = formattedAccess.toString();
             if (typeConverterDefinition.getDbTypeName().equals(ClassName.get(Blob.class))) {
-                newCursorAccess = String.format("new Blob(%s)", newCursorAccess);
+                newCursorAccess = CodeBlock.builder().add("new $T($L)", ClassName.get(Blob.class),
+                        newCursorAccess).build().toString();
             }
 
-            newFormattedAccess.add(".getModelValue(($T) $L)",
-                    typeConverterDefinition.getDbTypeName(),
-                    newCursorAccess);
+            newFormattedAccess.add(".getModelValue($L)", newCursorAccess);
 
             return getExistingColumnAccess()
                     .setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess.build(), toModel);

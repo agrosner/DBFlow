@@ -3,8 +3,10 @@ package com.raizlabs.android.dbflow.test.sql;
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
+import com.raizlabs.android.dbflow.test.structure.TestModel1;
 
 import org.junit.Test;
 
@@ -73,13 +75,29 @@ public class BuilderTest extends FlowTestCase {
 
     @Test
     public void testCombinedOperations() {
-        // TODO: fix combined ops
         ConditionGroup combinedCondition = ConditionGroup.clause()
                 .and(ConditionGroup.clause()
                         .and(PropertyFactory.from(String.class, "A").eq(PropertyFactory.from(String.class, "B")))
                         .or(PropertyFactory.from(String.class, "B").eq(PropertyFactory.from(String.class, "C"))))
                 .and(PropertyFactory.from(String.class, "C").eq("D"));
         assertEquals("(A=B OR B=C) AND C='D'", combinedCondition.getQuery());
+    }
+
+    @Test
+    public void testCombinedOperationsReverse() {
+        ConditionGroup combinedCondition = ConditionGroup.clause()
+                .and(PropertyFactory.from(String.class, "C").eq("D"))
+                .and(ConditionGroup.clause()
+                        .and(PropertyFactory.from(String.class, "A")
+                                .eq(PropertyFactory.from(String.class, "B")))
+                        .or(PropertyFactory.from(String.class, "B")
+                                .eq(PropertyFactory.from(String.class, "C"))));
+        assertEquals("C='D' AND (A=B OR B=C)", combinedCondition.getQuery());
+
+        String query = SQLite.select().from(TestModel1.class)
+                .where(combinedCondition)
+                .getQuery();
+        assertEquals("SELECT * FROM `TestModel1` WHERE (C='D' AND (A=B OR B=C))", query.trim());
     }
 
 }

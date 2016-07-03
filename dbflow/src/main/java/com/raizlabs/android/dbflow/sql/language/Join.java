@@ -6,6 +6,8 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ import java.util.List;
 /**
  * Description: Specifies a SQLite JOIN statement
  */
-public class Join<ModelClass extends Model, FromClass extends Model> implements Query {
+public class Join<TModel extends Model, TFromModel extends Model> implements Query {
 
     /**
      * The specific type of JOIN that is used.
@@ -52,7 +54,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     /**
      * The table to JOIN on
      */
-    private Class<ModelClass> table;
+    private Class<TModel> table;
 
     /**
      * The type of JOIN to use
@@ -62,7 +64,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     /**
      * The FROM statement that prefixes this statement.
      */
-    private From<FromClass> from;
+    private From<TFromModel> from;
 
     /**
      * The alias to name the JOIN
@@ -72,7 +74,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
     /**
      * The ON conditions
      */
-    private ConditionGroup on;
+    private ConditionGroup onGroup;
 
     /**
      * What columns to use.
@@ -84,11 +86,18 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      */
     private boolean isNatural = false;
 
-    Join(From<FromClass> from, Class<ModelClass> table, @NonNull JoinType joinType) {
+    Join(From<TFromModel> from, Class<TModel> table, @NonNull JoinType joinType) {
         this.from = from;
         this.table = table;
         type = joinType;
-        alias = new NameAlias(FlowManager.getTableName(table));
+        alias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
+    }
+
+    Join(From<TFromModel> from, @NonNull JoinType joinType, ModelQueriable<TModel> modelQueriable) {
+        this.from = from;
+        type = joinType;
+        this.table = modelQueriable.getTable();
+        alias = PropertyFactory.from(modelQueriable).getNameAlias();
     }
 
     /**
@@ -97,8 +106,11 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @param alias The name to give it
      * @return This instance
      */
-    public Join<ModelClass, FromClass> as(String alias) {
-        this.alias.as(alias);
+    public Join<TModel, TFromModel> as(String alias) {
+        this.alias = this.alias
+                .newBuilder()
+                .as(alias)
+                .build();
         return this;
     }
 
@@ -107,7 +119,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      *
      * @return The FROM that this JOIN came from.
      */
-    public From<FromClass> natural() {
+    public From<TFromModel> natural() {
         isNatural = true;
         return from;
     }
@@ -118,9 +130,9 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @param onConditions The conditions it is on
      * @return The FROM that this JOIN came from
      */
-    public From<FromClass> on(SQLCondition... onConditions) {
-        on = new ConditionGroup();
-        on.andAll(onConditions);
+    public From<TFromModel> on(SQLCondition... onConditions) {
+        onGroup = new ConditionGroup();
+        onGroup.andAll(onConditions);
         return from;
     }
 
@@ -130,7 +142,7 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
      * @param columns THe columns to use
      * @return The FROM that this JOIN came from
      */
-    public From<FromClass> using(IProperty... columns) {
+    public From<TFromModel> using(IProperty... columns) {
         Collections.addAll(using, columns);
         return from;
     }
@@ -147,13 +159,13 @@ public class Join<ModelClass extends Model, FromClass extends Model> implements 
 
         queryBuilder.append("JOIN")
                 .appendSpace()
-                .append(alias.getDefinition())
+                .append(alias.getFullQuery())
                 .appendSpace();
 
-        if (on != null) {
+        if (onGroup != null) {
             queryBuilder.append("ON")
                     .appendSpace()
-                    .append(on.getQuery())
+                    .append(onGroup.getQuery())
                     .appendSpace();
         } else if (!using.isEmpty()) {
             queryBuilder.append("USING (")

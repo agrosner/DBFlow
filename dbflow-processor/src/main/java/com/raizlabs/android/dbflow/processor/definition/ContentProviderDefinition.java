@@ -41,7 +41,6 @@ public class ContentProviderDefinition extends BaseDefinition {
 
     public TypeName databaseName;
     public String databaseNameString;
-    public boolean useSafeQueryChecking;
 
     public String authority;
 
@@ -59,10 +58,6 @@ public class ContentProviderDefinition extends BaseDefinition {
             } catch (MirroredTypeException mte) {
                 databaseName = TypeName.get(mte.getTypeMirror());
             }
-            useSafeQueryChecking = provider.useSafeQueryChecking();
-            DatabaseDefinition databaseDefinition = manager.getDatabaseWriter(databaseName);
-            databaseNameString = databaseDefinition.databaseName;
-            setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
 
             authority = provider.authority();
 
@@ -91,6 +86,13 @@ public class ContentProviderDefinition extends BaseDefinition {
     @Override
     protected TypeName getExtendsClass() {
         return ClassNames.BASE_CONTENT_PROVIDER;
+    }
+
+    public void prepareForWrite() {
+        DatabaseDefinition databaseDefinition = manager
+                .getDatabaseHolderDefinition(databaseName).getDatabaseDefinition();
+        databaseNameString = databaseDefinition.databaseName;
+        setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
     }
 
     @Override

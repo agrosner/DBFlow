@@ -16,14 +16,32 @@ import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 public class CacheableModelLoader<TModel extends Model> extends SingleModelLoader<TModel> {
 
     private ModelAdapter<TModel> modelAdapter;
+    private ModelCache<TModel, ?> modelCache;
 
     public CacheableModelLoader(Class<TModel> modelClass) {
         super(modelClass);
-        if (!(getInstanceAdapter() instanceof ModelAdapter)) {
-            throw new IllegalArgumentException("A non-Table type was used.");
+    }
+
+    @SuppressWarnings("unchecked")
+    public ModelAdapter<TModel> getModelAdapter() {
+        if (modelAdapter == null) {
+            if (!(getInstanceAdapter() instanceof ModelAdapter)) {
+                throw new IllegalArgumentException("A non-Table type was used.");
+            }
+            modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
+            if (!modelAdapter.cachingEnabled()) {
+                throw new IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" +
+                        "use one Primary Key or use the MultiCacheKeyConverter");
+            }
         }
-        //noinspection unchecked
-        modelAdapter = (ModelAdapter<TModel>) getInstanceAdapter();
+        return modelAdapter;
+    }
+
+    public ModelCache<TModel, ?> getModelCache() {
+        if (modelCache == null) {
+            modelCache = getModelAdapter().getModelCache();
+        }
+        return modelCache;
     }
 
     /**
@@ -34,22 +52,21 @@ public class CacheableModelLoader<TModel extends Model> extends SingleModelLoade
      */
     @Nullable
     @Override
-    protected TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data) {
-        if (cursor.moveToFirst()) {
-            ModelCache<TModel, ?> modelCache = modelAdapter.getModelCache();
-            Object[] values = modelAdapter.getCachingColumnValuesFromCursor(
-                    new Object[modelAdapter.getCachingColumns().length], cursor);
-            TModel model = modelCache.get(modelAdapter.getCachingId(values));
+    public TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data, boolean moveToFirst) {
+        if (!moveToFirst || cursor.moveToFirst()) {
+            Object[] values = getModelAdapter().getCachingColumnValuesFromCursor(
+                    new Object[getModelAdapter().getCachingColumns().length], cursor);
+            TModel model = getModelCache().get(getModelAdapter().getCachingId(values));
             if (model == null) {
                 if (data == null) {
-                    model = modelAdapter.newInstance();
+                    model = getModelAdapter().newInstance();
                 } else {
                     model = data;
                 }
-                modelAdapter.loadFromCursor(cursor, model);
-                modelCache.addModel(modelAdapter.getCachingId(values), model);
+                getModelAdapter().loadFromCursor(cursor, model);
+                getModelCache().addModel(getModelAdapter().getCachingId(values), model);
             } else {
-                modelAdapter.reloadRelationships(model, cursor);
+                getModelAdapter().reloadRelationships(model, cursor);
             }
             return model;
         } else {

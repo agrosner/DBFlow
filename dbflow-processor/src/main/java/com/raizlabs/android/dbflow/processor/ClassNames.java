@@ -26,15 +26,18 @@ public class ClassNames {
     public static final String LISTENER = STRUCTURE + ".listener";
     public static final String RUNTIME = BASE_PACKAGE + ".runtime";
     public static final String TRANSACTION = RUNTIME + ".transaction";
+    public static final String DATABASE_TRANSACTION = DATABASE + ".transaction";
     public static final String PROCESS = TRANSACTION + ".process";
+    public static final String SAVEABLE = SQL + ".saveable";
 
     public static final ClassName DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder");
     public static final ClassName FLOW_MANAGER = ClassName.get(CONFIG, "FlowManager");
-    public static final ClassName BASE_DATABASE_DEFINITION_CLASSNAME = ClassName.get(CONFIG, "BaseDatabaseDefinition");
+    public static final ClassName BASE_DATABASE_DEFINITION_CLASSNAME = ClassName.get(CONFIG, "DatabaseDefinition");
 
     public static final ClassName URI = ClassName.get("android.net", "Uri");
     public static final ClassName URI_MATCHER = ClassName.get("android.content", "UriMatcher");
     public static final ClassName CURSOR = ClassName.get("android.database", "Cursor");
+    public static final ClassName DATABASE_UTILS = ClassName.get("android.database", "DatabaseUtils");
     public static final ClassName CONTENT_VALUES = ClassName.get("android.content", "ContentValues");
     public static final ClassName CONTENT_URIS = ClassName.get("android.content", "ContentUris");
 
@@ -106,4 +109,9 @@ public class ClassNames {
     public static final ClassName SQLITE = ClassName.get(LANGUAGE, "SQLite");
 
     public static final ClassName UNSAFE_STRING_CONDITION = ClassName.get(LANGUAGE, "UnSafeStringCondition");
+
+    public static final ClassName CACHEABLE_LIST_MODEL_SAVER = ClassName.get(SAVEABLE, "CacheableListModelSaver");
+
+    public static final ClassName SINGLE_KEY_CACHEABLE_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableModelLoader");
+    public static final ClassName SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader");
 }

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.test.customhelper;
 
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
-import com.raizlabs.android.dbflow.config.BaseDatabaseDefinition;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
@@ -11,9 +11,13 @@ import com.raizlabs.android.dbflow.structure.database.OpenHelper;
  */
 public class CustomOpenHelper implements OpenHelper {
 
-    public CustomOpenHelper(BaseDatabaseDefinition flowManager,
+    public CustomOpenHelper(DatabaseDefinition flowManager,
                             DatabaseHelperListener listener) {
 
+    }
+
+    @Override
+    public void performRestoreFromBackup() {
     }
 
     @Override
@@ -39,5 +43,9 @@ public class CustomOpenHelper implements OpenHelper {
     @Override
     public void setDatabaseListener(DatabaseHelperListener helperListener) {
 
+    }
+
+    @Override
+    public void closeDB() {
     }
 }

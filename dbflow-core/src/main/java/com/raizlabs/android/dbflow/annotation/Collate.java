@@ -24,5 +24,15 @@ public enum Collate {
     /**
      * Trims trailing space characters before performing comparison.
      */
-    RTRIM
+    RTRIM,
+
+    /**
+     * Takes the current locale data into account.
+     */
+    LOCALIZED,
+
+    /**
+     * The Unicode Collation Algorithm and not tailored to the current locale.
+     */
+    UNICODE
 }

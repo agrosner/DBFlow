@@ -40,7 +40,7 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Description: Used in writing ModelViewAdapters
  */
-public class ModelViewDefinition extends BaseTableDefinition {
+public class ModelViewDefinition extends BaseTableDefinition implements Comparable<ModelViewDefinition> {
 
     private static final String DBFLOW_MODEL_VIEW_TAG = "View";
 
@@ -62,6 +62,8 @@ public class ModelViewDefinition extends BaseTableDefinition {
 
     public boolean allFields;
 
+    public int priority;
+
     public ModelViewDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
 
@@ -77,22 +79,17 @@ public class ModelViewDefinition extends BaseTableDefinition {
             }
             allFields = modelView.allFields();
 
-            databaseDefinition = manager.getDatabaseWriter(databaseName);
-            this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;
-
-            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_MODEL_VIEW_TAG);
-
             this.name = modelView.name();
             if (name == null || name.isEmpty()) {
                 name = getModelClassName();
             }
-
+            this.priority = modelView.priority();
         }
 
         DeclaredType typeAdapterInterface = null;
         final DeclaredType modelViewType = manager.getTypeUtils().getDeclaredType(
-                manager.getElements().getTypeElement(ClassNames.MODEL_VIEW.toString()),
-                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassNames.MODEL.toString()).asType(), null)
+            manager.getElements().getTypeElement(ClassNames.MODEL_VIEW.toString()),
+            manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassNames.MODEL.toString()).asType(), null)
         );
 
 
@@ -109,19 +106,36 @@ public class ModelViewDefinition extends BaseTableDefinition {
         }
 
         if (element instanceof TypeElement) {
-            createColumnDefinitions((TypeElement) element);
-
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), (TypeElement) element);
+                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), (TypeElement) element);
         } else {
             implementsLoadFromCursorListener = false;
         }
 
         methods = new MethodDefinition[]{
-                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue),
-                new ExistenceMethod(this, false),
-                new PrimaryConditionMethod(this, false)
+            new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue),
+            new ExistenceMethod(this, false),
+            new PrimaryConditionMethod(this, false)
         };
+    }
+
+    @Override
+    public void prepareForWrite() {
+        classElementLookUpMap.clear();
+        columnDefinitions.clear();
+        queryFieldName = null;
+
+        ModelView modelView = element.getAnnotation(ModelView.class);
+        if (modelView != null) {
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseName).getDatabaseDefinition();
+            this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;
+
+            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_MODEL_VIEW_TAG);
+
+            if (typeElement != null) {
+                createColumnDefinitions(typeElement);
+            }
+        }
     }
 
     @Override
@@ -203,9 +217,9 @@ public class ModelViewDefinition extends BaseTableDefinition {
     public void writeViewTable() throws IOException {
 
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(viewTableName)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addField(FieldSpec.builder(ClassName.get(String.class), "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                        .initializer("$S", name).build());
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addField(FieldSpec.builder(ClassName.get(String.class), "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .initializer("$S", name).build());
 
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
@@ -222,13 +236,14 @@ public class ModelViewDefinition extends BaseTableDefinition {
         customTypeConverterPropertyMethod.addToType(typeBuilder);
 
         CodeBlock.Builder constructorCode = CodeBlock.builder();
-
+        constructorCode.addStatement("super(databaseDefinition)");
         customTypeConverterPropertyMethod.addCode(constructorCode);
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
-                .addParameter(ClassNames.DATABASE_HOLDER, "holder")
-                .addCode(constructorCode.build())
-                .addModifiers(Modifier.PUBLIC).build());
+            .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+            .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
+            .addCode(constructorCode.build())
+            .addModifiers(Modifier.PUBLIC).build());
 
         for (MethodDefinition method : methods) {
             MethodSpec methodSpec = method.getMethodSpec();
@@ -240,21 +255,26 @@ public class ModelViewDefinition extends BaseTableDefinition {
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getCreationQuery")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $T.$L.getQuery()", elementClassName, queryFieldName)
-                .returns(ClassName.get(String.class)).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $T.$L.getQuery()", elementClassName, queryFieldName)
+            .returns(ClassName.get(String.class)).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getViewName")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $S", name)
-                .returns(ClassName.get(String.class)).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return $S", name)
+            .returns(ClassName.get(String.class)).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
-                .addAnnotation(Override.class)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return new $T()", elementClassName)
-                .returns(elementClassName).build());
+            .addAnnotation(Override.class)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return new $T()", elementClassName)
+            .returns(elementClassName).build());
+    }
+
+    @Override
+    public int compareTo(ModelViewDefinition o) {
+        return Integer.valueOf(priority).compareTo(o.priority);
     }
 }

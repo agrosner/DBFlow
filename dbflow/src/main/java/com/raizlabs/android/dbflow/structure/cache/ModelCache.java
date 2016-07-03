@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: A generic cache for models that is implemented or can be implemented to your liking.
  */
-public abstract class ModelCache<ModelClass extends Model, CacheClass> {
+public abstract class ModelCache<TModel extends Model, CacheClass> {
 
     private CacheClass cache;
 
@@ -24,14 +24,14 @@ public abstract class ModelCache<ModelClass extends Model, CacheClass> {
      * @param id    The id of the model to use.
      * @param model The model to add
      */
-    public abstract void addModel(Object id, ModelClass model);
+    public abstract void addModel(Object id, TModel model);
 
     /**
      * Removes a model from this cache.
      *
      * @param id The id of the model to remove.
      */
-    public abstract ModelClass removeModel(Object id);
+    public abstract TModel removeModel(Object id);
 
     /**
      * Clears out all models from this cache.
@@ -42,7 +42,7 @@ public abstract class ModelCache<ModelClass extends Model, CacheClass> {
      * @param id The id of the model to retrieve.
      * @return a model for the specified id. May be null.
      */
-    public abstract ModelClass get(Object id);
+    public abstract TModel get(Object id);
 
     /**
      * Sets a new size for the underlying cache (if applicable) and may destroy the cache.

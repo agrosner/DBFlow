@@ -42,7 +42,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         // Do not use value for certain operators
         // If is raw, we do not want to convert the value to a string.
         if (isValueSet) {
-            queryBuilder.append(isRaw ? value() : BaseCondition.convertValueToString(value(), true));
+            queryBuilder.append(BaseCondition.convertValueToString(value(), true));
         }
 
         if (postArgument() != null) {
@@ -214,67 +214,67 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     @Override
-    public Condition is(ITypeConditional conditional) {
+    public Condition is(IConditional conditional) {
         return is((Object) conditional);
     }
 
     @Override
-    public Condition eq(ITypeConditional conditional) {
+    public Condition eq(IConditional conditional) {
         return eq((Object) conditional);
     }
 
     @Override
-    public Condition isNot(ITypeConditional conditional) {
+    public Condition isNot(IConditional conditional) {
         return isNot((Object) conditional);
     }
 
     @Override
-    public Condition notEq(ITypeConditional conditional) {
+    public Condition notEq(IConditional conditional) {
         return notEq((Object) conditional);
     }
 
     @Override
-    public Condition like(ITypeConditional conditional) {
+    public Condition like(IConditional conditional) {
         return like(conditional.getQuery());
     }
 
     @Override
-    public Condition glob(ITypeConditional conditional) {
+    public Condition glob(IConditional conditional) {
         return glob(conditional.getQuery());
     }
 
     @Override
-    public Condition greaterThan(ITypeConditional conditional) {
+    public Condition greaterThan(IConditional conditional) {
         return greaterThan((Object) conditional);
     }
 
     @Override
-    public Condition greaterThanOrEq(ITypeConditional conditional) {
+    public Condition greaterThanOrEq(IConditional conditional) {
         return greaterThanOrEq((Object) conditional);
     }
 
     @Override
-    public Condition lessThan(ITypeConditional conditional) {
+    public Condition lessThan(IConditional conditional) {
         return lessThan((Object) conditional);
     }
 
     @Override
-    public Condition lessThanOrEq(ITypeConditional conditional) {
+    public Condition lessThanOrEq(IConditional conditional) {
         return lessThanOrEq((Object) conditional);
     }
 
     @Override
-    public Between between(ITypeConditional conditional) {
+    public Between between(IConditional conditional) {
         return between((Object) conditional);
     }
 
     @Override
-    public In in(ITypeConditional firstConditional, ITypeConditional... conditionals) {
+    public In in(IConditional firstConditional, IConditional... conditionals) {
         return in(firstConditional, (Object[]) conditionals);
     }
 
     @Override
-    public In notIn(ITypeConditional firstConditional, ITypeConditional... conditionals) {
+    public In notIn(IConditional firstConditional, IConditional... conditionals) {
         return notIn(firstConditional, (Object[]) conditionals);
     }
 
@@ -353,7 +353,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
     @Override
     public Condition concatenate(Object value) {
         operation = new QueryBuilder(Operation.EQUALS).append(columnName()).toString();
-        if (value != null && !isRaw) {
+        if (value != null) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
             if (typeConverter != null) {
                 //noinspection unchecked
@@ -374,7 +374,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     @Override
-    public Condition concatenate(ITypeConditional conditional) {
+    public Condition concatenate(IConditional conditional) {
         return concatenate((Object) conditional);
     }
 
@@ -439,6 +439,12 @@ public class Condition extends BaseCondition implements ITypeConditional {
          * Number subtraction
          */
         public static final String MINUS = "-";
+
+        public static final String DIVISION = "/";
+
+        public static final String MULTIPLY = "*";
+
+        public static final String MOD = "%";
 
         /**
          * If something is LIKE another (a case insensitive search).
@@ -555,9 +561,9 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                .append(isRaw ? value() : BaseCondition.convertValueToString(value(), true))
+                .append(BaseCondition.convertValueToString(value(), true))
                 .appendSpaceSeparated(Operation.AND)
-                .append(isRaw ? secondValue() : BaseCondition.convertValueToString(secondValue(), true))
+                .append(BaseCondition.convertValueToString(secondValue(), true))
                 .appendSpace().appendOptional(postArgument());
         }
 
@@ -596,7 +602,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
          * Appends another value to this In statement
          *
          * @param argument The non-type converted value of the object. The value will be converted
-         *                 in a {@link com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder}.
+         *                 in a {@link ConditionGroup}.
          * @return
          */
         public In and(Object argument) {

@@ -63,12 +63,6 @@ public class QueryModelDefinition extends BaseTableDefinition {
             } catch (MirroredTypeException mte) {
                 databaseTypeName = TypeName.get(mte.getTypeMirror());
             }
-
-            databaseDefinition = manager.getDatabaseWriter(databaseTypeName);
-            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
-            allFields = queryModel.allFields();
-            adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
-
         }
 
         processorManager.addModelToDatabase(elementClassName, databaseTypeName);
@@ -84,8 +78,24 @@ public class QueryModelDefinition extends BaseTableDefinition {
                 new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue)
         };
 
-        if (typeElement instanceof TypeElement) {
-            createColumnDefinitions(((TypeElement) typeElement));
+    }
+
+    @Override
+    public void prepareForWrite() {
+        classElementLookUpMap.clear();
+        columnDefinitions.clear();
+        packagePrivateList.clear();
+
+        QueryModel queryModel = typeElement.getAnnotation(QueryModel.class);
+        if (queryModel != null) {
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).getDatabaseDefinition();
+            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
+            allFields = queryModel.allFields();
+            adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
+
+            if (typeElement instanceof TypeElement) {
+                createColumnDefinitions(typeElement);
+            }
         }
     }
 
@@ -108,13 +118,12 @@ public class QueryModelDefinition extends BaseTableDefinition {
         for (Element variableElement : variableElements) {
 
             // no private static or final fields
-            boolean isValidColumn = ElementUtility.isValidAllFields(allFields, element);
+            boolean isAllFields = ElementUtility.isValidAllFields(allFields, element);
+            // package private, will generate helper
+            boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
+            boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
 
-            if (variableElement.getAnnotation(Column.class) != null || isValidColumn) {
-
-                // package private, will generate helper
-                boolean isPackagePrivate = ElementUtility.isPackagePrivate(element);
-                boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
+            if (variableElement.getAnnotation(Column.class) != null || isAllFields) {
 
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage);
                 if (columnValidator.validate(manager, columnDefinition)) {
@@ -153,13 +162,14 @@ public class QueryModelDefinition extends BaseTableDefinition {
         customTypeConverterPropertyMethod.addToType(typeBuilder);
 
         CodeBlock.Builder constructorCode = CodeBlock.builder();
-
+        constructorCode.addStatement("super(databaseDefinition)");
         customTypeConverterPropertyMethod.addCode(constructorCode);
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
                 .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+                .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
                 .addCode(constructorCode.build())
                 .addModifiers(Modifier.PUBLIC).build());
 

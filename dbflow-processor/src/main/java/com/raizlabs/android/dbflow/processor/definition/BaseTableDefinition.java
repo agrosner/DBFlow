@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.google.common.collect.Lists;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateAccess;
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -35,6 +36,9 @@ public abstract class BaseTableDefinition extends BaseDefinition {
     protected Map<ClassName, List<ColumnDefinition>> globalTypeConverters = new HashMap<>();
     protected final List<ColumnDefinition> packagePrivateList = Lists.newArrayList();
 
+    public boolean orderedCursorLookUp;
+    public boolean assignDefaultValuesFromCursor = true;
+
     public Map<String, Element> classElementLookUpMap = new HashMap<>();
 
     private String modelClassName;
@@ -55,6 +59,8 @@ public abstract class BaseTableDefinition extends BaseDefinition {
     public abstract List<ColumnDefinition> getPrimaryColumnDefinitions();
 
     public abstract ClassName getPropertyClassName();
+
+    public abstract void prepareForWrite();
 
     public TypeName getParameterClassName(boolean isModelContainerAdapter) {
         return isModelContainerAdapter ? ModelUtils.getModelContainerType(manager, elementClassName)
@@ -94,7 +100,17 @@ public abstract class BaseTableDefinition extends BaseDefinition {
             for (ColumnDefinition columnDefinition : packagePrivateList) {
                 String helperClassName = manager.getElements().getPackageOf(columnDefinition.element).toString() + "." + ClassName.get((TypeElement) columnDefinition.element.getEnclosingElement()).simpleName()
                         + databaseDefinition.classSeparator + "Helper";
+                if (columnDefinition instanceof ForeignKeyColumnDefinition) {
+                    TableDefinition tableDefinition = databaseDefinition.getHolderDefinition()
+                            .tableDefinitionMap
+                            .get(((ForeignKeyColumnDefinition) columnDefinition).referencedTableClassName);
+                    if (tableDefinition != null) {
+                        helperClassName = manager.getElements().getPackageOf(tableDefinition.element).toString() + "." + ClassName.get((TypeElement) tableDefinition.element).simpleName()
+                                + databaseDefinition.classSeparator + "Helper";
+                    }
+                }
                 ClassName className = ClassName.bestGuess(helperClassName);
+
                 if (PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
 
                     MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))

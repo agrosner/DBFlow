@@ -17,16 +17,16 @@ import java.util.Map;
  * underlying data, which in this case is just the primary keys. Any {@link com.raizlabs.android.dbflow.structure.Model}
  * method will force this object to load the referenced Model from the DB to interact with.
  */
-public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelContainer<ModelClass, Map<String, Object>> {
+public class ForeignKeyContainer<TModel extends Model> extends SimpleModelContainer<TModel, Map<String, Object>> {
 
-    private ModelClass relationshipModel;
+    private TModel relationshipModel;
 
     /**
      * Constructs a new instance with the specified table.
      *
      * @param table The table to associate the container with
      */
-    public ForeignKeyContainer(Class<ModelClass> table) {
+    public ForeignKeyContainer(Class<TModel> table) {
         this(table, new LinkedHashMap<String, Object>());
     }
 
@@ -37,11 +37,11 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
      * @param data  The data to store in this container
      */
     @SuppressWarnings("unchecked")
-    public ForeignKeyContainer(Class<ModelClass> table, Map<String, Object> data) {
+    public ForeignKeyContainer(Class<TModel> table, Map<String, Object> data) {
         super(table, data);
     }
 
-    public ForeignKeyContainer(@NonNull ModelContainer<ModelClass, ?> existingContainer) {
+    public ForeignKeyContainer(@NonNull ModelContainer<TModel, ?> existingContainer) {
         super(existingContainer);
     }
 
@@ -79,7 +79,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
     }
 
     @Override
-    public void setModel(ModelClass model) {
+    public void setModel(TModel model) {
         super.setModel(model);
 
         Map<String, Object> data = getData();
@@ -102,7 +102,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
      * @return the result of running a primary where query on the contained data.
      */
     @Nullable
-    public ModelClass load() {
+    public TModel load() {
         if (relationshipModel == null && getData() != null) {
             relationshipModel = new Select().from(modelAdapter.getModelClass()).where(modelContainerAdapter.getPrimaryConditionClause(this)).querySingle();
         }
@@ -113,7 +113,7 @@ public class ForeignKeyContainer<ModelClass extends Model> extends SimpleModelCo
      * @return forces a reload of the underlying model and returns it.
      */
     @Nullable
-    public ModelClass reload() {
+    public TModel reload() {
         relationshipModel = null;
         return load();
     }

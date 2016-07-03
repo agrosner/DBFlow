@@ -38,6 +38,11 @@ public @interface Table {
     ConflictAction insertConflict() default ConflictAction.NONE;
 
     /**
+     * @return An optional {@link ConflictAction} that we append to creation for conflict handling in PK.
+     */
+    ConflictAction primaryKeyConflict() default ConflictAction.NONE;
+
+    /**
      * @return When true, all public, package-private , non-static, and non-final fields of the reference class are considered as {@link com.raizlabs.android.dbflow.annotation.Column} .
      * The only required annotated field becomes The {@link PrimaryKey}
      * or {@link PrimaryKey#autoincrement()}.
@@ -45,15 +50,28 @@ public @interface Table {
     boolean allFields() default false;
 
     /**
-     * @return If true, all private boolean fields will use "is" instead of "get" for its getter.
+     * @return If true, all private boolean fields will use "is" instead of "get" for its getter and
+     * "set" without the "is" if it starts with "is"
      */
-    boolean useIsForPrivateBooleans() default false;
+    boolean useBooleanGetterSetters() default true;
 
     /**
      * @return If true, caching mechanism is enabled. This works for single primary key tables. For
      * multi-primary key tables, IMultiKeyCacheModel interface is required to specify the caching key.
      */
     boolean cachingEnabled() default false;
+
+    /**
+     * @return If true, we throw away checks for column indexing and simply assume that the cursor returns
+     * all our columns in order. This may provide a slight performance boost.
+     */
+    boolean orderedCursorLookUp() default false;
+
+    /**
+     * @return When true, we reassign the corresponding Model's fields to default values when loading
+     * from cursor. If false, we assign values only if present in Cursor.
+     */
+    boolean assignDefaultValuesFromCursor() default true;
 
     /**
      * @return The cache size for this Table.

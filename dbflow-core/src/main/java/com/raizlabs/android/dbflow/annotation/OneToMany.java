@@ -51,4 +51,10 @@ public @interface OneToMany {
      * @return The name of the list variable to use. If is left blank, we will remove the "get" and then decapitalize the remaining name.
      */
     String variableName() default "";
+
+    /**
+     * @return If true, the underlying variable that we use is private, requiring us to provide
+     * a setter for it.
+     */
+    boolean isVariablePrivate() default false;
 }

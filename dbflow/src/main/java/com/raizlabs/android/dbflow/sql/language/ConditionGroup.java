@@ -21,6 +21,13 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
     }
 
     /**
+     * @return Starts an arbitrary clause of conditions to use with first param as condition.
+     */
+    public static ConditionGroup clause(SQLCondition condition) {
+        return new ConditionGroup().and(condition);
+    }
+
+    /**
      * @return Starts an arbitrary clause of conditions to use, that when included in other {@link SQLCondition},
      * does not append parenthesis to group it.
      */
@@ -67,6 +74,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      */
     public ConditionGroup setUseParenthesis(boolean useParenthesis) {
         this.useParenthesis = useParenthesis;
+        isChanged = true;
         return this;
     }
 
@@ -161,16 +169,18 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
 
     @Override
     public void appendConditionToQuery(QueryBuilder queryBuilder) {
-        if (useParenthesis && conditionsList.size() > 0) {
+        int conditionListSize = conditionsList.size();
+        if (useParenthesis && conditionListSize > 0) {
             queryBuilder.append("(");
         }
-        for (SQLCondition condition : conditionsList) {
+        for (int i = 0; i < conditionListSize; i++) {
+            SQLCondition condition = conditionsList.get(i);
             condition.appendConditionToQuery(queryBuilder);
-            if (condition.hasSeparator()) {
+            if (condition.hasSeparator() && i < conditionListSize - 1) {
                 queryBuilder.appendSpaceSeparated(condition.separator());
             }
         }
-        if (useParenthesis && conditionsList.size() > 0) {
+        if (useParenthesis && conditionListSize > 0) {
             queryBuilder.append(")");
         }
     }

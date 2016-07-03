@@ -2,13 +2,12 @@ package com.raizlabs.android.dbflow.structure;
 
 import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.DBTransactionQueue;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 
 /**
- * Description: The base implementation of {@link com.raizlabs.android.dbflow.structure.Model} using the
- * shared {@link com.raizlabs.android.dbflow.config.FlowManager}. It implements the methods so you don't have to.
- * If you wish not to extend from this class you will need to implement {@link com.raizlabs.android.dbflow.structure.Model}
- * instead.
+ * Description: The base implementation of {@link Model}. It is recommended to use this class as
+ * the base for your {@link Model}, but it is not required.
  */
 public class BaseModel implements Model {
 
@@ -53,9 +52,19 @@ public class BaseModel implements Model {
     }
 
     @SuppressWarnings("unchecked")
+    public void save(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().save(this, databaseWrapper);
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void delete() {
         getModelAdapter().delete(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void delete(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().delete(this, databaseWrapper);
     }
 
     @SuppressWarnings("unchecked")
@@ -64,13 +73,20 @@ public class BaseModel implements Model {
         getModelAdapter().update(this);
     }
 
-    /**
-     * Directly tries to insert this item into the DB without updating.
-     */
+    @SuppressWarnings("unchecked")
+    public void update(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().update(this, databaseWrapper);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void insert() {
         getModelAdapter().insert(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void insert(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().insert(this, databaseWrapper);
     }
 
     @SuppressWarnings("unchecked")
@@ -79,8 +95,13 @@ public class BaseModel implements Model {
         return getModelAdapter().exists(this);
     }
 
+    @SuppressWarnings("unchecked")
+    public boolean exists(DatabaseWrapper databaseWrapper) {
+        return getModelAdapter().exists(this, databaseWrapper);
+    }
+
     /**
-     * @return An async instance of this model where all transactions are on the {@link DBTransactionQueue}
+     * @return An async instance of this model where all transactions are on the {@link DefaultTransactionQueue}
      */
     public AsyncModel<BaseModel> async() {
         return new AsyncModel<>(this);

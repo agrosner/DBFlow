@@ -4,17 +4,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListenerAdapter;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.utils.GenerationUtils;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -22,46 +27,58 @@ import static org.junit.Assert.assertTrue;
  */
 public class ListTest extends FlowTestCase {
 
+    FlowQueryList<ListModel> modelList;
+
+    @Before
+    public void setupTest() {
+        Delete.table(ListModel.class);
+        modelList = new FlowQueryList<>(SQLite.select().from(ListModel.class));
+    }
+
+    @After
+    public void deconstructTest() {
+        Delete.table(ListModel.class);
+    }
+
     @Test
     public void testTableList() {
 
-        Delete.table(ListModel.class);
-
         List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 100);
 
-        FlowQueryList<ListModel> flowQueryList = new FlowQueryList<>(ListModel.class);
+        FlowManager.getDatabaseForTable(ListModel.class)
+                .executeTransaction(FastStoreModelTransaction
+                        .saveBuilder(FlowManager.getModelAdapter(ListModel.class))
+                        .addAll(testModel1s)
+                        .build());
 
-        assertTrue(flowQueryList.size() == 100);
+        modelList = new FlowQueryList<>(SQLite.select().from(ListModel.class));
 
-        assertTrue(flowQueryList.containsAll(testModel1s));
+        assertTrue(modelList.size() == 100);
 
-        ListModel model1 = flowQueryList.remove(0);
+        assertTrue(modelList.containsAll(testModel1s));
 
-        assertTrue(flowQueryList.size() == 99);
+        ListModel model1 = modelList.remove(0);
 
-        assertTrue(flowQueryList.add(model1));
+        assertTrue(modelList.size() == 99);
 
-        assertTrue(flowQueryList.size() == 100);
+        assertTrue(modelList.add(model1));
 
-        flowQueryList.set(model1);
+        assertTrue(modelList.size() == 100);
 
-        flowQueryList.clear();
+        modelList.set(model1);
 
-        assertTrue(flowQueryList.size() == 0);
+        modelList.clear();
+
+        assertTrue(modelList.size() == 0);
     }
 
     @Test
     public void testTableListEmpty() {
-        Delete.table(ListModel.class);
-
-        FlowQueryList<ListModel> flowQueryList = new FlowQueryList<>(ListModel.class);
         ListModel listModel = new ListModel();
         listModel.setName("Test");
-        flowQueryList.add(listModel);
+        modelList.add(listModel);
 
-        assertTrue(flowQueryList.size() == 1);
-
-        Delete.table(ListModel.class);
+        assertTrue(modelList.size() == 1);
     }
 
     private class TestModelAdapter extends BaseAdapter {
@@ -96,22 +113,23 @@ public class ListTest extends FlowTestCase {
     @Test
     public void testCursorList() {
 
-        Delete.table(ListModel.class);
-
         final List<ListModel> testModel1s = GenerationUtils.generateRandomModels(ListModel.class, 50);
+        FlowManager.getDatabase(ListDatabase.class)
+                .executeTransaction(FastStoreModelTransaction
+                        .insertBuilder(FlowManager.getModelAdapter(ListModel.class))
+                        .addAll(testModel1s)
+                        .build());
 
-        FlowCursorList<ListModel> flowCursorList = new FlowCursorList<>(true, ListModel.class);
+        FlowCursorList<ListModel> flowCursorList = new FlowCursorList.Builder<>(ListModel.class)
+                .cacheModels(true)
+                .modelQueriable(SQLite.select()
+                        .from(ListModel.class))
+                .build();
 
         TestModelAdapter modelAdapter = new TestModelAdapter(flowCursorList);
 
-        assertTrue(testModel1s.size() == modelAdapter.getCount());
-
-        flowCursorList.fetchAll(new TransactionListenerAdapter<List<ListModel>>() {
-            @Override
-            public void onResultReceived(List<ListModel> models) {
-                assertTrue(models.size() == testModel1s.size());
-            }
-        });
+        assertEquals(testModel1s.size(), modelAdapter.getCount());
+        assertEquals(flowCursorList.getAll().size(), testModel1s.size());
 
     }
 }

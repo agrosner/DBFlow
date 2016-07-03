@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 
@@ -72,6 +73,14 @@ public class Method extends Property {
         return new Method("TOTAL", properties);
     }
 
+    /**
+     * @param property The property to cast.
+     * @return A new CAST object. To complete use the {@link Cast#as(SQLiteType)} method.
+     */
+    public static Cast cast(@NonNull IProperty property) {
+        return new Cast(property);
+    }
+
     private final List<IProperty> propertyList = new ArrayList<>();
     private List<String> operationsList = new ArrayList<>();
     private final IProperty methodProperty;
@@ -83,7 +92,7 @@ public class Method extends Property {
     public Method(String methodName, IProperty... properties) {
         super(null, (String) null);
 
-        methodProperty = new Property(null, new NameAlias(methodName, false).tickName(false));
+        methodProperty = new Property(null, NameAlias.rawBuilder(methodName).build());
 
         if (properties.length == 0) {
             propertyList.add(Property.ALL_PROPERTY);
@@ -150,13 +159,36 @@ public class Method extends Property {
 
             }
             query += ")";
-            nameAlias = new NameAlias(query, false).tickName(false);
+            nameAlias = NameAlias.rawBuilder(query)
+                    .build();
         }
         return nameAlias;
     }
 
-    //@Override
-    //public String toString() {
-    //    return getNameAlias().toString();
-    //}
+    /**
+     * Represents the SQLite CAST operator.
+     */
+    public static class Cast {
+
+        private final IProperty property;
+
+        private Cast(@NonNull IProperty property) {
+            this.property = property;
+        }
+
+        /**
+         * @param sqLiteType The type of column to cast it to.
+         * @return A new {@link Method} that represents the statement.
+         */
+        public IProperty as(SQLiteType sqLiteType) {
+            //noinspection unchecked
+            IProperty newProperty = new Property(property.getTable(),
+                    property.getNameAlias()
+                            .newBuilder()
+                            .shouldAddIdentifierToAliasName(false)
+                            .as(sqLiteType.name())
+                            .build());
+            return new Method("CAST", newProperty);
+        }
+    }
 }

@@ -48,4 +48,8 @@ public class ModelUtils {
         return ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER,
                 modelType, TypeName.get(manager.getTypeUtils().getWildcardType(null, null)));
     }
+
+    public static String getWrapper() {
+        return "wrapper";
+    }
 }

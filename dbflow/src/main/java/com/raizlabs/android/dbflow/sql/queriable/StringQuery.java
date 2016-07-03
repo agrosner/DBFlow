@@ -4,7 +4,6 @@ import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -14,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * code where this library does not provide. It only runs a
  * {@link android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])}.
  */
-public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<ModelClass> implements Query, ModelQueriable<ModelClass> {
+public class StringQuery<TModel extends Model> extends BaseModelQueriable<TModel> implements Query, ModelQueriable<TModel> {
 
     /**
      * The full SQLite query to use
@@ -28,7 +27,7 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
      * @param sql   The sql statement to query the DB with. Does not work with {@link com.raizlabs.android.dbflow.sql.language.Delete},
      *              this must be done with {@link android.database.sqlite.SQLiteDatabase#execSQL(String)}
      */
-    public StringQuery(Class<ModelClass> table, String sql) {
+    public StringQuery(Class<TModel> table, String sql) {
         super(table);
         query = sql;
     }
@@ -48,13 +47,4 @@ public class StringQuery<ModelClass extends Model> extends BaseModelQueriable<Mo
         return databaseWrapper.rawQuery(query, null);
     }
 
-    @Override
-    public long count() {
-        return count(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
-    }
-
-    @Override
-    public long count(DatabaseWrapper databaseWrapper) {
-        return SqlUtils.longForQuery(databaseWrapper, getQuery());
-    }
 }

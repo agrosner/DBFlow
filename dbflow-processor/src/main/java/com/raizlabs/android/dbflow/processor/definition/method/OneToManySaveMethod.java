@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.method;
 
+import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
@@ -19,11 +20,14 @@ public class OneToManySaveMethod implements MethodDefinition {
     private final TableDefinition tableDefinition;
     private final boolean isModelContainerAdapter;
     private final String methodName;
+    private final boolean useWrapper;
 
-    public OneToManySaveMethod(TableDefinition tableDefinition, boolean isModelContainerAdapter, String methodName) {
+    public OneToManySaveMethod(TableDefinition tableDefinition,
+                               boolean isModelContainerAdapter, String methodName, boolean useWrapper) {
         this.tableDefinition = tableDefinition;
         this.isModelContainerAdapter = isModelContainerAdapter;
         this.methodName = methodName;
+        this.useWrapper = useWrapper;
     }
 
     @Override
@@ -33,30 +37,36 @@ public class OneToManySaveMethod implements MethodDefinition {
             for (OneToManyDefinition oneToManyDefinition : tableDefinition.oneToManyDefinitions) {
                 switch (methodName) {
                     case METHOD_SAVE:
-                        oneToManyDefinition.writeSave(code);
+                        oneToManyDefinition.writeSave(code, useWrapper);
                         break;
                     case METHOD_UPDATE:
-                        oneToManyDefinition.writeUpdate(code);
+                        oneToManyDefinition.writeUpdate(code, useWrapper);
                         break;
                     case METHOD_INSERT:
-                        oneToManyDefinition.writeInsert(code);
+                        oneToManyDefinition.writeInsert(code, useWrapper);
                         break;
                 }
             }
 
-            code.addStatement("super.$L($L)", methodName, ModelUtils.getVariable(isModelContainerAdapter));
+            code.addStatement("super.$L($L$L)", methodName,
+                    ModelUtils.getVariable(isModelContainerAdapter),
+                    useWrapper ? (", " + ModelUtils.getWrapper()) : "");
 
             if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
                 code.addStatement("getModelCache().addModel(getCachingId($L), $L)", ModelUtils.getVariable(isModelContainerAdapter),
                         ModelUtils.getVariable(isModelContainerAdapter));
             }
 
-            return MethodSpec.methodBuilder(methodName)
+            MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter))
-                    .addCode(code.build())
-                    .build();
+                    .addCode(code.build());
+            if (useWrapper) {
+                builder.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.getWrapper());
+            }
+
+            return builder.build();
         } else {
             return null;
         }

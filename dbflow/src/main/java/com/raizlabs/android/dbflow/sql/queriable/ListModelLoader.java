@@ -20,7 +20,7 @@ public class ListModelLoader<TModel extends Model> extends ModelLoader<TModel, L
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<TModel> convertToData(@NonNull Cursor cursor, @Nullable List<TModel> data) {
+    public List<TModel> convertToData(@NonNull Cursor cursor, @Nullable List<TModel> data) {
         if (data == null) {
             data = new ArrayList<>();
         } else {

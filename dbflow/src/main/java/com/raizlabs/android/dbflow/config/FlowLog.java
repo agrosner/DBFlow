@@ -4,7 +4,7 @@ import android.os.Build;
 import android.util.Log;
 
 /**
- * Description: Mirrors {@link android.util.Log} with its own {@link com.raizlabs.android.dbflow.config.FlowLog.Level} flag.
+ * Description: Mirrors {@link Log} with its own {@link Level} flag.
  */
 public class FlowLog {
 
@@ -13,7 +13,7 @@ public class FlowLog {
 
     /**
      * Sets the minimum level that we wish to print out log statements with.
-     * The default is {@link com.raizlabs.android.dbflow.config.FlowLog.Level#E}.
+     * The default is {@link Level#E}.
      *
      * @param level
      */
@@ -22,7 +22,7 @@ public class FlowLog {
     }
 
     /**
-     * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
+     * Logs information to the {@link Log} class. It wraps around the standard implementation.
      * It uses the {@link #TAG} for messages and sends a null throwable.
      *
      * @param level   The log level to use
@@ -33,7 +33,7 @@ public class FlowLog {
     }
 
     /**
-     * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
+     * Logs information to the {@link Log} class. It wraps around the standard implementation.
      * It uses the {@link #TAG} for messages
      *
      * @param level     The log level to use
@@ -45,7 +45,7 @@ public class FlowLog {
     }
 
     /**
-     * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
+     * Logs information to the {@link Log} class. It wraps around the standard implementation.
      *
      * @param level     The log level to use
      * @param tag       The tag of the log
@@ -59,7 +59,7 @@ public class FlowLog {
     }
 
     /**
-     * Returns true if the logging level is lower than the specified {@link com.raizlabs.android.dbflow.config.FlowLog.Level}
+     * Returns true if the logging level is lower than the specified {@link Level}
      *
      * @return
      */
@@ -77,7 +77,7 @@ public class FlowLog {
     }
 
     /**
-     * Logs information to the {@link android.util.Log} class. It wraps around the standard implementation.
+     * Logs information to the {@link Log} class. It wraps around the standard implementation.
      * It uses the {@link #TAG} for messages and sends an empty message
      *
      * @param level     The log level to use

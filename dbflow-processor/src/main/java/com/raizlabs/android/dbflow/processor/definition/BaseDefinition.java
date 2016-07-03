@@ -73,6 +73,10 @@ public abstract class BaseDefinition implements TypeDefinition {
         if (!elementTypeName.isPrimitive()) {
             elementClassName = getElementClassName(element);
         }
+
+        if (element instanceof TypeElement) {
+            typeElement = ((TypeElement) element);
+        }
     }
 
     public BaseDefinition(TypeElement element, ProcessorManager processorManager) {
@@ -106,11 +110,15 @@ public abstract class BaseDefinition implements TypeDefinition {
         outputClassName = ClassName.get(packageName, outputName + postfix);
     }
 
+    protected void setOutputClassNameFull(String fullName) {
+        outputClassName = ClassName.get(packageName, fullName);
+    }
+
     @Override
     public TypeSpec getTypeSpec() {
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(outputClassName.simpleName())
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addSuperinterfaces(Arrays.asList(getImplementsClasses()));
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            .addSuperinterfaces(Arrays.asList(getImplementsClasses()));
         TypeName extendsClass = getExtendsClass();
         if (extendsClass != null) {
             typeBuilder.superclass(extendsClass);

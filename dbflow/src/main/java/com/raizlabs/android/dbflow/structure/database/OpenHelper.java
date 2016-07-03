@@ -1,13 +1,11 @@
 package com.raizlabs.android.dbflow.structure.database;
 
-import android.database.sqlite.SQLiteOpenHelper;
-
-import com.raizlabs.android.dbflow.DatabaseHelperListener;
-
 /**
- * Description: Abstracts out the {@link SQLiteOpenHelper} into the one used in this library.
+ * Description: Abstracts out the {@link DatabaseHelperDelegate} into the one used in this library.
  */
 public interface OpenHelper {
+
+    void performRestoreFromBackup();
 
     DatabaseWrapper getDatabase();
 
@@ -18,4 +16,6 @@ public interface OpenHelper {
     void backupDB();
 
     void setDatabaseListener(DatabaseHelperListener helperListener);
+
+    void closeDB();
 }

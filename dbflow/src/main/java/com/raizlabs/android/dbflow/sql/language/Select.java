@@ -50,11 +50,11 @@ public class Select implements Query {
     /**
      * Passes this statement to the {@link From}
      *
-     * @param table        The model table to run this query on
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param table    The model table to run this query on
+     * @param <TModel> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return the From part of this query
      */
-    public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
+    public <TModel extends Model> From<TModel> from(Class<TModel> table) {
         return new From<>(this, table);
     }
 
@@ -94,7 +94,7 @@ public class Select implements Query {
     /**
      * Helper method to pick the correct qualifier for a SELECT query
      *
-     * @param qualifierInt Can be {@link #ALL}, {@link #NONE}, {@link #DISTINCT}, or {@link #METHOD}
+     * @param qualifierInt Can be {@link #ALL}, {@link #NONE}, or {@link #DISTINCT}
      * @return
      */
     private Select selectQualifier(int qualifierInt) {

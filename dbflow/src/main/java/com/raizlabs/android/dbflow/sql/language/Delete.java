@@ -14,9 +14,9 @@ public class Delete implements Query {
      *
      * @param table        The table to delete
      * @param conditions   The list of conditions to use to delete from the specified table
-     * @param <ModelClass> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
+     * @param <TModel> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public static <ModelClass extends Model> void table(Class<ModelClass> table, SQLCondition... conditions) {
+    public static <TModel extends Model> void table(Class<TModel> table, SQLCondition... conditions) {
         new Delete().from(table).where(conditions).query();
     }
 
@@ -37,10 +37,10 @@ public class Delete implements Query {
      * Returns the new SQL FROM statement wrapper
      *
      * @param table        The table we want to run this query from
-     * @param <ModelClass> The table class
+     * @param <TModel> The table class
      * @return
      */
-    public <ModelClass extends Model> From<ModelClass> from(Class<ModelClass> table) {
+    public <TModel extends Model> From<TModel> from(Class<TModel> table) {
         return new From<>(this, table);
     }
 

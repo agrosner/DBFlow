@@ -6,12 +6,12 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: The base for a {@link Where} statement.
  */
-public interface WhereBase<ModelClass extends Model> extends Query {
+public interface WhereBase<TModel extends Model> extends Query {
 
     /**
      * @return The table of this query.
      */
-    Class<ModelClass> getTable();
+    Class<TModel> getTable();
 
     /**
      * @return The base Query object.
