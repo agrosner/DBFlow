@@ -12,7 +12,7 @@ When building out `Model` classes, you may wish to provide a different type of `
 
 `TypeConverter` do _not_ support:
   1. Any Parameterized fields _except_ `ForeignKeyContainer` and `ModelContainer` fields.
-  2. `List<T>`, `Map<T>`, etc. Best way to fix this is to create a separate table [relationship](/usage2/Relationships.md)
+  2. `List<TModel>`, `Map<TModel>`, etc. Best way to fix this is to create a separate table [relationship](/usage2/Relationships.md)
   3. Conversion from one type-converter to another (i.e `JSONObject` to `Date`). The first parameter of `TypeConverter` is the value of the type as if it was a primitive/boxed type.
   4. Conversion from custom type to `Model`, or `Model` to a supported type.
   5. The custom class _must_ map to a non-complex field such as `String`, numbers, `char`/`Character` or `Blob` 

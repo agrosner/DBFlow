@@ -187,7 +187,7 @@ items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapp
 
 ```
 
-The extension method on `Collection<T : Model>` allows you to perform this on all
+The extension method on `Collection<TModel : Model>` allows you to perform this on all
 collections from your Table!
 
 If you wish to easily do them _synchronously_ then use:

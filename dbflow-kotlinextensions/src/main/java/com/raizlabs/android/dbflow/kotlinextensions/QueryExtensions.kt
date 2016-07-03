@@ -23,33 +23,33 @@ val select: Select
 
 inline fun <reified TModel : Model> Select.from(): From<TModel> = from(TModel::class.java)
 
-fun <T : Model> delete(modelClass: KClass<T>): From<T> = SQLite.delete(modelClass.java)
+fun <TModel : Model> delete(modelClass: KClass<TModel>): From<TModel> = SQLite.delete(modelClass.java)
 
-infix fun <T : Model> Select.from(modelClass: KClass<T>) = from(modelClass.java)
+infix fun <TModel : Model> Select.from(modelClass: KClass<TModel>) = from(modelClass.java)
 
-infix fun <T : Model> From<T>.whereExists(where: Where<T>) = where().exists(where)
+infix fun <TModel : Model> From<TModel>.whereExists(where: Where<TModel>) = where().exists(where)
 
-infix fun <T : Model> From<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
+infix fun <TModel : Model> From<TModel>.where(sqlCondition: SQLCondition) = where(sqlCondition)
 
-infix fun <T : Model> Set<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
+infix fun <TModel : Model> Set<TModel>.where(sqlCondition: SQLCondition) = where(sqlCondition)
 
-infix fun <T : Model> Where<T>.and(sqlCondition: SQLCondition) = and(sqlCondition)
+infix fun <TModel : Model> Where<TModel>.and(sqlCondition: SQLCondition) = and(sqlCondition)
 
-infix fun <T : Model> Where<T>.or(sqlCondition: SQLCondition) = and(sqlCondition)
+infix fun <TModel : Model> Where<TModel>.or(sqlCondition: SQLCondition) = and(sqlCondition)
 
-infix fun <T> Case<T>.`when`(sqlCondition: SQLCondition) = `when`(sqlCondition)
+infix fun <TModel> Case<TModel>.`when`(sqlCondition: SQLCondition) = `when`(sqlCondition)
 
-infix fun <T> Case<T>.`when`(property: IProperty<*>) = `when`(property)
+infix fun <TModel> Case<TModel>.`when`(property: IProperty<*>) = `when`(property)
 
-infix fun <T> Case<T>.`when`(value: T?) = `when`(value)
+infix fun <TModel> Case<TModel>.`when`(value: TModel?) = `when`(value)
 
-infix fun <T> CaseCondition<T>.then(value: T?) = then(value)
+infix fun <TModel> CaseCondition<TModel>.then(value: TModel?) = then(value)
 
-infix fun <T> CaseCondition<T>.then(property: IProperty<*>) = then(property)
+infix fun <TModel> CaseCondition<TModel>.then(property: IProperty<*>) = then(property)
 
-infix fun <T> Case<T>.`else`(value: T?) = _else(value)
+infix fun <TModel> Case<TModel>.`else`(value: TModel?) = _else(value)
 
-infix fun <T> Case<T>.end(columnName: String) = end(columnName)
+infix fun <TModel> Case<TModel>.end(columnName: String) = end(columnName)
 
 // queriable extensions
 
@@ -65,72 +65,72 @@ val Queriable.hasData: Boolean
 val Queriable.statement: DatabaseStatement
     get() = compileStatement()
 
-val <T : Model> ModelQueriable<T>.list: MutableList<T>
+val <TModel : Model> ModelQueriable<TModel>.list: MutableList<TModel>
     get() = queryList()
 
-val <T : Model> ModelQueriable<T>.result: T?
+val <TModel : Model> ModelQueriable<TModel>.result: TModel?
     get() = querySingle()
 
-val <T : Model> ModelQueriable<T>.cursorResult: CursorResult<T>
+val <TModel : Model> ModelQueriable<TModel>.cursorResult: CursorResult<TModel>
     get() = queryResults()
 
 // async extensions
 
-val <T : Model> ModelQueriable<T>.async: AsyncQuery<T>
+val <TModel : Model> ModelQueriable<TModel>.async: AsyncQuery<TModel>
     get() = async()
 
-infix fun <T : Model> AsyncQuery<T>.list(callback: (QueryTransaction<*>, MutableList<T>?) -> Unit)
+infix fun <TModel : Model> AsyncQuery<TModel>.list(callback: (QueryTransaction<*>, MutableList<TModel>?) -> Unit)
         = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
         .execute()
 
-infix fun <T : Model> AsyncQuery<T>.result(callback: (QueryTransaction<*>, T?) -> Unit)
+infix fun <TModel : Model> AsyncQuery<TModel>.result(callback: (QueryTransaction<*>, TModel?) -> Unit)
         = querySingleResultCallback { queryTransaction, model -> callback(queryTransaction, model) }
         .execute()
 
-infix fun <T : Model> AsyncQuery<T>.cursorResult(callback: (QueryTransaction<*>, CursorResult<T>) -> Unit)
+infix fun <TModel : Model> AsyncQuery<TModel>.cursorResult(callback: (QueryTransaction<*>, CursorResult<TModel>) -> Unit)
         = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
         .execute()
 
 val BaseModel.async: AsyncModel<BaseModel>
     get() = async()
 
-infix fun <T : Model> AsyncModel<T>.insert(listener: (T) -> Unit) = withListener { listener(it) }.insert()
+infix fun <TModel : Model> AsyncModel<TModel>.insert(listener: (TModel) -> Unit) = withListener { listener(it) }.insert()
 
-infix fun <T : Model> AsyncModel<T>.update(listener: (T) -> Unit) = withListener { listener(it) }.update()
+infix fun <TModel : Model> AsyncModel<TModel>.update(listener: (TModel) -> Unit) = withListener { listener(it) }.update()
 
-infix fun <T : Model> AsyncModel<T>.delete(listener: (T) -> Unit) = withListener { listener(it) }.delete()
+infix fun <TModel : Model> AsyncModel<TModel>.delete(listener: (TModel) -> Unit) = withListener { listener(it) }.delete()
 
-infix fun <T : Model> AsyncModel<T>.save(listener: (T) -> Unit) = withListener { listener(it) }.save()
+infix fun <TModel : Model> AsyncModel<TModel>.save(listener: (TModel) -> Unit) = withListener { listener(it) }.save()
 
 // Transformable methods
 
-infix fun <T : Model> Transformable<T>.groupBy(nameAlias: NameAlias) = groupBy(nameAlias)
+infix fun <TModel : Model> Transformable<TModel>.groupBy(nameAlias: NameAlias) = groupBy(nameAlias)
 
-infix fun <T : Model> Transformable<T>.groupBy(property: IProperty<*>) = groupBy(property)
+infix fun <TModel : Model> Transformable<TModel>.groupBy(property: IProperty<*>) = groupBy(property)
 
-infix fun <T : Model> Transformable<T>.orderBy(orderBy: OrderBy) = orderBy(orderBy)
+infix fun <TModel : Model> Transformable<TModel>.orderBy(orderBy: OrderBy) = orderBy(orderBy)
 
-infix fun <T : Model> Transformable<T>.limit(limit: Int) = limit(limit)
+infix fun <TModel : Model> Transformable<TModel>.limit(limit: Int) = limit(limit)
 
-infix fun <T : Model> Transformable<T>.offset(offset: Int) = offset(offset)
+infix fun <TModel : Model> Transformable<TModel>.offset(offset: Int) = offset(offset)
 
-infix fun <T : Model> Transformable<T>.having(sqlCondition: SQLCondition) = having(sqlCondition)
+infix fun <TModel : Model> Transformable<TModel>.having(sqlCondition: SQLCondition) = having(sqlCondition)
 
 // join
 
-infix fun <T : Model, V : Model> From<V>.innerJoin(joinTable: KClass<T>) = join(joinTable.java, Join.JoinType.INNER)
+infix fun <TModel : Model, V : Model> From<V>.innerJoin(joinTable: KClass<TModel>) = join(joinTable.java, Join.JoinType.INNER)
 
-infix fun <T : Model, V : Model> From<V>.crossJoin(joinTable: KClass<T>) = join(joinTable.java, Join.JoinType.CROSS)
+infix fun <TModel : Model, V : Model> From<V>.crossJoin(joinTable: KClass<TModel>) = join(joinTable.java, Join.JoinType.CROSS)
 
-infix fun <T : Model, V : Model> From<V>.leftOuterJoin(joinTable: KClass<T>) = join(joinTable.java, Join.JoinType.LEFT_OUTER)
+infix fun <TModel : Model, V : Model> From<V>.leftOuterJoin(joinTable: KClass<TModel>) = join(joinTable.java, Join.JoinType.LEFT_OUTER)
 
-infix fun <T : Model, V : Model> Join<T, V>.on(sqlCondition: SQLCondition) = on(sqlCondition)
+infix fun <TModel : Model, V : Model> Join<TModel, V>.on(sqlCondition: SQLCondition) = on(sqlCondition)
 
 // update methods
 
-fun <T : Model> update(modelClass: KClass<T>): Update<T> = SQLite.update(modelClass.java)
+fun <TModel : Model> update(modelClass: KClass<TModel>): Update<TModel> = SQLite.update(modelClass.java)
 
-infix fun <T : Model> Update<T>.set(sqlCondition: SQLCondition) = set(sqlCondition)
+infix fun <TModel : Model> Update<TModel>.set(sqlCondition: SQLCondition) = set(sqlCondition)
 
 
 // delete
@@ -141,19 +141,19 @@ inline fun <reified TModel : Model> delete(deleteClause: From<TModel>.() -> Base
 
 // insert methods
 
-fun <T : Model> insert(modelClass: KClass<T>) = SQLite.insert(modelClass.java)
+fun <TModel : Model> insert(modelClass: KClass<TModel>) = SQLite.insert(modelClass.java)
 
-infix fun <T : Model> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().into(*into)
+infix fun <TModel : Model> Insert<TModel>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().into(*into)
 
-infix fun <T : Model> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().into(*into)
+infix fun <TModel : Model> Insert<TModel>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().into(*into)
 
-infix fun <T : Model> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().into(*into)
+infix fun <TModel : Model> Insert<TModel>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().into(*into)
 
-infix fun <T : Model> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().into(*into)
+infix fun <TModel : Model> Insert<TModel>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().into(*into)
 
-infix fun <T : Model> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().into(*into)
+infix fun <TModel : Model> Insert<TModel>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().into(*into)
 
-infix fun <T : Model> Insert<T>.select(from: From<*>) = select(from)
+infix fun <TModel : Model> Insert<TModel>.select(from: From<*>) = select(from)
 
 fun into(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
 

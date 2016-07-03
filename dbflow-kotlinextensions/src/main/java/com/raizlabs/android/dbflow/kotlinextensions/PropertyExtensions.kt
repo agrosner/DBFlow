@@ -29,12 +29,12 @@ val Short.property: ShortProperty
 val Byte.property: ByteProperty
     get() = PropertyFactory.from(this)
 
-val <T> T.property: Property<T>
+val <TModel> TModel.property: Property<TModel>
     get() = PropertyFactory.from(this)
 
-val <T : Model> ModelQueriable<T>.property: Property<T>
+val <TModel : Model> ModelQueriable<TModel>.property: Property<TModel>
     get() = PropertyFactory.from(this)
 
-inline fun <reified T : Any> T.propertyString(stringRepresentation: String?): Property<T> {
-    return PropertyFactory.from(T::class.java, stringRepresentation)
+inline fun <reified TModel : Any> TModel.propertyString(stringRepresentation: String?): Property<TModel> {
+    return PropertyFactory.from(TModel::class.java, stringRepresentation)
 }
