@@ -84,7 +84,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
             if (runResultCallbacksOnSameThread) {
                 queryResultCallback.onQueryResult(this, cursorResult);
             } else {
-                Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                Transaction.getTransactionHandler().post(new Runnable() {
                     @Override
                     public void run() {
                         queryResultCallback.onQueryResult(QueryTransaction.this, cursorResult);
@@ -98,7 +98,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
             if (runResultCallbacksOnSameThread) {
                 queryResultListCallback.onListQueryResult(this, resultList);
             } else {
-                Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                Transaction.getTransactionHandler().post(new Runnable() {
                     @Override
                     public void run() {
                         queryResultListCallback.onListQueryResult(QueryTransaction.this, resultList);
@@ -112,7 +112,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
             if (runResultCallbacksOnSameThread) {
                 queryResultSingleCallback.onSingleQueryResult(this, result);
             } else {
-                Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                Transaction.getTransactionHandler().post(new Runnable() {
                     @Override
                     public void run() {
                         queryResultSingleCallback.onSingleQueryResult(QueryTransaction.this, result);

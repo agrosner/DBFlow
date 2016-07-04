@@ -4,7 +4,9 @@ import android.os.Build
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.kotlinextensions.*
+import com.raizlabs.android.dbflow.kotlinextensions.async
+import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
 import com.raizlabs.android.dbflow.structure.AsyncModel
 import com.raizlabs.android.dbflow.test.BuildConfig
@@ -43,29 +45,5 @@ class QueryExtensionsAsyncTest {
     fun test_asyncQuery() {
         val query = (select from KotlinModel::class).async
         assertTrue(query is AsyncQuery)
-    }
-
-    @Test
-    fun test_canGetList() {
-        var called = false
-        (select from KotlinModel::class).async list { transaction, list -> called = true }
-        assertTrue(called)
-    }
-
-    @Test
-    fun test_canGetResult() {
-        var called = false
-        (select from KotlinModel::class).async result { transaction, result -> called = true }
-        assertTrue(called)
-    }
-
-    @Test
-    fun test_getCursorResult() {
-        var called = false
-        (select from KotlinModel::class).async cursorResult { transaction, cursorResult ->
-            called = true
-            cursorResult.close()
-        }
-        assertTrue(called)
     }
 }
