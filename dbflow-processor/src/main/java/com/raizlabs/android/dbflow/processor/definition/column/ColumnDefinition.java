@@ -356,12 +356,7 @@ public class ColumnDefinition extends BaseDefinition {
         return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, isSqliteStatment);
     }
 
-    /**
-     * @param isModelContainerAdapter
-     * @param codeBuilder
-     * @return A string without any type conversion for this field.
-     */
-    public void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
+    pub≠lic void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
         codeBuilder.add("\nclause.and($T.$L.eq(", tableDefinition.getPropertyClassName(), columnName);
         if (columnAccess instanceof TypeConverterAccess) {
             TypeConverterAccess converterAccess = ((TypeConverterAccess) columnAccess);
