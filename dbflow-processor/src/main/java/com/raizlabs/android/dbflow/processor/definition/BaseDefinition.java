@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
@@ -101,6 +102,9 @@ public abstract class BaseDefinition implements TypeDefinition {
         if (elementClassName == null) {
             if (elementTypeName instanceof ClassName) {
                 outputName = ((ClassName) elementTypeName).simpleName();
+            } else if(elementTypeName instanceof ParameterizedTypeName) {
+                outputName = ((ParameterizedTypeName) elementTypeName).rawType.simpleName();
+                elementClassName = ((ParameterizedTypeName) elementTypeName).rawType;
             } else {
                 outputName = elementTypeName.toString();
             }
