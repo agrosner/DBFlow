@@ -1,10 +1,11 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.annotation.TargetApi;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+
+import android.support.v4.content.AsyncTaskLoader;
 
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;

@@ -1,10 +1,11 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.annotation.TargetApi;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+
+import android.support.v4.content.AsyncTaskLoader;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
@@ -18,7 +19,7 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
  * @param <TModel>
  */
 @TargetApi(11)
-public class FlowModelLoader <TModel extends Model> extends AsyncTaskLoader<TModel>
+public class FlowModelLoader <TModel extends Model> extends AsyncTaskLoader <TModel>
 {
     /// Models to be observed for changes.
     private final Class<TModel> mModel;
