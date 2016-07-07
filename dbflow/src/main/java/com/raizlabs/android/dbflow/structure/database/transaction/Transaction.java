@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 
 /**
@@ -12,7 +13,7 @@ import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
  * This is a handy class that allows you to wrap up a set of database modification (or queries) into
  * a code block that gets accessed all on the same thread, in the same queue. This can prevent locking
  * and synchronization issues when trying to read and write from the database at the same time.
- * <p>
+ * <p/>
  * To create one, the recommended method is to use the {@link DatabaseDefinition#beginTransactionAsync(ITransaction)}.
  */
 public final class Transaction {
@@ -44,7 +45,14 @@ public final class Transaction {
         void onSuccess(Transaction transaction);
     }
 
-    static final Handler TRANSACTION_HANDLER = new Handler(Looper.getMainLooper());
+    private static Handler TRANSACTION_HANDLER;
+
+    static Handler getTransactionHandler() {
+        if (TRANSACTION_HANDLER == null) {
+            TRANSACTION_HANDLER = new Handler(Looper.getMainLooper());
+        }
+        return TRANSACTION_HANDLER;
+    }
 
 
     final Error errorCallback;
@@ -112,7 +120,7 @@ public final class Transaction {
                 if (runCallbacksOnSameThread) {
                     successCallback.onSuccess(this);
                 } else {
-                    TRANSACTION_HANDLER.post(new Runnable() {
+                    getTransactionHandler().post(new Runnable() {
                         @Override
                         public void run() {
                             successCallback.onSuccess(Transaction.this);
@@ -121,11 +129,12 @@ public final class Transaction {
                 }
             }
         } catch (final Throwable throwable) {
+            FlowLog.logError(throwable);
             if (errorCallback != null) {
                 if (runCallbacksOnSameThread) {
                     errorCallback.onError(this, throwable);
                 } else {
-                    TRANSACTION_HANDLER.post(new Runnable() {
+                    getTransactionHandler().post(new Runnable() {
                         @Override
                         public void run() {
                             errorCallback.onError(Transaction.this, throwable);
@@ -136,6 +145,15 @@ public final class Transaction {
                 throw new RuntimeException("An exception occurred while executing a transaction", throwable);
             }
         }
+    }
+
+    public Builder newBuilder() {
+        return new Builder(transaction, databaseDefinition)
+                .error(errorCallback)
+                .success(successCallback)
+                .name(name)
+                .shouldRunInTransaction(shouldRunInTransaction)
+                .runCallbacksOnSameThread(runCallbacksOnSameThread);
     }
 
     /**
