@@ -139,7 +139,7 @@ public class TableDefinition extends BaseTableDefinition {
         if (table != null) {
             this.tableName = table.name();
 
-            if (tableName == null || tableName.isEmpty()) {
+            if (tableName == null || tableName.length () == 0) {
                 tableName = element.getSimpleName().toString();
             }
 
@@ -679,7 +679,7 @@ public class TableDefinition extends BaseTableDefinition {
                 .returns(ClassNames.BASE_PROPERTY)
                 .build());
 
-        if (!updateConflictActionName.isEmpty()) {
+        if (updateConflictActionName.length () != 0) {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getUpdateOnConflictAction")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -688,7 +688,7 @@ public class TableDefinition extends BaseTableDefinition {
                     .build());
         }
 
-        if (!insertConflictActionName.isEmpty()) {
+        if (insertConflictActionName.length () != 0) {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getInsertOnConflictAction")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
