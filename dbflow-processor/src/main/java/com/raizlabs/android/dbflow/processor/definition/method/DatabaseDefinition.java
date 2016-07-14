@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.lang.model.element.Element;
@@ -214,7 +215,10 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
             }
         }
 
-        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
+        Set<ModelViewDefinition> modelViewDefinitions = manager.getModelViewDefinitions(elementClassName);
+        List<ModelViewDefinition> modelViewDefinitionList = new ArrayList<>(modelViewDefinitions);
+        Collections.sort(modelViewDefinitionList);
+        for (ModelViewDefinition modelViewDefinition : modelViewDefinitionList) {
             constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName);
             constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
                 modelViewDefinition.elementClassName, modelViewDefinition.outputClassName);
