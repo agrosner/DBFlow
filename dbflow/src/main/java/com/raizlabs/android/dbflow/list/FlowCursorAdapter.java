@@ -17,7 +17,7 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 public abstract class FlowCursorAdapter <TModel extends Model> extends CursorAdapter
 {
     private final Class<TModel> modelClass_;
-    private final ModelAdapter <TModel> modelAdapter_;
+    private final ModelAdapter<TModel> modelAdapter_;
 
     public FlowCursorAdapter (Context context, Class<TModel> modelClass, Cursor c, boolean autoRequery)
     {

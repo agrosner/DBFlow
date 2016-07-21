@@ -17,22 +17,22 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
  */
 public class FlowSimpleCursorAdapter <TModel extends Model> extends SimpleCursorAdapter
 {
-    private final Class<TModel> modelClass_;
-    private final ModelAdapter<TModel> modelAdapter_;
+    private final Class<TModel> mModel;
+    private final ModelAdapter<TModel> mModelAdapter;
 
     @TargetApi (11)
     public FlowSimpleCursorAdapter (Context context, Class<TModel> modelClass, int layout, Cursor c, String[] from, int[] to, int flags)
     {
         super (context, layout, c, from, to, flags);
 
-        this.modelClass_ = modelClass;
-        this.modelAdapter_ = FlowManager.getModelAdapter (modelClass);
+        this.mModel = modelClass;
+        this.mModelAdapter = FlowManager.getModelAdapter (modelClass);
     }
 
     @Override
     public TModel getItem (int position)
     {
         Cursor cursor = (Cursor) super.getItem (position);
-        return cursor != null ? this.modelAdapter_.loadFromCursor (cursor) : null;
+        return cursor != null ? this.mModelAdapter.loadFromCursor (cursor) : null;
     }
 }

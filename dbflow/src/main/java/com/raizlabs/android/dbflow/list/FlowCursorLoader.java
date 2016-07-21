@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-
 import android.support.v4.content.AsyncTaskLoader;
 
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
@@ -131,8 +130,9 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor>
   @Override
   protected void onReset ()
   {
-    // Ensure the loader is stopped
-    this.onStopLoading ();
+    super.onReset ();
+
+    this.startLoading ();
 
     if (mCursor != null && !mCursor.isClosed ())
       mCursor.close ();
