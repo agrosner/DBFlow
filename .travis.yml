@@ -1,0 +1,44 @@
+language: android
+sudo: false
+
+env:
+  global:
+      - ANDROID_BUILD_TOOLS_VERSION=23.0.3
+      - ADB_INSTALL_TIMEOUT=10
+
+  matrix:
+    - ANDROID_TARGET=android-23  ANDROID_ABI=armeabi-v7a
+
+android:
+  components:
+    # Use the latest revision of Android SDK Tools
+    - platform-tools
+    - tools
+
+    # The BuildTools version used by your project
+    - build-tools-$ANDROID_BUILD_TOOLS_VERSION
+
+    # The SDK version used to compile your project
+    - $ANDROID_TARGET
+
+    # Additional components
+    - extra-google-m2repository
+    - extra-android-m2repository
+
+    # Specify the system image to run emulator during tests
+    - sys-img-$ANDROID_ABI-$ANDROID_TARGET
+
+before_script:
+  # Create and start emulator
+  - chmod +x gradlew
+  - pip install --user codecov
+  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+
+script:
+  - ./gradlew build connectedCheck -PdisablePreDex
+
+after_success:
+  - codecov
