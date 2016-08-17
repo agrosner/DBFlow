@@ -88,8 +88,8 @@ public class DBFlowProcessor extends AbstractProcessor {
                 new TableHandler(),
                 new QueryModelHandler(),
                 new ModelViewHandler(),
-                new TableEndpointHandler(),
-                new ContentProviderHandler());
+                new ContentProviderHandler(),
+                new TableEndpointHandler());
     }
 
     @Override
