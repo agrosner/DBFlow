@@ -9,7 +9,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion dbflow_build_tools_version
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7

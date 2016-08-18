@@ -7,7 +7,7 @@ group= 'com.raizlabs.android'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion dbflow_build_tools_version
 
     defaultConfig {
         minSdkVersion 4
