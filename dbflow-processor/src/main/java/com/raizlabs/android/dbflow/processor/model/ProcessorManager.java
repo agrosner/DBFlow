@@ -394,7 +394,7 @@ public class ProcessorManager implements Handler {
                     catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
             } catch (IOException e) {
-                logWarning(e.getMessage());
+//                logWarning(e.getMessage());
             }
         }
 
