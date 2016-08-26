@@ -314,12 +314,17 @@ public class ProcessorManager implements Handler {
                     continue;
                 }
 
-                ContentProviderValidator validator = new ContentProviderValidator();
-                Collection<ContentProviderDefinition> contentProviderDefinitions = databaseDefinition.providerMap.values();
-                for (ContentProviderDefinition contentProviderDefinition : contentProviderDefinitions) {
-                    contentProviderDefinition.prepareForWrite();
-                    if (validator.validate(processorManager, contentProviderDefinition)) {
-                        WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager);
+                if (roundEnvironment.processingOver())
+                {
+                    ContentProviderValidator              validator                  = new ContentProviderValidator();
+                    Collection<ContentProviderDefinition> contentProviderDefinitions = databaseDefinition.providerMap.values();
+                    for (ContentProviderDefinition contentProviderDefinition : contentProviderDefinitions)
+                    {
+                        contentProviderDefinition.prepareForWrite();
+                        if (validator.validate(processorManager, contentProviderDefinition))
+                        {
+                            WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager);
+                        }
                     }
                 }
 
@@ -389,6 +394,7 @@ public class ProcessorManager implements Handler {
                     catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
             } catch (IOException e) {
+//                logWarning(e.getMessage());
             }
         }
 
