@@ -10,19 +10,16 @@ import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
- * Utility class to be added to DBFlow.
+ * Load a single DBFlow model from a ViewModel.
  *
  * @param <TModel>
  */
 @TargetApi(11)
 public class FlowModelViewLoader <TModel extends Model, TModelView extends BaseModelView<TModel>>
-  extends FlowSingleModelLoader<TModel, TModelView>
-{
-  public FlowModelViewLoader (Context context,
-                              Class <TModel> model,
-                              Class <TModelView> modelView,
-                              Queriable queriable)
-  {
-    super (context, model, (InstanceAdapter<TModel, TModelView>) FlowManager.getModelViewAdapter (modelView), queriable);
-  }
+    extends FlowSingleModelLoader<TModel, TModelView> {
+
+    @SuppressWarnings ("unchecked")
+    public FlowModelViewLoader (Context context, Class<TModel> model, Class<TModelView> modelView, Queriable queriable) {
+        super (context, model, (InstanceAdapter<TModel, TModelView>) FlowManager.getModelViewAdapter (modelView), queriable);
+    }
 }
