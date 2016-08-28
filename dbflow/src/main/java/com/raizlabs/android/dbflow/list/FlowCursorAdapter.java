@@ -10,7 +10,8 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 /**
- * Specialization of CursorAdapter for DBFLow models.
+ * Specialization of CursorAdapter for DBFLow models. The getItem() method
+ * returns a model element instead of a Cursor object.
  *
  * @param <TModel>
  */

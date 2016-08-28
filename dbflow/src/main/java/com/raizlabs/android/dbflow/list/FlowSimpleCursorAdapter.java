@@ -11,7 +11,8 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 /**
- * Utility class to be added to DBFlow.
+ * Specialization of SimpleCursorAdapter designed for DBFlow. The getItem() method
+ * return a model element instead of a Cursor element.
  *
  * @param <TModel>
  */
@@ -20,7 +21,7 @@ public class FlowSimpleCursorAdapter <TModel extends Model> extends SimpleCursor
     private final Class<TModel> mModel;
     private final ModelAdapter<TModel> mModelAdapter;
 
-    @TargetApi (11)
+    @TargetApi(11)
     public FlowSimpleCursorAdapter (Context context, Class<TModel> modelClass, int layout, Cursor c, String[] from, int[] to, int flags)
     {
         super (context, layout, c, from, to, flags);
