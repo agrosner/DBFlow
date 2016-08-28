@@ -19,10 +19,7 @@ import java.util.HashSet;
  * Specialization of AsyncTaskLoader for Cursor objects in DBFlow.
  */
 @TargetApi(11)
-public class FlowCursorLoader extends AsyncTaskLoader<Cursor>
-{
-    private static final String TAG = "FlowCursorLoader";
-
+public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
     /// Models to be observed for changes.
     private HashSet<Class<? extends Model>> mModels = new HashSet<> ();
 
@@ -41,32 +38,30 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor>
      * String[], String, String[], String) ContentResolver.query()} for documentation on the meaning
      * of the parameters.  These will be passed as-is to that call.
      */
-    public FlowCursorLoader (Context context, Queriable queriable)
-    {
+    public FlowCursorLoader (Context context, Queriable queriable) {
         super (context);
 
         this.mQueriable = queriable;
     }
 
     @Override
-    public Cursor loadInBackground ()
-    {
+    public Cursor loadInBackground () {
         Cursor cursor = this.mQueriable.query ();
 
-        if (cursor != null)
+        if (cursor != null) {
             cursor.getCount ();
+        }
 
         return cursor;
     }
 
     @Override
-    public void deliverResult (Cursor cursor)
-    {
-        if (this.isReset ())
-        {
+    public void deliverResult (Cursor cursor) {
+        if (this.isReset ()) {
             // An async query came in while the loader is stopped
-            if (cursor != null)
+            if (cursor != null) {
                 cursor.close ();
+            }
 
             return;
         }
@@ -74,11 +69,13 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor>
         Cursor oldCursor = this.mCursor;
         this.mCursor = cursor;
 
-        if (this.isStarted ())
+        if (this.isStarted ()) {
             super.deliverResult (cursor);
+        }
 
-        if (oldCursor != null && oldCursor != cursor && !oldCursor.isClosed ())
+        if (oldCursor != null && oldCursor != cursor && !oldCursor.isClosed ()) {
             oldCursor.close ();
+        }
 
         // Now that the result has been delivered, start listening for changes
         // to the target models. Doing this at anytime earlier runs the risk of
@@ -92,114 +89,100 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor>
      *
      * @param model
      */
-    public void registerForContentChanges (Class<? extends Model> model)
-    {
-        if (this.mModels.contains (model))
+    public void registerForContentChanges (Class<? extends Model> model) {
+        if (this.mModels.contains (model)) {
             return;
+        }
 
         this.mModels.add (model);
         this.mObserver.registerForContentChanges (this.getContext (), model);
     }
 
     @Override
-    protected void onStartLoading ()
-    {
-        if (this.mCursor != null)
+    protected void onStartLoading () {
+        if (this.mCursor != null) {
             this.deliverResult (this.mCursor);
+        }
 
-        if (this.takeContentChanged () || this.mCursor == null)
+        if (this.takeContentChanged () || this.mCursor == null) {
             this.forceLoad ();
+        }
     }
 
     @Override
-    protected void onStopLoading ()
-    {
+    protected void onStopLoading () {
         // Make sure the loading has stopped.
         this.cancelLoad ();
     }
 
     @Override
-    public void onCanceled (Cursor cursor)
-    {
-        if (cursor != null && !cursor.isClosed ())
+    public void onCanceled (Cursor cursor) {
+        if (cursor != null && !cursor.isClosed ()) {
             cursor.close ();
+        }
 
         this.stopListeningForChanges ();
     }
 
     @Override
-    protected void onReset ()
-    {
+    protected void onReset () {
         super.onReset ();
 
         this.startLoading ();
 
-        if (mCursor != null && !mCursor.isClosed ())
+        if (mCursor != null && !mCursor.isClosed ()) {
             mCursor.close ();
+        }
 
         mCursor = null;
 
         this.mObserver.unregisterForContentChanges (this.getContext ());
     }
 
-    private void startListeningForChanges ()
-    {
-        if (!this.mListening)
-        {
+    private void startListeningForChanges () {
+        if (!this.mListening) {
             this.mObserver.addModelChangeListener (this.mObserver);
             this.mListening = true;
         }
     }
 
-    private void stopListeningForChanges ()
-    {
-        if (this.mListening)
-        {
+    private void stopListeningForChanges () {
+        if (this.mListening) {
             this.mObserver.removeModelChangeListener (this.mObserver);
             this.mListening = false;
         }
     }
 
-    public Collection<Class<? extends Model>> getModels ()
-    {
+    public Collection<Class<? extends Model>> getModels () {
         return this.mModels;
     }
 
-    public FlowContentObserver getContentObserver ()
-    {
+    public FlowContentObserver getContentObserver () {
         return this.mObserver;
     }
 
     final class ForceLoadContentObserver extends FlowContentObserver
-        implements FlowContentObserver.OnModelStateChangedListener
-    {
+        implements FlowContentObserver.OnModelStateChangedListener {
         private boolean endOfTransaction = false;
 
         @Override
-        public boolean deliverSelfNotifications ()
-        {
+        public boolean deliverSelfNotifications () {
             return false;
         }
 
         @Override
         public void onModelStateChanged (Class<? extends Model> table,
                                          BaseModel.Action action,
-                                         SQLCondition[] primaryKeyValues)
-        {
-            if (!this.endOfTransaction)
-            {
-                if (action == BaseModel.Action.INSERT ||
-                    action == BaseModel.Action.DELETE ||
-                    action == BaseModel.Action.UPDATE)
-                {
+                                         SQLCondition[] primaryKeyValues) {
+            if (!this.endOfTransaction) {
+                if (action == BaseModel.Action.INSERT || action == BaseModel.Action.DELETE || action == BaseModel.Action.UPDATE) {
                     onContentChanged ();
                 }
             }
         }
 
         @Override
-        public void endTransactionAndNotify ()
-        {
+        public void endTransactionAndNotify () {
             // Mark this as the end of a transactions, and pass control to the base class
             // to perform the notifications.
             this.endOfTransaction = true;
