@@ -173,3 +173,50 @@ public static class UpdateMigration2 extends UpdateTableMigration<MigrationModel
 
 }
   ```
+
+### Remove Columns Migration
+
+SQLite does not directly supporting removing columns with the `ALTER TABLE`
+SQL statement. Instead, you must copy the data to a backup table, re-create
+the original table with fewer columns, and copy needed data from the 
+backup table to the new table. The `RemoveColumnsMigration` simplifies
+this task by automating this algorithm.
+
+You use `RemoveColumnsMigration` by first create a backup model that extends
+the original model less the columns you want to remove. The columns you
+want to remove are placed in the backup model. 
+
+
+```java
+// UserProfile.java
+@Model(database = MigrationDatabase.class)
+public class UserProfile extends BaseModel {
+    @Column
+    public String firstName;
+
+    @Column
+    public String lastName;
+}
+
+// UserProfileBackup.java
+@Model(database = MigrationDatabase.class)
+public class UserProfileBackup extends UserProfile {
+    @Column
+    public String dropColumn;
+}
+```
+ 
+Then, define the migration to remove the columns:
+
+```java
+@Migration(version = 2, database = MigrationDatabase.class)
+public static class RemoveColumnsFromUserProfile extends RemoveColumnsMigration<UserProfile, UserProfileBackup> {
+    public RemoveColumnsFromUserProfile () {
+      super (UserProfile.class, UserProfileBackup.class);
+    }
+}
+```
+
+In the end, `dropColumn` will be removed from the `UserProfile` table in the
+database.
+
