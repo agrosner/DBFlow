@@ -9,7 +9,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion dbflow_build_tools_version
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -17,7 +17,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -44,7 +44,7 @@ android {
 dependencies {
     kapt project(':dbflow-processor')
     compile project(':dbflow')
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:24.2.0'
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
     testCompile 'com.jayway.awaitility:awaitility:1.6.5'
