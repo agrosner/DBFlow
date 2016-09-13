@@ -217,5 +217,6 @@ public static class RemoveColumnsFromUserProfile extends RemoveColumnsMigration<
 }
 ```
 
-In the end, the desired columns will be removed from the corresponding
-table, and its data will be preserved.
+In the end, `dropColumn` will be removed from the `UserProfile` table in the
+database.
+
