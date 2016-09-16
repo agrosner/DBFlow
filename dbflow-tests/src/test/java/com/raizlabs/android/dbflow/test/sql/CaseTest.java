@@ -59,6 +59,39 @@ public class CaseTest extends FlowTestCase {
     }
 
     @Test
+    public void test_MuliWhenCase_SQL() throws Exception {
+        Delete.table(CaseModel.class);
+
+        CaseModel caseModel = new CaseModel();
+        caseModel.customerId = 507;
+        caseModel.firstName = "Namey";
+        caseModel.lastName = "McNameFace";
+        caseModel.country = "IO2016";
+        caseModel.insert();
+
+        caseModel = new CaseModel();
+        caseModel.customerId = 508;
+        caseModel.firstName = "Schooly";
+        caseModel.lastName = "McSchoolFace";
+        caseModel.country = "RepublicOfTexas";
+        caseModel.insert();
+
+        BaseQueriable<CaseModel> queriable = SQLite.select()
+                .from(CaseModel.class)
+                .where(SQLite.caseWhen(CaseModel_Table.customerId.greaterThan(507))
+                        .then(CaseModel_Table.firstName.like("School"))
+                        .when(CaseModel_Table.customerId.greaterThan(508))
+                        .then(CaseModel_Table.firstName.like("Name"))
+                        .endAsCondition());
+
+        assertEquals("SELECT * FROM `CaseModel` WHERE  " +
+                         "CASE WHEN `customerId`>507 " +
+                         "THEN `firstName` LIKE 'School'  " +
+                         "WHEN `customerId`>508 " +
+                         "THEN `firstName` LIKE 'Name' END", queriable.getQuery().trim());
+    }
+
+    @Test
     public void test_caseProperty() {
         String query = SQLite._case(CaseModel_Table.country)
                 .when(CaseModel_Table.firstName)

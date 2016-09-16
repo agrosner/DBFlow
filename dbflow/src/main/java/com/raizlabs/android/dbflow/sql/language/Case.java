@@ -93,6 +93,13 @@ public class Case<TReturn> implements Query {
         return end(null);
     }
 
+    /**
+     * @return The case complete as a condition.
+     */
+    public Condition endAsCondition() {
+        return Condition.column(end().getNameAlias());
+    }
+
     boolean isEfficientCase() {
         return efficientCase;
     }
@@ -103,8 +110,9 @@ public class Case<TReturn> implements Query {
         if (isEfficientCase()) {
             queryBuilder.append(" " + BaseCondition.convertValueToString(caseColumn, false));
         }
-        //noinspection unchecked
-        queryBuilder.appendList(caseConditions);
+
+        queryBuilder.append(QueryBuilder.join(" ", caseConditions));
+
         if (elseSpecified) {
             queryBuilder.append(" ELSE ").append(BaseCondition.convertValueToString(elseValue, false));
         }
