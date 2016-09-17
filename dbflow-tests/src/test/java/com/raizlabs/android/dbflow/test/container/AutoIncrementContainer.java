@@ -11,7 +11,6 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
  * Description:
  */
 @Table(database = TestDatabase.class, useBooleanGetterSetters = true)
-@ModelContainer
 public class AutoIncrementContainer extends BaseModel {
 
     @Column

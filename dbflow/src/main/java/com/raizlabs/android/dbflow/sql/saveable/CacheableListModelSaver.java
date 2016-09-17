@@ -6,14 +6,13 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
-import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.Collection;
 
 /**
- * Description: Used for model caching, enables caching models when saving in list. Does not work with {@link ModelContainer}.
+ * Description: Used for model caching, enables caching models when saving in list.
  */
 public class CacheableListModelSaver<TModel extends Model, TAdapter extends RetrievalAdapter & InternalAdapter>
         extends ListModelSaver<TModel, TModel, TAdapter> {

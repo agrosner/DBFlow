@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
@@ -76,16 +75,6 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         List<TModel> list = getRetrievalAdapter().getListModelLoader().load(wrapper, query);
         return list == null ? new ArrayList<TModel>() : list;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass
-    queryModelContainer(@NonNull ModelContainerClass instance) {
-        String query = getQuery();
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
-        return (ModelContainerClass) FlowManager.getContainerAdapter(getTable())
-                .getModelContainerLoader().load(query, instance);
     }
 
     @Override

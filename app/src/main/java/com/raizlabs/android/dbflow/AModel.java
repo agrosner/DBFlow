@@ -15,7 +15,6 @@ import java.util.Date;
  * Description:
  */
 @Table(database = AppDatabase.class)
-@ModelContainer
 public class AModel extends BaseModel {
 
     @Column

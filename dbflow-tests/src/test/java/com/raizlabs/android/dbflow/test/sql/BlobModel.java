@@ -13,7 +13,6 @@ import java.util.Date;
 /**
  * Description:
  */
-@ModelContainer
 @Table(database = TestDatabase.class)
 public class BlobModel extends BaseModel {
 

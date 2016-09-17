@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.config;
 import android.content.Context;
 
 import com.raizlabs.android.dbflow.annotation.Database;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
@@ -14,7 +13,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
-import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.FlowSQLiteOpenHelper;
@@ -45,8 +43,6 @@ public abstract class DatabaseDefinition {
 
     final Map<String, Class<? extends Model>> modelTableNames = new HashMap<>();
 
-    final Map<Class<? extends Model>, ModelContainerAdapter> modelContainerAdapters = new HashMap<>();
-
     final List<Class<? extends BaseModelView>> modelViews = new ArrayList<>();
 
     final Map<Class<? extends BaseModelView>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
@@ -75,7 +71,7 @@ public abstract class DatabaseDefinition {
     @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
         databaseConfig = FlowManager.getConfig()
-            .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+                .databaseConfigMap().get(getAssociatedDatabaseClassFile());
 
 
         if (databaseConfig != null) {
@@ -150,16 +146,6 @@ public abstract class DatabaseDefinition {
     }
 
     /**
-     * @param table The table that has a {@link ModelContainer} annotation.
-     * @return the associated {@link ModelContainerAdapter} within this
-     * database for the specified table. These are used for {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
-     * and require {@link Model} to add the {@link ModelContainer}.
-     */
-    public ModelContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
-        return modelContainerAdapters.get(table);
-    }
-
-    /**
      * @return the {@link BaseModelView} list for this database.
      */
     public List<Class<? extends BaseModelView>> getModelViews() {
@@ -207,7 +193,7 @@ public abstract class DatabaseDefinition {
     public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                .get(getAssociatedDatabaseClassFile());
+                    .get(getAssociatedDatabaseClassFile());
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {

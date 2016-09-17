@@ -10,7 +10,6 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
  * Description:
  */
 @Table(name = "OtherModel", database = AppDatabase.class)
-@ModelContainer
 public class OtherModel extends BaseModel {
 
     @Column

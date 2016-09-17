@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -13,7 +12,6 @@ import com.raizlabs.android.dbflow.test.sql.BoxedModel;
 import java.util.Date;
 
 @Table(database = TestDatabase.class, name = AQL.ENDPOINT)
-@ModelContainer
 public class AQL extends BaseModel {
 
     public static final String ENDPOINT = "AQL";
