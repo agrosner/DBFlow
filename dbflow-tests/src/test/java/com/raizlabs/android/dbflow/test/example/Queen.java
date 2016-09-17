@@ -34,7 +34,7 @@ public class Queen extends BaseModel {
         if (ants == null || ants.isEmpty()) {
             ants = SQLite.select()
                     .from(Ant.class)
-                    .where(Ant_Table.queenForeignKeyContainer_id.eq(id))
+                    .where(Ant_Table.queen_id.eq(id))
                     .queryList();
         }
         return ants;

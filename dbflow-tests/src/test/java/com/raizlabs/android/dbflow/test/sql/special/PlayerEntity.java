@@ -17,7 +17,7 @@ public class PlayerEntity extends BaseModel {
 
     @Column(name = "ID")
     @PrimaryKey(autoincrement = true)
-    Long id;
+    Long ID;
     @NotNull(onNullConflict = ConflictAction.ROLLBACK)
     @Column(name = "NAME")
     String name;
@@ -30,8 +30,8 @@ public class PlayerEntity extends BaseModel {
     }
 
     @NonNull
-    public Long getId() {
-        return id;
+    public Long getID() {
+        return ID;
     }
 
     @NonNull

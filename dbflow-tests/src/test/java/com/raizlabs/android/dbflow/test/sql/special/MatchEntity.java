@@ -50,7 +50,7 @@ public class MatchEntity extends BaseModel {
     @ForeignKey(
             onDelete = ForeignKeyAction.CASCADE,
             references = @ForeignKeyReference(columnName = "PLAYER_WINNER_ID",
-                    foreignKeyColumnName = "id", columnType = long.class))
+                    foreignKeyColumnName = "ID", columnType = long.class))
     PlayerEntity playerWinner;
 
     public MatchEntity(@NonNull final Date date, @NonNull final PlayerEntity playerOne, @NonNull final PlayerEntity playerTwo) {

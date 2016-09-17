@@ -21,9 +21,11 @@ public class ForeignInteractionModel extends TestModel1 {
             references =
                     {@ForeignKeyReference(columnName = "testmodel_id",
                             foreignKeyColumnName = "name",
+                            referencedFieldIsPackagePrivate = true,
                             columnType = String.class),
                             @ForeignKeyReference(columnName = "testmodel_type",
                                     foreignKeyColumnName = "type",
+                                    referencedFieldIsPackagePrivate = true,
                                     columnType = String.class)}
     )
     ParentModel testModel1;
