@@ -49,8 +49,7 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     @Override
     public String setColumnAccessString(TypeName fieldType, String elementName,
                                         String fullElementName,
-                                        String variableNameString, CodeBlock formattedAccess,
-                                        boolean toModel) {
+                                        String variableNameString, CodeBlock formattedAccess) {
         // append . when specify something, if not then we leave blank.
         String varNameFull = variableNameString;
         if (!StringUtils.isNullOrEmpty(varNameFull)) {

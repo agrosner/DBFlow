@@ -101,8 +101,8 @@ public class OneToManyDefinition extends BaseDefinition {
             writeLoopWithMethod(codeBuilder, "delete", useWrapper && extendsBaseModel);
 
             codeBuilder.addStatement(columnAccess.setColumnAccessString(null, variableName, variableName,
-                    ModelUtils.getVariable(), CodeBlock.builder().add("null").build(),
-                    false));
+                    ModelUtils.getVariable(), CodeBlock.builder().add("null").build()
+            ));
         }
     }
 

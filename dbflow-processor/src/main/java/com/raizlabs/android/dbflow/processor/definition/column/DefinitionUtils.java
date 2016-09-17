@@ -197,7 +197,7 @@ public class DefinitionUtils {
         }
 
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                ModelUtils.getVariable(), cursorAssignment.build(), false));
+                ModelUtils.getVariable(), cursorAssignment.build()));
 
         if (putDefaultValue && assignDefaultValuesFromCursor) {
             codeBuilder.nextControlFlow("else");
@@ -207,7 +207,7 @@ public class DefinitionUtils {
             }
             codeBuilder.addStatement(baseColumnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
                     ModelUtils.getVariable(),
-                    CodeBlock.builder().add(getDefaultValueString(elementTypeName)).build(), false));
+                    CodeBlock.builder().add(getDefaultValueString(elementTypeName)).build()));
         }
 
         codeBuilder.endControlFlow();
@@ -235,7 +235,7 @@ public class DefinitionUtils {
         accessBuilder.add("id.$LValue()", method);
 
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                ModelUtils.getVariable(), accessBuilder.build(), false));
+                ModelUtils.getVariable(), accessBuilder.build()));
 
         return codeBuilder;
     }

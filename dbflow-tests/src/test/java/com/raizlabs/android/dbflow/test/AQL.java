@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.test;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -36,7 +35,6 @@ public class AQL extends BaseModel {
     @Column(name = Columns.AQL_TIMESTAMP)
     private Date timestamp;
 
-    @ContainerKey("boxedLodo")
     @Column
     @ForeignKey(references = {@ForeignKeyReference(columnName = "id1", columnType = long.class, foreignKeyColumnName = "id", referencedFieldIsPackagePrivate = true),
             @ForeignKeyReference(columnName = "id2", columnType = String.class, foreignKeyColumnName = "name", referencedFieldIsPackagePrivate = true)})

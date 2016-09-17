@@ -82,7 +82,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess) {
         checkConverter();
         if (typeConverterDefinition != null) {
             CodeBlock.Builder newFormattedAccess = CodeBlock.builder();
@@ -105,7 +105,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
             newFormattedAccess.add(".getModelValue($L)", newCursorAccess);
 
             return getExistingColumnAccess()
-                    .setColumnAccessString(fieldType, elementName, fullElementName, variableNameString, newFormattedAccess.build(), toModel);
+                    .setColumnAccessString(fieldType, elementName, fullElementName, variableNameString, newFormattedAccess.build());
         } else {
             return "";
         }

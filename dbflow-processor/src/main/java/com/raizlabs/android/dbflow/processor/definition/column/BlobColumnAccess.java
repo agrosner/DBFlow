@@ -36,13 +36,13 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     @Override
     public String setColumnAccessString(TypeName fieldType, String elementName,
                                         String fullElementName, String variableNameString,
-                                        CodeBlock formattedAccess, boolean toModel) {
+                                        CodeBlock formattedAccess) {
         CodeBlock newFormattedAccess = CodeBlock.builder()
                 .add("new $T($L)", ClassName.get(Blob.class), formattedAccess)
                 .build();
         return getExistingColumnAccess()
                 .setColumnAccessString(ArrayTypeName.of(TypeName.BYTE), elementName,
-                        fullElementName, variableNameString, newFormattedAccess, toModel);
+                        fullElementName, variableNameString, newFormattedAccess);
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.annotation.Index;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
@@ -49,10 +48,6 @@ public class ColumnDefinition extends BaseDefinition {
 
     public String columnName;
 
-    public String containerKeyName;
-    public boolean putContainerDefaultValue;
-    public boolean excludeFromToModelMethod;
-
     public boolean hasTypeConverter;
     public boolean isPrimaryKey;
     private boolean isPrimaryKeyAutoIncrement;
@@ -90,7 +85,6 @@ public class ColumnDefinition extends BaseDefinition {
             length = column.length();
             collate = column.collate();
             defaultValue = column.defaultValue();
-            excludeFromToModelMethod = column.excludeFromToModelMethod();
         } else {
             this.columnName = element.getSimpleName()
                     .toString();
@@ -139,18 +133,6 @@ public class ColumnDefinition extends BaseDefinition {
         if (notNullAnno != null) {
             notNull = true;
             onNullConflict = notNullAnno.onNullConflict();
-        }
-
-        ContainerKey containerKey = element.getAnnotation(ContainerKey.class);
-        if (containerKey != null) {
-            containerKeyName = containerKey.value();
-            if (StringUtils.isNullOrEmpty(containerKeyName)) {
-                containerKeyName = elementName;
-            }
-            putContainerDefaultValue = containerKey.putDefault();
-        } else {
-            containerKeyName = elementName;
-            putContainerDefaultValue = true;
         }
 
         Index index = element.getAnnotation(Index.class);
@@ -279,14 +261,14 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
-        return DefinitionUtils.getContentValuesStatement(containerKeyName, elementName,
+        return DefinitionUtils.getContentValuesStatement(elementName, elementName,
                 columnName, elementTypeName, columnAccess,
                 ModelUtils.getVariable(), defaultValue,
                 tableDefinition.outputClassName).build();
     }
 
     public CodeBlock getSQLiteStatementMethod(AtomicInteger index) {
-        return DefinitionUtils.getSQLiteStatementMethod(index, containerKeyName, elementName,
+        return DefinitionUtils.getSQLiteStatementMethod(index, elementName, elementName,
                 elementTypeName, columnAccess,
                 ModelUtils.getVariable(), isPrimaryKeyAutoIncrement || isRowId, defaultValue).build();
     }
@@ -296,7 +278,7 @@ public class ColumnDefinition extends BaseDefinition {
         return DefinitionUtils.getLoadFromCursorMethod(index.intValue(), elementName,
                 elementTypeName, columnName, true, columnAccess,
                 tableDefinition.orderedCursorLookUp, tableDefinition.assignDefaultValuesFromCursor,
-                containerKeyName).build();
+                elementName).build();
     }
 
     /**
@@ -305,17 +287,17 @@ public class ColumnDefinition extends BaseDefinition {
      * @return The statement to use.
      */
     public CodeBlock getUpdateAutoIncrementMethod() {
-        return DefinitionUtils.getUpdateAutoIncrementMethod(containerKeyName, elementName, elementTypeName,
+        return DefinitionUtils.getUpdateAutoIncrementMethod(elementName, elementName, elementTypeName,
                 columnAccess).build();
     }
 
     public String setColumnAccessString(CodeBlock formattedAccess, boolean toModelMethod) {
-        return columnAccess.setColumnAccessString(elementTypeName, containerKeyName, elementName,
-                ModelUtils.getVariable(), formattedAccess, toModelMethod);
+        return columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
+                ModelUtils.getVariable(), formattedAccess);
     }
 
     public String getColumnAccessString(boolean isSqliteStatment) {
-        return columnAccess.getColumnAccessString(elementTypeName, containerKeyName,
+        return columnAccess.getColumnAccessString(elementTypeName, elementName,
                 elementName, ModelUtils.getVariable(), isSqliteStatment);
     }
 
@@ -326,7 +308,7 @@ public class ColumnDefinition extends BaseDefinition {
             TypeConverterDefinition converterDefinition = converterAccess.typeConverterDefinition;
             codeBuilder.add(converterAccess.existingColumnAccess
                     .getColumnAccessString(converterDefinition.getDbTypeName(),
-                            containerKeyName, elementName,
+                            elementName, elementName,
                             ModelUtils.getVariable(), false));
         } else {
             String columnAccessString = getColumnAccessString(false);
@@ -392,7 +374,7 @@ public class ColumnDefinition extends BaseDefinition {
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         codeBuilder.addStatement("$L.put($T.$L, $L)", ModelUtils.getVariable(), tableClassName, columnName,
-                columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+                columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
                         ModelUtils.getVariable(), false));
         return codeBuilder.build();
     }

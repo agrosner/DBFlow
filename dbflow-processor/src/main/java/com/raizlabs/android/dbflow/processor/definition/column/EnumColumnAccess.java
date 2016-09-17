@@ -30,11 +30,11 @@ public class EnumColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess) {
         CodeBlock newFormattedAccess = CodeBlock.builder()
                 .add("$T.valueOf($L)", columnDefinition.elementTypeName, formattedAccess)
                 .build();
         return getExistingColumnAccess()
-                .setColumnAccessString(ClassName.get(String.class), elementName, fullElementName, variableNameString, newFormattedAccess, toModel);
+                .setColumnAccessString(ClassName.get(String.class), elementName, fullElementName, variableNameString, newFormattedAccess);
     }
 }

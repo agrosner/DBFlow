@@ -352,26 +352,13 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             } else {
                 initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build());
-                if (!isModelContainerAdapter) {
-                    initializer.add(".querySingle()");
-                } else {
-                    if (isModelContainerAdapter) {
-                        initializer.add(".queryModelContainer($L.getInstance($L.newDataInstance(), $T.class)).getData()", ModelUtils.getVariable(),
-                                ModelUtils.getVariable(), referencedTableClassName);
-                    } else {
-                        initializer.add(".queryModelContainer(new $T($T.class))", elementTypeName, referencedTableClassName);
-                    }
-                }
+                initializer.add(".querySingle()");
             }
 
             builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.getVariable(), initializer.build(), false));
+                    ModelUtils.getVariable(), initializer.build()));
 
-            boolean putDefaultValue = putNullForContainerAdapter;
-            if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
-                putDefaultValue = putContainerDefaultValue;
-            }
-            if (putDefaultValue && tableDefinition.assignDefaultValuesFromCursor) {
+            if (putNullForContainerAdapter && tableDefinition.assignDefaultValuesFromCursor) {
                 builder.nextControlFlow("else");
                 builder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(), columnName);
             }
@@ -387,7 +374,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (nonModelColumn) {
             return super.getForeignKeyContainerMethod(tableClassName);
         } else {
-            String access = columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName,
+            String access = columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
                     ModelUtils.getVariable(), false);
             CodeBlock.Builder builder = CodeBlock.builder();
             CodeBlock.Builder elseBuilder = CodeBlock.builder();
@@ -410,7 +397,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         } else {
             String origStatement = getColumnAccessString(false);
             if (isPrimaryKey) {
-                String statement = "";
+                String statement;
                 String variableName = "container" + elementName;
                 TypeName typeName = elementTypeName;
                 codeBuilder.addStatement("\n$T $L = ($T) $L", typeName, variableName, typeName, origStatement);

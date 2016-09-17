@@ -33,11 +33,11 @@ public class BooleanTypeColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess) {
         CodeBlock finalAccess;
         finalAccess = CodeBlock.builder().add("$L == 1 ? true : false", formattedAccess).build();
         return CodeBlock.builder().add(getExistingColumnAccess().setColumnAccessString(fieldType,
-                elementName, fullElementName, variableNameString, finalAccess, toModel))
+                elementName, fullElementName, variableNameString, finalAccess))
                 .build().toString();
     }
 }

@@ -81,7 +81,7 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     @Override
     public String setColumnAccessString(TypeName fieldType, String elementName,
                                         String fullElementName,
-                                        String variableNameString, CodeBlock formattedAccess, boolean toModel) {
+                                        String variableNameString, CodeBlock formattedAccess) {
         return CodeBlock.builder().add("$T.set$L($L, $L)", helperClassName,
                 StringUtils.capitalize(elementName), ModelUtils.getVariable(),
                 formattedAccess).build().toString();

@@ -19,7 +19,7 @@ public abstract class BaseColumnAccess {
     public abstract String setColumnAccessString(TypeName fieldType, String elementName,
                                                  String fullElementName,
                                                  String variableNameString,
-                                                 CodeBlock formattedAccess, boolean toModel);
+                                                 CodeBlock formattedAccess);
 
     SQLiteHelper getSqliteTypeForTypeName(TypeName elementTypeName) {
         return SQLiteHelper.get(elementTypeName);

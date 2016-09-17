@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.test.container;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
@@ -21,7 +20,6 @@ public class TestModelContainerClass extends TestModel1 {
     String party_type;
 
     @Column
-    @ContainerKey("count1")
     int count;
 
     @Column
