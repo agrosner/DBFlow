@@ -9,13 +9,19 @@ import com.squareup.javapoet.TypeName;
  */
 public abstract class BaseColumnAccess {
 
-    public abstract String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement);
+    public abstract String getColumnAccessString(TypeName fieldType, String elementName,
+                                                 String fullElementName, String variableNameString,
+                                                 boolean isSqliteStatement);
 
-    public abstract String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement);
+    public abstract String getShortAccessString(TypeName fieldType, String elementName,
+                                                boolean isSqliteStatement);
 
-    public abstract String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess, boolean toModel);
+    public abstract String setColumnAccessString(TypeName fieldType, String elementName,
+                                                 String fullElementName,
+                                                 String variableNameString,
+                                                 CodeBlock formattedAccess, boolean toModel);
 
-    SQLiteHelper getSqliteTypeForTypeName(TypeName elementTypeName, boolean isModelContainerAdapter) {
+    SQLiteHelper getSqliteTypeForTypeName(TypeName elementTypeName) {
         return SQLiteHelper.get(elementTypeName);
     }
 }

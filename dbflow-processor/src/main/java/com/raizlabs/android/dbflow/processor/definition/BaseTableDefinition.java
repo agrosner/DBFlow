@@ -114,28 +114,28 @@ public abstract class BaseTableDefinition extends BaseDefinition {
 
                     MethodSpec.Builder method = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.getVariable(false))
+                            .addParameter(elementTypeName, ModelUtils.getVariable())
                             .returns(columnDefinition.elementTypeName);
                     boolean samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element);
 
                     if (samePackage) {
-                        method.addStatement("return $L.$L", ModelUtils.getVariable(false), columnDefinition.elementName);
+                        method.addStatement("return $L.$L", ModelUtils.getVariable(), columnDefinition.elementName);
                     } else {
-                        method.addStatement("return $T.get$L($L)", className, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false));
+                        method.addStatement("return $T.get$L($L)", className, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable());
                     }
 
                     typeBuilder.addMethod(method.build());
 
                     method = MethodSpec.methodBuilder("set" + StringUtils.capitalize(columnDefinition.columnName))
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.getVariable(false))
+                            .addParameter(elementTypeName, ModelUtils.getVariable())
                             .addParameter(columnDefinition.elementTypeName, "var");
 
                     if (samePackage) {
-                        method.addStatement("$L.$L = $L", ModelUtils.getVariable(false), columnDefinition.elementName, "var");
+                        method.addStatement("$L.$L = $L", ModelUtils.getVariable(), columnDefinition.elementName, "var");
                     } else {
 
-                        method.addStatement("$T.set$L($L, $L)", className, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(false), "var");
+                        method.addStatement("$T.set$L($L, $L)", className, StringUtils.capitalize(columnDefinition.columnName), ModelUtils.getVariable(), "var");
                     }
                     typeBuilder.addMethod(method.build());
                     count++;

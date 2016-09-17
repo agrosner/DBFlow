@@ -40,25 +40,25 @@ public class InternalAdapterHelper {
     }
 
     public static void writeUpdateAutoIncrement(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
-                                                ColumnDefinition autoIncrementDefinition, boolean isModelContainer) {
+                                                ColumnDefinition autoIncrementDefinition) {
         typeBuilder.addMethod(MethodSpec.methodBuilder("updateAutoIncrement")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
+                .addParameter(modelClassName, ModelUtils.getVariable())
                 .addParameter(ClassName.get(Number.class), "id")
-                .addCode(autoIncrementDefinition.getUpdateAutoIncrementMethod(isModelContainer)).build());
+                .addCode(autoIncrementDefinition.getUpdateAutoIncrementMethod()).build());
     }
 
     public static void writeGetCachingId(TypeSpec.Builder typeBuilder, final TypeName modelClassName,
-                                         List<ColumnDefinition> primaryColumns, boolean isModelContainer) {
+                                         List<ColumnDefinition> primaryColumns) {
         if (primaryColumns.size() > 1) {
             MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromModel")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ArrayTypeName.of(Object.class), "inValues")
-                    .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer));
+                    .addParameter(modelClassName, ModelUtils.getVariable());
             for (int i = 0; i < primaryColumns.size(); i++) {
                 ColumnDefinition column = primaryColumns.get(i);
-                methodBuilder.addStatement("inValues[$L] = $L", i, column.getColumnAccessString(isModelContainer, false));
+                methodBuilder.addStatement("inValues[$L] = $L", i, column.getColumnAccessString(false));
             }
             methodBuilder.addStatement("return $L", "inValues")
                     .returns(ArrayTypeName.of(Object.class));
@@ -83,9 +83,9 @@ public class InternalAdapterHelper {
             MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getCachingColumnValueFromModel")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer));
+                    .addParameter(modelClassName, ModelUtils.getVariable());
             methodBuilder.addStatement("return $L",
-                    primaryColumns.get(0).getColumnAccessString(isModelContainer, false))
+                    primaryColumns.get(0).getColumnAccessString(false))
                     .returns(Object.class);
             typeBuilder.addMethod(methodBuilder.build());
 
@@ -102,8 +102,8 @@ public class InternalAdapterHelper {
 
             methodBuilder = MethodSpec.methodBuilder("getCachingId")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(modelClassName, ModelUtils.getVariable(isModelContainer))
-                    .addStatement("return getCachingColumnValueFromModel($L)", ModelUtils.getVariable(isModelContainer))
+                    .addParameter(modelClassName, ModelUtils.getVariable())
+                    .addStatement("return getCachingColumnValueFromModel($L)", ModelUtils.getVariable())
                     .returns(TypeName.OBJECT);
             typeBuilder.addMethod(methodBuilder.build());
         }

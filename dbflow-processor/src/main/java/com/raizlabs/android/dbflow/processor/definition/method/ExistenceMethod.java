@@ -31,7 +31,7 @@ public class ExistenceMethod implements MethodDefinition {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("exists")
             .addAnnotation(Override.class)
             .addParameter(tableDefinition.getParameterClassName(),
-                ModelUtils.getVariable(isModelContainerAdapter))
+                ModelUtils.getVariable())
             .addParameter(ClassNames.DATABASE_WRAPPER, "wrapper")
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .returns(TypeName.BOOLEAN);
@@ -39,7 +39,7 @@ public class ExistenceMethod implements MethodDefinition {
         if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
             ColumnDefinition columnDefinition = tableDefinition.getAutoIncrementColumn();
             CodeBlock.Builder incrementBuilder = CodeBlock.builder().add("return ");
-            String columnAccess = columnDefinition.getColumnAccessString(isModelContainerAdapter, false);
+            String columnAccess = columnDefinition.getColumnAccessString(false);
             if (!columnDefinition.elementTypeName.isPrimitive()) {
                 incrementBuilder.add("($L != null && ", columnAccess);
             }
@@ -57,7 +57,7 @@ public class ExistenceMethod implements MethodDefinition {
                 methodBuilder.addCode("return ");
             }
             methodBuilder.addCode("new $T($T.count()).from($T.class).where(getPrimaryConditionClause($L)).count(wrapper) > 0",
-                ClassNames.SELECT, ClassNames.METHOD, tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter));
+                ClassNames.SELECT, ClassNames.METHOD, tableDefinition.elementClassName, ModelUtils.getVariable());
         }
         methodBuilder.addCode(";\n");
 

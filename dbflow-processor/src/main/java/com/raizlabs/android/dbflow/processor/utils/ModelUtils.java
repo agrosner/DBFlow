@@ -36,8 +36,8 @@ public class ModelUtils {
         return clazz;
     }
 
-    public static String getVariable(boolean isModelContainer) {
-        return isModelContainer ? "modelContainer" : "model";
+    public static String getVariable() {
+        return "model";
     }
 
     public static String getWrapper() {

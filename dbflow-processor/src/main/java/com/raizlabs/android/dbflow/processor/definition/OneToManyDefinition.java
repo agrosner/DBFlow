@@ -101,7 +101,7 @@ public class OneToManyDefinition extends BaseDefinition {
             writeLoopWithMethod(codeBuilder, "delete", useWrapper && extendsBaseModel);
 
             codeBuilder.addStatement(columnAccess.setColumnAccessString(null, variableName, variableName,
-                    false, ModelUtils.getVariable(false), CodeBlock.builder().add("null").build(),
+                    ModelUtils.getVariable(), CodeBlock.builder().add("null").build(),
                     false));
         }
     }
@@ -134,11 +134,11 @@ public class OneToManyDefinition extends BaseDefinition {
     }
 
     private String getMethodName() {
-        return String.format("%1s.%1s()", ModelUtils.getVariable(false), methodName);
+        return String.format("%1s.%1s()", ModelUtils.getVariable(), methodName);
     }
 
     private String getVariableName() {
-        return String.format("%1s.%1s", ModelUtils.getVariable(false), variableName);
+        return String.format("%1s.%1s", ModelUtils.getVariable(), variableName);
     }
 
 }

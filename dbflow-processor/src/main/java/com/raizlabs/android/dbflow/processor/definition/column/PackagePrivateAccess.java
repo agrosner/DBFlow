@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.google.common.collect.Maps;
-import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
@@ -63,37 +62,28 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
-        if (!isModelContainerAdapter) {
-            return CodeBlock.builder().add("$T.get$L($L)", helperClassName, StringUtils.capitalize(elementName),
-                    variableNameString).build().toString();
-        } else {
-            String method = SQLiteHelper.getMethod(fieldType);
-            if (method == null) {
-                method = "get";
-            }
-            return variableNameString + "." + method + "Value(\"" + elementName + "\")";
-        }
+    public String getColumnAccessString(TypeName fieldType, String elementName,
+                                        String fullElementName, String variableNameString,
+                                        boolean isSqliteStatement) {
+        return CodeBlock.builder().add("$T.get$L($L)", helperClassName,
+                StringUtils.capitalize(elementName),
+                variableNameString).build().toString();
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement) {
-        if (!isModelContainerAdapter) {
-            return CodeBlock.builder().add("$T.get$L($L)", helperClassName, StringUtils.capitalize(elementName),
-                    elementName).build().toString();
-        } else {
-            return elementName;
-        }
+    public String getShortAccessString(TypeName fieldType, String elementName,
+                                       boolean isSqliteStatement) {
+        return CodeBlock.builder().add("$T.get$L($L)", helperClassName,
+                StringUtils.capitalize(elementName),
+                elementName).build().toString();
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
-        if (isModelContainerAdapter) {
-            return variableNameString + ".put(\"" + elementName + "\", " + formattedAccess + ")";
-        } else {
-            return CodeBlock.builder().add("$T.set$L($L, $L)", helperClassName,
-                    StringUtils.capitalize(elementName), ModelUtils.getVariable(isModelContainerAdapter),
-                    formattedAccess).build().toString();
-        }
+    public String setColumnAccessString(TypeName fieldType, String elementName,
+                                        String fullElementName,
+                                        String variableNameString, CodeBlock formattedAccess, boolean toModel) {
+        return CodeBlock.builder().add("$T.set$L($L, $L)", helperClassName,
+                StringUtils.capitalize(elementName), ModelUtils.getVariable(),
+                formattedAccess).build().toString();
     }
 }

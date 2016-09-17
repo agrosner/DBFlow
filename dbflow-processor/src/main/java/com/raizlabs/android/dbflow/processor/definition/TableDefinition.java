@@ -499,13 +499,13 @@ public class TableDefinition extends BaseTableDefinition {
 
         if (hasAutoIncrement || hasRowID) {
             InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName,
-                    autoIncrementDefinition, false);
+                    autoIncrementDefinition);
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingId")
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(elementClassName, ModelUtils.getVariable(false))
-                    .addStatement("return $L", autoIncrementDefinition.getColumnAccessString(false, false))
+                    .addParameter(elementClassName, ModelUtils.getVariable())
+                    .addStatement("return $L", autoIncrementDefinition.getColumnAccessString(false))
                     .returns(ClassName.get(Number.class)).build());
 
             typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingColumnName")
@@ -560,7 +560,7 @@ public class TableDefinition extends BaseTableDefinition {
             if (primaries == null || primaries.isEmpty()) {
                 primaries = Lists.newArrayList(autoIncrementDefinition);
             }
-            InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, primaries, false);
+            InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, primaries);
 
             MethodSpec.Builder cachingbuilder = MethodSpec.methodBuilder("createCachingColumns")
                     .addAnnotation(Override.class)
@@ -606,13 +606,13 @@ public class TableDefinition extends BaseTableDefinition {
 
             MethodSpec.Builder reloadMethod = MethodSpec.methodBuilder("reloadRelationships")
                     .addAnnotation(Override.class)
-                    .addParameter(elementClassName, ModelUtils.getVariable(false))
+                    .addParameter(elementClassName, ModelUtils.getVariable())
                     .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
             CodeBlock.Builder loadStatements = CodeBlock.builder();
             AtomicInteger noIndex = new AtomicInteger(-1);
             for (ColumnDefinition foreignColumn : foreignKeyDefinitions) {
-                CodeBlock.Builder codeBuilder = foreignColumn.getLoadFromCursorMethod(false, false,
+                CodeBlock.Builder codeBuilder = foreignColumn.getLoadFromCursorMethod(false,
                         false, noIndex).toBuilder();
                 if (!foreignColumn.elementTypeName.isPrimitive()) {
                     codeBuilder.nextControlFlow("else");

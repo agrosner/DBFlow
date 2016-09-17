@@ -35,7 +35,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isModelContainerAdapter, boolean isSqliteStatement) {
+    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isSqliteStatement) {
         checkConverter();
         if (typeConverterDefinition != null) {
             CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -48,7 +48,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
                 codeBuilder.add(typeConverterFieldName);
             }
             codeBuilder.add(".getDBValue(($T) $L)", typeConverterDefinition.getModelTypeName(), getExistingColumnAccess()
-                    .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isModelContainerAdapter, isSqliteStatement));
+                    .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isSqliteStatement));
 
 
             return codeBuilder.build().toString();
@@ -58,7 +58,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName, boolean isModelContainerAdapter, boolean isSqliteStatement) {
+    public String getShortAccessString(TypeName fieldType, String elementName, boolean isSqliteStatement) {
         checkConverter();
         if (typeConverterDefinition != null) {
             CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -72,7 +72,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
                 codeBuilder.add(typeConverterFieldName);
             }
             codeBuilder.add(".getDBValue($L)", getExistingColumnAccess()
-                    .getShortAccessString(fieldType, elementName, isModelContainerAdapter, isSqliteStatement));
+                    .getShortAccessString(fieldType, elementName, isSqliteStatement));
 
 
             return codeBuilder.build().toString();
@@ -82,7 +82,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, boolean isModelContainerAdapter, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
+    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess, boolean toModel) {
         checkConverter();
         if (typeConverterDefinition != null) {
             CodeBlock.Builder newFormattedAccess = CodeBlock.builder();
@@ -105,17 +105,17 @@ public class TypeConverterAccess extends WrapperColumnAccess {
             newFormattedAccess.add(".getModelValue($L)", newCursorAccess);
 
             return getExistingColumnAccess()
-                    .setColumnAccessString(fieldType, elementName, fullElementName, isModelContainerAdapter, variableNameString, newFormattedAccess.build(), toModel);
+                    .setColumnAccessString(fieldType, elementName, fullElementName, variableNameString, newFormattedAccess.build(), toModel);
         } else {
             return "";
         }
     }
 
     @Override
-    SQLiteHelper getSqliteTypeForTypeName(TypeName elementTypeName, boolean isModelContainerAdapter) {
+    SQLiteHelper getSqliteTypeForTypeName(TypeName elementTypeName) {
         checkConverter();
         if (typeConverterDefinition != null) {
-            return super.getSqliteTypeForTypeName(typeConverterDefinition.getDbTypeName(), isModelContainerAdapter);
+            return super.getSqliteTypeForTypeName(typeConverterDefinition.getDbTypeName());
         } else {
             return SQLiteHelper.TEXT;
         }

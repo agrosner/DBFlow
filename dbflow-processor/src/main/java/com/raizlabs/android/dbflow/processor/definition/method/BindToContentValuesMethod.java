@@ -39,7 +39,7 @@ public class BindToContentValuesMethod implements MethodDefinition {
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
             .addParameter(baseTableDefinition.getParameterClassName(),
-                ModelUtils.getVariable(isModelContainerAdapter))
+                ModelUtils.getVariable())
             .returns(TypeName.VOID);
 
         if (isInsert) {
@@ -52,7 +52,7 @@ public class BindToContentValuesMethod implements MethodDefinition {
 
             if (implementsContentValuesListener) {
                 methodBuilder.addStatement("$L.onBindTo$LValues($L)",
-                    ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
+                    ModelUtils.getVariable(), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
             }
         } else if (baseTableDefinition instanceof TableDefinition) {
             TableDefinition tableDefinition = ((TableDefinition) baseTableDefinition);
@@ -61,10 +61,10 @@ public class BindToContentValuesMethod implements MethodDefinition {
                 methodBuilder.addCode(autoIncrement.getContentValuesStatement(isModelContainerAdapter));
             }
 
-            methodBuilder.addStatement("bindToInsertValues($L, $L)", PARAM_CONTENT_VALUES, ModelUtils.getVariable(isModelContainerAdapter));
+            methodBuilder.addStatement("bindToInsertValues($L, $L)", PARAM_CONTENT_VALUES, ModelUtils.getVariable());
             if (implementsContentValuesListener) {
                 methodBuilder.addStatement("$L.onBindTo$LValues($L)",
-                    ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
+                    ModelUtils.getVariable(), isInsert ? "Insert" : "Content", PARAM_CONTENT_VALUES);
             }
         }
 

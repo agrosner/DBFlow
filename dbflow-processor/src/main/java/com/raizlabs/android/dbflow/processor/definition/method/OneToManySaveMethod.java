@@ -49,18 +49,18 @@ public class OneToManySaveMethod implements MethodDefinition {
             }
 
             code.addStatement("super.$L($L$L)", methodName,
-                    ModelUtils.getVariable(isModelContainerAdapter),
+                    ModelUtils.getVariable(),
                     useWrapper ? (", " + ModelUtils.getWrapper()) : "");
 
             if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
-                code.addStatement("getModelCache().addModel(getCachingId($L), $L)", ModelUtils.getVariable(isModelContainerAdapter),
-                        ModelUtils.getVariable(isModelContainerAdapter));
+                code.addStatement("getModelCache().addModel(getCachingId($L), $L)", ModelUtils.getVariable(),
+                        ModelUtils.getVariable());
             }
 
             MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(tableDefinition.elementClassName, ModelUtils.getVariable(isModelContainerAdapter))
+                    .addParameter(tableDefinition.elementClassName, ModelUtils.getVariable())
                     .addCode(code.build());
             if (useWrapper) {
                 builder.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.getWrapper());

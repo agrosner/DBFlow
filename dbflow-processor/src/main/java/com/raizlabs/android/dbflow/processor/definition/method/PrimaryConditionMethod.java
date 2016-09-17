@@ -31,13 +31,13 @@ public class PrimaryConditionMethod implements MethodDefinition {
             .addAnnotation(Override.class)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addParameter(tableDefinition.getParameterClassName(),
-                ModelUtils.getVariable(isModelContainerAdapter))
+                ModelUtils.getVariable())
             .returns(ClassNames.CONDITION_GROUP);
         CodeBlock.Builder code = CodeBlock.builder();
         code.add("$T clause = $T.clause();", ClassNames.CONDITION_GROUP, ClassNames.CONDITION_GROUP);
         for (ColumnDefinition columnDefinition : tableDefinition.getPrimaryColumnDefinitions()) {
             CodeBlock.Builder codeBuilder = CodeBlock.builder();
-            columnDefinition.appendPropertyComparisonAccessStatement(isModelContainerAdapter, codeBuilder);
+            columnDefinition.appendPropertyComparisonAccessStatement(codeBuilder);
             code.add(codeBuilder.build());
         }
         methodBuilder.addCode(code.build());

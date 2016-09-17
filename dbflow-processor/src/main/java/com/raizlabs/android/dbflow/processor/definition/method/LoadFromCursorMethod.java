@@ -44,13 +44,13 @@ public class LoadFromCursorMethod implements MethodDefinition {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ClassNames.CURSOR, PARAM_CURSOR)
                 .addParameter(baseTableDefinition.getParameterClassName(),
-                        ModelUtils.getVariable(isModelContainerAdapter))
+                        ModelUtils.getVariable())
                 .returns(TypeName.VOID);
 
         List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
         AtomicInteger index = new AtomicInteger(0);
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
-            methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod(isModelContainerAdapter,
+            methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod(
                     putNullForContainerAdapter, true, index));
             index.incrementAndGet();
         }
@@ -67,7 +67,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
         }
 
         if (baseTableDefinition instanceof TableDefinition && ((TableDefinition) baseTableDefinition).implementsLoadFromCursorListener) {
-            methodBuilder.addStatement("$L.onLoadFromCursor($L)", ModelUtils.getVariable(isModelContainerAdapter), LoadFromCursorMethod.PARAM_CURSOR);
+            methodBuilder.addStatement("$L.onLoadFromCursor($L)", ModelUtils.getVariable(), LoadFromCursorMethod.PARAM_CURSOR);
         }
 
         return methodBuilder.build();

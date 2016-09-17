@@ -39,7 +39,7 @@ public class BindToStatementMethod implements MethodDefinition {
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
             .addParameter(tableDefinition.getParameterClassName(),
-                ModelUtils.getVariable(isModelContainerAdapter))
+                ModelUtils.getVariable())
             .returns(TypeName.VOID);
 
         // write the reference method
@@ -49,26 +49,26 @@ public class BindToStatementMethod implements MethodDefinition {
             AtomicInteger realCount = new AtomicInteger(1);
             for (ColumnDefinition columnDefinition : columnDefinitionList) {
                 if (!columnDefinition.isPrimaryKeyAutoIncrement() && !columnDefinition.isRowId) {
-                    methodBuilder.addCode(columnDefinition.getSQLiteStatementMethod(realCount, isModelContainerAdapter));
+                    methodBuilder.addCode(columnDefinition.getSQLiteStatementMethod(realCount));
                     realCount.incrementAndGet();
                 }
             }
 
             if (tableDefinition.implementsSqlStatementListener) {
                 methodBuilder.addStatement("$L.onBindTo$LStatement($L)",
-                    ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "", PARAM_STATEMENT);
+                    ModelUtils.getVariable(), isInsert ? "Insert" : "", PARAM_STATEMENT);
             }
         } else {
             int start = 0;
             if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
                 ColumnDefinition autoIncrement = tableDefinition.autoIncrementDefinition;
-                methodBuilder.addCode(autoIncrement.getSQLiteStatementMethod(new AtomicInteger(++start), isModelContainerAdapter));
+                methodBuilder.addCode(autoIncrement.getSQLiteStatementMethod(new AtomicInteger(++start)));
             }
 
-            methodBuilder.addStatement("bindToInsertStatement($L, $L, $L)", PARAM_STATEMENT, ModelUtils.getVariable(isModelContainerAdapter), start);
+            methodBuilder.addStatement("bindToInsertStatement($L, $L, $L)", PARAM_STATEMENT, ModelUtils.getVariable(), start);
             if (tableDefinition.implementsSqlStatementListener) {
                 methodBuilder.addStatement("$L.onBindTo$LStatement($L)",
-                    ModelUtils.getVariable(isModelContainerAdapter), isInsert ? "Insert" : "", PARAM_STATEMENT);
+                    ModelUtils.getVariable(), isInsert ? "Insert" : "", PARAM_STATEMENT);
             }
         }
 
