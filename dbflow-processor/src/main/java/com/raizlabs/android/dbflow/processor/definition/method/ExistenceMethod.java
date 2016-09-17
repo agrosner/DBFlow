@@ -30,7 +30,7 @@ public class ExistenceMethod implements MethodDefinition {
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("exists")
             .addAnnotation(Override.class)
-            .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
+            .addParameter(tableDefinition.getParameterClassName(),
                 ModelUtils.getVariable(isModelContainerAdapter))
             .addParameter(ClassNames.DATABASE_WRAPPER, "wrapper")
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)

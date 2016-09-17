@@ -38,7 +38,7 @@ public class BindToStatementMethod implements MethodDefinition {
             .addAnnotation(Override.class)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
-            .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
+            .addParameter(tableDefinition.getParameterClassName(),
                 ModelUtils.getVariable(isModelContainerAdapter))
             .returns(TypeName.VOID);
 

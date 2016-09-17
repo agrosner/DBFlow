@@ -4,13 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.InheritedPrimaryKey;
 import com.raizlabs.android.dbflow.annotation.ModelCacheField;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.MultiCacheField;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -19,7 +17,6 @@ import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
-import com.raizlabs.android.dbflow.processor.definition.column.ContainerKeyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -118,13 +115,10 @@ public class TableDefinition extends BaseTableDefinition {
     public Map<Integer, List<ColumnDefinition>> columnUniqueMap = Maps.newHashMap();
 
     public List<OneToManyDefinition> oneToManyDefinitions = new ArrayList<>();
-    public List<ContainerKeyDefinition> containerKeyDefinitions = new ArrayList<>();
 
     public Map<String, InheritedColumn> inheritedColumnMap = new HashMap<>();
     public List<String> inheritedFieldNameList = new ArrayList<>();
     public Map<String, InheritedPrimaryKey> inheritedPrimaryKeyMap = new HashMap<>();
-
-    public ModelContainerDefinition modelContainerDefinition;
 
     public TableDefinition(ProcessorManager manager, TypeElement element) {
         super(element, manager);
@@ -188,10 +182,6 @@ public class TableDefinition extends BaseTableDefinition {
                     ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element);
         }
 
-        if (element.getAnnotation(ModelContainer.class) != null) {
-            modelContainerDefinition = new ModelContainerDefinition(element, manager);
-        }
-
         methods = new MethodDefinition[]
                 {
                         new BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
@@ -226,7 +216,6 @@ public class TableDefinition extends BaseTableDefinition {
         indexGroupsDefinitions.clear();
         foreignKeyDefinitions.clear();
         columnUniqueMap.clear();
-        containerKeyDefinitions.clear();
         oneToManyDefinitions.clear();
         customCacheFieldName = null;
         customMultiCacheFieldName = null;
@@ -298,9 +287,6 @@ public class TableDefinition extends BaseTableDefinition {
             }
         }
 
-        if (modelContainerDefinition != null) {
-            modelContainerDefinition.prepareForWrite();
-        }
     }
 
     @Override
@@ -401,9 +387,6 @@ public class TableDefinition extends BaseTableDefinition {
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition);
                 }
-            } else if (element.getAnnotation(ContainerKey.class) != null) {
-                ContainerKeyDefinition containerKeyDefinition = new ContainerKeyDefinition(element, manager, this, isPackagePrivateNotInSamePackage);
-                containerKeyDefinitions.add(containerKeyDefinition);
             } else if (element.getAnnotation(ModelCacheField.class) != null) {
                 if (!element.getModifiers().contains(Modifier.PUBLIC)) {
                     manager.logError("ModelCacheField must be public from: " + typeElement);

@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
-import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
@@ -22,7 +21,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.WildcardTypeName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypeException;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 
 /**
  * Description:
@@ -50,7 +45,6 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public ForeignKeyAction onDelete;
     public ForeignKeyAction onUpdate;
 
-    public boolean isModelContainer;
     public boolean isForeignKeyContainer;
 
     public boolean isModel;
@@ -85,32 +79,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
                 if (args.size() > 0) {
                     referencedTableClassName = ClassName.bestGuess(args.get(0).toString());
-                    isModelContainer = true;
                 }
             } else {
-                if (ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                        ClassNames.MODEL_CONTAINER.toString(), erasedElement)) {
-                    Types types = manager.getTypeUtils();
-
-                    DeclaredType superContainer = null;
-                    DeclaredType modelContainer = manager.getTypeUtils().getDeclaredType(manager.getElements().getTypeElement(ClassNames.MODEL_CONTAINER.toString()),
-                            types.getWildcardType(manager.getElements()
-                                    .getTypeElement(ClassNames.MODEL.toString()).asType(), null),
-                            types.getWildcardType(null, null));
-                    for (TypeMirror superType : types.directSupertypes(erasedElement.asType())) {
-                        if (types.isAssignable(superType, modelContainer)) {
-                            superContainer = (DeclaredType) superType;
-                        }
-                    }
-
-                    if (superContainer != null) {
-                        List<? extends TypeMirror> typeArgs = superContainer.getTypeArguments();
-                        referencedTableClassName = ClassName.get(manager.getElements()
-                                .getTypeElement(typeArgs.get(0).toString()));
-                        isModelContainer = true;
-                    }
-                }
-
                 if (referencedTableClassName == null || referencedTableClassName.equals(ClassName.OBJECT)) {
                     referencedTableClassName = ClassName.bestGuess(elementTypeName.toString());
                 }
@@ -122,10 +92,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
 
         isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), erasedElement);
-        isModelContainer = isModelContainer || ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL_CONTAINER.toString(), erasedElement);
-        isForeignKeyContainer = isModelContainer && ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.FOREIGN_KEY_CONTAINER.toString(), erasedElement);
 
-        nonModelColumn = !isModel && !isModelContainer;
+        nonModelColumn = !isModel;
 
         saveForeignKeyModel = foreignKey.saveForeignKeyModel();
 
@@ -260,7 +228,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             String statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
                             ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, false);
-            String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
+            String finalAccessStatement = getFinalAccessStatement(builder, statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
 
             if (saveForeignKeyModel) {
@@ -290,7 +258,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             String statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
                             ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, true);
-            String finalAccessStatement = getFinalAccessStatement(builder, isModelContainerAdapter, statement);
+            String finalAccessStatement = getFinalAccessStatement(builder, statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
 
             if (saveForeignKeyModel) {
@@ -384,7 +352,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             } else {
                 initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build());
-                if (!isModelContainerAdapter && !isModelContainer) {
+                if (!isModelContainerAdapter) {
                     initializer.add(".querySingle()");
                 } else {
                     if (isModelContainerAdapter) {
@@ -410,35 +378,6 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             if (endNonPrimitiveIf || !tableDefinition.assignDefaultValuesFromCursor) {
                 builder.endControlFlow();
             }
-            return builder.build();
-        }
-    }
-
-    @Override
-    public CodeBlock getToModelMethod() {
-        checkNeedsReferences();
-        if (nonModelColumn) {
-            return super.getToModelMethod();
-        } else {
-            CodeBlock.Builder builder = CodeBlock.builder();
-            String statement = columnAccess
-                    .getColumnAccessString(elementTypeName, elementName, elementName,
-                            ModelUtils.getVariable(true), true, true);
-            String finalAccessStatement = getFinalAccessStatement(builder, true, statement);
-
-            builder.beginControlFlow("if ($L != null)", finalAccessStatement);
-            if (!isModelContainer) {
-                CodeBlock.Builder modelContainerRetrieval = CodeBlock.builder();
-                modelContainerRetrieval.add("$L.getContainerAdapter($T.class).toModel($L)", ClassNames.FLOW_MANAGER,
-                        referencedTableClassName, finalAccessStatement);
-                builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                        false, ModelUtils.getVariable(false), modelContainerRetrieval.build(), true));
-            } else {
-                builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                        false, ModelUtils.getVariable(false), CodeBlock.builder().add("new $T($L)",
-                                elementTypeName, finalAccessStatement).build(), true));
-            }
-            builder.endControlFlow();
             return builder.build();
         }
     }
@@ -476,22 +415,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 String statement = "";
                 String variableName = "container" + elementName;
                 TypeName typeName = elementTypeName;
-                if (isModelContainerAdapter) {
-                    typeName = ParameterizedTypeName.get(ClassNames.MODEL_CONTAINER, elementTypeName, WildcardTypeName.subtypeOf(Object.class));
-                }
                 codeBuilder.addStatement("\n$T $L = ($T) $L", typeName, variableName, typeName, origStatement);
                 codeBuilder.beginControlFlow("if ($L != null)", variableName);
                 CodeBlock.Builder elseBuilder = CodeBlock.builder();
                 for (ForeignKeyReferenceDefinition referenceDefinition : getForeignKeyReferenceDefinitionList()) {
-                    if (isModelContainer || isModelContainerAdapter) {
-                        // check for null and retrieve proper value
-                        String method = SQLiteHelper.getModelContainerMethod(referenceDefinition.columnClassName);
-                        if (method == null) {
-                            method = "get";
-                        }
-                        statement = String
-                                .format("%1s.%1sValue(%1s.%1s.getContainerKey())", variableName, method, referenced.outputClassName, referenceDefinition.foreignColumnName);
-                    } else if (isModel) {
+                    if (isModel) {
                         statement = referenceDefinition.getPrimaryReferenceString(isModelContainerAdapter);
                     } else {
                         statement = origStatement;
@@ -506,37 +434,27 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
     }
 
-    String getFinalAccessStatement(CodeBlock.Builder codeBuilder, boolean isModelContainerAdapter, String statement) {
+    String getFinalAccessStatement(CodeBlock.Builder codeBuilder, String statement) {
         String finalAccessStatement = statement;
-        if (columnAccess instanceof TypeConverterAccess ||
-                columnAccess instanceof ModelContainerAccess ||
-                isModelContainerAdapter) {
+        if (columnAccess instanceof TypeConverterAccess) {
             finalAccessStatement = getRefName();
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
                 typeName = ((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName();
-            } else if (columnAccess instanceof ModelContainerAccess) {
-                typeName = ModelUtils.getModelContainerType(manager, referencedTableClassName);
             } else {
-                if (isModelContainer || isModel) {
-                    typeName = ModelUtils.getModelContainerType(manager, referencedTableClassName);
-                    statement = ModelUtils.getVariable(isModelContainerAdapter) + ".getInstance(" + statement + ", " + referencedTableClassName + ".class)";
-                } else {
-                    typeName = referencedTableClassName;
-                }
+                typeName = referencedTableClassName;
             }
 
             codeBuilder.addStatement("$T $L = $L", typeName,
                     finalAccessStatement, statement);
         }
+
         return finalAccessStatement;
     }
 
-    String getForeignKeyReferenceAccess(boolean isModelContainerAdapter, String statement) {
-        if (columnAccess instanceof TypeConverterAccess ||
-                columnAccess instanceof ModelContainerAccess ||
-                isModelContainerAdapter) {
+    String getForeignKeyReferenceAccess(String statement) {
+        if (columnAccess instanceof TypeConverterAccess) {
             return getRefName();
         } else {
             return statement;

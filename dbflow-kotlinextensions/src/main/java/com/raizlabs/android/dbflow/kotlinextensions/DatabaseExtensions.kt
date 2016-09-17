@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.structure.BaseQueryModel
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter
-import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
@@ -30,13 +29,6 @@ inline fun <reified TModel : Model> tableName(): String {
  */
 inline fun <reified TModel : Model> modelAdapter(): ModelAdapter<TModel> {
     return FlowManager.getModelAdapter(TModel::class.java)
-}
-
-/**
- * Easily get its [ModelContainerAdapter].
- */
-inline fun <reified TModel : Model> containerAdapter(): ModelContainerAdapter<TModel> {
-    return FlowManager.getContainerAdapter(TModel::class.java)
 }
 
 /**

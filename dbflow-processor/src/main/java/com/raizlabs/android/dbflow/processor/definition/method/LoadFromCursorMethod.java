@@ -43,7 +43,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(ClassNames.CURSOR, PARAM_CURSOR)
-                .addParameter(baseTableDefinition.getParameterClassName(isModelContainerAdapter),
+                .addParameter(baseTableDefinition.getParameterClassName(),
                         ModelUtils.getVariable(isModelContainerAdapter))
                 .returns(TypeName.VOID);
 

@@ -16,7 +16,6 @@ import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
-import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -44,20 +43,20 @@ public class SqlUtils {
      * Performs necessary logic to notify of {@link Model}g changes.
      *
      * @param model          The model to use to notify.
-     * @param adapter        The adapter to use thats either a {@link ModelAdapter} or {@link ModelContainerAdapter}
+     * @param adapter        The adapter to use thats a {@link ModelAdapter}
      *                       to handle interactions.
      * @param modelAdapter   The actual {@link ModelAdapter} associated with the {@link ModelClass}/
      * @param action         The {@link Action} that occured.
      * @param <ModelClass>   The original model class.
      * @param <TableClass>   The class of the adapter that we use the model from.
-     * @param <AdapterClass> The class of the adapter, which is either a {@link ModelAdapter} or {@link ModelContainerAdapter}
+     * @param <AdapterClass> The class of the adapter, which is a {@link ModelAdapter}
      */
     @SuppressWarnings("unchecked")
     public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
     void notifyModelChanged(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter, Action action) {
         if (FlowContentObserver.shouldNotify()) {
             notifyModelChanged(modelAdapter.getModelClass(), action,
-                adapter.getPrimaryConditionClause(model).getConditions());
+                    adapter.getPrimaryConditionClause(model).getConditions());
         }
     }
 
@@ -71,7 +70,7 @@ public class SqlUtils {
      */
     public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, Iterable<SQLCondition> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getTableName(modelClass));
+                .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -94,7 +93,7 @@ public class SqlUtils {
      */
     public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, SQLCondition[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getTableName(modelClass));
+                .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -145,20 +144,19 @@ public class SqlUtils {
      */
     public static <ModelClass extends Model> void dropTrigger(Class<ModelClass> mOnTable, String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-            .append(triggerName);
+                .append(triggerName);
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 
     /**
      * Drops an active INDEX by specifying the onTable and indexName
      *
-     * @param mOnTable     The table that this index runs on
      * @param indexName    The name of the index.
      * @param <ModelClass> The class that implements {@link Model}
      */
     public static <ModelClass extends Model> void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
-            .append(QueryBuilder.quoteIfNeeded(indexName));
+                .append(QueryBuilder.quoteIfNeeded(indexName));
         databaseWrapper.execSQL(queryBuilder.getQuery());
     }
 
@@ -178,7 +176,7 @@ public class SqlUtils {
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
             conditionGroup.and(Condition.column(new NameAlias.Builder(key).build())
-                .is(contentValues.get(key)));
+                    .is(contentValues.get(key)));
         }
     }
 

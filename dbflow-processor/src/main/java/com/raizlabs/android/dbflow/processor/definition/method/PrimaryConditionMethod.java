@@ -30,7 +30,7 @@ public class PrimaryConditionMethod implements MethodDefinition {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("getPrimaryConditionClause")
             .addAnnotation(Override.class)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addParameter(tableDefinition.getParameterClassName(isModelContainerAdapter),
+            .addParameter(tableDefinition.getParameterClassName(),
                 ModelUtils.getVariable(isModelContainerAdapter))
             .returns(ClassNames.CONDITION_GROUP);
         CodeBlock.Builder code = CodeBlock.builder();

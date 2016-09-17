@@ -5,15 +5,13 @@ import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.IntRange;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.Collection;
 
 /**
- * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}
- * or {@link ModelContainerAdapter}
+ * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}.
  */
 public interface InternalAdapter<TModel extends Model> {
 

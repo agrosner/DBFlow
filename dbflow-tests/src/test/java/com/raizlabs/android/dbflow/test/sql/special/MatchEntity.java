@@ -50,7 +50,7 @@ public class MatchEntity extends BaseModel {
     @ForeignKey(
             onDelete = ForeignKeyAction.CASCADE,
             references = @ForeignKeyReference(columnName = "PLAYER_WINNER_ID",
-                    foreignKeyColumnName = "ID", columnType = long.class))
+                    foreignKeyColumnName = "id", columnType = long.class))
     PlayerEntity playerWinner;
 
     public MatchEntity(@NonNull final Date date, @NonNull final PlayerEntity playerOne, @NonNull final PlayerEntity playerTwo) {
@@ -79,7 +79,7 @@ public class MatchEntity extends BaseModel {
     @NonNull
     @SuppressWarnings("ConstantConditions")
     public PlayerEntity getPlayerOne() {
-        return this.playerOne.load();
+        return this.playerOne;
     }
 
     public void setPlayerOne(@NonNull final PlayerEntity player) {
@@ -89,7 +89,7 @@ public class MatchEntity extends BaseModel {
     @NonNull
     @SuppressWarnings("ConstantConditions")
     public PlayerEntity getPlayerTwo() {
-        return this.playerTwo.load();
+        return this.playerTwo;
     }
 
     public void setPlayerTwo(@NonNull final PlayerEntity player) {

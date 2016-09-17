@@ -320,38 +320,6 @@ public class ColumnDefinition extends BaseDefinition {
                 false, ModelUtils.getVariable(false), formattedAccess, toModelMethod);
     }
 
-    public CodeBlock getToModelMethod() {
-        String method = SQLiteHelper.getModelContainerMethod(elementTypeName);
-        if (method == null) {
-            if (columnAccess instanceof EnumColumnAccess) {
-                method = SQLiteHelper.getModelContainerMethod(ClassName.get(String.class));
-            } else {
-                if (columnAccess instanceof TypeConverterAccess && ((TypeConverterAccess) columnAccess).typeConverterDefinition != null) {
-                    method = SQLiteHelper.getModelContainerMethod(((TypeConverterAccess) columnAccess).typeConverterDefinition.getDbTypeName());
-                }
-                if (method == null) {
-                    manager.logError("ToModel typename: %1s", elementTypeName);
-                    method = "get";
-                }
-            }
-        }
-        CodeBlock.Builder codeBuilder = CodeBlock.builder()
-                .add("$L.$LValue($S)", ModelUtils.getVariable(true), method, containerKeyName);
-
-        BaseColumnAccess columnAccessToUse = columnAccess;
-        if (columnAccess instanceof BooleanColumnAccess ||
-                (columnAccess instanceof TypeConverterAccess &&
-                        ((TypeConverterAccess) columnAccess).typeConverterDefinition != null &&
-                        ((TypeConverterAccess) columnAccess)
-                                .typeConverterDefinition.getModelTypeName().equals(TypeName.BOOLEAN.box()))) {
-            columnAccessToUse = ((TypeConverterAccess) columnAccess).existingColumnAccess;
-        }
-        return CodeBlock.builder()
-                .addStatement(columnAccessToUse.setColumnAccessString(elementTypeName, containerKeyName, elementName,
-                        false, ModelUtils.getVariable(false), codeBuilder.build(), true))
-                .build();
-    }
-
     public String getColumnAccessString(boolean isModelContainerAdapter, boolean isSqliteStatment) {
         return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, isSqliteStatment);
     }

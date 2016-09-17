@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery;
 import com.raizlabs.android.dbflow.processor.ClassNames;
@@ -67,9 +66,6 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
     public ModelViewDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
 
-        ModelContainer containerKey = element.getAnnotation(ModelContainer.class);
-        boolean putDefaultValue = containerKey != null && containerKey.putDefault();
-
         ModelView modelView = element.getAnnotation(ModelView.class);
         if (modelView != null) {
             try {
@@ -88,8 +84,8 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
 
         DeclaredType typeAdapterInterface = null;
         final DeclaredType modelViewType = manager.getTypeUtils().getDeclaredType(
-            manager.getElements().getTypeElement(ClassNames.MODEL_VIEW.toString()),
-            manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassNames.MODEL.toString()).asType(), null)
+                manager.getElements().getTypeElement(ClassNames.MODEL_VIEW.toString()),
+                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassNames.MODEL.toString()).asType(), null)
         );
 
 
@@ -107,15 +103,15 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
 
         if (element instanceof TypeElement) {
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(),
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), (TypeElement) element);
+                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), (TypeElement) element);
         } else {
             implementsLoadFromCursorListener = false;
         }
 
         methods = new MethodDefinition[]{
-            new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, putDefaultValue),
-            new ExistenceMethod(this, false),
-            new PrimaryConditionMethod(this, false)
+                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
+                new ExistenceMethod(this, false),
+                new PrimaryConditionMethod(this, false)
         };
     }
 
@@ -167,7 +163,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
                 }
 
                 if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition
-                    || columnDefinition.isPrimaryKeyAutoIncrement() || columnDefinition.isRowId) {
+                        || columnDefinition.isPrimaryKeyAutoIncrement() || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys");
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery.class) != null) {
@@ -217,9 +213,9 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
     public void writeViewTable() throws IOException {
 
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(viewTableName)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addField(FieldSpec.builder(ClassName.get(String.class), "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$S", name).build());
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addField(FieldSpec.builder(ClassName.get(String.class), "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .initializer("$S", name).build());
 
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
@@ -240,10 +236,10 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
         customTypeConverterPropertyMethod.addCode(constructorCode);
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder()
-            .addParameter(ClassNames.DATABASE_HOLDER, "holder")
-            .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
-            .addCode(constructorCode.build())
-            .addModifiers(Modifier.PUBLIC).build());
+                .addParameter(ClassNames.DATABASE_HOLDER, "holder")
+                .addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")
+                .addCode(constructorCode.build())
+                .addModifiers(Modifier.PUBLIC).build());
 
         for (MethodDefinition method : methods) {
             MethodSpec methodSpec = method.getMethodSpec();
@@ -255,22 +251,22 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getCreationQuery")
-            .addAnnotation(Override.class)
-            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-            .addStatement("return $T.$L.getQuery()", elementClassName, queryFieldName)
-            .returns(ClassName.get(String.class)).build());
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $T.$L.getQuery()", elementClassName, queryFieldName)
+                .returns(ClassName.get(String.class)).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getViewName")
-            .addAnnotation(Override.class)
-            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-            .addStatement("return $S", name)
-            .returns(ClassName.get(String.class)).build());
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return $S", name)
+                .returns(ClassName.get(String.class)).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
-            .addAnnotation(Override.class)
-            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-            .addStatement("return new $T()", elementClassName)
-            .returns(elementClassName).build());
+                .addAnnotation(Override.class)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return new $T()", elementClassName)
+                .returns(elementClassName).build());
     }
 
     @Override

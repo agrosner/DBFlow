@@ -62,9 +62,8 @@ public abstract class BaseTableDefinition extends BaseDefinition {
 
     public abstract void prepareForWrite();
 
-    public TypeName getParameterClassName(boolean isModelContainerAdapter) {
-        return isModelContainerAdapter ? ModelUtils.getModelContainerType(manager, elementClassName)
-                : elementClassName;
+    public TypeName getParameterClassName() {
+        return elementClassName;
     }
 
     public String addColumnForCustomTypeConverter(ColumnDefinition columnDefinition, ClassName typeConverterName) {

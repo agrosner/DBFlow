@@ -327,7 +327,7 @@ public class ProcessorManager implements Handler {
 
                 if (roundEnvironment.processingOver()) {
                     JavaFile.builder(databaseDefinition.getDatabaseDefinition().packageName,
-                                     databaseDefinition.getDatabaseDefinition().getTypeSpec())
+                            databaseDefinition.getDatabaseDefinition().getTypeSpec())
                             .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
                 }
 
@@ -342,11 +342,7 @@ public class ProcessorManager implements Handler {
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     try {
                         tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
-                    }
-                    catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
-                    if (tableDefinition.modelContainerDefinition != null) {
-                        WriterUtils.writeBaseDefinition(tableDefinition.modelContainerDefinition, processorManager);
-                    }
+                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 List<ModelViewDefinition> modelViewDefinitions = new ArrayList<>(databaseDefinition.modelViewDefinitionMap.values());
@@ -355,8 +351,7 @@ public class ProcessorManager implements Handler {
                     WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
                     try {
                         modelViewDefinition.writeViewTable();
-                    }
-                    catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
+                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 Collection<QueryModelDefinition> queryModelDefinitions = databaseDefinition.queryModelDefinitionMap.values();
@@ -364,29 +359,25 @@ public class ProcessorManager implements Handler {
                     WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
                     try {
                         queryModelDefinition.writeAdapter(processorManager.getProcessingEnvironment());
-                    }
-                    catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
+                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 for (TableDefinition tableDefinition : tableDefinitions) {
                     try {
                         tableDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
-                    }
-                    catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
+                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
                     try {
                         modelViewDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
-                    }
-                    catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
+                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
                     try {
                         queryModelDefinition.writePackageHelper(processorManager.getProcessingEnvironment());
-                    }
-                    catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
+                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
             } catch (IOException e) {
             }
@@ -395,10 +386,9 @@ public class ProcessorManager implements Handler {
         if (roundEnvironment.processingOver()) {
             try {
                 JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                                 new FlowManagerHolderDefinition(processorManager).getTypeSpec())
+                        new FlowManagerHolderDefinition(processorManager).getTypeSpec())
                         .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 logError(e.getMessage());
             }
         }
