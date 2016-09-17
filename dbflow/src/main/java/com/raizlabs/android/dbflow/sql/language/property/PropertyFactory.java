@@ -114,7 +114,7 @@ public class PropertyFactory {
      * @param <TModel>  The model class of the query.
      * @return A new property that is a query.
      */
-    public static <TModel extends Model> Property<TModel> from(@NonNull ModelQueriable<TModel> queriable) {
+    public static <TModel> Property<TModel> from(@NonNull ModelQueriable<TModel> queriable) {
         return from(queriable.getTable(), "(" + String.valueOf(queriable.getQuery()).trim() + ")");
     }
 

@@ -1,12 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: The base for a {@link Where} statement.
  */
-public interface WhereBase<TModel extends Model> extends Query {
+public interface WhereBase<TModel> extends Query {
 
     /**
      * @return The table of this query.

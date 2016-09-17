@@ -14,7 +14,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * It ties an SQLite {@link com.raizlabs.android.dbflow.sql.language.Update}
  * to migrations whenever we want to batch update tables in a structured manner.
  */
-public class UpdateTableMigration<TModel extends Model> extends BaseMigration {
+public class UpdateTableMigration<TModel> extends BaseMigration {
 
     /**
      * The table to update

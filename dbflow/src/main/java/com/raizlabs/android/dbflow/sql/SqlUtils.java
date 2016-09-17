@@ -12,10 +12,8 @@ import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
-import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
-import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -35,28 +33,28 @@ public class SqlUtils {
      * @param action The {@link Action} enum
      * @param table  The table of the model
      */
-    public static void notifyModelChanged(Class<? extends Model> table, Action action, Iterable<SQLCondition> sqlConditions) {
-        FlowManager.getContext().getContentResolver().notifyChange(getNotificationUri(table, action, sqlConditions), null, true);
+    public static void notifyModelChanged(Class<?> table, Action action,
+                                          Iterable<SQLCondition> sqlConditions) {
+        FlowManager.getContext().getContentResolver().notifyChange(
+                getNotificationUri(table, action, sqlConditions), null, true);
     }
 
     /**
      * Performs necessary logic to notify of {@link Model}g changes.
      *
-     * @param model          The model to use to notify.
-     * @param adapter        The adapter to use thats a {@link ModelAdapter}
-     *                       to handle interactions.
-     * @param modelAdapter   The actual {@link ModelAdapter} associated with the {@link ModelClass}/
-     * @param action         The {@link Action} that occured.
      * @param <ModelClass>   The original model class.
      * @param <TableClass>   The class of the adapter that we use the model from.
      * @param <AdapterClass> The class of the adapter, which is a {@link ModelAdapter}
+     * @param modelAdapter   The actual {@link ModelAdapter} associated with the {@link ModelClass}/
+     * @param action         The {@link Action} that occured.
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass extends Model, TableClass extends Model, AdapterClass extends RetrievalAdapter & InternalAdapter>
-    void notifyModelChanged(TableClass model, AdapterClass adapter, ModelAdapter<ModelClass> modelAdapter, Action action) {
+    public static <ModelClass> void notifyModelChanged(ModelClass model,
+                                                       ModelAdapter<ModelClass> modelAdapter,
+                                                       Action action) {
         if (FlowContentObserver.shouldNotify()) {
             notifyModelChanged(modelAdapter.getModelClass(), action,
-                    adapter.getPrimaryConditionClause(model).getConditions());
+                    modelAdapter.getPrimaryConditionClause(model).getConditions());
         }
     }
 
@@ -68,7 +66,7 @@ public class SqlUtils {
      * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, Iterable<SQLCondition> conditions) {
+    public static Uri getNotificationUri(Class<?> modelClass, Action action, Iterable<SQLCondition> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
                 .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
@@ -91,7 +89,7 @@ public class SqlUtils {
      * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, SQLCondition[] conditions) {
+    public static Uri getNotificationUri(Class<?> modelClass, Action action, SQLCondition[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
                 .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
@@ -117,7 +115,8 @@ public class SqlUtils {
      * @return Notification uri.
      */
 
-    public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action, String notifyKey, Object notifyValue) {
+    public static Uri getNotificationUri(Class<?> modelClass, Action action,
+                                         String notifyKey, Object notifyValue) {
         Condition condition = null;
         if (StringUtils.isNotNullOrEmpty(notifyKey)) {
             condition = Condition.column(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
@@ -130,7 +129,7 @@ public class SqlUtils {
      * @param action     The {@link Action} to use.
      * @return The uri for updates to {@link Model}, meant for general changes.
      */
-    public static Uri getNotificationUri(Class<? extends Model> modelClass, Action action) {
+    public static Uri getNotificationUri(Class<?> modelClass, Action action) {
         return getNotificationUri(modelClass, action, null, null);
     }
 
@@ -142,7 +141,7 @@ public class SqlUtils {
      * @param triggerName  The name of the trigger
      * @param <ModelClass> The class that implements {@link Model}
      */
-    public static <ModelClass extends Model> void dropTrigger(Class<ModelClass> mOnTable, String triggerName) {
+    public static void dropTrigger(Class<?> mOnTable, String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
                 .append(triggerName);
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
@@ -154,13 +153,13 @@ public class SqlUtils {
      * @param indexName    The name of the index.
      * @param <ModelClass> The class that implements {@link Model}
      */
-    public static <ModelClass extends Model> void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
+    public static void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
                 .append(QueryBuilder.quoteIfNeeded(indexName));
         databaseWrapper.execSQL(queryBuilder.getQuery());
     }
 
-    public static <ModelClass extends Model> void dropIndex(Class<ModelClass> onTable, String indexName) {
+    public static void dropIndex(Class<?> onTable, String indexName) {
         dropIndex(FlowManager.getDatabaseForTable(onTable).getWritableDatabase(), indexName);
     }
 

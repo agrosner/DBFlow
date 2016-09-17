@@ -7,12 +7,12 @@ import com.raizlabs.android.dbflow.structure.Model;
  * Description: Provides an {@link com.raizlabs.android.dbflow.structure.cache.LruCache} under its hood
  * and provides synchronization mechanisms.
  */
-public class ModelLruCache<TModel extends Model> extends ModelCache<TModel, LruCache<Long, TModel>> {
+public class ModelLruCache<TModel> extends ModelCache<TModel, LruCache<Long, TModel>> {
 
     /**
      * @param size The size, if less than or equal to 0 we set it to {@link Table#DEFAULT_CACHE_SIZE}.
      */
-    public static <TModel extends Model> ModelLruCache<TModel> newInstance(int size) {
+    public static <TModel> ModelLruCache<TModel> newInstance(int size) {
         if (size <= 0) {
             size = Table.DEFAULT_CACHE_SIZE;
         }

@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
-public class Set<TModel extends Model> extends BaseQueriable<TModel> implements WhereBase<TModel>, Queriable, Transformable<TModel> {
+public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TModel>, Queriable, Transformable<TModel> {
 
     private ConditionGroup conditionGroup;
 

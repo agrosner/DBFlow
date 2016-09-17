@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: The INDEXED BY part of a SELECT/UPDATE/DELETE
  */
-public class IndexedBy<TModel extends Model> implements WhereBase<TModel>, Transformable<TModel> {
+public class IndexedBy<TModel> implements WhereBase<TModel>, Transformable<TModel> {
 
     private final IndexProperty<TModel> indexProperty;
 

@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Description: The SQL FROM query wrapper that must have a {@link Query} base.
  */
-public class From<TModel extends Model> extends BaseModelQueriable<TModel> implements
+public class From<TModel> extends BaseModelQueriable<TModel> implements
         WhereBase<TModel>, ModelQueriable<TModel>, Transformable<TModel> {
 
     /**
@@ -69,13 +69,13 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      * @param joinType The type of join to use
      * @return The join contained in this FROM statement
      */
-    public <TJoin extends Model> Join<TJoin, TModel> join(Class<TJoin> table, @NonNull Join.JoinType joinType) {
+    public <TJoin > Join<TJoin, TModel> join(Class<TJoin> table, @NonNull Join.JoinType joinType) {
         Join<TJoin, TModel> join = new Join<>(this, table, joinType);
         joins.add(join);
         return join;
     }
 
-    public <TJoin extends Model> Join<TJoin, TModel>
+    public <TJoin > Join<TJoin, TModel>
     join(ModelQueriable<TJoin> modelQueriable, @NonNull Join.JoinType joinType) {
         Join<TJoin, TModel> join = new Join<>(this, joinType, modelQueriable);
         joins.add(join);
@@ -89,7 +89,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <TJoin extends Model> Join<TJoin, TModel> crossJoin(Class<TJoin> table) {
+    public <TJoin> Join<TJoin, TModel> crossJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.CROSS);
     }
 
@@ -100,7 +100,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      * @param <TJoin>        The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <TJoin extends Model> Join<TJoin, TModel> crossJoin(ModelQueriable<TJoin> modelQueriable) {
+    public <TJoin> Join<TJoin, TModel> crossJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.CROSS);
     }
 
@@ -111,7 +111,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <TJoin extends Model> Join<TJoin, TModel> innerJoin(Class<TJoin> table) {
+    public <TJoin > Join<TJoin, TModel> innerJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.INNER);
     }
 
@@ -122,7 +122,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      * @param <TJoin>        The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <TJoin extends Model> Join<TJoin, TModel> innerJoin(ModelQueriable<TJoin> modelQueriable) {
+    public <TJoin > Join<TJoin, TModel> innerJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.INNER);
     }
 
@@ -133,7 +133,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      * @param <TJoin> The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <TJoin extends Model> Join<TJoin, TModel> leftOuterJoin(Class<TJoin> table) {
+    public <TJoin > Join<TJoin, TModel> leftOuterJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.LEFT_OUTER);
     }
 
@@ -144,7 +144,7 @@ public class From<TModel extends Model> extends BaseModelQueriable<TModel> imple
      * @param <TJoin>        The class of the join table.
      * @return The join contained in this FROM statement.
      */
-    public <TJoin extends Model> Join<TJoin, TModel> leftOuterJoin(ModelQueriable<TJoin> modelQueriable) {
+    public <TJoin > Join<TJoin, TModel> leftOuterJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.LEFT_OUTER);
     }
 

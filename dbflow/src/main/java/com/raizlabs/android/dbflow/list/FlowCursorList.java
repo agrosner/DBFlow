@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
-import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
@@ -22,13 +22,13 @@ import java.util.List;
 /**
  * Description: A non-modifiable, cursor-backed list that you can use in {@link ListView} or other data sources.
  */
-public class FlowCursorList<TModel extends Model> implements
+public class FlowCursorList<TModel> implements
         Iterable<TModel>, Closeable, IFlowCursorIterator<TModel> {
 
     /**
      * Interface for callbacks when cursor gets refreshed.
      */
-    public interface OnCursorRefreshListener<TModel extends Model> {
+    public interface OnCursorRefreshListener<TModel> {
 
         /**
          * Callback when cursor refreshes.
@@ -56,7 +56,7 @@ public class FlowCursorList<TModel extends Model> implements
     private boolean cacheModels;
     private ModelQueriable<TModel> modelQueriable;
     private int cacheSize;
-    private InstanceAdapter<TModel, TModel> modelAdapter;
+    private InstanceAdapter<TModel> instanceAdapter;
 
     private final java.util.Set<OnCursorRefreshListener<TModel>> cursorRefreshListenerSet = new HashSet<>();
 
@@ -79,7 +79,7 @@ public class FlowCursorList<TModel extends Model> implements
             modelCache = builder.modelCache;
         }
         //noinspection unchecked
-        modelAdapter = FlowManager.getInstanceAdapter(builder.modelClass);
+        instanceAdapter = FlowManager.getInstanceAdapter(builder.modelClass);
 
         setCacheModels(cacheModels);
     }
@@ -119,9 +119,17 @@ public class FlowCursorList<TModel extends Model> implements
         cursor = this.modelQueriable.query();
         table = modelQueriable.getTable();
         //noinspection unchecked
-        modelAdapter = FlowManager.getInstanceAdapter(table);
+        instanceAdapter = FlowManager.getInstanceAdapter(table);
         this.cacheModels = cacheModels;
         setCacheModels(cacheModels);
+    }
+
+    InstanceAdapter<TModel> getInstanceAdapter() {
+        return instanceAdapter;
+    }
+
+    ModelAdapter<TModel> getModelAdapter() {
+        return (ModelAdapter<TModel>) instanceAdapter;
     }
 
     @Override
@@ -248,11 +256,11 @@ public class FlowCursorList<TModel extends Model> implements
         if (cacheModels) {
             model = modelCache.get(position);
             if (model == null && cursor != null && cursor.moveToPosition((int) position)) {
-                model = modelAdapter.getSingleModelLoader().convertToData(cursor, null, false);
+                model = instanceAdapter.getSingleModelLoader().convertToData(cursor, null, false);
                 modelCache.addModel(position, model);
             }
         } else if (cursor != null && cursor.moveToPosition((int) position)) {
-            model = modelAdapter.getSingleModelLoader().convertToData(cursor, null, false);
+            model = instanceAdapter.getSingleModelLoader().convertToData(cursor, null, false);
         }
         return model;
     }
@@ -372,7 +380,7 @@ public class FlowCursorList<TModel extends Model> implements
      *
      * @param <TModel>
      */
-    public static class Builder<TModel extends Model> {
+    public static class Builder<TModel> {
 
         private final Class<TModel> modelClass;
         private Cursor cursor;

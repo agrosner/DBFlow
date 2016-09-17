@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: Represents how models load from DB. It will query a {@link SQLiteDatabase}
  * and query for a {@link Cursor}. Then the cursor is used to convert itself into an object.
  */
-public abstract class ModelLoader<TModel extends Model, TReturn> {
+public abstract class ModelLoader<TModel, TReturn> {
 
     private final Class<TModel> modelClass;
     private DatabaseDefinition databaseDefinition;

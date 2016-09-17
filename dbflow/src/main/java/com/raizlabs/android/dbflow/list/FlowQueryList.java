@@ -13,7 +13,9 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
@@ -36,7 +38,7 @@ import java.util.ListIterator;
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
-public class FlowQueryList<TModel extends Model> extends FlowContentObserver
+public class FlowQueryList<TModel> extends FlowContentObserver
         implements List<TModel>, Closeable, IFlowCursorIterator<TModel> {
 
     private static final Handler REFRESH_HANDLER = new Handler(Looper.myLooper());
@@ -160,7 +162,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
     }
 
     @Override
-    public void registerForContentChanges(Context context, Class<? extends Model> table) {
+    public void registerForContentChanges(Context context, Class<?> table) {
         throw new RuntimeException(
                 "This method is not to be used in the FlowQueryList. call registerForContentChanges(Context) instead");
     }
@@ -250,6 +252,14 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
         return transact;
     }
 
+    ModelAdapter<TModel> getModelAdapter() {
+        return internalCursorList.getModelAdapter();
+    }
+
+    InstanceAdapter<TModel> getInstanceAdapter() {
+        return internalCursorList.getInstanceAdapter();
+    }
+
     /**
      * @return Constructs a new {@link Builder} that reuses the underlying {@link Cursor}, cache,
      * callbacks, and other properties.
@@ -307,7 +317,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
 
     /**
      * Adds an item to this table, but does not allow positonal insertion. Same as calling
-     * {@link #add(com.raizlabs.android.dbflow.structure.Model)}
+     * {@link #add(TModel)}
      *
      * @param location Not used.
      * @param model    The model to save
@@ -409,7 +419,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
         boolean contains = false;
         if (internalCursorList.getTable().isAssignableFrom(object.getClass())) {
             TModel model = ((TModel) object);
-            contains = model.exists();
+            contains = internalCursorList.getInstanceAdapter().exists(model);
         }
 
         return contains;
@@ -692,7 +702,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
             new ProcessModelTransaction.ProcessModel<TModel>() {
                 @Override
                 public void processModel(TModel model) {
-                    model.save();
+                    getModelAdapter().save(model);
                 }
             };
 
@@ -700,7 +710,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
             new ProcessModelTransaction.ProcessModel<TModel>() {
                 @Override
                 public void processModel(TModel model) {
-                    model.update();
+                    getModelAdapter().update(model);
                 }
             };
 
@@ -708,7 +718,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
             new ProcessModelTransaction.ProcessModel<TModel>() {
                 @Override
                 public void processModel(TModel model) {
-                    model.delete();
+                    getModelAdapter().delete(model);
                 }
             };
 
@@ -747,7 +757,7 @@ public class FlowQueryList<TModel extends Model> extends FlowContentObserver
         }
     };
 
-    public static class Builder<TModel extends Model> {
+    public static class Builder<TModel> {
 
         private final Class<TModel> table;
 

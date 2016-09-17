@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: A generic cache for models that is implemented or can be implemented to your liking.
  */
-public abstract class ModelCache<TModel extends Model, CacheClass> {
+public abstract class ModelCache<TModel, CacheClass> {
 
     private CacheClass cache;
 

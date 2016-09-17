@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.structure;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -25,21 +24,20 @@ import java.util.Collection;
 /**
  * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
  */
-public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter<TModel, TModel>
+public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         implements InternalAdapter<TModel> {
 
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
-    private ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver;
-    private ListModelSaver<TModel, TModel, ModelAdapter<TModel>> listModelSaver;
+    private ModelSaver<TModel> modelSaver;
+    private ListModelSaver<TModel> listModelSaver;
 
     public ModelAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
         if (getTableConfig() != null && getTableConfig().modelSaver() != null) {
             modelSaver = getTableConfig().modelSaver();
-            modelSaver.setAdapter(this);
             modelSaver.setModelAdapter(this);
         }
     }
@@ -59,7 +57,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled {@link DatabaseStatement} representing insert. Not cached, always generated.
-     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Object)}.
      */
     public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getInsertStatementQuery());
@@ -80,7 +78,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled {@link DatabaseStatement} representing insert.
-     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Object)}.
      */
     public DatabaseStatement getCompiledStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getCompiledStatementQuery());
@@ -300,23 +298,22 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
     }
 
-    public ModelSaver<TModel, TModel, ModelAdapter<TModel>> getModelSaver() {
+    public ModelSaver<TModel> getModelSaver() {
         if (modelSaver == null) {
             modelSaver = new ModelSaver<>();
-            modelSaver.setAdapter(this);
             modelSaver.setModelAdapter(this);
         }
         return modelSaver;
     }
 
-    public ListModelSaver<TModel, TModel, ModelAdapter<TModel>> getListModelSaver() {
+    public ListModelSaver<TModel> getListModelSaver() {
         if (listModelSaver == null) {
             listModelSaver = createListModelSaver();
         }
         return listModelSaver;
     }
 
-    protected ListModelSaver<TModel, TModel, ModelAdapter<TModel>> createListModelSaver() {
+    protected ListModelSaver<TModel> createListModelSaver() {
         return new ListModelSaver<>(getModelSaver());
     }
 
@@ -325,7 +322,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver) {
+    public void setModelSaver(ModelSaver<TModel> modelSaver) {
         this.modelSaver = modelSaver;
     }
 

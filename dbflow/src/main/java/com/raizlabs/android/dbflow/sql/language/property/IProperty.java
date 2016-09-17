@@ -102,5 +102,5 @@ public interface IProperty<P extends IProperty> extends Query {
     /**
      * @return the table this property belongs to.
      */
-    Class<? extends Model> getTable();
+    Class<?> getTable();
 }

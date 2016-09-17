@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: Simple interface that allows you to iterate a {@link Cursor}.
  */
-public interface IFlowCursorIterator<TModel extends Model> {
+public interface IFlowCursorIterator<TModel> {
 
     /**
      * @return Count of the {@link Cursor}.

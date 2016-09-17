@@ -14,15 +14,15 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class ShortProperty extends BaseProperty<ShortProperty> {
 
-    public ShortProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public ShortProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public ShortProperty(Class<? extends Model> table, String columnName) {
+    public ShortProperty(Class<?> table, String columnName) {
         this(table, new NameAlias.Builder(columnName).build());
     }
 
-    public ShortProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public ShortProperty(Class<?> table, String columnName, String aliasName) {
         this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 

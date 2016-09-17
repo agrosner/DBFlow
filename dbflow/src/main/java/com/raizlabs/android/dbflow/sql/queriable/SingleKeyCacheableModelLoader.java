@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  * Description: More optimized version of {@link CacheableModelLoader} which assumes that the {@link Model}
  * only utilizes a single primary key.
  */
-public class SingleKeyCacheableModelLoader<TModel extends Model> extends CacheableModelLoader<TModel> {
+public class SingleKeyCacheableModelLoader<TModel> extends CacheableModelLoader<TModel> {
 
     public SingleKeyCacheableModelLoader(Class<TModel> modelClass) {
         super(modelClass);

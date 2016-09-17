@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
  */
-public class Update<TModel extends Model> implements Query {
+public class Update<TModel> implements Query {
 
     /**
      * The conflict action to resolve updates.

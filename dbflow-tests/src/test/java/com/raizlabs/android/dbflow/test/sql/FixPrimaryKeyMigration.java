@@ -17,7 +17,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: Example of fixing a bug where Primary Key was treated as a {@link PrimaryKey#rowID()},
  * not a {@link PrimaryKey#autoincrement()}.
  */
-public abstract class FixPrimaryKeyMigration<TableClass extends Model> extends BaseMigration {
+public abstract class FixPrimaryKeyMigration<TableClass > extends BaseMigration {
 
     @Override
     public void migrate(DatabaseWrapper database) {

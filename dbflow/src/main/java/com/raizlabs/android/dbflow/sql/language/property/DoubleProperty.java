@@ -14,15 +14,15 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class DoubleProperty extends BaseProperty<DoubleProperty> {
 
-    public DoubleProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public DoubleProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public DoubleProperty(Class<? extends Model> table, String columnName) {
+    public DoubleProperty(Class<?> table, String columnName) {
         this(table, new NameAlias.Builder(columnName).build());
     }
 
-    public DoubleProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public DoubleProperty(Class<?> table, String columnName, String aliasName) {
         this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 

@@ -13,7 +13,7 @@ import java.util.Collection;
 /**
  * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}.
  */
-public interface InternalAdapter<TModel extends Model> {
+public interface InternalAdapter<TModel> {
 
     /**
      * @return The table name of this adapter.

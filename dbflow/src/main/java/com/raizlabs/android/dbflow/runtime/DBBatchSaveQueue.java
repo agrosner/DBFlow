@@ -4,6 +4,7 @@ import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -205,8 +206,14 @@ public class DBBatchSaveQueue extends Thread {
 
     private final ProcessModelTransaction.ProcessModel modelSaver = new ProcessModelTransaction.ProcessModel() {
         @Override
-        public void processModel(Model model) {
-            model.save();
+        public void processModel(Object model) {
+            if (model instanceof Model) {
+                ((Model) model).save();
+            } else if (model != null) {
+                Class modelClass = model.getClass();
+                //noinspection unchecked
+                FlowManager.getModelAdapter(modelClass).save(model);
+            }
         }
     };
 

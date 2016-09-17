@@ -37,11 +37,11 @@ public abstract class DatabaseDefinition {
 
     final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
 
-    final List<Class<? extends Model>> models = new ArrayList<>();
+    final List<Class<?>> models = new ArrayList<>();
 
-    final Map<Class<? extends Model>, ModelAdapter> modelAdapters = new HashMap<>();
+    final Map<Class<?>, ModelAdapter> modelAdapters = new HashMap<>();
 
-    final Map<String, Class<? extends Model>> modelTableNames = new HashMap<>();
+    final Map<String, Class<?>> modelTableNames = new HashMap<>();
 
     final List<Class<? extends BaseModelView>> modelViews = new ArrayList<>();
 
@@ -107,7 +107,7 @@ public abstract class DatabaseDefinition {
     /**
      * @return a list of all model classes in this database.
      */
-    public List<Class<? extends Model>> getModelClasses() {
+    public List<Class<?>> getModelClasses() {
         return models;
     }
 
@@ -132,7 +132,7 @@ public abstract class DatabaseDefinition {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    public ModelAdapter getModelAdapterForTable(Class<? extends Model> table) {
+    public ModelAdapter getModelAdapterForTable(Class<?> table) {
         return modelAdapters.get(table);
     }
 
@@ -141,7 +141,7 @@ public abstract class DatabaseDefinition {
      * @return The associated {@link ModelAdapter} within this database for the specified table name.
      * If the Model is missing the {@link Table} annotation, this will return null.
      */
-    public Class<? extends Model> getModelClassForName(String tableName) {
+    public Class<?> getModelClassForName(String tableName) {
         return modelTableNames.get(tableName);
     }
 
