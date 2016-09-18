@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.processor.definition.column;
 
 import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.raizlabs.android.dbflow.processor.utils.StringUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -88,8 +87,8 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     public CodeBlock setColumnAccessString(TypeName fieldType, String elementName,
                                            String fullElementName,
                                            String variableNameString, CodeBlock formattedAccess) {
-        return CodeBlock.builder().add("$T.set$L($L, $L)", internalHelperClassName,
-                StringUtils.capitalize(elementName), ModelUtils.getVariable(),
+        return CodeBlock.builder().add("$T.set$L($L, $L)", helperClassName,
+                StringUtils.capitalize(elementName), variableNameString,
                 formattedAccess).build();
     }
 }

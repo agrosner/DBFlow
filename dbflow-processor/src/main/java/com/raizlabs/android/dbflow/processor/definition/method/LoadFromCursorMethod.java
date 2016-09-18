@@ -26,15 +26,13 @@ public class LoadFromCursorMethod implements MethodDefinition {
     private BaseTableDefinition baseTableDefinition;
     private final boolean isModelContainerAdapter;
     private final boolean implementsLoadFromCursorListener;
-    private final boolean putNullForContainerAdapter;
 
     public LoadFromCursorMethod(BaseTableDefinition baseTableDefinition, boolean isModelContainerAdapter,
-                                boolean implementsLoadFromCursorListener, boolean putNullForContainerAdapter) {
+                                boolean implementsLoadFromCursorListener) {
 
         this.baseTableDefinition = baseTableDefinition;
         this.isModelContainerAdapter = isModelContainerAdapter;
         this.implementsLoadFromCursorListener = implementsLoadFromCursorListener;
-        this.putNullForContainerAdapter = putNullForContainerAdapter;
     }
 
     @Override
@@ -51,7 +49,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
         AtomicInteger index = new AtomicInteger(0);
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
             methodBuilder.addCode(columnDefinition.getLoadFromCursorMethod(
-                    putNullForContainerAdapter, true, index));
+                    true, index));
             index.incrementAndGet();
         }
 

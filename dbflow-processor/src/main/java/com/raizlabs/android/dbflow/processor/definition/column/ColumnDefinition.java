@@ -276,8 +276,7 @@ public class ColumnDefinition extends BaseDefinition {
                 ModelUtils.getVariable(), isPrimaryKeyAutoIncrement || isRowId, defaultValue).build();
     }
 
-    public CodeBlock getLoadFromCursorMethod(boolean putNullForContainerAdapter,
-                                             boolean endNonPrimitiveIf, AtomicInteger index) {
+    public CodeBlock getLoadFromCursorMethod(boolean endNonPrimitiveIf, AtomicInteger index) {
         return DefinitionUtils.getLoadFromCursorMethod(index.intValue(), elementName,
                 elementTypeName, columnName, true, columnAccess,
                 tableDefinition.orderedCursorLookUp, tableDefinition.assignDefaultValuesFromCursor,

@@ -173,18 +173,13 @@ public class ForeignKeyReferenceDefinition {
                 getForeignKeyColumnVariable(), false, null).build();
     }
 
-    CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
+    CodeBlock getForeignKeyContainerMethod(String referenceFieldName, CodeBlock loadFromCursorBlock) {
 
-        CodeBlock access = getShortColumnAccess(false, tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false));
-        if (foreignKeyColumnDefinition.isModel && !isReferencedFieldPackagePrivate) {
-            access = foreignKeyColumnDefinition.getColumnAccessString(false)
-                    .toBuilder().add(".")
-                    .add(access)
-                    .build();
-        }
-
+        CodeBlock codeBlock = columnAccess
+                .setColumnAccessString(columnClassName, foreignColumnName, foreignColumnName,
+                        referenceFieldName, loadFromCursorBlock);
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
-        codeBuilder.addStatement("$L.put($T.$L, $L)", ModelUtils.getVariable(), tableClassName, columnName, access);
+        codeBuilder.addStatement("$L", codeBlock);
         return codeBuilder.build();
     }
 

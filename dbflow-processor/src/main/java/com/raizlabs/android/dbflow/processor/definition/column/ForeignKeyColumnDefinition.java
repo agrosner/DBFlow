@@ -287,10 +287,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     }
 
     @Override
-    public CodeBlock getLoadFromCursorMethod(boolean putNullForContainerAdapter,
-                                             boolean endNonPrimitiveIf, AtomicInteger index) {
+    public CodeBlock getLoadFromCursorMethod(boolean endNonPrimitiveIf, AtomicInteger index) {
         if (nonModelColumn) {
-            return super.getLoadFromCursorMethod(putNullForContainerAdapter, endNonPrimitiveIf, index);
+            return super.getLoadFromCursorMethod(endNonPrimitiveIf, index);
         } else {
             checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder()
@@ -328,43 +327,35 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 CodeBlock loadFromCursorBlock = CodeBlock.builder().add("$L.$L($L)", LoadFromCursorMethod.PARAM_CURSOR,
                         DefinitionUtils.getLoadFromCursorMethodString(referenceDefinition.columnClassName,
                                 referenceDefinition.columnAccess), indexName).build();
-                ClassName generatedTableRef = ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName()
-                        + tableDefinition.databaseDefinition.fieldRefSeparator + TableDefinition.DBFLOW_TABLE_TAG);
-                if (!isStubbedRelationship) {
-                    selectBuilder.add("\n.and($L.$L.eq($L))", generatedTableRef,
-                            referenceDefinition.foreignColumnName, loadFromCursorBlock);
-                } else {
-                    selectBuilder.add("\n$L.$L = $L;", foreignKeyContainerRefName,
-                            referenceDefinition.foreignColumnName, loadFromCursorBlock);
+                if (i > 0) {
+                    selectBuilder.add("\n");
                 }
+
+                selectBuilder.add(referenceDefinition
+                        .getForeignKeyContainerMethod(foreignKeyContainerRefName,
+                                loadFromCursorBlock));
             }
             ifNullBuilder.add(")");
             builder.beginControlFlow(ifNullBuilder.build().toString());
 
             CodeBlock.Builder initializer = CodeBlock.builder();
 
-            if (isStubbedRelationship) {
+            builder.addStatement("$T $L = new $T()", elementTypeName,
+                    foreignKeyContainerRefName, referencedTableClassName);
 
-                builder.addStatement("$T $L = new $T()", elementTypeName,
-                        foreignKeyContainerRefName, referencedTableClassName);
+            builder.add(selectBuilder.build()).add("\n");
 
-                builder.add(selectBuilder.build()).add("\n");
-
-                initializer.add(foreignKeyContainerRefName);
-            } else {
-                initializer.add("new $T().from($T.class).where()", ClassNames.SELECT, referencedTableClassName)
-                        .add(selectBuilder.build());
-                initializer.add(".querySingle()");
+            // load model once populated
+            if (!isStubbedRelationship) {
+                builder.addStatement("$L.load()", foreignKeyContainerRefName);
             }
+
+            initializer.add(foreignKeyContainerRefName);
 
             builder.add(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
                     ModelUtils.getVariable(), initializer.build())
                     .toBuilder().add(";\n").build());
 
-            if (putNullForContainerAdapter && tableDefinition.assignDefaultValuesFromCursor) {
-                builder.nextControlFlow("else");
-                builder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(), columnName);
-            }
             if (endNonPrimitiveIf || !tableDefinition.assignDefaultValuesFromCursor) {
                 builder.endControlFlow();
             }

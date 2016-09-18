@@ -191,7 +191,7 @@ public class TableDefinition extends BaseTableDefinition {
                         new InsertStatementQueryMethod(this, true),
                         new InsertStatementQueryMethod(this, false),
                         new CreationQueryMethod(this),
-                        new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener, false),
+                        new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener),
                         new ExistenceMethod(this, false),
                         new PrimaryConditionMethod(this, false),
                         new OneToManyDeleteMethod(this, false, false),
@@ -611,7 +611,7 @@ public class TableDefinition extends BaseTableDefinition {
             CodeBlock.Builder loadStatements = CodeBlock.builder();
             AtomicInteger noIndex = new AtomicInteger(-1);
             for (ColumnDefinition foreignColumn : foreignKeyDefinitions) {
-                CodeBlock.Builder codeBuilder = foreignColumn.getLoadFromCursorMethod(false,
+                CodeBlock.Builder codeBuilder = foreignColumn.getLoadFromCursorMethod(
                         false, noIndex).toBuilder();
                 if (!foreignColumn.elementTypeName.isPrimitive()) {
                     codeBuilder.nextControlFlow("else");
