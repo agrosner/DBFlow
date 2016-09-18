@@ -20,23 +20,23 @@ public class SimpleColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName,
-                                        String fullElementName, String variableNameString,
-                                        boolean isSqliteStatement) {
-        return dontAppendModel ? elementName : (variableNameString + ".") + fullElementName;
+    public CodeBlock getColumnAccessString(TypeName fieldType, String elementName,
+                                           String fullElementName, String variableNameString,
+                                           boolean isSqliteStatement) {
+        return CodeBlock.of(dontAppendModel ? elementName : (variableNameString + ".") + fullElementName);
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName,
-                                       boolean isSqliteStatement) {
-        return elementName;
+    public CodeBlock getShortAccessString(TypeName fieldType, String elementName,
+                                          boolean isSqliteStatement) {
+        return CodeBlock.of(elementName);
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName,
-                                        String fullElementName,
-                                        String variableNameString, CodeBlock formattedAccess) {
-        return getColumnAccessString(fieldType, elementName, fullElementName,
-                variableNameString, false) + " = " + formattedAccess;
+    public CodeBlock setColumnAccessString(TypeName fieldType, String elementName,
+                                           String fullElementName,
+                                           String variableNameString, CodeBlock formattedAccess) {
+        return CodeBlock.of("$L = $L", getColumnAccessString(fieldType, elementName, fullElementName,
+                variableNameString, false), formattedAccess);
     }
 }

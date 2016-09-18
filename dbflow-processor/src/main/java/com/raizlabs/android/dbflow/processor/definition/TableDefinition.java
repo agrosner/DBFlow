@@ -615,7 +615,9 @@ public class TableDefinition extends BaseTableDefinition {
                         false, noIndex).toBuilder();
                 if (!foreignColumn.elementTypeName.isPrimitive()) {
                     codeBuilder.nextControlFlow("else");
-                    codeBuilder.addStatement(foreignColumn.setColumnAccessString(CodeBlock.builder().add("null").build(), false));
+                    codeBuilder.add(foreignColumn.setColumnAccessString(CodeBlock.builder()
+                            .add("null").build(), false)
+                            .toBuilder().add(";\n").build());
                     codeBuilder.endControlFlow();
                 }
                 loadStatements.add(codeBuilder.build());

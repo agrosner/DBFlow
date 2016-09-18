@@ -13,31 +13,31 @@ public class BooleanTypeColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isSqliteStatement) {
+    public CodeBlock getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isSqliteStatement) {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         codeBuilder.add(getExistingColumnAccess().getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isSqliteStatement));
         if (isSqliteStatement) {
             codeBuilder.add(" ? 1 : 0");
         }
-        return codeBuilder.build().toString();
+        return codeBuilder.build();
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName, boolean isSqliteStatement) {
+    public CodeBlock getShortAccessString(TypeName fieldType, String elementName, boolean isSqliteStatement) {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         codeBuilder.add(getExistingColumnAccess().getShortAccessString(fieldType, elementName, isSqliteStatement));
         if (isSqliteStatement) {
             codeBuilder.add(" ? 1 : 0");
         }
-        return codeBuilder.build().toString();
+        return codeBuilder.build();
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess) {
+    public CodeBlock setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess) {
         CodeBlock finalAccess;
         finalAccess = CodeBlock.builder().add("$L == 1 ? true : false", formattedAccess).build();
         return CodeBlock.builder().add(getExistingColumnAccess().setColumnAccessString(fieldType,
                 elementName, fullElementName, variableNameString, finalAccess))
-                .build().toString();
+                .build();
     }
 }

@@ -126,30 +126,33 @@ public class ForeignKeyReferenceDefinition {
 
     CodeBlock getContentValuesStatement(boolean isModelContainerAdapter) {
         // fix its access here.
-        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false);
+        CodeBlock shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false);
         shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess);
 
-        String columnShortAccess = getShortColumnAccess(false, shortAccess);
+        CodeBlock columnShortAccess = getShortColumnAccess(false, shortAccess);
 
-        String combined;
+        CodeBlock combined;
         if (!(columnAccess instanceof PackagePrivateAccess)) {
-            combined = shortAccess + (isModelContainerAdapter ? "" : ".") + columnShortAccess;
+            combined = CodeBlock.of("$L$L$L", shortAccess, (isModelContainerAdapter ? "" : "."),
+                    columnShortAccess);
         } else {
             combined = columnShortAccess;
         }
-        return DefinitionUtils.getContentValuesStatement(columnShortAccess, combined,
+        return DefinitionUtils.getContentValuesStatement(columnShortAccess.toString(),
+                combined.toString(),
                 columnName, columnClassName, simpleColumnAccess,
                 getForeignKeyColumnVariable(), null,
                 foreignKeyColumnDefinition.tableDefinition.outputClassName).build();
     }
 
-    public String getPrimaryReferenceString() {
-        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false);
+    public CodeBlock getPrimaryReferenceString() {
+        CodeBlock shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false);
         shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess);
-        String columnShortAccess = getShortColumnAccess(false, shortAccess);
-        String combined;
+        CodeBlock columnShortAccess = getShortColumnAccess(false, shortAccess);
+        CodeBlock combined;
         if (!(columnAccess instanceof PackagePrivateAccess)) {
-            combined = ModelUtils.getVariable() + "." + shortAccess + "." + columnShortAccess;
+            combined = CodeBlock.of("$L.$L.$L", ModelUtils.getVariable(),
+                    shortAccess, columnShortAccess);
         } else {
             combined = columnShortAccess;
         }
@@ -157,22 +160,27 @@ public class ForeignKeyReferenceDefinition {
     }
 
     CodeBlock getSQLiteStatementMethod(AtomicInteger index) {
-        String shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, true);
+        CodeBlock shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, true);
         shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess);
 
-        String columnShortAccess = getShortColumnAccess(true, shortAccess);
-        String combined = shortAccess + "." + columnShortAccess;
+        CodeBlock columnShortAccess = getShortColumnAccess(true, shortAccess);
+        CodeBlock combined = shortAccess.toBuilder()
+                .add(".")
+                .add(columnShortAccess).build();
         return DefinitionUtils.getSQLiteStatementMethod(
-                index, columnShortAccess, combined,
+                index, columnShortAccess.toString(), combined.toString(),
                 columnClassName, simpleColumnAccess,
                 getForeignKeyColumnVariable(), false, null).build();
     }
 
     CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
 
-        String access = getShortColumnAccess(false, tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false));
+        CodeBlock access = getShortColumnAccess(false, tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false));
         if (foreignKeyColumnDefinition.isModel && !isReferencedFieldPackagePrivate) {
-            access = foreignKeyColumnDefinition.getColumnAccessString(false) + "." + access;
+            access = foreignKeyColumnDefinition.getColumnAccessString(false)
+                    .toBuilder().add(".")
+                    .add(access)
+                    .build();
         }
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -184,7 +192,7 @@ public class ForeignKeyReferenceDefinition {
         return ModelUtils.getVariable();
     }
 
-    private String getShortColumnAccess(boolean isSqliteMethod, String shortAccess) {
+    private CodeBlock getShortColumnAccess(boolean isSqliteMethod, CodeBlock shortAccess) {
         if (columnAccess instanceof PackagePrivateAccess) {
             return columnAccess.getColumnAccessString(columnClassName, foreignColumnName, "", ModelUtils.getVariable() + "." + shortAccess, isSqliteMethod);
         } else {

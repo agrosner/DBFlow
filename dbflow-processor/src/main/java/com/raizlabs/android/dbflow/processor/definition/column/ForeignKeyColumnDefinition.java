@@ -227,10 +227,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         } else {
             checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder();
-            String statement = columnAccess
+            CodeBlock statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
                             ModelUtils.getVariable(), false);
-            String finalAccessStatement = getFinalAccessStatement(builder, statement);
+            CodeBlock finalAccessStatement = getFinalAccessStatement(builder, statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
 
             if (saveForeignKeyModel) {
@@ -257,10 +257,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         } else {
             checkNeedsReferences();
             CodeBlock.Builder builder = CodeBlock.builder();
-            String statement = columnAccess
+            CodeBlock statement = columnAccess
                     .getColumnAccessString(elementTypeName, elementName, elementName,
                             ModelUtils.getVariable(), true);
-            String finalAccessStatement = getFinalAccessStatement(builder, statement);
+            CodeBlock finalAccessStatement = getFinalAccessStatement(builder, statement);
             builder.beginControlFlow("if ($L != null)", finalAccessStatement);
 
             if (saveForeignKeyModel) {
@@ -357,8 +357,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 initializer.add(".querySingle()");
             }
 
-            builder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.getVariable(), initializer.build()));
+            builder.add(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
+                    ModelUtils.getVariable(), initializer.build())
+                    .toBuilder().add(";\n").build());
 
             if (putNullForContainerAdapter && tableDefinition.assignDefaultValuesFromCursor) {
                 builder.nextControlFlow("else");
@@ -376,7 +377,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (nonModelColumn) {
             return super.getForeignKeyContainerMethod(tableClassName);
         } else {
-            String access = columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
+            CodeBlock access = columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
                     ModelUtils.getVariable(), false);
             CodeBlock.Builder builder = CodeBlock.builder();
             CodeBlock.Builder elseBuilder = CodeBlock.builder();
@@ -397,9 +398,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         if (nonModelColumn || columnAccess instanceof TypeConverterAccess) {
             super.appendPropertyComparisonAccessStatement(codeBuilder);
         } else {
-            String origStatement = getColumnAccessString(false);
+            CodeBlock origStatement = getColumnAccessString(false);
             if (isPrimaryKey) {
-                String statement;
+                CodeBlock statement;
                 String variableName = "container" + elementName;
                 TypeName typeName = elementTypeName;
                 codeBuilder.addStatement("\n$T $L = ($T) $L", typeName, variableName, typeName, origStatement);
@@ -421,10 +422,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
     }
 
-    String getFinalAccessStatement(CodeBlock.Builder codeBuilder, String statement) {
-        String finalAccessStatement = statement;
+    CodeBlock getFinalAccessStatement(CodeBlock.Builder codeBuilder, CodeBlock statement) {
+        CodeBlock finalAccessStatement = statement;
         if (columnAccess instanceof TypeConverterAccess) {
-            finalAccessStatement = getRefName();
+            finalAccessStatement = CodeBlock.of(getRefName());
 
             TypeName typeName;
             if (columnAccess instanceof TypeConverterAccess) {
@@ -440,9 +441,9 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         return finalAccessStatement;
     }
 
-    String getForeignKeyReferenceAccess(String statement) {
+    CodeBlock getForeignKeyReferenceAccess(CodeBlock statement) {
         if (columnAccess instanceof TypeConverterAccess) {
-            return getRefName();
+            return CodeBlock.of(getRefName());
         } else {
             return statement;
         }

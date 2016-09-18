@@ -9,14 +9,14 @@ import com.squareup.javapoet.TypeName;
  */
 public abstract class BaseColumnAccess {
 
-    public abstract String getColumnAccessString(TypeName fieldType, String elementName,
+    public abstract CodeBlock getColumnAccessString(TypeName fieldType, String elementName,
                                                  String fullElementName, String variableNameString,
                                                  boolean isSqliteStatement);
 
-    public abstract String getShortAccessString(TypeName fieldType, String elementName,
+    public abstract CodeBlock getShortAccessString(TypeName fieldType, String elementName,
                                                 boolean isSqliteStatement);
 
-    public abstract String setColumnAccessString(TypeName fieldType, String elementName,
+    public abstract CodeBlock setColumnAccessString(TypeName fieldType, String elementName,
                                                  String fullElementName,
                                                  String variableNameString,
                                                  CodeBlock formattedAccess);

@@ -17,24 +17,24 @@ public class BlobColumnAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isSqliteStatement) {
+    public CodeBlock getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isSqliteStatement) {
         return CodeBlock.builder()
                 .add("$L.getBlob()", getExistingColumnAccess()
                         .getColumnAccessString(fieldType, elementName, fullElementName,
                                 variableNameString, isSqliteStatement))
-                .build().toString();
+                .build();
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName, boolean isSqliteStatement) {
+    public CodeBlock getShortAccessString(TypeName fieldType, String elementName, boolean isSqliteStatement) {
         return CodeBlock.builder()
                 .add("$L.getBlob()", getExistingColumnAccess()
                         .getShortAccessString(fieldType, elementName, isSqliteStatement))
-                .build().toString();
+                .build();
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName,
+    public CodeBlock setColumnAccessString(TypeName fieldType, String elementName,
                                         String fullElementName, String variableNameString,
                                         CodeBlock formattedAccess) {
         CodeBlock newFormattedAccess = CodeBlock.builder()

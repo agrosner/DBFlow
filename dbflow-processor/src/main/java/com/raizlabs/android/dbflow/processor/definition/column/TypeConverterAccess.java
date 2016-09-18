@@ -35,7 +35,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isSqliteStatement) {
+    public CodeBlock getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isSqliteStatement) {
         checkConverter();
         if (typeConverterDefinition != null) {
             CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -51,14 +51,14 @@ public class TypeConverterAccess extends WrapperColumnAccess {
                     .getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isSqliteStatement));
 
 
-            return codeBuilder.build().toString();
+            return codeBuilder.build();
         } else {
-            return "";
+            return CodeBlock.of("");
         }
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName, boolean isSqliteStatement) {
+    public CodeBlock getShortAccessString(TypeName fieldType, String elementName, boolean isSqliteStatement) {
         checkConverter();
         if (typeConverterDefinition != null) {
             CodeBlock.Builder codeBuilder = CodeBlock.builder();
@@ -75,14 +75,14 @@ public class TypeConverterAccess extends WrapperColumnAccess {
                     .getShortAccessString(fieldType, elementName, isSqliteStatement));
 
 
-            return codeBuilder.build().toString();
+            return codeBuilder.build();
         } else {
-            return "";
+            return CodeBlock.of("");
         }
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess) {
+    public CodeBlock setColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, CodeBlock formattedAccess) {
         checkConverter();
         if (typeConverterDefinition != null) {
             CodeBlock.Builder newFormattedAccess = CodeBlock.builder();
@@ -107,7 +107,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
             return getExistingColumnAccess()
                     .setColumnAccessString(fieldType, elementName, fullElementName, variableNameString, newFormattedAccess.build());
         } else {
-            return "";
+            return CodeBlock.of("");
         }
     }
 

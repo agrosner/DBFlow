@@ -34,28 +34,29 @@ public class PrivateColumnAccess extends BaseColumnAccess {
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName,
-                                        String fullElementName, String variableNameString,
-                                        boolean isSqliteStatement) {
-        return String.format("%1s.%1s()", variableNameString, getGetterNameElement(elementName));
+    public CodeBlock getColumnAccessString(TypeName fieldType, String elementName,
+                                           String fullElementName, String variableNameString,
+                                           boolean isSqliteStatement) {
+        return CodeBlock.of("$L.$L()", variableNameString,
+                getGetterNameElement(elementName));
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName,
-                                       boolean isSqliteStatement) {
-        return String.format("%1s()", getGetterNameElement(elementName));
+    public CodeBlock getShortAccessString(TypeName fieldType, String elementName,
+                                          boolean isSqliteStatement) {
+        return CodeBlock.of("$L()", getGetterNameElement(elementName));
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName,
-                                        String fullElementName,
-                                        String variableNameString, CodeBlock formattedAccess) {
+    public CodeBlock setColumnAccessString(TypeName fieldType, String elementName,
+                                           String fullElementName,
+                                           String variableNameString, CodeBlock formattedAccess) {
         // append . when specify something, if not then we leave blank.
         String varNameFull = variableNameString;
         if (!StringUtils.isNullOrEmpty(varNameFull)) {
             varNameFull += ".";
         }
-        return String.format("%s%1s(%1s)", varNameFull, getSetterNameElement(elementName),
+        return CodeBlock.of("$L$L($L)", varNameFull, getSetterNameElement(elementName),
                 formattedAccess);
     }
 

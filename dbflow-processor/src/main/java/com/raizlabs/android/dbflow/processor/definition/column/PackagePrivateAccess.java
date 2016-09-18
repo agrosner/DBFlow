@@ -23,6 +23,7 @@ public class PackagePrivateAccess extends BaseColumnAccess {
     public static final String classSuffix = "Helper";
 
     public final ClassName helperClassName;
+    private final ClassName internalHelperClassName; // used for safety
 
     private static final Map<ClassName, List<String>> helperUsedMethodMap = Maps.newHashMap();
 
@@ -59,31 +60,36 @@ public class PackagePrivateAccess extends BaseColumnAccess {
 
     public PackagePrivateAccess(String elementPackageName, String separator, String className) {
         helperClassName = ClassName.get(elementPackageName, className + separator + classSuffix);
+
+        if (separator.matches("[$]+")) {
+            separator += separator; // duplicate to be safe
+        }
+        internalHelperClassName = ClassName.get(elementPackageName, className + separator + classSuffix);
     }
 
     @Override
-    public String getColumnAccessString(TypeName fieldType, String elementName,
-                                        String fullElementName, String variableNameString,
-                                        boolean isSqliteStatement) {
-        return CodeBlock.builder().add("$T.get$L($L)", helperClassName,
+    public CodeBlock getColumnAccessString(TypeName fieldType, String elementName,
+                                           String fullElementName, String variableNameString,
+                                           boolean isSqliteStatement) {
+        return CodeBlock.builder().add("$T.get$L($L)", internalHelperClassName,
                 StringUtils.capitalize(elementName),
-                variableNameString).build().toString();
+                variableNameString).build();
     }
 
     @Override
-    public String getShortAccessString(TypeName fieldType, String elementName,
-                                       boolean isSqliteStatement) {
-        return CodeBlock.builder().add("$T.get$L($L)", helperClassName,
+    public CodeBlock getShortAccessString(TypeName fieldType, String elementName,
+                                          boolean isSqliteStatement) {
+        return CodeBlock.builder().add("$T.get$L($L)", internalHelperClassName,
                 StringUtils.capitalize(elementName),
-                elementName).build().toString();
+                elementName).build();
     }
 
     @Override
-    public String setColumnAccessString(TypeName fieldType, String elementName,
-                                        String fullElementName,
-                                        String variableNameString, CodeBlock formattedAccess) {
-        return CodeBlock.builder().add("$T.set$L($L, $L)", helperClassName,
+    public CodeBlock setColumnAccessString(TypeName fieldType, String elementName,
+                                           String fullElementName,
+                                           String variableNameString, CodeBlock formattedAccess) {
+        return CodeBlock.builder().add("$T.set$L($L, $L)", internalHelperClassName,
                 StringUtils.capitalize(elementName), ModelUtils.getVariable(),
-                formattedAccess).build().toString();
+                formattedAccess).build();
     }
 }

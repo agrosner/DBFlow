@@ -81,11 +81,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
             if (!StringUtils.isNullOrEmpty(classSeparator)) {
                 // all are $
-                if (classSeparator.matches("[$]+")) {
-                    fieldRefSeparator = classSeparator + classSeparator; // duplicate to be safe
-                } else {
-                    fieldRefSeparator = classSeparator;
-                }
+                fieldRefSeparator = classSeparator;
             } else {
                 fieldRefSeparator = classSeparator;
             }

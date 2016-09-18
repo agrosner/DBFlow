@@ -15,7 +15,6 @@ import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
-import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -295,12 +294,12 @@ public class ColumnDefinition extends BaseDefinition {
                 columnAccess).build();
     }
 
-    public String setColumnAccessString(CodeBlock formattedAccess, boolean toModelMethod) {
+    public CodeBlock setColumnAccessString(CodeBlock formattedAccess, boolean toModelMethod) {
         return columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
                 ModelUtils.getVariable(), formattedAccess);
     }
 
-    public String getColumnAccessString(boolean isSqliteStatment) {
+    public CodeBlock getColumnAccessString(boolean isSqliteStatment) {
         return columnAccess.getColumnAccessString(elementTypeName, elementName,
                 elementName, ModelUtils.getVariable(), isSqliteStatment);
     }
@@ -315,17 +314,18 @@ public class ColumnDefinition extends BaseDefinition {
                             elementName, elementName,
                             ModelUtils.getVariable(), false));
         } else {
-            String columnAccessString = getColumnAccessString(false);
+            CodeBlock columnAccessString = getColumnAccessString(false);
             int subAccessIndex = -1;
             if (columnAccess instanceof BlobColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(".getBlob()");
+                subAccessIndex = columnAccessString.toString().lastIndexOf(".getBlob()");
             } else if (columnAccess instanceof EnumColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(".name()");
+                subAccessIndex = columnAccessString.toString().lastIndexOf(".name()");
             } else if (columnAccess instanceof BooleanTypeColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(" ? 1 : 0");
+                subAccessIndex = columnAccessString.toString().lastIndexOf(" ? 1 : 0");
             }
             if (subAccessIndex > 0) {
-                columnAccessString = columnAccessString.substring(0, subAccessIndex);
+                columnAccessString = CodeBlock.of(columnAccessString.toString()
+                        .substring(0, subAccessIndex));
             }
             codeBuilder.add(columnAccessString);
         }
