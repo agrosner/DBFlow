@@ -65,16 +65,19 @@ public class DefinitionUtils {
                 codeBuilder, variableNameString, elementName);
 
         codeBuilder.addStatement("$L.put($S, $L)",
-                BindToContentValuesMethod.PARAM_CONTENT_VALUES, columnName, putAccess);
+                BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                QueryBuilder.quoteIfNeeded(columnName), putAccess);
 
         if (!finalTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else");
             if (defaultValue != null && !defaultValue.isEmpty()) {
                 codeBuilder.addStatement("$L.put($S, $L)",
-                        BindToContentValuesMethod.PARAM_CONTENT_VALUES, columnName, defaultValue);
+                        BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                        QueryBuilder.quoteIfNeeded(columnName), defaultValue);
             } else {
                 codeBuilder.addStatement("$L.putNull($S)",
-                        BindToContentValuesMethod.PARAM_CONTENT_VALUES, columnName);
+                        BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                        QueryBuilder.quoteIfNeeded(columnName));
             }
             codeBuilder.endControlFlow();
         }

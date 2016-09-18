@@ -338,13 +338,6 @@ public class ProcessorManager implements Handler {
                     WriterUtils.writeBaseDefinition(tableDefinition, processorManager);
                 }
 
-                tableDefinitions = databaseDefinition.tableDefinitionMap.values();
-                for (TableDefinition tableDefinition : tableDefinitions) {
-                    try {
-                        tableDefinition.writeAdapter(processorManager.getProcessingEnvironment());
-                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
-                }
-
                 List<ModelViewDefinition> modelViewDefinitions = new ArrayList<>(databaseDefinition.modelViewDefinitionMap.values());
                 Collections.sort(modelViewDefinitions);
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {

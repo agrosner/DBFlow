@@ -40,14 +40,12 @@ import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +54,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -70,11 +67,7 @@ public class TableDefinition extends BaseTableDefinition {
 
     public static final String DBFLOW_TABLE_TAG = "Table";
 
-    public static final String DBFLOW_TABLE_ADAPTER = "Adapter";
-
     public String tableName;
-
-    public String adapterName;
 
     public TypeName databaseTypeName;
 
@@ -228,8 +221,6 @@ public class TableDefinition extends BaseTableDefinition {
             }
 
             setOutputClassName(databaseDefinition.classSeparator + DBFLOW_TABLE_TAG);
-            this.adapterName = getModelClassName() + databaseDefinition.classSeparator + DBFLOW_TABLE_ADAPTER;
-
 
             // globular default
             ConflictAction insertConflict = table.insertConflict();
@@ -429,39 +420,38 @@ public class TableDefinition extends BaseTableDefinition {
         }
     }
 
-    public ClassName getAdapterClassName() {
-        return ClassName.get(packageName, adapterName);
-    }
-
     @Override
     public ClassName getPropertyClassName() {
         return outputClassName;
     }
 
     @Override
+    protected TypeName getExtendsClass() {
+        return ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName);
+    }
+
+    @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
-        FieldSpec.Builder propertyConverter = FieldSpec.builder(ClassNames.PROPERTY_CONVERTER, "PROPERTY_CONVERTER", Modifier.FINAL, Modifier.PUBLIC, Modifier.STATIC)
-                .initializer(CodeBlock.builder()
-                        .add("new $T(){ \n", ClassNames.PROPERTY_CONVERTER)
-                        .add("public $T fromName(String columnName) {\n", ClassNames.IPROPERTY)
-                        .add("return $L.getProperty(columnName); \n}\n}", getPropertyClassName())
-                        .build());
-        typeBuilder.addField(propertyConverter.build());
+        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
+        InternalAdapterHelper.writeGetTableName(typeBuilder, tableName);
 
-        MethodSpec.Builder getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(String.class, "columnName")
-                .returns(ClassNames.BASE_PROPERTY);
-
-        MethodSpec.Builder getAllColumnPropertiesMethod = MethodSpec.methodBuilder("getAllColumnProperties")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .returns(ArrayTypeName.of(ClassNames.IPROPERTY));
+        FieldSpec.Builder getAllColumnPropertiesMethod = FieldSpec.builder(
+                ArrayTypeName.of(ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES",
+                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
         CodeBlock.Builder getPropertiesBuilder = CodeBlock.builder();
 
-        getPropertyForNameMethod.addStatement("columnName = $T.quoteIfNeeded(columnName)", ClassName.get(QueryBuilder.class));
+        String paramColumnName = "columnName";
+        MethodSpec.Builder getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
+                .addAnnotation(Override.class)
+                .addParameter(ClassName.get(String.class), paramColumnName)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .returns(ClassNames.BASE_PROPERTY);
 
-        getPropertyForNameMethod.beginControlFlow("switch ($L) ", "columnName");
+        getPropertyForNameMethod.addStatement("$L = $T.quoteIfNeeded($L)", paramColumnName,
+                ClassName.get(QueryBuilder.class), paramColumnName);
+
+        getPropertyForNameMethod.beginControlFlow("switch ($L) ", paramColumnName);
         for (int i = 0; i < columnDefinitions.size(); i++) {
             if (i > 0) {
                 getPropertiesBuilder.add(",");
@@ -478,8 +468,8 @@ public class TableDefinition extends BaseTableDefinition {
         getPropertyForNameMethod.endControlFlow();
         getPropertyForNameMethod.endControlFlow();
 
-        getAllColumnPropertiesMethod.addStatement("return new $T[]{$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString());
-        typeBuilder.addMethod(getAllColumnPropertiesMethod.build());
+        getAllColumnPropertiesMethod.initializer("new $T[]{$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString());
+        typeBuilder.addField(getAllColumnPropertiesMethod.build());
 
         // add index properties here
         for (IndexGroupsDefinition indexGroupsDefinition : indexGroupsDefinitions) {
@@ -487,15 +477,6 @@ public class TableDefinition extends BaseTableDefinition {
         }
 
         typeBuilder.addMethod(getPropertyForNameMethod.build());
-    }
-
-    public void writeAdapter(ProcessingEnvironment processingEnvironment) throws IOException {
-
-        TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(adapterName)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .superclass(ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName));
-        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName);
-        InternalAdapterHelper.writeGetTableName(typeBuilder, tableName);
 
         if (hasAutoIncrement || hasRowID) {
             InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName,
@@ -518,7 +499,7 @@ public class TableDefinition extends BaseTableDefinition {
         typeBuilder.addMethod(MethodSpec.methodBuilder("getAllColumnProperties")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $T.getAllColumnProperties()", outputClassName)
+                .addStatement("return ALL_COLUMN_PROPERTIES", outputClassName)
                 .returns(ArrayTypeName.of(ClassNames.IPROPERTY)).build());
 
         if (cachingEnabled) {
@@ -653,14 +634,6 @@ public class TableDefinition extends BaseTableDefinition {
                 .returns(elementClassName)
                 .build());
 
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getProperty")
-                .addAnnotation(Override.class)
-                .addParameter(ClassName.get(String.class), "name")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return $T.getProperty($L)", outputClassName, "name")
-                .returns(ClassNames.BASE_PROPERTY)
-                .build());
-
         if (!updateConflictActionName.isEmpty()) {
             typeBuilder.addMethod(MethodSpec.methodBuilder("getUpdateOnConflictAction")
                     .addAnnotation(Override.class)
@@ -677,14 +650,5 @@ public class TableDefinition extends BaseTableDefinition {
                     .addStatement("return $T.$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
                     .returns(ClassNames.CONFLICT_ACTION).build());
         }
-
-
-        try {
-            JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
-            javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
-        } catch (IllegalArgumentException i) {
-            i.printStackTrace();
-        }
-
     }
 }
