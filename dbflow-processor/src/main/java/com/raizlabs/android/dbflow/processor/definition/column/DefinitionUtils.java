@@ -64,19 +64,17 @@ public class DefinitionUtils {
                 elementTypeName, finalTypeName,
                 codeBuilder, variableNameString, elementName);
 
-        codeBuilder.addStatement("$L.put($T.$L.getCursorKey(), $L)",
-                BindToContentValuesMethod.PARAM_CONTENT_VALUES,
-                tableTableClassName, columnName, putAccess);
+        codeBuilder.addStatement("$L.put($S, $L)",
+                BindToContentValuesMethod.PARAM_CONTENT_VALUES, columnName, putAccess);
 
         if (!finalTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else");
             if (defaultValue != null && !defaultValue.isEmpty()) {
-                codeBuilder.addStatement("$L.put($T.$L.getCursorKey(), $L)",
-                        BindToContentValuesMethod.PARAM_CONTENT_VALUES,
-                        tableTableClassName, columnName, defaultValue);
+                codeBuilder.addStatement("$L.put($S, $L)",
+                        BindToContentValuesMethod.PARAM_CONTENT_VALUES, columnName, defaultValue);
             } else {
-                codeBuilder.addStatement("$L.putNull($T.$L.getCursorKey())", BindToContentValuesMethod.PARAM_CONTENT_VALUES,
-                        tableTableClassName, columnName);
+                codeBuilder.addStatement("$L.putNull($S)",
+                        BindToContentValuesMethod.PARAM_CONTENT_VALUES, columnName);
             }
             codeBuilder.endControlFlow();
         }
