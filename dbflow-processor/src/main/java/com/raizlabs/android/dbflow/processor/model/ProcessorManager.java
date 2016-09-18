@@ -342,17 +342,11 @@ public class ProcessorManager implements Handler {
                 Collections.sort(modelViewDefinitions);
                 for (ModelViewDefinition modelViewDefinition : modelViewDefinitions) {
                     WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager);
-                    try {
-                        modelViewDefinition.writeViewTable();
-                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 Collection<QueryModelDefinition> queryModelDefinitions = databaseDefinition.queryModelDefinitionMap.values();
                 for (QueryModelDefinition queryModelDefinition : queryModelDefinitions) {
                     WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager);
-                    try {
-                        queryModelDefinition.writeAdapter(processorManager.getProcessingEnvironment());
-                    } catch (FilerException e) { /*Ignored intentionally to allow multi-round table generation*/ }
                 }
 
                 for (TableDefinition tableDefinition : tableDefinitions) {

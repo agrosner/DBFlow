@@ -20,13 +20,11 @@ import com.raizlabs.android.dbflow.processor.validator.ColumnValidator;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.lang.model.element.Element;
@@ -41,9 +39,7 @@ import javax.lang.model.type.TypeMirror;
  */
 public class ModelViewDefinition extends BaseTableDefinition implements Comparable<ModelViewDefinition> {
 
-    private static final String DBFLOW_MODEL_VIEW_TAG = "View";
-
-    private static final String TABLE_VIEW_TAG = "ViewTable";
+    private static final String DBFLOW_MODEL_VIEW_TAG = "ViewTable";
 
     final boolean implementsLoadFromCursorListener;
 
@@ -56,8 +52,6 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
     private ClassName modelReferenceClass;
 
     private MethodDefinition[] methods;
-
-    public String viewTableName;
 
     public boolean allFields;
 
@@ -124,8 +118,6 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
         ModelView modelView = element.getAnnotation(ModelView.class);
         if (modelView != null) {
             databaseDefinition = manager.getDatabaseHolderDefinition(databaseName).getDatabaseDefinition();
-            this.viewTableName = getModelClassName() + databaseDefinition.classSeparator + TABLE_VIEW_TAG;
-
             setOutputClassName(databaseDefinition.classSeparator + DBFLOW_MODEL_VIEW_TAG);
 
             if (typeElement != null) {
@@ -202,7 +194,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
 
     @Override
     public ClassName getPropertyClassName() {
-        return ClassName.get(packageName, viewTableName);
+        return outputClassName;
     }
 
     @Override
@@ -210,23 +202,16 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
         return ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, modelReferenceClass, elementClassName);
     }
 
-    public void writeViewTable() throws IOException {
+    @Override
+    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
-        TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(viewTableName)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addField(FieldSpec.builder(ClassName.get(String.class), "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                        .initializer("$S", name).build());
+        typeBuilder.addField(FieldSpec.builder(ClassName.get(String.class),
+                "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .initializer("$S", name).build());
 
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
         }
-
-        JavaFile file = JavaFile.builder(packageName, typeBuilder.build()).build();
-        file.writeTo(manager.getProcessingEnvironment().getFiler());
-    }
-
-    @Override
-    public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
 
         CustomTypeConverterPropertyMethod customTypeConverterPropertyMethod = new CustomTypeConverterPropertyMethod(this);
         customTypeConverterPropertyMethod.addToType(typeBuilder);
