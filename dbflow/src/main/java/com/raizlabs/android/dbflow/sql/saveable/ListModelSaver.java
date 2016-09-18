@@ -78,6 +78,23 @@ public class ListModelSaver<TModel> {
         }
     }
 
+    public synchronized void deleteAll(@NonNull Collection<TModel> tableCollection) {
+        deleteAll(tableCollection, modelSaver.getWritableDatabase());
+    }
+
+    public synchronized void deleteAll(@NonNull Collection<TModel> tableCollection,
+                                       DatabaseWrapper wrapper) {
+        // skip if empty.
+        if (tableCollection.isEmpty()) {
+            return;
+        }
+
+        for (TModel model : tableCollection) {
+            modelSaver.delete(model, wrapper);
+        }
+    }
+
+
     public ModelSaver<TModel> getModelSaver() {
         return modelSaver;
     }

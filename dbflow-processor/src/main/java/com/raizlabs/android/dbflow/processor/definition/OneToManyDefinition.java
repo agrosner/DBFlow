@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.processor.definition.column.PrivateColumnAcce
 import com.raizlabs.android.dbflow.processor.definition.column.SimpleColumnAccess;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -32,6 +34,9 @@ public class OneToManyDefinition extends BaseDefinition {
 
     private BaseColumnAccess columnAccess;
     private boolean extendsBaseModel;
+    private boolean extendsModel;
+    private TypeName referencedTableType;
+    private TypeElement referencedType;
 
     public OneToManyDefinition(ExecutableElement typeElement,
                                ProcessorManager processorManager) {
@@ -59,9 +64,12 @@ public class OneToManyDefinition extends BaseDefinition {
         if (typeName instanceof ParameterizedTypeName) {
             List<TypeName> typeArguments = ((ParameterizedTypeName) typeName).typeArguments;
             if (typeArguments.size() == 1) {
-                TypeName returnTypeName = typeArguments.get(0);
+                referencedTableType = typeArguments.get(0);
+                referencedType = manager.getElements().getTypeElement(referencedTableType.toString());
                 extendsBaseModel = ProcessorUtils.isSubclass(manager.getProcessingEnvironment(),
-                        ClassNames.BASE_MODEL.toString(), manager.getElements().getTypeElement(returnTypeName.toString()));
+                        ClassNames.BASE_MODEL.toString(), referencedType);
+                extendsModel = ProcessorUtils.isSubclass(manager.getProcessingEnvironment(),
+                        ClassNames.MODEL.toString(), referencedType);
             }
         }
     }
@@ -120,17 +128,36 @@ public class OneToManyDefinition extends BaseDefinition {
 
     public void writeInsert(CodeBlock.Builder codeBuilder, boolean useWrapper) {
         if (isSave()) {
-            writeLoopWithMethod(codeBuilder, "insert", useWrapper && extendsBaseModel);
+            writeLoopWithMethod(codeBuilder, "insert", useWrapper && extendsBaseModel
+                    || useWrapper && !extendsModel);
         }
     }
 
     private void writeLoopWithMethod(CodeBlock.Builder codeBuilder, String methodName, boolean useWrapper) {
         codeBuilder
-                .beginControlFlow("if ($L != null) ", getMethodName())
-                .beginControlFlow("for ($T value: $L) ", extendsBaseModel ? ClassNames.BASE_MODEL : ClassNames.MODEL, getMethodName())
-                .addStatement("value.$L($L)", methodName, useWrapper ? ModelUtils.getWrapper() : "")
-                .endControlFlow()
-                .endControlFlow();
+                .beginControlFlow("if ($L != null) ", getMethodName());
+        ClassName loopClass = null;
+        if (extendsBaseModel) {
+            loopClass = ClassNames.BASE_MODEL;
+        } else {
+            loopClass = ClassName.get(referencedType);
+        }
+
+        // need to load adapter for non-model classes
+        if (!extendsModel) {
+            codeBuilder.addStatement("$T adapter = $T.getModelAdapter($T.class)",
+                    ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                    ClassNames.FLOW_MANAGER, referencedTableType);
+
+            codeBuilder.addStatement("adapter.$LAll($L$L)", methodName, getMethodName(),
+                    useWrapper ? (", " + ModelUtils.getWrapper()) : "");
+        } else {
+            codeBuilder.beginControlFlow("for ($T value: $L) ", loopClass, getMethodName());
+            codeBuilder.addStatement("value.$L($L)", methodName, useWrapper ? ModelUtils.getWrapper() : "");
+            codeBuilder.endControlFlow();
+        }
+
+        codeBuilder.endControlFlow();
     }
 
     private String getMethodName() {

@@ -173,6 +173,16 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     @Override
+    public void deleteAll(Collection<TModel> tModels, DatabaseWrapper databaseWrapper) {
+        getListModelSaver().deleteAll(tModels, databaseWrapper);
+    }
+
+    @Override
+    public void deleteAll(Collection<TModel> tModels) {
+        getListModelSaver().deleteAll(tModels);
+    }
+
+    @Override
     public void bindToInsertStatement(DatabaseStatement sqLiteStatement, TModel model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
     }

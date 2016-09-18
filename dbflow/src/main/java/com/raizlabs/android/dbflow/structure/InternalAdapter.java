@@ -126,6 +126,21 @@ public interface InternalAdapter<TModel> {
     void delete(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
+     * Updates a {@link Collection} of models in the DB.
+     *
+     * @param models The {@link Collection} of models to save.
+     */
+    void deleteAll(Collection<TModel> models);
+
+    /**
+     * Updates a {@link Collection} of models in the DB.
+     *
+     * @param models          The {@link Collection} of models to save.
+     * @param databaseWrapper The manually specified wrapper
+     */
+    void deleteAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
+
+    /**
      * Binds a {@link TModel} to the specified db statement
      *
      * @param sqLiteStatement The statement to fill
