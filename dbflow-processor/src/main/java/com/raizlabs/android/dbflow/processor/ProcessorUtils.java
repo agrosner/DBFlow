@@ -1,6 +1,10 @@
 package com.raizlabs.android.dbflow.processor;
 
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.squareup.javapoet.ClassName;
+
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -63,6 +67,35 @@ public class ProcessorUtils {
         } catch (ClassNotFoundException e) {
         }
         return isSubClass;
+    }
+
+    public static ClassName fromTypeMirror(TypeMirror typeMirror) {
+        ClassName className = null;
+        TypeElement element = getTypeElement(typeMirror);
+        if (element != null) {
+            className = ClassName.get(element);
+        }
+        return className;
+    }
+
+    public static TypeElement getTypeElement(Element element) {
+        ProcessorManager manager = ProcessorManager.getManager();
+        TypeElement typeElement = null;
+        if (element instanceof TypeElement) {
+            typeElement = ((TypeElement) element);
+        } else {
+            typeElement = getTypeElement(element.asType());
+        }
+        return typeElement;
+    }
+
+    public static TypeElement getTypeElement(TypeMirror typeMirror) {
+        ProcessorManager manager = ProcessorManager.getManager();
+        TypeElement typeElement = manager.getElements().getTypeElement(typeMirror.toString());
+        if (typeElement == null) {
+            typeElement = (TypeElement) manager.getTypeUtils().asElement(typeMirror);
+        }
+        return typeElement;
     }
 
 }

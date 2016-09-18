@@ -5,9 +5,11 @@ import com.raizlabs.android.dbflow.converter.BooleanConverter;
 import com.raizlabs.android.dbflow.converter.CalendarConverter;
 import com.raizlabs.android.dbflow.converter.DateConverter;
 import com.raizlabs.android.dbflow.converter.SqlDateConverter;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 import com.raizlabs.android.dbflow.processor.validator.TypeConverterValidator;
+import com.squareup.javapoet.ClassName;
 
 import java.util.Set;
 
@@ -44,7 +46,9 @@ public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         if (element instanceof TypeElement) {
-            TypeConverterDefinition converterDefinition = new TypeConverterDefinition((TypeElement) element, processorManager);
+            ClassName className = ProcessorUtils.fromTypeMirror(element.asType());
+            TypeConverterDefinition converterDefinition = new TypeConverterDefinition(className,
+                    element.asType(), processorManager);
             if (VALIDATOR.validate(processorManager, converterDefinition)) {
                 processorManager.addTypeConverterDefinition(converterDefinition);
             }

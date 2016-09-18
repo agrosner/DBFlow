@@ -7,7 +7,6 @@ import com.squareup.javapoet.TypeName;
 
 import java.util.List;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
@@ -23,18 +22,19 @@ public class TypeConverterDefinition {
 
     private TypeName dbTypeName;
 
-    public TypeConverterDefinition(TypeElement className, ProcessorManager manager) {
-
-        this.className = ClassName.get(className);
+    public TypeConverterDefinition(ClassName className, TypeMirror typeMirror, ProcessorManager manager) {
+        this.className = className;
 
         Types types = manager.getTypeUtils();
 
         DeclaredType typeConverterSuper = null;
-        DeclaredType typeConverter = manager.getTypeUtils().getDeclaredType(manager.getElements().getTypeElement(ClassNames.TYPE_CONVERTER.toString()),
-                types.getWildcardType(null, null), types.getWildcardType(null, null));
+        DeclaredType typeConverter = manager.getTypeUtils().getDeclaredType(manager.getElements()
+                .getTypeElement(ClassNames.TYPE_CONVERTER.toString()));
 
-        for (TypeMirror superType : types.directSupertypes(className.asType())) {
-            if (types.isAssignable(superType, typeConverter)) {
+        for (TypeMirror superType : types.directSupertypes(typeMirror)) {
+            TypeMirror erasure = types.erasure(superType);
+            if (types.isAssignable(erasure, typeConverter)
+                    || erasure.toString().equals(typeConverter.toString())) {
                 typeConverterSuper = (DeclaredType) superType;
             }
         }

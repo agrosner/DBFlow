@@ -85,7 +85,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
         DeclaredType typeAdapterInterface = null;
         final DeclaredType modelViewType = manager.getTypeUtils().getDeclaredType(
                 manager.getElements().getTypeElement(ClassNames.MODEL_VIEW.toString()),
-                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassNames.MODEL.toString()).asType(), null)
+                manager.getTypeUtils().getWildcardType(manager.getElements().getTypeElement(ClassName.OBJECT.toString()).asType(), null)
         );
 
 

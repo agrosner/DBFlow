@@ -1,11 +1,7 @@
 package com.raizlabs.android.dbflow.processor.validator;
 
-import com.raizlabs.android.dbflow.processor.ClassNames;
-import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
-
-import javax.lang.model.element.TypeElement;
 
 /**
  * Description: Validates proper usage of the {@link com.raizlabs.android.dbflow.annotation.Table}
@@ -35,11 +31,6 @@ public class TableValidator implements Validator<TableDefinition> {
         if (!hasPrimary) {
             processorManager.logError(TableValidator.class, "Table %1s needs to define at least one primary key", tableDefinition.tableName);
             success = false;
-        }
-
-        if (!ProcessorUtils.implementsClass(processorManager.getProcessingEnvironment(), ClassNames.MODEL.toString(), (TypeElement) tableDefinition.element)) {
-            //processorManager.logError(TableValidator.class, "The @Table annotation can only apply to a class that implements Model. Found: " + tableDefinition.element);
-            //success = false;
         }
 
         return success;

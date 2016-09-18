@@ -11,9 +11,11 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.data.Blob;
 import com.raizlabs.android.dbflow.processor.ClassNames;
+import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.SQLiteHelper;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
+import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
@@ -38,6 +40,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 /**
@@ -148,19 +151,20 @@ public class ColumnDefinition extends BaseDefinition {
         }
 
         ClassName typeConverterClassName = null;
-        TypeElement typeConverterElement = null;
+        TypeMirror typeMirror = null;
         if (column != null) {
             try {
                 column.typeConverter();
             } catch (MirroredTypeException mte) {
-                typeConverterElement = manager.getElements().getTypeElement(mte.getTypeMirror().toString());
-                typeConverterClassName = ClassName.get(typeConverterElement);
+                typeMirror = mte.getTypeMirror();
+                typeConverterClassName = ProcessorUtils.fromTypeMirror(typeMirror);
             }
         }
 
         hasCustomConverter = false;
         if (typeConverterClassName != null && !typeConverterClassName.equals(ClassNames.TYPE_CONVERTER)) {
-            TypeConverterDefinition typeConverterDefinition = new TypeConverterDefinition(typeConverterElement, manager);
+            TypeConverterDefinition typeConverterDefinition =
+                    new TypeConverterDefinition(typeConverterClassName, typeMirror, manager);
             if (!typeConverterDefinition.getModelTypeName().equals(elementTypeName)) {
                 manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
                         typeConverterDefinition.getModelTypeName(), typeConverterClassName, elementTypeName);
@@ -173,7 +177,7 @@ public class ColumnDefinition extends BaseDefinition {
         }
 
         if (!hasCustomConverter) {
-            TypeElement typeElement = manager.getElements().getTypeElement(element.asType().toString());
+            TypeElement typeElement = ProcessorUtils.getTypeElement(element);
             if (typeElement != null && typeElement.getKind() == ElementKind.ENUM) {
                 columnAccess = new EnumColumnAccess(this);
             } else if (elementTypeName.equals(ClassName.get(Blob.class))) {

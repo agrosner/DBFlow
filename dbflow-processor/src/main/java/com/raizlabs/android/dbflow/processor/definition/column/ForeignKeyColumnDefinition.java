@@ -67,7 +67,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         try {
             foreignKey.tableClass();
         } catch (MirroredTypeException mte) {
-            referencedTableClassName = ClassName.get(manager.getElements().getTypeElement(mte.getTypeMirror().toString()));
+            referencedTableClassName = ProcessorUtils.fromTypeMirror(mte.getTypeMirror());
         }
 
         TypeElement erasedElement = manager.getElements().getTypeElement(

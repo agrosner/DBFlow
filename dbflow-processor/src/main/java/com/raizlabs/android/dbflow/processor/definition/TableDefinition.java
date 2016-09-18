@@ -678,8 +678,12 @@ public class TableDefinition extends BaseTableDefinition {
         }
 
 
-        JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
-        javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
+        try {
+            JavaFile.Builder javaFileBuilder = JavaFile.builder(packageName, typeBuilder.build());
+            javaFileBuilder.build().writeTo(processingEnvironment.getFiler());
+        } catch (IllegalArgumentException i) {
+            i.printStackTrace();
+        }
 
     }
 }
