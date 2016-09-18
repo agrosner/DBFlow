@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.config.TableConfig;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -38,6 +39,16 @@ public abstract class RetrievalAdapter<TModel> {
                 }
             }
         }
+    }
+
+    public void load(TModel model) {
+        load(model, FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+    }
+
+    public void load(TModel model, DatabaseWrapper databaseWrapper) {
+        getSingleModelLoader().load(databaseWrapper,
+                SQLite.select().from(getModelClass())
+                        .where(getPrimaryConditionClause(model)).getQuery());
     }
 
     /**

@@ -14,12 +14,7 @@ public abstract class BaseModelView<TModel> extends NoModificationModel {
     private transient ModelViewAdapter<?, BaseModelView<TModel>> adapter;
 
     @Override
-    public boolean exists() {
-        return getModelViewAdapter().exists(this);
-    }
-
-    @SuppressWarnings("unchecked")
-    public ModelViewAdapter<?, BaseModelView<TModel>> getModelViewAdapter() {
+    RetrievalAdapter getRetrievalAdapter() {
         if (adapter == null) {
             adapter = ((ModelViewAdapter<?, BaseModelView<TModel>>)
                     FlowManager.getModelViewAdapter(getClass()));

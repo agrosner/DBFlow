@@ -6,6 +6,11 @@ package com.raizlabs.android.dbflow.structure;
 public interface Model {
 
     /**
+     * Loads from the database the most recent version of the model based on it's primary keys.
+     */
+    void load();
+
+    /**
      * Saves the object in the DB.
      */
     void save();

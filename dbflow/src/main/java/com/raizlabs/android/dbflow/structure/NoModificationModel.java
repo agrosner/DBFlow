@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+
 /**
  * Description: All modificatioon operations throw a {@link InvalidSqlViewOperationException}
  */
@@ -24,6 +26,30 @@ abstract class NoModificationModel implements Model {
     public void insert() {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not insertable");
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean exists() {
+        return getRetrievalAdapter().exists(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean exists(DatabaseWrapper databaseWrapper) {
+        return getRetrievalAdapter().exists(this, databaseWrapper);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void load() {
+        getRetrievalAdapter().load(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void load(DatabaseWrapper databaseWrapper) {
+        getRetrievalAdapter().load(this, databaseWrapper);
+    }
+
+    abstract RetrievalAdapter getRetrievalAdapter();
 
     /**
      * Gets thrown when an operation is not valid for the SQL View
