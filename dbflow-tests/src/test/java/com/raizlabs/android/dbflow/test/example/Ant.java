@@ -22,7 +22,7 @@ public class Ant extends BaseModel {
     @Column
     boolean isMale;
 
-    @ForeignKey
+    @ForeignKey(stubbedRelationship = true)
     Queen queen;
 
 }

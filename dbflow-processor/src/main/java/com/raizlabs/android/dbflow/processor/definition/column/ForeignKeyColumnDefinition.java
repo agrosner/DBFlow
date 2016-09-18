@@ -46,7 +46,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
     public ForeignKeyAction onDelete;
     public ForeignKeyAction onUpdate;
 
-    public boolean isForeignKeyContainer;
+    public boolean isStubbedRelationship;
 
     public boolean isModel;
 
@@ -64,6 +64,8 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         ForeignKey foreignKey = typeElement.getAnnotation(ForeignKey.class);
         onUpdate = foreignKey.onUpdate();
         onDelete = foreignKey.onDelete();
+
+        isStubbedRelationship = foreignKey.stubbedRelationship();
 
         try {
             foreignKey.tableClass();
@@ -328,12 +330,12 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                                 referenceDefinition.columnAccess), indexName).build();
                 ClassName generatedTableRef = ClassName.get(referencedTableClassName.packageName(), referencedTableClassName.simpleName()
                         + tableDefinition.databaseDefinition.fieldRefSeparator + TableDefinition.DBFLOW_TABLE_TAG);
-                if (!isForeignKeyContainer) {
+                if (!isStubbedRelationship) {
                     selectBuilder.add("\n.and($L.$L.eq($L))", generatedTableRef,
                             referenceDefinition.foreignColumnName, loadFromCursorBlock);
                 } else {
-                    selectBuilder.add("\n$L.put($S, $L);", foreignKeyContainerRefName, referenceDefinition.foreignColumnName,
-                            loadFromCursorBlock);
+                    selectBuilder.add("\n$L.$L = $L;", foreignKeyContainerRefName,
+                            referenceDefinition.foreignColumnName, loadFromCursorBlock);
                 }
             }
             ifNullBuilder.add(")");
@@ -341,12 +343,10 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
 
             CodeBlock.Builder initializer = CodeBlock.builder();
 
-            if (isForeignKeyContainer) {
+            if (isStubbedRelationship) {
 
-                builder.addStatement("$T $L = new $T($T.class)",
-                        elementTypeName,
-                        foreignKeyContainerRefName,
-                        elementTypeName, referencedTableClassName);
+                builder.addStatement("$T $L = new $T()", elementTypeName,
+                        foreignKeyContainerRefName, referencedTableClassName);
 
                 builder.add(selectBuilder.build()).add("\n");
 
@@ -368,27 +368,6 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             if (endNonPrimitiveIf || !tableDefinition.assignDefaultValuesFromCursor) {
                 builder.endControlFlow();
             }
-            return builder.build();
-        }
-    }
-
-    @Override
-    public CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
-        if (nonModelColumn) {
-            return super.getForeignKeyContainerMethod(tableClassName);
-        } else {
-            CodeBlock access = columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.getVariable(), false);
-            CodeBlock.Builder builder = CodeBlock.builder();
-            CodeBlock.Builder elseBuilder = CodeBlock.builder();
-            builder.beginControlFlow("if ($L != null)", access);
-            for (ForeignKeyReferenceDefinition referenceDefinition : foreignKeyReferenceDefinitionList) {
-                builder.add(referenceDefinition.getForeignKeyContainerMethod(tableClassName));
-                elseBuilder.addStatement("$L.putDefault($T.$L)", ModelUtils.getVariable(), tableClassName, referenceDefinition.columnName);
-            }
-            builder.nextControlFlow("else");
-            builder.add(elseBuilder.build());
-            builder.endControlFlow();
             return builder.build();
         }
     }

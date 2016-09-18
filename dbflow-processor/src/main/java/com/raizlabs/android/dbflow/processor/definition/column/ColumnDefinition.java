@@ -374,15 +374,6 @@ public class ColumnDefinition extends BaseDefinition {
         return QueryBuilder.quote(columnName);
     }
 
-    public CodeBlock getForeignKeyContainerMethod(ClassName tableClassName) {
-
-        CodeBlock.Builder codeBuilder = CodeBlock.builder();
-        codeBuilder.addStatement("$L.put($T.$L, $L)", ModelUtils.getVariable(), tableClassName, columnName,
-                columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
-                        ModelUtils.getVariable(), false));
-        return codeBuilder.build();
-    }
-
     public boolean isPrimaryKeyAutoIncrement() {
         return isPrimaryKeyAutoIncrement;
     }

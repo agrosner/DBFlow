@@ -100,6 +100,17 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     @Override
+    public void load() {
+        executeTransaction(new ProcessModelTransaction.Builder<>(
+                new ProcessModelTransaction.ProcessModel<TModel>() {
+                    @Override
+                    public void processModel(TModel model) {
+                        getModelAdapter().load(model);
+                    }
+                }).add(model).build());
+    }
+
+    @Override
     public boolean exists() {
         return getModelAdapter().exists(model);
     }

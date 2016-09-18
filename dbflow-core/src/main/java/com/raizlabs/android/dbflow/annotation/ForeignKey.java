@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.annotation;
 
+import com.sun.org.apache.bcel.internal.generic.Select;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,6 +29,13 @@ public @interface ForeignKey {
      * as foreign key fields.
      */
     boolean saveForeignKeyModel() default false;
+
+    /**
+     * @return Replaces legacy ForeignKeyContainer, this method instructs the code generator to only
+     * populate the model with the {@link ForeignKeyReference} defined in this field. This skips
+     * the {@link Select} retrieval convenience.
+     */
+    boolean stubbedRelationship() default false;
 
     /**
      * @return an optional table class that this reference points to. It's only used if the field
