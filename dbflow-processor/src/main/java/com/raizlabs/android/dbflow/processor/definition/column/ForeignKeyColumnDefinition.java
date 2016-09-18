@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
+import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
@@ -92,6 +93,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
         }
 
         isModel = ProcessorUtils.implementsClass(manager.getProcessingEnvironment(), ClassNames.MODEL.toString(), erasedElement);
+        isModel = isModel || erasedElement.getAnnotation(Table.class) != null;
 
         nonModelColumn = !isModel;
 
