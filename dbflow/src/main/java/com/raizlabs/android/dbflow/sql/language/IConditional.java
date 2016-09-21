@@ -40,6 +40,8 @@ public interface IConditional extends Query {
 
     Condition like(String value);
 
+    Condition notLike(String value);
+
     Condition glob(String value);
 
     Condition greaterThan(IConditional conditional);
