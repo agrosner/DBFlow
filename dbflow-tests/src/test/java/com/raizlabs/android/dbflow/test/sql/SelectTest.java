@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Where;
+import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table;
@@ -24,20 +25,23 @@ import static org.junit.Assert.assertTrue;
 public class SelectTest extends FlowTestCase {
 
     @Test
-    public void testSimpleSelectStatement() {
+    public void test_simpleSelectStatement() {
         Where<TestModel1> where = new Select(name).from(TestModel1.class)
                 .where(name.is("test"));
 
         assertEquals("SELECT `name` FROM `TestModel1` WHERE `name`='test'", where.getQuery().trim());
         where.query();
 
+    }
+
+    @Test
+    public void test_simpleSelectStatement2() {
         Where<TestModel3> where4 = new Select().from(TestModel3.class)
                 .where(name.eq("test"))
                 .and(type.is("test"));
 
-        assertEquals("SELECT * FROM `TestModel32` WHERE `name`='test' AND `type`='test'", where4.getQuery().trim());
-
-
+        assertEquals("SELECT * FROM `TestModel32` WHERE `name`='test' AND `type`='test'",
+                where4.getQuery().trim());
     }
 
     @Test
@@ -108,7 +112,7 @@ public class SelectTest extends FlowTestCase {
     }
 
     @Test
-    public void testJoins() {
+    public void test_joins() {
 
         TestModel1 testModel1 = new TestModel1();
         testModel1.setName("Test");
@@ -133,11 +137,26 @@ public class SelectTest extends FlowTestCase {
     }
 
     @Test
-    public void testNulls() {
+    public void test_nulls() {
 
         String nullable = null;
         String query = SQLite.select().from(TestModel1.class).where(TestModel1_Table.name.eq(nullable)).getQuery();
         assertEquals("SELECT * FROM `TestModel1` WHERE `name`=NULL", query.trim());
     }
 
+
+    @Test
+    public void test_selectProjectionQuery() {
+        Where<TestModel1> where = SQLite.select(TestModel1_Table.name)
+                .from(TestModel1.class).as("TableName")
+                .where(TestModel1_Table.name.eq("Test"));
+
+        String query = SQLite.select(PropertyFactory.from(where), TestModel1_Table.name)
+                .from(TestModel1.class).getQuery();
+
+        assertEquals("SELECT (SELECT `name` FROM `TestModel1` AS `TableName`" +
+                " WHERE `name`='Test'),`name` FROM `TestModel1`", query.trim());
+
+
+    }
 }

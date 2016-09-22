@@ -1,12 +1,8 @@
 package com.raizlabs.android.dbflow.test.querymodel;
 
-import android.support.annotation.NonNull;
-
-import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Where;
-import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import org.junit.Test;

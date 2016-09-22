@@ -21,6 +21,13 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
     }
 
     /**
+     * @return Starts an arbitrary clause of conditions to use with first param as condition.
+     */
+    public static ConditionGroup clause(SQLCondition condition) {
+        return new ConditionGroup().and(condition);
+    }
+
+    /**
      * @return Starts an arbitrary clause of conditions to use, that when included in other {@link SQLCondition},
      * does not append parenthesis to group it.
      */

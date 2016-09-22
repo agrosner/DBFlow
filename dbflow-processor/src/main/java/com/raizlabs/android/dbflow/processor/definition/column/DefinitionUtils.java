@@ -166,16 +166,23 @@ public class DefinitionUtils {
         return putAccess;
     }
 
-    public static CodeBlock.Builder getLoadFromCursorMethod(String elementName, String fullElementName,
-                                                            TypeName elementTypeName, String columnName,
-                                                            boolean isModelContainerAdapter, boolean putDefaultValue,
-                                                            BaseColumnAccess columnAccess) {
+    public static CodeBlock.Builder getLoadFromCursorMethod(
+            int index, String fullElementName, TypeName elementTypeName, String columnName,
+            boolean isModelContainerAdapter, boolean putDefaultValue, BaseColumnAccess columnAccess,
+            boolean orderedCursorLookUp, boolean assignDefaultValuesFromCursor, String elementName) {
         String method = getLoadFromCursorMethodString(elementTypeName, columnAccess);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
-        String indexName = "index" + columnName;
-        codeBuilder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, columnName);
-        codeBuilder.beginControlFlow("if ($L != -1 && !$L.isNull($L))", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
+
+        String indexName;
+        if (!orderedCursorLookUp || index == -1) {
+            indexName = "index" + columnName;
+            codeBuilder.addStatement("int $L = $L.getColumnIndex($S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, columnName);
+            codeBuilder.beginControlFlow("if ($L != -1 && !$L.isNull($L))", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName);
+        } else {
+            indexName = index + "";
+            codeBuilder.beginControlFlow("if (!$L.isNull($L))", LoadFromCursorMethod.PARAM_CURSOR, indexName);
+        }
 
         CodeBlock.Builder cursorAssignment = CodeBlock.builder();
         if (elementTypeName.box().equals(TypeName.BYTE.box())) {
@@ -189,7 +196,7 @@ public class DefinitionUtils {
         codeBuilder.addStatement(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
                 isModelContainerAdapter, ModelUtils.getVariable(isModelContainerAdapter), cursorAssignment.build(), false));
 
-        if (putDefaultValue) {
+        if (putDefaultValue && assignDefaultValuesFromCursor) {
             codeBuilder.nextControlFlow("else");
             if (isModelContainerAdapter) {
                 codeBuilder.addStatement("$L.putDefault($S)", ModelUtils.getVariable(true), columnName);

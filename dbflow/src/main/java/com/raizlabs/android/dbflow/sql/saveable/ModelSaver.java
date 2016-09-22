@@ -21,7 +21,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * an update, execute a {@link DatabaseStatement}, or delete an object via the {@link Delete} wrapper.
  */
 public class ModelSaver<TModel extends Model, TTable extends Model,
-        TAdapter extends RetrievalAdapter & InternalAdapter> {
+    TAdapter extends RetrievalAdapter & InternalAdapter> {
 
     private static final int INSERT_FAILED = -1;
 
@@ -41,7 +41,7 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
     }
 
     public synchronized boolean save(@NonNull TTable model, DatabaseWrapper wrapper) {
-        return save(model, getWritableDatabase(), modelAdapter.getInsertStatement(wrapper), new ContentValues());
+        return save(model, wrapper, modelAdapter.getInsertStatement(wrapper), new ContentValues());
     }
 
     @SuppressWarnings("unchecked")
@@ -78,8 +78,8 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
                                        @NonNull ContentValues contentValues) {
         adapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-                adapter.getPrimaryConditionClause(model).getQuery(), null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
+            adapter.getPrimaryConditionClause(model).getQuery(), null,
+            ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.UPDATE);
         }
@@ -122,8 +122,8 @@ public class ModelSaver<TModel extends Model, TTable extends Model,
     @SuppressWarnings("unchecked")
     public synchronized boolean delete(@NonNull TTable model, @NonNull DatabaseWrapper wrapper) {
         boolean successful = SQLite.delete(modelAdapter.getModelClass())
-                .where(adapter.getPrimaryConditionClause(model))
-                .count(wrapper) != 0;
+            .where(adapter.getPrimaryConditionClause(model))
+            .count(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, adapter, modelAdapter, BaseModel.Action.DELETE);
         }

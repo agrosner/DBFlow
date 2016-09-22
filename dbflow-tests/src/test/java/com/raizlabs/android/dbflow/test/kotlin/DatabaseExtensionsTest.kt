@@ -1,9 +1,6 @@
 package com.raizlabs.android.dbflow.test.kotlin
 
-import com.raizlabs.android.dbflow.kotlinextensions.database
-import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.processInTransaction
-import com.raizlabs.android.dbflow.kotlinextensions.processInTransactionAsync
+import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction

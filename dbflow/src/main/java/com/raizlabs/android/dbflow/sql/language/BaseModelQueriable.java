@@ -24,7 +24,7 @@ import java.util.List;
  */
 public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueriable<TModel> implements ModelQueriable<TModel>, Query {
 
-    private final InstanceAdapter<?, TModel> retrievalAdapter;
+    private InstanceAdapter<?, TModel> retrievalAdapter;
 
     /**
      * Constructs new instance of this class and is meant for subclasses only.
@@ -33,34 +33,40 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
      */
     protected BaseModelQueriable(Class<TModel> table) {
         super(table);
-        //noinspection unchecked
-        retrievalAdapter = FlowManager.getInstanceAdapter(table);
+    }
+
+    private InstanceAdapter<?, TModel> getRetrievalAdapter() {
+        if (retrievalAdapter == null) {
+            //noinspection unchecked
+            retrievalAdapter = FlowManager.getInstanceAdapter(getTable());
+        }
+        return retrievalAdapter;
     }
 
     @Override
     public CursorResult<TModel> queryResults() {
-        return new CursorResult<>(retrievalAdapter.getModelClass(), query());
+        return new CursorResult<>(getRetrievalAdapter().getModelClass(), query());
     }
 
     @Override
     public List<TModel> queryList() {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
-        return retrievalAdapter.getListModelLoader().load(query);
+        return getRetrievalAdapter().getListModelLoader().load(query);
     }
 
     @Override
     public TModel querySingle() {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
-        return retrievalAdapter.getSingleModelLoader().load(query);
+        return getRetrievalAdapter().getSingleModelLoader().load(query);
     }
 
     @Override
     public TModel querySingle(DatabaseWrapper wrapper) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
-        return retrievalAdapter.getSingleModelLoader().load(wrapper, query);
+        return getRetrievalAdapter().getSingleModelLoader().load(wrapper, query);
     }
 
     @NonNull
@@ -68,13 +74,14 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
     public List<TModel> queryList(DatabaseWrapper wrapper) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
-        List<TModel> list = retrievalAdapter.getListModelLoader().load(wrapper, query);
+        List<TModel> list = getRetrievalAdapter().getListModelLoader().load(wrapper, query);
         return list == null ? new ArrayList<TModel>() : list;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass queryModelContainer(@NonNull ModelContainerClass instance) {
+    public <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass
+    queryModelContainer(@NonNull ModelContainerClass instance) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return (ModelContainerClass) FlowManager.getContainerAdapter(getTable())
@@ -83,12 +90,15 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
 
     @Override
     public FlowCursorList<TModel> cursorList() {
-        return new FlowCursorList<>(false, this);
+        return new FlowCursorList.Builder<>(getTable())
+                .modelQueriable(this).build();
     }
 
     @Override
     public FlowQueryList<TModel> flowQueryList() {
-        return new FlowQueryList<>(this);
+        return new FlowQueryList.Builder<>(getTable())
+                .modelQueriable(this)
+                .build();
     }
 
     @Override
@@ -97,14 +107,16 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
     }
 
     @Override
-    public <QueryClass extends BaseQueryModel> List<QueryClass> queryCustomList(Class<QueryClass> queryModelClass) {
+    public <QueryClass extends BaseQueryModel> List<QueryClass>
+    queryCustomList(Class<QueryClass> queryModelClass) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return FlowManager.getQueryModelAdapter(queryModelClass).getListModelLoader().load(query);
     }
 
     @Override
-    public <QueryClass extends BaseQueryModel> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass) {
+    public <QueryClass extends BaseQueryModel> QueryClass
+    queryCustomSingle(Class<QueryClass> queryModelClass) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return FlowManager.getQueryModelAdapter(queryModelClass).getSingleModelLoader().load(query);

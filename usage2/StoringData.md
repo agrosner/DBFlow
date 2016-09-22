@@ -49,7 +49,7 @@ Even though DBFlow is ridiculously fast, this should be put on a separate thread
 
  Instead we should move onto `Transaction` (the preferred method).
 
- ### Async Transactions
+### Async Transactions
 
 ## Transactions
 

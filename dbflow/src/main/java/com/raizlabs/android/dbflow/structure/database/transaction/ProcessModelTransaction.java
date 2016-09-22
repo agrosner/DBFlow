@@ -72,7 +72,7 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
                         processListener.onModelProcessed(i, size, model);
                     } else {
                         final int finalI = i;
-                        Transaction.TRANSACTION_HANDLER.post(new Runnable() {
+                        Transaction.getTransactionHandler().post(new Runnable() {
                             @Override
                             public void run() {
                                 processListener.onModelProcessed(finalI, size, model);

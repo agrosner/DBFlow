@@ -292,15 +292,17 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public CodeBlock getLoadFromCursorMethod(boolean isModelContainerAdapter, boolean putNullForContainerAdapter,
-                                             boolean endNonPrimitiveIf) {
+                                             boolean endNonPrimitiveIf, AtomicInteger index) {
         boolean putDefaultValue = putNullForContainerAdapter;
         if (putContainerDefaultValue != putDefaultValue && isModelContainerAdapter) {
             putDefaultValue = putContainerDefaultValue;
         } else if (!isModelContainerAdapter) {
             putDefaultValue = true;
         }
-        return DefinitionUtils.getLoadFromCursorMethod(containerKeyName, elementName,
-                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess).build();
+        return DefinitionUtils.getLoadFromCursorMethod(index.intValue(), elementName,
+                elementTypeName, columnName, isModelContainerAdapter, putDefaultValue, columnAccess,
+                tableDefinition.orderedCursorLookUp, tableDefinition.assignDefaultValuesFromCursor,
+                containerKeyName).build();
     }
 
     /**
@@ -354,11 +356,6 @@ public class ColumnDefinition extends BaseDefinition {
         return columnAccess.getColumnAccessString(elementTypeName, containerKeyName, elementName, ModelUtils.getVariable(isModelContainerAdapter), isModelContainerAdapter, isSqliteStatment);
     }
 
-    /**
-     * @param isModelContainerAdapter
-     * @param codeBuilder
-     * @return A string without any type conversion for this field.
-     */
     public void appendPropertyComparisonAccessStatement(boolean isModelContainerAdapter, CodeBlock.Builder codeBuilder) {
         codeBuilder.add("\nclause.and($T.$L.eq(", tableDefinition.getPropertyClassName(), columnName);
         if (columnAccess instanceof TypeConverterAccess) {
@@ -397,7 +394,14 @@ public class ColumnDefinition extends BaseDefinition {
         CodeBlock.Builder codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName);
 
         if (isPrimaryKeyAutoIncrement && !isRowId) {
-            codeBlockBuilder.add(" PRIMARY KEY AUTOINCREMENT");
+            codeBlockBuilder.add(" PRIMARY KEY ");
+
+            if (tableDefinition instanceof TableDefinition
+                    && !StringUtils.isNullOrEmpty(((TableDefinition) tableDefinition).primaryKeyConflictActionName)) {
+                codeBlockBuilder.add("ON CONFLICT $L ", ((TableDefinition) tableDefinition).primaryKeyConflictActionName);
+            }
+
+            codeBlockBuilder.add("AUTOINCREMENT");
         }
 
         if (length > -1) {
@@ -411,6 +415,7 @@ public class ColumnDefinition extends BaseDefinition {
         if (unique) {
             codeBlockBuilder.add(" UNIQUE ON CONFLICT $L", onUniqueConflict);
         }
+
 
         if (notNull) {
             codeBlockBuilder.add(" NOT NULL");
