@@ -331,23 +331,37 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                     selectBuilder.add("\n");
                 }
 
-                selectBuilder.add(referenceDefinition
-                        .getForeignKeyContainerMethod(foreignKeyContainerRefName,
-                                loadFromCursorBlock));
+                if (!isStubbedRelationship) {
+                    ClassName generatedTableRef = ClassName.get(
+                            referencedTableClassName.packageName(),
+                            referencedTableClassName.simpleName()
+                                    + tableDefinition.databaseDefinition.fieldRefSeparator
+                                    + TableDefinition.DBFLOW_TABLE_TAG);
+                    selectBuilder.add("\n.and($L.$L.eq($L))", generatedTableRef,
+                            referenceDefinition.foreignColumnName, loadFromCursorBlock);
+                } else {
+                    selectBuilder.add(referenceDefinition
+                            .getForeignKeyContainerMethod(foreignKeyContainerRefName,
+                                    loadFromCursorBlock));
+                }
             }
             ifNullBuilder.add(")");
             builder.beginControlFlow(ifNullBuilder.build().toString());
 
             CodeBlock.Builder initializer = CodeBlock.builder();
 
-            builder.addStatement("$T $L = new $T()", elementTypeName,
-                    foreignKeyContainerRefName, referencedTableClassName);
 
-            builder.add(selectBuilder.build()).add("\n");
+            CodeBlock selectBlock = selectBuilder.build();
 
-            // load model once populated
-            if (!isStubbedRelationship) {
-                builder.addStatement("$L.load()", foreignKeyContainerRefName);
+            if (isStubbedRelationship) {
+                builder.addStatement("$T $L = new $T()", elementTypeName,
+                        foreignKeyContainerRefName, referencedTableClassName);
+                builder.add(selectBlock).add("\n");
+            } else {
+                initializer.add("new $T().from($T.class).where()",
+                        ClassNames.SELECT, referencedTableClassName)
+                        .add(selectBuilder.build())
+                        .add(".querySingle()");
             }
 
             initializer.add(foreignKeyContainerRefName);
