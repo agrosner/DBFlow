@@ -140,8 +140,11 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             } else {
                 propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, reference.columnClassName.box());
             }
-            typeBuilder.addField(FieldSpec.builder(propParam, reference.columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("new $T($T.class, $S)", propParam, tableClassName, reference.columnName).build());
+            typeBuilder.addField(FieldSpec.builder(propParam, reference.columnName,
+                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .initializer("new $T($T.class, $S)", propParam, tableClassName,
+                            reference.columnName)
+                    .addJavadoc("Foreign Key" + (isPrimaryKey ? " / Primary Key" : "")).build());
         }
     }
 
@@ -292,8 +295,7 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
             return super.getLoadFromCursorMethod(endNonPrimitiveIf, index);
         } else {
             checkNeedsReferences();
-            CodeBlock.Builder builder = CodeBlock.builder()
-                    .add("//// Only load model if references match, for efficiency\n");
+            CodeBlock.Builder builder = CodeBlock.builder();
             CodeBlock.Builder ifNullBuilder = CodeBlock.builder()
                     .add("if (");
             CodeBlock.Builder selectBuilder = CodeBlock.builder();

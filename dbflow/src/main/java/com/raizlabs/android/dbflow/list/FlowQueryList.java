@@ -17,9 +17,7 @@ import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
-import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -77,74 +75,6 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     }
 
     /**
-     * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
-     *
-     * @param modelQueriable The object that can query from a database.
-     * @deprecated use {@link Builder#modelQueriable(ModelQueriable)}
-     */
-    @Deprecated
-    public FlowQueryList(ModelQueriable<TModel> modelQueriable) {
-        this(true, modelQueriable);
-    }
-
-    /**
-     * Constructs an instance of this list with the specfied {@link ModelQueriable} object.
-     *
-     * @param modelQueriable The object that can query from a database.
-     * @deprecated use {@link Builder#modelQueriable(ModelQueriable)}, {@link Builder#cacheModels(boolean)}
-     */
-    @Deprecated
-    public FlowQueryList(boolean cacheModels, ModelQueriable<TModel> modelQueriable) {
-        super(null);
-        internalCursorList = new FlowCursorList.Builder<>(modelQueriable.getTable())
-                .modelQueriable(modelQueriable)
-                .cacheModels(cacheModels)
-                .cacheSize(getCacheSize())
-                .modelCache(getBackingCache(getCacheSize()))
-                .build();
-    }
-
-
-    /**
-     * @deprecated use {@link Builder#cacheModels(boolean)}, {@link Builder#cacheSize(int)}
-     */
-    @Deprecated
-    public void setCacheModels(boolean cacheModels, int cacheSize) {
-        internalCursorList.setCacheModels(cacheModels, cacheSize);
-    }
-
-    /**
-     * @deprecated use {@link Builder#cacheModels(boolean)}
-     */
-    @Deprecated
-    public void setCacheModels(boolean cacheModels) {
-        internalCursorList.setCacheModels(cacheModels);
-    }
-
-    /**
-     * @param count The size of the underlying {@link FlowCursorList}
-     * @return The cache backing this query. Override to provide a custom {@link com.raizlabs.android.dbflow.structure.cache.ModelCache}
-     * instead. If the count is somehow 0, it will default to a size of 50.
-     * If you override this method, be careful to call an empty cache to the {@link com.raizlabs.android.dbflow.structure.cache.ModelLruCache}
-     * @deprecated use {@link Builder#modelCache(ModelCache)}
-     */
-    @Deprecated
-    public ModelCache<TModel, ?> getBackingCache(int count) {
-        return ModelLruCache.newInstance(count);
-    }
-
-    /**
-     * Called when the count for the underlying cache is needed.
-     *
-     * @return 50 as default. Override for different. Note: some {@link ModelCache} do not respect the size of the cache.
-     * @deprecated use {@link Builder#cacheSize(int)}
-     */
-    @Deprecated
-    public int getCacheSize() {
-        return FlowCursorList.DEFAULT_CACHE_SIZE;
-    }
-
-    /**
      * Registers the list for model change events. Internally this refreshes the underlying {@link FlowCursorList}. Call
      * {@link #beginTransaction()} to bunch up calls to model changes and then {@link #endTransactionAndNotify()} to dispatch
      * and refresh this list when completed.
@@ -189,47 +119,10 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     }
 
     /**
-     * @deprecated use {@link Builder#success(Transaction.Success)}
-     */
-    @Deprecated
-    public void setSuccessCallback(Transaction.Success successCallback) {
-        this.successCallback = successCallback;
-    }
-
-
-    /**
-     * @deprecated use {@link Builder#error(Transaction.Error)}
-     */
-    @Deprecated
-    public void setErrorCallback(Transaction.Error errorCallback) {
-        this.errorCallback = errorCallback;
-    }
-
-    /**
-     * If true, we will transact all modifications on the {@link ITransactionQueue}
-     *
-     * @param transact true to transact all modifications in the background.
-     * @deprecated use {@link Builder#transact(boolean)}
-     */
-    @Deprecated
-    public void setTransact(boolean transact) {
-        this.transact = transact;
-    }
-
-    /**
      * @return a mutable list that does not reflect changes on the underlying DB.
      */
     public List<TModel> getCopy() {
         return internalCursorList.getAll();
-    }
-
-    /**
-     * @return The {@link FlowCursorList} that backs this table list.
-     * @deprecated use {@link #cursorList()}
-     */
-    @Deprecated
-    public FlowCursorList<TModel> getCursorList() {
-        return internalCursorList;
     }
 
     public FlowCursorList<TModel> cursorList() {
@@ -291,19 +184,6 @@ public class FlowQueryList<TModel> extends FlowContentObserver
             pendingRefresh = true;
         }
         REFRESH_HANDLER.post(refreshRunnable);
-    }
-
-    /**
-     * Registers itself for content changes on the specific table that this list is for. When
-     * any model data is changed via the {@link Model} methods, we call {@link #refresh()} on this underlying data.
-     * To prevent many refreshes, call {@link #beginTransaction()} before making changes to a set of models,
-     * and then when finished call {@link #endTransactionAndNotify()}.
-     *
-     * @deprecated use {@link #registerForContentChanges(Context)}
-     */
-    @Deprecated
-    public void enableSelfRefreshes(Context context) {
-        registerForContentChanges(context);
     }
 
     @Override

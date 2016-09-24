@@ -236,9 +236,17 @@ public class ColumnDefinition extends BaseDefinition {
         } else {
             propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box());
         }
-        typeBuilder.addField(FieldSpec.builder(propParam,
+
+
+        FieldSpec.Builder fieldBuilder = FieldSpec.builder(propParam,
                 columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T($T.class, $S)", propParam, tableClass, columnName).build());
+                .initializer("new $T($T.class, $S)", propParam, tableClass, columnName);
+        if (isPrimaryKey) {
+            fieldBuilder.addJavadoc("Primary Key");
+        } else if (isPrimaryKeyAutoIncrement) {
+            fieldBuilder.addJavadoc("Primary Key AutoIncrement");
+        }
+        typeBuilder.addField(fieldBuilder.build());
     }
 
     public void addPropertyCase(MethodSpec.Builder methodBuilder) {
@@ -304,7 +312,7 @@ public class ColumnDefinition extends BaseDefinition {
     }
 
     public void appendPropertyComparisonAccessStatement(CodeBlock.Builder codeBuilder) {
-        codeBuilder.add("\nclause.and($T.$L.eq(", tableDefinition.getPropertyClassName(), columnName);
+        codeBuilder.add("\nclause.and($L.eq(", columnName);
         if (columnAccess instanceof TypeConverterAccess) {
             TypeConverterAccess converterAccess = ((TypeConverterAccess) columnAccess);
             TypeConverterDefinition converterDefinition = converterAccess.typeConverterDefinition;

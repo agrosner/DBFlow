@@ -56,8 +56,8 @@ public class ExistenceMethod implements MethodDefinition {
             } else {
                 methodBuilder.addCode("return ");
             }
-            methodBuilder.addCode("new $T($T.count()).from($T.class).where(getPrimaryConditionClause($L)).count(wrapper) > 0",
-                    ClassNames.SELECT, ClassNames.METHOD, tableDefinition.elementClassName, ModelUtils.getVariable());
+            methodBuilder.addCode("$T.selectCountOf()\n.from($T.class)\n.where(getPrimaryConditionClause($L))\n.hasData(wrapper)",
+                    ClassNames.SQLITE, tableDefinition.elementClassName, ModelUtils.getVariable());
         }
         methodBuilder.addCode(";\n");
 
