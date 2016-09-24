@@ -73,7 +73,7 @@ android.applicationVariants.all { variant ->
 }
 
 buildscript {
-    ext.kotlin_version = '1.0.2'
+    ext.kotlin_version = '1.0.3'
     repositories {
         mavenCentral()
     }
