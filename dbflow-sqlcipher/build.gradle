@@ -2,8 +2,6 @@ apply plugin: 'com.android.library'
 
 project.ext.artifactId = bt_name
 
-group= 'com.raizlabs.android'
-
 android {
     compileSdkVersion 24
     buildToolsVersion dbflow_build_tools_version

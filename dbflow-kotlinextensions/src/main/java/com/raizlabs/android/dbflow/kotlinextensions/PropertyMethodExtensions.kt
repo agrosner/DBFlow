@@ -10,47 +10,47 @@ import com.raizlabs.android.dbflow.structure.Model
  * Description: Provides property methods in via infix functions.
  */
 
-infix fun <T> Property<T>.eq(value: T) = this.eq(value)
+infix fun <T : Any> Property<T>.eq(value: T) = this.eq(value)
 
-infix fun <T> Property<T>.`is`(value: T) = this.`is`(value)
+infix fun <T : Any> Property<T>.`is`(value: T) = this.`is`(value)
 
-infix fun <T> Property<T>.isNot(value: T) = this.isNot(value)
+infix fun <T : Any> Property<T>.isNot(value: T) = this.isNot(value)
 
-infix fun <T> Property<T>.notEq(value: T) = this.notEq(value)
+infix fun <T : Any> Property<T>.notEq(value: T) = this.notEq(value)
 
-infix fun <T> Property<T>.like(value: String) = this.like(value)
+infix fun <T : Any> Property<T>.like(value: String) = this.like(value)
 
-infix fun <T> Property<T>.glob(value: String) = this.glob(value)
+infix fun <T : Any> Property<T>.glob(value: String) = this.glob(value)
 
-infix fun <T> Property<T>.greaterThan(value: T) = this.greaterThan(value)
+infix fun <T : Any> Property<T>.greaterThan(value: T) = this.greaterThan(value)
 
-infix fun <T> Property<T>.greaterThanOrEq(value: T) = this.greaterThanOrEq(value)
+infix fun <T : Any> Property<T>.greaterThanOrEq(value: T) = this.greaterThanOrEq(value)
 
-infix fun <T> Property<T>.lessThan(value: T) = this.lessThan(value)
+infix fun <T : Any> Property<T>.lessThan(value: T) = this.lessThan(value)
 
-infix fun <T> Property<T>.lessThanOrEq(value: T) = this.lessThanOrEq(value)
+infix fun <T : Any> Property<T>.lessThanOrEq(value: T) = this.lessThanOrEq(value)
 
-infix fun <T> Property<T>.between(value: T) = this.between(value)
+infix fun <T : Any> Property<T>.between(value: T) = this.between(value)
 
-infix fun <T> Property<T>.`in`(values: Array<T>): Condition.In {
+infix fun <T : Any> Property<T>.`in`(values: Array<T>): Condition.In {
     return when (values.size) {
         1 -> `in`(values[0])
         else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
     }
 }
 
-infix fun <T> Property<T>.notIn(values: Array<T>): Condition.In {
+infix fun <T : Any> Property<T>.notIn(values: Array<T>): Condition.In {
     return when (values.size) {
         1 -> notIn(values[0])
         else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
     }
 }
 
-infix fun <T> Property<T>.`in`(values: Collection<T>) = this.`in`(values)
+infix fun <T : Any> Property<T>.`in`(values: Collection<T>) = this.`in`(values)
 
-infix fun <T> Property<T>.notIn(values: Collection<T>) = this.notIn(values)
+infix fun <T : Any> Property<T>.notIn(values: Collection<T>) = this.notIn(values)
 
-infix fun <T> Property<T>.concatenate(value: T) = this.concatenate(value)
+infix fun <T : Any> Property<T>.concatenate(value: T) = this.concatenate(value)
 
 infix fun IConditional.eq(value: IConditional) = this.eq(value)
 
