@@ -357,14 +357,14 @@ public class ForeignKeyColumnDefinition extends ColumnDefinition {
                 builder.addStatement("$T $L = new $T()", elementTypeName,
                         foreignKeyContainerRefName, referencedTableClassName);
                 builder.add(selectBlock).add("\n");
+
+                initializer.add(foreignKeyContainerRefName);
             } else {
                 initializer.add("new $T().from($T.class).where()",
                         ClassNames.SELECT, referencedTableClassName)
                         .add(selectBuilder.build())
                         .add(".querySingle()");
             }
-
-            initializer.add(foreignKeyContainerRefName);
 
             builder.add(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
                     ModelUtils.getVariable(), initializer.build())

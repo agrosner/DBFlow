@@ -24,27 +24,27 @@ inline fun <reified T : Any> Select.from(): From<T> = from(T::class.java)
 
 fun <T : Any> delete(modelClass: KClass<T>): From<T> = SQLite.delete(modelClass.java)
 
-infix fun <T : Any> Select.from(modelClass: KClass<T>) = from(modelClass.java)
+infix fun <T : Any> Select.from(modelClass: KClass<T>): From<T> = from(modelClass.java)
 
-infix fun <T : Any> From<T>.whereExists(where: Where<T>) = where().exists(where)
+infix fun <T : Any> From<T>.whereExists(where: Where<T>): Where<T> = where().exists(where)
 
-infix fun <T : Any> From<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
+infix fun <T : Any> From<T>.where(sqlCondition: SQLCondition): Where<T> = where(sqlCondition)
 
-infix fun <T : Any> Set<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
+infix fun <T : Any> Set<T>.where(sqlCondition: SQLCondition): Where<T> = where(sqlCondition)
 
-infix fun <T : Any> Where<T>.and(sqlCondition: SQLCondition) = and(sqlCondition)
+infix fun <T : Any> Where<T>.and(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
 
-infix fun <T : Any> Where<T>.or(sqlCondition: SQLCondition) = and(sqlCondition)
+infix fun <T : Any> Where<T>.or(sqlCondition: SQLCondition): Where<T> = and(sqlCondition)
 
-infix fun <T : Any> Case<T>.`when`(sqlCondition: SQLCondition) = `when`(sqlCondition)
+infix fun <T : Any> Case<T>.`when`(sqlCondition: SQLCondition): CaseCondition<T> = `when`(sqlCondition)
 
-infix fun <T : Any> Case<T>.`when`(property: IProperty<*>) = `when`(property)
+infix fun <T : Any> Case<T>.`when`(property: IProperty<*>): CaseCondition<T> = `when`(property)
 
-infix fun <T : Any> Case<T>.`when`(value: T?) = `when`(value)
+infix fun <T : Any> Case<T>.`when`(value: T?): CaseCondition<T> = `when`(value)
 
-infix fun <T : Any> CaseCondition<T>.then(value: T?) = then(value)
+infix fun <T : Any> CaseCondition<T>.then(value: T?): Case<T> = then(value)
 
-infix fun <T : Any> CaseCondition<T>.then(property: IProperty<*>) = then(property)
+infix fun <T : Any> CaseCondition<T>.then(property: IProperty<*>): Case<T> = then(property)
 
 infix fun <T : Any> Case<T>.`else`(value: T?) = _else(value)
 
@@ -171,7 +171,7 @@ fun <T> Insert<T>.into(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
 // DSL
 
 fun <T> select(vararg property: IProperty<out IProperty<*>>,
-                    init: Select.() -> BaseModelQueriable<T>): BaseModelQueriable<T> {
+               init: Select.() -> BaseModelQueriable<T>): BaseModelQueriable<T> {
     val select = SQLite.select(*property)
     return init(select)
 }

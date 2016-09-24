@@ -16,6 +16,14 @@ android {
         minSdkVersion 7
         targetSdkVersion 24
     }
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+        }
+    }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -30,7 +38,7 @@ dependencies {
     compile project("${dbflow_project_prefix}dbflow")
 }
 buildscript {
-    ext.kotlin_version = '1.0.3'
+    ext.kotlin_version = '1.0.4'
     repositories {
         mavenCentral()
     }
