@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ListColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
@@ -62,6 +63,12 @@ public class LoadFromCursorMethod implements MethodDefinition {
                 }
             }
             methodBuilder.addCode(codeBuilder.build());
+
+            List<ListColumnDefinition> listColumnDefinitions = ((TableDefinition) baseTableDefinition)
+                    .listColumnDefinitions;
+            for (ListColumnDefinition listColumn : listColumnDefinitions) {
+                listColumn.writeLoad(codeBuilder);
+            }
         }
 
         if (baseTableDefinition instanceof TableDefinition && ((TableDefinition) baseTableDefinition).implementsLoadFromCursorListener) {

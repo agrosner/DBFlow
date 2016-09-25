@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.InheritedPrimaryKey;
+import com.raizlabs.android.dbflow.annotation.ListColumn;
 import com.raizlabs.android.dbflow.annotation.ModelCacheField;
 import com.raizlabs.android.dbflow.annotation.MultiCacheField;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
@@ -18,6 +19,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ListColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.CreationQueryMethod;
@@ -108,6 +110,7 @@ public class TableDefinition extends BaseTableDefinition {
     public Map<Integer, List<ColumnDefinition>> columnUniqueMap = Maps.newHashMap();
 
     public List<OneToManyDefinition> oneToManyDefinitions = new ArrayList<>();
+    public List<ListColumnDefinition> listColumnDefinitions = new ArrayList<>();
 
     public Map<String, InheritedColumn> inheritedColumnMap = new HashMap<>();
     public List<String> inheritedFieldNameList = new ArrayList<>();
@@ -210,6 +213,7 @@ public class TableDefinition extends BaseTableDefinition {
         foreignKeyDefinitions.clear();
         columnUniqueMap.clear();
         oneToManyDefinitions.clear();
+        listColumnDefinitions.clear();
         customCacheFieldName = null;
         customMultiCacheFieldName = null;
 
@@ -318,8 +322,9 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isPrimary = element.getAnnotation(PrimaryKey.class) != null;
             boolean isInherited = inheritedColumnMap.containsKey(element.getSimpleName().toString());
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
+            boolean isListColumn = element.getAnnotation(ListColumn.class) != null;
             if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
-                    || isAllFields || isInherited || isInheritedPrimaryKey) {
+                    || isAllFields || isInherited || isInheritedPrimaryKey || isListColumn) {
 
                 ColumnDefinition columnDefinition;
                 if (isInheritedPrimaryKey) {
@@ -378,6 +383,10 @@ public class TableDefinition extends BaseTableDefinition {
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition);
                 }
+            } else if (isListColumn) {
+                ListColumnDefinition listColumnDefinition = new ListColumnDefinition(element, manager,
+                        this, isPackagePrivate, isPackagePrivateNotInSamePackage);
+                listColumnDefinitions.add(listColumnDefinition);
             } else if (element.getAnnotation(ModelCacheField.class) != null) {
                 if (!element.getModifiers().contains(Modifier.PUBLIC)) {
                     manager.logError("ModelCacheField must be public from: " + typeElement);

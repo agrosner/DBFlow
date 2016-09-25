@@ -665,6 +665,11 @@ public class FlowQueryList<TModel> extends FlowContentObserver
             this.table = table;
         }
 
+        public Builder(@NonNull ModelQueriable<TModel> modelQueriable) {
+            this(modelQueriable.getTable());
+            modelQueriable(modelQueriable);
+        }
+
         public Builder<TModel> cursor(Cursor cursor) {
             this.cursor = cursor;
             return this;
