@@ -187,7 +187,7 @@ public class TableDefinition extends BaseTableDefinition {
                         new InsertStatementQueryMethod(this, true),
                         new InsertStatementQueryMethod(this, false),
                         new CreationQueryMethod(this),
-                        new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener),
+                        new LoadFromCursorMethod(this, implementsLoadFromCursorListener),
                         new ExistenceMethod(this, false),
                         new PrimaryConditionMethod(this, false),
                         new OneToManyDeleteMethod(this, false, false),
@@ -324,7 +324,7 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
             boolean isListColumn = element.getAnnotation(ListColumn.class) != null;
             if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
-                    || isAllFields || isInherited || isInheritedPrimaryKey || isListColumn) {
+                    || isAllFields || isInherited || isInheritedPrimaryKey) {
 
                 ColumnDefinition columnDefinition;
                 if (isInheritedPrimaryKey) {

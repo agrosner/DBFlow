@@ -1,10 +1,13 @@
 package com.raizlabs.android.dbflow.processor.definition.column;
 
+import com.raizlabs.android.dbflow.annotation.ListColumn;
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
@@ -12,6 +15,7 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.MirroredTypeException;
 
 /**
  * Description: Represents a {@link List} of {@link TableDefinition}.
@@ -27,11 +31,12 @@ public class ListColumnDefinition extends BaseDefinition {
     private boolean isPrivate;
     private boolean isPackagePrivate;
 
-    private final TableDefinition parentTableDefinition;
+    private TableDefinition parentTableDefinition;
 
     private TableDefinition referencedTableDefinition;
 
     private ClassName referencedTableClassName;
+    private TypeName listConverterTypeName;
 
     private boolean isFlat; // flag that if no table referenced, we flatten it to a singular column.
     private ColumnDefinition containedColumn; // if flat we create a column
@@ -40,43 +45,61 @@ public class ListColumnDefinition extends BaseDefinition {
                                 TableDefinition parentTableDefinition,
                                 boolean isPackagePrivate, boolean isPackagePrivateNotInSamePackage) {
         super(element, processorManager);
-        this.parentTableDefinition = parentTableDefinition;
 
-        if (elementTypeName instanceof ParameterizedTypeName) {
-            List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
-            if (args.size() > 0) {
-                referencedTableClassName = ClassName.bestGuess(args.get(0).toString());
+        ListColumn listColumn = element.getAnnotation(ListColumn.class);
+        if (listColumn != null) {
+
+            this.parentTableDefinition = parentTableDefinition;
+
+            if (elementTypeName instanceof ParameterizedTypeName) {
+                List<TypeName> args = ((ParameterizedTypeName) elementTypeName).typeArguments;
+                if (args.size() > 0) {
+                    referencedTableClassName = ClassName.bestGuess(args.get(0).toString());
+                }
             }
-        }
 
-        isPrivate = element.getModifiers().contains(Modifier.PRIVATE);
+            try {
+                listColumn.listConverter();
+            } catch (MirroredTypeException mte) {
+                listConverterTypeName = ClassName.get(mte.getTypeMirror());
+            }
 
-        // find referenced child table definition
-        TableDefinition tableDefinition = manager
-                .getTableDefinition(parentTableDefinition.databaseTypeName,
-                        referencedTableClassName);
+            isPrivate = element.getModifiers().contains(Modifier.PRIVATE);
 
-        if (tableDefinition == null) {
-            isFlat = true;
+            // find referenced child table definition
+            TableDefinition tableDefinition = manager
+                    .getTableDefinition(parentTableDefinition.databaseTypeName,
+                            referencedTableClassName);
 
-            // TODO: create a column definition that will be used as holder for field.
-        } else {
-            referencedTableDefinition = tableDefinition;
-        }
+            if (tableDefinition == null) {
+                isFlat = true;
 
-        if (isPrivate) {
-            columnAccess = new PrivateColumnAccess(false);
-        } else if (isPackagePrivateNotInSamePackage) {
-            columnAccess = PackagePrivateAccess.from(processorManager, element,
-                    referencedTableDefinition.databaseDefinition.classSeparator);
-        } else {
-            columnAccess = new SimpleColumnAccess();
+                // TODO: create a column definition that will be used as holder for field.
+            } else {
+                referencedTableDefinition = tableDefinition;
+            }
+
+            if (isPrivate) {
+                columnAccess = new PrivateColumnAccess(false);
+            } else if (isPackagePrivateNotInSamePackage) {
+                columnAccess = PackagePrivateAccess.from(processorManager, element,
+                        referencedTableDefinition.databaseDefinition.classSeparator);
+            } else {
+                columnAccess = new SimpleColumnAccess();
+            }
         }
     }
 
-    public void writeLoad(CodeBlock.Builder codeBuilder) {
+    public void writeLoad(MethodSpec.Builder builder) {
+        CodeBlock accessCode = columnAccess.setColumnAccessString(elementTypeName,
+                elementName, elementName, ModelUtils.getVariable(),
+                CodeBlock.of("new $T().toList(cursor.getString(cursor.getColumnIndex($S)))", listConverterTypeName,
+                        elementName));
 
-        codeBuilder.add(columnAccess.getColumnAccessString(elementTypeName,
-                elementName, elementName, "name", false));
+        builder.addCode(accessCode.toBuilder().add(";\n").build());
+    }
+
+    public void writeStatement(MethodSpec.Builder builder) {
+
     }
 }

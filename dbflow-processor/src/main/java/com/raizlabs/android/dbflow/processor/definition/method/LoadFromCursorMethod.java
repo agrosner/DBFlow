@@ -25,14 +25,12 @@ public class LoadFromCursorMethod implements MethodDefinition {
     public static final String PARAM_CURSOR = "cursor";
 
     private BaseTableDefinition baseTableDefinition;
-    private final boolean isModelContainerAdapter;
     private final boolean implementsLoadFromCursorListener;
 
-    public LoadFromCursorMethod(BaseTableDefinition baseTableDefinition, boolean isModelContainerAdapter,
+    public LoadFromCursorMethod(BaseTableDefinition baseTableDefinition,
                                 boolean implementsLoadFromCursorListener) {
 
         this.baseTableDefinition = baseTableDefinition;
-        this.isModelContainerAdapter = isModelContainerAdapter;
         this.implementsLoadFromCursorListener = implementsLoadFromCursorListener;
     }
 
@@ -54,7 +52,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
             index.incrementAndGet();
         }
 
-        if (baseTableDefinition instanceof TableDefinition && !isModelContainerAdapter) {
+        if (baseTableDefinition instanceof TableDefinition) {
             CodeBlock.Builder codeBuilder = CodeBlock.builder();
             List<OneToManyDefinition> oneToManyDefinitions = ((TableDefinition) baseTableDefinition).oneToManyDefinitions;
             for (OneToManyDefinition oneToMany : oneToManyDefinitions) {
@@ -67,7 +65,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
             List<ListColumnDefinition> listColumnDefinitions = ((TableDefinition) baseTableDefinition)
                     .listColumnDefinitions;
             for (ListColumnDefinition listColumn : listColumnDefinitions) {
-                listColumn.writeLoad(codeBuilder);
+                listColumn.writeLoad(methodBuilder);
             }
         }
 

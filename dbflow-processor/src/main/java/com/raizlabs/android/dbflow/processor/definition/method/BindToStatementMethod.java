@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
+import com.raizlabs.android.dbflow.processor.definition.column.ListColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -35,12 +36,12 @@ public class BindToStatementMethod implements MethodDefinition {
     @Override
     public MethodSpec getMethodSpec() {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(isInsert ? "bindToInsertStatement" : "bindToStatement")
-            .addAnnotation(Override.class)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
-            .addParameter(tableDefinition.getParameterClassName(),
-                ModelUtils.getVariable())
-            .returns(TypeName.VOID);
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
+                .addParameter(tableDefinition.getParameterClassName(),
+                        ModelUtils.getVariable())
+                .returns(TypeName.VOID);
 
         // write the reference method
         if (isInsert) {
@@ -54,9 +55,14 @@ public class BindToStatementMethod implements MethodDefinition {
                 }
             }
 
+            List<ListColumnDefinition> listColumnDefinitions = tableDefinition.listColumnDefinitions;
+            for (ListColumnDefinition listColumn : listColumnDefinitions) {
+                listColumn.writeStatement(methodBuilder);
+            }
+
             if (tableDefinition.implementsSqlStatementListener) {
                 methodBuilder.addStatement("$L.onBindTo$LStatement($L)",
-                    ModelUtils.getVariable(), isInsert ? "Insert" : "", PARAM_STATEMENT);
+                        ModelUtils.getVariable(), isInsert ? "Insert" : "", PARAM_STATEMENT);
             }
         } else {
             int start = 0;
@@ -68,7 +74,7 @@ public class BindToStatementMethod implements MethodDefinition {
             methodBuilder.addStatement("bindToInsertStatement($L, $L, $L)", PARAM_STATEMENT, ModelUtils.getVariable(), start);
             if (tableDefinition.implementsSqlStatementListener) {
                 methodBuilder.addStatement("$L.onBindTo$LStatement($L)",
-                    ModelUtils.getVariable(), isInsert ? "Insert" : "", PARAM_STATEMENT);
+                        ModelUtils.getVariable(), isInsert ? "Insert" : "", PARAM_STATEMENT);
             }
         }
 

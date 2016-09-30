@@ -1,5 +1,8 @@
 package com.raizlabs.android.dbflow.annotation;
 
+import com.raizlabs.android.dbflow.converter.DefaultListConverter;
+import com.raizlabs.android.dbflow.converter.ListConverter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,4 +31,10 @@ public @interface ListColumn {
      * The params must align exactly to an expected setter, otherwise a compile error ensues.
      */
     String setterName() default "";
+
+    /**
+     * @return Define which class you wish to use as the {@link ListConverter}. By default it just
+     * uses the {@link DefaultListConverter}.
+     */
+    Class<? extends ListConverter> listConverter() default DefaultListConverter.class;
 }

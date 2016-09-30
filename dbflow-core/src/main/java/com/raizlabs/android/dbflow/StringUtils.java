@@ -12,4 +12,10 @@ public class StringUtils {
         return inString != null && !inString.equals("") && inString.length() > 0;
     }
 
+    /**
+     * @return true if the string is null, empty string "", or the length is less than equal to 0
+     */
+    public static boolean isNullOrEmpty(String inString) {
+        return inString == null || inString.equals("") || inString.length() <= 0;
+    }
 }

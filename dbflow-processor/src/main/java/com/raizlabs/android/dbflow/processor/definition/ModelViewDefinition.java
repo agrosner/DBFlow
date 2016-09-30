@@ -103,7 +103,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
         }
 
         methods = new MethodDefinition[]{
-                new LoadFromCursorMethod(this, false, implementsLoadFromCursorListener),
+                new LoadFromCursorMethod(this, implementsLoadFromCursorListener),
                 new ExistenceMethod(this, false),
                 new PrimaryConditionMethod(this, false)
         };
