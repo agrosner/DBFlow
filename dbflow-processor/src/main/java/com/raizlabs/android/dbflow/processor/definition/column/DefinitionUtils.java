@@ -65,18 +65,18 @@ public class DefinitionUtils {
                 codeBuilder, variableNameString, elementName);
 
         codeBuilder.addStatement("$L.put($S, $L)",
-                BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                BindToContentValuesMethod.Companion.getPARAM_CONTENT_VALUES(),
                 QueryBuilder.quoteIfNeeded(columnName), putAccess);
 
         if (!finalTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else");
             if (defaultValue != null && !defaultValue.isEmpty()) {
                 codeBuilder.addStatement("$L.put($S, $L)",
-                        BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                        BindToContentValuesMethod.Companion.getPARAM_CONTENT_VALUES(),
                         QueryBuilder.quoteIfNeeded(columnName), defaultValue);
             } else {
                 codeBuilder.addStatement("$L.putNull($S)",
-                        BindToContentValuesMethod.PARAM_CONTENT_VALUES,
+                        BindToContentValuesMethod.Companion.getPARAM_CONTENT_VALUES(),
                         QueryBuilder.quoteIfNeeded(columnName));
             }
             codeBuilder.endControlFlow();
@@ -131,17 +131,17 @@ public class DefinitionUtils {
                 codeBuilder, variableNameString, elementName);
 
         codeBuilder.addStatement("$L.bind$L($L, $L)",
-                BindToStatementMethod.PARAM_STATEMENT,
+                BindToStatementMethod.Companion.getPARAM_STATEMENT(),
                 columnAccess.getSqliteTypeForTypeName(elementTypeName).getSQLiteStatementMethod(),
-                index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""), putAccess);
+                index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.Companion.getPARAM_START()) : ""), putAccess);
         if (!finalTypeName.isPrimitive()) {
             codeBuilder.nextControlFlow("else");
             if (defaultValue != null && !defaultValue.isEmpty()) {
-                codeBuilder.addStatement("$L.bind$L($L, $L)", BindToStatementMethod.PARAM_STATEMENT,
+                codeBuilder.addStatement("$L.bind$L($L, $L)", BindToStatementMethod.Companion.getPARAM_STATEMENT(),
                         columnAccess.getSqliteTypeForTypeName(elementTypeName).getSQLiteStatementMethod(),
-                        index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""), defaultValue);
+                        index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.Companion.getPARAM_START()) : ""), defaultValue);
             } else {
-                codeBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.PARAM_STATEMENT, index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.PARAM_START) : ""));
+                codeBuilder.addStatement("$L.bindNull($L)", BindToStatementMethod.Companion.getPARAM_STATEMENT(), index.intValue() + (!isAutoIncrement ? (" + " + BindToStatementMethod.Companion.getPARAM_START()) : ""));
             }
             codeBuilder.endControlFlow();
         }

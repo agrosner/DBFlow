@@ -45,7 +45,7 @@ public class UniqueGroupsDefinition {
             }
             if (columnDefinition instanceof ForeignKeyColumnDefinition) {
                 for (ForeignKeyReferenceDefinition reference : ((ForeignKeyColumnDefinition) columnDefinition).get_foreignKeyReferenceDefinitionList()) {
-                    codeBuilder.add(QueryBuilder.quote(reference.columnName));
+                    codeBuilder.add(QueryBuilder.quote(reference.getColumnName()));
                 }
             } else {
                 codeBuilder.add(QueryBuilder.quote(columnDefinition.getColumnName()));
