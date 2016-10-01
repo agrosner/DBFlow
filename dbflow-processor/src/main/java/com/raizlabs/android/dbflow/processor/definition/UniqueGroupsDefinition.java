@@ -44,7 +44,7 @@ public class UniqueGroupsDefinition {
                 codeBuilder.add(",");
             }
             if (columnDefinition instanceof ForeignKeyColumnDefinition) {
-                for (ForeignKeyReferenceDefinition reference : ((ForeignKeyColumnDefinition) columnDefinition).getForeignKeyReferenceDefinitionList()) {
+                for (ForeignKeyReferenceDefinition reference : ((ForeignKeyColumnDefinition) columnDefinition).get_foreignKeyReferenceDefinitionList()) {
                     codeBuilder.add(QueryBuilder.quote(reference.columnName));
                 }
             } else {

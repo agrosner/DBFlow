@@ -29,7 +29,7 @@ import javax.tools.Diagnostic
  */
 open class ColumnDefinition @JvmOverloads
 constructor(processorManager: ProcessorManager, element: Element,
-            var tableDefinition: BaseTableDefinition, isPackagePrivate: Boolean,
+            var baseTableDefinition: BaseTableDefinition, isPackagePrivate: Boolean,
             var column: Column? = element.getAnnotation<Column>(Column::class.java),
             primaryKey: PrimaryKey? = element.getAnnotation<PrimaryKey>(PrimaryKey::class.java))
 : BaseDefinition(element, processorManager) {
@@ -75,7 +75,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
         if (isPackagePrivate) {
             columnAccess = PackagePrivateAccess.from(processorManager, element,
-                    tableDefinition.databaseDefinition?.classSeparator)
+                    baseTableDefinition.databaseDefinition?.classSeparator)
 
             // register to ensure we only generate methods that are referenced by these columns.
             PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, columnName)
@@ -83,7 +83,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             val isPrivate = element.modifiers.contains(Modifier.PRIVATE)
             if (isPrivate) {
                 val useIs = elementTypeName.box() == TypeName.BOOLEAN.box()
-                        && tableDefinition is TableDefinition && (tableDefinition as TableDefinition).useIsForPrivateBooleans
+                        && baseTableDefinition is TableDefinition && (baseTableDefinition as TableDefinition).useIsForPrivateBooleans
                 columnAccess = PrivateColumnAccess(column, useIs)
             } else {
                 columnAccess = SimpleColumnAccess()
@@ -141,7 +141,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                         typeConverterDefinition.modelTypeName, typeConverterClassName, elementTypeName)
             } else {
                 hasCustomConverter = true
-                val fieldName = tableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName)
+                val fieldName = baseTableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName)
                 hasTypeConverter = true
                 columnAccess = TypeConverterAccess(manager, this, typeConverterDefinition, fieldName)
             }
@@ -173,7 +173,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                                 !SQLiteHelper.containsType(elementTypeName)) {
                             hasTypeConverter = true
                             if (typeConverterDefinition != null) {
-                                val fieldName = tableDefinition.addColumnForTypeConverter(this,
+                                val fieldName = baseTableDefinition.addColumnForTypeConverter(this,
                                         typeConverterDefinition.className)
                                 columnAccess = TypeConverterAccess(manager, this,
                                         typeConverterDefinition, fieldName)
@@ -234,7 +234,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         return DefinitionUtils.getContentValuesStatement(elementName, elementName,
                 columnName, elementTypeName, columnAccess,
                 ModelUtils.getVariable(), defaultValue,
-                tableDefinition.outputClassName).build()
+                baseTableDefinition.outputClassName).build()
     }
 
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
@@ -246,7 +246,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger): CodeBlock {
         return DefinitionUtils.getLoadFromCursorMethod(index.toInt(), elementName,
                 elementTypeName, columnName, true, columnAccess,
-                tableDefinition.orderedCursorLookUp, tableDefinition.assignDefaultValuesFromCursor,
+                baseTableDefinition.orderedCursorLookUp, baseTableDefinition.assignDefaultValuesFromCursor,
                 elementName).build()
     }
 
@@ -307,8 +307,8 @@ constructor(processorManager: ProcessorManager, element: Element,
             if (isPrimaryKeyAutoIncrement && !isRowId) {
                 codeBlockBuilder.add(" PRIMARY KEY ")
 
-                if (tableDefinition is TableDefinition && !StringUtils.isNullOrEmpty((tableDefinition as TableDefinition).primaryKeyConflictActionName)) {
-                    codeBlockBuilder.add("ON CONFLICT \$L ", (tableDefinition as TableDefinition).primaryKeyConflictActionName)
+                if (baseTableDefinition is TableDefinition && !StringUtils.isNullOrEmpty((baseTableDefinition as TableDefinition).primaryKeyConflictActionName)) {
+                    codeBlockBuilder.add("ON CONFLICT \$L ", (baseTableDefinition as TableDefinition).primaryKeyConflictActionName)
                 }
 
                 codeBlockBuilder.add("AUTOINCREMENT")

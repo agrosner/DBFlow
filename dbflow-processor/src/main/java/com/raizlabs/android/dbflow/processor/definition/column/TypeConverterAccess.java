@@ -127,7 +127,7 @@ public class TypeConverterAccess extends WrapperColumnAccess {
 
     private void checkConverter() {
         if (typeConverterDefinition == null) {
-            manager.logError("No type converter for: " + columnDefinition.elementTypeName + " -> " + columnDefinition.elementName + " from class: " + columnDefinition.getTableDefinition().elementClassName + ". Please" +
+            manager.logError("No type converter for: " + columnDefinition.elementTypeName + " -> " + columnDefinition.elementName + " from class: " + columnDefinition.tableDefinition.elementClassName + ". Please" +
                     "register with a TypeConverter.");
         }
     }

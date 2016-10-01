@@ -92,11 +92,11 @@ public class CreationQueryMethod implements MethodDefinition {
 
             foreignKeyBuilder.add(", FOREIGN KEY(");
 
-            for (int j = 0; j < foreignKeyColumnDefinition.foreignKeyReferenceDefinitionList.size(); j++) {
+            for (int j = 0; j < foreignKeyColumnDefinition.get_foreignKeyReferenceDefinitionList().size(); j++) {
                 if (j > 0) {
                     foreignKeyBuilder.add(",");
                 }
-                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.foreignKeyReferenceDefinitionList.get(j);
+                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.get_foreignKeyReferenceDefinitionList().get(j);
                 foreignKeyBuilder.add("$L", QueryBuilder.quote(referenceDefinition.columnName));
             }
 
@@ -106,18 +106,18 @@ public class CreationQueryMethod implements MethodDefinition {
             foreignKeyBlocks.add(foreignKeyBuilder.build());
 
             tableNameBlocks.add(CodeBlock.builder().add("$T.getTableName($T.class)",
-                    ClassNames.FLOW_MANAGER, foreignKeyColumnDefinition.referencedTableClassName).build());
+                    ClassNames.FLOW_MANAGER, foreignKeyColumnDefinition.getReferencedTableClassName()).build());
 
             referenceBuilder.add("(");
-            for (int j = 0; j < foreignKeyColumnDefinition.foreignKeyReferenceDefinitionList.size(); j++) {
+            for (int j = 0; j < foreignKeyColumnDefinition.get_foreignKeyReferenceDefinitionList().size(); j++) {
                 if (j > 0) {
                     referenceBuilder.add(", ");
                 }
-                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.foreignKeyReferenceDefinitionList.get(j);
+                ForeignKeyReferenceDefinition referenceDefinition = foreignKeyColumnDefinition.get_foreignKeyReferenceDefinitionList().get(j);
                 referenceBuilder.add("$L", QueryBuilder.quote(referenceDefinition.foreignColumnName));
             }
-            referenceBuilder.add(") ON UPDATE $L ON DELETE $L", foreignKeyColumnDefinition.onUpdate.name().replace("_", " "),
-                    foreignKeyColumnDefinition.onDelete.name().replace("_", " "));
+            referenceBuilder.add(") ON UPDATE $L ON DELETE $L", foreignKeyColumnDefinition.getOnUpdate().name().replace("_", " "),
+                    foreignKeyColumnDefinition.getOnDelete().name().replace("_", " "));
             referenceKeyBlocks.add(referenceBuilder.build());
         }
 

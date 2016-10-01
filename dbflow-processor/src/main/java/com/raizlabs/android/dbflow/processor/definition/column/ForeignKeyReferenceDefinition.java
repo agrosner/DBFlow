@@ -72,7 +72,7 @@ public class ForeignKeyReferenceDefinition {
             columnAccess = new PrivateColumnAccess(referencedColumn.getColumn(), false);
         } else if (isReferencedFieldPackagePrivate) {
             columnAccess = new PackagePrivateAccess(referencedColumn.packageName,
-                    foreignKeyColumnDefinition.tableDefinition.getDatabaseDefinition().classSeparator,
+                    foreignKeyColumnDefinition.getTableDefinition().getDatabaseDefinition().classSeparator,
                     ClassName.get((TypeElement) referencedColumn.element.getEnclosingElement()).simpleName());
             PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, foreignColumnName);
         } else {
@@ -105,9 +105,9 @@ public class ForeignKeyReferenceDefinition {
         if (isReferencedFieldPrivate) {
             columnAccess = new PrivateColumnAccess(foreignKeyReference);
         } else if (isReferencedFieldPackagePrivate) {
-            columnAccess = new PackagePrivateAccess(foreignKeyColumnDefinition.referencedTableClassName.packageName(),
-                    foreignKeyColumnDefinition.tableDefinition.getDatabaseDefinition().classSeparator,
-                    foreignKeyColumnDefinition.referencedTableClassName.simpleName());
+            columnAccess = new PackagePrivateAccess(foreignKeyColumnDefinition.getReferencedTableClassName().packageName(),
+                    foreignKeyColumnDefinition.getTableDefinition().getDatabaseDefinition().classSeparator,
+                    foreignKeyColumnDefinition.getReferencedTableClassName().simpleName());
             PackagePrivateAccess.putElement(((PackagePrivateAccess) columnAccess).helperClassName, foreignColumnName);
         } else {
             columnAccess = new SimpleColumnAccess();
@@ -142,7 +142,7 @@ public class ForeignKeyReferenceDefinition {
                 combined.toString(),
                 columnName, columnClassName, simpleColumnAccess,
                 getForeignKeyColumnVariable(), null,
-                foreignKeyColumnDefinition.tableDefinition.outputClassName).build();
+                foreignKeyColumnDefinition.getTableDefinition().outputClassName).build();
     }
 
     public CodeBlock getPrimaryReferenceString() {

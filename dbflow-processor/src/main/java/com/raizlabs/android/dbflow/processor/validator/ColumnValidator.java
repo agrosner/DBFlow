@@ -41,7 +41,7 @@ public class ColumnValidator implements Validator<ColumnDefinition> {
 
         if (!StringUtils.isNullOrEmpty(columnDefinition.getDefaultValue())) {
             if (columnDefinition instanceof ForeignKeyColumnDefinition &&
-                    ((ForeignKeyColumnDefinition) columnDefinition).isModel) {
+                    ((ForeignKeyColumnDefinition) columnDefinition).getIsModel()) {
                 processorManager.logError(ColumnValidator.class, "Default values cannot be specified for model fields");
             } else if (columnDefinition.elementTypeName.isPrimitive()) {
                 processorManager.logWarning(ColumnValidator.class, "Primitive column types will not respect default values");
