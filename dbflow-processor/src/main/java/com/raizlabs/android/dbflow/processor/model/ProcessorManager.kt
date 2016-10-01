@@ -58,14 +58,11 @@ class ProcessorManager(val processingEnvironment: ProcessingEnvironment) : Handl
         }
     }
 
-    val messager: Messager
-        get() = processingEnvironment.messager
+    val messager: Messager = processingEnvironment.messager
 
-    val typeUtils: Types
-        get() = processingEnvironment.typeUtils
+    val typeUtils: Types = processingEnvironment.typeUtils
 
-    val elements: Elements
-        get() = processingEnvironment.elementUtils
+    val elements: Elements = processingEnvironment.elementUtils
 
     fun addDatabase(database: TypeName) {
         if (!uniqueDatabases.contains(database)) {
@@ -78,34 +75,22 @@ class ProcessorManager(val processingEnvironment: ProcessingEnvironment) : Handl
         holderDefinition?.databaseDefinition = databaseDefinition
     }
 
-    fun getDatabaseHolderDefinitionMap(): List<DatabaseHolderDefinition> {
-        return ArrayList(databaseDefinitionMap.values)
-    }
+    fun getDatabaseHolderDefinitionMap() = ArrayList(databaseDefinitionMap.values)
 
-    fun getDatabaseHolderDefinition(databaseName: TypeName?): DatabaseHolderDefinition? {
-        return databaseDefinitionMap[databaseName]
-    }
+    fun getDatabaseHolderDefinition(databaseName: TypeName?) = databaseDefinitionMap[databaseName]
 
     fun addTypeConverterDefinition(definition: TypeConverterDefinition) {
         typeConverters.put(definition.modelTypeName, definition)
     }
 
-    fun getTypeConverterDefinition(typeName: TypeName?): TypeConverterDefinition? {
-        return typeConverters[typeName]
-    }
+    fun getTypeConverterDefinition(typeName: TypeName?) = typeConverters[typeName]
 
     fun addModelToDatabase(modelType: TypeName, databaseName: TypeName) {
         addDatabase(databaseName)
         modelToDatabaseMap.put(modelType, databaseName)
     }
 
-    fun getDatabase(modelType: TypeName): TypeName? {
-        return modelToDatabaseMap[modelType]
-    }
-
-    fun getDatabaseName(databaseTypeName: TypeName?): String {
-        return getOrPutDatabase(databaseTypeName)?.databaseDefinition?.databaseName ?: ""
-    }
+    fun getDatabaseName(databaseTypeName: TypeName?) = getOrPutDatabase(databaseTypeName)?.databaseDefinition?.databaseName ?: ""
 
     fun addQueryModelDefinition(queryModelDefinition: QueryModelDefinition) {
         queryModelDefinition.elementClassName?.let {
@@ -147,10 +132,6 @@ class ProcessorManager(val processingEnvironment: ProcessingEnvironment) : Handl
 
     fun getTableDefinition(databaseName: TypeName?, typeName: TypeName?): TableDefinition? {
         return getOrPutDatabase(databaseName)?.tableDefinitionMap?.get(typeName)
-    }
-
-    fun getTableDefinition(databaseName: TypeName, tableName: String): TableDefinition? {
-        return getOrPutDatabase(databaseName)?.tableNameMap?.get(tableName)
     }
 
     fun addModelViewDefinition(modelViewDefinition: ModelViewDefinition) {

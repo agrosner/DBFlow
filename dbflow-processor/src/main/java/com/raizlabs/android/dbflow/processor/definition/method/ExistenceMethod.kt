@@ -54,9 +54,4 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
 
             return methodBuilder.build()
         }
-
-    companion object {
-
-        val PARAM_MODEL = "model"
-    }
 }

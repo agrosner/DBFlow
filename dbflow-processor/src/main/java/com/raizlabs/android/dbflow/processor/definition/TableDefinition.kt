@@ -104,23 +104,23 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
 
             val inheritedColumns = table.inheritedColumns
-            for (inheritedColumn in inheritedColumns) {
-                if (inheritedFieldNameList.contains(inheritedColumn.fieldName)) {
+            inheritedColumns.forEach {
+                if (inheritedFieldNameList.contains(it.fieldName)) {
                     manager.logError("A duplicate inherited column with name %1s was found for %1s",
-                            inheritedColumn.fieldName, tableName)
+                            it.fieldName, tableName)
                 }
-                inheritedFieldNameList.add(inheritedColumn.fieldName)
-                inheritedColumnMap.put(inheritedColumn.fieldName, inheritedColumn)
+                inheritedFieldNameList.add(it.fieldName)
+                inheritedColumnMap.put(it.fieldName, it)
             }
 
             val inheritedPrimaryKeys = table.inheritedPrimaryKeys
-            for (inheritedColumn in inheritedPrimaryKeys) {
-                if (inheritedFieldNameList.contains(inheritedColumn.fieldName)) {
+            inheritedPrimaryKeys.forEach {
+                if (inheritedFieldNameList.contains(it.fieldName)) {
                     manager.logError("A duplicate inherited column with name %1s was found for %1s",
-                            inheritedColumn.fieldName, tableName)
+                            it.fieldName, tableName)
                 }
-                inheritedFieldNameList.add(inheritedColumn.fieldName)
-                inheritedPrimaryKeyMap.put(inheritedColumn.fieldName, inheritedColumn)
+                inheritedFieldNameList.add(it.fieldName)
+                inheritedPrimaryKeyMap.put(it.fieldName, it)
             }
 
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
@@ -138,14 +138,14 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 BindToStatementMethod(this, true, false), BindToStatementMethod(this, false, false),
                 InsertStatementQueryMethod(this, true), InsertStatementQueryMethod(this, false),
                 CreationQueryMethod(this), LoadFromCursorMethod(this), ExistenceMethod(this),
-                PrimaryConditionMethod(this), OneToManyDeleteMethod(this, false, false),
-                OneToManyDeleteMethod(this, false, true),
-                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, false),
-                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, false),
-                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, false),
-                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, true),
-                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, true),
-                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, true))
+                PrimaryConditionMethod(this), OneToManyDeleteMethod(this, false),
+                OneToManyDeleteMethod(this, true),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE, false),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT, false),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE, false),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE, true),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT, true),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE, true))
     }
 
     override fun prepareForWrite() {

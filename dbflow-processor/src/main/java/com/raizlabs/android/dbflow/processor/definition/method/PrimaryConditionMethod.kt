@@ -31,9 +31,4 @@ class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) :
             methodBuilder.addStatement("return clause")
             return methodBuilder.build()
         }
-
-    companion object {
-
-        internal val PARAM_MODEL = "model"
-    }
 }

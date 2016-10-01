@@ -27,16 +27,16 @@ class UniqueGroupsDefinition(uniqueGroup: UniqueGroup) {
         get() {
             val codeBuilder = CodeBlock.builder().add(", UNIQUE(")
             var count = 0
-            for (columnDefinition in columnDefinitionList) {
+            columnDefinitionList.forEach {
                 if (count > 0) {
                     codeBuilder.add(",")
                 }
-                if (columnDefinition is ForeignKeyColumnDefinition) {
-                    for (reference in columnDefinition._foreignKeyReferenceDefinitionList) {
+                if (it is ForeignKeyColumnDefinition) {
+                    for (reference in it._foreignKeyReferenceDefinitionList) {
                         codeBuilder.add(QueryBuilder.quote(reference.columnName))
                     }
                 } else {
-                    codeBuilder.add(QueryBuilder.quote(columnDefinition.columnName))
+                    codeBuilder.add(QueryBuilder.quote(it.columnName))
                 }
                 count++
             }

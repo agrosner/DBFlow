@@ -54,8 +54,6 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
         }
 
     companion object {
-
         val PARAM_CONTENT_VALUES = "values"
-        val PARAM_MODEL = "model"
     }
 }

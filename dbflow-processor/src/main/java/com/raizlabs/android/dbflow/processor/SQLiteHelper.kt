@@ -13,20 +13,16 @@ import java.util.*
 enum class SQLiteHelper {
 
     INTEGER {
-        override val sqLiteStatementMethod: String
-            get() = "Long"
+        override val sqLiteStatementMethod = "Long"
     },
     REAL {
-        override val sqLiteStatementMethod: String
-            get() = "Double"
+        override val sqLiteStatementMethod = "Double"
     },
     TEXT {
-        override val sqLiteStatementMethod: String
-            get() = "String"
+        override val sqLiteStatementMethod = "String"
     },
     BLOB {
-        override val sqLiteStatementMethod: String
-            get() = "Blob"
+        override val sqLiteStatementMethod = "Blob"
     };
 
     abstract val sqLiteStatementMethod: String
@@ -59,20 +55,6 @@ enum class SQLiteHelper {
             }
         }
 
-        operator fun get(typeName: TypeName?): SQLiteHelper {
-            var sqLiteHelper: SQLiteHelper? = sTypeMap[typeName]
-
-            // fix for enums
-            if (sqLiteHelper == null) {
-                sqLiteHelper = SQLiteHelper.TEXT
-            }
-            return sqLiteHelper
-        }
-
-        fun containsType(typeName: TypeName?): Boolean {
-            return sTypeMap.containsKey(typeName)
-        }
-
         private val sMethodMap = object : HashMap<TypeName, String>() {
             init {
                 put(ArrayTypeName.of(TypeName.BYTE), "getBlob")
@@ -97,28 +79,17 @@ enum class SQLiteHelper {
             }
         }
 
-        fun containsMethod(typeName: TypeName?): Boolean {
-            return sMethodMap.containsKey(typeName)
-        }
+        private val sNumberMethodList = hashSetOf(TypeName.BYTE, TypeName.DOUBLE, TypeName.FLOAT,
+                TypeName.LONG, TypeName.SHORT, TypeName.INT)
 
-        fun getMethod(typeName: TypeName?): String {
-            return sMethodMap[typeName] ?: ""
-        }
+        operator fun get(typeName: TypeName?): SQLiteHelper = sTypeMap[typeName] ?: SQLiteHelper.TEXT
 
-        private val sNumberMethodList = object : HashSet<TypeName>() {
-            init {
-                add(TypeName.BYTE)
-                add(TypeName.DOUBLE)
-                add(TypeName.FLOAT)
-                add(TypeName.LONG)
-                add(TypeName.SHORT)
-                add(TypeName.INT)
-            }
-        }
+        fun containsType(typeName: TypeName?): Boolean = sTypeMap.containsKey(typeName)
 
-        fun containsNumberMethod(typeName: TypeName?): Boolean {
-            return sNumberMethodList.contains(typeName)
-        }
+        fun containsMethod(typeName: TypeName?): Boolean = sMethodMap.containsKey(typeName)
+
+        fun getMethod(typeName: TypeName?): String = sMethodMap[typeName] ?: ""
+
+        fun containsNumberMethod(typeName: TypeName?): Boolean = sNumberMethodList.contains(typeName)
     }
-
 }

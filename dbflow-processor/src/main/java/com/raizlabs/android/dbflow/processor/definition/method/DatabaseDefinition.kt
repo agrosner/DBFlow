@@ -82,8 +82,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         }
     }
 
-    override val extendsClass: TypeName?
-        get() = ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME
+    override val extendsClass: TypeName? = ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         writeConstructor(typeBuilder)

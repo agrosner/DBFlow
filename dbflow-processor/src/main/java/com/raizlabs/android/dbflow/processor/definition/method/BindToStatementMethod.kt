@@ -59,7 +59,6 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
     companion object {
 
         val PARAM_STATEMENT = "statement"
-        val PARAM_MODEL = "model"
         val PARAM_START = "start"
     }
 }

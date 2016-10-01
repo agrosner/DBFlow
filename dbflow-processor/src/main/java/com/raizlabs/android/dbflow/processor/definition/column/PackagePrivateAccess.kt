@@ -58,12 +58,7 @@ class PackagePrivateAccess(elementPackageName: String, separator: String?, class
         private val helperUsedMethodMap = Maps.newHashMap<ClassName, MutableList<String>>()
 
         fun containsColumn(className: ClassName, columnName: String): Boolean {
-            val list = helperUsedMethodMap[className]
-            if (list == null) {
-                return false
-            } else {
-                return list.contains(columnName)
-            }
+            return helperUsedMethodMap[className]?.contains(columnName) ?: false
         }
 
         /**

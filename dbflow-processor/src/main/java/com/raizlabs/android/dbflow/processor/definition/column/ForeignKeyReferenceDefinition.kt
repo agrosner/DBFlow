@@ -27,6 +27,9 @@ class ForeignKeyReferenceDefinition {
     val foreignColumnName: String
     val columnClassName: TypeName?
 
+    private val foreignKeyColumnVariable: String
+        get() = ModelUtils.variable
+
     private var isReferencedFieldPrivate: Boolean = false
     private var isReferencedFieldPackagePrivate: Boolean = false
 
@@ -182,8 +185,6 @@ class ForeignKeyReferenceDefinition {
         return codeBuilder.build()
     }
 
-    private val foreignKeyColumnVariable: String
-        get() = ModelUtils.variable
 
     private fun getShortColumnAccess(isSqliteMethod: Boolean, shortAccess: CodeBlock): CodeBlock {
         columnAccess.let {

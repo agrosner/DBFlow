@@ -47,7 +47,6 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
 
     companion object {
 
-        val PARAM_MODEL = "model"
         val PARAM_CURSOR = "cursor"
     }
 }

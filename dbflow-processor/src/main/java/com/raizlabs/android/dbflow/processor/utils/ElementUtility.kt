@@ -15,10 +15,6 @@ import javax.lang.model.type.TypeMirror
 object ElementUtility {
 
     /**
-     * @param element
-     * *
-     * @param manager
-     * *
      * @return real full-set of elements, including ones from super-class.
      */
     fun getAllElements(element: TypeElement, manager: ProcessorManager): List<Element> {

@@ -1,24 +1,22 @@
 package com.raizlabs.android.dbflow.processor.definition.method
 
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
-
 import javax.lang.model.element.Modifier
 
 /**
  * Description: Overrides the save, update, and insert methods if the [com.raizlabs.android.dbflow.annotation.OneToMany.Method.SAVE] is used.
  */
 class OneToManySaveMethod(private val tableDefinition: TableDefinition,
-                          private val isModelContainerAdapter: Boolean,
-                          private val methodName: String, private val useWrapper: Boolean) : MethodDefinition {
+                          private val methodName: String,
+                          private val useWrapper: Boolean) : MethodDefinition {
 
     override val methodSpec: MethodSpec?
         get() {
-            if (!tableDefinition.oneToManyDefinitions.isEmpty() || !isModelContainerAdapter && tableDefinition.cachingEnabled) {
+            if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingEnabled) {
                 val code = CodeBlock.builder()
                 for (oneToManyDefinition in tableDefinition.oneToManyDefinitions) {
                     when (methodName) {
@@ -32,7 +30,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                         ModelUtils.variable,
                         if (useWrapper) ", " + ModelUtils.wrapper else "")
 
-                if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
+                if (tableDefinition.cachingEnabled) {
                     code.addStatement("getModelCache().addModel(getCachingId(\$L), \$L)", ModelUtils.variable,
                             ModelUtils.variable)
                 }

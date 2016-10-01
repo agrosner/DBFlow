@@ -12,7 +12,6 @@ import javax.lang.model.element.Modifier
  * Description:
  */
 class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
-                            private val isModelContainerAdapter: Boolean,
                             private val useWrapper: Boolean) : MethodDefinition {
 
     override val methodSpec: MethodSpec?
@@ -25,14 +24,14 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
                 }
             }
 
-            if (shouldWrite || !isModelContainerAdapter && tableDefinition.cachingEnabled) {
+            if (shouldWrite || tableDefinition.cachingEnabled) {
 
                 val builder = CodeBlock.builder()
                 for (oneToManyDefinition in tableDefinition.oneToManyDefinitions) {
                     oneToManyDefinition.writeDelete(builder, useWrapper)
                 }
 
-                if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
+                if (tableDefinition.cachingEnabled) {
                     builder.addStatement("getModelCache().removeModel(getCachingId(\$L))", ModelUtils.variable)
                 }
 

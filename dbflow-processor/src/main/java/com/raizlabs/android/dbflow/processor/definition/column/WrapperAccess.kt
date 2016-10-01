@@ -5,9 +5,78 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
+
+/**
+ * Description:
+ *
+ * @author Andrew Grosner (fuzz)
+ */
+/**
+ * Description: Slightly different access than a regular column and has a type converter.
+ */
+class BooleanColumnAccess(manager: ProcessorManager, columnDefinition: ColumnDefinition) : TypeConverterAccess(manager, columnDefinition)
+
+/**
+ * Description:
+ */
+class BooleanTypeColumnAccess(columnDefinition: ColumnDefinition) : WrapperColumnAccess(columnDefinition) {
+
+    override fun getColumnAccessString(fieldType: TypeName?, elementName: String, fullElementName: String, variableNameString: String, isSqliteStatement: Boolean): CodeBlock {
+        val codeBuilder = CodeBlock.builder()
+        codeBuilder.add(existingColumnAccess.getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isSqliteStatement))
+        if (isSqliteStatement) {
+            codeBuilder.add(" ? 1 : 0")
+        }
+        return codeBuilder.build()
+    }
+
+    override fun getShortAccessString(fieldType: TypeName?, elementName: String, isSqliteStatement: Boolean): CodeBlock {
+        val codeBuilder = CodeBlock.builder()
+        codeBuilder.add(existingColumnAccess.getShortAccessString(fieldType, elementName, isSqliteStatement))
+        if (isSqliteStatement) {
+            codeBuilder.add(" ? 1 : 0")
+        }
+        return codeBuilder.build()
+    }
+
+    override fun setColumnAccessString(fieldType: TypeName?, elementName: String, fullElementName: String, variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
+        val finalAccess: CodeBlock
+        finalAccess = CodeBlock.builder().add("\$L == 1 ? true : false", formattedAccess).build()
+        return CodeBlock.builder().add(existingColumnAccess.setColumnAccessString(fieldType,
+                elementName, fullElementName, variableNameString, finalAccess)).build()
+    }
+}
+
+/**
+ * Description: Defines how to access a [Blob].
+ */
+class BlobColumnAccess(columnDefinition: ColumnDefinition) : WrapperColumnAccess(columnDefinition) {
+
+    override fun getColumnAccessString(fieldType: TypeName?, elementName: String, fullElementName: String, variableNameString: String, isSqliteStatement: Boolean): CodeBlock {
+        return CodeBlock.builder().add("\$L.getBlob()", existingColumnAccess.getColumnAccessString(fieldType, elementName, fullElementName,
+                variableNameString, isSqliteStatement)).build()
+    }
+
+    override fun getShortAccessString(fieldType: TypeName?, elementName: String, isSqliteStatement: Boolean): CodeBlock {
+        return CodeBlock.builder().add("\$L.getBlob()", existingColumnAccess.getShortAccessString(fieldType, elementName, isSqliteStatement)).build()
+    }
+
+    override fun setColumnAccessString(fieldType: TypeName?, elementName: String,
+                                       fullElementName: String, variableNameString: String,
+                                       formattedAccess: CodeBlock): CodeBlock {
+        val newFormattedAccess = CodeBlock.builder().add("new \$T(\$L)", ClassName.get(Blob::class.java), formattedAccess).build()
+        return existingColumnAccess.setColumnAccessString(ArrayTypeName.of(TypeName.BYTE), elementName,
+                fullElementName, variableNameString, newFormattedAccess)
+    }
+
+    override fun getSqliteTypeForTypeName(elementTypeName: TypeName?): SQLiteHelper {
+        return SQLiteHelper.BLOB
+    }
+}
 
 /**
  * Description: Supports type converters here.
@@ -124,5 +193,38 @@ open class TypeConverterAccess : WrapperColumnAccess {
     companion object {
 
         private val METHOD_TYPE_CONVERTER = "getTypeConverterForClass"
+    }
+}
+
+/**
+ * Description:
+ */
+abstract class WrapperColumnAccess(protected var columnDefinition: ColumnDefinition)
+: BaseColumnAccess() {
+    var existingColumnAccess: BaseColumnAccess
+        protected set
+
+    init {
+        this.existingColumnAccess = columnDefinition.columnAccess
+    }
+
+}
+
+/**
+ * Description:
+ */
+class EnumColumnAccess(columnDefinition: ColumnDefinition) : WrapperColumnAccess(columnDefinition) {
+
+    override fun getColumnAccessString(fieldType: TypeName?, elementName: String, fullElementName: String, variableNameString: String, isSqliteStatement: Boolean): CodeBlock {
+        return CodeBlock.builder().add("\$L.name()", existingColumnAccess.getColumnAccessString(fieldType, elementName, fullElementName, variableNameString, isSqliteStatement)).build()
+    }
+
+    override fun getShortAccessString(fieldType: TypeName?, elementName: String, isSqliteStatement: Boolean): CodeBlock {
+        return CodeBlock.builder().add("\$L.name()", existingColumnAccess.getShortAccessString(fieldType, elementName, isSqliteStatement)).build()
+    }
+
+    override fun setColumnAccessString(fieldType: TypeName?, elementName: String, fullElementName: String, variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
+        val newFormattedAccess = CodeBlock.builder().add("\$T.valueOf(\$L)", columnDefinition.elementTypeName, formattedAccess).build()
+        return existingColumnAccess.setColumnAccessString(ClassName.get(String::class.java), elementName, fullElementName, variableNameString, newFormattedAccess)
     }
 }

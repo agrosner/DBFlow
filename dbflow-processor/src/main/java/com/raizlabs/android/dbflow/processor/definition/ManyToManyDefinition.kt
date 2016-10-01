@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.lower
@@ -14,6 +13,7 @@ import com.squareup.javapoet.*
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
+import javax.lang.model.type.TypeMirror
 
 /**
  * Description: Generates the Model class that is used in a many to many.
@@ -33,7 +33,13 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
 
     init {
 
-        referencedTable = TypeName.get(ModelUtils.getReferencedClassFromAnnotation(manyToMany))
+        var clazz: TypeMirror? = null
+        try {
+            manyToMany.referencedTable
+        } catch (mte: MirroredTypeException) {
+            clazz = mte.typeMirror
+        }
+        referencedTable = TypeName.get(clazz)
         generateAutoIncrement = manyToMany.generateAutoIncrement
         generatedTableClassName = manyToMany.generatedTableClassName
         saveForeignKeyModels = manyToMany.saveForeignKeyModels

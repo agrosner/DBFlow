@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.google.common.collect.Lists
-import com.google.common.collect.Maps
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.Notify
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
@@ -18,15 +16,15 @@ import javax.lang.model.type.MirroredTypeException
 class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorManager)
 : BaseDefinition(typeElement, processorManager) {
 
-    var contentUriDefinitions: MutableList<ContentUriDefinition> = Lists.newArrayList<ContentUriDefinition>()
+    var contentUriDefinitions: MutableList<ContentUriDefinition> = mutableListOf()
 
     /**
      * Dont want duplicate paths.
      */
-    internal var pathValidationMap: Map<String, ContentUriDefinition> = Maps.newHashMap<String, ContentUriDefinition>()
+    internal var pathValidationMap: Map<String, ContentUriDefinition> = mutableMapOf()
 
     var notifyDefinitionPathMap: MutableMap<String, MutableMap<Notify.Method, MutableList<NotifyDefinition>>>
-            = Maps.newHashMap<String, MutableMap<Notify.Method, MutableList<NotifyDefinition>>>()
+            = mutableMapOf()
 
     var tableName: String? = null
 
@@ -72,7 +70,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
 
                     var notifyDefinitionList: MutableList<NotifyDefinition>? = methodListMap[notifyDefinition.method]
                     if (notifyDefinitionList == null) {
-                        notifyDefinitionList = Lists.newArrayList<NotifyDefinition>()
+                        notifyDefinitionList = arrayListOf()
                         methodListMap.put(notifyDefinition.method, notifyDefinitionList)
                     }
                     notifyDefinitionList!!.add(notifyDefinition)
