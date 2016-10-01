@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
 import com.raizlabs.android.dbflow.annotation.InheritedPrimaryKey;
-import com.raizlabs.android.dbflow.annotation.ListColumn;
 import com.raizlabs.android.dbflow.annotation.ModelCacheField;
 import com.raizlabs.android.dbflow.annotation.MultiCacheField;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
@@ -19,7 +18,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.ProcessorUtils;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition;
-import com.raizlabs.android.dbflow.processor.definition.column.ListColumnDefinition;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod;
 import com.raizlabs.android.dbflow.processor.definition.method.CreationQueryMethod;
@@ -320,9 +318,8 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isPrimary = element.getAnnotation(PrimaryKey.class) != null;
             boolean isInherited = inheritedColumnMap.containsKey(element.getSimpleName().toString());
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
-            boolean isListColumn = element.getAnnotation(ListColumn.class) != null;
             if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
-                    || isAllFields || isInherited || isInheritedPrimaryKey || isListColumn) {
+                    || isAllFields || isInherited || isInheritedPrimaryKey) {
 
                 ColumnDefinition columnDefinition;
                 if (isInheritedPrimaryKey) {
@@ -336,9 +333,6 @@ public class TableDefinition extends BaseTableDefinition {
                 } else if (isForeign) {
                     columnDefinition = new ForeignKeyColumnDefinition(manager, this,
                             element, isPackagePrivateNotInSamePackage);
-                } else if (isListColumn) {
-                    columnDefinition = new ListColumnDefinition(manager, element,
-                            this, isPackagePrivateNotInSamePackage, null, null);
                 } else {
                     columnDefinition = new ColumnDefinition(manager, element,
                             this, isPackagePrivateNotInSamePackage);
