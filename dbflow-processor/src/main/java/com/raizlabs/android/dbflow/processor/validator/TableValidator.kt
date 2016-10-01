@@ -17,7 +17,7 @@ class TableValidator : Validator<TableDefinition> {
             success = false
         }
 
-        val hasTwoKinds = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID) && !validatorDefinition.primaryColumnDefinitions.isEmpty()
+        val hasTwoKinds = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID) && !validatorDefinition._primaryColumnDefinitions.isEmpty()
 
         if (hasTwoKinds) {
             processorManager.logError(TableValidator::class, "Table %1s cannot mix and match autoincrement and composite primary keys",
@@ -25,8 +25,8 @@ class TableValidator : Validator<TableDefinition> {
             success = false
         }
 
-        val hasPrimary = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID) && validatorDefinition.primaryColumnDefinitions.isEmpty()
-                || !validatorDefinition.hasAutoIncrement && !validatorDefinition.hasRowID && !validatorDefinition.primaryColumnDefinitions.isEmpty()
+        val hasPrimary = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID) && validatorDefinition._primaryColumnDefinitions.isEmpty()
+                || !validatorDefinition.hasAutoIncrement && !validatorDefinition.hasRowID && !validatorDefinition._primaryColumnDefinitions.isEmpty()
 
         if (!hasPrimary) {
             processorManager.logError(TableValidator::class, "Table %1s needs to define at least one primary key", validatorDefinition.tableName)

@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.processor.definition.method
 
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
@@ -36,9 +35,9 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
                             ModelUtils.getVariable(), if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
-            } else if (baseTableDefinition is TableDefinition) {
+            } else {
                 if (baseTableDefinition.hasAutoIncrement || baseTableDefinition.hasRowID) {
-                    val autoIncrement = baseTableDefinition.autoIncrementPrimaryKey
+                    val autoIncrement = baseTableDefinition.autoIncrementColumn
                     autoIncrement?.let {
                         methodBuilder.addCode(autoIncrement.getContentValuesStatement(isModelContainerAdapter))
                     }

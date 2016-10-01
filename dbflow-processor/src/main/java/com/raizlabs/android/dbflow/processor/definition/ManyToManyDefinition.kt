@@ -69,7 +69,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
     }
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
-        typeBuilder!!.addAnnotation(AnnotationSpec.builder(Table::class.java)
+        typeBuilder.addAnnotation(AnnotationSpec.builder(Table::class.java)
                 .addMember("database", "\$T.class", databaseTypeName).build())
 
         val referencedDefinition = manager.getTableDefinition(databaseTypeName, referencedTable)

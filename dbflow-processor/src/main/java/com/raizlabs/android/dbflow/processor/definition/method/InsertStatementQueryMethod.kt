@@ -22,7 +22,7 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
             }
             codeBuilder.add("INTO ").add(QueryBuilder.quote(tableDefinition.tableName))
 
-            val isSingleAutoincrement = tableDefinition.hasAutoIncrement() && tableDefinition.columnDefinitions.size == 1
+            val isSingleAutoincrement = tableDefinition.hasAutoIncrement && tableDefinition.columnDefinitions.size == 1
                     && isInsert
 
             codeBuilder.add("(")

@@ -23,7 +23,7 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
             // only quick check if enabled.
             val autoincrementColumn = tableDefinition.autoIncrementColumn
 
-            if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
+            if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
                 val incrementBuilder = CodeBlock.builder().add("return ")
                 val columnAccess = autoincrementColumn!!.getColumnAccessString(false)
                 val autoElementType = autoincrementColumn.elementTypeName
@@ -39,10 +39,10 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
                 methodBuilder.addCode(incrementBuilder.build())
             }
 
-            if (!tableDefinition.hasRowID() && !tableDefinition.hasAutoIncrement() ||
+            if (!tableDefinition.hasRowID && !tableDefinition.hasAutoIncrement ||
                     autoincrementColumn != null &&
                             !autoincrementColumn.isQuickCheckPrimaryKeyAutoIncrement) {
-                if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
+                if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
                     methodBuilder.addCode(" && ")
                 } else {
                     methodBuilder.addCode("return ")

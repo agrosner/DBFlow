@@ -25,6 +25,12 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
     var columnDefinitions: MutableList<ColumnDefinition>
         protected set
 
+    var hasAutoIncrement: Boolean = false
+
+    var hasRowID: Boolean = false
+
+    var autoIncrementColumn: ColumnDefinition? = null
+
     var associatedTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
     var globalTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
     val packagePrivateList: MutableList<ColumnDefinition> =
@@ -145,16 +151,5 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         }
     }
 
-
-    open fun hasAutoIncrement(): Boolean {
-        return false
-    }
-
-    open fun hasRowID(): Boolean {
-        return false
-    }
-
-    open val autoIncrementColumn: ColumnDefinition?
-        get() = null
 
 }
