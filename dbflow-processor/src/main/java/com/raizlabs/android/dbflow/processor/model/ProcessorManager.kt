@@ -103,7 +103,7 @@ class ProcessorManager(val processingEnvironment: ProcessingEnvironment) : Handl
         return modelToDatabaseMap[modelType]
     }
 
-    fun getDatabaseName(databaseTypeName: TypeName): String {
+    fun getDatabaseName(databaseTypeName: TypeName?): String {
         return getOrPutDatabase(databaseTypeName)?.databaseDefinition?.databaseName ?: ""
     }
 

@@ -16,6 +16,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 
 /**
@@ -56,7 +57,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             referencedTableClassName = ProcessorUtils.fromTypeMirror(mte.typeMirror)
         }
 
-        val erasedElement = manager.elements.getTypeElement(
+        val erasedElement: TypeElement? = manager.elements.getTypeElement(
                 manager.typeUtils.erasure(typeElement.asType()).toString())
 
         // hopefully intentionally left blank
@@ -78,7 +79,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         }
 
         isModel = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.MODEL.toString(), erasedElement)
-        isModel = isModel || erasedElement.getAnnotation(Table::class.java) != null
+        isModel = isModel || erasedElement?.getAnnotation(Table::class.java) != null
 
         nonModelColumn = !isModel
 

@@ -63,7 +63,7 @@ public class OneToManySaveMethod implements MethodDefinition {
                     .addParameter(tableDefinition.getElementClassName(), ModelUtils.getVariable())
                     .addCode(code.build());
             if (useWrapper) {
-                builder.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.getWrapper());
+                builder.addParameter(ClassNames.INSTANCE.getDATABASE_WRAPPER(), ModelUtils.getWrapper());
             }
 
             return builder.build();

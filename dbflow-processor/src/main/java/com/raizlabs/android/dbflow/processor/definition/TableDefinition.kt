@@ -186,7 +186,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 if (uniqueNumbersSet.contains(uniqueGroup.groupNumber)) {
                     manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber, tableName)
                 }
-                val definition = UniqueGroupsDefinition(manager, uniqueGroup)
+                val definition = UniqueGroupsDefinition(uniqueGroup)
                 for (columnDefinition in columnDefinitions) {
                     if (columnDefinition.uniqueGroups.contains(definition.number)) {
                         definition.addColumnDefinition(columnDefinition)
@@ -202,7 +202,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 if (uniqueNumbersSet.contains(indexGroup.number)) {
                     manager.logError(TableDefinition::class, "A duplicate unique index number %1s was found for %1s", indexGroup.number, elementName)
                 }
-                val definition = IndexGroupsDefinition(manager, this, indexGroup)
+                val definition = IndexGroupsDefinition(this, indexGroup)
                 columnDefinitions.forEach {
                     if (it.indexGroups.contains(definition.indexNumber)) {
                         definition.columnDefinitionList.add(it)
@@ -385,7 +385,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
         typeBuilder.addMethod(getPropertyForNameMethod.build())
 
         if (hasAutoIncrement || hasRowID) {
-            val autoIncrement = autoIncrementColumn;
+            val autoIncrement = autoIncrementColumn
             autoIncrement?.let {
                 InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName, autoIncrement)
 
@@ -442,15 +442,12 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     .addStatement("return \$L", true)
                     .returns(TypeName.BOOLEAN).build())
 
-            var primaries: List<ColumnDefinition>? = _primaryColumnDefinitions
-            if (primaries == null || primaries.isEmpty()) {
-                primaries = Lists.newArrayList(autoIncrementColumn!!)
-            }
+            val primaries = primaryColumnDefinitions
             InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, primaries)
 
             val cachingbuilder = MethodSpec.methodBuilder("createCachingColumns").addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             var columns = "return new String[]{"
-            for (i in primaries!!.indices) {
+            primaries.indices.forEach { i ->
                 val column = primaries[i]
                 if (i > 0) {
                     columns += ","

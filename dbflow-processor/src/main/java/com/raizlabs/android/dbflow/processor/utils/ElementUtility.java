@@ -56,6 +56,6 @@ public class ElementUtility {
                 !element.getModifiers().contains(Modifier.STATIC) &&
                 !element.getModifiers().contains(Modifier.FINAL))) &&
                 element.getAnnotation(ColumnIgnore.class) == null &&
-                !element.asType().toString().equals(ClassNames.MODEL_ADAPTER.toString());
+                !element.asType().toString().equals(ClassNames.INSTANCE.getMODEL_ADAPTER().toString());
     }
 }

@@ -121,16 +121,19 @@ abstract class BaseDefinition : TypeDefinition {
         outputClassName = ClassName.get(packageName, fullName)
     }
 
-    override fun getTypeSpec(): TypeSpec {
-        val typeBuilder = TypeSpec.classBuilder(outputClassName.simpleName()).addModifiers(Modifier.PUBLIC, Modifier.FINAL).addSuperinterfaces(Arrays.asList(*implementsClasses))
-        val extendsClass = extendsClass
-        if (extendsClass != null) {
-            typeBuilder.superclass(extendsClass)
+    override val typeSpec: TypeSpec
+        get() {
+            val typeBuilder = TypeSpec.classBuilder(outputClassName.simpleName())
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addSuperinterfaces(Arrays.asList(*implementsClasses))
+            val extendsClass = extendsClass
+            if (extendsClass != null) {
+                typeBuilder.superclass(extendsClass)
+            }
+            typeBuilder.addJavadoc("This is generated code. Please do not modify")
+            onWriteDefinition(typeBuilder)
+            return typeBuilder.build()
         }
-        typeBuilder.addJavadoc("This is generated code. Please do not modify")
-        onWriteDefinition(typeBuilder)
-        return typeBuilder.build()
-    }
 
     protected open val extendsClass: TypeName?
         get() = null

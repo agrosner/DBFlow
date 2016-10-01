@@ -134,7 +134,8 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
         hasCustomConverter = false
-        if (typeConverterClassName != null && typeConverterClassName != ClassNames.TYPE_CONVERTER) {
+        if (typeConverterClassName != null && typeMirror != null &&
+                typeConverterClassName != ClassNames.TYPE_CONVERTER) {
             val typeConverterDefinition = TypeConverterDefinition(typeConverterClassName, typeMirror, manager)
             if (typeConverterDefinition.modelTypeName != elementTypeName) {
                 manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
