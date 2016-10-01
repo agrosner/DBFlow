@@ -111,14 +111,14 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
 
     @Override
     public void prepareForWrite() {
-        classElementLookUpMap.clear();
-        columnDefinitions.clear();
+        getClassElementLookUpMap().clear();
+        getColumnDefinitions().clear();
         queryFieldName = null;
 
         ModelView modelView = element.getAnnotation(ModelView.class);
         if (modelView != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseName).getDatabaseDefinition();
-            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_MODEL_VIEW_TAG);
+            setDatabaseDefinition(manager.getDatabaseHolderDefinition(databaseName).getDatabaseDefinition());
+            setOutputClassName(getDatabaseDefinition().classSeparator + DBFLOW_MODEL_VIEW_TAG);
 
             if (typeElement != null) {
                 createColumnDefinitions(typeElement);
@@ -131,7 +131,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
         List<? extends Element> variableElements = ElementUtility.getAllElements(typeElement, manager);
 
         for (Element element : variableElements) {
-            classElementLookUpMap.put(element.getSimpleName().toString(), element);
+            getClassElementLookUpMap().put(element.getSimpleName().toString(), element);
         }
 
         ColumnValidator columnValidator = new ColumnValidator();
@@ -147,15 +147,15 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
 
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage);
                 if (columnValidator.validate(manager, columnDefinition)) {
-                    columnDefinitions.add(columnDefinition);
+                    getColumnDefinitions().add(columnDefinition);
 
                     if (isPackagePrivate) {
-                        columnDefinitions.add(columnDefinition);
+                        getColumnDefinitions().add(columnDefinition);
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition instanceof ForeignKeyColumnDefinition
-                        || columnDefinition.isPrimaryKeyAutoIncrement() || columnDefinition.isRowId) {
+                if (columnDefinition.getIsPrimaryKey() || columnDefinition instanceof ForeignKeyColumnDefinition
+                        || columnDefinition.isPrimaryKeyAutoIncrement() || columnDefinition.getIsRowId()) {
                     manager.logError("ModelViews cannot have primary or foreign keys");
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery.class) != null) {
@@ -209,7 +209,7 @@ public class ModelViewDefinition extends BaseTableDefinition implements Comparab
                 "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$S", name).build());
 
-        for (ColumnDefinition columnDefinition : columnDefinitions) {
+        for (ColumnDefinition columnDefinition : getColumnDefinitions()) {
             columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
         }
 

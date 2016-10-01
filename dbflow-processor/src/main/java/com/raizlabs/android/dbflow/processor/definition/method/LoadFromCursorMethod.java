@@ -54,7 +54,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
         if (baseTableDefinition instanceof TableDefinition) {
 
             CodeBlock.Builder codeBuilder = CodeBlock.builder();
-            List<OneToManyDefinition> oneToManyDefinitions = ((TableDefinition) baseTableDefinition).oneToManyDefinitions;
+            List<OneToManyDefinition> oneToManyDefinitions = ((TableDefinition) baseTableDefinition).getOneToManyDefinitions();
             for (OneToManyDefinition oneToMany : oneToManyDefinitions) {
                 if (oneToMany.isLoad()) {
                     oneToMany.writeLoad(codeBuilder);
@@ -65,7 +65,7 @@ public class LoadFromCursorMethod implements MethodDefinition {
 
         }
 
-        if (baseTableDefinition instanceof TableDefinition && ((TableDefinition) baseTableDefinition).implementsLoadFromCursorListener) {
+        if (baseTableDefinition instanceof TableDefinition && ((TableDefinition) baseTableDefinition).getImplementsLoadFromCursorListener()) {
             methodBuilder.addStatement("$L.onLoadFromCursor($L)", ModelUtils.getVariable(), LoadFromCursorMethod.PARAM_CURSOR);
         }
 

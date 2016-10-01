@@ -38,7 +38,7 @@ public class CreationQueryMethod implements MethodDefinition {
 
         CodeBlock.Builder creationBuilder = CodeBlock.builder()
                 .add("CREATE TABLE IF NOT EXISTS ")
-                .add(QueryBuilder.quote(tableDefinition.tableName))
+                .add(QueryBuilder.quote(tableDefinition.getTableName()))
                 .add("(");
 
         for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
@@ -50,14 +50,14 @@ public class CreationQueryMethod implements MethodDefinition {
             creationBuilder.add(columnDefinition.getCreationName());
         }
 
-        for (UniqueGroupsDefinition definition : tableDefinition.uniqueGroupsDefinitions) {
+        for (UniqueGroupsDefinition definition : tableDefinition.getUniqueGroupsDefinitions()) {
             if (!definition.columnDefinitionList.isEmpty()) {
                 creationBuilder.add(definition.getCreationName());
             }
         }
 
-        if (!tableDefinition.hasAutoIncrement) {
-            int primarySize = tableDefinition.getPrimaryColumnDefinitions().size();
+        if (!tableDefinition.getHasAutoIncrement()) {
+            int primarySize = tableDefinition.get_primaryColumnDefinitions().size();
             for (int i = 0; i < primarySize; i++) {
                 if (i == 0) {
                     creationBuilder.add(", PRIMARY KEY(");
@@ -67,19 +67,19 @@ public class CreationQueryMethod implements MethodDefinition {
                     creationBuilder.add(",");
                 }
 
-                ColumnDefinition primaryDefinition = tableDefinition.getPrimaryColumnDefinitions().get(i);
+                ColumnDefinition primaryDefinition = tableDefinition.get_primaryColumnDefinitions().get(i);
                 creationBuilder.add(primaryDefinition.getPrimaryKeyName());
 
                 if (i == primarySize - 1) {
                     creationBuilder.add(")");
-                    if (!StringUtils.isNullOrEmpty(tableDefinition.primaryKeyConflictActionName)) {
-                        creationBuilder.add(" ON CONFLICT " + tableDefinition.primaryKeyConflictActionName);
+                    if (!StringUtils.isNullOrEmpty(tableDefinition.getPrimaryKeyConflictActionName())) {
+                        creationBuilder.add(" ON CONFLICT " + tableDefinition.getPrimaryKeyConflictActionName());
                     }
                 }
             }
         }
 
-        int foreignSize = tableDefinition.foreignKeyDefinitions.size();
+        int foreignSize = tableDefinition.getForeignKeyDefinitions().size();
 
         List<CodeBlock> foreignKeyBlocks = new ArrayList<>();
         List<CodeBlock> tableNameBlocks = new ArrayList<>();
@@ -88,7 +88,7 @@ public class CreationQueryMethod implements MethodDefinition {
         for (int i = 0; i < foreignSize; i++) {
             CodeBlock.Builder foreignKeyBuilder = CodeBlock.builder();
             CodeBlock.Builder referenceBuilder = CodeBlock.builder();
-            ForeignKeyColumnDefinition foreignKeyColumnDefinition = tableDefinition.foreignKeyDefinitions.get(i);
+            ForeignKeyColumnDefinition foreignKeyColumnDefinition = tableDefinition.getForeignKeyDefinitions().get(i);
 
             foreignKeyBuilder.add(", FOREIGN KEY(");
 

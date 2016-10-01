@@ -142,13 +142,13 @@ public class ProcessorManager implements Handler {
     }
 
     public void addTableDefinition(TableDefinition tableDefinition) {
-        DatabaseHolderDefinition holderDefinition = getOrPutDatabase(tableDefinition.databaseTypeName);
+        DatabaseHolderDefinition holderDefinition = getOrPutDatabase(tableDefinition.getDatabaseTypeName());
         holderDefinition.tableDefinitionMap.put(tableDefinition.elementClassName, tableDefinition);
-        if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
-            logError("Found duplicate table %1s for database %1s", tableDefinition.tableName,
+        if (holderDefinition.tableNameMap.containsKey(tableDefinition.getTableName())) {
+            logError("Found duplicate table %1s for database %1s", tableDefinition.getTableName(),
                     holderDefinition.getDatabaseDefinition().databaseName);
         } else {
-            holderDefinition.tableNameMap.put(tableDefinition.tableName, tableDefinition);
+            holderDefinition.tableNameMap.put(tableDefinition.getTableName(), tableDefinition);
         }
     }
 

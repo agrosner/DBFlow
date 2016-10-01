@@ -9,7 +9,7 @@ public abstract class WrapperColumnAccess extends BaseColumnAccess {
     protected BaseColumnAccess existingColumnAccess;
 
     public WrapperColumnAccess(ColumnDefinition columnDefinition) {
-        this.existingColumnAccess = columnDefinition.columnAccess;
+        this.existingColumnAccess = columnDefinition.getColumnAccess();
         this.columnDefinition = columnDefinition;
     }
 

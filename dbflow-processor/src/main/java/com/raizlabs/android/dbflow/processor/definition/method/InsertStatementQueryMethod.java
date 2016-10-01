@@ -31,11 +31,11 @@ public class InsertStatementQueryMethod implements MethodDefinition {
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder()
             .add("INSERT ");
-        if (!tableDefinition.insertConflictActionName.isEmpty()) {
-            codeBuilder.add("OR $L ", tableDefinition.insertConflictActionName);
+        if (!tableDefinition.getInsertConflictActionName().isEmpty()) {
+            codeBuilder.add("OR $L ", tableDefinition.getInsertConflictActionName());
         }
         codeBuilder.add("INTO ")
-            .add(QueryBuilder.quote(tableDefinition.tableName));
+            .add(QueryBuilder.quote(tableDefinition.getTableName()));
 
         boolean isSingleAutoincrement = (tableDefinition.hasAutoIncrement() && tableDefinition.getColumnDefinitions().size() == 1
             && isInsert);
@@ -45,7 +45,7 @@ public class InsertStatementQueryMethod implements MethodDefinition {
         int columnSize = tableDefinition.getColumnDefinitions().size();
         int columnCount = 0;
         for (ColumnDefinition column : tableDefinition.getColumnDefinitions()) {
-            if (!column.isPrimaryKeyAutoIncrement() && !column.isRowId || !isInsert || isSingleAutoincrement) {
+            if (!column.isPrimaryKeyAutoIncrement() && !column.getIsRowId() || !isInsert || isSingleAutoincrement) {
                 if (columnCount > 0) {
                     codeBuilder.add(",");
                 }
@@ -61,7 +61,7 @@ public class InsertStatementQueryMethod implements MethodDefinition {
         columnCount = 0;
         for (int i = 0; i < columnSize; i++) {
             ColumnDefinition definition = tableDefinition.getColumnDefinitions().get(i);
-            if (!definition.isPrimaryKeyAutoIncrement() && !definition.isRowId || !isInsert) {
+            if (!definition.isPrimaryKeyAutoIncrement() && !definition.getIsRowId() || !isInsert) {
                 if (columnCount > 0) {
                     codeBuilder.add(",");
                 }

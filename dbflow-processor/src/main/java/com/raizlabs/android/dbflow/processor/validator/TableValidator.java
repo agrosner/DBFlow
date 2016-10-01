@@ -13,23 +13,23 @@ public class TableValidator implements Validator<TableDefinition> {
         boolean success = true;
 
         if (tableDefinition.getColumnDefinitions() == null || tableDefinition.getColumnDefinitions().isEmpty()) {
-            processorManager.logError(TableValidator.class, "Table %1s of %1s, %1s needs to define at least one column", tableDefinition.tableName,
+            processorManager.logError(TableValidator.class, "Table %1s of %1s, %1s needs to define at least one column", tableDefinition.getTableName(),
                     tableDefinition.elementClassName, tableDefinition.element.getClass());
             success = false;
         }
 
-        boolean hasTwoKinds = ((tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) && !tableDefinition.primaryColumnDefinitions.isEmpty());
+        boolean hasTwoKinds = ((tableDefinition.getHasAutoIncrement() || tableDefinition.getHasRowID()) && !tableDefinition.get_primaryColumnDefinitions().isEmpty());
 
         if (hasTwoKinds) {
-            processorManager.logError(TableValidator.class, "Table %1s cannot mix and match autoincrement and composite primary keys", tableDefinition.tableName);
+            processorManager.logError(TableValidator.class, "Table %1s cannot mix and match autoincrement and composite primary keys", tableDefinition.getTableName());
             success = false;
         }
 
-        boolean hasPrimary = ((tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) && tableDefinition.primaryColumnDefinitions.isEmpty()
-                || !tableDefinition.hasAutoIncrement && !tableDefinition.hasRowID && !tableDefinition.primaryColumnDefinitions.isEmpty());
+        boolean hasPrimary = ((tableDefinition.getHasAutoIncrement() || tableDefinition.getHasRowID()) && tableDefinition.get_primaryColumnDefinitions().isEmpty()
+                || !tableDefinition.getHasAutoIncrement() && !tableDefinition.getHasRowID() && !tableDefinition.get_primaryColumnDefinitions().isEmpty());
 
         if (!hasPrimary) {
-            processorManager.logError(TableValidator.class, "Table %1s needs to define at least one primary key", tableDefinition.tableName);
+            processorManager.logError(TableValidator.class, "Table %1s needs to define at least one primary key", tableDefinition.getTableName());
             success = false;
         }
 

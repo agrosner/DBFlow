@@ -48,7 +48,7 @@ public class UniqueGroupsDefinition {
                     codeBuilder.add(QueryBuilder.quote(reference.columnName));
                 }
             } else {
-                codeBuilder.add(QueryBuilder.quote(columnDefinition.columnName));
+                codeBuilder.add(QueryBuilder.quote(columnDefinition.getColumnName()));
             }
             count++;
         }

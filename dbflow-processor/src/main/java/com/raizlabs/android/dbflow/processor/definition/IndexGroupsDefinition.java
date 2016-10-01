@@ -43,7 +43,7 @@ public class IndexGroupsDefinition {
                 .add("new $T<>($S, $L, $T.class", ClassNames.INDEX_PROPERTY, indexName, isUnique, tableDefinition.elementTypeName);
 
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
-            initializer.add(", $L", columnDefinition.columnName);
+            initializer.add(", $L", columnDefinition.getColumnName());
         }
         initializer.add(")");
 

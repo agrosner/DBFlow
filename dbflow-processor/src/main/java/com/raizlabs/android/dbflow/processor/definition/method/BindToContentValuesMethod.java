@@ -45,7 +45,7 @@ public class BindToContentValuesMethod implements MethodDefinition {
         if (isInsert) {
             List<ColumnDefinition> columnDefinitionList = baseTableDefinition.getColumnDefinitions();
             for (ColumnDefinition columnDefinition : columnDefinitionList) {
-                if (!columnDefinition.isPrimaryKeyAutoIncrement() && !columnDefinition.isRowId) {
+                if (!columnDefinition.isPrimaryKeyAutoIncrement() && !columnDefinition.getIsRowId()) {
                     methodBuilder.addCode(columnDefinition.getContentValuesStatement(isModelContainerAdapter));
                 }
             }
@@ -56,8 +56,8 @@ public class BindToContentValuesMethod implements MethodDefinition {
             }
         } else if (baseTableDefinition instanceof TableDefinition) {
             TableDefinition tableDefinition = ((TableDefinition) baseTableDefinition);
-            if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                ColumnDefinition autoIncrement = tableDefinition.autoIncrementDefinition;
+            if (tableDefinition.getHasAutoIncrement() || tableDefinition.getHasRowID()) {
+                ColumnDefinition autoIncrement = tableDefinition.getAutoIncrementPrimaryKey();
                 methodBuilder.addCode(autoIncrement.getContentValuesStatement(isModelContainerAdapter));
             }
 

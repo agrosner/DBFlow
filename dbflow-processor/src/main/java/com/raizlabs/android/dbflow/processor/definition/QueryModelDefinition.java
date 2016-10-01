@@ -71,14 +71,14 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
     @Override
     public void prepareForWrite() {
-        classElementLookUpMap.clear();
-        columnDefinitions.clear();
-        packagePrivateList.clear();
+        getClassElementLookUpMap().clear();
+        getColumnDefinitions().clear();
+        getPackagePrivateList().clear();
 
         QueryModel queryModel = typeElement.getAnnotation(QueryModel.class);
         if (queryModel != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).getDatabaseDefinition();
-            setOutputClassName(databaseDefinition.classSeparator + DBFLOW_QUERY_MODEL_TAG);
+            setDatabaseDefinition(manager.getDatabaseHolderDefinition(databaseTypeName).getDatabaseDefinition());
+            setOutputClassName(getDatabaseDefinition().classSeparator + DBFLOW_QUERY_MODEL_TAG);
             allFields = queryModel.allFields();
 
             if (typeElement instanceof TypeElement) {
@@ -94,7 +94,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
     @Override
     public void onWriteDefinition(TypeSpec.Builder typeBuilder) {
-        for (ColumnDefinition columnDefinition : columnDefinitions) {
+        for (ColumnDefinition columnDefinition : getColumnDefinitions()) {
             columnDefinition.addPropertyDefinition(typeBuilder, elementClassName);
         }
 
@@ -132,7 +132,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
         List<? extends Element> variableElements = ElementUtility.getAllElements(typeElement, manager);
 
         for (Element element : variableElements) {
-            classElementLookUpMap.put(element.getSimpleName().toString(), element);
+            getClassElementLookUpMap().put(element.getSimpleName().toString(), element);
         }
 
         ColumnValidator columnValidator = new ColumnValidator();
@@ -148,10 +148,10 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
                 ColumnDefinition columnDefinition = new ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage);
                 if (columnValidator.validate(manager, columnDefinition)) {
-                    columnDefinitions.add(columnDefinition);
+                    getColumnDefinitions().add(columnDefinition);
 
                     if (isPackagePrivate) {
-                        packagePrivateList.add(columnDefinition);
+                        getPackagePrivateList().add(columnDefinition);
                     }
                 }
             }

@@ -50,7 +50,7 @@ public class ExistenceMethod implements MethodDefinition {
             methodBuilder.addCode(incrementBuilder.build());
         }
 
-        if ((!tableDefinition.hasRowID() && !tableDefinition.hasAutoIncrement()) || !tableDefinition.getAutoIncrementColumn().isQuickCheckPrimaryKeyAutoIncrement) {
+        if ((!tableDefinition.hasRowID() && !tableDefinition.hasAutoIncrement()) || !tableDefinition.getAutoIncrementColumn().getIsQuickCheckPrimaryKeyAutoIncrement()) {
             if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
                 methodBuilder.addCode(" && ");
             } else {

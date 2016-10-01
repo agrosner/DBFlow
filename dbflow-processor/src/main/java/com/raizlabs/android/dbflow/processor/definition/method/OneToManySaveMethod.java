@@ -32,9 +32,9 @@ public class OneToManySaveMethod implements MethodDefinition {
 
     @Override
     public MethodSpec getMethodSpec() {
-        if (!tableDefinition.oneToManyDefinitions.isEmpty() || !isModelContainerAdapter && tableDefinition.cachingEnabled) {
+        if (!tableDefinition.getOneToManyDefinitions().isEmpty() || !isModelContainerAdapter && tableDefinition.getCachingEnabled()) {
             CodeBlock.Builder code = CodeBlock.builder();
-            for (OneToManyDefinition oneToManyDefinition : tableDefinition.oneToManyDefinitions) {
+            for (OneToManyDefinition oneToManyDefinition : tableDefinition.getOneToManyDefinitions()) {
                 switch (methodName) {
                     case METHOD_SAVE:
                         oneToManyDefinition.writeSave(code, useWrapper);
@@ -52,7 +52,7 @@ public class OneToManySaveMethod implements MethodDefinition {
                     ModelUtils.getVariable(),
                     useWrapper ? (", " + ModelUtils.getWrapper()) : "");
 
-            if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
+            if (!isModelContainerAdapter && tableDefinition.getCachingEnabled()) {
                 code.addStatement("getModelCache().addModel(getCachingId($L), $L)", ModelUtils.getVariable(),
                         ModelUtils.getVariable());
             }

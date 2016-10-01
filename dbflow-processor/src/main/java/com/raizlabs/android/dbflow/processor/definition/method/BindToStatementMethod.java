@@ -48,25 +48,25 @@ public class BindToStatementMethod implements MethodDefinition {
             List<ColumnDefinition> columnDefinitionList = tableDefinition.getColumnDefinitions();
             AtomicInteger realCount = new AtomicInteger(1);
             for (ColumnDefinition columnDefinition : columnDefinitionList) {
-                if (!columnDefinition.isPrimaryKeyAutoIncrement() && !columnDefinition.isRowId) {
+                if (!columnDefinition.isPrimaryKeyAutoIncrement() && !columnDefinition.getIsRowId()) {
                     methodBuilder.addCode(columnDefinition.getSQLiteStatementMethod(realCount));
                     realCount.incrementAndGet();
                 }
             }
 
-            if (tableDefinition.implementsSqlStatementListener) {
+            if (tableDefinition.getImplementsSqlStatementListener()) {
                 methodBuilder.addStatement("$L.onBindTo$LStatement($L)",
                         ModelUtils.getVariable(), isInsert ? "Insert" : "", PARAM_STATEMENT);
             }
         } else {
             int start = 0;
-            if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                ColumnDefinition autoIncrement = tableDefinition.autoIncrementDefinition;
+            if (tableDefinition.getHasAutoIncrement() || tableDefinition.getHasRowID()) {
+                ColumnDefinition autoIncrement = tableDefinition.getAutoIncrementPrimaryKey();
                 methodBuilder.addCode(autoIncrement.getSQLiteStatementMethod(new AtomicInteger(++start)));
             }
 
             methodBuilder.addStatement("bindToInsertStatement($L, $L, $L)", PARAM_STATEMENT, ModelUtils.getVariable(), start);
-            if (tableDefinition.implementsSqlStatementListener) {
+            if (tableDefinition.getImplementsSqlStatementListener()) {
                 methodBuilder.addStatement("$L.onBindTo$LStatement($L)",
                         ModelUtils.getVariable(), isInsert ? "Insert" : "", PARAM_STATEMENT);
             }
