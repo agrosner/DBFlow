@@ -64,7 +64,7 @@ public class QueryModelDefinition extends BaseTableDefinition {
 
 
         methods = new MethodDefinition[]{
-                new LoadFromCursorMethod(this, implementsLoadFromCursorListener)
+                new LoadFromCursorMethod(this)
         };
 
     }

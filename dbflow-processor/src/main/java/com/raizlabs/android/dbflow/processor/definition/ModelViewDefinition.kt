@@ -85,7 +85,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
             implementsLoadFromCursorListener = false
         }
 
-        methods = arrayOf(LoadFromCursorMethod(this, implementsLoadFromCursorListener), ExistenceMethod(this, false), PrimaryConditionMethod(this, false))
+        methods = arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
     }
 
     override fun prepareForWrite() {

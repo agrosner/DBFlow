@@ -7,5 +7,5 @@ import com.squareup.javapoet.MethodSpec
  */
 interface MethodDefinition {
 
-    val methodSpec: MethodSpec
+    val methodSpec: MethodSpec?
 }

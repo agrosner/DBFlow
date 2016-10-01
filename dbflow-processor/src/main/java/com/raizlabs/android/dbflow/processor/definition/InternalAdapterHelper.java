@@ -71,9 +71,9 @@ public class InternalAdapterHelper {
                     .addParameter(ClassNames.CURSOR, "cursor");
             for (int i = 0; i < primaryColumns.size(); i++) {
                 ColumnDefinition column = primaryColumns.get(i);
-                String method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.getColumnAccess());
-                methodBuilder.addStatement("inValues[$L] = $L.$L($L.getColumnIndex($S))", i, LoadFromCursorMethod.PARAM_CURSOR,
-                        method, LoadFromCursorMethod.PARAM_CURSOR, column.getColumnName());
+                String method = DefinitionUtils.INSTANCE.getLoadFromCursorMethodString(column.elementTypeName, column.getColumnAccess());
+                methodBuilder.addStatement("inValues[$L] = $L.$L($L.getColumnIndex($S))", i, LoadFromCursorMethod.Companion.getPARAM_CURSOR(),
+                        method, LoadFromCursorMethod.Companion.getPARAM_CURSOR(), column.getColumnName());
             }
             methodBuilder.addStatement("return $L", "inValues")
                     .returns(ArrayTypeName.of(Object.class));
@@ -94,9 +94,9 @@ public class InternalAdapterHelper {
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ClassNames.CURSOR, "cursor");
             ColumnDefinition column = primaryColumns.get(0);
-            String method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.getColumnAccess());
-            methodBuilder.addStatement("return $L.$L($L.getColumnIndex($S))", LoadFromCursorMethod.PARAM_CURSOR,
-                    method, LoadFromCursorMethod.PARAM_CURSOR, column.getColumnName())
+            String method = DefinitionUtils.INSTANCE.getLoadFromCursorMethodString(column.elementTypeName, column.getColumnAccess());
+            methodBuilder.addStatement("return $L.$L($L.getColumnIndex($S))", LoadFromCursorMethod.Companion.getPARAM_CURSOR(),
+                    method, LoadFromCursorMethod.Companion.getPARAM_CURSOR(), column.getColumnName())
                     .returns(Object.class);
             typeBuilder.addMethod(methodBuilder.build());
 
