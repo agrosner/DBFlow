@@ -183,7 +183,9 @@ public class ColumnDefinition extends BaseDefinition {
                 columnAccess = new BlobColumnAccess(this);
             } else {
                 if (elementTypeName instanceof ParameterizedTypeName) {
-                    // do nothing.
+                    if (ClassName.get(List.class).equals(erasedTypeName)) {
+                        columnAccess = new ListColumnAccess(this);
+                    }
                 } else if (elementTypeName instanceof ArrayTypeName) {
                     processorManager.getMessager()
                             .printMessage(Diagnostic.Kind.ERROR, "Columns cannot be of array type.");

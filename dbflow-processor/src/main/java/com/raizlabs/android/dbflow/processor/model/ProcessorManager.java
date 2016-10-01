@@ -25,6 +25,7 @@ import com.squareup.javapoet.TypeName;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -251,8 +252,11 @@ public class ProcessorManager implements Handler {
     }
 
     public void logError(String error, Object... args) {
-        getMessager().printMessage(Diagnostic.Kind.ERROR, String.format("*==========*\n" + error + "\n*==========*", args));
+        getMessager().printMessage(Diagnostic.Kind.ERROR, String.format("*==========*\n" + error.trim() + "\n*==========*", args));
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        if (stackTraceElements.length > 5) {
+            stackTraceElements = Arrays.copyOf(stackTraceElements, 5);
+        }
         for (StackTraceElement stackTrace : stackTraceElements) {
             getMessager().printMessage(Diagnostic.Kind.ERROR, stackTrace + "");
         }

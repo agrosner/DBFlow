@@ -27,7 +27,9 @@ public class TypeConverterAccess extends WrapperColumnAccess {
         this.manager = manager;
     }
 
-    public TypeConverterAccess(ProcessorManager manager, ColumnDefinition columnDefinition, TypeConverterDefinition typeConverterDefinition, String typeConverterFieldName) {
+    public TypeConverterAccess(ProcessorManager manager, ColumnDefinition columnDefinition,
+                               TypeConverterDefinition typeConverterDefinition,
+                               String typeConverterFieldName) {
         super(columnDefinition);
         this.manager = manager;
         this.typeConverterFieldName = typeConverterFieldName;
@@ -35,7 +37,9 @@ public class TypeConverterAccess extends WrapperColumnAccess {
     }
 
     @Override
-    public CodeBlock getColumnAccessString(TypeName fieldType, String elementName, String fullElementName, String variableNameString, boolean isSqliteStatement) {
+    public CodeBlock getColumnAccessString(TypeName fieldType, String elementName,
+                                           String fullElementName, String variableNameString,
+                                           boolean isSqliteStatement) {
         checkConverter();
         if (typeConverterDefinition != null) {
             CodeBlock.Builder codeBuilder = CodeBlock.builder();

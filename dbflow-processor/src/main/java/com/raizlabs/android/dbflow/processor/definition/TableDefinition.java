@@ -110,7 +110,6 @@ public class TableDefinition extends BaseTableDefinition {
     public Map<Integer, List<ColumnDefinition>> columnUniqueMap = Maps.newHashMap();
 
     public List<OneToManyDefinition> oneToManyDefinitions = new ArrayList<>();
-    public List<ListColumnDefinition> listColumnDefinitions = new ArrayList<>();
 
     public Map<String, InheritedColumn> inheritedColumnMap = new HashMap<>();
     public List<String> inheritedFieldNameList = new ArrayList<>();
@@ -213,7 +212,6 @@ public class TableDefinition extends BaseTableDefinition {
         foreignKeyDefinitions.clear();
         columnUniqueMap.clear();
         oneToManyDefinitions.clear();
-        listColumnDefinitions.clear();
         customCacheFieldName = null;
         customMultiCacheFieldName = null;
 
@@ -324,7 +322,7 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());
             boolean isListColumn = element.getAnnotation(ListColumn.class) != null;
             if (element.getAnnotation(Column.class) != null || isForeign || isPrimary
-                    || isAllFields || isInherited || isInheritedPrimaryKey) {
+                    || isAllFields || isInherited || isInheritedPrimaryKey || isListColumn) {
 
                 ColumnDefinition columnDefinition;
                 if (isInheritedPrimaryKey) {
@@ -338,6 +336,9 @@ public class TableDefinition extends BaseTableDefinition {
                 } else if (isForeign) {
                     columnDefinition = new ForeignKeyColumnDefinition(manager, this,
                             element, isPackagePrivateNotInSamePackage);
+                } else if (isListColumn) {
+                    columnDefinition = new ListColumnDefinition(manager, element,
+                            this, isPackagePrivateNotInSamePackage, null, null);
                 } else {
                     columnDefinition = new ColumnDefinition(manager, element,
                             this, isPackagePrivateNotInSamePackage);
@@ -383,10 +384,6 @@ public class TableDefinition extends BaseTableDefinition {
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition);
                 }
-            } else if (isListColumn) {
-                ListColumnDefinition listColumnDefinition = new ListColumnDefinition(element, manager,
-                        this, isPackagePrivate, isPackagePrivateNotInSamePackage);
-                listColumnDefinitions.add(listColumnDefinition);
             } else if (element.getAnnotation(ModelCacheField.class) != null) {
                 if (!element.getModifiers().contains(Modifier.PUBLIC)) {
                     manager.logError("ModelCacheField must be public from: " + typeElement);

@@ -177,7 +177,7 @@ public class DefinitionUtils {
             int index, String fullElementName, TypeName elementTypeName, String columnName,
             boolean putDefaultValue, BaseColumnAccess columnAccess,
             boolean orderedCursorLookUp, boolean assignDefaultValuesFromCursor, String elementName) {
-        String method = getLoadFromCursorMethodString(elementTypeName, columnAccess);
+                String method = getLoadFromCursorMethodString(elementTypeName, columnAccess);
 
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
 

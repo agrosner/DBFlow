@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.processor.definition.method;
 import com.raizlabs.android.dbflow.processor.ClassNames;
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition;
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition;
-import com.raizlabs.android.dbflow.processor.definition.column.ListColumnDefinition;
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -53,11 +52,6 @@ public class BindToStatementMethod implements MethodDefinition {
                     methodBuilder.addCode(columnDefinition.getSQLiteStatementMethod(realCount));
                     realCount.incrementAndGet();
                 }
-            }
-
-            List<ListColumnDefinition> listColumnDefinitions = tableDefinition.listColumnDefinitions;
-            for (ListColumnDefinition listColumn : listColumnDefinitions) {
-                listColumn.writeStatement(methodBuilder);
             }
 
             if (tableDefinition.implementsSqlStatementListener) {
