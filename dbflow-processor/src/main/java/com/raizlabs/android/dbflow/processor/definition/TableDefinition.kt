@@ -133,9 +133,9 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element)
         }
 
-        methods = arrayOf(BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
-                BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
-                BindToStatementMethod(this, true, false), BindToStatementMethod(this, false, false),
+        methods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
+                BindToContentValuesMethod(this, false, implementsContentValuesListener),
+                BindToStatementMethod(this, true), BindToStatementMethod(this, false),
                 InsertStatementQueryMethod(this, true), InsertStatementQueryMethod(this, false),
                 CreationQueryMethod(this), LoadFromCursorMethod(this), ExistenceMethod(this),
                 PrimaryConditionMethod(this), OneToManyDeleteMethod(this, false),

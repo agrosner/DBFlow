@@ -209,9 +209,9 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         }
 
 
-    override fun getContentValuesStatement(isModelContainerAdapter: Boolean): CodeBlock {
-        if (nonModelColumn) {
-            return super.getContentValuesStatement(isModelContainerAdapter)
+    override val contentValuesStatement: CodeBlock
+        get() = if (nonModelColumn) {
+            super.contentValuesStatement
         } else {
             checkNeedsReferences()
             val builder = CodeBlock.builder()
@@ -226,14 +226,13 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
             val elseBuilder = CodeBlock.builder()
             for (referenceDefinition in _foreignKeyReferenceDefinitionList) {
-                builder.add(referenceDefinition.getContentValuesStatement(isModelContainerAdapter))
+                builder.add(referenceDefinition.contentValuesStatement)
                 elseBuilder.addStatement("\$L.putNull(\$S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, QueryBuilder.quote(referenceDefinition.columnName))
             }
 
             builder.nextControlFlow("else").add(elseBuilder.build()).endControlFlow()
-            return builder.build()
+            builder.build()
         }
-    }
 
     override fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
         if (nonModelColumn) {

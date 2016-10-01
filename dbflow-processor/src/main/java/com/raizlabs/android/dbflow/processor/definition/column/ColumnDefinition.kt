@@ -60,6 +60,15 @@ constructor(processorManager: ProcessorManager, element: Element,
     var columnAccess: BaseColumnAccess
     var hasCustomConverter: Boolean = false
 
+    open val insertStatementColumnName: CodeBlock
+        get() = CodeBlock.builder().add("\$L", QueryBuilder.quote(columnName)).build()
+
+    open val insertStatementValuesString: CodeBlock? = CodeBlock.builder().add("?").build()
+
+    open val contentValuesStatement: CodeBlock
+        get() = DefinitionUtils.getContentValuesStatement(elementName, elementName, columnName, elementTypeName, columnAccess,
+                ModelUtils.variable, defaultValue).build()
+
     init {
         column?.let {
             this.columnName = if (it.name == "")
@@ -224,18 +233,6 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open fun addColumnName(codeBuilder: CodeBlock.Builder) {
         codeBuilder.add(columnName)
-    }
-
-    open val insertStatementColumnName: CodeBlock
-        get() = CodeBlock.builder().add("\$L", QueryBuilder.quote(columnName)).build()
-
-    open val insertStatementValuesString: CodeBlock
-        get() = CodeBlock.builder().add("?").build()
-
-    open fun getContentValuesStatement(isModelContainerAdapter: Boolean): CodeBlock {
-        return DefinitionUtils.getContentValuesStatement(elementName, elementName,
-                columnName, elementTypeName, columnAccess,
-                ModelUtils.variable, defaultValue).build()
     }
 
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {

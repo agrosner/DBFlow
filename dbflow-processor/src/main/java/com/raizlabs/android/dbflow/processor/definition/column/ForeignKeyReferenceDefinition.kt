@@ -27,6 +27,12 @@ class ForeignKeyReferenceDefinition {
     val foreignColumnName: String
     val columnClassName: TypeName?
 
+    internal val creationStatement: CodeBlock
+        get() = DefinitionUtils.getCreationStatement(columnClassName, null, columnName).build()
+
+    internal val primaryKeyName: String
+        get() = QueryBuilder.quote(columnName)
+
     private val foreignKeyColumnVariable: String
         get() = ModelUtils.variable
 
@@ -123,31 +129,25 @@ class ForeignKeyReferenceDefinition {
         simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess)
     }
 
-    internal val creationStatement: CodeBlock
-        get() = DefinitionUtils.getCreationStatement(columnClassName, null, columnName).build()
+    internal val contentValuesStatement: CodeBlock
+        get() {
+            var shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false)
+            shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess)
 
-    internal val primaryKeyName: String
-        get() = QueryBuilder.quote(columnName)
+            val columnShortAccess = getShortColumnAccess(false, shortAccess)
 
-    internal fun getContentValuesStatement(isModelContainerAdapter: Boolean): CodeBlock {
-        // fix its access here.
-        var shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false)
-        shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess)
-
-        val columnShortAccess = getShortColumnAccess(false, shortAccess)
-
-        val combined: CodeBlock
-        if (columnAccess !is PackagePrivateAccess) {
-            combined = CodeBlock.of("\$L\$L\$L", shortAccess, if (isModelContainerAdapter) "" else ".",
-                    columnShortAccess)
-        } else {
-            combined = columnShortAccess
+            val combined: CodeBlock
+            if (columnAccess !is PackagePrivateAccess) {
+                combined = CodeBlock.of("\$L\$L\$L", shortAccess, ".",
+                        columnShortAccess)
+            } else {
+                combined = columnShortAccess
+            }
+            return DefinitionUtils.getContentValuesStatement(columnShortAccess.toString(),
+                    combined.toString(),
+                    columnName, columnClassName, simpleColumnAccess,
+                    foreignKeyColumnVariable, null).build()
         }
-        return DefinitionUtils.getContentValuesStatement(columnShortAccess.toString(),
-                combined.toString(),
-                columnName, columnClassName, simpleColumnAccess,
-                foreignKeyColumnVariable, null).build()
-    }
 
     val primaryReferenceString: CodeBlock
         get() {
