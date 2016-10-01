@@ -173,7 +173,7 @@ public class ProcessorManager implements Handler {
     }
 
     public void addModelViewDefinition(ModelViewDefinition modelViewDefinition) {
-        getOrPutDatabase(modelViewDefinition.databaseName).modelViewDefinitionMap
+        getOrPutDatabase(modelViewDefinition.getDatabaseName()).modelViewDefinitionMap
                 .put(modelViewDefinition.elementClassName, modelViewDefinition);
     }
 
