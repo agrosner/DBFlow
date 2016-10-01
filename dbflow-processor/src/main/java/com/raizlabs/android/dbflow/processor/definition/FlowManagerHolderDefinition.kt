@@ -35,16 +35,13 @@ class FlowManagerHolderDefinition(private val processorManager: ProcessorManager
 
             val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 
-            for (typeConverterDefinition in processorManager.getTypeConverters()) {
-                constructor.addStatement("\$L.put(\$T.class, new \$T())", DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
-                        typeConverterDefinition.modelTypeName,
-                        typeConverterDefinition.className)
+            processorManager.getTypeConverters().forEach {
+                constructor.addStatement("\$L.put(\$T.class, new \$T())",
+                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, it.modelTypeName, it.className)
             }
 
-            for (databaseDefinition in processorManager.getDatabaseDefinitionMap()) {
-                if (databaseDefinition.databaseDefinition != null) {
-                    constructor.addStatement("new \$T(this)", databaseDefinition.databaseDefinition.outputClassName)
-                }
+            processorManager.getDatabaseHolderDefinitionMap().forEach { databaseDefinition ->
+                databaseDefinition.databaseDefinition?.let { constructor.addStatement("new \$T(this)", it.outputClassName) }
             }
 
             typeBuilder.addMethod(constructor.build())

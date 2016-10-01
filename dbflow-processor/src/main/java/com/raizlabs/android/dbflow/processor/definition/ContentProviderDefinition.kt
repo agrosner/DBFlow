@@ -69,7 +69,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
     fun prepareForWrite() {
         val databaseDefinition = manager.getDatabaseHolderDefinition(databaseName)!!.databaseDefinition
         databaseNameString = databaseDefinition?.databaseName ?: ""
-        setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME)
+        setOutputClassName(databaseDefinition?.classSeparator + DEFINITION_NAME)
     }
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {

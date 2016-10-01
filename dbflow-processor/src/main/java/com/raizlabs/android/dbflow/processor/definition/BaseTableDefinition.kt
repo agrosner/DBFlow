@@ -97,7 +97,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                         "." + ClassName.get(columnDefinition.element.enclosingElement as TypeElement).simpleName() +
                         databaseDefinition?.classSeparator + "Helper"
                 if (columnDefinition is ForeignKeyColumnDefinition) {
-                    val tableDefinition = databaseDefinition?.holderDefinition?.tableDefinitionMap?.get(columnDefinition.referencedTableClassName)
+                    val tableDefinition: TableDefinition? = databaseDefinition?.holderDefinition?.tableDefinitionMap?.get(columnDefinition.referencedTableClassName as TypeName)
                     if (tableDefinition != null) {
                         helperClassName = manager.elements.getPackageOf(tableDefinition.element).toString() +
                                 "." + ClassName.get(tableDefinition.element as TypeElement).simpleName() +
