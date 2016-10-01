@@ -244,7 +244,7 @@ object DefinitionUtils {
     }
 
     fun getCreationStatement(elementTypeName: TypeName,
-                             columnAccess: BaseColumnAccess,
+                             columnAccess: BaseColumnAccess?,
                              columnName: String): CodeBlock.Builder {
         var statement: String? = null
 
@@ -260,7 +260,7 @@ object DefinitionUtils {
     }
 
     fun getLoadFromCursorMethodString(elementTypeName: TypeName,
-                                      columnAccess: BaseColumnAccess): String {
+                                      columnAccess: BaseColumnAccess?): String {
         var method = ""
         if (SQLiteHelper.containsMethod(elementTypeName)) {
             method = SQLiteHelper.getMethod(elementTypeName)

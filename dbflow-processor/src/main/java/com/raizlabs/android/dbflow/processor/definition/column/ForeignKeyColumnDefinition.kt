@@ -378,7 +378,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
             val typeName: TypeName?
             if (columnAccess is TypeConverterAccess) {
-                typeName = (columnAccess as TypeConverterAccess).typeConverterDefinition.dbTypeName
+                typeName = (columnAccess as TypeConverterAccess).typeConverterDefinition?.dbTypeName
             } else {
                 typeName = referencedTableClassName
             }

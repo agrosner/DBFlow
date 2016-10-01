@@ -13,7 +13,7 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Wraps the get call in a package-private access class so it can reference the field properly.
  */
-class PackagePrivateAccess(elementPackageName: String, separator: String, className: String) : BaseColumnAccess() {
+class PackagePrivateAccess(elementPackageName: String, separator: String?, className: String) : BaseColumnAccess() {
 
     val helperClassName: ClassName
     private val internalHelperClassName: ClassName // used for safety
@@ -22,7 +22,7 @@ class PackagePrivateAccess(elementPackageName: String, separator: String, classN
         var separator = separator
         helperClassName = ClassName.get(elementPackageName, className + separator + classSuffix)
 
-        if (separator.matches("[$]+".toRegex())) {
+        if (separator != null && separator.matches("[$]+".toRegex())) {
             separator += separator // duplicate to be safe
         }
         internalHelperClassName = ClassName.get(elementPackageName, className + separator + classSuffix)
@@ -84,7 +84,7 @@ class PackagePrivateAccess(elementPackageName: String, separator: String, classN
             }
         }
 
-        fun from(processorManager: ProcessorManager, columnElement: Element, classSeparator: String): PackagePrivateAccess {
+        fun from(processorManager: ProcessorManager, columnElement: Element, classSeparator: String?): PackagePrivateAccess {
             return PackagePrivateAccess(processorManager.elements.getPackageOf(columnElement).toString(),
                     classSeparator, ClassName.get(columnElement.enclosingElement as TypeElement).simpleName())
         }

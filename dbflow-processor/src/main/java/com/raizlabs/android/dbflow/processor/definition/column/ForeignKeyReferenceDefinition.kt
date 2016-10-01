@@ -30,7 +30,7 @@ class ForeignKeyReferenceDefinition {
     private var isReferencedFieldPrivate: Boolean = false
     private var isReferencedFieldPackagePrivate: Boolean = false
 
-    var columnAccess: BaseColumnAccess
+    var columnAccess: BaseColumnAccess? = null
 
     private val tableColumnAccess: BaseColumnAccess
     private val foreignKeyColumnDefinition: ForeignKeyColumnDefinition
@@ -107,10 +107,12 @@ class ForeignKeyReferenceDefinition {
         if (isReferencedFieldPrivate) {
             columnAccess = PrivateColumnAccess(foreignKeyReference)
         } else if (isReferencedFieldPackagePrivate) {
-            columnAccess = PackagePrivateAccess(foreignKeyColumnDefinition.referencedTableClassName?.packageName(),
-                    foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
-                    foreignKeyColumnDefinition.referencedTableClassName?.simpleName())
-            PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, foreignColumnName)
+            foreignKeyColumnDefinition.referencedTableClassName?.let {
+                columnAccess = PackagePrivateAccess(it.packageName(),
+                        foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                        it.simpleName())
+                PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, foreignColumnName)
+            }
         } else {
             columnAccess = SimpleColumnAccess()
         }
@@ -174,7 +176,7 @@ class ForeignKeyReferenceDefinition {
 
     internal fun getForeignKeyContainerMethod(referenceFieldName: String, loadFromCursorBlock: CodeBlock): CodeBlock {
 
-        val codeBlock = columnAccess.setColumnAccessString(columnClassName, foreignColumnName, foreignColumnName,
+        val codeBlock = columnAccess?.setColumnAccessString(columnClassName, foreignColumnName, foreignColumnName,
                 referenceFieldName, loadFromCursorBlock)
         val codeBuilder = CodeBlock.builder()
         codeBuilder.addStatement("\$L", codeBlock)
@@ -185,10 +187,17 @@ class ForeignKeyReferenceDefinition {
         get() = ModelUtils.getVariable()
 
     private fun getShortColumnAccess(isSqliteMethod: Boolean, shortAccess: CodeBlock): CodeBlock {
-        if (columnAccess is PackagePrivateAccess) {
-            return columnAccess.getColumnAccessString(columnClassName, foreignColumnName, "", ModelUtils.getVariable() + "." + shortAccess, isSqliteMethod)
-        } else {
-            return columnAccess.getShortAccessString(columnClassName, foreignColumnName, isSqliteMethod)
+        columnAccess.let {
+            if (it != null) {
+                if (it is PackagePrivateAccess) {
+                    return it.getColumnAccessString(columnClassName, foreignColumnName, "",
+                            ModelUtils.getVariable() + "." + shortAccess, isSqliteMethod)
+                } else {
+                    return it.getShortAccessString(columnClassName, foreignColumnName, isSqliteMethod)
+                }
+            } else {
+                return CodeBlock.of("")
+            }
         }
     }
 

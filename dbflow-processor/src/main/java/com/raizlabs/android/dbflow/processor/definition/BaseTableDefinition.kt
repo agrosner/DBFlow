@@ -25,8 +25,9 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
     var columnDefinitions: MutableList<ColumnDefinition>
         protected set
 
-    protected var associatedTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
-    protected var globalTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
+    var associatedTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
+    var globalTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
+
     protected val packagePrivateList: MutableList<ColumnDefinition> =
             Lists.newArrayList<ColumnDefinition>()
 

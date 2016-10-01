@@ -274,9 +274,11 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (columnAccess is TypeConverterAccess) {
             val converterAccess = columnAccess as TypeConverterAccess
             val converterDefinition = converterAccess.typeConverterDefinition
-            codeBuilder.add(converterAccess.existingColumnAccess.getColumnAccessString(converterDefinition.dbTypeName,
-                    elementName, elementName,
-                    ModelUtils.getVariable(), false))
+            converterDefinition?.let {
+                codeBuilder.add(converterAccess.existingColumnAccess
+                        .getColumnAccessString(converterDefinition.dbTypeName,
+                                elementName, elementName, ModelUtils.getVariable(), false))
+            }
         } else {
             var columnAccessBlock = getColumnAccessString(false)
             val columnAccessString = columnAccessBlock.toString()
