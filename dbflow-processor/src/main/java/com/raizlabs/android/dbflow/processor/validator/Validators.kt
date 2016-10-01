@@ -4,15 +4,28 @@ import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.definition.column.*
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+
 
 /**
- * Description:
- *
- * @author Andrew Grosner (fuzz)
+ * Description: the base interface for validating annotations.
  */
+interface Validator<in ValidatorDefinition> {
+
+    /**
+     * @param processorManager    The manager
+     * *
+     * @param validatorDefinition The validator to use
+     * *
+     * @return true if validation passed, false if there was an error.
+     */
+    fun validate(processorManager: ProcessorManager, validatorDefinition: ValidatorDefinition): Boolean
+}
+
+
 /**
  * Description: Ensures the integrity of the annotation processor for columns.
+ * @author Andrew Grosner (fuzz)
  */
 class ColumnValidator : Validator<ColumnDefinition> {
 
@@ -45,7 +58,7 @@ class ColumnValidator : Validator<ColumnDefinition> {
             }
         }
 
-        if (!StringUtils.isNullOrEmpty(validatorDefinition.defaultValue)) {
+        if (!validatorDefinition.defaultValue.isNullOrEmpty()) {
             val typeName = validatorDefinition.elementTypeName
             if (validatorDefinition is ForeignKeyColumnDefinition && validatorDefinition.isModel) {
                 processorManager.logError(ColumnValidator::class, "Default values cannot be specified for model fields")
@@ -129,13 +142,7 @@ class ContentProviderValidator : Validator<ContentProviderDefinition> {
  */
 class DatabaseValidator : Validator<DatabaseDefinition> {
     override fun validate(processorManager: ProcessorManager,
-                          validatorDefinition: DatabaseDefinition): Boolean {
-        if (validatorDefinition.outputClassName == null) {
-            return false
-        }
-
-        return true
-    }
+                          validatorDefinition: DatabaseDefinition): Boolean = true
 }
 
 /**
@@ -143,23 +150,16 @@ class DatabaseValidator : Validator<DatabaseDefinition> {
  */
 class ModelViewValidator : Validator<ModelViewDefinition> {
 
-    override fun validate(processorManager: ProcessorManager, validatorDefinition: ModelViewDefinition): Boolean {
-        return true
-    }
+    override fun validate(processorManager: ProcessorManager, validatorDefinition: ModelViewDefinition): Boolean = true
 }
 
 /**
  * Description: Validates to ensure a [OneToManyDefinition] is correctly coded. Will throw failures on the [ProcessorManager]
  */
 class OneToManyValidator : Validator<OneToManyDefinition> {
-    override fun validate(processorManager: ProcessorManager, validatorDefinition: OneToManyDefinition): Boolean {
-        return true
-    }
+    override fun validate(processorManager: ProcessorManager, validatorDefinition: OneToManyDefinition): Boolean = true
 }
 
-/**
- * Description:
- */
 class TableEndpointValidator : Validator<TableEndpointDefinition> {
 
     override fun validate(processorManager: ProcessorManager, validatorDefinition: TableEndpointDefinition): Boolean {
@@ -208,9 +208,6 @@ class TableValidator : Validator<TableDefinition> {
     }
 }
 
-/**
- * Description:
- */
 class TypeConverterValidator : Validator<TypeConverterDefinition> {
     override fun validate(processorManager: ProcessorManager,
                           validatorDefinition: TypeConverterDefinition): Boolean {
@@ -230,19 +227,4 @@ class TypeConverterValidator : Validator<TypeConverterDefinition> {
 
         return success
     }
-}
-
-/**
- * Description: the base interface for validating annotations.
- */
-interface Validator<in ValidatorDefinition> {
-
-    /**
-     * @param processorManager    The manager
-     * *
-     * @param validatorDefinition The validator to use
-     * *
-     * @return true if validation passed, false if there was an error.
-     */
-    fun validate(processorManager: ProcessorManager, validatorDefinition: ValidatorDefinition): Boolean
 }

@@ -33,18 +33,18 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
                 }
 
                 if (!isModelContainerAdapter && tableDefinition.cachingEnabled) {
-                    builder.addStatement("getModelCache().removeModel(getCachingId(\$L))", ModelUtils.getVariable())
+                    builder.addStatement("getModelCache().removeModel(getCachingId(\$L))", ModelUtils.variable)
                 }
 
-                builder.addStatement("super.delete(\$L\$L)", ModelUtils.getVariable(),
-                        if (useWrapper) ", " + ModelUtils.getWrapper() else "")
+                builder.addStatement("super.delete(\$L\$L)", ModelUtils.variable,
+                        if (useWrapper) ", " + ModelUtils.wrapper else "")
 
                 val delete = MethodSpec.methodBuilder("delete").addAnnotation(Override::class.java)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                        .addParameter(tableDefinition.elementClassName, ModelUtils.getVariable())
+                        .addParameter(tableDefinition.elementClassName, ModelUtils.variable)
                         .addCode(builder.build()).returns(TypeName.VOID)
                 if (useWrapper) {
-                    delete.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.getWrapper())
+                    delete.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                 }
                 return delete.build()
             }

@@ -7,7 +7,9 @@ import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.lower
 import com.squareup.javapoet.*
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -48,7 +50,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
         thisColumnName = manyToMany.thisTableColumnName
         referencedColumnName = manyToMany.referencedTableColumnName
 
-        if (!StringUtils.isNullOrEmpty(thisColumnName) && !StringUtils.isNullOrEmpty(referencedColumnName)
+        if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
                 && thisColumnName == referencedColumnName) {
             manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName" + "cannot be the same")
         }
@@ -59,7 +61,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
         if (databaseDefinition == null) {
             manager.logError("DatabaseDefinition was null for : " + elementName)
         } else {
-            if (StringUtils.isNullOrEmpty(generatedTableClassName)) {
+            if (generatedTableClassName.isNullOrEmpty()) {
                 val referencedOutput = getElementClassName(manager.elements.getTypeElement(referencedTable.toString()))
                 setOutputClassName(databaseDefinition.classSeparator + referencedOutput?.simpleName())
             } else {
@@ -94,12 +96,12 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
 
     private fun appendColumnDefinitions(typeBuilder: TypeSpec.Builder,
                                         referencedDefinition: TableDefinition, index: Int, optionalName: String) {
-        var fieldName = StringUtils.lower(referencedDefinition.elementName)
+        var fieldName = referencedDefinition.elementName.lower()
         if (sameTableReferenced) {
-            fieldName += index
+            fieldName += index.toString()
         }
         // override with the name (if specified)
-        if (!StringUtils.isNullOrEmpty(optionalName)) {
+        if (!optionalName.isNullOrEmpty()) {
             fieldName = optionalName
         }
 
@@ -110,10 +112,10 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
             fieldBuilder.addAnnotation(AnnotationSpec.builder(PrimaryKey::class.java).build())
         }
         typeBuilder.addField(fieldBuilder.build()).build()
-        typeBuilder.addMethod(MethodSpec.methodBuilder("get" + StringUtils.capitalize(fieldName))
+        typeBuilder.addMethod(MethodSpec.methodBuilder("get" + fieldName.capitalizeFirstLetter())
                 .returns(referencedDefinition.elementClassName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL).addStatement("return \$L", fieldName).build())
-        typeBuilder.addMethod(MethodSpec.methodBuilder("set" + StringUtils.capitalize(fieldName))
+        typeBuilder.addMethod(MethodSpec.methodBuilder("set" + fieldName.capitalizeFirstLetter())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(referencedDefinition.elementClassName, "param")
                 .addStatement("\$L = param", fieldName).build())

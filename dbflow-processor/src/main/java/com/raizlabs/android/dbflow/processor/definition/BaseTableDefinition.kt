@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinitio
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.squareup.javapoet.*
 import java.io.IOException
 import java.util.*
@@ -108,35 +108,35 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
                 if (PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
 
-                    var method: MethodSpec.Builder = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
+                    var method: MethodSpec.Builder = MethodSpec.methodBuilder("get" + columnDefinition.columnName.capitalizeFirstLetter())
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.getVariable())
+                            .addParameter(elementTypeName, ModelUtils.variable)
                             .returns(columnDefinition.elementTypeName)
                     val samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element)
 
                     if (samePackage) {
-                        method.addStatement("return \$L.\$L", ModelUtils.getVariable(), columnDefinition.elementName)
+                        method.addStatement("return \$L.\$L", ModelUtils.variable, columnDefinition.elementName)
                     } else {
                         method.addStatement("return \$T.get\$L(\$L)", className,
-                                StringUtils.capitalize(columnDefinition.columnName),
-                                ModelUtils.getVariable())
+                                columnDefinition.columnName.capitalizeFirstLetter(),
+                                ModelUtils.variable)
                     }
 
                     typeBuilder.addMethod(method.build())
 
-                    method = MethodSpec.methodBuilder("set" + StringUtils.capitalize(columnDefinition.columnName))
+                    method = MethodSpec.methodBuilder("set" + columnDefinition.columnName.capitalizeFirstLetter())
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.getVariable())
+                            .addParameter(elementTypeName, ModelUtils.variable)
                             .addParameter(columnDefinition.elementTypeName, "var")
 
                     if (samePackage) {
-                        method.addStatement("\$L.\$L = \$L", ModelUtils.getVariable(),
+                        method.addStatement("\$L.\$L = \$L", ModelUtils.variable,
                                 columnDefinition.elementName, "var")
                     } else {
 
                         method.addStatement("\$T.set\$L(\$L, \$L)", className,
-                                StringUtils.capitalize(columnDefinition.columnName),
-                                ModelUtils.getVariable(), "var")
+                                columnDefinition.columnName.capitalizeFirstLetter(),
+                                ModelUtils.variable, "var")
                     }
                     typeBuilder.addMethod(method.build())
                     count++

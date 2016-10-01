@@ -19,7 +19,7 @@ class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) :
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(tableDefinition.parameterClassName,
-                            ModelUtils.getVariable()).returns(ClassNames.CONDITION_GROUP)
+                            ModelUtils.variable).returns(ClassNames.CONDITION_GROUP)
             val code = CodeBlock.builder()
             code.add("\$T clause = \$T.clause();", ClassNames.CONDITION_GROUP, ClassNames.CONDITION_GROUP)
             tableDefinition.primaryColumnDefinitions.forEach {

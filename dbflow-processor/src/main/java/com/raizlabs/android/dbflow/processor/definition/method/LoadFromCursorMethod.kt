@@ -21,7 +21,7 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ClassNames.CURSOR, PARAM_CURSOR)
                     .addParameter(baseTableDefinition.parameterClassName,
-                            ModelUtils.getVariable()).returns(TypeName.VOID)
+                            ModelUtils.variable).returns(TypeName.VOID)
 
             val index = AtomicInteger(0)
             baseTableDefinition.columnDefinitions.forEach {
@@ -39,7 +39,7 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
             }
 
             if (baseTableDefinition is TableDefinition && baseTableDefinition.implementsLoadFromCursorListener) {
-                methodBuilder.addStatement("\$L.onLoadFromCursor(\$L)", ModelUtils.getVariable(), LoadFromCursorMethod.PARAM_CURSOR)
+                methodBuilder.addStatement("\$L.onLoadFromCursor(\$L)", ModelUtils.variable, LoadFromCursorMethod.PARAM_CURSOR)
             }
 
             return methodBuilder.build()

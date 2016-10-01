@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.provider.InsertMe
 import com.raizlabs.android.dbflow.processor.definition.method.provider.QueryMethod
 import com.raizlabs.android.dbflow.processor.definition.method.provider.UpdateMethod
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator
 import com.squareup.javapoet.*
 import javax.lang.model.element.Element
@@ -92,7 +93,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
         for (endpointDefinition in endpointDefinitions) {
             for (contentUriDefinition in endpointDefinition.contentUriDefinitions) {
                 val path: String
-                if (contentUriDefinition.path != null) {
+                if (!contentUriDefinition.path.isNullOrEmpty()) {
                     path = "\"" + contentUriDefinition.path + "\""
                 } else {
                     path = CodeBlock.builder().add("\$L.\$L.getPath()", contentUriDefinition.elementClassName, contentUriDefinition.name).build().toString()

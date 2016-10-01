@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.*
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator
 import com.squareup.javapoet.*
 import javax.lang.model.element.Element
@@ -134,7 +134,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                     manager.logError("ModelViews cannot have primary or foreign keys")
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery::class.java) != null) {
-                if (!StringUtils.isNullOrEmpty(queryFieldName)) {
+                if (!queryFieldName.isNullOrEmpty()) {
                     manager.logError("Found duplicate ")
                 }
                 if (!variableElement.modifiers.contains(Modifier.PUBLIC)) {
@@ -157,7 +157,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
             }
         }
 
-        if (StringUtils.isNullOrEmpty(queryFieldName)) {
+        if (queryFieldName.isNullOrEmpty()) {
             manager.logError("%1s is missing the @ModelViewQuery field.", elementClassName)
         }
     }

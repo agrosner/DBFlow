@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeDefinition
 import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.validator.ModelViewValidator
 import com.raizlabs.android.dbflow.processor.validator.TableValidator
 import com.squareup.javapoet.*
@@ -64,7 +64,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
             classSeparator = database.generatedClassSeparator
 
-            if (!StringUtils.isNullOrEmpty(classSeparator)) {
+            if (!classSeparator.isNullOrEmpty()) {
                 // all are $
                 fieldRefSeparator = classSeparator
             } else {
@@ -201,7 +201,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         typeBuilder.addMethod(MethodSpec.methodBuilder("getAssociatedDatabaseClassFile")
                 .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
                 .addStatement("return \$T.class", elementTypeName)
-                .returns(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Object::class.java))).build())
+                .returns(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java))).build())
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("isForeignKeysSupported")
                 .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)

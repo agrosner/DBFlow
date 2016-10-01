@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.method
 
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -52,7 +52,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 
                     if (i == primarySize - 1) {
                         creationBuilder.add(")")
-                        if (!StringUtils.isNullOrEmpty(tableDefinition.primaryKeyConflictActionName)) {
+                        if (!tableDefinition.primaryKeyConflictActionName.isNullOrEmpty()) {
                             creationBuilder.add(" ON CONFLICT " + tableDefinition.primaryKeyConflictActionName)
                         }
                     }

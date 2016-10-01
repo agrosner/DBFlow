@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.annotation.Migration
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
@@ -45,7 +45,7 @@ class MigrationDefinition(processorManager: ProcessorManager, typeElement: TypeE
             val elements = typeElement.enclosedElements
             for (element in elements) {
                 if (element is ExecutableElement && element.getSimpleName().toString() == "<init>") {
-                    if (!StringUtils.isNullOrEmpty(constructorName)) {
+                    if (!constructorName.isNullOrEmpty()) {
                         manager.logError(MigrationDefinition::class, "Migrations cannot have more than one constructor. " +
                                 "They can only have an Empty() or single-parameter constructor Empty(Empty.class) that specifies " +
                                 "the .class of this migration class.")

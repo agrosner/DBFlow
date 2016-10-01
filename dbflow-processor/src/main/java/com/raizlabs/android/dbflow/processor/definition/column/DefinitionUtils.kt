@@ -199,7 +199,7 @@ object DefinitionUtils {
         }
 
         codeBuilder.add(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                ModelUtils.getVariable(), cursorAssignment.build()).toBuilder().add(";\n").build())
+                ModelUtils.variable, cursorAssignment.build()).toBuilder().add(";\n").build())
 
         if (putDefaultValue && assignDefaultValuesFromCursor) {
             codeBuilder.nextControlFlow("else")
@@ -208,7 +208,7 @@ object DefinitionUtils {
                 baseColumnAccess = columnAccess.existingColumnAccess
             }
             codeBuilder.add(baseColumnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                    ModelUtils.getVariable(),
+                    ModelUtils.variable,
                     CodeBlock.builder().add(getDefaultValueString(elementTypeName)).build()).toBuilder().add(";\n").build())
         }
 
@@ -237,7 +237,7 @@ object DefinitionUtils {
         accessBuilder.add("id.\$LValue()", method)
 
         codeBuilder.add(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                ModelUtils.getVariable(), accessBuilder.build()).toBuilder().add(";\n").build())
+                ModelUtils.variable, accessBuilder.build()).toBuilder().add(";\n").build())
 
         return codeBuilder
     }

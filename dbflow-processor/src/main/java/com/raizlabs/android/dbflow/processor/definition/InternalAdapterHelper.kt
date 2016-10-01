@@ -35,7 +35,7 @@ object InternalAdapterHelper {
                                  autoIncrementDefinition: ColumnDefinition) {
         typeBuilder.addMethod(MethodSpec.methodBuilder("updateAutoIncrement")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(modelClassName, ModelUtils.getVariable())
+                .addParameter(modelClassName, ModelUtils.variable)
                 .addParameter(ClassName.get(Number::class.java), "id")
                 .addCode(autoIncrementDefinition.updateAutoIncrementMethod)
                 .build())
@@ -47,7 +47,7 @@ object InternalAdapterHelper {
             var methodBuilder: MethodSpec.Builder = MethodSpec.methodBuilder("getCachingColumnValuesFromModel")
                     .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ArrayTypeName.of(Any::class.java), "inValues")
-                    .addParameter(modelClassName, ModelUtils.getVariable())
+                    .addParameter(modelClassName, ModelUtils.variable)
             for (i in primaryColumns.indices) {
                 val column = primaryColumns[i]
                 methodBuilder.addStatement("inValues[\$L] = \$L", i, column.getColumnAccessString(false))
@@ -71,7 +71,7 @@ object InternalAdapterHelper {
             // single primary key
             var methodBuilder: MethodSpec.Builder = MethodSpec.methodBuilder("getCachingColumnValueFromModel")
                     .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(modelClassName, ModelUtils.getVariable())
+                    .addParameter(modelClassName, ModelUtils.variable)
             methodBuilder.addStatement("return \$L",
                     primaryColumns[0].getColumnAccessString(false)).returns(Any::class.java)
             typeBuilder.addMethod(methodBuilder.build())
@@ -87,9 +87,9 @@ object InternalAdapterHelper {
 
             methodBuilder = MethodSpec.methodBuilder("getCachingId")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(modelClassName, ModelUtils.getVariable())
+                    .addParameter(modelClassName, ModelUtils.variable)
                     .addStatement("return getCachingColumnValueFromModel(\$L)",
-                            ModelUtils.getVariable()).returns(TypeName.OBJECT)
+                            ModelUtils.variable).returns(TypeName.OBJECT)
             typeBuilder.addMethod(methodBuilder.build())
         }
     }

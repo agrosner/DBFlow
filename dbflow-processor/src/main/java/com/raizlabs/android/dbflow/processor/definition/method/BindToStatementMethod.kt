@@ -20,7 +20,7 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
                     .addParameter(tableDefinition.parameterClassName,
-                            ModelUtils.getVariable()).returns(TypeName.VOID)
+                            ModelUtils.variable).returns(TypeName.VOID)
 
             // write the reference method
             if (isInsert) {
@@ -35,7 +35,7 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
 
                 if (tableDefinition.implementsSqlStatementListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LStatement(\$L)",
-                            ModelUtils.getVariable(), if (isInsert) "Insert" else "", PARAM_STATEMENT)
+                            ModelUtils.variable, if (isInsert) "Insert" else "", PARAM_STATEMENT)
                 }
             } else {
                 var start = 0
@@ -46,10 +46,10 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                     }
                 }
 
-                methodBuilder.addStatement("bindToInsertStatement(\$L, \$L, \$L)", PARAM_STATEMENT, ModelUtils.getVariable(), start)
+                methodBuilder.addStatement("bindToInsertStatement(\$L, \$L, \$L)", PARAM_STATEMENT, ModelUtils.variable, start)
                 if (tableDefinition.implementsSqlStatementListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LStatement(\$L)",
-                            ModelUtils.getVariable(), if (isInsert) "Insert" else "", PARAM_STATEMENT)
+                            ModelUtils.variable, if (isInsert) "Insert" else "", PARAM_STATEMENT)
                 }
             }
 

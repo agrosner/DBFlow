@@ -11,7 +11,8 @@ import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*
@@ -198,7 +199,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         elementTypeName?.let { elementTypeName ->
             val propParam: TypeName
             if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
-                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, StringUtils.capitalize(elementTypeName.toString()) + "Property")
+                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, elementTypeName.toString().capitalizeFirstLetter() + "Property")
             } else {
                 propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
             }
@@ -236,13 +237,13 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun getContentValuesStatement(isModelContainerAdapter: Boolean): CodeBlock {
         return DefinitionUtils.getContentValuesStatement(elementName, elementName,
                 columnName, elementTypeName, columnAccess,
-                ModelUtils.getVariable(), defaultValue).build()
+                ModelUtils.variable, defaultValue).build()
     }
 
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
         return DefinitionUtils.getSQLiteStatementMethod(index, elementName, elementName,
                 elementTypeName, columnAccess,
-                ModelUtils.getVariable(), isPrimaryKeyAutoIncrement || isRowId, defaultValue).build()
+                ModelUtils.variable, isPrimaryKeyAutoIncrement || isRowId, defaultValue).build()
     }
 
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger): CodeBlock {
@@ -263,12 +264,12 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     fun setColumnAccessString(formattedAccess: CodeBlock): CodeBlock {
         return columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                ModelUtils.getVariable(), formattedAccess)
+                ModelUtils.variable, formattedAccess)
     }
 
     fun getColumnAccessString(isSqliteStatment: Boolean): CodeBlock {
         return columnAccess.getColumnAccessString(elementTypeName, elementName,
-                elementName, ModelUtils.getVariable(), isSqliteStatment)
+                elementName, ModelUtils.variable, isSqliteStatment)
     }
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
@@ -279,7 +280,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             converterDefinition?.let {
                 codeBuilder.add(converterAccess.existingColumnAccess
                         .getColumnAccessString(converterDefinition.dbTypeName,
-                                elementName, elementName, ModelUtils.getVariable(), false))
+                                elementName, elementName, ModelUtils.variable, false))
             }
         } else {
             var columnAccessBlock = getColumnAccessString(false)
@@ -311,8 +312,10 @@ constructor(processorManager: ProcessorManager, element: Element,
             if (isPrimaryKeyAutoIncrement && !isRowId) {
                 codeBlockBuilder.add(" PRIMARY KEY ")
 
-                if (baseTableDefinition is TableDefinition && !StringUtils.isNullOrEmpty((baseTableDefinition as TableDefinition).primaryKeyConflictActionName)) {
-                    codeBlockBuilder.add("ON CONFLICT \$L ", (baseTableDefinition as TableDefinition).primaryKeyConflictActionName)
+                if (baseTableDefinition is TableDefinition &&
+                        !(baseTableDefinition as TableDefinition).primaryKeyConflictActionName.isNullOrEmpty()) {
+                    codeBlockBuilder.add("ON CONFLICT \$L ",
+                            (baseTableDefinition as TableDefinition).primaryKeyConflictActionName)
                 }
 
                 codeBlockBuilder.add("AUTOINCREMENT")

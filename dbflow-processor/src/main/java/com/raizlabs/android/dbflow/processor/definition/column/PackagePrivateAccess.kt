@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.google.common.collect.Maps
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
@@ -32,14 +32,14 @@ class PackagePrivateAccess(elementPackageName: String, separator: String?, class
                                        fullElementName: String, variableNameString: String,
                                        isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.builder().add("\$T.get\$L(\$L)", internalHelperClassName,
-                StringUtils.capitalize(elementName),
+                elementName.capitalizeFirstLetter(),
                 variableNameString).build()
     }
 
     override fun getShortAccessString(fieldType: TypeName?, elementName: String,
                                       isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.builder().add("\$T.get\$L(\$L)", internalHelperClassName,
-                StringUtils.capitalize(elementName),
+                elementName.capitalizeFirstLetter(),
                 elementName).build()
     }
 
@@ -47,7 +47,7 @@ class PackagePrivateAccess(elementPackageName: String, separator: String?, class
                                        fullElementName: String,
                                        variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
         return CodeBlock.builder().add("\$T.set\$L(\$L, \$L)", helperClassName,
-                StringUtils.capitalize(elementName), variableNameString,
+                elementName.capitalizeFirstLetter(), variableNameString,
                 formattedAccess).build()
     }
 

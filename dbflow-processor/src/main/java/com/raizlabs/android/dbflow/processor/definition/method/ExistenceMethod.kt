@@ -17,7 +17,7 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
         get() {
             val methodBuilder = MethodSpec.methodBuilder("exists")
                     .addAnnotation(Override::class.java)
-                    .addParameter(tableDefinition.parameterClassName, ModelUtils.getVariable())
+                    .addParameter(tableDefinition.parameterClassName, ModelUtils.variable)
                     .addParameter(ClassNames.DATABASE_WRAPPER, "wrapper")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL).returns(TypeName.BOOLEAN)
             // only quick check if enabled.
@@ -48,7 +48,7 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
                     methodBuilder.addCode("return ")
                 }
                 methodBuilder.addCode("\$T.selectCountOf()\n.from(\$T.class)\n.where(getPrimaryConditionClause(\$L))\n.hasData(wrapper)",
-                        ClassNames.SQLITE, tableDefinition.elementClassName, ModelUtils.getVariable())
+                        ClassNames.SQLITE, tableDefinition.elementClassName, ModelUtils.variable)
             }
             methodBuilder.addCode(";\n")
 

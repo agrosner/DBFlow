@@ -21,7 +21,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
-                    .addParameter(baseTableDefinition.parameterClassName, ModelUtils.getVariable())
+                    .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
                     .returns(TypeName.VOID)
 
             if (isInsert) {
@@ -33,7 +33,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 
                 if (implementsContentValuesListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
-                            ModelUtils.getVariable(), if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
+                            ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             } else {
                 if (baseTableDefinition.hasAutoIncrement || baseTableDefinition.hasRowID) {
@@ -43,10 +43,10 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     }
                 }
 
-                methodBuilder.addStatement("bindToInsertValues(\$L, \$L)", PARAM_CONTENT_VALUES, ModelUtils.getVariable())
+                methodBuilder.addStatement("bindToInsertValues(\$L, \$L)", PARAM_CONTENT_VALUES, ModelUtils.variable)
                 if (implementsContentValuesListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
-                            ModelUtils.getVariable(), if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
+                            ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             }
 

@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.*
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator
 import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator
 import com.raizlabs.android.dbflow.sql.QueryBuilder
@@ -303,7 +303,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 if (!element.modifiers.contains(Modifier.STATIC)) {
                     manager.logError("ModelCacheField must be static from: " + typeElement)
                 }
-                if (!StringUtils.isNullOrEmpty(customCacheFieldName)) {
+                if (!customCacheFieldName.isNullOrEmpty()) {
                     manager.logError("ModelCacheField can only be declared once from: " + typeElement)
                 } else {
                     customCacheFieldName = element.simpleName.toString()
@@ -315,7 +315,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 if (!element.modifiers.contains(Modifier.STATIC)) {
                     manager.logError("MultiCacheField must be static from: " + typeElement)
                 }
-                if (!StringUtils.isNullOrEmpty(customMultiCacheFieldName)) {
+                if (!customMultiCacheFieldName.isNullOrEmpty()) {
                     manager.logError("MultiCacheField can only be declared once from: " + typeElement)
                 } else {
                     customMultiCacheFieldName = element.simpleName.toString()
@@ -391,7 +391,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingId")
                         .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                        .addParameter(elementClassName, ModelUtils.getVariable())
+                        .addParameter(elementClassName, ModelUtils.variable)
                         .addStatement("return \$L", autoIncrement.getColumnAccessString(false))
                         .returns(ClassName.get(Number::class.java)).build())
 
@@ -467,7 +467,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                         .returns(TypeName.INT).build())
             }
 
-            if (!StringUtils.isNullOrEmpty(customCacheFieldName)) {
+            if (!customCacheFieldName.isNullOrEmpty()) {
                 typeBuilder.addMethod(MethodSpec.methodBuilder("createModelCache")
                         .addAnnotation(Override::class.java)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -476,7 +476,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                                 WildcardTypeName.subtypeOf(Any::class.java))).build())
             }
 
-            if (!StringUtils.isNullOrEmpty(customMultiCacheFieldName)) {
+            if (!customMultiCacheFieldName.isNullOrEmpty()) {
                 typeBuilder.addMethod(MethodSpec.methodBuilder("getCacheConverter")
                         .addAnnotation(Override::class.java)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -487,7 +487,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
             val reloadMethod = MethodSpec.methodBuilder("reloadRelationships")
                     .addAnnotation(Override::class.java)
-                    .addParameter(elementClassName, ModelUtils.getVariable())
+                    .addParameter(elementClassName, ModelUtils.variable)
                     .addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             val loadStatements = CodeBlock.builder()

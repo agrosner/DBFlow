@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMe
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod
 import com.raizlabs.android.dbflow.processor.model.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*
@@ -121,7 +121,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             colClassName?.let {
                 if (it.isPrimitive && it != TypeName.BOOLEAN) {
                     propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE,
-                            StringUtils.capitalize(it.toString()) + "Property")
+                            it.toString().capitalizeFirstLetter() + "Property")
                 } else {
                     propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, it.box())
                 }
@@ -216,7 +216,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             checkNeedsReferences()
             val builder = CodeBlock.builder()
             val statement = columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.getVariable(), false)
+                    ModelUtils.variable, false)
             val finalAccessStatement = getFinalAccessStatement(builder, statement)
             builder.beginControlFlow("if (\$L != null)", finalAccessStatement)
 
@@ -242,7 +242,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             checkNeedsReferences()
             val builder = CodeBlock.builder()
             val statement = columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.getVariable(), true)
+                    ModelUtils.variable, true)
             val finalAccessStatement = getFinalAccessStatement(builder, statement)
             builder.beginControlFlow("if (\$L != null)", finalAccessStatement)
 
@@ -340,7 +340,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             }
 
             builder.add(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.getVariable(), initializer.build()).toBuilder().add(";\n").build())
+                    ModelUtils.variable, initializer.build()).toBuilder().add(";\n").build())
 
             if (endNonPrimitiveIf || !baseTableDefinition.assignDefaultValuesFromCursor) {
                 builder.endControlFlow()

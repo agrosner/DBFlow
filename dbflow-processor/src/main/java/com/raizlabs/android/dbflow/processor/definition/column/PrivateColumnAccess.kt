@@ -2,7 +2,9 @@ package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
-import com.raizlabs.android.dbflow.processor.utils.StringUtils
+import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.lower
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 
@@ -50,7 +52,7 @@ class PrivateColumnAccess : BaseColumnAccess {
                                        variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
         // append . when specify something, if not then we leave blank.
         var varNameFull = variableNameString
-        if (!StringUtils.isNullOrEmpty(varNameFull)) {
+        if (!varNameFull.isNullOrEmpty()) {
             varNameFull += "."
         }
         return CodeBlock.of("\$L\$L(\$L)", varNameFull, getSetterNameElement(elementName),
@@ -58,13 +60,13 @@ class PrivateColumnAccess : BaseColumnAccess {
     }
 
     fun getGetterNameElement(elementName: String): String {
-        if (StringUtils.isNullOrEmpty(getterName)) {
+        if (getterName.isNullOrEmpty()) {
             if (useBooleanSetters && !elementName.startsWith("is")) {
-                return "is" + StringUtils.capitalize(elementName)
+                return "is" + elementName.capitalizeFirstLetter()
             } else if (!useBooleanSetters && !elementName.startsWith("get")) {
-                return "get" + StringUtils.capitalize(elementName)
+                return "get" + elementName.capitalizeFirstLetter()
             } else {
-                return StringUtils.lower(elementName)
+                return elementName.lower()
             }
         } else {
             return getterName
@@ -73,14 +75,14 @@ class PrivateColumnAccess : BaseColumnAccess {
 
     fun getSetterNameElement(elementName: String): String {
         var setElementName = elementName
-        if (StringUtils.isNullOrEmpty(setterName)) {
+        if (setterName.isNullOrEmpty()) {
             if (!setElementName.startsWith("set")) {
                 if (useBooleanSetters && setElementName.startsWith("is")) {
                     setElementName = setElementName.replaceFirst("is".toRegex(), "")
                 }
-                return "set" + StringUtils.capitalize(setElementName)
+                return "set" + setElementName.capitalizeFirstLetter()
             } else {
-                return StringUtils.lower(setElementName)
+                return setElementName.lower()
             }
         } else {
             return setterName

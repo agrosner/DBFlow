@@ -101,7 +101,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
             columnAccess?.let {
                 codeBuilder.add(it.setColumnAccessString(null, getVariableName(), getVariableName(),
-                        ModelUtils.getVariable(), CodeBlock.builder().add("null").build()).toBuilder().add(";\n").build())
+                        ModelUtils.variable, CodeBlock.builder().add("null").build()).toBuilder().add(";\n").build())
             }
         }
     }
@@ -140,10 +140,10 @@ class OneToManyDefinition(typeElement: ExecutableElement,
                     ClassNames.FLOW_MANAGER, referencedTableType)
 
             codeBuilder.addStatement("adapter.\$LAll(\$L\$L)", methodName, getMethodName(),
-                    if (useWrapper) ", " + ModelUtils.getWrapper() else "")
+                    if (useWrapper) ", " + ModelUtils.wrapper else "")
         } else {
             codeBuilder.beginControlFlow("for (\$T value: \$L) ", loopClass, getMethodName())
-            codeBuilder.addStatement("value.\$L(\$L)", methodName, if (useWrapper) ModelUtils.getWrapper() else "")
+            codeBuilder.addStatement("value.\$L(\$L)", methodName, if (useWrapper) ModelUtils.wrapper else "")
             codeBuilder.endControlFlow()
         }
 
@@ -151,11 +151,11 @@ class OneToManyDefinition(typeElement: ExecutableElement,
     }
 
     private fun getMethodName(): String {
-        return String.format("%1s.%1s()", ModelUtils.getVariable(), methodName)
+        return String.format("%1s.%1s()", ModelUtils.variable, methodName)
     }
 
     private fun getVariableName(): String {
-        return String.format("%1s.%1s", ModelUtils.getVariable(), _variableName)
+        return String.format("%1s.%1s", ModelUtils.variable, _variableName)
     }
 
 }
