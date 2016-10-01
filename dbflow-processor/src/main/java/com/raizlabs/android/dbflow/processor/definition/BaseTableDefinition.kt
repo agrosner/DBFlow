@@ -27,8 +27,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
     var associatedTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
     var globalTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
-
-    protected val packagePrivateList: MutableList<ColumnDefinition> =
+    val packagePrivateList: MutableList<ColumnDefinition> =
             Lists.newArrayList<ColumnDefinition>()
 
     var orderedCursorLookUp: Boolean = false
@@ -83,23 +82,30 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         var count = 0
 
         if (!packagePrivateList.isEmpty()) {
-            val typeBuilder = TypeSpec.classBuilder(elementClassName?.simpleName() + databaseDefinition!!.classSeparator + "Helper").addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            val typeBuilder = TypeSpec.classBuilder(elementClassName?.simpleName() +
+                    databaseDefinition?.classSeparator + "Helper")
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 
             for (columnDefinition in packagePrivateList) {
-                var helperClassName = manager.elements.getPackageOf(columnDefinition.element).toString() + "." + ClassName.get(columnDefinition.element.enclosingElement as TypeElement).simpleName()
-                databaseDefinition!!.classSeparator + "Helper"
+                var helperClassName = manager.elements.getPackageOf(columnDefinition.element).toString() +
+                        "." + ClassName.get(columnDefinition.element.enclosingElement as TypeElement).simpleName() +
+                        databaseDefinition?.classSeparator + "Helper"
                 if (columnDefinition is ForeignKeyColumnDefinition) {
-                    val tableDefinition = databaseDefinition!!.holderDefinition.tableDefinitionMap[columnDefinition.referencedTableClassName]
+                    val tableDefinition = databaseDefinition?.holderDefinition?.tableDefinitionMap?.get(columnDefinition.referencedTableClassName)
                     if (tableDefinition != null) {
-                        helperClassName = manager.elements.getPackageOf(tableDefinition.element).toString() + "." + ClassName.get(tableDefinition.element as TypeElement).simpleName()
-                        databaseDefinition!!.classSeparator + "Helper"
+                        helperClassName = manager.elements.getPackageOf(tableDefinition.element).toString() +
+                                "." + ClassName.get(tableDefinition.element as TypeElement).simpleName() +
+                                databaseDefinition?.classSeparator + "Helper"
                     }
                 }
                 val className = ClassName.bestGuess(helperClassName)
 
                 if (PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
 
-                    var method: MethodSpec.Builder = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName)).addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).addParameter(elementTypeName, ModelUtils.getVariable()).returns(columnDefinition.elementTypeName)
+                    var method: MethodSpec.Builder = MethodSpec.methodBuilder("get" + StringUtils.capitalize(columnDefinition.columnName))
+                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                            .addParameter(elementTypeName, ModelUtils.getVariable())
+                            .returns(columnDefinition.elementTypeName)
                     val samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element)
 
                     if (samePackage) {

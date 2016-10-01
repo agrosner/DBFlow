@@ -20,7 +20,7 @@ open class TypeConverterAccess : WrapperColumnAccess {
     private val typeConverterFieldName: String?
 
     constructor(manager: ProcessorManager, columnDefinition: ColumnDefinition) : super(columnDefinition) {
-        typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.elementTypeName.box())
+        typeConverterDefinition = manager.getTypeConverterDefinition(columnDefinition.elementTypeName?.box())
         this.manager = manager
         this.typeConverterFieldName = null
     }
@@ -33,7 +33,7 @@ open class TypeConverterAccess : WrapperColumnAccess {
         this.typeConverterDefinition = typeConverterDefinition
     }
 
-    override fun getColumnAccessString(fieldType: TypeName, elementName: String,
+    override fun getColumnAccessString(fieldType: TypeName?, elementName: String,
                                        fullElementName: String, variableNameString: String,
                                        isSqliteStatement: Boolean): CodeBlock {
         checkConverter()
@@ -43,7 +43,7 @@ open class TypeConverterAccess : WrapperColumnAccess {
                 codeBuilder.add("(\$T) \$T.\$L(\$T.class)", typeConverterDefinition.dbTypeName,
                         ClassNames.FLOW_MANAGER,
                         METHOD_TYPE_CONVERTER,
-                        columnDefinition.elementTypeName.box())
+                        columnDefinition.elementTypeName?.box())
             } else {
                 codeBuilder.add(typeConverterFieldName)
             }
@@ -57,7 +57,7 @@ open class TypeConverterAccess : WrapperColumnAccess {
         }
     }
 
-    override fun getShortAccessString(fieldType: TypeName, elementName: String, isSqliteStatement: Boolean): CodeBlock {
+    override fun getShortAccessString(fieldType: TypeName?, elementName: String, isSqliteStatement: Boolean): CodeBlock {
         checkConverter()
         if (typeConverterDefinition != null) {
             val codeBuilder = CodeBlock.builder()
@@ -66,7 +66,7 @@ open class TypeConverterAccess : WrapperColumnAccess {
                         typeConverterDefinition.dbTypeName,
                         ClassNames.FLOW_MANAGER,
                         METHOD_TYPE_CONVERTER,
-                        columnDefinition.elementTypeName.box())
+                        columnDefinition.elementTypeName?.box())
             } else {
                 codeBuilder.add(typeConverterFieldName)
             }
@@ -79,14 +79,14 @@ open class TypeConverterAccess : WrapperColumnAccess {
         }
     }
 
-    override fun setColumnAccessString(fieldType: TypeName, elementName: String, fullElementName: String, variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
+    override fun setColumnAccessString(fieldType: TypeName?, elementName: String, fullElementName: String, variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
         checkConverter()
         if (typeConverterDefinition != null) {
             val newFormattedAccess = CodeBlock.builder()
             if (typeConverterFieldName == null) {
                 newFormattedAccess.add("(\$T) \$T.\$L(\$T.class)",
                         typeConverterDefinition.modelTypeName, ClassNames.FLOW_MANAGER, METHOD_TYPE_CONVERTER,
-                        columnDefinition.elementTypeName.box()).build()
+                        columnDefinition.elementTypeName?.box()).build()
             } else {
                 newFormattedAccess.add(typeConverterFieldName)
             }
@@ -105,7 +105,7 @@ open class TypeConverterAccess : WrapperColumnAccess {
         }
     }
 
-    override fun getSqliteTypeForTypeName(elementTypeName: TypeName): SQLiteHelper {
+    override fun getSqliteTypeForTypeName(elementTypeName: TypeName?): SQLiteHelper {
         checkConverter()
         if (typeConverterDefinition != null) {
             return super.getSqliteTypeForTypeName(typeConverterDefinition.dbTypeName)

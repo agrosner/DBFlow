@@ -17,14 +17,14 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
 
     override fun addToType(typeBuilder: TypeSpec.Builder) {
         val customTypeConverters = baseTableDefinition.associatedTypeConverters.keys
-        for (className in customTypeConverters) {
-            typeBuilder.addField(FieldSpec.builder(className, "typeConverter" + className.simpleName(),
-                    Modifier.PRIVATE, Modifier.FINAL).initializer("new \$T()", className).build())
+        customTypeConverters.forEach {
+            typeBuilder.addField(FieldSpec.builder(it, "typeConverter" + it.simpleName(),
+                    Modifier.PRIVATE, Modifier.FINAL).initializer("new \$T()", it).build())
         }
 
         val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
-        for (className in globalTypeConverters) {
-            typeBuilder.addField(FieldSpec.builder(className, "global_typeConverter" + className.simpleName(),
+        globalTypeConverters.forEach {
+            typeBuilder.addField(FieldSpec.builder(it, "global_typeConverter" + it.simpleName(),
                     Modifier.PRIVATE, Modifier.FINAL).build())
         }
 
@@ -34,12 +34,11 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
     override fun addCode(code: CodeBlock.Builder) {
         // Constructor code
         val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
-        for (className in globalTypeConverters) {
-            val def = baseTableDefinition.globalTypeConverters[className]
+        globalTypeConverters.forEach {
+            val def = baseTableDefinition.globalTypeConverters[it]
             val firstTypeName = def?.get(0)?.elementTypeName
             code.addStatement("global_typeConverter\$L = (\$T) \$L.getTypeConverterForClass(\$T.class)",
-                    className.simpleName(), className,
-                    "holder", firstTypeName).build()
+                    it.simpleName(), it, "holder", firstTypeName).build()
         }
     }
 }

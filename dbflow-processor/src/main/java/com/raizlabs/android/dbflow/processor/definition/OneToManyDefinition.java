@@ -66,9 +66,9 @@ public class OneToManyDefinition extends BaseDefinition {
             if (typeArguments.size() == 1) {
                 referencedTableType = typeArguments.get(0);
                 referencedType = getManager().getElements().getTypeElement(referencedTableType.toString());
-                extendsBaseModel = ProcessorUtils.isSubclass(getManager().getProcessingEnvironment(),
+                extendsBaseModel = ProcessorUtils.INSTANCE.isSubclass(getManager().getProcessingEnvironment(),
                         ClassNames.BASE_MODEL.toString(), referencedType);
-                extendsModel = ProcessorUtils.isSubclass(getManager().getProcessingEnvironment(),
+                extendsModel = ProcessorUtils.INSTANCE.isSubclass(getManager().getProcessingEnvironment(),
                         ClassNames.MODEL.toString(), referencedType);
             }
         }

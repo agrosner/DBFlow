@@ -105,7 +105,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             allFields = table.allFields
             useIsForPrivateBooleans = table.useBooleanGetterSetters
 
-            manager.addModelToDatabase(elementClassName, databaseTypeName)
+            elementClassName?.let { databaseTypeName?.let { it1 -> manager.addModelToDatabase(it, it1) } }
 
 
             val inheritedColumns = table.inheritedColumns
@@ -157,7 +157,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
         val table = element.getAnnotation(Table::class.java)
         if (table != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).databaseDefinition
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
             if (databaseDefinition == null) {
                 manager.logError("DatabaseDefinition was null for : $tableName for db type: $databaseTypeName")
             }
@@ -166,12 +166,12 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 setOutputClassName(it.classSeparator + DBFLOW_TABLE_TAG)
 
                 // globular default
-                var insertConflict = table.insertConflict
+                var insertConflict: ConflictAction? = table.insertConflict
                 if (insertConflict == ConflictAction.NONE && it.insertConflict != ConflictAction.NONE) {
                     insertConflict = it.insertConflict
                 }
 
-                var updateConflict = table.updateConflict
+                var updateConflict: ConflictAction? = table.updateConflict
                 if (updateConflict == ConflictAction.NONE
                         && it.updateConflict != ConflictAction.NONE) {
                     updateConflict = it.updateConflict
@@ -179,18 +179,9 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 val primaryKeyConflict = table.primaryKeyConflict
 
-                insertConflictActionName = if (insertConflict == ConflictAction.NONE)
-                    ""
-                else
-                    insertConflict.name
-                updateConflictActionName = if (updateConflict == ConflictAction.NONE)
-                    ""
-                else
-                    updateConflict.name
-                primaryKeyConflictActionName = if (primaryKeyConflict == ConflictAction.NONE)
-                    ""
-                else
-                    primaryKeyConflict.name
+                insertConflictActionName = if (insertConflict == ConflictAction.NONE) "" else insertConflict?.name ?: ""
+                updateConflictActionName = if (updateConflict == ConflictAction.NONE) "" else updateConflict?.name ?: ""
+                primaryKeyConflictActionName = if (primaryKeyConflict == ConflictAction.NONE) "" else primaryKeyConflict.name
             }
 
             typeElement?.let { createColumnDefinitions(it) }
@@ -215,7 +206,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             uniqueNumbersSet = HashSet<Int>()
             for (indexGroup in indexGroups) {
                 if (uniqueNumbersSet.contains(indexGroup.number)) {
-                    manager.logError(TableDefinition::class.java, "A duplicate unique index number %1s was found for %1s", indexGroup.number, elementName)
+                    manager.logError(TableDefinition::class, "A duplicate unique index number %1s was found for %1s", indexGroup.number, elementName)
                 }
                 val definition = IndexGroupsDefinition(manager, this, indexGroup)
                 columnDefinitions.forEach {

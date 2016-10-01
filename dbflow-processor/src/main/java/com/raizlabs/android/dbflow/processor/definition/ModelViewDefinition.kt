@@ -95,7 +95,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         val modelView = element.getAnnotation(ModelView::class.java)
         if (modelView != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseName).databaseDefinition
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseName)?.databaseDefinition
             setOutputClassName(databaseDefinition?.classSeparator + DBFLOW_MODEL_VIEW_TAG)
 
             typeElement?.let { createColumnDefinitions(it) }

@@ -12,7 +12,7 @@ class TableValidator : Validator<TableDefinition> {
         var success = true
 
         if (validatorDefinition.columnDefinitions.isEmpty()) {
-            processorManager.logError(TableValidator::class.java, "Table %1s of %1s, %1s needs to define at least one column", validatorDefinition.tableName,
+            processorManager.logError(TableValidator::class, "Table %1s of %1s, %1s needs to define at least one column", validatorDefinition.tableName,
                     validatorDefinition.elementClassName, validatorDefinition.element.javaClass)
             success = false
         }
@@ -20,7 +20,7 @@ class TableValidator : Validator<TableDefinition> {
         val hasTwoKinds = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID) && !validatorDefinition.primaryColumnDefinitions.isEmpty()
 
         if (hasTwoKinds) {
-            processorManager.logError(TableValidator::class.java, "Table %1s cannot mix and match autoincrement and composite primary keys",
+            processorManager.logError(TableValidator::class, "Table %1s cannot mix and match autoincrement and composite primary keys",
                     validatorDefinition.tableName)
             success = false
         }
@@ -29,7 +29,7 @@ class TableValidator : Validator<TableDefinition> {
                 || !validatorDefinition.hasAutoIncrement && !validatorDefinition.hasRowID && !validatorDefinition.primaryColumnDefinitions.isEmpty()
 
         if (!hasPrimary) {
-            processorManager.logError(TableValidator::class.java, "Table %1s needs to define at least one primary key", validatorDefinition.tableName)
+            processorManager.logError(TableValidator::class, "Table %1s needs to define at least one primary key", validatorDefinition.tableName)
             success = false
         }
 

@@ -82,7 +82,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         } else {
             val isPrivate = element.modifiers.contains(Modifier.PRIVATE)
             if (isPrivate) {
-                val useIs = elementTypeName.box() == TypeName.BOOLEAN.box()
+                val useIs = elementTypeName?.box() == TypeName.BOOLEAN.box()
                         && baseTableDefinition is TableDefinition && (baseTableDefinition as TableDefinition).useIsForPrivateBooleans
                 columnAccess = PrivateColumnAccess(column, useIs)
             } else {
@@ -168,7 +168,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                         columnAccess = BooleanTypeColumnAccess(this)
                     } else {
                         // Any annotated members, otherwise we will use the scanner to find other ones
-                        val typeConverterDefinition = processorManager.getTypeConverterDefinition(elementTypeName)
+                        val typeConverterDefinition = elementTypeName?.let { processorManager.getTypeConverterDefinition(it) }
                         if (typeConverterDefinition != null ||
                                 !SQLiteHelper.containsType(elementTypeName)) {
                             hasTypeConverter = true
@@ -194,22 +194,24 @@ constructor(processorManager: ProcessorManager, element: Element,
     }
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
-        val propParam: TypeName
-        if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
-            propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, StringUtils.capitalize(elementTypeName.toString()) + "Property")
-        } else {
-            propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
-        }
+        elementTypeName?.let { elementTypeName ->
+            val propParam: TypeName
+            if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
+                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, StringUtils.capitalize(elementTypeName.toString()) + "Property")
+            } else {
+                propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
+            }
 
-
-        val fieldBuilder = FieldSpec.builder(propParam,
-                columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
-        if (isPrimaryKey) {
-            fieldBuilder.addJavadoc("Primary Key")
-        } else if (isPrimaryKeyAutoIncrement) {
-            fieldBuilder.addJavadoc("Primary Key AutoIncrement")
+            val fieldBuilder = FieldSpec.builder(propParam,
+                    columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+            if (isPrimaryKey) {
+                fieldBuilder.addJavadoc("Primary Key")
+            } else if (isPrimaryKeyAutoIncrement) {
+                fieldBuilder.addJavadoc("Primary Key AutoIncrement")
+            }
+            typeBuilder.addField(fieldBuilder.build())
         }
-        typeBuilder.addField(fieldBuilder.build())
     }
 
     open fun addPropertyCase(methodBuilder: MethodSpec.Builder) {

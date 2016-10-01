@@ -33,19 +33,19 @@ class PrivateColumnAccess : BaseColumnAccess {
         this.useBooleanSetters = useBooleanSetters
     }
 
-    override fun getColumnAccessString(fieldType: TypeName, elementName: String,
+    override fun getColumnAccessString(fieldType: TypeName?, elementName: String,
                                        fullElementName: String, variableNameString: String,
                                        isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.of("\$L.\$L()", variableNameString,
                 getGetterNameElement(elementName))
     }
 
-    override fun getShortAccessString(fieldType: TypeName, elementName: String,
+    override fun getShortAccessString(fieldType: TypeName?, elementName: String,
                                       isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.of("\$L()", getGetterNameElement(elementName))
     }
 
-    override fun setColumnAccessString(fieldType: TypeName, elementName: String,
+    override fun setColumnAccessString(fieldType: TypeName?, elementName: String,
                                        fullElementName: String,
                                        variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
         // append . when specify something, if not then we leave blank.

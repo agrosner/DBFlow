@@ -12,16 +12,16 @@ import com.squareup.javapoet.TypeName
  */
 class BlobColumnAccess(columnDefinition: ColumnDefinition) : WrapperColumnAccess(columnDefinition) {
 
-    override fun getColumnAccessString(fieldType: TypeName, elementName: String, fullElementName: String, variableNameString: String, isSqliteStatement: Boolean): CodeBlock {
+    override fun getColumnAccessString(fieldType: TypeName?, elementName: String, fullElementName: String, variableNameString: String, isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.builder().add("\$L.getBlob()", existingColumnAccess.getColumnAccessString(fieldType, elementName, fullElementName,
                 variableNameString, isSqliteStatement)).build()
     }
 
-    override fun getShortAccessString(fieldType: TypeName, elementName: String, isSqliteStatement: Boolean): CodeBlock {
+    override fun getShortAccessString(fieldType: TypeName?, elementName: String, isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.builder().add("\$L.getBlob()", existingColumnAccess.getShortAccessString(fieldType, elementName, isSqliteStatement)).build()
     }
 
-    override fun setColumnAccessString(fieldType: TypeName, elementName: String,
+    override fun setColumnAccessString(fieldType: TypeName?, elementName: String,
                                        fullElementName: String, variableNameString: String,
                                        formattedAccess: CodeBlock): CodeBlock {
         val newFormattedAccess = CodeBlock.builder().add("new \$T(\$L)", ClassName.get(Blob::class.java), formattedAccess).build()
@@ -29,7 +29,7 @@ class BlobColumnAccess(columnDefinition: ColumnDefinition) : WrapperColumnAccess
                 fullElementName, variableNameString, newFormattedAccess)
     }
 
-    override fun getSqliteTypeForTypeName(elementTypeName: TypeName): SQLiteHelper {
+    override fun getSqliteTypeForTypeName(elementTypeName: TypeName?): SQLiteHelper {
         return SQLiteHelper.BLOB
     }
 }

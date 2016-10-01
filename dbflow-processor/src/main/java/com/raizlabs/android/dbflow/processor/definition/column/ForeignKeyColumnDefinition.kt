@@ -87,7 +87,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         // we need to recheck for this instance
         if (columnAccess is TypeConverterAccess) {
             if (typeElement.modifiers.contains(Modifier.PRIVATE)) {
-                val useIs = elementTypeName.box() == TypeName.BOOLEAN.box() && tableDefinition.useIsForPrivateBooleans
+                val useIs = elementTypeName?.box() == TypeName.BOOLEAN.box() && tableDefinition.useIsForPrivateBooleans
                 columnAccess = PrivateColumnAccess(typeElement.getAnnotation(Column::class.java), useIs)
             } else {
                 columnAccess = SimpleColumnAccess()
@@ -114,16 +114,21 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
     override fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         checkNeedsReferences()
-        for (reference in _foreignKeyReferenceDefinitionList) {
-            val propParam: TypeName
-            if (reference.columnClassName.isPrimitive && reference.columnClassName != TypeName.BOOLEAN) {
-                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, StringUtils.capitalize(reference.columnClassName.toString()) + "Property")
-            } else {
-                propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, reference.columnClassName.box())
+        _foreignKeyReferenceDefinitionList.forEach {
+            var propParam: TypeName? = null
+            val colClassName = it.columnClassName
+            colClassName?.let {
+                if (it.isPrimitive && it != TypeName.BOOLEAN) {
+                    propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE,
+                            StringUtils.capitalize(it.toString()) + "Property")
+                } else {
+                    propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, it.box())
+                }
             }
-            typeBuilder.addField(FieldSpec.builder(propParam, reference.columnName,
-                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("new \$T(\$T.class, \$S)", propParam, tableClass,
-                    reference.columnName).addJavadoc("Foreign Key" + if (isPrimaryKey) " / Primary Key" else "").build())
+            typeBuilder.addField(FieldSpec.builder(propParam, it.columnName,
+                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, it.columnName)
+                    .addJavadoc("Foreign Key" + if (isPrimaryKey) " / Primary Key" else "").build())
         }
     }
 
@@ -416,7 +421,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         val referencedTableDefinition = manager.getTableDefinition(
                 tableDefinition.databaseTypeName, referencedTableClassName)
         if (referencedTableDefinition == null) {
-            manager.logError(ForeignKeyColumnDefinition::class.java,
+            manager.logError(ForeignKeyColumnDefinition::class,
                     "Could not find the referenced table definition $referencedTableClassName" +
                             " from ${tableDefinition.tableName}. " +
                             "Ensure it exists in the samedatabase ${tableDefinition.databaseTypeName}")
@@ -424,7 +429,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             if (needsReferences) {
                 val primaryColumns = referencedTableDefinition.primaryColumnDefinitions
                 primaryColumns.forEach {
-                    val foreignKeyReferenceDefinition = ForeignKeyReferenceDefinition(manager, elementName, it,
+                    val foreignKeyReferenceDefinition = ForeignKeyReferenceDefinition(manager, elementName, this,
                             columnAccess, this, primaryColumns.size)
                     _foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition)
                 }

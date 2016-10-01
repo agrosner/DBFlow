@@ -46,7 +46,7 @@ public class TypeConverterHandler extends BaseContainerHandler<TypeConverter> {
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         if (element instanceof TypeElement) {
-            ClassName className = ProcessorUtils.fromTypeMirror(element.asType());
+            ClassName className = ProcessorUtils.INSTANCE.fromTypeMirror(element.asType());
             TypeConverterDefinition converterDefinition = new TypeConverterDefinition(className,
                     element.asType(), processorManager);
             if (VALIDATOR.validate(processorManager, converterDefinition)) {

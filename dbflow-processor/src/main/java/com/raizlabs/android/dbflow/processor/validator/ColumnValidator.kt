@@ -22,21 +22,22 @@ class ColumnValidator : Validator<ColumnDefinition> {
             else
                 (validatorDefinition.columnAccess as WrapperColumnAccess).existingColumnAccess as PrivateColumnAccess
             if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getGetterNameElement(validatorDefinition.elementName))) {
-                processorManager.logError(ColumnValidator::class.java, "Could not find getter for private element: " + "\"%1s\" from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
+                processorManager.logError(ColumnValidator::class, "Could not find getter for private element: " + "\"%1s\" from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
                         validatorDefinition.elementName, validatorDefinition.baseTableDefinition.elementName, privateColumnAccess.getGetterNameElement(validatorDefinition.elementName))
                 success = false
             }
             if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getSetterNameElement(validatorDefinition.elementName))) {
-                processorManager.logError(ColumnValidator::class.java, "Could not find setter for private element: " + "\"%1s\" from table class: %1s. Consider adding a setter with name %1s or making it more accessible.",
+                processorManager.logError(ColumnValidator::class, "Could not find setter for private element: " + "\"%1s\" from table class: %1s. Consider adding a setter with name %1s or making it more accessible.",
                         validatorDefinition.elementName, validatorDefinition.baseTableDefinition.elementName, privateColumnAccess.getSetterNameElement(validatorDefinition.elementName))
                 success = false
             }
         }
 
         if (!StringUtils.isNullOrEmpty(validatorDefinition.defaultValue)) {
+            val typeName = validatorDefinition.elementTypeName
             if (validatorDefinition is ForeignKeyColumnDefinition && validatorDefinition.isModel) {
-                processorManager.logError(ColumnValidator::class.java, "Default values cannot be specified for model fields")
-            } else if (validatorDefinition.elementTypeName.isPrimitive) {
+                processorManager.logError(ColumnValidator::class, "Default values cannot be specified for model fields")
+            } else if (typeName != null && typeName.isPrimitive) {
                 processorManager.logWarning(ColumnValidator::class.java, "Primitive column types will not respect default values")
             }
         }

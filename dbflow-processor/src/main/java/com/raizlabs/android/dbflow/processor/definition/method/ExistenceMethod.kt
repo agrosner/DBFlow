@@ -26,12 +26,15 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
             if (tableDefinition.hasAutoIncrement() || tableDefinition.hasRowID()) {
                 val incrementBuilder = CodeBlock.builder().add("return ")
                 val columnAccess = autoincrementColumn!!.getColumnAccessString(false)
-                if (!autoincrementColumn.elementTypeName.isPrimitive) {
-                    incrementBuilder.add("(\$L != null && ", columnAccess)
-                }
-                incrementBuilder.add("\$L > 0", columnAccess)
-                if (!autoincrementColumn.elementTypeName.isPrimitive) {
-                    incrementBuilder.add(" || \$L == null)", columnAccess)
+                val autoElementType = autoincrementColumn.elementTypeName
+                autoElementType?.let {
+                    if (!it.isPrimitive) {
+                        incrementBuilder.add("(\$L != null && ", columnAccess)
+                    }
+                    incrementBuilder.add("\$L > 0", columnAccess)
+                    if (!it.isPrimitive) {
+                        incrementBuilder.add(" || \$L == null)", columnAccess)
+                    }
                 }
                 methodBuilder.addCode(incrementBuilder.build())
             }

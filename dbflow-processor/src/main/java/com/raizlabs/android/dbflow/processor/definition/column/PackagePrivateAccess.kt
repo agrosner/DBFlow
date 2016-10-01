@@ -28,7 +28,7 @@ class PackagePrivateAccess(elementPackageName: String, separator: String?, class
         internalHelperClassName = ClassName.get(elementPackageName, className + setSeparator + classSuffix)
     }
 
-    override fun getColumnAccessString(fieldType: TypeName, elementName: String,
+    override fun getColumnAccessString(fieldType: TypeName?, elementName: String,
                                        fullElementName: String, variableNameString: String,
                                        isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.builder().add("\$T.get\$L(\$L)", internalHelperClassName,
@@ -36,14 +36,14 @@ class PackagePrivateAccess(elementPackageName: String, separator: String?, class
                 variableNameString).build()
     }
 
-    override fun getShortAccessString(fieldType: TypeName, elementName: String,
+    override fun getShortAccessString(fieldType: TypeName?, elementName: String,
                                       isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.builder().add("\$T.get\$L(\$L)", internalHelperClassName,
                 StringUtils.capitalize(elementName),
                 elementName).build()
     }
 
-    override fun setColumnAccessString(fieldType: TypeName, elementName: String,
+    override fun setColumnAccessString(fieldType: TypeName?, elementName: String,
                                        fullElementName: String,
                                        variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
         return CodeBlock.builder().add("\$T.set\$L(\$L, \$L)", helperClassName,

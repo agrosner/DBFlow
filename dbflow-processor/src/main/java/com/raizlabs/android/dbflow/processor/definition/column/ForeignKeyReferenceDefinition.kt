@@ -25,7 +25,7 @@ class ForeignKeyReferenceDefinition {
 
     val columnName: String
     val foreignColumnName: String
-    val columnClassName: TypeName
+    val columnClassName: TypeName?
 
     private var isReferencedFieldPrivate: Boolean = false
     private var isReferencedFieldPackagePrivate: Boolean = false

@@ -1,0 +1,96 @@
+package com.raizlabs.android.dbflow.processor
+
+import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.squareup.javapoet.ClassName
+
+import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeMirror
+import javax.tools.Diagnostic
+
+/**
+ * Description: Provides handy methods for processing
+ */
+object ProcessorUtils {
+
+    /**
+     * Whether the specified element is assignable to the fqTn parameter
+
+     * @param processingEnvironment The environment this runs in
+     * *
+     * @param fqTn                  THe fully qualified type name of the element we want to check
+     * *
+     * @param element               The element to check that implements
+     * *
+     * @return true if element implements the fqTn
+     */
+    fun implementsClass(processingEnvironment: ProcessingEnvironment, fqTn: String, element: TypeElement?): Boolean {
+        val typeElement = processingEnvironment.elementUtils.getTypeElement(fqTn)
+        if (typeElement == null) {
+            processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR, "Type Element was null for: " + fqTn + "" +
+                    "ensure that the visibility of the class is not private.")
+            return false
+        } else {
+            var classMirror: TypeMirror? = typeElement.asType()
+            if (classMirror != null) {
+                classMirror = processingEnvironment.typeUtils.erasure(classMirror)
+            }
+            return classMirror != null && element != null && element.asType() != null &&
+                    processingEnvironment.typeUtils.isAssignable(element.asType(), classMirror)
+        }
+    }
+
+    /**
+     * Whether the specified element is assignable to the fqTn parameter
+
+     * @param processingEnvironment The environment this runs in
+     * *
+     * @param fqTn                  THe fully qualified type name of the element we want to check
+     * *
+     * @param element               The element to check that implements
+     * *
+     * @return true if element implements the fqTn
+     */
+    fun isSubclass(processingEnvironment: ProcessingEnvironment, fqTn: String, element: TypeElement?): Boolean {
+        val typeElement = processingEnvironment.elementUtils.getTypeElement(fqTn)
+        if (typeElement == null) {
+            processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR, "Type Element was null for: " + fqTn + "" +
+                    "ensure that the visibility of the class is not private.")
+            return false
+        } else {
+            val classMirror = typeElement.asType()
+            return classMirror != null && element != null && element.asType() != null && processingEnvironment.typeUtils.isSubtype(element.asType(), classMirror)
+        }
+    }
+
+    fun fromTypeMirror(typeMirror: TypeMirror): ClassName? {
+        var className: ClassName? = null
+        val element = getTypeElement(typeMirror)
+        if (element != null) {
+            className = ClassName.get(element)
+        }
+        return className
+    }
+
+    fun getTypeElement(element: Element): TypeElement? {
+        val typeElement: TypeElement?
+        if (element is TypeElement) {
+            typeElement = element
+        } else {
+            typeElement = getTypeElement(element.asType())
+        }
+        return typeElement
+    }
+
+    fun getTypeElement(typeMirror: TypeMirror): TypeElement? {
+        val manager = ProcessorManager.manager
+        var typeElement: TypeElement? = manager.elements.getTypeElement(typeMirror.toString())
+        if (typeElement == null) {
+            val el = manager.typeUtils.asElement(typeMirror)
+            typeElement = if (el != null) (el as TypeElement) else null
+        }
+        return typeElement
+    }
+
+}

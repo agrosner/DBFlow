@@ -91,8 +91,8 @@ public class ContentProviderDefinition extends BaseDefinition {
     public void prepareForWrite() {
         DatabaseDefinition databaseDefinition = getManager()
                 .getDatabaseHolderDefinition(databaseName).getDatabaseDefinition();
-        databaseNameString = databaseDefinition.databaseName;
-        setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
+        databaseNameString = databaseDefinition.getDatabaseName();
+        setOutputClassName(databaseDefinition.getClassSeparator() + DEFINITION_NAME);
     }
 
     @Override

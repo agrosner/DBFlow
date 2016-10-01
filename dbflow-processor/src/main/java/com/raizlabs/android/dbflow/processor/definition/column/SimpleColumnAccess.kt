@@ -8,18 +8,18 @@ import com.squareup.javapoet.TypeName
  */
 class SimpleColumnAccess @JvmOverloads constructor(private val dontAppendModel: Boolean = false) : BaseColumnAccess() {
 
-    override fun getColumnAccessString(fieldType: TypeName, elementName: String,
+    override fun getColumnAccessString(fieldType: TypeName?, elementName: String,
                                        fullElementName: String, variableNameString: String,
                                        isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.of(if (dontAppendModel) elementName else variableNameString + "." + fullElementName)
     }
 
-    override fun getShortAccessString(fieldType: TypeName, elementName: String,
+    override fun getShortAccessString(fieldType: TypeName?, elementName: String,
                                       isSqliteStatement: Boolean): CodeBlock {
         return CodeBlock.of(elementName)
     }
 
-    override fun setColumnAccessString(fieldType: TypeName, elementName: String,
+    override fun setColumnAccessString(fieldType: TypeName?, elementName: String,
                                        fullElementName: String,
                                        variableNameString: String, formattedAccess: CodeBlock): CodeBlock {
         return CodeBlock.of("\$L = \$L", getColumnAccessString(fieldType, elementName, fullElementName,

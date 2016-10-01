@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger
 object DefinitionUtils {
 
     fun getContentValuesStatement(elementName: String, fullElementName: String,
-                                  columnName: String, elementTypeName: TypeName,
+                                  columnName: String, elementTypeName: TypeName?,
                                   columnAccess: BaseColumnAccess,
                                   variableNameString: String, defaultValue: String?): CodeBlock.Builder {
         val statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, false)
@@ -49,7 +49,7 @@ object DefinitionUtils {
                 }
             }
 
-            if (!elementTypeName.isPrimitive) {
+            if (elementTypeName != null && !elementTypeName.isPrimitive) {
                 val shortAccess = columnAccess.existingColumnAccess.getShortAccessString(elementTypeName, elementName, false)
                 codeBuilder.addStatement("\$T \$L = model.\$L != null ? \$L : null", finalTypeName,
                         finalAccessStatement, shortAccess, statement)
@@ -67,7 +67,7 @@ object DefinitionUtils {
                 BindToContentValuesMethod.PARAM_CONTENT_VALUES,
                 QueryBuilder.quoteIfNeeded(columnName), putAccess)
 
-        if (!finalTypeName.isPrimitive) {
+        if (finalTypeName != null && !finalTypeName.isPrimitive) {
             codeBuilder.nextControlFlow("else")
             if (defaultValue != null && !defaultValue.isEmpty()) {
                 codeBuilder.addStatement("\$L.put(\$S, \$L)",
@@ -84,7 +84,7 @@ object DefinitionUtils {
     }
 
     fun getSQLiteStatementMethod(index: AtomicInteger, elementName: String,
-                                 fullElementName: String, elementTypeName: TypeName,
+                                 fullElementName: String, elementTypeName: TypeName?,
                                  columnAccess: BaseColumnAccess,
                                  variableNameString: String,
                                  isAutoIncrement: Boolean,
@@ -116,7 +116,7 @@ object DefinitionUtils {
                 }
             }
 
-            if (!elementTypeName.isPrimitive) {
+            if (elementTypeName != null && !elementTypeName.isPrimitive) {
                 val shortAccess = columnAccess.existingColumnAccess.getShortAccessString(elementTypeName, elementName, true)
                 codeBuilder.addStatement("\$T \$L = model.\$L != null ? \$L : null", finalTypeName,
                         finalAccessStatement, shortAccess, statement)
@@ -133,7 +133,7 @@ object DefinitionUtils {
                 BindToStatementMethod.PARAM_STATEMENT,
                 columnAccess.getSqliteTypeForTypeName(elementTypeName).sqLiteStatementMethod,
                 index.toInt().toString() + if (!isAutoIncrement) " + " + BindToStatementMethod.PARAM_START else "", putAccess)
-        if (!finalTypeName.isPrimitive) {
+        if (finalTypeName != null && !finalTypeName.isPrimitive) {
             codeBuilder.nextControlFlow("else")
             if (defaultValue != null && !defaultValue.isEmpty()) {
                 codeBuilder.addStatement("\$L.bind\$L(\$L, \$L)", BindToStatementMethod.PARAM_STATEMENT,
@@ -150,17 +150,17 @@ object DefinitionUtils {
     }
 
     private fun applyAndGetPutAccess(finalAccessStatement: CodeBlock, isBlobRaw: Boolean,
-                                     elementTypeName: TypeName, finalTypeName: TypeName,
+                                     elementTypeName: TypeName?, finalTypeName: TypeName?,
                                      codeBuilder: CodeBlock.Builder,
                                      variableNameString: String, elementName: String): CodeBlock {
         var putAccess = finalAccessStatement
         if (isBlobRaw) {
             putAccess = putAccess.toBuilder().add(".getBlob()").build()
-        } else if (elementTypeName.box() == TypeName.CHAR.box()) {
+        } else if (elementTypeName?.box() == TypeName.CHAR.box()) {
             // wrap char in string.
             putAccess = CodeBlock.of("new String(new char[]{").toBuilder().add(putAccess).add("})").build()
         }
-        if (!finalTypeName.isPrimitive) {
+        if (finalTypeName != null && !finalTypeName.isPrimitive) {
             if (isBlobRaw) {
                 codeBuilder.beginControlFlow("if ((\$L != null) && (\$L != null))",
                         variableNameString + "." + elementName, putAccess)
@@ -172,7 +172,7 @@ object DefinitionUtils {
     }
 
     fun getLoadFromCursorMethod(
-            index: Int, fullElementName: String, elementTypeName: TypeName, columnName: String,
+            index: Int, fullElementName: String, elementTypeName: TypeName?, columnName: String,
             putDefaultValue: Boolean, columnAccess: BaseColumnAccess,
             orderedCursorLookUp: Boolean, assignDefaultValuesFromCursor: Boolean, elementName: String): CodeBlock.Builder {
         val method = getLoadFromCursorMethodString(elementTypeName, columnAccess)
@@ -190,11 +190,11 @@ object DefinitionUtils {
         }
 
         val cursorAssignment = CodeBlock.builder()
-        if (elementTypeName.box() == TypeName.BYTE.box()) {
+        if (elementTypeName?.box() == TypeName.BYTE.box()) {
             cursorAssignment.add("(\$T)", TypeName.BYTE)
         }
         cursorAssignment.add("\$L.\$L(\$L)", LoadFromCursorMethod.PARAM_CURSOR, method, indexName)
-        if (elementTypeName.box() == TypeName.CHAR.box()) {
+        if (elementTypeName?.box() == TypeName.CHAR.box()) {
             cursorAssignment.add(".charAt(0)")
         }
 
@@ -218,14 +218,14 @@ object DefinitionUtils {
     }
 
     fun getUpdateAutoIncrementMethod(elementName: String, fullElementName: String,
-                                     elementTypeName: TypeName,
+                                     elementTypeName: TypeName?,
                                      columnAccess: BaseColumnAccess): CodeBlock.Builder {
         var method = ""
         var shouldCastUp = false
-        if (SQLiteHelper.containsNumberMethod(elementTypeName.unbox())) {
-            method = elementTypeName.unbox().toString()
+        if (SQLiteHelper.containsNumberMethod(elementTypeName?.unbox())) {
+            method = elementTypeName?.unbox().toString()
 
-            shouldCastUp = !elementTypeName.isPrimitive
+            shouldCastUp = elementTypeName != null && !elementTypeName.isPrimitive
         }
 
         val codeBuilder = CodeBlock.builder()
@@ -242,15 +242,15 @@ object DefinitionUtils {
         return codeBuilder
     }
 
-    fun getCreationStatement(elementTypeName: TypeName,
+    fun getCreationStatement(elementTypeName: TypeName?,
                              columnAccess: BaseColumnAccess?,
                              columnName: String): CodeBlock.Builder {
         var statement: String? = null
 
         if (SQLiteHelper.containsType(elementTypeName)) {
-            statement = SQLiteHelper.get(elementTypeName).toString()
+            statement = SQLiteHelper[elementTypeName].toString()
         } else if (columnAccess is TypeConverterAccess && columnAccess.typeConverterDefinition != null) {
-            statement = SQLiteHelper.get(columnAccess.typeConverterDefinition.dbTypeName).toString()
+            statement = SQLiteHelper[columnAccess.typeConverterDefinition.dbTypeName].toString()
         }
 
 
@@ -258,7 +258,7 @@ object DefinitionUtils {
 
     }
 
-    fun getLoadFromCursorMethodString(elementTypeName: TypeName,
+    fun getLoadFromCursorMethodString(elementTypeName: TypeName?,
                                       columnAccess: BaseColumnAccess?): String {
         var method = ""
         if (SQLiteHelper.containsMethod(elementTypeName)) {
@@ -271,9 +271,9 @@ object DefinitionUtils {
         return method
     }
 
-    fun getDefaultValueString(elementTypeName: TypeName): String {
+    fun getDefaultValueString(elementTypeName: TypeName?): String {
         var defaultValue = "null"
-        if (elementTypeName.isPrimitive) {
+        if (elementTypeName != null && elementTypeName.isPrimitive) {
             if (elementTypeName == TypeName.BOOLEAN) {
                 defaultValue = "false"
             } else if (elementTypeName == TypeName.BYTE || elementTypeName == TypeName.INT

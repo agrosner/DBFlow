@@ -44,7 +44,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
         }
 
-        processorManager.addModelToDatabase(elementClassName, databaseTypeName)
+        elementClassName?.let { databaseTypeName?.let { it1 -> processorManager.addModelToDatabase(it, it1) } }
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
@@ -63,7 +63,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
         val queryModel = typeElement?.getAnnotation(QueryModel::class.java)
         if (queryModel != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName).databaseDefinition
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
             setOutputClassName(databaseDefinition?.classSeparator + DBFLOW_QUERY_MODEL_TAG)
             allFields = queryModel.allFields
 
