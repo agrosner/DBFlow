@@ -133,7 +133,19 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element)
         }
 
-        methods = arrayOf(BindToContentValuesMethod(this, true, false, implementsContentValuesListener), BindToContentValuesMethod(this, false, false, implementsContentValuesListener), BindToStatementMethod(this, true, false), BindToStatementMethod(this, false, false), InsertStatementQueryMethod(this, true), InsertStatementQueryMethod(this, false), CreationQueryMethod(this), LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this), OneToManyDeleteMethod(this, false, false), OneToManyDeleteMethod(this, false, true), OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, false), OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, false), OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, false), OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, true), OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, true), OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, true))
+        methods = arrayOf(BindToContentValuesMethod(this, true, false, implementsContentValuesListener),
+                BindToContentValuesMethod(this, false, false, implementsContentValuesListener),
+                BindToStatementMethod(this, true, false), BindToStatementMethod(this, false, false),
+                InsertStatementQueryMethod(this, true), InsertStatementQueryMethod(this, false),
+                CreationQueryMethod(this), LoadFromCursorMethod(this), ExistenceMethod(this),
+                PrimaryConditionMethod(this), OneToManyDeleteMethod(this, false, false),
+                OneToManyDeleteMethod(this, false, true),
+                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, false),
+                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, false),
+                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, false),
+                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_SAVE, true),
+                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_INSERT, true),
+                OneToManySaveMethod(this, false, OneToManySaveMethod.METHOD_UPDATE, true))
     }
 
     override fun prepareForWrite() {

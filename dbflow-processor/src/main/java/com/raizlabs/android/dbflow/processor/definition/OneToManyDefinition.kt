@@ -25,7 +25,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
     private var methodName: String
 
-    private var _variableName: String? = null
+    private var _variableName: String
 
     var methods: MutableList<OneToMany.Method> = Lists.newArrayList<OneToMany.Method>()
 
@@ -41,9 +41,9 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
         methodName = typeElement.simpleName.toString()
         _variableName = oneToMany.variableName
-        if (_variableName == null || _variableName!!.isEmpty()) {
+        if (_variableName.isEmpty()) {
             _variableName = methodName.replace("get", "")
-            _variableName = _variableName!!.substring(0, 1).toLowerCase() + _variableName!!.substring(1)
+            _variableName = _variableName.substring(0, 1).toLowerCase() + _variableName.substring(1)
         }
         methods.addAll(Arrays.asList<OneToMany.Method>(*oneToMany.methods))
 
@@ -100,7 +100,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
             writeLoopWithMethod(codeBuilder, "delete", useWrapper && extendsBaseModel)
 
             columnAccess?.let {
-                codeBuilder.add(it.setColumnAccessString(null, getVariableName(), getVariableName(),
+                codeBuilder.add(it.setColumnAccessString(null, _variableName, _variableName,
                         ModelUtils.variable, CodeBlock.builder().add("null").build()).toBuilder().add(";\n").build())
             }
         }

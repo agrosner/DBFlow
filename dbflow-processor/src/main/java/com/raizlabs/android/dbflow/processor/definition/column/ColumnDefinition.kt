@@ -189,8 +189,6 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
     }
 
-    override fun getElementClassName(element: Element): ClassName? = null
-
     override fun toString(): String {
         return QueryBuilder.quoteIfNeeded(columnName)
     }

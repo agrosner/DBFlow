@@ -48,12 +48,12 @@ class ForeignKeyReferenceDefinition {
 
         if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement
                 && !foreignKeyColumnDefinition.isRowId || referenceCount > 0) {
-            columnName = foreignKeyFieldName + "_" + referencedColumn.columnName
+            this.columnName = foreignKeyFieldName + "_" + referencedColumn.columnName
         } else {
-            columnName = foreignKeyFieldName
+            this.columnName = foreignKeyFieldName
         }
         foreignColumnName = referencedColumn.columnName
-        columnClassName = referencedColumn.elementTypeName
+        this.columnClassName = referencedColumn.elementTypeName
 
         if (referencedColumn.columnAccess is WrapperColumnAccess) {
             isReferencedFieldPrivate = (referencedColumn.columnAccess as WrapperColumnAccess).existingColumnAccess is PrivateColumnAccess
