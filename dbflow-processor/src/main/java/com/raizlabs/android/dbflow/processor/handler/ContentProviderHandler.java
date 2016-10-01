@@ -20,7 +20,7 @@ public class ContentProviderHandler extends BaseContainerHandler<ContentProvider
     @Override
     protected void onProcessElement(ProcessorManager processorManager, Element element) {
         ContentProviderDefinition contentProviderDefinition = new ContentProviderDefinition(element, processorManager);
-        if (contentProviderDefinition.elementClassName != null) {
+        if (contentProviderDefinition.getElementClassName() != null) {
             processorManager.addContentProviderDefinition(contentProviderDefinition);
         }
     }

@@ -61,7 +61,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
 
     public DatabaseDefinition(ProcessorManager manager, Element element) {
         super(element, manager);
-        packageName = ClassNames.FLOW_MANAGER_PACKAGE;
+        setPackageName(ClassNames.FLOW_MANAGER_PACKAGE);
 
         Database database = element.getAnnotation(Database.class);
         if (database != null) {
@@ -125,34 +125,34 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
         // TODO: validate them here before preparing them
         Map<TypeName, TableDefinition> map = new HashMap<>();
         TableValidator tableValidator = new TableValidator();
-        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
+        for (TableDefinition tableDefinition : getManager().getTableDefinitions(getElementClassName())) {
             if (tableValidator.validate(ProcessorManager.getManager(), tableDefinition)) {
-                map.put(tableDefinition.elementClassName, tableDefinition);
+                map.put(tableDefinition.getElementClassName(), tableDefinition);
             }
         }
-        manager.setTableDefinitions(map, elementClassName);
+        getManager().setTableDefinitions(map, getElementClassName());
 
         Map<TypeName, ModelViewDefinition> modelViewDefinitionMap = new HashMap<>();
         ModelViewValidator modelViewValidator = new ModelViewValidator();
-        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
+        for (ModelViewDefinition modelViewDefinition : getManager().getModelViewDefinitions(getElementClassName())) {
             if (modelViewValidator.validate(ProcessorManager.getManager(), modelViewDefinition)) {
-                modelViewDefinitionMap.put(modelViewDefinition.elementClassName, modelViewDefinition);
+                modelViewDefinitionMap.put(modelViewDefinition.getElementClassName(), modelViewDefinition);
             }
         }
-        manager.setModelViewDefinitions(modelViewDefinitionMap, elementClassName);
+        getManager().setModelViewDefinitions(modelViewDefinitionMap, getElementClassName());
 
     }
 
     private void prepareDefinitions() {
-        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
+        for (TableDefinition tableDefinition : getManager().getTableDefinitions(getElementClassName())) {
             tableDefinition.prepareForWrite();
         }
 
-        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
+        for (ModelViewDefinition modelViewDefinition : getManager().getModelViewDefinitions(getElementClassName())) {
             modelViewDefinition.prepareForWrite();
         }
 
-        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
+        for (QueryModelDefinition queryModelDefinition : getManager().getQueryModelDefinitions(getElementClassName())) {
             queryModelDefinition.prepareForWrite();
         }
     }
@@ -163,19 +163,19 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ClassNames.DATABASE_HOLDER, "holder");
 
-        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
-            constructor.addStatement("holder.putDatabaseForTable($T.class, this)", tableDefinition.elementClassName);
+        for (TableDefinition tableDefinition : getManager().getTableDefinitions(getElementClassName())) {
+            constructor.addStatement("holder.putDatabaseForTable($T.class, this)", tableDefinition.getElementClassName());
         }
 
-        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
-            constructor.addStatement("holder.putDatabaseForTable($T.class, this)", modelViewDefinition.elementClassName);
+        for (ModelViewDefinition modelViewDefinition : getManager().getModelViewDefinitions(getElementClassName())) {
+            constructor.addStatement("holder.putDatabaseForTable($T.class, this)", modelViewDefinition.getElementClassName());
         }
 
-        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
-            constructor.addStatement("holder.putDatabaseForTable($T.class, this)", queryModelDefinition.elementClassName);
+        for (QueryModelDefinition queryModelDefinition : getManager().getQueryModelDefinitions(getElementClassName())) {
+            constructor.addStatement("holder.putDatabaseForTable($T.class, this)", queryModelDefinition.getElementClassName());
         }
 
-        Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName);
+        Map<Integer, List<MigrationDefinition>> migrationDefinitionMap = getManager().getMigrationsForDatabase(getElementClassName());
         if (migrationDefinitionMap != null && !migrationDefinitionMap.isEmpty()) {
             List<Integer> versionSet = new ArrayList<>(migrationDefinitionMap.keySet());
             Collections.sort(versionSet);
@@ -192,28 +192,28 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
                 constructor.addStatement("$L.put($L, migrations$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
                         version, version);
                 for (MigrationDefinition migrationDefinition : migrationDefinitions) {
-                    constructor.addStatement("migrations$L.add(new $T$L)", version, migrationDefinition.elementClassName,
+                    constructor.addStatement("migrations$L.add(new $T$L)", version, migrationDefinition.getElementClassName(),
                             migrationDefinition.getConstructorName());
                 }
             }
         }
 
-        for (TableDefinition tableDefinition : manager.getTableDefinitions(elementClassName)) {
-            constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName);
-            constructor.addStatement("$L.put($S, $T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.getTableName(), tableDefinition.elementClassName);
+        for (TableDefinition tableDefinition : getManager().getTableDefinitions(getElementClassName())) {
+            constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.getElementClassName());
+            constructor.addStatement("$L.put($S, $T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.getTableName(), tableDefinition.getElementClassName());
             constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                    tableDefinition.elementClassName, tableDefinition.outputClassName);
+                    tableDefinition.getElementClassName(), tableDefinition.getOutputClassName());
         }
 
-        for (ModelViewDefinition modelViewDefinition : manager.getModelViewDefinitions(elementClassName)) {
-            constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName);
+        for (ModelViewDefinition modelViewDefinition : getManager().getModelViewDefinitions(getElementClassName())) {
+            constructor.addStatement("$L.add($T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.getElementClassName());
             constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                    modelViewDefinition.elementClassName, modelViewDefinition.outputClassName);
+                    modelViewDefinition.getElementClassName(), modelViewDefinition.getOutputClassName());
         }
 
-        for (QueryModelDefinition queryModelDefinition : manager.getQueryModelDefinitions(elementClassName)) {
+        for (QueryModelDefinition queryModelDefinition : getManager().getQueryModelDefinitions(getElementClassName())) {
             constructor.addStatement("$L.put($T.class, new $T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                    queryModelDefinition.elementClassName, queryModelDefinition.outputClassName);
+                    queryModelDefinition.getElementClassName(), queryModelDefinition.getOutputClassName());
         }
 
         builder.addMethod(constructor.build());
@@ -224,7 +224,7 @@ public class DatabaseDefinition extends BaseDefinition implements TypeDefinition
         typeBuilder.addMethod(MethodSpec.methodBuilder("getAssociatedDatabaseClassFile")
                 .addAnnotation(Override.class)
                 .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return $T.class", elementTypeName)
+                .addStatement("return $T.class", getElementTypeName())
                 .returns(ParameterizedTypeName.get(Class.class)).build());
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("isForeignKeysSupported")

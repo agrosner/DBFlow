@@ -52,7 +52,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
     abstract fun prepareForWrite()
 
-    val parameterClassName: TypeName
+    val parameterClassName: TypeName?
         get() = elementClassName
 
     fun addColumnForCustomTypeConverter(columnDefinition: ColumnDefinition, typeConverterName: ClassName): String {
@@ -83,7 +83,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         var count = 0
 
         if (!packagePrivateList.isEmpty()) {
-            val typeBuilder = TypeSpec.classBuilder(elementClassName.simpleName() + databaseDefinition!!.classSeparator + "Helper").addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            val typeBuilder = TypeSpec.classBuilder(elementClassName?.simpleName() + databaseDefinition!!.classSeparator + "Helper").addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 
             for (columnDefinition in packagePrivateList) {
                 var helperClassName = manager.elements.getPackageOf(columnDefinition.element).toString() + "." + ClassName.get(columnDefinition.element.enclosingElement as TypeElement).simpleName()

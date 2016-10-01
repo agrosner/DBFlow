@@ -49,7 +49,7 @@ public class MigrationDefinition extends BaseDefinition {
             for (Element element : elements) {
                 if (element instanceof ExecutableElement && element.getSimpleName().toString().equals("<init>")) {
                     if (!StringUtils.isNullOrEmpty(constructorName)) {
-                        manager.logError(MigrationDefinition.class, "Migrations cannot have more than one constructor. " +
+                        getManager().logError(MigrationDefinition.class, "Migrations cannot have more than one constructor. " +
                             "They can only have an Empty() or single-parameter constructor Empty(Empty.class) that specifies " +
                             "the .class of this migration class.");
                     }
@@ -66,7 +66,7 @@ public class MigrationDefinition extends BaseDefinition {
                             TypeName containedType = ((ParameterizedTypeName) type).typeArguments.get(0);
                             constructorName = CodeBlock.builder().add("($T.class)", containedType).build().toString();
                         } else {
-                            manager.logError(MigrationDefinition.class, "Wrong parameter type found for %1s. Found %1s" +
+                            getManager().logError(MigrationDefinition.class, "Wrong parameter type found for %1s. Found %1s" +
                                 "but required ModelClass.class", typeElement, type);
                         }
                     }

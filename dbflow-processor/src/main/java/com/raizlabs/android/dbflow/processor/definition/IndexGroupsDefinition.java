@@ -37,10 +37,10 @@ public class IndexGroupsDefinition {
 
     public FieldSpec getFieldSpec() {
         FieldSpec.Builder fieldBuilder = FieldSpec
-                .builder(ParameterizedTypeName.get(ClassNames.INDEX_PROPERTY, tableDefinition.elementClassName),
+                .builder(ParameterizedTypeName.get(ClassNames.INDEX_PROPERTY, tableDefinition.getElementClassName()),
                         "index_" + indexName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
         CodeBlock.Builder initializer = CodeBlock.builder()
-                .add("new $T<>($S, $L, $T.class", ClassNames.INDEX_PROPERTY, indexName, isUnique, tableDefinition.elementTypeName);
+                .add("new $T<>($S, $L, $T.class", ClassNames.INDEX_PROPERTY, indexName, isUnique, tableDefinition.getElementTypeName());
 
         for (ColumnDefinition columnDefinition : columnDefinitionList) {
             initializer.add(", $L", columnDefinition.getColumnName());

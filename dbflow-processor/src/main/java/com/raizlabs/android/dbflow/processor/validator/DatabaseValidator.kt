@@ -8,8 +8,8 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager
  */
 class DatabaseValidator : Validator<DatabaseDefinition> {
     override fun validate(processorManager: ProcessorManager,
-                          databaseDefinition: DatabaseDefinition): Boolean {
-        if (databaseDefinition.outputClassName == null) {
+                          validatorDefinition: DatabaseDefinition): Boolean {
+        if (validatorDefinition.outputClassName == null) {
             return false
         }
 

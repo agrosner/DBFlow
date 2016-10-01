@@ -72,15 +72,15 @@ class PrivateColumnAccess : BaseColumnAccess {
     }
 
     fun getSetterNameElement(elementName: String): String {
-        var elementName = elementName
+        var setElementName = elementName
         if (StringUtils.isNullOrEmpty(setterName)) {
-            if (!elementName.startsWith("set")) {
-                if (useBooleanSetters && elementName.startsWith("is")) {
-                    elementName = elementName.replaceFirst("is".toRegex(), "")
+            if (!setElementName.startsWith("set")) {
+                if (useBooleanSetters && setElementName.startsWith("is")) {
+                    setElementName = setElementName.replaceFirst("is".toRegex(), "")
                 }
-                return "set" + StringUtils.capitalize(elementName)
+                return "set" + StringUtils.capitalize(setElementName)
             } else {
-                return StringUtils.lower(elementName)
+                return StringUtils.lower(setElementName)
             }
         } else {
             return setterName

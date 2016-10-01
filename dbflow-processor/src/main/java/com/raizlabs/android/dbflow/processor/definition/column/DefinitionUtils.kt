@@ -22,8 +22,7 @@ object DefinitionUtils {
     fun getContentValuesStatement(elementName: String, fullElementName: String,
                                   columnName: String, elementTypeName: TypeName,
                                   columnAccess: BaseColumnAccess,
-                                  variableNameString: String, defaultValue: String?,
-                                  tableTableClassName: ClassName): CodeBlock.Builder {
+                                  variableNameString: String, defaultValue: String?): CodeBlock.Builder {
         val statement = columnAccess.getColumnAccessString(elementTypeName, elementName, fullElementName, variableNameString, false)
 
         val codeBuilder = CodeBlock.builder()

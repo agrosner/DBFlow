@@ -51,7 +51,7 @@ public class ContentProviderDefinition extends BaseDefinition {
     public ContentProviderDefinition(Element typeElement, ProcessorManager processorManager) {
         super(typeElement, processorManager);
 
-        ContentProvider provider = element.getAnnotation(ContentProvider.class);
+        ContentProvider provider = getElement().getAnnotation(ContentProvider.class);
         if (provider != null) {
             try {
                 provider.database();
@@ -62,10 +62,10 @@ public class ContentProviderDefinition extends BaseDefinition {
             authority = provider.authority();
 
             TableEndpointValidator validator = new TableEndpointValidator();
-            List<? extends Element> elements = manager.getElements().getAllMembers((TypeElement) typeElement);
+            List<? extends Element> elements = getManager().getElements().getAllMembers((TypeElement) typeElement);
             for (Element innerElement : elements) {
                 if (innerElement.getAnnotation(TableEndpoint.class) != null) {
-                    TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, manager);
+                    TableEndpointDefinition endpointDefinition = new TableEndpointDefinition(innerElement, getManager());
                     if (validator.validate(processorManager, endpointDefinition)) {
                         endpointDefinitions.add(endpointDefinition);
                     }
@@ -75,11 +75,11 @@ public class ContentProviderDefinition extends BaseDefinition {
         }
 
         methods = new MethodDefinition[]{
-                new QueryMethod(this, manager),
+                new QueryMethod(this, getManager()),
                 new InsertMethod(this, false),
                 new InsertMethod(this, true),
-                new DeleteMethod(this, manager),
-                new UpdateMethod(this, manager)
+                new DeleteMethod(this, getManager()),
+                new UpdateMethod(this, getManager())
         };
     }
 
@@ -89,7 +89,7 @@ public class ContentProviderDefinition extends BaseDefinition {
     }
 
     public void prepareForWrite() {
-        DatabaseDefinition databaseDefinition = manager
+        DatabaseDefinition databaseDefinition = getManager()
                 .getDatabaseHolderDefinition(databaseName).getDatabaseDefinition();
         databaseNameString = databaseDefinition.databaseName;
         setOutputClassName(databaseDefinition.classSeparator + DEFINITION_NAME);
@@ -103,7 +103,7 @@ public class ContentProviderDefinition extends BaseDefinition {
 
         int code = 0;
         for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
-            for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
+            for (ContentUriDefinition contentUriDefinition : endpointDefinition.getContentUriDefinitions()) {
                 typeBuilder.addField(FieldSpec.builder(TypeName.INT, contentUriDefinition.name,
                         Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                         .initializer(String.valueOf(code)).build());
@@ -118,12 +118,12 @@ public class ContentProviderDefinition extends BaseDefinition {
                 .add("static {\n");
 
         for (TableEndpointDefinition endpointDefinition : endpointDefinitions) {
-            for (ContentUriDefinition contentUriDefinition : endpointDefinition.contentUriDefinitions) {
+            for (ContentUriDefinition contentUriDefinition : endpointDefinition.getContentUriDefinitions()) {
                 String path;
                 if (contentUriDefinition.path != null) {
                     path = "\"" + contentUriDefinition.path + "\"";
                 } else {
-                    path = CodeBlock.builder().add("$L.$L.getPath()", contentUriDefinition.elementClassName, contentUriDefinition.name).build().toString();
+                    path = CodeBlock.builder().add("$L.$L.getPath()", contentUriDefinition.getElementClassName(), contentUriDefinition.name).build().toString();
                 }
                 initializer.addStatement("$L.addURI($L, $L, $L)", URI_MATCHER, AUTHORITY, path, contentUriDefinition.name);
             }
@@ -148,7 +148,7 @@ public class ContentProviderDefinition extends BaseDefinition {
                 .beginControlFlow("switch($L.match(uri))", URI_MATCHER);
 
         for (TableEndpointDefinition tableEndpointDefinition : endpointDefinitions) {
-            for (ContentUriDefinition uriDefinition : tableEndpointDefinition.contentUriDefinitions) {
+            for (ContentUriDefinition uriDefinition : tableEndpointDefinition.getContentUriDefinitions()) {
                 getTypeCode.beginControlFlow("case $L:", uriDefinition.name)
                         .addStatement("type = $S", uriDefinition.type)
                         .addStatement("break")

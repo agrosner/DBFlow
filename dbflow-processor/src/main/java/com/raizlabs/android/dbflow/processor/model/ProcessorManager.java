@@ -103,7 +103,7 @@ public class ProcessorManager implements Handler {
     }
 
     public void addFlowManagerWriter(DatabaseDefinition databaseDefinition) {
-        DatabaseHolderDefinition holderDefinition = getOrPutDatabase(databaseDefinition.elementClassName);
+        DatabaseHolderDefinition holderDefinition = getOrPutDatabase(databaseDefinition.getElementClassName());
         holderDefinition.setDatabaseDefinition(databaseDefinition);
     }
 
@@ -137,13 +137,13 @@ public class ProcessorManager implements Handler {
     }
 
     public void addQueryModelDefinition(QueryModelDefinition queryModelDefinition) {
-        getOrPutDatabase(queryModelDefinition.databaseTypeName).queryModelDefinitionMap.
-                put(queryModelDefinition.elementClassName, queryModelDefinition);
+        getOrPutDatabase(queryModelDefinition.getDatabaseTypeName()).queryModelDefinitionMap.
+                put(queryModelDefinition.getElementClassName(), queryModelDefinition);
     }
 
     public void addTableDefinition(TableDefinition tableDefinition) {
         DatabaseHolderDefinition holderDefinition = getOrPutDatabase(tableDefinition.getDatabaseTypeName());
-        holderDefinition.tableDefinitionMap.put(tableDefinition.elementClassName, tableDefinition);
+        holderDefinition.tableDefinitionMap.put(tableDefinition.getElementClassName(), tableDefinition);
         if (holderDefinition.tableNameMap.containsKey(tableDefinition.getTableName())) {
             logError("Found duplicate table %1s for database %1s", tableDefinition.getTableName(),
                     holderDefinition.getDatabaseDefinition().databaseName);
@@ -155,10 +155,10 @@ public class ProcessorManager implements Handler {
     public void addManyToManyDefinition(ManyToManyDefinition manyToManyDefinition) {
         DatabaseHolderDefinition databaseHolderDefinition = getOrPutDatabase(manyToManyDefinition.databaseTypeName);
 
-        List<ManyToManyDefinition> manyToManyDefinitions = databaseHolderDefinition.manyToManyDefinitionMap.get(manyToManyDefinition.elementClassName);
+        List<ManyToManyDefinition> manyToManyDefinitions = databaseHolderDefinition.manyToManyDefinitionMap.get(manyToManyDefinition.getElementClassName());
         if (manyToManyDefinitions == null) {
             manyToManyDefinitions = new ArrayList<>();
-            databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.elementClassName, manyToManyDefinitions);
+            databaseHolderDefinition.manyToManyDefinitionMap.put(manyToManyDefinition.getElementClassName(), manyToManyDefinitions);
         }
 
         manyToManyDefinitions.add(manyToManyDefinition);
@@ -174,7 +174,7 @@ public class ProcessorManager implements Handler {
 
     public void addModelViewDefinition(ModelViewDefinition modelViewDefinition) {
         getOrPutDatabase(modelViewDefinition.getDatabaseName()).modelViewDefinitionMap
-                .put(modelViewDefinition.elementClassName, modelViewDefinition);
+                .put(modelViewDefinition.getElementClassName(), modelViewDefinition);
     }
 
     public Set<TypeConverterDefinition> getTypeConverters() {
@@ -236,16 +236,16 @@ public class ProcessorManager implements Handler {
 
     public void addContentProviderDefinition(ContentProviderDefinition contentProviderDefinition) {
         DatabaseHolderDefinition holderDefinition = getOrPutDatabase(contentProviderDefinition.databaseName);
-        holderDefinition.providerMap.put(contentProviderDefinition.elementTypeName, contentProviderDefinition);
-        providerMap.put(contentProviderDefinition.elementTypeName, contentProviderDefinition);
+        holderDefinition.providerMap.put(contentProviderDefinition.getElementTypeName(), contentProviderDefinition);
+        providerMap.put(contentProviderDefinition.getElementTypeName(), contentProviderDefinition);
     }
 
     public void putTableEndpointForProvider(TableEndpointDefinition tableEndpointDefinition) {
         ContentProviderDefinition contentProviderDefinition = providerMap.get(
-                tableEndpointDefinition.contentProviderName);
+                tableEndpointDefinition.getContentProviderName());
         if (contentProviderDefinition == null) {
             logError("Content Provider %1s was not found for the @TableEndpoint %1s",
-                    tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName);
+                    tableEndpointDefinition.getContentProviderName(), tableEndpointDefinition.getElementClassName());
         } else {
             contentProviderDefinition.endpointDefinitions.add(tableEndpointDefinition);
         }
@@ -330,7 +330,7 @@ public class ProcessorManager implements Handler {
                 databaseDefinition.getDatabaseDefinition().validateAndPrepareToWrite();
 
                 if (roundEnvironment.processingOver()) {
-                    JavaFile.builder(databaseDefinition.getDatabaseDefinition().packageName,
+                    JavaFile.builder(databaseDefinition.getDatabaseDefinition().getPackageName(),
                             databaseDefinition.getDatabaseDefinition().getTypeSpec())
                             .build().writeTo(processorManager.getProcessingEnvironment().getFiler());
                 }

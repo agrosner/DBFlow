@@ -143,8 +143,7 @@ class ForeignKeyReferenceDefinition {
         return DefinitionUtils.getContentValuesStatement(columnShortAccess.toString(),
                 combined.toString(),
                 columnName, columnClassName, simpleColumnAccess,
-                foreignKeyColumnVariable, null,
-                foreignKeyColumnDefinition.baseTableDefinition.outputClassName).build()
+                foreignKeyColumnVariable, null).build()
     }
 
     val primaryReferenceString: CodeBlock

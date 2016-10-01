@@ -14,7 +14,7 @@ public class WriterUtils {
     public static boolean writeBaseDefinition(BaseDefinition baseDefinition, ProcessorManager processorManager) {
         boolean success = false;
         try {
-            JavaFile javaFile = JavaFile.builder(baseDefinition.packageName, baseDefinition.getTypeSpec()).build();
+            JavaFile javaFile = JavaFile.builder(baseDefinition.getPackageName(), baseDefinition.getTypeSpec()).build();
             javaFile.writeTo(processorManager.getProcessingEnvironment().getFiler());
             success = true;
         } catch (IOException e) {

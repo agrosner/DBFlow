@@ -60,7 +60,7 @@ public class OneToManySaveMethod implements MethodDefinition {
             MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(tableDefinition.elementClassName, ModelUtils.getVariable())
+                    .addParameter(tableDefinition.getElementClassName(), ModelUtils.getVariable())
                     .addCode(code.build());
             if (useWrapper) {
                 builder.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.getWrapper());

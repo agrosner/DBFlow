@@ -11,79 +11,79 @@ class ColumnValidator : Validator<ColumnDefinition> {
 
     private var autoIncrementingPrimaryKey: ColumnDefinition? = null
 
-    override fun validate(processorManager: ProcessorManager, columnDefinition: ColumnDefinition): Boolean {
+    override fun validate(processorManager: ProcessorManager, validatorDefinition: ColumnDefinition): Boolean {
 
         var success = true
 
         // validate getter and setters.
-        if (columnDefinition.columnAccess is PrivateColumnAccess || columnDefinition.columnAccess is WrapperColumnAccess && (columnDefinition.columnAccess as WrapperColumnAccess).existingColumnAccess is PrivateColumnAccess) {
-            val privateColumnAccess = if (columnDefinition.columnAccess is PrivateColumnAccess)
-                columnDefinition.columnAccess as PrivateColumnAccess
+        if (validatorDefinition.columnAccess is PrivateColumnAccess || validatorDefinition.columnAccess is WrapperColumnAccess && (validatorDefinition.columnAccess as WrapperColumnAccess).existingColumnAccess is PrivateColumnAccess) {
+            val privateColumnAccess = if (validatorDefinition.columnAccess is PrivateColumnAccess)
+                validatorDefinition.columnAccess as PrivateColumnAccess
             else
-                (columnDefinition.columnAccess as WrapperColumnAccess).existingColumnAccess as PrivateColumnAccess
-            if (!columnDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getGetterNameElement(columnDefinition.elementName))) {
+                (validatorDefinition.columnAccess as WrapperColumnAccess).existingColumnAccess as PrivateColumnAccess
+            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getGetterNameElement(validatorDefinition.elementName))) {
                 processorManager.logError(ColumnValidator::class.java, "Could not find getter for private element: " + "\"%1s\" from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
-                        columnDefinition.elementName, columnDefinition.baseTableDefinition.elementName, privateColumnAccess.getGetterNameElement(columnDefinition.elementName))
+                        validatorDefinition.elementName, validatorDefinition.baseTableDefinition.elementName, privateColumnAccess.getGetterNameElement(validatorDefinition.elementName))
                 success = false
             }
-            if (!columnDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getSetterNameElement(columnDefinition.elementName))) {
+            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getSetterNameElement(validatorDefinition.elementName))) {
                 processorManager.logError(ColumnValidator::class.java, "Could not find setter for private element: " + "\"%1s\" from table class: %1s. Consider adding a setter with name %1s or making it more accessible.",
-                        columnDefinition.elementName, columnDefinition.baseTableDefinition.elementName, privateColumnAccess.getSetterNameElement(columnDefinition.elementName))
+                        validatorDefinition.elementName, validatorDefinition.baseTableDefinition.elementName, privateColumnAccess.getSetterNameElement(validatorDefinition.elementName))
                 success = false
             }
         }
 
-        if (!StringUtils.isNullOrEmpty(columnDefinition.defaultValue)) {
-            if (columnDefinition is ForeignKeyColumnDefinition && columnDefinition.isModel) {
+        if (!StringUtils.isNullOrEmpty(validatorDefinition.defaultValue)) {
+            if (validatorDefinition is ForeignKeyColumnDefinition && validatorDefinition.isModel) {
                 processorManager.logError(ColumnValidator::class.java, "Default values cannot be specified for model fields")
-            } else if (columnDefinition.elementTypeName.isPrimitive) {
+            } else if (validatorDefinition.elementTypeName.isPrimitive) {
                 processorManager.logWarning(ColumnValidator::class.java, "Primitive column types will not respect default values")
             }
         }
 
-        if (columnDefinition.columnName.isEmpty()) {
+        if (validatorDefinition.columnName.isEmpty()) {
             success = false
             processorManager.logError("Field %1s cannot have a null column name for column: %1s and type: %1s",
-                    columnDefinition.elementName, columnDefinition.columnName,
-                    columnDefinition.elementTypeName)
+                    validatorDefinition.elementName, validatorDefinition.columnName,
+                    validatorDefinition.elementTypeName)
         }
 
-        if (columnDefinition.columnAccess is EnumColumnAccess) {
-            if (columnDefinition.isPrimaryKey) {
+        if (validatorDefinition.columnAccess is EnumColumnAccess) {
+            if (validatorDefinition.isPrimaryKey) {
                 success = false
-                processorManager.logError("Enums cannot be primary keys. Column: %1s and type: %1s", columnDefinition.columnName,
-                        columnDefinition.elementTypeName)
-            } else if (columnDefinition is ForeignKeyColumnDefinition) {
+                processorManager.logError("Enums cannot be primary keys. Column: %1s and type: %1s", validatorDefinition.columnName,
+                        validatorDefinition.elementTypeName)
+            } else if (validatorDefinition is ForeignKeyColumnDefinition) {
                 success = false
-                processorManager.logError("Enums cannot be foreign keys. Column: %1s and type: %1s", columnDefinition.columnName,
-                        columnDefinition.elementTypeName)
+                processorManager.logError("Enums cannot be foreign keys. Column: %1s and type: %1s", validatorDefinition.columnName,
+                        validatorDefinition.elementTypeName)
             }
         }
 
-        if (columnDefinition is ForeignKeyColumnDefinition) {
-            columnDefinition.column?.let {
+        if (validatorDefinition is ForeignKeyColumnDefinition) {
+            validatorDefinition.column?.let {
                 if (it.name.length > 0) {
                     success = false
                     processorManager.logError("Foreign Key %1s cannot specify the column() field. "
                             + "Use a @ForeignKeyReference(columnName = {NAME} instead. Column: %1s and type: %1s",
-                            columnDefinition.elementName, columnDefinition.columnName,
-                            columnDefinition.elementTypeName)
+                            validatorDefinition.elementName, validatorDefinition.columnName,
+                            validatorDefinition.elementTypeName)
                 }
             }
 
         } else {
-            if (autoIncrementingPrimaryKey != null && columnDefinition.isPrimaryKey) {
+            if (autoIncrementingPrimaryKey != null && validatorDefinition.isPrimaryKey) {
                 processorManager.logError("You cannot mix and match autoincrementing and composite primary keys.")
                 success = false
             }
 
-            if (columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+            if (validatorDefinition.isPrimaryKeyAutoIncrement || validatorDefinition.isRowId) {
                 if (autoIncrementingPrimaryKey == null) {
-                    autoIncrementingPrimaryKey = columnDefinition
-                } else if (autoIncrementingPrimaryKey != columnDefinition) {
+                    autoIncrementingPrimaryKey = validatorDefinition
+                } else if (autoIncrementingPrimaryKey != validatorDefinition) {
                     processorManager.logError(
                             "Only one autoincrementing primary key is allowed on a table. Found Column: %1s and type: %1s",
-                            columnDefinition.columnName, columnDefinition.elementTypeName)
+                            validatorDefinition.columnName, validatorDefinition.elementTypeName)
                     success = false
                 }
             }

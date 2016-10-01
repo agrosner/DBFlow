@@ -112,7 +112,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         }
     }
 
-    override fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClassName: TypeName) {
+    override fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         checkNeedsReferences()
         for (reference in _foreignKeyReferenceDefinitionList) {
             val propParam: TypeName
@@ -122,7 +122,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                 propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, reference.columnClassName.box())
             }
             typeBuilder.addField(FieldSpec.builder(propParam, reference.columnName,
-                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("new \$T(\$T.class, \$S)", propParam, tableClassName,
+                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("new \$T(\$T.class, \$S)", propParam, tableClass,
                     reference.columnName).addJavadoc("Foreign Key" + if (isPrimaryKey) " / Primary Key" else "").build())
         }
     }

@@ -8,11 +8,11 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager
  */
 class TableEndpointValidator : Validator<TableEndpointDefinition> {
 
-    override fun validate(processorManager: ProcessorManager, tableEndpointDefinition: TableEndpointDefinition): Boolean {
+    override fun validate(processorManager: ProcessorManager, validatorDefinition: TableEndpointDefinition): Boolean {
         var success = true
 
-        if (tableEndpointDefinition.contentUriDefinitions.isEmpty()) {
-            processorManager.logError("A table endpoint %1s must supply at least one @ContentUri", tableEndpointDefinition.elementClassName)
+        if (validatorDefinition.contentUriDefinitions.isEmpty()) {
+            processorManager.logError("A table endpoint %1s must supply at least one @ContentUri", validatorDefinition.elementClassName)
             success = false
         }
 

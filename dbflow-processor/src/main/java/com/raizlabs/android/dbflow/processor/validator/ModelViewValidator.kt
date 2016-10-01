@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager
  */
 class ModelViewValidator : Validator<ModelViewDefinition> {
 
-    override fun validate(processorManager: ProcessorManager, modelViewDefinition: ModelViewDefinition): Boolean {
+    override fun validate(processorManager: ProcessorManager, validatorDefinition: ModelViewDefinition): Boolean {
         return true
     }
 }

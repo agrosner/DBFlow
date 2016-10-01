@@ -19,13 +19,13 @@ class PackagePrivateAccess(elementPackageName: String, separator: String?, class
     private val internalHelperClassName: ClassName // used for safety
 
     init {
-        var separator = separator
-        helperClassName = ClassName.get(elementPackageName, className + separator + classSuffix)
+        var setSeparator = separator
+        helperClassName = ClassName.get(elementPackageName, className + setSeparator + classSuffix)
 
-        if (separator != null && separator.matches("[$]+".toRegex())) {
-            separator += separator // duplicate to be safe
+        if (setSeparator != null && setSeparator.matches("[$]+".toRegex())) {
+            setSeparator += setSeparator // duplicate to be safe
         }
-        internalHelperClassName = ClassName.get(elementPackageName, className + separator + classSuffix)
+        internalHelperClassName = ClassName.get(elementPackageName, className + setSeparator + classSuffix)
     }
 
     override fun getColumnAccessString(fieldType: TypeName, elementName: String,

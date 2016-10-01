@@ -8,16 +8,16 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager
  */
 class TypeConverterValidator : Validator<TypeConverterDefinition> {
     override fun validate(processorManager: ProcessorManager,
-                          typeConverterDefinition: TypeConverterDefinition): Boolean {
+                          validatorDefinition: TypeConverterDefinition): Boolean {
         var success = true
 
-        if (typeConverterDefinition.modelTypeName == null) {
-            processorManager.logError("TypeConverter: " + typeConverterDefinition.className.toString() +
+        if (validatorDefinition.modelTypeName == null) {
+            processorManager.logError("TypeConverter: " + validatorDefinition.className.toString() +
                     " uses an unsupported Model Element parameter. If it has type parameters, you must remove them or subclass it" +
                     "for proper usage.")
             success = false
-        } else if (typeConverterDefinition.dbTypeName == null) {
-            processorManager.logError("TypeConverter: " + typeConverterDefinition.className.toString() +
+        } else if (validatorDefinition.dbTypeName == null) {
+            processorManager.logError("TypeConverter: " + validatorDefinition.className.toString() +
                     " uses an unsupported DB Element parameter. If it has type parameters, you must remove them or subclass it " +
                     "for proper usage.")
             success = false

@@ -8,12 +8,12 @@ import com.raizlabs.android.dbflow.processor.model.ProcessorManager
  */
 class ContentProviderValidator : Validator<ContentProviderDefinition> {
     override fun validate(processorManager: ProcessorManager,
-                          contentProviderDefinition: ContentProviderDefinition): Boolean {
+                          validatorDefinition: ContentProviderDefinition): Boolean {
         var success = true
 
-        if (contentProviderDefinition.endpointDefinitions.isEmpty()) {
+        if (validatorDefinition.endpointDefinitions.isEmpty()) {
             processorManager.logError("The content provider %1s must have at least 1 @TableEndpoint associated with it",
-                    contentProviderDefinition.element.simpleName)
+                    validatorDefinition.element.simpleName)
             success = false
         }
 

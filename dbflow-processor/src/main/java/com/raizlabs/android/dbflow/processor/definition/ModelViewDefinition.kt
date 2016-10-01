@@ -98,9 +98,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
             databaseDefinition = manager.getDatabaseHolderDefinition(databaseName).databaseDefinition
             setOutputClassName(databaseDefinition?.classSeparator + DBFLOW_MODEL_VIEW_TAG)
 
-            if (typeElement != null) {
-                createColumnDefinitions(typeElement)
-            }
+            typeElement?.let { createColumnDefinitions(it) }
         }
     }
 
@@ -170,16 +168,19 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     override val propertyClassName: ClassName
         get() = outputClassName
 
-    override fun getExtendsClass(): TypeName {
-        return ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, modelReferenceClass, elementClassName)
-    }
+    override val extendsClass: TypeName?
+        get() = ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, modelReferenceClass, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
         typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java),
                 "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
-
-        columnDefinitions.forEach { it.addPropertyDefinition(typeBuilder, elementClassName) }
+        elementClassName?.let {
+            columnDefinitions.forEach {
+                columnDefinition ->
+                columnDefinition.addPropertyDefinition(typeBuilder, it)
+            }
+        }
 
         val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this)
         customTypeConverterPropertyMethod.addToType(typeBuilder)

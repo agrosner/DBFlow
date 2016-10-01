@@ -52,7 +52,7 @@ public class FlowManagerHolderDefinition implements TypeDefinition {
 
         for (DatabaseHolderDefinition databaseDefinition : processorManager.getDatabaseDefinitionMap()) {
             if (databaseDefinition.getDatabaseDefinition() != null) {
-                constructor.addStatement("new $T(this)", databaseDefinition.getDatabaseDefinition().outputClassName);
+                constructor.addStatement("new $T(this)", databaseDefinition.getDatabaseDefinition().getOutputClassName());
             }
         }
 

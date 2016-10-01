@@ -193,7 +193,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     primaryKeyConflict.name
             }
 
-            createColumnDefinitions(typeElement)
+            typeElement?.let { createColumnDefinitions(it) }
 
             val groups = table.uniqueColumnGroups
             var uniqueNumbersSet: MutableSet<Int> = HashSet()
@@ -250,7 +250,6 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
         val columnValidator = ColumnValidator()
         val oneToManyValidator = OneToManyValidator()
-        val integer = AtomicInteger(0)
         elements.forEach { element ->
             // no private static or final fields for all columns, or any inherited columns here.
             val isAllFields = ElementUtility.isValidAllFields(allFields, element)
@@ -362,9 +361,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     override val propertyClassName: ClassName
         get() = outputClassName
 
-    override fun getExtendsClass(): TypeName {
-        return ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
-    }
+    override val extendsClass: TypeName?
+        get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
@@ -383,15 +381,14 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 ClassName.get(QueryBuilder::class.java), paramColumnName)
 
         getPropertyForNameMethod.beginControlFlow("switch (\$L) ", paramColumnName)
-        for (i in columnDefinitions.indices) {
+        columnDefinitions.indices.forEach { i ->
             if (i > 0) {
                 getPropertiesBuilder.add(",")
             }
             val columnDefinition = columnDefinitions[i]
-            columnDefinition.addPropertyDefinition(typeBuilder, elementClassName)
+            elementClassName?.let { columnDefinition.addPropertyDefinition(typeBuilder, it) }
             columnDefinition.addPropertyCase(getPropertyForNameMethod)
             columnDefinition.addColumnName(getPropertiesBuilder)
-
         }
         getPropertyForNameMethod.beginControlFlow("default: ")
         getPropertyForNameMethod.addStatement("throw new \$T(\$S)", IllegalArgumentException::class.java,
@@ -490,12 +487,13 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             val reloadMethod = MethodSpec.methodBuilder("reloadRelationships").addAnnotation(Override::class.java).addParameter(elementClassName, ModelUtils.getVariable()).addParameter(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             val loadStatements = CodeBlock.builder()
             val noIndex = AtomicInteger(-1)
-            for (foreignColumn in foreignKeyDefinitions) {
-                val codeBuilder = foreignColumn.getLoadFromCursorMethod(
-                        false, noIndex).toBuilder()
-                if (!foreignColumn.elementTypeName.isPrimitive) {
+            foreignKeyDefinitions.forEach {
+                val codeBuilder = it.getLoadFromCursorMethod(false, noIndex).toBuilder()
+                val typeName = it.elementTypeName
+                if (typeName != null && !typeName.isPrimitive) {
                     codeBuilder.nextControlFlow("else")
-                    codeBuilder.add(foreignColumn.setColumnAccessString(CodeBlock.builder().add("null").build(), false).toBuilder().add(";\n").build())
+                    codeBuilder.add(it.setColumnAccessString(CodeBlock.builder().add("null").build())
+                            .toBuilder().add(";\n").build())
                     codeBuilder.endControlFlow()
                 }
                 loadStatements.add(codeBuilder.build())

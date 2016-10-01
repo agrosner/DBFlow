@@ -233,8 +233,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun getContentValuesStatement(isModelContainerAdapter: Boolean): CodeBlock {
         return DefinitionUtils.getContentValuesStatement(elementName, elementName,
                 columnName, elementTypeName, columnAccess,
-                ModelUtils.getVariable(), defaultValue,
-                baseTableDefinition.outputClassName).build()
+                ModelUtils.getVariable(), defaultValue).build()
     }
 
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
@@ -259,7 +258,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() = DefinitionUtils.getUpdateAutoIncrementMethod(elementName, elementName, elementTypeName,
                 columnAccess).build()
 
-    fun setColumnAccessString(formattedAccess: CodeBlock, toModelMethod: Boolean): CodeBlock {
+    fun setColumnAccessString(formattedAccess: CodeBlock): CodeBlock {
         return columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
                 ModelUtils.getVariable(), formattedAccess)
     }
