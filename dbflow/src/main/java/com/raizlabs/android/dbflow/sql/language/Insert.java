@@ -6,8 +6,8 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
 import java.util.Map;
@@ -218,6 +218,16 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      */
     public Insert<TModel> orIgnore() {
         return or(ConflictAction.IGNORE);
+    }
+
+    @Override
+    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+        throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
+    }
+
+    @Override
+    public long executeUpdateDelete() {
+        throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
     }
 
     @Override

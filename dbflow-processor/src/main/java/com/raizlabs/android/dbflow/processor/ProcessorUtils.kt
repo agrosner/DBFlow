@@ -63,13 +63,13 @@ object ProcessorUtils {
         }
     }
 
-    fun fromTypeMirror(typeMirror: TypeMirror): ClassName? {
+    fun fromTypeMirror(typeMirror: TypeMirror, processorManager: ProcessorManager): ClassName? {
         var className: ClassName? = null
         val element = getTypeElement(typeMirror)
         if (element != null) {
             className = ClassName.get(element)
         } else {
-            className = ElementUtility.getClassName(typeMirror.toString())
+            className = ElementUtility.getClassName(typeMirror.toString(), processorManager)
         }
         return className
     }

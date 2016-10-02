@@ -8,13 +8,7 @@ import com.raizlabs.android.dbflow.converter.BooleanConverter
 import com.raizlabs.android.dbflow.converter.CalendarConverter
 import com.raizlabs.android.dbflow.converter.DateConverter
 import com.raizlabs.android.dbflow.converter.SqlDateConverter
-import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.*
-import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.DatabaseValidator
-import com.raizlabs.android.dbflow.processor.TableEndpointValidator
-import com.raizlabs.android.dbflow.processor.TypeConverterValidator
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
@@ -153,7 +147,7 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
         if (element is TypeElement) {
-            val className = ProcessorUtils.fromTypeMirror(element.asType())
+            val className = ProcessorUtils.fromTypeMirror(element.asType(), processorManager)
             val converterDefinition = className?.let { TypeConverterDefinition(it, element.asType(), processorManager) }
             converterDefinition?.let {
                 if (VALIDATOR.validate(processorManager, converterDefinition)) {

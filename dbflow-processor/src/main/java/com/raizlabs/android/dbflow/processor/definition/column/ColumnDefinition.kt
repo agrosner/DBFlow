@@ -148,7 +148,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             column?.typeConverter
         } catch (mte: MirroredTypeException) {
             typeMirror = mte.typeMirror
-            typeConverterClassName = ProcessorUtils.fromTypeMirror(typeMirror)
+            typeConverterClassName = ProcessorUtils.fromTypeMirror(typeMirror, manager)
         }
 
         hasCustomConverter = false

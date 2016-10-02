@@ -54,7 +54,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         try {
             foreignKey.tableClass
         } catch (mte: MirroredTypeException) {
-            referencedTableClassName = ProcessorUtils.fromTypeMirror(mte.typeMirror)
+            referencedTableClassName = ProcessorUtils.fromTypeMirror(mte.typeMirror, manager)
         }
 
         val erasedElement: TypeElement? = manager.elements.getTypeElement(
