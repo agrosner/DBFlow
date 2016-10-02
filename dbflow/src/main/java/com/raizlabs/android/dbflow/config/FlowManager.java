@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.config;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
@@ -217,9 +218,10 @@ public class FlowManager {
     /**
      * Helper method to simplify the {@link #init(FlowConfig)}. Use {@link #init(FlowConfig)} to provide
      * more customization.
+     *
      * @param context - should be application context, but not necessary as we retrieve it anyways.
      */
-    public static void init(Context context) {
+    public static void init(@NotNull Context context) {
         init(new FlowConfig.Builder(context).build());
     }
 
