@@ -5,7 +5,6 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateAccess
-import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
@@ -105,9 +104,9 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                                 databaseDefinition?.classSeparator + "Helper"
                     }
                 }
-                val className = ClassName.bestGuess(helperClassName)
+                val className = ElementUtility.getClassName(helperClassName, manager)
 
-                if (PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
+                if (className != null && PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
 
                     var method: MethodSpec.Builder = MethodSpec.methodBuilder("get" + columnDefinition.columnName.capitalizeFirstLetter())
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
@@ -141,6 +140,8 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                     }
                     typeBuilder.addMethod(method.build())
                     count++
+                } else if (className == null) {
+                    manager.logError(BaseTableDefinition::class, "Could not find classname for:" + helperClassName)
                 }
             }
 

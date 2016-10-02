@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -93,7 +94,7 @@ abstract class BaseDefinition : TypeDefinition {
 
     protected open fun getElementClassName(element: Element): ClassName? {
         try {
-            return ClassName.bestGuess(element.asType().toString())
+            return ElementUtility.getClassName(element.asType().toString(), manager)
         } catch (e: Exception) {
             return null
         }

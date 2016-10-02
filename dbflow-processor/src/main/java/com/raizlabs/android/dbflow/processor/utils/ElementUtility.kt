@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.utils
 import com.raizlabs.android.dbflow.annotation.ColumnIgnore
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.squareup.javapoet.ClassName
 import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
@@ -46,5 +47,21 @@ object ElementUtility {
                 !element.modifiers.contains(Modifier.FINAL) &&
                 element.getAnnotation(ColumnIgnore::class.java) == null &&
                 element.asType().toString() != ClassNames.MODEL_ADAPTER.toString()
+    }
+
+    fun getClassName(elementClassname: String, manager: ProcessorManager): ClassName? {
+        val typeElement: TypeElement? = manager.elements.getTypeElement(elementClassname)
+        return if (typeElement != null) {
+            ClassName.get(typeElement)
+        } else {
+            val names = elementClassname.split(".")
+            if (names.size > 0) {
+                // attempt to take last part as class name
+                val className = names[names.size - 1]
+                ClassName.get(elementClassname.replace("." + className, ""), className)
+            } else {
+                null
+            }
+        }
     }
 }

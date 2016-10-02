@@ -2,12 +2,12 @@ package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.annotation.*
 import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.BindToContentValuesMethod
 import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod
 import com.raizlabs.android.dbflow.processor.definition.LoadFromCursorMethod
-import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.sql.QueryBuilder
@@ -65,11 +65,11 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             if (elementTypeName is ParameterizedTypeName) {
                 val args = (elementTypeName as ParameterizedTypeName).typeArguments
                 if (args.size > 0) {
-                    referencedTableClassName = ClassName.bestGuess(args[0].toString())
+                    referencedTableClassName = ClassName.get(manager.elements.getTypeElement(args[0].toString()))
                 }
             } else {
                 if (referencedTableClassName == null || referencedTableClassName == ClassName.OBJECT) {
-                    referencedTableClassName = ClassName.bestGuess(elementTypeName.toString())
+                    referencedTableClassName = ClassName.get(manager.elements.getTypeElement(elementTypeName.toString()))
                 }
             }
         }
