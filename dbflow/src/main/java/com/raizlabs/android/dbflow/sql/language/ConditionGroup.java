@@ -200,30 +200,14 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
     @Override
     public String getQuery() {
         if (isChanged) {
-            query = new QueryBuilder();
-
-            int count = 0;
-            int size = conditionsList.size();
-            for (int i = 0; i < size; i++) {
-                SQLCondition condition = conditionsList.get(i);
-                condition.appendConditionToQuery(query);
-                if (count < size - 1) {
-                    if (!allCommaSeparated) {
-                        query.appendSpace().append(condition.hasSeparator() ? condition.separator() : separator);
-                    } else {
-                        query.append(",");
-                    }
-                    query.appendSpace();
-                }
-                count++;
-            }
+            query = getQuerySafe();
         }
         return query == null ? "" : query.toString();
     }
 
     @Override
     public String toString() {
-        return getQuery();
+        return getQuerySafe().toString();
     }
 
     public int size() {
@@ -237,5 +221,28 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
     @Override
     public Iterator<SQLCondition> iterator() {
         return conditionsList.iterator();
+    }
+
+    private QueryBuilder getQuerySafe() {
+        QueryBuilder query = new QueryBuilder();
+
+        int count = 0;
+        int size = conditionsList.size();
+        for (int i = 0; i < size; i++) {
+            SQLCondition condition = conditionsList.get(i);
+            if (condition != null) {
+                condition.appendConditionToQuery(query);
+                if (count < size - 1) {
+                    if (!allCommaSeparated) {
+                        query.appendSpace().append(condition.hasSeparator() ? condition.separator() : separator);
+                    } else {
+                        query.append(",");
+                    }
+                    query.appendSpace();
+                }
+            }
+            count++;
+        }
+        return query;
     }
 }
