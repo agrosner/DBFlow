@@ -123,13 +123,13 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     @Override
-    public void insert(TModel model) {
-        getModelSaver().insert(model);
+    public long insert(TModel model) {
+        return getModelSaver().insert(model);
     }
 
     @Override
-    public void insert(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().insert(model, databaseWrapper);
+    public long insert(TModel model, DatabaseWrapper databaseWrapper) {
+        return getModelSaver().insert(model, databaseWrapper);
     }
 
     @Override

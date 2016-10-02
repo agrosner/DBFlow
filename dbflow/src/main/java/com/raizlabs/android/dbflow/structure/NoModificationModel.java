@@ -23,7 +23,7 @@ abstract class NoModificationModel implements Model {
     }
 
     @Override
-    public void insert() {
+    public long insert() {
         throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not insertable");
     }
 

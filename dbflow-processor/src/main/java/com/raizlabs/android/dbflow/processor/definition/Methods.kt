@@ -471,6 +471,10 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
             if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingEnabled) {
                 val code = CodeBlock.builder()
 
+                if (methodName == METHOD_INSERT) {
+                    code.add("long rowId = ")
+                }
+
                 code.addStatement("super.\$L(\$L\$L)", methodName,
                         ModelUtils.variable,
                         if (useWrapper) ", " + ModelUtils.wrapper else "")
@@ -493,6 +497,10 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         .addParameter(tableDefinition.elementClassName, ModelUtils.variable)
                         .addCode(code.build())
+                if (methodName == METHOD_INSERT) {
+                    builder.returns(ClassName.LONG)
+                    builder.addStatement("return rowId")
+                }
                 if (useWrapper) {
                     builder.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                 }

@@ -55,15 +55,14 @@ public interface InternalAdapter<TModel> {
      *
      * @param model The model to insert.
      */
-    void insert(TModel model);
+    long insert(TModel model);
 
     /**
      * Inserts the specified model into the DB.
-     *
-     * @param model           The model to insert.
+     *  @param model           The model to insert.
      * @param databaseWrapper The manually specified wrapper.
      */
-    void insert(TModel model, DatabaseWrapper databaseWrapper);
+    long insert(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
      * Inserts a {@link Collection} of models into the DB.

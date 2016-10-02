@@ -89,7 +89,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     @Override
-    public void insert() {
+    public long insert() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
@@ -97,6 +97,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                         getModelAdapter().insert(model);
                     }
                 }).add(model).build());
+        return INVALID_ROW_ID;
     }
 
     @Override

@@ -91,8 +91,8 @@ public class BaseModel implements Model {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void insert() {
-        getModelAdapter().insert(this);
+    public long insert() {
+        return getModelAdapter().insert(this);
     }
 
     @SuppressWarnings("unchecked")

@@ -6,6 +6,11 @@ package com.raizlabs.android.dbflow.structure;
 public interface Model {
 
     /**
+     * Returned when {@link #insert()} occurs in an async state or some kind of issue occurs.
+     */
+    long INVALID_ROW_ID = -1;
+
+    /**
      * Loads from the database the most recent version of the model based on it's primary keys.
      */
     void load();
@@ -28,7 +33,7 @@ public interface Model {
     /**
      * Inserts the object into the DB
      */
-    void insert();
+    long insert();
 
     /**
      * @return true if this object exists in the DB. It combines all of it's primary key fields
