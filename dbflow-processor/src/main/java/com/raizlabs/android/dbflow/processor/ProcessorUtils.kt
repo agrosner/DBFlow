@@ -1,8 +1,7 @@
 package com.raizlabs.android.dbflow.processor
 
-import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.squareup.javapoet.ClassName
-
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
@@ -69,6 +68,8 @@ object ProcessorUtils {
         val element = getTypeElement(typeMirror)
         if (element != null) {
             className = ClassName.get(element)
+        } else {
+            className = ElementUtility.getClassName(typeMirror.toString())
         }
         return className
     }
