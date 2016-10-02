@@ -67,7 +67,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
-    // sql-cipher database encyrption (optional)
+    // sql-cipher database encryption (optional)
     compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
 
     // kotlin extensions
