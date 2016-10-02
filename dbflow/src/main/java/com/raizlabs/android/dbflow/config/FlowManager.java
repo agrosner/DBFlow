@@ -215,6 +215,15 @@ public class FlowManager {
     }
 
     /**
+     * Helper method to simplify the {@link #init(FlowConfig)}. Use {@link #init(FlowConfig)} to provide
+     * more customization.
+     * @param context - should be application context, but not necessary as we retrieve it anyways.
+     */
+    public static void init(Context context) {
+        init(new FlowConfig.Builder(context).build());
+    }
+
+    /**
      * Initializes DBFlow, loading the main application Database holder via reflection one time only.
      * This will trigger all creations, updates, and instantiation for each database defined.
      *
