@@ -33,9 +33,7 @@ class IndexGroupsDefinition(private val tableDefinition: TableDefinition, indexG
             val initializer = CodeBlock.builder().add("new \$T<>(\$S, \$L, \$T.class", ClassNames.INDEX_PROPERTY,
                     indexName, isUnique, tableDefinition.elementTypeName)
 
-            for (columnDefinition in columnDefinitionList) {
-                initializer.add(", \$L", columnDefinition.columnName)
-            }
+            columnDefinitionList.forEach { initializer.add(", \$L", it.columnName) }
             initializer.add(")")
 
             fieldBuilder.initializer(initializer.build())

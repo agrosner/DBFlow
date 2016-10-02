@@ -57,7 +57,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
   apply plugin: 'com.neenbedankt.android-apt'
 
-  def dbflow_version = "3.1.0"
+  def dbflow_version = "4.0.0-beta1"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
