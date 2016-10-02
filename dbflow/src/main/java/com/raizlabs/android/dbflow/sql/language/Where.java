@@ -1,19 +1,14 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDoneException;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
-import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
@@ -188,30 +183,6 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
         conditionGroup.and(new ExistenceCondition()
                 .where(where));
         return this;
-    }
-
-    /**
-     * Executes a SQL statement that retrieves the count of results in the DB. Within a {@link Set} or {@link Delete}
-     * this will execute an {@link DatabaseStatement#executeUpdateDelete()},
-     * which returns number of rows affected.
-     *
-     * @return The number of rows this query returns or affects.
-     */
-    @Override
-    public long count(DatabaseWrapper databaseWrapper) {
-        long count;
-        if ((whereBase instanceof Set) || whereBase.getQueryBuilderBase() instanceof Delete) {
-            count = databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
-        } else {
-            try {
-                count = SqlUtils.longForQuery(databaseWrapper, getQuery());
-            } catch (SQLiteDoneException sde) {
-                // catch exception here, log it but return 0;
-                FlowLog.log(FlowLog.Level.E, sde);
-                count = 0;
-            }
-        }
-        return count;
     }
 
     @Override

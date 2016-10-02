@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -111,6 +110,16 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
     @Override
     public long count(DatabaseWrapper databaseWrapper) {
         return where().count(databaseWrapper);
+    }
+
+    @Override
+    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+        return where().executeUpdateDelete(databaseWrapper);
+    }
+
+    @Override
+    public long executeUpdateDelete() {
+        return where().executeUpdateDelete();
     }
 
     @Override

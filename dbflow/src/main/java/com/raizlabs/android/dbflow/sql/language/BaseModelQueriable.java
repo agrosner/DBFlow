@@ -90,6 +90,16 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
     }
 
     @Override
+    public long executeUpdateDelete() {
+        return executeUpdateDelete(FlowManager.getWritableDatabase(getTable()));
+    }
+
+    @Override
+    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
+    }
+
+    @Override
     public AsyncQuery<TModel> async() {
         return new AsyncQuery<>(this);
     }
