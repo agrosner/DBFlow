@@ -3,16 +3,11 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
-import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.ProcessorUtils
+import com.raizlabs.android.dbflow.processor.*
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.method.*
-import com.raizlabs.android.dbflow.processor.DatabaseHandler
-import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.squareup.javapoet.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier

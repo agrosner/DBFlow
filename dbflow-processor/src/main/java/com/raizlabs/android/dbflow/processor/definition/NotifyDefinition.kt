@@ -15,17 +15,11 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
 : BaseDefinition(typeElement, processorManager) {
 
     var paths: Array<String>
-
     var method: Notify.Method
-
     var parent: String
-
     var methodName: String
-
     var params: String
-
     var returnsArray: Boolean = false
-
     var returnsSingle: Boolean = false
 
     init {
@@ -44,7 +38,7 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
         val parameters = executableElement.parameters
         val paramsBuilder = StringBuilder()
         var first = true
-        for (param in parameters) {
+        parameters.forEach { param ->
             if (first) {
                 first = false
             } else {
@@ -52,19 +46,22 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
             }
             val paramType = param.asType()
             val typeAsString = paramType.toString()
-            if ("android.content.Context" == typeAsString) {
-                paramsBuilder.append("getContext()")
-            } else if ("android.net.Uri" == typeAsString) {
-                paramsBuilder.append("uri")
-            } else if ("android.content.ContentValues" == typeAsString) {
-                paramsBuilder.append("values")
-            } else if ("long" == typeAsString) {
-                paramsBuilder.append("id")
-            } else if ("java.lang.String" == typeAsString) {
-                paramsBuilder.append("where")
-            } else if ("java.lang.String[]" == typeAsString) {
-                paramsBuilder.append("whereArgs")
-            }
+            paramsBuilder.append(
+                    if ("android.content.Context" == typeAsString) {
+                        "getContext()"
+                    } else if ("android.net.Uri" == typeAsString) {
+                        "uri"
+                    } else if ("android.content.ContentValues" == typeAsString) {
+                        "values"
+                    } else if ("long" == typeAsString) {
+                        "id"
+                    } else if ("java.lang.String" == typeAsString) {
+                        "where"
+                    } else if ("java.lang.String[]" == typeAsString) {
+                        "whereArgs"
+                    } else {
+                        ""
+                    })
         }
 
         params = paramsBuilder.toString()

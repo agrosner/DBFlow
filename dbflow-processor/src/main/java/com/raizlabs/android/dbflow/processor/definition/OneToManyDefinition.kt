@@ -3,12 +3,13 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.google.common.collect.Lists
 import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.BaseColumnAccess
 import com.raizlabs.android.dbflow.processor.definition.column.PrivateColumnAccess
 import com.raizlabs.android.dbflow.processor.definition.column.SimpleColumnAccess
-import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
+import com.raizlabs.android.dbflow.processor.utils.controlFlow
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
@@ -23,11 +24,23 @@ import javax.lang.model.element.TypeElement
 class OneToManyDefinition(typeElement: ExecutableElement,
                           processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
 
-    private var methodName: String
+    private var _methodName: String
 
     private var _variableName: String
 
     var methods: MutableList<OneToMany.Method> = Lists.newArrayList<OneToMany.Method>()
+
+    val isLoad: Boolean
+        get() = isAll || methods.contains(OneToMany.Method.LOAD)
+
+    val isAll: Boolean
+        get() = methods.contains(OneToMany.Method.ALL)
+
+    val isDelete: Boolean
+        get() = isAll || methods.contains(OneToMany.Method.DELETE)
+
+    val isSave: Boolean
+        get() = isAll || methods.contains(OneToMany.Method.SAVE)
 
     private var columnAccess: BaseColumnAccess? = null
     private var extendsBaseModel: Boolean = false
@@ -39,10 +52,10 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
         val oneToMany = typeElement.getAnnotation(OneToMany::class.java)
 
-        methodName = typeElement.simpleName.toString()
+        _methodName = typeElement.simpleName.toString()
         _variableName = oneToMany.variableName
         if (_variableName.isEmpty()) {
-            _variableName = methodName.replace("get", "")
+            _variableName = _methodName.replace("get", "")
             _variableName = _variableName.substring(0, 1).toLowerCase() + _variableName.substring(1)
         }
         methods.addAll(Arrays.asList<OneToMany.Method>(*oneToMany.methods))
@@ -69,24 +82,15 @@ class OneToManyDefinition(typeElement: ExecutableElement,
         }
     }
 
-    val isLoad: Boolean
-        get() = isAll || methods.contains(OneToMany.Method.LOAD)
+    private val methodName = String.format("%1s.%1s()", ModelUtils.variable, _methodName)
 
-    val isAll: Boolean
-        get() = methods.contains(OneToMany.Method.ALL)
-
-    val isDelete: Boolean
-        get() = isAll || methods.contains(OneToMany.Method.DELETE)
-
-    val isSave: Boolean
-        get() = isAll || methods.contains(OneToMany.Method.SAVE)
 
     /**
      * Writes the method to the specified builder for loading from DB.
      */
     fun writeLoad(codeBuilder: CodeBlock.Builder) {
         if (isLoad) {
-            codeBuilder.addStatement(getMethodName())
+            codeBuilder.addStatement(methodName)
         }
     }
 
@@ -107,55 +111,36 @@ class OneToManyDefinition(typeElement: ExecutableElement,
     }
 
     fun writeSave(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
-        if (isSave) {
-            writeLoopWithMethod(codeBuilder, "save", useWrapper && extendsBaseModel)
-        }
+        if (isSave) writeLoopWithMethod(codeBuilder, "save", useWrapper && extendsBaseModel)
     }
 
     fun writeUpdate(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
-        if (isSave) {
-            writeLoopWithMethod(codeBuilder, "update", useWrapper && extendsBaseModel)
-        }
+        if (isSave) writeLoopWithMethod(codeBuilder, "update", useWrapper && extendsBaseModel)
     }
 
     fun writeInsert(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
-        if (isSave) {
-            writeLoopWithMethod(codeBuilder, "insert", useWrapper && extendsBaseModel || useWrapper && !extendsModel)
-        }
+        if (isSave) writeLoopWithMethod(codeBuilder, "insert", useWrapper && (extendsBaseModel || !extendsModel))
     }
 
     private fun writeLoopWithMethod(codeBuilder: CodeBlock.Builder, methodName: String, useWrapper: Boolean) {
-        codeBuilder.beginControlFlow("if (\$L != null) ", getMethodName())
-        var loopClass: ClassName?
-        if (extendsBaseModel) {
-            loopClass = ClassNames.BASE_MODEL
-        } else {
-            loopClass = ClassName.get(referencedType)
+        codeBuilder.controlFlow("if (\$L != null) ", this.methodName) {
+            val loopClass: ClassName? = if (extendsBaseModel) ClassNames.BASE_MODEL else ClassName.get(referencedType)
+
+            // need to load adapter for non-model classes
+            if (!extendsModel) {
+                codeBuilder.addStatement("\$T adapter = \$T.getModelAdapter(\$T.class)",
+                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                        ClassNames.FLOW_MANAGER, referencedTableType)
+
+                codeBuilder.addStatement("adapter.\$LAll(\$L\$L)", methodName, this.methodName,
+                        if (useWrapper) ", " + ModelUtils.wrapper else "")
+            } else {
+                codeBuilder.controlFlow("for (\$T value: \$L) ", loopClass, this.methodName) {
+                    codeBuilder.addStatement("value.\$L(\$L)", methodName, if (useWrapper) ModelUtils.wrapper else "")
+                }
+            }
+
         }
-
-        // need to load adapter for non-model classes
-        if (!extendsModel) {
-            codeBuilder.addStatement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                    ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                    ClassNames.FLOW_MANAGER, referencedTableType)
-
-            codeBuilder.addStatement("adapter.\$LAll(\$L\$L)", methodName, getMethodName(),
-                    if (useWrapper) ", " + ModelUtils.wrapper else "")
-        } else {
-            codeBuilder.beginControlFlow("for (\$T value: \$L) ", loopClass, getMethodName())
-            codeBuilder.addStatement("value.\$L(\$L)", methodName, if (useWrapper) ModelUtils.wrapper else "")
-            codeBuilder.endControlFlow()
-        }
-
-        codeBuilder.endControlFlow()
-    }
-
-    private fun getMethodName(): String {
-        return String.format("%1s.%1s()", ModelUtils.variable, methodName)
-    }
-
-    private fun getVariableName(): String {
-        return String.format("%1s.%1s", ModelUtils.variable, _variableName)
     }
 
 }

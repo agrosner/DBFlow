@@ -6,13 +6,9 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.Notify
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.definition.CodeAdder
-import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
-import com.raizlabs.android.dbflow.processor.definition.ContentUriDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
-import com.raizlabs.android.dbflow.processor.definition.MethodDefinition
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.TableEndpointValidator
+import com.raizlabs.android.dbflow.processor.utils.controlFlow
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.*
 import javax.lang.model.element.*
@@ -140,24 +136,25 @@ class InsertMethod(private val contentProviderDefinition: ContentProviderDefinit
             contentProviderDefinition.endpointDefinitions.forEach {
                 it.contentUriDefinitions.forEach { uriDefinition ->
                     if (uriDefinition.insertEnabled) {
-                        code.beginControlFlow("case \$L:", uriDefinition.name)
-                        code.addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$S, \$S))",
-                                ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
-                                contentProviderDefinition.databaseNameString, it.tableName)
+                        code.apply {
+                            beginControlFlow("case \$L:", uriDefinition.name)
+                            addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$S, \$S))",
+                                    ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
+                                    contentProviderDefinition.databaseNameString, it.tableName)
 
-                        code.add("final long id = FlowManager.getDatabase(\$S).getWritableDatabase()",
-                                contentProviderDefinition.databaseNameString).add(".insertWithOnConflict(\$S, null, values, " + "\$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", it.tableName,
-                                ClassNames.CONFLICT_ACTION)
+                            add("final long id = FlowManager.getDatabase(\$S).getWritableDatabase()",
+                                    contentProviderDefinition.databaseNameString).add(".insertWithOnConflict(\$S, null, values, " + "\$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", it.tableName,
+                                    ClassNames.CONFLICT_ACTION)
 
-                        NotifyMethod(it, uriDefinition,
-                                Notify.Method.INSERT).addCode(code)
+                            NotifyMethod(it, uriDefinition, Notify.Method.INSERT).addCode(this)
 
-                        if (!isBulk) {
-                            code.addStatement("return \$T.withAppendedId(\$L, id)", ClassNames.CONTENT_URIS, Constants.PARAM_URI)
-                        } else {
-                            code.addStatement("return id > 0 ? 1 : 0")
+                            if (!isBulk) {
+                                addStatement("return \$T.withAppendedId(\$L, id)", ClassNames.CONTENT_URIS, Constants.PARAM_URI)
+                            } else {
+                                addStatement("return id > 0 ? 1 : 0")
+                            }
+                            endControlFlow()
                         }
-                        code.endControlFlow()
                     }
                 }
             }
@@ -247,16 +244,18 @@ class QueryMethod(private val contentProviderDefinition: ContentProviderDefiniti
             for (tableEndpointDefinition in contentProviderDefinition.endpointDefinitions) {
                 for (uriDefinition in tableEndpointDefinition.contentUriDefinitions) {
                     if (uriDefinition.queryEnabled) {
-                        method.beginControlFlow("case \$L:", uriDefinition.name)
-                        method.addCode(uriDefinition.getSegmentsPreparation())
-                        method.addCode("cursor = \$T.getDatabase(\$S).getWritableDatabase().query(\$S, projection, ",
-                                ClassNames.FLOW_MANAGER,
-                                manager.getDatabaseName(contentProviderDefinition.databaseName),
-                                tableEndpointDefinition.tableName)
-                        method.addCode(uriDefinition.getSelectionAndSelectionArgs())
-                        method.addCode(", null, null, sortOrder);\n")
-                        method.addStatement("break")
-                        method.endControlFlow()
+                        method.apply {
+                            beginControlFlow("case \$L:", uriDefinition.name)
+                            addCode(uriDefinition.getSegmentsPreparation())
+                            addCode("cursor = \$T.getDatabase(\$S).getWritableDatabase().query(\$S, projection, ",
+                                    ClassNames.FLOW_MANAGER,
+                                    manager.getDatabaseName(contentProviderDefinition.databaseName),
+                                    tableEndpointDefinition.tableName)
+                            addCode(uriDefinition.getSelectionAndSelectionArgs())
+                            addCode(", null, null, sortOrder);\n")
+                            addStatement("break")
+                            endControlFlow()
+                        }
                     }
                 }
             }
@@ -292,35 +291,32 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
             for (tableEndpointDefinition in contentProviderDefinition.endpointDefinitions) {
                 for (uriDefinition in tableEndpointDefinition.contentUriDefinitions) {
                     if (uriDefinition.updateEnabled) {
+                        method.apply {
+                            beginControlFlow("case \$L:", uriDefinition.name)
+                            addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$S, \$S))",
+                                    ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
+                                    contentProviderDefinition.databaseNameString,
+                                    tableEndpointDefinition.tableName)
+                            addCode(uriDefinition.getSegmentsPreparation())
+                            addCode(
+                                    "long count = \$T.getDatabase(\$S).getWritableDatabase().updateWithOnConflict(\$S, \$L, ",
+                                    ClassNames.FLOW_MANAGER,
+                                    manager.getDatabaseName(contentProviderDefinition.databaseName),
+                                    tableEndpointDefinition.tableName,
+                                    Constants.PARAM_CONTENT_VALUES)
+                            addCode(uriDefinition.getSelectionAndSelectionArgs())
+                            addCode(
+                                    ", \$T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
+                                    ClassNames.CONFLICT_ACTION)
 
+                            val code = CodeBlock.builder()
+                            NotifyMethod(tableEndpointDefinition, uriDefinition,
+                                    Notify.Method.UPDATE).addCode(code)
+                            addCode(code.build())
 
-                        method.beginControlFlow("case \$L:", uriDefinition.name)
-                        method.addStatement(
-                                "\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$S, \$S))",
-                                ClassNames.MODEL_ADAPTER,
-                                ClassNames.FLOW_MANAGER,
-                                ClassNames.FLOW_MANAGER,
-                                contentProviderDefinition.databaseNameString,
-                                tableEndpointDefinition.tableName)
-                        method.addCode(uriDefinition.getSegmentsPreparation())
-                        method.addCode(
-                                "long count = \$T.getDatabase(\$S).getWritableDatabase().updateWithOnConflict(\$S, \$L, ",
-                                ClassNames.FLOW_MANAGER,
-                                manager.getDatabaseName(contentProviderDefinition.databaseName),
-                                tableEndpointDefinition.tableName,
-                                Constants.PARAM_CONTENT_VALUES)
-                        method.addCode(uriDefinition.getSelectionAndSelectionArgs())
-                        method.addCode(
-                                ", \$T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
-                                ClassNames.CONFLICT_ACTION)
-
-                        val code = CodeBlock.builder()
-                        NotifyMethod(tableEndpointDefinition, uriDefinition,
-                                Notify.Method.UPDATE).addCode(code)
-                        method.addCode(code.build())
-
-                        method.addStatement("return (int) count")
-                        method.endControlFlow()
+                            addStatement("return (int) count")
+                            endControlFlow()
+                        }
                     }
                 }
 
@@ -392,13 +388,15 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
-        typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java), AUTHORITY, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL).initializer("\$S", authority).build())
+        typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java), AUTHORITY,
+                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL).initializer("\$S", authority).build())
 
         var code = 0
         for (endpointDefinition in endpointDefinitions) {
-            for (contentUriDefinition in endpointDefinition.contentUriDefinitions) {
-                typeBuilder.addField(FieldSpec.builder(TypeName.INT, contentUriDefinition.name,
-                        Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL).initializer(code.toString()).build())
+            endpointDefinition.contentUriDefinitions.forEach {
+                typeBuilder.addField(FieldSpec.builder(TypeName.INT, it.name, Modifier.PRIVATE,
+                        Modifier.STATIC, Modifier.FINAL)
+                        .initializer(code.toString()).build())
                 code++
             }
         }
@@ -406,35 +404,51 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
         val uriField = FieldSpec.builder(ClassNames.URI_MATCHER, URI_MATCHER,
                 Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
 
-        val initializer = CodeBlock.builder().addStatement("new \$T(\$T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER).add("static {\n")
+        val initializer = CodeBlock.builder().addStatement("new \$T(\$T.NO_MATCH)", ClassNames.URI_MATCHER,
+                ClassNames.URI_MATCHER).add("static {\n")
 
         for (endpointDefinition in endpointDefinitions) {
-            for (contentUriDefinition in endpointDefinition.contentUriDefinitions) {
+            endpointDefinition.contentUriDefinitions.forEach {
                 val path: String
-                if (!contentUriDefinition.path.isNullOrEmpty()) {
-                    path = "\"" + contentUriDefinition.path + "\""
+                if (!it.path.isNullOrEmpty()) {
+                    path = "\"" + it.path + "\""
                 } else {
-                    path = CodeBlock.builder().add("\$L.\$L.getPath()", contentUriDefinition.elementClassName, contentUriDefinition.name).build().toString()
+                    path = CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
+                            it.name).build().toString()
                 }
-                initializer.addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY, path, contentUriDefinition.name)
+                initializer.addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY,
+                        path, it.name)
             }
         }
         initializer.add("}\n")
         typeBuilder.addField(uriField.initializer(initializer.build()).build())
 
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName").addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL).addStatement("return \$S", databaseNameString).returns(ClassName.get(String::class.java)).build())
+        typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addStatement("return \$S", databaseNameString)
+                .returns(ClassName.get(String::class.java)).build())
 
-        val getTypeBuilder = MethodSpec.methodBuilder("getType").addAnnotation(Override::class.java).addParameter(ClassNames.URI, "uri").returns(ClassName.get(String::class.java)).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+        val getTypeBuilder = MethodSpec.methodBuilder("getType")
+                .addAnnotation(Override::class.java)
+                .addParameter(ClassNames.URI, "uri")
+                .returns(ClassName.get(String::class.java))
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 
-        val getTypeCode = CodeBlock.builder().addStatement("\$T type = null", ClassName.get(String::class.java)).beginControlFlow("switch(\$L.match(uri))", URI_MATCHER)
+        val getTypeCode = CodeBlock.builder().addStatement("\$T type = null",
+                ClassName.get(String::class.java))
 
-        for (tableEndpointDefinition in endpointDefinitions) {
-            for (uriDefinition in tableEndpointDefinition.contentUriDefinitions) {
-                getTypeCode.beginControlFlow("case \$L:", uriDefinition.name).addStatement("type = \$S", uriDefinition.type).addStatement("break").endControlFlow()
+        getTypeCode.controlFlow("switch(\$L.match(uri))", URI_MATCHER) {
+            for (tableEndpointDefinition in endpointDefinitions) {
+                for (uriDefinition in tableEndpointDefinition.contentUriDefinitions) {
+                    getTypeCode.controlFlow("case \$L:", uriDefinition.name) {
+                        getTypeCode.addStatement("type = \$S", uriDefinition.type)
+                        getTypeCode.addStatement("break")
+                    }
+                }
             }
+            appendDefault(getTypeCode)
         }
-        getTypeCode.beginControlFlow("default:").addStatement("throw new \$T(\$S + \$L)", ClassName.get(IllegalArgumentException::class.java), "Unknown URI", "uri").endControlFlow()
-        getTypeCode.endControlFlow()
         getTypeCode.addStatement("return type")
 
         getTypeBuilder.addCode(getTypeCode.build())
@@ -453,11 +467,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
     companion object {
 
         internal val DEFINITION_NAME = "Provider"
-
-        internal val DATABASE_FIELD = "database"
-
         val URI_MATCHER = "MATCHER"
-
         private val AUTHORITY = "AUTHORITY"
     }
 }
@@ -465,8 +475,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 /**
  * Description:
  */
-class ContentUriDefinition(typeElement: Element, processorManager: ProcessorManager)
-: BaseDefinition(typeElement, processorManager) {
+class ContentUriDefinition(typeElement: Element, processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
 
     var name: String
 
@@ -485,21 +494,13 @@ class ContentUriDefinition(typeElement: Element, processorManager: ProcessorMana
     var segments: Array<ContentUri.PathSegment>
 
     init {
-
         val contentUri = typeElement.getAnnotation(ContentUri::class.java)
-
         path = contentUri.path
-
         type = contentUri.type
-
         name = typeElement.enclosingElement.simpleName.toString() + "_" + typeElement.simpleName.toString()
-
         queryEnabled = contentUri.queryEnabled
-
         insertEnabled = contentUri.insertEnabled
-
         deleteEnabled = contentUri.deleteEnabled
-
         updateEnabled = contentUri.updateEnabled
 
         segments = contentUri.segments
