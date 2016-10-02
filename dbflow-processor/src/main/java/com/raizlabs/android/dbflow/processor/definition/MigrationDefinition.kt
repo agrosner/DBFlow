@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.annotation.Migration
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.utils
 
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.JavaFile
 
 import java.io.IOException

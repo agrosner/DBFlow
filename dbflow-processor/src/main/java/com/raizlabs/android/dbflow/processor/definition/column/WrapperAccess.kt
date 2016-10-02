@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock

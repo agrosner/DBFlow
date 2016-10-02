@@ -5,11 +5,11 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition
-import com.raizlabs.android.dbflow.processor.definition.method.provider.DeleteMethod
-import com.raizlabs.android.dbflow.processor.definition.method.provider.InsertMethod
-import com.raizlabs.android.dbflow.processor.definition.method.provider.QueryMethod
-import com.raizlabs.android.dbflow.processor.definition.method.provider.UpdateMethod
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.definition.method.DeleteMethod
+import com.raizlabs.android.dbflow.processor.definition.method.InsertMethod
+import com.raizlabs.android.dbflow.processor.definition.method.QueryMethod
+import com.raizlabs.android.dbflow.processor.definition.method.UpdateMethod
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator
 import com.squareup.javapoet.*

@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.model
+package com.raizlabs.android.dbflow.processor
 
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
@@ -7,8 +7,8 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseHolderDefinition
-import com.raizlabs.android.dbflow.processor.handler.BaseContainerHandler
-import com.raizlabs.android.dbflow.processor.handler.Handler
+import com.raizlabs.android.dbflow.processor.BaseContainerHandler
+import com.raizlabs.android.dbflow.processor.Handler
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils
 import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator
 import com.squareup.javapoet.ClassName
@@ -26,10 +26,10 @@ import javax.tools.Diagnostic
 import kotlin.reflect.KClass
 
 /**
- * Description: Holds onto [com.raizlabs.android.dbflow.processor.definition.Definition], Writers,
- * and provides some handy methods for interacting with the [javax.annotation.processing.Processor]
+ * Description: The main object graph during processing. This class collects all of the
+ * processor classes and writes them to the corresponding database holders.
  */
-class ProcessorManager(val processingEnvironment: ProcessingEnvironment) : Handler {
+class ProcessorManager internal constructor(val processingEnvironment: ProcessingEnvironment) : Handler {
 
     companion object {
 
@@ -255,10 +255,10 @@ class ProcessorManager(val processingEnvironment: ProcessingEnvironment) : Handl
             try {
 
                 if (databaseHolderDefinition.databaseDefinition == null) {
-                    ProcessorManager.manager.logError("Found null db with: %1s tables, %1s modelviews. " + "Attempt to rebuild project should fix this intermittant issue.",
+                    manager.logError("Found null db with: %1s tables, %1s modelviews. " + "Attempt to rebuild project should fix this intermittant issue.",
                             databaseHolderDefinition.tableNameMap.values.size,
                             databaseHolderDefinition.modelViewDefinitionMap.values.size)
-                    ProcessorManager.manager.logError("Found tables: " + databaseHolderDefinition.tableNameMap.values)
+                    manager.logError("Found tables: " + databaseHolderDefinition.tableNameMap.values)
                     continue
                 }
 

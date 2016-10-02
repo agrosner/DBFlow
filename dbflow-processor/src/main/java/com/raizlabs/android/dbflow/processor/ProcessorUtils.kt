@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.processor
 
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.ClassName
 
 import javax.annotation.processing.ProcessingEnvironment

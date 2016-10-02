@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.type.DeclaredType

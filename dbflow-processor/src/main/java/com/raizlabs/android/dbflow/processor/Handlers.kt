@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.handler
+package com.raizlabs.android.dbflow.processor
 
 import com.google.common.collect.Sets
 import com.raizlabs.android.dbflow.annotation.*
@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.converter.SqlDateConverter
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.validator.DatabaseValidator
 import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator
 import com.raizlabs.android.dbflow.processor.validator.TypeConverterValidator

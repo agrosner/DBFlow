@@ -10,15 +10,6 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.TypeConverter;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
-import com.raizlabs.android.dbflow.processor.handler.ContentProviderHandler;
-import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler;
-import com.raizlabs.android.dbflow.processor.handler.MigrationHandler;
-import com.raizlabs.android.dbflow.processor.handler.ModelViewHandler;
-import com.raizlabs.android.dbflow.processor.handler.QueryModelHandler;
-import com.raizlabs.android.dbflow.processor.handler.TableEndpointHandler;
-import com.raizlabs.android.dbflow.processor.handler.TableHandler;
-import com.raizlabs.android.dbflow.processor.handler.TypeConverterHandler;
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

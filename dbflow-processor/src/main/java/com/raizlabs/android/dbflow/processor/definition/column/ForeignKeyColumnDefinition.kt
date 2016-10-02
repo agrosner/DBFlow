@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod
 import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.sql.QueryBuilder

@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.BaseColumnAccess
 import com.raizlabs.android.dbflow.processor.definition.column.PrivateColumnAccess
 import com.raizlabs.android.dbflow.processor.definition.column.SimpleColumnAccess
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock

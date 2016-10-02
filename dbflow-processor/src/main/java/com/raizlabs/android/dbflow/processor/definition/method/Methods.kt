@@ -15,6 +15,14 @@ import javax.lang.model.element.Modifier
 
 /**
  * Description:
+ */
+interface MethodDefinition {
+
+    val methodSpec: MethodSpec?
+}
+
+/**
+ * Description:
  *
  * @author Andrew Grosner (fuzz)
  */

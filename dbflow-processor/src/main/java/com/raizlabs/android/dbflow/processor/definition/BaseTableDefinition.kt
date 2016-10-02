@@ -1,11 +1,11 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.google.common.collect.Lists
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateAccess
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
@@ -20,7 +20,8 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Used to write Models and ModelViews
  */
-abstract class BaseTableDefinition(typeElement: Element, processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
+abstract class BaseTableDefinition(typeElement: Element, processorManager: ProcessorManager)
+: BaseDefinition(typeElement, processorManager) {
 
     var columnDefinitions: MutableList<ColumnDefinition>
         protected set

@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty

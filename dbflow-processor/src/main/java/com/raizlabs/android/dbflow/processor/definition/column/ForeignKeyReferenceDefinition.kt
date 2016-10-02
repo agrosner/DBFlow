@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.sql.QueryBuilder

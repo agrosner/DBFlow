@@ -2,8 +2,8 @@ package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.DatabaseHandler
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier

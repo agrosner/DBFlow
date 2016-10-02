@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.Notify
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.PackageElement

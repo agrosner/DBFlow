@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.google.common.collect.Maps
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock

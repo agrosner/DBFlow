@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.annotation.provider.Notify
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.ClassName
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement

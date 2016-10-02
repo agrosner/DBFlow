@@ -7,8 +7,8 @@ import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeDefinition
-import com.raizlabs.android.dbflow.processor.handler.DatabaseHandler
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.DatabaseHandler
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.validator.ModelViewValidator
 import com.raizlabs.android.dbflow.processor.validator.TableValidator

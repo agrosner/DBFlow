@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.method.CustomTypeConverterPropertyMethod
 import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod
 import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition
-import com.raizlabs.android.dbflow.processor.model.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.validator.ColumnValidator
 import com.squareup.javapoet.*
