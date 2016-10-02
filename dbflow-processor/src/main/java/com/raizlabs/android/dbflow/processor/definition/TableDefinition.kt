@@ -12,8 +12,8 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.processor.validator.ColumnValidator
-import com.raizlabs.android.dbflow.processor.validator.OneToManyValidator
+import com.raizlabs.android.dbflow.processor.ColumnValidator
+import com.raizlabs.android.dbflow.processor.OneToManyValidator
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*

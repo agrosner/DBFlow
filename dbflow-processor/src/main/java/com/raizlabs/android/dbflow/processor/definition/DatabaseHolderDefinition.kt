@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.DatabaseHandler
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.MethodSpec
@@ -12,7 +12,7 @@ import javax.lang.model.element.Modifier
  * Description: Top-level writer that handles writing all [DatabaseDefinition]
  * and [com.raizlabs.android.dbflow.annotation.TypeConverter]
  */
-class FlowManagerHolderDefinition(private val processorManager: ProcessorManager) : TypeDefinition {
+class DatabaseHolderDefinition(private val processorManager: ProcessorManager) : TypeDefinition {
 
     private var className = ""
 

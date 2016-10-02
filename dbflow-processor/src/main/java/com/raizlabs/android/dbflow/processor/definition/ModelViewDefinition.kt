@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.processor.DatabaseHandler
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.processor.validator.ColumnValidator
+import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.squareup.javapoet.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier

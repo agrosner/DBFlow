@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.definition.method
+package com.raizlabs.android.dbflow.processor.definition
 
 import com.google.common.collect.Maps
 import com.raizlabs.android.dbflow.processor.definition.*
@@ -9,12 +9,12 @@ import java.util.*
  * Description: Provides overarching holder for [DatabaseDefinition], [TableDefinition],
  * and more. So we can safely use.
  */
-class DatabaseHolderDefinition {
+class DatabaseObjectHolder {
 
     var databaseDefinition: DatabaseDefinition? = null
         set(databaseDefinition) {
             field = databaseDefinition
-            field?.holderDefinition = this
+            field?.objectHolder = this
         }
 
     var tableDefinitionMap: MutableMap<TypeName, TableDefinition> = HashMap()

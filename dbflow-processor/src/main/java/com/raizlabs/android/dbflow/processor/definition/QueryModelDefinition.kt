@@ -5,12 +5,12 @@ import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.method.CustomTypeConverterPropertyMethod
-import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod
-import com.raizlabs.android.dbflow.processor.definition.method.MethodDefinition
+import com.raizlabs.android.dbflow.processor.definition.CustomTypeConverterPropertyMethod
+import com.raizlabs.android.dbflow.processor.definition.LoadFromCursorMethod
+import com.raizlabs.android.dbflow.processor.definition.MethodDefinition
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
-import com.raizlabs.android.dbflow.processor.validator.ColumnValidator
+import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.squareup.javapoet.*
 import java.util.*
 import javax.lang.model.element.Element

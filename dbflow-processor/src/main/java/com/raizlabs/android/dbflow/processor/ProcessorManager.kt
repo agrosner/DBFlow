@@ -5,12 +5,12 @@ import com.google.common.collect.Maps
 import com.google.common.collect.Sets
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.*
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseHolderDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseObjectHolder
 import com.raizlabs.android.dbflow.processor.BaseContainerHandler
 import com.raizlabs.android.dbflow.processor.Handler
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils
-import com.raizlabs.android.dbflow.processor.validator.ContentProviderValidator
+import com.raizlabs.android.dbflow.processor.ContentProviderValidator
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -41,7 +41,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     private val typeConverters = Maps.newHashMap<TypeName, TypeConverterDefinition>()
     private val migrations = Maps.newHashMap<TypeName, MutableMap<Int, MutableList<MigrationDefinition>>>()
 
-    private val databaseDefinitionMap = Maps.newHashMap<TypeName, DatabaseHolderDefinition>()
+    private val databaseDefinitionMap = Maps.newHashMap<TypeName, DatabaseObjectHolder>()
     private val handlers = ArrayList<BaseContainerHandler<*>>()
     private val providerMap = Maps.newHashMap<TypeName, ContentProviderDefinition>()
 
@@ -236,13 +236,13 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         logWarning("$callingClass : $error", *args)
     }
 
-    private fun getOrPutDatabase(databaseName: TypeName?): DatabaseHolderDefinition? {
-        var holderDefinition: DatabaseHolderDefinition? = databaseDefinitionMap[databaseName]
-        if (holderDefinition == null) {
-            holderDefinition = DatabaseHolderDefinition()
-            databaseDefinitionMap.put(databaseName, holderDefinition)
+    private fun getOrPutDatabase(databaseName: TypeName?): DatabaseObjectHolder? {
+        var objectHolder: DatabaseObjectHolder? = databaseDefinitionMap[databaseName]
+        if (objectHolder == null) {
+            objectHolder = DatabaseObjectHolder()
+            databaseDefinitionMap.put(databaseName, objectHolder)
         }
-        return holderDefinition
+        return objectHolder
     }
 
     override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
@@ -343,7 +343,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         if (roundEnvironment.processingOver()) {
             try {
                 JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                        FlowManagerHolderDefinition(processorManager).typeSpec).build().writeTo(processorManager.processingEnvironment.filer)
+                        DatabaseHolderDefinition(processorManager).typeSpec).build().writeTo(processorManager.processingEnvironment.filer)
             } catch (e: IOException) {
                 logError(e.message)
             }

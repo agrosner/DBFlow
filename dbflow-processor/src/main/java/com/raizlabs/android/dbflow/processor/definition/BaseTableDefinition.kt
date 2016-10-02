@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateAccess
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
@@ -98,7 +98,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                         "." + ClassName.get(columnDefinition.element.enclosingElement as TypeElement).simpleName() +
                         databaseDefinition?.classSeparator + "Helper"
                 if (columnDefinition is ForeignKeyColumnDefinition) {
-                    val tableDefinition: TableDefinition? = databaseDefinition?.holderDefinition?.tableDefinitionMap?.get(columnDefinition.referencedTableClassName as TypeName)
+                    val tableDefinition: TableDefinition? = databaseDefinition?.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedTableClassName as TypeName)
                     if (tableDefinition != null) {
                         helperClassName = manager.elements.getPackageOf(tableDefinition.element).toString() +
                                 "." + ClassName.get(tableDefinition.element as TypeElement).simpleName() +

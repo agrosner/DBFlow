@@ -1,8 +1,8 @@
-package com.raizlabs.android.dbflow.processor.validator
+package com.raizlabs.android.dbflow.processor
 
 import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.definition.column.*
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 

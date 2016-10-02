@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
-import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod
+import com.raizlabs.android.dbflow.processor.definition.LoadFromCursorMethod
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*

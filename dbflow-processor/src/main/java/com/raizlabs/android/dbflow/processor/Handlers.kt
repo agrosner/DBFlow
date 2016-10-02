@@ -10,11 +10,11 @@ import com.raizlabs.android.dbflow.converter.DateConverter
 import com.raizlabs.android.dbflow.converter.SqlDateConverter
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.*
-import com.raizlabs.android.dbflow.processor.definition.method.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.validator.DatabaseValidator
-import com.raizlabs.android.dbflow.processor.validator.TableEndpointValidator
-import com.raizlabs.android.dbflow.processor.validator.TypeConverterValidator
+import com.raizlabs.android.dbflow.processor.DatabaseValidator
+import com.raizlabs.android.dbflow.processor.TableEndpointValidator
+import com.raizlabs.android.dbflow.processor.TypeConverterValidator
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier

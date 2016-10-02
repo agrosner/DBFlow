@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.definition.method
+package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition

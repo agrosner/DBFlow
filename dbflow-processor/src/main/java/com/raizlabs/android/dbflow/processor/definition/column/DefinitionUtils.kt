@@ -2,9 +2,9 @@ package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
-import com.raizlabs.android.dbflow.processor.definition.method.BindToContentValuesMethod
-import com.raizlabs.android.dbflow.processor.definition.method.BindToStatementMethod
-import com.raizlabs.android.dbflow.processor.definition.method.LoadFromCursorMethod
+import com.raizlabs.android.dbflow.processor.definition.BindToContentValuesMethod
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod
+import com.raizlabs.android.dbflow.processor.definition.LoadFromCursorMethod
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.ArrayTypeName

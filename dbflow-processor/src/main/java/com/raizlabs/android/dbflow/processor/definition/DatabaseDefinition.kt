@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.definition.method
+package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
@@ -10,8 +10,8 @@ import com.raizlabs.android.dbflow.processor.definition.TypeDefinition
 import com.raizlabs.android.dbflow.processor.DatabaseHandler
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.processor.validator.ModelViewValidator
-import com.raizlabs.android.dbflow.processor.validator.TableValidator
+import com.raizlabs.android.dbflow.processor.ModelViewValidator
+import com.raizlabs.android.dbflow.processor.TableValidator
 import com.squareup.javapoet.*
 import java.util.*
 import java.util.regex.Pattern
@@ -43,7 +43,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     var isInMemory: Boolean = false
 
-    var holderDefinition: DatabaseHolderDefinition? = null
+    var objectHolder: DatabaseObjectHolder? = null
 
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
