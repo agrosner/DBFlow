@@ -1,10 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
-import com.raizlabs.android.dbflow.processor.definition.CodeAdder
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.definition.TypeAdder
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
@@ -440,9 +436,6 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
             if (shouldWrite || tableDefinition.cachingEnabled) {
 
                 val builder = CodeBlock.builder()
-                for (oneToManyDefinition in tableDefinition.oneToManyDefinitions) {
-                    oneToManyDefinition.writeDelete(builder, useWrapper)
-                }
 
                 if (tableDefinition.cachingEnabled) {
                     builder.addStatement("getModelCache().removeModel(getCachingId(\$L))", ModelUtils.variable)
@@ -450,6 +443,8 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
 
                 builder.addStatement("super.delete(\$L\$L)", ModelUtils.variable,
                         if (useWrapper) ", " + ModelUtils.wrapper else "")
+
+                tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(builder, useWrapper) }
 
                 val delete = MethodSpec.methodBuilder("delete").addAnnotation(Override::class.java)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -475,13 +470,6 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
         get() {
             if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingEnabled) {
                 val code = CodeBlock.builder()
-                for (oneToManyDefinition in tableDefinition.oneToManyDefinitions) {
-                    when (methodName) {
-                        METHOD_SAVE -> oneToManyDefinition.writeSave(code, useWrapper)
-                        METHOD_UPDATE -> oneToManyDefinition.writeUpdate(code, useWrapper)
-                        METHOD_INSERT -> oneToManyDefinition.writeInsert(code, useWrapper)
-                    }
-                }
 
                 code.addStatement("super.\$L(\$L\$L)", methodName,
                         ModelUtils.variable,
@@ -490,6 +478,14 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 if (tableDefinition.cachingEnabled) {
                     code.addStatement("getModelCache().addModel(getCachingId(\$L), \$L)", ModelUtils.variable,
                             ModelUtils.variable)
+                }
+
+                for (oneToManyDefinition in tableDefinition.oneToManyDefinitions) {
+                    when (methodName) {
+                        METHOD_SAVE -> oneToManyDefinition.writeSave(code, useWrapper)
+                        METHOD_UPDATE -> oneToManyDefinition.writeUpdate(code, useWrapper)
+                        METHOD_INSERT -> oneToManyDefinition.writeInsert(code, useWrapper)
+                    }
                 }
 
                 val builder = MethodSpec.methodBuilder(methodName)
