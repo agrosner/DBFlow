@@ -2,16 +2,8 @@ package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
-import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
-import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.definition.TypeDefinition
-import com.raizlabs.android.dbflow.processor.DatabaseHandler
-import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.*
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.processor.ModelViewValidator
-import com.raizlabs.android.dbflow.processor.TableValidator
 import com.squareup.javapoet.*
 import java.util.*
 import java.util.regex.Pattern
@@ -51,7 +43,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         val database = element.getAnnotation(Database::class.java)
         if (database != null) {
             databaseName = database.name
-            if (databaseName == null || databaseName!!.isEmpty()) {
+            if (databaseName.isNullOrEmpty()) {
                 databaseName = element.simpleName.toString()
             }
             if (!isValidDatabaseName(databaseName)) {
@@ -63,13 +55,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             backupEnabled = database.backupEnabled
 
             classSeparator = database.generatedClassSeparator
-
-            if (!classSeparator.isNullOrEmpty()) {
-                // all are $
-                fieldRefSeparator = classSeparator
-            } else {
-                fieldRefSeparator = classSeparator
-            }
+            fieldRefSeparator = classSeparator
 
             setOutputClassName(databaseName + classSeparator + "Database")
 

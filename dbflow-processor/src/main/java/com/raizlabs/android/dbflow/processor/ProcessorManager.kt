@@ -3,14 +3,8 @@ package com.raizlabs.android.dbflow.processor
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
-import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.*
-import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.definition.DatabaseObjectHolder
-import com.raizlabs.android.dbflow.processor.BaseContainerHandler
-import com.raizlabs.android.dbflow.processor.Handler
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils
-import com.raizlabs.android.dbflow.processor.ContentProviderValidator
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -32,7 +26,6 @@ import kotlin.reflect.KClass
 class ProcessorManager internal constructor(val processingEnvironment: ProcessingEnvironment) : Handler {
 
     companion object {
-
         lateinit var manager: ProcessorManager
     }
 
@@ -44,7 +37,6 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     private val databaseDefinitionMap = Maps.newHashMap<TypeName, DatabaseObjectHolder>()
     private val handlers = ArrayList<BaseContainerHandler<*>>()
     private val providerMap = Maps.newHashMap<TypeName, ContentProviderDefinition>()
-
 
     init {
         manager = this
@@ -246,9 +238,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     }
 
     override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
-        for (containerHandler in handlers) {
-            containerHandler.handle(processorManager, roundEnvironment)
-        }
+        handlers.forEach { it.handle(processorManager, roundEnvironment) }
 
         val databaseDefinitions = getDatabaseHolderDefinitionMap()
         for (databaseHolderDefinition in databaseDefinitions) {
@@ -278,7 +268,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
                 val validator = ContentProviderValidator()
                 val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
-                for (contentProviderDefinition in contentProviderDefinitions) {
+                contentProviderDefinitions.forEach { contentProviderDefinition ->
                     contentProviderDefinition.prepareForWrite()
                     if (validator.validate(processorManager, contentProviderDefinition)) {
                         WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager)
@@ -297,43 +287,34 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
                 val tableDefinitions = databaseHolderDefinition.tableDefinitionMap.values
 
-                for (tableDefinition in tableDefinitions) {
-                    WriterUtils.writeBaseDefinition(tableDefinition, processorManager)
-                }
+                tableDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
                 val modelViewDefinitions = ArrayList(databaseHolderDefinition.modelViewDefinitionMap.values)
                 Collections.sort(modelViewDefinitions)
-                for (modelViewDefinition in modelViewDefinitions) {
-                    WriterUtils.writeBaseDefinition(modelViewDefinition, processorManager)
-                }
+                modelViewDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
                 val queryModelDefinitions = databaseHolderDefinition.queryModelDefinitionMap.values
-                for (queryModelDefinition in queryModelDefinitions) {
-                    WriterUtils.writeBaseDefinition(queryModelDefinition, processorManager)
-                }
+                queryModelDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
-                for (tableDefinition in tableDefinitions) {
+                tableDefinitions.forEach {
                     try {
-                        tableDefinition.writePackageHelper(processorManager.processingEnvironment)
+                        it.writePackageHelper(processorManager.processingEnvironment)
                     } catch (e: FilerException) { /*Ignored intentionally to allow multi-round table generation*/
                     }
-
                 }
 
-                for (modelViewDefinition in modelViewDefinitions) {
+                modelViewDefinitions.forEach {
                     try {
-                        modelViewDefinition.writePackageHelper(processorManager.processingEnvironment)
+                        it.writePackageHelper(processorManager.processingEnvironment)
                     } catch (e: FilerException) { /*Ignored intentionally to allow multi-round table generation*/
                     }
-
                 }
 
-                for (queryModelDefinition in queryModelDefinitions) {
+                queryModelDefinitions.forEach {
                     try {
-                        queryModelDefinition.writePackageHelper(processorManager.processingEnvironment)
+                        it.writePackageHelper(processorManager.processingEnvironment)
                     } catch (e: FilerException) { /*Ignored intentionally to allow multi-round table generation*/
                     }
-
                 }
             } catch (e: IOException) {
             }
@@ -343,7 +324,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         if (roundEnvironment.processingOver()) {
             try {
                 JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                        DatabaseHolderDefinition(processorManager).typeSpec).build().writeTo(processorManager.processingEnvironment.filer)
+                        DatabaseHolderDefinition(processorManager).typeSpec).build()
+                        .writeTo(processorManager.processingEnvironment.filer)
             } catch (e: IOException) {
                 logError(e.message)
             }
