@@ -1,8 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-group= 'com.raizlabs.android'
-
 project.ext.artifactId = bt_name
 
 
@@ -11,19 +9,19 @@ repositories {
 }
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 24
     buildToolsVersion dbflow_build_tools_version
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 23
-        versionCode 1
-        versionName = version_code
+        targetSdkVersion 24
     }
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     sourceSets {
@@ -40,7 +38,7 @@ dependencies {
     compile project("${dbflow_project_prefix}dbflow")
 }
 buildscript {
-    ext.kotlin_version = '1.0.2'
+    ext.kotlin_version = '1.0.4'
     repositories {
         mavenCentral()
     }

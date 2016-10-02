@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * It gets generated from {@link Table#indexGroups()}, but also can be manually constructed. These are activated
  * and deactivated manually.
  */
-public class IndexProperty<T extends Model> {
+public class IndexProperty<T > {
 
     private final Index<T> index;
 

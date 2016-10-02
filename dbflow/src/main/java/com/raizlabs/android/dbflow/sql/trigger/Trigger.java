@@ -92,7 +92,7 @@ public class Trigger implements Query {
      *
      * @param onTable The table ON
      */
-    public <TModel extends Model> TriggerMethod<TModel> delete(Class<TModel> onTable) {
+    public <TModel> TriggerMethod<TModel> delete(Class<TModel> onTable) {
         return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable);
     }
 
@@ -101,7 +101,7 @@ public class Trigger implements Query {
      *
      * @param onTable The table ON
      */
-    public <TModel extends Model> TriggerMethod<TModel> insert(Class<TModel> onTable) {
+    public <TModel> TriggerMethod<TModel> insert(Class<TModel> onTable) {
         return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable);
     }
 
@@ -112,7 +112,7 @@ public class Trigger implements Query {
      * @param properties if empty, will not execute an OF command. If you specify columns,
      *                   the UPDATE OF column1, column2,... will be used.
      */
-    public <TModel extends Model> TriggerMethod<TModel> update(Class<TModel> onTable, IProperty... properties) {
+    public <TModel> TriggerMethod<TModel> update(Class<TModel> onTable, IProperty... properties) {
         return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, properties);
     }
 

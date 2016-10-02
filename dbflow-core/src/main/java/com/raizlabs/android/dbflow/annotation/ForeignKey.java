@@ -29,6 +29,13 @@ public @interface ForeignKey {
     boolean saveForeignKeyModel() default false;
 
     /**
+     * @return Replaces legacy ForeignKeyContainer, this method instructs the code generator to only
+     * populate the model with the {@link ForeignKeyReference} defined in this field. This skips
+     * the Select retrieval convenience.
+     */
+    boolean stubbedRelationship() default false;
+
+    /**
      * @return an optional table class that this reference points to. It's only used if the field
      * is NOT a Model class.
      */

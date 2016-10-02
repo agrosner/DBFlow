@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure;
 
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
@@ -12,7 +13,7 @@ import java.lang.ref.WeakReference;
 /**
  * Description: Called from a {@link BaseModel}, this places the current {@link Model} interaction on the background.
  */
-public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel<TModel>> implements Model {
+public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> implements Model {
 
     /**
      * Listens for when this {@link Model} modification completes.
@@ -28,6 +29,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
     private final TModel model;
     private transient WeakReference<OnModelChangedListener<TModel>> onModelChangedListener;
 
+    private ModelAdapter<TModel> modelAdapter;
 
     public AsyncModel(@NonNull TModel referenceModel) {
         super(referenceModel.getClass());
@@ -45,6 +47,13 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
         return this;
     }
 
+    private ModelAdapter<TModel> getModelAdapter() {
+        if (modelAdapter == null) {
+            //noinspection unchecked
+            modelAdapter = (ModelAdapter<TModel>) FlowManager.getModelAdapter(model.getClass());
+        }
+        return modelAdapter;
+    }
 
     @Override
     public void save() {
@@ -52,7 +61,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model) {
-                        model.save();
+                        getModelAdapter().save(model);
                     }
                 }).add(model).build());
     }
@@ -63,7 +72,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model) {
-                        model.delete();
+                        getModelAdapter().delete(model);
                     }
                 }).add(model).build());
     }
@@ -74,7 +83,7 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model) {
-                        model.update();
+                        getModelAdapter().update(model);
                     }
                 }).add(model).build());
     }
@@ -85,14 +94,25 @@ public class AsyncModel<TModel extends Model> extends BaseAsyncObject<AsyncModel
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model) {
-                        model.insert();
+                        getModelAdapter().insert(model);
+                    }
+                }).add(model).build());
+    }
+
+    @Override
+    public void load() {
+        executeTransaction(new ProcessModelTransaction.Builder<>(
+                new ProcessModelTransaction.ProcessModel<TModel>() {
+                    @Override
+                    public void processModel(TModel model) {
+                        getModelAdapter().load(model);
                     }
                 }).add(model).build());
     }
 
     @Override
     public boolean exists() {
-        return model.exists();
+        return getModelAdapter().exists(model);
     }
 
     @Override

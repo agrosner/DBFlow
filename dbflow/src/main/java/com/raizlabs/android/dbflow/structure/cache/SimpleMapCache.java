@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Description: A simple implementation that keeps {@link Model} you interact with in memory.
  */
-public class SimpleMapCache<TModel extends Model> extends ModelCache<TModel, Map<Object, TModel>> {
+public class SimpleMapCache<TModel> extends ModelCache<TModel, Map<Object, TModel>> {
 
     /**
      * Constructs new instance with a {@link HashMap} with the specified capacity.

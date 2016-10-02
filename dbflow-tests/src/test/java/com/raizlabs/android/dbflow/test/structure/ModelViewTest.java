@@ -36,7 +36,9 @@ public class ModelViewTest extends FlowTestCase {
         assertTrue(!testModelViews.isEmpty());
         assertTrue(testModelViews.size() == 1);
 
-        FlowCursorList<TestModelView> list = new FlowCursorList<>(SQLite.select().from(TestModelView.class));
+        FlowCursorList<TestModelView> list = new FlowCursorList.Builder<>(
+                SQLite.select().from(TestModelView.class))
+                .build();
         assertNotNull(list.getItem(0));
     }
 

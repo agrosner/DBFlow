@@ -5,7 +5,6 @@ import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.IConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
@@ -14,10 +13,10 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public abstract class BaseProperty<P extends IProperty> implements IProperty<P>, IConditional {
 
-    final Class<? extends Model> table;
+    final Class<?> table;
     protected NameAlias nameAlias;
 
-    protected BaseProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    protected BaseProperty(Class<?> table, NameAlias nameAlias) {
         this.table = table;
         this.nameAlias = nameAlias;
     }
@@ -183,18 +182,13 @@ public abstract class BaseProperty<P extends IProperty> implements IProperty<P>,
     }
 
     @Override
-    public Class<? extends Model> getTable() {
+    public Class<?> getTable() {
         return table;
     }
 
     @Override
     public NameAlias getNameAlias() {
         return nameAlias;
-    }
-
-    @Override
-    public String getContainerKey() {
-        return getNameAlias().getNameAsKey();
     }
 
     @Override

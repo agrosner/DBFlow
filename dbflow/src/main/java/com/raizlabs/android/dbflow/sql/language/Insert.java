@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Description: The SQLite INSERT command
  */
-public class Insert<TModel extends Model> extends BaseQueriable<TModel> {
+public class Insert<TModel> extends BaseQueriable<TModel> {
 
 
     /**
@@ -33,7 +33,7 @@ public class Insert<TModel extends Model> extends BaseQueriable<TModel> {
      */
     private ConflictAction conflictAction = ConflictAction.NONE;
 
-    private From<? extends Model> selectFrom;
+    private From<?> selectFrom;
 
     /**
      * Constructs a new INSERT command
@@ -156,7 +156,7 @@ public class Insert<TModel extends Model> extends BaseQueriable<TModel> {
      *
      * @param selectFrom The from that is continuation of {@link Select}.
      */
-    public Insert<TModel> select(From<? extends Model> selectFrom) {
+    public Insert<TModel> select(From<?> selectFrom) {
         this.selectFrom = selectFrom;
         return this;
     }
@@ -227,13 +227,13 @@ public class Insert<TModel extends Model> extends BaseQueriable<TModel> {
             queryBuilder.append("OR").appendSpaceSeparated(conflictAction);
         }
         queryBuilder.append("INTO")
-            .appendSpace()
-            .appendTableName(getTable());
+                .appendSpace()
+                .appendTableName(getTable());
 
         if (columns != null) {
             queryBuilder.append("(")
-                .appendArray((Object[]) columns)
-                .append(")");
+                    .appendArray((Object[]) columns)
+                    .append(")");
         }
 
         // append FROM, which overrides values
@@ -242,10 +242,10 @@ public class Insert<TModel extends Model> extends BaseQueriable<TModel> {
         } else {
             if (columns != null && values != null && columns.length != values.length) {
                 throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
-                    "columns needs to have the same amount of values and columns");
+                        "columns needs to have the same amount of values and columns");
             } else if (values == null) {
                 throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
-                    "at least one value specified for the insert");
+                        "at least one value specified for the insert");
             }
 
             queryBuilder.append(" VALUES(").appendModelArray(values).append(")");

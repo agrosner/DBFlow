@@ -14,13 +14,13 @@ import java.util.List;
  * Description: Allows you to process a single or {@link List} of models in a transaction. You
  * can operate on a set of {@link Model} to {@link Model#save()}, {@link Model#update()}, etc.
  */
-public class ProcessModelTransaction<TModel extends Model> implements ITransaction {
+public class ProcessModelTransaction<TModel> implements ITransaction {
 
 
     /**
      * Description: Simple interface for acting on a model in a Transaction or list of {@link Model}
      */
-    public interface ProcessModel<TModel extends Model> {
+    public interface ProcessModel<TModel> {
 
         /**
          * Called when processing models
@@ -35,7 +35,7 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
      *
      * @param <TModel> The model class.
      */
-    public interface OnModelProcessListener<TModel extends Model> {
+    public interface OnModelProcessListener<TModel> {
 
         /**
          * Called when model has been operated on.
@@ -89,7 +89,7 @@ public class ProcessModelTransaction<TModel extends Model> implements ITransacti
      *
      * @param <TModel>
      */
-    public static final class Builder<TModel extends Model> {
+    public static final class Builder<TModel> {
 
         private final ProcessModel<TModel> processModel;
         OnModelProcessListener<TModel> processListener;

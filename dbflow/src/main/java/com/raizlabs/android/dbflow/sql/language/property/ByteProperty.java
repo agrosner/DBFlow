@@ -14,15 +14,15 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class ByteProperty extends BaseProperty<ByteProperty> {
 
-    public ByteProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public ByteProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public ByteProperty(Class<? extends Model> table, String columnName) {
+    public ByteProperty(Class<?> table, String columnName) {
         this(table, new NameAlias.Builder(columnName).build());
     }
 
-    public ByteProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public ByteProperty(Class<?> table, String columnName, String aliasName) {
         this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 

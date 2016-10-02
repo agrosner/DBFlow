@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: A cache backed by a {@link android.util.SparseArray}
  */
-public class SparseArrayBasedCache<TModel extends Model> extends ModelCache<TModel, SparseArray<TModel>> {
+public class SparseArrayBasedCache<TModel> extends ModelCache<TModel, SparseArray<TModel>> {
 
     /**
      * Constructs new instance with a {@link android.util.SparseArray} cache

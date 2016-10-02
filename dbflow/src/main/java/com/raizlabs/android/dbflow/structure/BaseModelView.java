@@ -9,19 +9,14 @@ import com.raizlabs.android.dbflow.config.FlowManager;
  * annotation to register it properly. Also you need to specify a singular
  * field via {@link ModelViewQuery}.
  */
-public abstract class BaseModelView<TModel extends Model> extends NoModificationModel {
+public abstract class BaseModelView<TModel> extends NoModificationModel {
 
-    private transient ModelViewAdapter<? extends Model, BaseModelView<TModel>> adapter;
+    private transient ModelViewAdapter<?, BaseModelView<TModel>> adapter;
 
     @Override
-    public boolean exists() {
-        return getModelViewAdapter().exists(this);
-    }
-
-    @SuppressWarnings("unchecked")
-    public ModelViewAdapter<? extends Model, BaseModelView<TModel>> getModelViewAdapter() {
+    RetrievalAdapter getRetrievalAdapter() {
         if (adapter == null) {
-            adapter = ((ModelViewAdapter<? extends Model, BaseModelView<TModel>>)
+            adapter = ((ModelViewAdapter<?, BaseModelView<TModel>>)
                     FlowManager.getModelViewAdapter(getClass()));
         }
         return adapter;

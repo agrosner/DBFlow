@@ -11,7 +11,7 @@ import java.util.Map;
  * It will grow and continue to grow unless you {@link #clear()} out it's contents. It's good for simple
  * data, but not recommended when holding a significant amount.
  */
-public class SimpleMapCache<TModel extends Model> extends ModelCache<TModel, Map<String, TModel>> {
+public class SimpleMapCache<TModel> extends ModelCache<TModel, Map<String, TModel>> {
 
     public SimpleMapCache() {
         super(new HashMap<String, TModel>());

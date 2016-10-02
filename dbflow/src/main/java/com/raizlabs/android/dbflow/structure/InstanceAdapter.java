@@ -5,8 +5,8 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 /**
  * Description: Provides a {@link #newInstance()} method to a {@link RetrievalAdapter}
  */
-public abstract class InstanceAdapter<TModel extends Model, TTable extends Model>
-        extends RetrievalAdapter<TModel, TTable> {
+public abstract class InstanceAdapter<TModel>
+        extends RetrievalAdapter<TModel> {
 
     public InstanceAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);

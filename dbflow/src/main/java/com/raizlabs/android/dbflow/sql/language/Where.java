@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<TModel extends Model> extends BaseModelQueriable<TModel>
+public class Where<TModel> extends BaseModelQueriable<TModel>
         implements Query, ModelQueriable<TModel>, Transformable<TModel> {
 
     private static final int VALUE_UNSET = -1;

@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import java.io.Closeable;
 import java.util.List;
@@ -15,9 +14,9 @@ import java.util.List;
  * Description: A class that contains a {@link Cursor} and handy methods for retrieving data from it.
  * You must close this object post use via {@link #close()}.
  */
-public class CursorResult<TModel extends Model> implements Closeable {
+public class CursorResult<TModel> implements Closeable {
 
-    private final InstanceAdapter<?, TModel> retrievalAdapter;
+    private final InstanceAdapter<TModel> retrievalAdapter;
 
     @Nullable
     private Cursor cursor;
@@ -71,7 +70,7 @@ public class CursorResult<TModel extends Model> implements Closeable {
     public <TCustom extends BaseQueryModel> List<TCustom> toCustomList(Class<TCustom> customClass) {
         if (cursor != null) {
             return FlowManager.getQueryModelAdapter(customClass)
-                .getListModelLoader().convertToData(cursor, null);
+                    .getListModelLoader().convertToData(cursor, null);
         } else {
             return null;
         }

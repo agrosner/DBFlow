@@ -114,7 +114,7 @@ public class Queen extends BaseModel {
 
     List<Ant> ants;
 
-    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
+    @OneToMany(methods = {OneToMany.Method.ALL}, _variableName = "ants")
     public List<Ant> getMyAnts() {
         if (ants == null || ants.isEmpty()) {
             ants = SQLite.select()

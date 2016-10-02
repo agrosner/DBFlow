@@ -39,7 +39,7 @@ public class ExampleTest extends FlowTestCase {
         Ant ant = new Ant();
         ant.isMale = true;
         ant.type = "Worker";
-        ant.associateQueen(queen);
+        ant.queen = queen;
         ant.save();
 
         assertEquals(queen.getMyAnts().size(), 1);

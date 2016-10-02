@@ -11,15 +11,15 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class CharProperty extends BaseProperty<CharProperty> {
 
-    public CharProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public CharProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public CharProperty(Class<? extends Model> table, String columnName) {
+    public CharProperty(Class<?> table, String columnName) {
         this(table, new NameAlias.Builder(columnName).build());
     }
 
-    public CharProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public CharProperty(Class<?> table, String columnName, String aliasName) {
         this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 

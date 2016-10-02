@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * where query is not defined here, rather its determined by the query used.
  */
 public abstract class QueryModelAdapter<TQueryModel extends BaseQueryModel> extends
-        InstanceAdapter<TQueryModel, TQueryModel> {
+        InstanceAdapter<TQueryModel> {
 
     public QueryModelAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
