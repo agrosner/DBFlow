@@ -63,6 +63,8 @@ constructor(processorManager: ProcessorManager, element: Element,
     var columnAccess: BaseColumnAccess
     var hasCustomConverter: Boolean = false
 
+    var typeConverterDefinition: TypeConverterDefinition? = null
+
     open val insertStatementColumnName: CodeBlock
         get() = CodeBlock.builder().add("\$L", QueryBuilder.quote(columnName)).build()
 
@@ -154,15 +156,17 @@ constructor(processorManager: ProcessorManager, element: Element,
         hasCustomConverter = false
         if (typeConverterClassName != null && typeMirror != null &&
                 typeConverterClassName != ClassNames.TYPE_CONVERTER) {
-            val typeConverterDefinition = TypeConverterDefinition(typeConverterClassName, typeMirror, manager)
-            if (typeConverterDefinition.modelTypeName != elementTypeName) {
-                manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                        typeConverterDefinition.modelTypeName, typeConverterClassName, elementTypeName)
-            } else {
-                hasCustomConverter = true
-                val fieldName = baseTableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName)
-                hasTypeConverter = true
-                columnAccess = TypeConverterAccess(manager, this, typeConverterDefinition, fieldName)
+            typeConverterDefinition = TypeConverterDefinition(typeConverterClassName, typeMirror, manager)
+            typeConverterDefinition?.let {
+                if (it.modelTypeName != elementTypeName) {
+                    manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
+                            it.modelTypeName, typeConverterClassName, elementTypeName)
+                } else {
+                    hasCustomConverter = true
+                    val fieldName = baseTableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName!!)
+                    hasTypeConverter = true
+                    columnAccess = TypeConverterAccess(manager, this, it, fieldName)
+                }
             }
         }
 
@@ -187,17 +191,17 @@ constructor(processorManager: ProcessorManager, element: Element,
                         columnAccess = BooleanTypeColumnAccess(this)
                     } else {
                         // Any annotated members, otherwise we will use the scanner to find other ones
-                        val typeConverterDefinition = elementTypeName?.let { processorManager.getTypeConverterDefinition(it) }
-                        if (typeConverterDefinition != null ||
-                                !SQLiteHelper.containsType(elementTypeName)) {
-                            hasTypeConverter = true
-                            if (typeConverterDefinition != null) {
-                                val fieldName = baseTableDefinition.addColumnForTypeConverter(this,
-                                        typeConverterDefinition.className)
-                                columnAccess = TypeConverterAccess(manager, this,
-                                        typeConverterDefinition, fieldName)
-                            } else {
-                                columnAccess = TypeConverterAccess(manager, this)
+                        typeConverterDefinition = elementTypeName?.let { processorManager.getTypeConverterDefinition(it) }
+                        typeConverterDefinition.let {
+
+                            if (it != null || !SQLiteHelper.containsType(elementTypeName)) {
+                                hasTypeConverter = true
+                                if (it != null) {
+                                    val fieldName = baseTableDefinition.addColumnForTypeConverter(this, it.className)
+                                    columnAccess = TypeConverterAccess(manager, this, it, fieldName)
+                                } else {
+                                    columnAccess = TypeConverterAccess(manager, this)
+                                }
                             }
                         }
                     }
@@ -215,13 +219,17 @@ constructor(processorManager: ProcessorManager, element: Element,
             val propParam: TypeName
             if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
                 propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, elementTypeName.toString().capitalizeFirstLetter() + "Property")
+            } else if (hasCustomConverter || hasTypeConverter) {
+                propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, elementTypeName.box(),
+                        typeConverterDefinition?.dbTypeName)
             } else {
                 propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
             }
 
             val fieldBuilder = FieldSpec.builder(propParam,
                     columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+
+            fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
             if (isPrimaryKey) {
                 fieldBuilder.addJavadoc("Primary Key")
             } else if (isPrimaryKeyAutoIncrement) {

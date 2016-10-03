@@ -77,6 +77,8 @@ object ClassNames {
     val INSERT_MODEL_LIST_TRANSACTION = ClassName.get(PROCESS, "InsertModelTransaction")
 
     val PROPERTY = ClassName.get(PROPERTY_PACKAGE, "Property")
+    val TYPE_CONVERTED_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "TypeConvertedProperty")
+
     val IPROPERTY = ClassName.get(PROPERTY_PACKAGE, "IProperty")
     val BASE_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "BaseProperty")
     val INDEX_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "IndexProperty")
