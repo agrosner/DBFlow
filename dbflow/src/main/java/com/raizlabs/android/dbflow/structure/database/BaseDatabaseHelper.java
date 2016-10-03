@@ -43,14 +43,16 @@ public class BaseDatabaseHelper {
 
     public void onCreate(DatabaseWrapper db) {
         checkForeignKeySupport(db);
-        executeCreations(db);
+        executeTableCreations(db);
         executeMigrations(db, -1, db.getVersion());
+        executeViewCreations(db);
     }
 
     public void onUpgrade(DatabaseWrapper db, int oldVersion, int newVersion) {
         checkForeignKeySupport(db);
-        executeCreations(db);
+        executeTableCreations(db);
         executeMigrations(db, oldVersion, newVersion);
+        executeViewCreations(db);
     }
 
     public void onOpen(DatabaseWrapper db) {
@@ -69,12 +71,7 @@ public class BaseDatabaseHelper {
         }
     }
 
-    /**
-     * This generates the SQLite commands to create the DB
-     *
-     * @param database
-     */
-    protected void executeCreations(final DatabaseWrapper database) {
+    protected void executeTableCreations(final DatabaseWrapper database){
         try {
             database.beginTransaction();
             List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
@@ -85,15 +82,23 @@ public class BaseDatabaseHelper {
                     FlowLog.logError(e);
                 }
             }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
 
-            // create our model views
+    protected void executeViewCreations(final DatabaseWrapper database){
+
+        try {
+            database.beginTransaction();
             List<ModelViewAdapter> modelViews = databaseDefinition.getModelViewAdapters();
             for (ModelViewAdapter modelView : modelViews) {
                 QueryBuilder queryBuilder = new QueryBuilder()
-                        .append("CREATE VIEW IF NOT EXISTS")
-                        .appendSpaceSeparated(modelView.getViewName())
-                        .append("AS ")
-                        .append(modelView.getCreationQuery());
+                    .append("CREATE VIEW IF NOT EXISTS")
+                    .appendSpaceSeparated(modelView.getViewName())
+                    .append("AS ")
+                    .append(modelView.getCreationQuery());
                 try {
                     database.execSQL(queryBuilder.getQuery());
                 } catch (SQLiteException e) {
@@ -104,7 +109,6 @@ public class BaseDatabaseHelper {
         } finally {
             database.endTransaction();
         }
-
     }
 
     protected void executeMigrations(final DatabaseWrapper db, final int oldVersion, final int newVersion) {
