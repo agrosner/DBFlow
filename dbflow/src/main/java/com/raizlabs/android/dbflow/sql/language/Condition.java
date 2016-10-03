@@ -89,6 +89,22 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     /**
+     * Uses the NOT LIKE operation. Case insensitive comparisons.
+     *
+     * @param value Uses sqlite LIKE regex to inversely match rows.
+     *              It must be a string to escape it properly.
+     *              There are two wildcards: % and _
+     *              % represents [0,many) numbers or characters.
+     *              The _ represents a single number or character.
+     * @return This condition
+     */
+    @Override
+    public Condition notLike(String value) {
+        operation = String.format(" %1s ", Operation.NOT_LIKE);
+        return value(value);
+    }
+
+    /**
      * Uses the GLOB operation. Similar to LIKE except it uses case sensitive comparisons.
      *
      * @param value Uses sqlite GLOB regex to match rows.
@@ -453,6 +469,14 @@ public class Condition extends BaseCondition implements ITypeConditional {
          * The _ represents a single number or character.
          */
         public static final String LIKE = "LIKE";
+
+        /**
+         * If something is NOT LIKE another (a case insensitive search).
+         * There are two wildcards: % and _
+         * % represents [0,many) numbers or characters.
+         * The _ represents a single number or character.
+         */
+        public static final String NOT_LIKE = "NOT LIKE";
 
         /**
          * If something is case sensitive like another.
