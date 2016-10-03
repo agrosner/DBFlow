@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
@@ -100,6 +99,10 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
 
     public Condition like(double value) {
         return column(nameAlias).like(String.valueOf(value));
+    }
+
+    public Condition notLike(double value) {
+        return column(nameAlias).notLike(String.valueOf(value));
     }
 
     public Condition glob(double value) {

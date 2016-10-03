@@ -103,6 +103,10 @@ public class IntProperty extends BaseProperty<IntProperty> {
         return column(nameAlias).like(String.valueOf(value));
     }
 
+    public Condition notLike(int value) {
+        return column(nameAlias).notLike(String.valueOf(value));
+    }
+
     public Condition glob(int value) {
         return column(nameAlias).glob(String.valueOf(value));
     }

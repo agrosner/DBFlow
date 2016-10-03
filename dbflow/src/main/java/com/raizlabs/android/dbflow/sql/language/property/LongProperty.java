@@ -103,6 +103,10 @@ public class LongProperty extends BaseProperty<LongProperty> {
         return column(nameAlias).like(String.valueOf(value));
     }
 
+    public Condition notLike(long value) {
+        return column(nameAlias).notLike(String.valueOf(value));
+    }
+
     public Condition glob(long value) {
         return column(nameAlias).glob(String.valueOf(value));
     }

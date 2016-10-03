@@ -100,6 +100,10 @@ public class CharProperty extends BaseProperty<CharProperty> {
         return column(nameAlias).like(String.valueOf(value));
     }
 
+    public Condition notLike(char value) {
+        return column(nameAlias).notLike(String.valueOf(value));
+    }
+
     public Condition glob(char value) {
         return column(nameAlias).glob(String.valueOf(value));
     }

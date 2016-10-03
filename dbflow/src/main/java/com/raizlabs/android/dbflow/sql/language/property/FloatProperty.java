@@ -103,6 +103,10 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
         return column(nameAlias).like(String.valueOf(value));
     }
 
+    public Condition notLike(float value) {
+        return column(nameAlias).notLike(String.valueOf(value));
+    }
+
     public Condition glob(float value) {
         return column(nameAlias).glob(String.valueOf(value));
     }

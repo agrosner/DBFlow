@@ -103,6 +103,10 @@ public class ByteProperty extends BaseProperty<ByteProperty> {
         return column(nameAlias).like(String.valueOf(value));
     }
 
+    public Condition notLike(byte value) {
+        return column(nameAlias).notLike(String.valueOf(value));
+    }
+
     public Condition glob(byte value) {
         return column(nameAlias).glob(String.valueOf(value));
     }
