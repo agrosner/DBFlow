@@ -2,12 +2,10 @@ package com.raizlabs.android.dbflow.processor
 
 import com.google.common.collect.Sets
 import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.TypeConverter
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
-import com.raizlabs.android.dbflow.converter.BooleanConverter
-import com.raizlabs.android.dbflow.converter.CalendarConverter
-import com.raizlabs.android.dbflow.converter.DateConverter
-import com.raizlabs.android.dbflow.converter.SqlDateConverter
+import com.raizlabs.android.dbflow.converter.*
 import com.raizlabs.android.dbflow.processor.definition.*
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
@@ -160,7 +158,8 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
     companion object {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
-                DateConverter::class.java, SqlDateConverter::class.java, BooleanConverter::class.java)
+                DateConverter::class.java, SqlDateConverter::class.java,
+                BooleanConverter::class.java, UUIDConverter::class.java)
     }
 }
 
