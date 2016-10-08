@@ -166,9 +166,8 @@ class ForeignKeyReferenceDefinition {
             val columnShortAccess = getShortColumnAccess(false, shortAccess)
 
             val combined: CodeBlock
-            if (columnAccess !is PackagePrivateAccess) {
-                combined = CodeBlock.of("\$L\$L\$L", shortAccess, ".",
-                        columnShortAccess)
+            if (columnAccess !is PackagePrivateAccess && columnAccess !is TypeConverterAccess) {
+                combined = CodeBlock.of("\$L.\$L", shortAccess, columnShortAccess)
             } else {
                 combined = columnShortAccess
             }
@@ -184,7 +183,7 @@ class ForeignKeyReferenceDefinition {
             shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess)
             val columnShortAccess = getShortColumnAccess(false, shortAccess)
             val combined: CodeBlock
-            if (columnAccess !is PackagePrivateAccess) {
+            if (columnAccess !is PackagePrivateAccess && columnAccess !is TypeConverterAccess) {
                 combined = CodeBlock.of("\$L.\$L.\$L", ModelUtils.variable,
                         shortAccess, columnShortAccess)
             } else {
@@ -218,8 +217,9 @@ class ForeignKeyReferenceDefinition {
     private fun getShortColumnAccess(isSqliteMethod: Boolean, shortAccess: CodeBlock): CodeBlock {
         columnAccess.let {
             if (it != null) {
-                if (it is PackagePrivateAccess) {
-                    return it.getColumnAccessString(columnClassName, foreignColumnName, "",
+                if (it is PackagePrivateAccess || it is TypeConverterAccess) {
+                    return it.getColumnAccessString(columnClassName, foreignColumnName,
+                            if (it is TypeConverterAccess) foreignColumnName else "",
                             ModelUtils.variable + "." + shortAccess, isSqliteMethod)
                 } else {
                     return it.getShortAccessString(columnClassName, foreignColumnName, isSqliteMethod)
