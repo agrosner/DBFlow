@@ -92,8 +92,6 @@ class ForeignKeyReferenceDefinition {
             columnAccess = SimpleColumnAccess()
         }
 
-        simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess)
-
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
         typeConverterDefinition.let {
             if (it != null || !SQLiteHelper.containsType(columnClassName)) {
@@ -106,6 +104,10 @@ class ForeignKeyReferenceDefinition {
                 }
             }
         }
+
+        simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess
+                || columnAccess is TypeConverterAccess)
+
     }
 
     constructor(manager: ProcessorManager, foreignKeyFieldName: String,
@@ -212,7 +214,6 @@ class ForeignKeyReferenceDefinition {
         codeBuilder.addStatement("\$L", codeBlock)
         return codeBuilder.build()
     }
-
 
     private fun getShortColumnAccess(isSqliteMethod: Boolean, shortAccess: CodeBlock): CodeBlock {
         columnAccess.let {
