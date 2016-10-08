@@ -52,16 +52,16 @@ infix fun <T : Any> Case<T>.end(columnName: String) = end(columnName)
 
 // queriable extensions
 
-val <T : Any> Queriable<T>.count: Long
+val Queriable.count: Long
     get() = count()
 
-val <T : Any> Queriable<T>.cursor: Cursor?
+val Queriable.cursor: Cursor?
     get() = query()
 
-val <T : Any> Queriable<T>.hasData: Boolean
+val Queriable.hasData: Boolean
     get() = hasData()
 
-val <T : Any> Queriable<T>.statement: DatabaseStatement
+val Queriable.statement: DatabaseStatement
     get() = compileStatement()
 
 val <T : Any> ModelQueriable<T>.list: MutableList<T>

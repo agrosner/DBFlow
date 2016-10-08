@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.test.typeconverter;
 import android.location.Location;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 import com.raizlabs.android.dbflow.test.structure.TestModel1;
@@ -44,6 +45,9 @@ public class TestType extends TestModel1 {
 
     @Column
     Blobable blobable;
+
+    @ForeignKey
+    UPrimary primary;
 
     public EnumOverriderConverter.TestEnum getTestEnum() {
         return testEnum;

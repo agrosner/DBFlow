@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.sql.QueryBuilder
@@ -26,6 +27,8 @@ class ForeignKeyReferenceDefinition {
     val columnName: String
     val foreignColumnName: String
     val columnClassName: TypeName?
+
+    var hasTypeConverter: Boolean = false
 
     internal val creationStatement: CodeBlock
         get() = DefinitionUtils.getCreationStatement(columnClassName, null, columnName).build()
@@ -90,6 +93,19 @@ class ForeignKeyReferenceDefinition {
         }
 
         simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess)
+
+        val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
+        typeConverterDefinition.let {
+            if (it != null || !SQLiteHelper.containsType(columnClassName)) {
+                hasTypeConverter = true
+                if (it != null) {
+                    val fieldName = foreignKeyColumnDefinition.baseTableDefinition.addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
+                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition, it, fieldName)
+                } else {
+                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition)
+                }
+            }
+        }
     }
 
     constructor(manager: ProcessorManager, foreignKeyFieldName: String,
@@ -127,6 +143,19 @@ class ForeignKeyReferenceDefinition {
         }
 
         simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess)
+
+        val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
+        typeConverterDefinition.let {
+            if (it != null || !SQLiteHelper.containsType(columnClassName)) {
+                hasTypeConverter = true
+                if (it != null) {
+                    val fieldName = foreignKeyColumnDefinition.baseTableDefinition.addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
+                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition, it, fieldName)
+                } else {
+                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition)
+                }
+            }
+        }
     }
 
     internal val contentValuesStatement: CodeBlock

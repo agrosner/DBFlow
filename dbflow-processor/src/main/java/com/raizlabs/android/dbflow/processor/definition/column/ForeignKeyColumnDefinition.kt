@@ -43,6 +43,10 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
     var saveForeignKeyModel: Boolean = false
 
+
+    override val typeConverterElementNames: List<TypeName?>
+            get() = _foreignKeyReferenceDefinitionList.filter { it.hasTypeConverter }.map { it.columnClassName }
+
     init {
 
         val foreignKey = typeElement.getAnnotation(ForeignKey::class.java)
@@ -87,6 +91,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
         // we need to recheck for this instance
         if (columnAccess is TypeConverterAccess) {
+            // is a type converted field
             if (typeElement.modifiers.contains(Modifier.PRIVATE)) {
                 val useIs = elementTypeName?.box() == TypeName.BOOLEAN.box() && tableDefinition.useIsForPrivateBooleans
                 columnAccess = PrivateColumnAccess(typeElement.getAnnotation(Column::class.java), useIs)

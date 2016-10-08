@@ -262,9 +262,11 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
         val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
         globalTypeConverters.forEach {
             val def = baseTableDefinition.globalTypeConverters[it]
-            val firstTypeName = def?.get(0)?.elementTypeName
-            code.addStatement("global_typeConverter\$L = (\$T) \$L.getTypeConverterForClass(\$T.class)",
-                    it.simpleName(), it, "holder", firstTypeName).build()
+            val firstDef = def?.get(0)
+            firstDef?.typeConverterElementNames?.forEach { elementName ->
+                code.addStatement("global_typeConverter\$L = (\$T) \$L.getTypeConverterForClass(\$T.class)",
+                        it.simpleName(), it, "holder", elementName).build()
+            }
         }
     }
 }

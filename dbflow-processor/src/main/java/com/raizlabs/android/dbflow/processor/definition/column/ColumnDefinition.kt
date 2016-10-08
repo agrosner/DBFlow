@@ -74,6 +74,9 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() = DefinitionUtils.getContentValuesStatement(elementName, elementName, columnName, elementTypeName, columnAccess,
                 ModelUtils.variable, defaultValue).build()
 
+    open val typeConverterElementNames: List<TypeName?>
+        get() = arrayListOf(elementTypeName)
+
     init {
         column?.let {
             this.columnName = if (it.name == "")
