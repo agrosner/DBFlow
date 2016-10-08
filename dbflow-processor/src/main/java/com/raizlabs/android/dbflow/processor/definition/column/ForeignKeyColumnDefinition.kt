@@ -45,7 +45,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
 
     override val typeConverterElementNames: List<TypeName?>
-            get() = _foreignKeyReferenceDefinitionList.filter { it.hasTypeConverter }.map { it.columnClassName }
+        get() = _foreignKeyReferenceDefinitionList.filter { it.hasTypeConverter }.map { it.columnClassName }
 
     init {
 
@@ -304,9 +304,21 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                     ifNullBuilder.add("!\$L.isNull(\$L)", LoadFromCursorMethod.PARAM_CURSOR, indexName)
                 }
 
-                val loadFromCursorBlock = CodeBlock.builder().add("\$L.\$L(\$L)", LoadFromCursorMethod.PARAM_CURSOR,
-                        DefinitionUtils.getLoadFromCursorMethodString(referenceDefinition.columnClassName,
-                                referenceDefinition.columnAccess), indexName).build()
+                val loadFromCursorString = DefinitionUtils.getLoadFromCursorMethodString(
+                        referenceDefinition.columnClassName, referenceDefinition.columnAccess)
+                val loadFromCursorBlock: CodeBlock? =
+                        if (referenceDefinition.columnAccess is TypeConverterAccess) {
+                            referenceDefinition.columnAccess?.let {
+                                it.setColumnAccessString(referenceDefinition.columnClassName,
+                                        referenceDefinition.foreignColumnName,
+                                        referenceDefinition.foreignColumnName,
+                                        ModelUtils.variable, CodeBlock.of(loadFromCursorString))
+                            }
+                        } else {
+                            CodeBlock.builder().add("\$L.\$L(\$L)", LoadFromCursorMethod.PARAM_CURSOR,
+                                    loadFromCursorString, indexName).build()
+                        }
+
                 if (i > 0) {
                     selectBuilder.add("\n")
                 }
@@ -319,7 +331,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                                     + TableDefinition.DBFLOW_TABLE_TAG)
                     selectBuilder.add("\n.and(\$L.\$L.eq(\$L))", generatedTableRef,
                             referenceDefinition.foreignColumnName, loadFromCursorBlock)
-                } else {
+                } else if (loadFromCursorBlock != null) {
                     selectBuilder.add(referenceDefinition.getForeignKeyContainerMethod(foreignKeyContainerRefName,
                             loadFromCursorBlock))
                 }
