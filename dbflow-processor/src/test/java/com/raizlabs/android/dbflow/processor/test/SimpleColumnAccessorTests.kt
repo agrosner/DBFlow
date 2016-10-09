@@ -155,3 +155,18 @@ class BooleanTypeColumnAccessorTest() {
                 access.set(CodeBlock.of("cursor.getInt(index)")).toString())
     }
 }
+
+class CharColumnAccessorTest() {
+    @Test
+    fun test_canGetChar() {
+        val access = CharColumnAccessor()
+        assertEquals("new java.lang.String(new char[]{model.isSet})", access.get(CodeBlock.of("model.isSet")).toString())
+    }
+
+    @Test
+    fun test_canSetChar() {
+        val access = CharColumnAccessor()
+        assertEquals("cursor.getChar(index).charAt(0)",
+                access.set(CodeBlock.of("cursor.getChar(index)")).toString())
+    }
+}

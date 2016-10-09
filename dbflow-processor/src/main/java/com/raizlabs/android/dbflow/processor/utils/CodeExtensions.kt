@@ -17,3 +17,11 @@ fun CodeBlock.Builder.controlFlow(statement: String, vararg args: Any?,
     method(this)
     endControlFlow()
 }
+
+/**
+ * Description: Convenience method for adding [CodeBlock] statements without needing to do so every time.
+ *
+ * @author Andrew Grosner (fuzz)
+ */
+fun CodeBlock.Builder.addStatement(codeBlock: CodeBlock?): CodeBlock.Builder
+        = this.addStatement("\$L", codeBlock)

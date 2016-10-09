@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
-import com.raizlabs.android.dbflow.processor.addStatement
+import com.raizlabs.android.dbflow.processor.utils.addStatement
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 
@@ -102,8 +102,10 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
             code.addStatement(fieldLevelAccessor.set(cursorAccess))
         }
 
-        code.nextControlFlow("else")
-        code.addStatement(fieldLevelAccessor.set(defaultValue))
+        if (assignDefaultValuesFromCursor) {
+            code.nextControlFlow("else")
+            code.addStatement(fieldLevelAccessor.set(defaultValue))
+        }
         code.endControlFlow()
     }
 }

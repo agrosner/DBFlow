@@ -217,3 +217,17 @@ class BooleanColumnAccessor() : ColumnAccessor {
     }
 
 }
+
+class CharColumnAccessor() : ColumnAccessor {
+    override val propertyName: String? = null
+
+    override fun get(existingBlock: CodeBlock?): CodeBlock {
+        return CodeBlock.of("new \$T(new char[]{\$L})", TypeName.get(String::class.java),
+                existingBlock)
+    }
+
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
+        return CodeBlock.of("\$L.charAt(0)", existingBlock)
+    }
+
+}
