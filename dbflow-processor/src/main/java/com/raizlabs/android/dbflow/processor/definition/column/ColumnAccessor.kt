@@ -17,9 +17,12 @@ import java.util.*
  */
 interface ColumnAccessor {
 
+    val propertyName: String?
+
     fun get(existingBlock: CodeBlock? = null): CodeBlock
 
     fun set(existingBlock: CodeBlock? = null, baseVariableName: CodeBlock? = null): CodeBlock
+
 }
 
 interface GetterSetter {
@@ -28,20 +31,24 @@ interface GetterSetter {
     val setterName: String
 }
 
-class VisibleScopeColumnAccessor(val propertyName: String) : ColumnAccessor {
+class VisibleScopeColumnAccessor(override val propertyName: String) : ColumnAccessor {
 
     override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
         return CodeBlock.of("\$L = \$L", propertyName, existingBlock)
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
+        existingBlock?.let {
+            return CodeBlock.of("\$L.\$L", existingBlock, propertyName)
+        }
         return CodeBlock.of(propertyName)
     }
 }
 
 class PrivateScopeColumnAccessor : ColumnAccessor {
 
-    private val propertyName: String
+    override val propertyName: String
+
     private val useIsForPrivateBooleans: Boolean
     private val isBoolean: Boolean
 
@@ -94,7 +101,7 @@ class PrivateScopeColumnAccessor : ColumnAccessor {
 }
 
 class PackagePrivateScopeColumnAccessor(
-        val propertyName: String,
+        override val propertyName: String,
         packageName: String, separator: String?, tableClassName: String)
 : ColumnAccessor {
 
@@ -152,6 +159,7 @@ class PackagePrivateScopeColumnAccessor(
 
 class TypeConverterScopeColumnAccessor(val typeConverterFieldName: String)
 : ColumnAccessor {
+    override val propertyName: String? = null
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         return CodeBlock.of("\$L.getDBValue(\$L)", typeConverterFieldName,
@@ -167,6 +175,8 @@ class TypeConverterScopeColumnAccessor(val typeConverterFieldName: String)
 
 class EnumColumnAccessor(val propertyTypeName: TypeName)
 : ColumnAccessor {
+    override val propertyName: String? = null
+
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         return CodeBlock.of("\$L.name()", existingBlock)
     }
@@ -178,6 +188,9 @@ class EnumColumnAccessor(val propertyTypeName: TypeName)
 }
 
 class BlobColumnAccessor() : ColumnAccessor {
+
+    override val propertyName: String? = null
+
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         return CodeBlock.of("\$L.getBlob()", existingBlock)
     }
@@ -189,7 +202,9 @@ class BlobColumnAccessor() : ColumnAccessor {
 }
 
 class BooleanColumnAccessor() : ColumnAccessor {
-    
+
+    override val propertyName: String? = null
+
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         return CodeBlock.of("\$L ? 1 : 0", existingBlock)
     }
@@ -199,4 +214,3 @@ class BooleanColumnAccessor() : ColumnAccessor {
     }
 
 }
-
