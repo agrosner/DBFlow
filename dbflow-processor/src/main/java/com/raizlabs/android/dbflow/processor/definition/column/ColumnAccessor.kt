@@ -70,6 +70,9 @@ class PrivateScopeColumnAccessor : ColumnAccessor {
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
+        existingBlock?.let {
+            return CodeBlock.of("\$L.\$L()", existingBlock, getGetterNameElement())
+        }
         return CodeBlock.of("\$L()", getGetterNameElement())
     }
 
