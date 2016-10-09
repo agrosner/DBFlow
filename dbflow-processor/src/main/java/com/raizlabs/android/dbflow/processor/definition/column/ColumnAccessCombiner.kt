@@ -109,3 +109,15 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
         code.endControlFlow()
     }
 }
+
+class PrimaryReferenceAccessCombiner(fieldLevelAccessor: ColumnAccessor,
+                                     fieldTypeName: TypeName,
+                                     wrapperLevelAccessor: ColumnAccessor? = null,
+                                     wrapperFieldTypeName: TypeName? = null)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int) {
+        code.addStatement("clause.and(\$L.eq(\$L))", columnRepresentation, getFieldAccessBlock(code))
+    }
+
+}

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.test
 
 import com.raizlabs.android.dbflow.processor.definition.column.*
+import com.raizlabs.android.dbflow.processor.definition.column.PrimaryReferenceAccessCombiner
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import org.junit.Assert.assertEquals
@@ -167,5 +168,35 @@ class LoadFromCursorAccessCombinerTest {
                 "\n} else {" +
                 "\n  name = \"nonNull\";" +
                 "\n}", codeBuilder.build().toString().trim())
+    }
+}
+
+class PrimaryReferenceAccessCombiner {
+
+
+    @Test
+    fun test_simpleCase() {
+        val combiner = PrimaryReferenceAccessCombiner(VisibleScopeColumnAccessor("id"),
+                TypeName.get(Long::class.java))
+
+        val codeBuilder = CodeBlock.builder()
+        combiner.addCode(codeBuilder, "id")
+
+        assertEquals("clause.and(id.eq(model.id));", codeBuilder.build().toString().trim())
+    }
+
+    @Test
+    fun test_typeConverterCase() {
+        val combiner = PrimaryReferenceAccessCombiner(VisibleScopeColumnAccessor("id"),
+                TypeName.get(Long::class.java).box(),
+                TypeConverterScopeColumnAccessor("global_converter"),
+                TypeName.get(Date::class.java))
+
+        val codeBuilder = CodeBlock.builder()
+        combiner.addCode(codeBuilder, "id")
+
+        assertEquals("java.util.Date refid = model.id != null ? global_converter.getDBValue(model.id) : null;\n" +
+                "clause.and(id.eq(refid));",
+                codeBuilder.build().toString().trim())
     }
 }
