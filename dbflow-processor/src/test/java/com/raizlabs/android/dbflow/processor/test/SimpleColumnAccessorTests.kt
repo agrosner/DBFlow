@@ -122,3 +122,35 @@ class EnumColumnAccessorTest {
         assertEquals("TestEnum.valueOf(model.test)", access.set(CodeBlock.of("model.test")).toString())
     }
 }
+
+class BlobColumnAccessorTest() {
+
+    @Test
+    fun test_canGetBlob() {
+        val access = BlobColumnAccessor()
+        assertEquals("name.getBlob()", access.get(CodeBlock.of("name")).toString())
+    }
+
+    @Test
+    fun test_canSetBlob() {
+        val access = BlobColumnAccessor()
+        assertEquals("new com.raizlabs.android.dbflow.data.Blob(cursor.getBlob(index))",
+                access.set(CodeBlock.of("cursor.getBlob(index)")).toString())
+    }
+}
+
+class BooleanTypeColumnAccessorTest() {
+
+    @Test
+    fun test_canGetBoolean() {
+        val access = BooleanColumnAccessor()
+        assertEquals("model.isSet ? 1 : 0", access.get(CodeBlock.of("model.isSet")).toString())
+    }
+
+    @Test
+    fun test_canSetBoolean() {
+        val access = BooleanColumnAccessor()
+        assertEquals("cursor.getInt(index) == 1 ? true : false",
+                access.set(CodeBlock.of("cursor.getInt(index)")).toString())
+    }
+}

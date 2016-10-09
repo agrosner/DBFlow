@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.google.common.collect.Maps
+import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.lower
@@ -176,5 +177,26 @@ class EnumColumnAccessor(val propertyTypeName: TypeName)
 
 }
 
+class BlobColumnAccessor() : ColumnAccessor {
+    override fun get(existingBlock: CodeBlock?): CodeBlock {
+        return CodeBlock.of("\$L.getBlob()", existingBlock)
+    }
 
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
+        return CodeBlock.of("new \$T(\$L)", ClassName.get(Blob::class.java), existingBlock)
+    }
+
+}
+
+class BooleanColumnAccessor() : ColumnAccessor {
+    
+    override fun get(existingBlock: CodeBlock?): CodeBlock {
+        return CodeBlock.of("\$L ? 1 : 0", existingBlock)
+    }
+
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
+        return CodeBlock.of("\$L == 1 ? true : false", existingBlock)
+    }
+
+}
 
