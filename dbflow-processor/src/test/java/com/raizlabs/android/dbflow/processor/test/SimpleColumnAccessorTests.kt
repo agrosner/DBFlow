@@ -119,7 +119,8 @@ class EnumColumnAccessorTest {
     @Test
     fun test_canSetEnum() {
         val access = EnumColumnAccessor(TypeName.get(TestEnum::class.java))
-        assertEquals("TestEnum.valueOf(model.test)", access.set(CodeBlock.of("model.test")).toString())
+        assertEquals("com.raizlabs.android.dbflow.processor.test.EnumColumnAccessorTest.TestEnum.valueOf(model.test)",
+                access.set(CodeBlock.of("model.test")).toString())
     }
 }
 

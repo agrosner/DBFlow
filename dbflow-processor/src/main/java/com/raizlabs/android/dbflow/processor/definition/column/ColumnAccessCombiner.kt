@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
+import com.raizlabs.android.dbflow.processor.addStatement
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 
@@ -30,7 +31,8 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
     }
 
     abstract fun addCode(code: CodeBlock.Builder,
-                         columnRepresentation: String, defaultValue: CodeBlock? = null)
+                         columnRepresentation: String, defaultValue: CodeBlock? = null,
+                         index: Int = -1)
 
 }
 
@@ -41,7 +43,7 @@ class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
 : ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
 
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?) {
+                         defaultValue: CodeBlock?, index: Int) {
         val fieldAccess: CodeBlock = getFieldAccessBlock(code)
         if (fieldTypeName.isPrimitive) {
             code.addStatement("values.put(\$1S, \$2L)", columnRepresentation, fieldAccess)
@@ -55,18 +57,53 @@ class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTyp
                                     wrapperLevelAccessor: ColumnAccessor? = null,
                                     wrapperFieldTypeName: TypeName? = null)
 : ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String, defaultValue: CodeBlock?) {
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String, defaultValue: CodeBlock?, index: Int) {
         val fieldAccess: CodeBlock = getFieldAccessBlock(code)
 
         if (fieldTypeName.isPrimitive) {
-            code.addStatement("statement.bind\$L(\$L, \$L)",
+            code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
                     SQLiteHelper[fieldTypeName].sqLiteStatementMethod,
-                    columnRepresentation, fieldAccess)
+                    index, columnRepresentation, fieldAccess)
         } else {
-            code.addStatement("statement.bind\$1L(\$2L, \$3L != null ? \$3L : \$4L)",
-                    SQLiteHelper[fieldTypeName].sqLiteStatementMethod, columnRepresentation, fieldAccess,
-                    defaultValue)
+            code.addStatement("statement.bind\$1L(\$2L + \$3L, \$4L != null ? \$4L : \$5L)",
+                    SQLiteHelper[fieldTypeName].sqLiteStatementMethod, index, columnRepresentation,
+                    fieldAccess, defaultValue)
         }
     }
 
+}
+
+class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
+                                   fieldTypeName: TypeName,
+                                   val orderedCursorLookup: Boolean = false,
+                                   val assignDefaultValuesFromCursor: Boolean = true,
+                                   wrapperLevelAccessor: ColumnAccessor? = null,
+                                   wrapperFieldTypeName: TypeName? = null)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
+
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int) {
+        val indexName: CodeBlock
+        if (!orderedCursorLookup) {
+            indexName = CodeBlock.of("index_\$L", columnRepresentation)
+            code.addStatement("\$T \$L = cursor.getColumnIndex(\$S)", Int::class.java, indexName,
+                    columnRepresentation)
+            code.beginControlFlow("if (\$1L != -1 && !cursor.isNull(\$1L))", indexName)
+        } else {
+            indexName = CodeBlock.of(index.toString())
+            code.beginControlFlow("if (!cursor.isNull(\$1L))", index)
+        }
+
+        val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
+                SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
+        if (wrapperLevelAccessor != null) {
+            code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(cursorAccess)))
+        } else {
+            code.addStatement(fieldLevelAccessor.set(cursorAccess))
+        }
+
+        code.nextControlFlow("else")
+        code.addStatement(fieldLevelAccessor.set(defaultValue))
+        code.endControlFlow()
+    }
 }
