@@ -19,7 +19,7 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
         val nullAccessBlock = CodeBlock.builder()
         fieldAccesses.forEach {
             it.addCode(code, index.get(), modelAccessBlock)
-            it.addNull(nullAccessBlock)
+            it.addNull(nullAccessBlock, index.get())
             index.incrementAndGet()
         }
         code.nextControlFlow("else")
@@ -39,7 +39,7 @@ data class ForeignKeyAccessField(
                 modelAccessBlock)
     }
 
-    fun addNull(code: CodeBlock.Builder) {
-        columnAccessCombiner.addNull(code, columnRepresentation)
+    fun addNull(code: CodeBlock.Builder, index: Int) {
+        columnAccessCombiner.addNull(code, columnRepresentation, index)
     }
 }

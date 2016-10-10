@@ -35,7 +35,7 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
                          index: Int = -1,
                          modelBlock: CodeBlock = CodeBlock.of("model"))
 
-    open fun addNull(code: CodeBlock.Builder, columnRepresentation: String) {
+    open fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int = -1) {
 
     }
 
@@ -58,8 +58,8 @@ class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
         }
     }
 
-    override fun addNull(code: CodeBlock.Builder, columnRepresentation: String) {
-        code.addStatement("values.putNull(\$L)", columnRepresentation)
+    override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {
+        code.addStatement("values.putNull(\$S)", columnRepresentation)
     }
 }
 
@@ -83,8 +83,8 @@ class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTyp
         }
     }
 
-    override fun addNull(code: CodeBlock.Builder, columnRepresentation: String) {
-        code.addStatement("statement.bindNull(\$L)", columnRepresentation)
+    override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {
+        code.addStatement("statement.bindNull(\$L + \$L)", index, columnRepresentation)
     }
 }
 
