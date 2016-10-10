@@ -10,8 +10,8 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
                                     val wrapperLevelAccessor: ColumnAccessor? = null,
                                     val wrapperFieldTypeName: TypeName? = null) {
 
-    fun getFieldAccessBlock(existingBuilder: CodeBlock.Builder): CodeBlock {
-        val modelBlock = CodeBlock.of("model")
+    fun getFieldAccessBlock(existingBuilder: CodeBlock.Builder,
+                            modelBlock: CodeBlock): CodeBlock {
         val fieldAccess: CodeBlock
         if (wrapperLevelAccessor != null && !fieldTypeName.isPrimitive) {
             fieldAccess = CodeBlock.of("ref" + fieldLevelAccessor.propertyName)
@@ -32,7 +32,12 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
 
     abstract fun addCode(code: CodeBlock.Builder,
                          columnRepresentation: String, defaultValue: CodeBlock? = null,
-                         index: Int = -1)
+                         index: Int = -1,
+                         modelBlock: CodeBlock = CodeBlock.of("model"))
+
+    open fun addNull(code: CodeBlock.Builder, columnRepresentation: String) {
+
+    }
 
 }
 
@@ -43,13 +48,18 @@ class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
 : ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
 
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int) {
-        val fieldAccess: CodeBlock = getFieldAccessBlock(code)
+                         defaultValue: CodeBlock?, index: Int,
+                         modelBlock: CodeBlock) {
+        val fieldAccess: CodeBlock = getFieldAccessBlock(code, modelBlock)
         if (fieldTypeName.isPrimitive) {
             code.addStatement("values.put(\$1S, \$2L)", columnRepresentation, fieldAccess)
         } else {
             code.addStatement("values.put(\$1S, \$2L != null ? \$2L : \$3L)", columnRepresentation, fieldAccess, defaultValue)
         }
+    }
+
+    override fun addNull(code: CodeBlock.Builder, columnRepresentation: String) {
+        code.addStatement("values.putNull(\$L)", columnRepresentation)
     }
 }
 
@@ -57,8 +67,10 @@ class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTyp
                                     wrapperLevelAccessor: ColumnAccessor? = null,
                                     wrapperFieldTypeName: TypeName? = null)
 : ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String, defaultValue: CodeBlock?, index: Int) {
-        val fieldAccess: CodeBlock = getFieldAccessBlock(code)
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int,
+                         modelBlock: CodeBlock) {
+        val fieldAccess: CodeBlock = getFieldAccessBlock(code, modelBlock)
 
         if (fieldTypeName.isPrimitive) {
             code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
@@ -71,6 +83,9 @@ class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTyp
         }
     }
 
+    override fun addNull(code: CodeBlock.Builder, columnRepresentation: String) {
+        code.addStatement("statement.bindNull(\$L)", columnRepresentation)
+    }
 }
 
 class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
@@ -82,7 +97,8 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
 : ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
 
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int) {
+                         defaultValue: CodeBlock?, index: Int,
+                         modelBlock: CodeBlock) {
         val indexName: CodeBlock
         if (!orderedCursorLookup) {
             indexName = CodeBlock.of("index_\$L", columnRepresentation)
@@ -116,8 +132,10 @@ class PrimaryReferenceAccessCombiner(fieldLevelAccessor: ColumnAccessor,
                                      wrapperFieldTypeName: TypeName? = null)
 : ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int) {
-        code.addStatement("clause.and(\$L.eq(\$L))", columnRepresentation, getFieldAccessBlock(code))
+                         defaultValue: CodeBlock?, index: Int,
+                         modelBlock: CodeBlock) {
+        code.addStatement("clause.and(\$L.eq(\$L))", columnRepresentation,
+                getFieldAccessBlock(code, modelBlock))
     }
 
 }

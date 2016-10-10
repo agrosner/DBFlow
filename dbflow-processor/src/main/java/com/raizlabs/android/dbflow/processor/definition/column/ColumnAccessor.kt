@@ -34,14 +34,17 @@ interface GetterSetter {
 class VisibleScopeColumnAccessor(override val propertyName: String) : ColumnAccessor {
 
     override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
-        return CodeBlock.of("\$L = \$L", propertyName, existingBlock)
+        val codeBlock: CodeBlock.Builder = CodeBlock.builder()
+        baseVariableName?.let { codeBlock.add("\$L.", baseVariableName) }
+        return codeBlock.add("\$L = \$L", propertyName, existingBlock)
+                .build()
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
-        existingBlock?.let {
-            return CodeBlock.of("\$L.\$L", existingBlock, propertyName)
-        }
-        return CodeBlock.of(propertyName)
+        val codeBlock: CodeBlock.Builder = CodeBlock.builder()
+        existingBlock?.let { codeBlock.add("\$L.", existingBlock) }
+        return codeBlock.add(propertyName)
+                .build()
     }
 }
 
@@ -70,14 +73,17 @@ class PrivateScopeColumnAccessor : ColumnAccessor {
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
-        existingBlock?.let {
-            return CodeBlock.of("\$L.\$L()", existingBlock, getGetterNameElement())
-        }
-        return CodeBlock.of("\$L()", getGetterNameElement())
+        val codeBlock: CodeBlock.Builder = CodeBlock.builder()
+        existingBlock?.let { codeBlock.add("\$L.", existingBlock) }
+        return codeBlock.add("\$L()", getGetterNameElement())
+                .build()
     }
 
     override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
-        return CodeBlock.of("\$L(\$L)", getSetterNameElement(), existingBlock)
+        val codeBlock: CodeBlock.Builder = CodeBlock.builder()
+        baseVariableName?.let { codeBlock.add("\$L.", baseVariableName) }
+        return codeBlock.add("\$L(\$L)", getSetterNameElement(), existingBlock)
+                .build()
     }
 
     fun getGetterNameElement(): String {
