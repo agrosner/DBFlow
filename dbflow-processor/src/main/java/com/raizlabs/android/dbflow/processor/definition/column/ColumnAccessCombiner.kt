@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
+import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.addStatement
 import com.squareup.javapoet.CodeBlock
@@ -138,4 +139,8 @@ class PrimaryReferenceAccessCombiner(fieldLevelAccessor: ColumnAccessor,
                 getFieldAccessBlock(code, modelBlock))
     }
 
+    override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {
+        code.addStatement("clause.and(\$L.eq((\$T) \$L))", columnRepresentation,
+                ClassNames.ICONDITIONAL, "null")
+    }
 }
