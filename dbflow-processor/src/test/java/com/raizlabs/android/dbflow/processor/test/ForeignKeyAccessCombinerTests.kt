@@ -60,14 +60,15 @@ class ForeignKeyAccessCombinerTest {
         val foreignKeyAccessCombiner = ForeignKeyAccessCombiner(PackagePrivateScopeColumnAccessor("name",
                 "com.fuzz.android", "_", "TestHelper"))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("test",
-                PrimaryReferenceAccessCombiner(VisibleScopeColumnAccessor("test"),
+                PrimaryReferenceAccessCombiner(PackagePrivateScopeColumnAccessor("test",
+                        "com.fuzz.android", "_", "TestHelper2"),
                         TypeName.get(String::class.java)))
 
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(4))
 
         Assert.assertEquals("if (com.fuzz.android.TestHelper_Helper.getName(model) != null) {" +
-                "\n  clause.and(test.eq(com.fuzz.android.TestHelper_Helper.getName(model).test));" +
+                "\n  clause.and(test.eq(com.fuzz.android.TestHelper2_Helper.getTest(com.fuzz.android.TestHelper_Helper.getName(model))));" +
                 "\n} else {" +
                 "\n  clause.and(test.eq((com.raizlabs.android.dbflow.sql.language.IConditional) null));" +
                 "\n}",
