@@ -55,7 +55,13 @@ class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
         if (fieldTypeName.isPrimitive) {
             code.addStatement("values.put(\$1S, \$2L)", columnRepresentation, fieldAccess)
         } else {
-            code.addStatement("values.put(\$1S, \$2L != null ? \$2L : \$3L)", columnRepresentation, fieldAccess, defaultValue)
+            if (defaultValue != null) {
+                val storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName).toString()
+                code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
+                code.addStatement("values.put(\$1S, \$2L != null ? \$2L : \$3L)", columnRepresentation, storedFieldAccess, defaultValue)
+            } else {
+                code.addStatement("values.put(\$S, \$L)", columnRepresentation, fieldAccess)
+            }
         }
     }
 
@@ -78,9 +84,17 @@ class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTyp
                     SQLiteHelper[fieldTypeName].sqLiteStatementMethod,
                     index, columnRepresentation, fieldAccess)
         } else {
-            code.addStatement("statement.bind\$1L(\$2L + \$3L, \$4L != null ? \$4L : \$5L)",
-                    SQLiteHelper[fieldTypeName].sqLiteStatementMethod, index, columnRepresentation,
-                    fieldAccess, defaultValue)
+            if (defaultValue != null) {
+                val storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName).toString()
+                code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
+                code.addStatement("statement.bind\$1L(\$2L + \$3L, \$4L != null ? \$4L : \$5L)",
+                        SQLiteHelper[fieldTypeName].sqLiteStatementMethod, index, columnRepresentation,
+                        storedFieldAccess, defaultValue)
+            } else {
+                code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
+                        SQLiteHelper[fieldTypeName].sqLiteStatementMethod, index,
+                        columnRepresentation, fieldAccess)
+            }
         }
     }
 
