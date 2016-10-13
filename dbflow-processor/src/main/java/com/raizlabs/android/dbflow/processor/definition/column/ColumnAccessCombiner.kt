@@ -40,6 +40,10 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
 
     }
 
+    protected fun useStoredFieldRef(): Boolean {
+        return wrapperLevelAccessor == null && fieldLevelAccessor !is VisibleScopeColumnAccessor
+    }
+
 }
 
 class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
@@ -56,8 +60,12 @@ class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
             code.addStatement("values.put(\$1S, \$2L)", columnRepresentation, fieldAccess)
         } else {
             if (defaultValue != null) {
-                val storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName).toString()
-                code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
+                var storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName).toString()
+                if (useStoredFieldRef()) {
+                    code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
+                } else {
+                    storedFieldAccess = fieldAccess.toString()
+                }
                 code.addStatement("values.put(\$1S, \$2L != null ? \$2L : \$3L)", columnRepresentation, storedFieldAccess, defaultValue)
             } else {
                 code.addStatement("values.put(\$S, \$L)", columnRepresentation, fieldAccess)
@@ -85,8 +93,13 @@ class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTyp
                     index, columnRepresentation, fieldAccess)
         } else {
             if (defaultValue != null) {
-                val storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName).toString()
-                code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
+                var storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName).toString()
+
+                if (useStoredFieldRef()) {
+                    code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
+                } else {
+                    storedFieldAccess = fieldAccess.toString()
+                }
                 code.addStatement("statement.bind\$1L(\$2L + \$3L, \$4L != null ? \$4L : \$5L)",
                         SQLiteHelper[fieldTypeName].sqLiteStatementMethod, index, columnRepresentation,
                         storedFieldAccess, defaultValue)
