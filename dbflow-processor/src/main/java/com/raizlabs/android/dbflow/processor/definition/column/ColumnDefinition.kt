@@ -21,6 +21,7 @@ import java.util.regex.Pattern
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
@@ -61,6 +62,10 @@ constructor(processorManager: ProcessorManager, element: Element,
     var isBoolean = false
 
     var columnAccess: BaseColumnAccess
+    var columnAccessor: ColumnAccessor
+    var wrapperAccessor: ColumnAccessor? = null
+    var wrapperTypeName: TypeName? = null
+
     var hasCustomConverter: Boolean = false
 
     var typeConverterDefinition: TypeConverterDefinition? = null
@@ -97,6 +102,14 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
         if (isPackagePrivate) {
+            columnAccessor = PackagePrivateScopeColumnAccessor(elementName, packageName,
+                    baseTableDefinition.databaseDefinition?.classSeparator,
+                    ClassName.get(element.enclosingElement as TypeElement).simpleName())
+
+            PackagePrivateScopeColumnAccessor.putElement(
+                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                    columnName)
+
             columnAccess = PackagePrivateAccess.from(processorManager, element,
                     baseTableDefinition.databaseDefinition?.classSeparator)
 
@@ -105,10 +118,21 @@ constructor(processorManager: ProcessorManager, element: Element,
         } else {
             val isPrivate = element.modifiers.contains(Modifier.PRIVATE)
             if (isPrivate) {
-                val useIs = elementTypeName?.box() == TypeName.BOOLEAN.box()
+                val isBoolean = elementTypeName?.box() == TypeName.BOOLEAN.box()
+                val useIs = isBoolean
                         && baseTableDefinition is TableDefinition && (baseTableDefinition as TableDefinition).useIsForPrivateBooleans
                 columnAccess = PrivateColumnAccess(column, useIs)
+
+                columnAccessor = PrivateScopeColumnAccessor(elementName, object : GetterSetter {
+                    override val getterName: String = column?.getterName ?: ""
+                    override val setterName: String = column?.setterName ?: ""
+
+                }, isBoolean, useIs)
+
             } else {
+
+                columnAccessor = VisibleScopeColumnAccessor(elementName)
+
                 columnAccess = SimpleColumnAccess()
             }
         }
@@ -169,6 +193,9 @@ constructor(processorManager: ProcessorManager, element: Element,
                     val fieldName = baseTableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName!!)
                     hasTypeConverter = true
                     columnAccess = TypeConverterAccess(manager, this, it, fieldName)
+
+                    wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
+                    wrapperTypeName = it.dbTypeName
                 }
             }
         }
@@ -177,8 +204,12 @@ constructor(processorManager: ProcessorManager, element: Element,
             val typeElement = ProcessorUtils.getTypeElement(element)
             if (typeElement != null && typeElement.kind == ElementKind.ENUM) {
                 columnAccess = EnumColumnAccess(this)
+                wrapperAccessor = EnumColumnAccessor(elementTypeName!!)
+                wrapperTypeName = ClassName.get(String::class.java)
             } else if (elementTypeName == ClassName.get(Blob::class.java)) {
                 columnAccess = BlobColumnAccess(this)
+                wrapperAccessor = BlobColumnAccessor()
+                wrapperTypeName = ArrayTypeName.of(TypeName.BYTE)
             } else {
                 if (elementTypeName is ParameterizedTypeName) {
                     // do nothing, for now.
@@ -186,12 +217,18 @@ constructor(processorManager: ProcessorManager, element: Element,
                     processorManager.messager.printMessage(Diagnostic.Kind.ERROR,
                             "Columns cannot be of array type.")
                 } else {
-                    if (elementTypeName == TypeName.BOOLEAN.box()) {
-                        isBoolean = true
-                        columnAccess = BooleanColumnAccess(manager, this)
-                    } else if (elementTypeName == TypeName.BOOLEAN) {
+                    if (elementTypeName == TypeName.BOOLEAN) {
                         // lower case boolean, we don't box up and down, we just check true or false.
                         columnAccess = BooleanTypeColumnAccess(this)
+
+                        wrapperAccessor = BooleanColumnAccessor()
+                        wrapperTypeName = TypeName.BOOLEAN
+                    } else if (elementTypeName == TypeName.CHAR) {
+                        wrapperAccessor = CharColumnAccessor()
+                        wrapperTypeName = TypeName.CHAR
+                    } else if (elementTypeName == TypeName.BYTE) {
+                        wrapperAccessor = ByteColumnAccessor()
+                        wrapperTypeName = TypeName.BYTE
                     } else {
                         // Any annotated members, otherwise we will use the scanner to find other ones
                         typeConverterDefinition = elementTypeName?.let { processorManager.getTypeConverterDefinition(it) }
@@ -201,9 +238,20 @@ constructor(processorManager: ProcessorManager, element: Element,
                                 hasTypeConverter = true
                                 if (it != null) {
                                     val fieldName = baseTableDefinition.addColumnForTypeConverter(this, it.className)
-                                    columnAccess = TypeConverterAccess(manager, this, it, fieldName)
+                                    if (elementTypeName == TypeName.BOOLEAN.box()) {
+                                        isBoolean = true
+                                        columnAccess = BooleanColumnAccess(manager, this)
+                                    } else {
+                                        columnAccess = TypeConverterAccess(manager, this, it, fieldName)
+                                    }
+
+                                    wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
+                                    wrapperTypeName = it.dbTypeName
                                 } else {
+                                    // TODO: do we need this case?
                                     columnAccess = TypeConverterAccess(manager, this)
+
+                                    wrapperAccessor = TypeConverterScopeColumnAccessor("missing_converter")
                                 }
                             }
                         }
@@ -261,10 +309,14 @@ constructor(processorManager: ProcessorManager, element: Element,
     }
 
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger): CodeBlock {
-        return DefinitionUtils.getLoadFromCursorMethod(index.toInt(), elementName,
-                elementTypeName, columnName, true, columnAccess,
+
+        val builder = CodeBlock.builder()
+        LoadFromCursorAccessCombiner(columnAccessor, elementTypeName!!,
                 baseTableDefinition.orderedCursorLookUp, baseTableDefinition.assignDefaultValuesFromCursor,
-                elementName).build()
+                wrapperAccessor, wrapperTypeName)
+                .addCode(builder, columnName, CodeBlock.of(getDefaultValueString()), index.get(),
+                        CodeBlock.of("model"))
+        return builder.build()
     }
 
     /**
@@ -357,4 +409,24 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open val primaryKeyName: String
         get() = QueryBuilder.quote(columnName)
+
+    fun getDefaultValueString(): String {
+        var defaultValue = defaultValue
+        if (defaultValue.isNullOrEmpty()) {
+            defaultValue = "null"
+        }
+        val elementTypeName = this.elementTypeName
+        if (elementTypeName != null && elementTypeName.isPrimitive) {
+            if (elementTypeName == TypeName.BOOLEAN) {
+                defaultValue = "false"
+            } else if (elementTypeName == TypeName.BYTE || elementTypeName == TypeName.INT
+                    || elementTypeName == TypeName.DOUBLE || elementTypeName == TypeName.FLOAT
+                    || elementTypeName == TypeName.LONG || elementTypeName == TypeName.SHORT) {
+                defaultValue = "0"
+            } else if (elementTypeName == TypeName.CHAR) {
+                defaultValue = "'\\u0000'"
+            }
+        }
+        return defaultValue ?: ""
+    }
 }

@@ -141,14 +141,19 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
         val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
                 SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
         if (wrapperLevelAccessor != null) {
-            code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(cursorAccess)))
+            code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(cursorAccess), modelBlock))
         } else {
-            code.addStatement(fieldLevelAccessor.set(cursorAccess))
+            code.addStatement(fieldLevelAccessor.set(cursorAccess, modelBlock))
         }
 
         if (assignDefaultValuesFromCursor) {
             code.nextControlFlow("else")
-            code.addStatement(fieldLevelAccessor.set(defaultValue))
+            if (wrapperLevelAccessor != null) {
+                code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
+                        isDefault = true), modelBlock))
+            } else {
+                code.addStatement(fieldLevelAccessor.set(defaultValue, modelBlock))
+            }
         }
         code.endControlFlow()
     }

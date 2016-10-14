@@ -19,7 +19,8 @@ abstract class ColumnAccessor(val propertyName: String?) {
 
     abstract fun get(existingBlock: CodeBlock? = null): CodeBlock
 
-    abstract fun set(existingBlock: CodeBlock? = null, baseVariableName: CodeBlock? = null): CodeBlock
+    abstract fun set(existingBlock: CodeBlock? = null, baseVariableName: CodeBlock? = null,
+                     isDefault: Boolean = false): CodeBlock
 
     protected fun prependPropertyName(code: CodeBlock.Builder) {
         propertyName?.let {
@@ -49,7 +50,8 @@ interface GetterSetter {
 
 class VisibleScopeColumnAccessor(propertyName: String) : ColumnAccessor(propertyName) {
 
-    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
         val codeBlock: CodeBlock.Builder = CodeBlock.builder()
         baseVariableName?.let { codeBlock.add("\$L.", baseVariableName) }
         return codeBlock.add("\$L = \$L", propertyName, existingBlock)
@@ -92,7 +94,8 @@ class PrivateScopeColumnAccessor : ColumnAccessor {
                 .build()
     }
 
-    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
         val codeBlock: CodeBlock.Builder = CodeBlock.builder()
         baseVariableName?.let { codeBlock.add("\$L.", baseVariableName) }
         return codeBlock.add("\$L(\$L)", getSetterNameElement(), existingBlock)
@@ -151,7 +154,8 @@ class PackagePrivateScopeColumnAccessor(
                 existingBlock)
     }
 
-    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
         return CodeBlock.of("\$T.set\$L(\$L, \$L)", helperClassName,
                 propertyName.capitalizeFirstLetter(),
                 baseVariableName,
@@ -196,7 +200,8 @@ class TypeConverterScopeColumnAccessor(val typeConverterFieldName: String,
         return codeBlock.build()
     }
 
-    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
         val codeBlock = CodeBlock.builder()
         codeBlock.add("\$L.getModelValue(\$L", typeConverterFieldName, existingBlock)
         appendPropertyName(codeBlock)
@@ -214,8 +219,12 @@ class EnumColumnAccessor(val propertyTypeName: TypeName,
         return appendAccess { add("\$L.name()", existingBlock) }
     }
 
-    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
-        return appendAccess { add("\$T.valueOf(\$L)", propertyTypeName, existingBlock) }
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
+        return appendAccess {
+            if (isDefault) add(existingBlock)
+            else add("\$T.valueOf(\$L)", propertyTypeName, existingBlock)
+        }
     }
 
 }
@@ -226,8 +235,12 @@ class BlobColumnAccessor(propertyName: String? = null) : ColumnAccessor(property
         return appendAccess { add("\$L.getBlob()", existingBlock) }
     }
 
-    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
-        return appendAccess { add("new \$T(\$L)", ClassName.get(Blob::class.java), existingBlock) }
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
+        return appendAccess {
+            if (isDefault) add(existingBlock)
+            else add("new \$T(\$L)", ClassName.get(Blob::class.java), existingBlock)
+        }
     }
 
 }
@@ -238,8 +251,12 @@ class BooleanColumnAccessor(propertyName: String? = null) : ColumnAccessor(prope
         return appendAccess { add("\$L ? 1 : 0", existingBlock) }
     }
 
-    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
-        return appendAccess { add("\$L == 1 ? true : false", existingBlock) }
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
+        return appendAccess {
+            if (isDefault) add(existingBlock)
+            else add("\$L == 1 ? true : false", existingBlock)
+        }
     }
 
 }
@@ -250,8 +267,26 @@ class CharColumnAccessor(propertyName: String? = null) : ColumnAccessor(property
         return appendAccess { add("new \$T(new char[]{\$L})", TypeName.get(String::class.java), existingBlock) }
     }
 
-    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?): CodeBlock {
-        return appendAccess { add("\$L.charAt(0)", existingBlock) }
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
+        return appendAccess {
+            if (isDefault) add(existingBlock)
+            else add("\$L.charAt(0)", existingBlock)
+        }
     }
 
+}
+
+class ByteColumnAccessor(propertyName: String? = null) : ColumnAccessor(propertyName) {
+    override fun get(existingBlock: CodeBlock?): CodeBlock {
+        return appendAccess { add("\$L", existingBlock) }
+    }
+
+    override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
+                     isDefault: Boolean): CodeBlock {
+        return appendAccess {
+            if (isDefault) add(existingBlock)
+            else add("(\$T) \$L", TypeName.BYTE, existingBlock)
+        }
+    }
 }
