@@ -306,6 +306,29 @@ SQLite.insert(SomeTable.class)
 
 ```
 
+`INSERT` supports inserting multiple rows as well.
+
+```java
+
+// columns + values separately
+SQLite.insert(SomeTable.class)
+  .columns(SomeTable_Table.name, SomeTable_Table.phoneNumber)
+  .values("Default1", "5555555")
+  .values("Default2", "6666666")
+  .async()
+  .execute()
+
+// or combine into conditions
+  SQLite.insert(SomeTable.class)
+    .columnValues(SomeTable_Table.name.eq("Default1"),
+     SomeTable_Table.phoneNumber.eq("5555555"))
+    .columnValues(SomeTable_Table.name.eq("Default2"),
+     SomeTable_Table.phoneNumber.eq("6666666"))
+    .async()
+    .execute()
+    
+```
+
 ## Trigger
 
 Triggers enable SQLite-level listener operations that perform some operation, modification,
