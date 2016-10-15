@@ -121,7 +121,8 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
                                    val orderedCursorLookup: Boolean = false,
                                    val assignDefaultValuesFromCursor: Boolean = true,
                                    wrapperLevelAccessor: ColumnAccessor? = null,
-                                   wrapperFieldTypeName: TypeName? = null)
+                                   wrapperFieldTypeName: TypeName? = null,
+                                   val subWrapperAccessor: ColumnAccessor? = null)
 : ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
 
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
@@ -141,7 +142,13 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
         val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
                 SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
         if (wrapperLevelAccessor != null) {
-            code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(cursorAccess), modelBlock))
+            if (subWrapperAccessor != null) {
+                code.addStatement(fieldLevelAccessor.set(
+                        subWrapperAccessor.set(wrapperLevelAccessor.set(cursorAccess)), modelBlock))
+            } else {
+                code.addStatement(fieldLevelAccessor.set(
+                        wrapperLevelAccessor.set(cursorAccess), modelBlock))
+            }
         } else {
             code.addStatement(fieldLevelAccessor.set(cursorAccess, modelBlock))
         }

@@ -5,7 +5,6 @@ import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
-import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
@@ -66,6 +65,9 @@ constructor(processorManager: ProcessorManager, element: Element,
     var wrapperAccessor: ColumnAccessor? = null
     var wrapperTypeName: TypeName? = null
 
+    // Wraps for special cases such as for a Blob converter since we cannot use conventional converter
+    var subWrapperAccessor: ColumnAccessor? = null
+
     var hasCustomConverter: Boolean = false
 
     var typeConverterDefinition: TypeConverterDefinition? = null
@@ -81,6 +83,8 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open val typeConverterElementNames: List<TypeName?>
         get() = arrayListOf(elementTypeName)
+
+    open val primaryKeyName: String? = QueryBuilder.quote(columnName)
 
     init {
         column?.let {
@@ -130,9 +134,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                 }, isBoolean, useIs)
 
             } else {
-
                 columnAccessor = VisibleScopeColumnAccessor(elementName)
-
                 columnAccess = SimpleColumnAccess()
             }
         }
@@ -184,20 +186,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (typeConverterClassName != null && typeMirror != null &&
                 typeConverterClassName != ClassNames.TYPE_CONVERTER) {
             typeConverterDefinition = TypeConverterDefinition(typeConverterClassName, typeMirror, manager)
-            typeConverterDefinition?.let {
-                if (it.modelTypeName != elementTypeName) {
-                    manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                            it.modelTypeName, typeConverterClassName, elementTypeName)
-                } else {
-                    hasCustomConverter = true
-                    val fieldName = baseTableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName!!)
-                    hasTypeConverter = true
-                    columnAccess = TypeConverterAccess(manager, this, it, fieldName)
-
-                    wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
-                    wrapperTypeName = it.dbTypeName
-                }
-            }
+            evaluateTypeConverter(typeConverterDefinition, true)
         }
 
         if (!hasCustomConverter) {
@@ -230,33 +219,37 @@ constructor(processorManager: ProcessorManager, element: Element,
                         wrapperAccessor = ByteColumnAccessor()
                         wrapperTypeName = TypeName.BYTE
                     } else {
-                        // Any annotated members, otherwise we will use the scanner to find other ones
-                        typeConverterDefinition = elementTypeName?.let { processorManager.getTypeConverterDefinition(it) }
-                        typeConverterDefinition.let {
-
-                            if (it != null || !SQLiteHelper.containsType(elementTypeName)) {
-                                hasTypeConverter = true
-                                if (it != null) {
-                                    val fieldName = baseTableDefinition.addColumnForTypeConverter(this, it.className)
-                                    if (elementTypeName == TypeName.BOOLEAN.box()) {
-                                        isBoolean = true
-                                        columnAccess = BooleanColumnAccess(manager, this)
-                                    } else {
-                                        columnAccess = TypeConverterAccess(manager, this, it, fieldName)
-                                    }
-
-                                    wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
-                                    wrapperTypeName = it.dbTypeName
-                                } else {
-                                    // TODO: do we need this case?
-                                    columnAccess = TypeConverterAccess(manager, this)
-
-                                    wrapperAccessor = TypeConverterScopeColumnAccessor("missing_converter")
-                                }
-                            }
-                        }
+                        evaluateTypeConverter(elementTypeName?.let {
+                            processorManager.getTypeConverterDefinition(it)
+                        }, false)
                     }
                 }
+            }
+        }
+    }
+
+    private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?,
+                                      isCustom: Boolean) {
+        // Any annotated members, otherwise we will use the scanner to find other ones
+        typeConverterDefinition?.let {
+
+            if (it.modelTypeName != elementTypeName) {
+                manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
+                        it.modelTypeName, it.className, elementTypeName)
+            } else {
+                hasTypeConverter = true
+                hasCustomConverter = isCustom
+
+                val fieldName = baseTableDefinition.addColumnForTypeConverter(this, it.className)
+                if (elementTypeName == TypeName.BOOLEAN.box()) {
+                    isBoolean = true
+                    columnAccess = BooleanColumnAccess(manager, this)
+                } else {
+                    columnAccess = TypeConverterAccess(manager, this, it, fieldName)
+                }
+
+                wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
+                wrapperTypeName = it.dbTypeName
             }
         }
     }
@@ -313,7 +306,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         val builder = CodeBlock.builder()
         LoadFromCursorAccessCombiner(columnAccessor, elementTypeName!!,
                 baseTableDefinition.orderedCursorLookUp, baseTableDefinition.assignDefaultValuesFromCursor,
-                wrapperAccessor, wrapperTypeName)
+                wrapperAccessor, wrapperTypeName, subWrapperAccessor)
                 .addCode(builder, columnName, CodeBlock.of(getDefaultValueString()), index.get(),
                         CodeBlock.of("model"))
         return builder.build()
@@ -367,10 +360,6 @@ constructor(processorManager: ProcessorManager, element: Element,
         codeBuilder.add("));")
     }
 
-    fun getReferenceColumnName(reference: ForeignKeyReference): String {
-        return (columnName + "_" + reference.columnName).toUpperCase()
-    }
-
     open val creationName: CodeBlock
         get() {
             val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName)
@@ -407,8 +396,6 @@ constructor(processorManager: ProcessorManager, element: Element,
             return codeBlockBuilder.build()
         }
 
-    open val primaryKeyName: String
-        get() = QueryBuilder.quote(columnName)
 
     fun getDefaultValueString(): String {
         var defaultValue = defaultValue
