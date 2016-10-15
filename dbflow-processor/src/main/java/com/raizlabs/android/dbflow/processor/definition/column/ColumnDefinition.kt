@@ -219,9 +219,8 @@ constructor(processorManager: ProcessorManager, element: Element,
                         wrapperAccessor = ByteColumnAccessor()
                         wrapperTypeName = TypeName.BYTE
                     } else {
-                        evaluateTypeConverter(elementTypeName?.let {
-                            processorManager.getTypeConverterDefinition(it)
-                        }, false)
+                        typeConverterDefinition = elementTypeName?.let { processorManager.getTypeConverterDefinition(it) }
+                        evaluateTypeConverter(typeConverterDefinition, false)
                     }
                 }
             }
@@ -250,6 +249,11 @@ constructor(processorManager: ProcessorManager, element: Element,
 
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
+
+                // special case of blob
+                if (wrapperTypeName == ClassName.get(Blob::class.java)) {
+                    subWrapperAccessor = BlobColumnAccessor()
+                }
             }
         }
     }

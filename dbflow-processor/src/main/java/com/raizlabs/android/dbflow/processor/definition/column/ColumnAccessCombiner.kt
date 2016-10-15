@@ -144,7 +144,7 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
         if (wrapperLevelAccessor != null) {
             if (subWrapperAccessor != null) {
                 code.addStatement(fieldLevelAccessor.set(
-                        subWrapperAccessor.set(wrapperLevelAccessor.set(cursorAccess)), modelBlock))
+                        wrapperLevelAccessor.set(subWrapperAccessor.set(cursorAccess)), modelBlock))
             } else {
                 code.addStatement(fieldLevelAccessor.set(
                         wrapperLevelAccessor.set(cursorAccess), modelBlock))
