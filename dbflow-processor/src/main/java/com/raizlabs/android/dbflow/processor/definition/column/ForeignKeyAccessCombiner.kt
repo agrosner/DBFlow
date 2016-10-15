@@ -7,6 +7,8 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import java.util.concurrent.atomic.AtomicInteger
 
+val modelBlock: CodeBlock = CodeBlock.of("model")
+
 /**
  * Description: Provides structured way to combine ForeignKey for both SQLiteStatement and ContentValues
  * bindings.
@@ -18,7 +20,7 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
     var fieldAccesses: List<ForeignKeyAccessField> = arrayListOf()
 
     fun addCode(code: CodeBlock.Builder, index: AtomicInteger) {
-        val modelAccessBlock = fieldAccessor.get(CodeBlock.of("model"))
+        val modelAccessBlock = fieldAccessor.get(modelBlock)
         code.beginControlFlow("if (\$L != null)", modelAccessBlock)
         val nullAccessBlock = CodeBlock.builder()
         fieldAccesses.forEach {
@@ -32,10 +34,9 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
     }
 }
 
-data class ForeignKeyAccessField(
-        val columnRepresentation: String,
-        val columnAccessCombiner: ColumnAccessCombiner,
-        val defaultValue: CodeBlock? = null) {
+class ForeignKeyAccessField(val columnRepresentation: String,
+                            val columnAccessCombiner: ColumnAccessCombiner,
+                            val defaultValue: CodeBlock? = null) {
 
     fun addCode(code: CodeBlock.Builder, index: Int,
                 modelAccessBlock: CodeBlock) {
@@ -55,29 +56,24 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
     var fieldAccesses: List<PartialLoadFromCursorAccessCombiner> = arrayListOf()
 
     fun addCode(code: CodeBlock.Builder, index: AtomicInteger) {
-        val modelBlock = CodeBlock.of("model")
-
         val ifChecker = CodeBlock.builder()
         val setterBlock = CodeBlock.builder()
 
         if (!isStubbed) {
-            setterBlock.add("\$T.select().from(\$T.class).where()", ClassNames.SQLITE, referencedTypeName)
+            setterBlock.add("\$T.select().from(\$T.class).where()",
+                    ClassNames.SQLITE, referencedTypeName)
         } else {
-            setterBlock.addStatement(fieldAccessor.set(CodeBlock.of("new \$T()", referencedTypeName),
-                    CodeBlock.of("model")))
+            setterBlock.addStatement(
+                    fieldAccessor.set(CodeBlock.of("new \$T()", referencedTypeName), modelBlock))
         }
         for ((i, it) in fieldAccesses.withIndex()) {
             it.addRetrieval(setterBlock, index.get(), referencedTableTypeName, isStubbed, fieldAccessor)
             it.addColumnIndex(code, index.get())
-
             it.addIndexCheckStatement(ifChecker, index.get(), i == fieldAccesses.size - 1)
-
             index.incrementAndGet()
         }
 
-        if (!isStubbed) {
-            setterBlock.add("\n.querySingle()")
-        }
+        if (!isStubbed) setterBlock.add("\n.querySingle()")
 
         code.beginControlFlow("if (\$L)", ifChecker.build())
         if (!isStubbed) {
@@ -112,19 +108,13 @@ class PartialLoadFromCursorAccessCombiner(
                      isStubbed: Boolean, parentAccessor: ColumnAccessor) {
         val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
                 SQLiteHelper.getMethod(fieldTypeName), getIndexName(index))
-
-        val fieldAccessBlock: CodeBlock
-        if (subWrapperAccessor != null) {
-            fieldAccessBlock = subWrapperAccessor.set(cursorAccess)
-        } else {
-            fieldAccessBlock = cursorAccess
-        }
+        val fieldAccessBlock = subWrapperAccessor?.set(cursorAccess) ?: cursorAccess
 
         if (!isStubbed) {
             code.add(CodeBlock.of("\n.and(\$T.\$L.eq(\$L))",
                     referencedTableTypeName, propertyRepresentation, fieldAccessBlock))
         } else if (fieldLevelAccessor != null) {
-            code.addStatement(fieldLevelAccessor.set(cursorAccess, parentAccessor.get(CodeBlock.of("model"))))
+            code.addStatement(fieldLevelAccessor.set(cursorAccess, parentAccessor.get(modelBlock)))
         }
 
     }
@@ -138,13 +128,10 @@ class PartialLoadFromCursorAccessCombiner(
 
     fun addIndexCheckStatement(code: CodeBlock.Builder, index: Int,
                                isLast: Boolean) {
-        if (!orderedCursorLookup) {
-            code.add("\$L != -1 && ", getIndexName(index))
-        }
+        if (!orderedCursorLookup) code.add("\$L != -1 && ", getIndexName(index))
+
         code.add("!cursor.isNull(\$L)", getIndexName(index))
 
-        if (!isLast) {
-            code.add(" && ")
-        }
+        if (!isLast) code.add(" && ")
     }
 }
