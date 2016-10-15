@@ -147,9 +147,9 @@ class LoadFromCursorAccessCombinerTest {
 
         assertEquals("int index_columnName = cursor.getColumnIndex(\"columnName\");" +
                 "\nif (index_columnName != -1 && !cursor.isNull(index_columnName)) {" +
-                "\n  name = cursor.getString(index_columnName);" +
+                "\n  model.name = cursor.getString(index_columnName);" +
                 "\n} else {" +
-                "\n  name = \"nonNull\";" +
+                "\n  model.name = \"nonNull\";" +
                 "\n}", codeBuilder.build().toString().trim())
     }
 
@@ -164,9 +164,9 @@ class LoadFromCursorAccessCombinerTest {
 
         assertEquals("int index_columnName = cursor.getColumnIndex(\"columnName\");" +
                 "\nif (index_columnName != -1 && !cursor.isNull(index_columnName)) {" +
-                "\n  name = global_converter.getModelValue(cursor.getString(index_columnName));" +
+                "\n  model.name = global_converter.getModelValue(cursor.getString(index_columnName));" +
                 "\n} else {" +
-                "\n  name = \"nonNull\";" +
+                "\n  model.name = global_converter.getModelValue(\"nonNull\");" +
                 "\n}", codeBuilder.build().toString().trim())
     }
 }

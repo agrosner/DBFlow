@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.test
 
 import com.raizlabs.android.dbflow.processor.definition.column.*
 import com.raizlabs.android.dbflow.processor.definition.column.PrimaryReferenceAccessCombiner
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import org.junit.Assert.assertEquals
@@ -98,5 +99,27 @@ class ForeignKeyAccessCombinerTest {
                 "\n  values.putNull(\"date\");" +
                 "\n}",
                 builder.build().toString().trim())
+    }
+
+    @Test
+    fun test_canLoadFromCursor() {
+        val foreignKeyAccessCombiner = ForeignKeyLoadFromCursorCombiner(VisibleScopeColumnAccessor("testModel1"),
+                ClassName.get("com.raizlabs.android.dbflow.test.structure", "TestModel1"))
+        foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testModel1_name",
+                "name", TypeName.get(String::class.java), false,
+                ClassName.get("com.raizlabs.android.dbflow.test.structure", "TestModel1_Table"), null)
+
+        val builder = CodeBlock.builder()
+        foreignKeyAccessCombiner.addCode(builder, AtomicInteger(0))
+
+
+        assertEquals("int index_testModel1_name = cursor.getColumnIndex(\"testModel1_name\");" +
+                "\nif (index_testModel1_name != -1 && !cursor.isNull(index_testModel1_name)) {" +
+                "\n  model.testModel1 = com.raizlabs.android.dbflow.sql.language.SQLite.select().from(com.raizlabs.android.dbflow.test.structure.TestModel1.class).where()" +
+                "\n    .and(com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name.eq(cursor.getString(index_testModel1_name)))" +
+                "\n    .querySingle();" +
+                "\n} else {" +
+                "\n  model.testModel1 = null;" +
+                "\n}", builder.build().toString().trim())
     }
 }
