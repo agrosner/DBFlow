@@ -105,7 +105,7 @@ class ForeignKeyAccessCombinerTest {
     fun test_canLoadFromCursor() {
         val foreignKeyAccessCombiner = ForeignKeyLoadFromCursorCombiner(VisibleScopeColumnAccessor("testModel1"),
                 ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel"),
-                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel_Table"))
+                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel_Table"), false)
         foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_id",
                 "name", TypeName.get(String::class.java), false, null)
         foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_type",
@@ -121,6 +121,30 @@ class ForeignKeyAccessCombinerTest {
                 "\n      .and(com.raizlabs.android.dbflow.test.container.ParentModel_Table.name.eq(cursor.getString(index_testmodel_id)))" +
                 "\n      .and(com.raizlabs.android.dbflow.test.container.ParentModel_Table.type.eq(cursor.getString(index_testmodel_type)))" +
                 "\n      .querySingle();" +
+                "\n} else {" +
+                "\n  model.testModel1 = null;" +
+                "\n}", builder.build().toString().trim())
+    }
+
+    @Test
+    fun test_canLoadFromCursorStubbed() {
+        val foreignKeyAccessCombiner = ForeignKeyLoadFromCursorCombiner(VisibleScopeColumnAccessor("testModel1"),
+                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel"),
+                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel_Table"), true)
+        foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_id",
+                "name", TypeName.get(String::class.java), false, VisibleScopeColumnAccessor("name"))
+        foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_type",
+                "type", TypeName.get(String::class.java), false, VisibleScopeColumnAccessor("type"))
+
+        val builder = CodeBlock.builder()
+        foreignKeyAccessCombiner.addCode(builder, AtomicInteger(0))
+
+        assertEquals("int index_testmodel_id = cursor.getColumnIndex(\"testmodel_id\");" +
+                "\nint index_testmodel_type = cursor.getColumnIndex(\"testmodel_type\");" +
+                "\nif (index_testmodel_id != -1 && !cursor.isNull(index_testmodel_id) && index_testmodel_type != -1 && !cursor.isNull(index_testmodel_type)) {" +
+                "\n  model.testModel1 = new com.raizlabs.android.dbflow.test.container.ParentModel();" +
+                "\n  model.testModel1.name = cursor.getString(index_testmodel_id);" +
+                "\n  model.testModel1.type = cursor.getString(index_testmodel_type);" +
                 "\n} else {" +
                 "\n  model.testModel1 = null;" +
                 "\n}", builder.build().toString().trim())
