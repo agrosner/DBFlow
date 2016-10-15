@@ -1,17 +1,16 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
+import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.SQLiteHelper
+import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
-
 import java.util.concurrent.atomic.AtomicInteger
-
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
@@ -43,6 +42,13 @@ class ForeignKeyReferenceDefinition {
     private var isReferencedFieldPackagePrivate: Boolean = false
 
     var columnAccess: BaseColumnAccess? = null
+
+    var columnAccessor: ColumnAccessor
+    var wrapperAccessor: ColumnAccessor? = null
+    var wrapperTypeName: TypeName? = null
+    var subWrapperAccessor: ColumnAccessor? = null
+
+    var isBoolean = false
 
     private val tableColumnAccess: BaseColumnAccess
     private val foreignKeyColumnDefinition: ForeignKeyColumnDefinition
@@ -83,27 +89,36 @@ class ForeignKeyReferenceDefinition {
         }
         if (isReferencedFieldPrivate) {
             columnAccess = PrivateColumnAccess(referencedColumn.column, false)
+
+            val isBoolean = columnClassName?.box() == TypeName.BOOLEAN.box()
+
+            columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, object : GetterSetter {
+                override val getterName: String = referencedColumn.column?.getterName ?: ""
+                override val setterName: String = referencedColumn.column?.setterName ?: ""
+            }, isBoolean, false)
+
         } else if (isReferencedFieldPackagePrivate) {
             columnAccess = PackagePrivateAccess(referencedColumn.packageName,
                     foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
                     ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName())
             PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, foreignColumnName)
+
+            columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName,
+                    referencedColumn.packageName,
+                    foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                    ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName())
+
+            PackagePrivateAccess.putElement((columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                    foreignColumnName)
+
         } else {
             columnAccess = SimpleColumnAccess()
+
+            columnAccessor = VisibleScopeColumnAccessor(foreignKeyFieldName)
         }
 
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
-        typeConverterDefinition.let {
-            if (it != null || !SQLiteHelper.containsType(columnClassName)) {
-                hasTypeConverter = true
-                if (it != null) {
-                    val fieldName = foreignKeyColumnDefinition.baseTableDefinition.addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
-                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition, it, fieldName)
-                } else {
-                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition)
-                }
-            }
-        }
+        evaluateTypeConverter(typeConverterDefinition)
 
         simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess
                 || columnAccess is TypeConverterAccess)
@@ -147,18 +162,39 @@ class ForeignKeyReferenceDefinition {
         simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess)
 
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
-        typeConverterDefinition.let {
-            if (it != null || !SQLiteHelper.containsType(columnClassName)) {
+        evaluateTypeConverter(typeConverterDefinition)
+    }
+
+    private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?) {
+        // Any annotated members, otherwise we will use the scanner to find other ones
+        typeConverterDefinition?.let {
+
+            if (it.modelTypeName != columnClassName) {
+                manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
+                        it.modelTypeName, it.className, columnClassName)
+            } else {
                 hasTypeConverter = true
-                if (it != null) {
-                    val fieldName = foreignKeyColumnDefinition.baseTableDefinition.addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
-                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition, it, fieldName)
+
+                val fieldName = foreignKeyColumnDefinition.baseTableDefinition
+                        .addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
+                if (columnClassName == TypeName.BOOLEAN.box()) {
+                    isBoolean = true
+                    columnAccess = BooleanColumnAccess(manager, foreignKeyColumnDefinition)
                 } else {
-                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition)
+                    columnAccess = TypeConverterAccess(manager, foreignKeyColumnDefinition, it, fieldName)
+                }
+
+                wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
+                wrapperTypeName = it.dbTypeName
+
+                // special case of blob
+                if (wrapperTypeName == ClassName.get(Blob::class.java)) {
+                    subWrapperAccessor = BlobColumnAccessor()
                 }
             }
         }
     }
+
 
     internal val contentValuesStatement: CodeBlock
         get() {
