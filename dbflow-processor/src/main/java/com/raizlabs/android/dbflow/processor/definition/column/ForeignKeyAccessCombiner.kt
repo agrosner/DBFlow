@@ -49,7 +49,8 @@ data class ForeignKeyAccessField(
 }
 
 class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
-                                       val referencedTypeName: TypeName) {
+                                       val referencedTypeName: TypeName,
+                                       val referencedTableTypeName: TypeName) {
     var fieldAccesses: List<PartialLoadFromCursorAccessCombiner> = arrayListOf()
 
     fun addCode(code: CodeBlock.Builder, index: AtomicInteger) {
@@ -58,11 +59,11 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
         val ifChecker = CodeBlock.builder()
         val selectBlock = CodeBlock.builder()
                 .add("\$T.select().from(\$T.class).where()", ClassNames.SQLITE, referencedTypeName)
-        fieldAccesses.forEach {
-            it.addCondition(selectBlock, index.get())
+        for ((i, it) in fieldAccesses.withIndex()) {
+            it.addCondition(selectBlock, index.get(), referencedTableTypeName)
             it.addColumnIndex(code, index.get())
 
-            it.addIndexCheckStatement(ifChecker, index.get())
+            it.addIndexCheckStatement(ifChecker, index.get(), i == fieldAccesses.size - 1)
 
             index.incrementAndGet()
         }
@@ -82,7 +83,6 @@ class PartialLoadFromCursorAccessCombiner(
         val propertyRepresentation: String,
         val fieldTypeName: TypeName,
         val orderedCursorLookup: Boolean = false,
-        val referencedTypeName: TypeName,
         val subWrapperAccessor: ColumnAccessor? = null) {
 
     fun getIndexName(index: Int): CodeBlock {
@@ -94,7 +94,7 @@ class PartialLoadFromCursorAccessCombiner(
     }
 
 
-    fun addCondition(code: CodeBlock.Builder, index: Int) {
+    fun addCondition(code: CodeBlock.Builder, index: Int, referencedTableTypeName: TypeName) {
         val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
                 SQLiteHelper.getMethod(fieldTypeName), getIndexName(index))
 
@@ -105,7 +105,7 @@ class PartialLoadFromCursorAccessCombiner(
             fieldAccessBlock = cursorAccess
         }
 
-        code.add(CodeBlock.builder().add("\n.and(\$T.\$L.eq(\$L))", referencedTypeName,
+        code.add(CodeBlock.builder().add("\n.and(\$T.\$L.eq(\$L))", referencedTableTypeName,
                 propertyRepresentation, fieldAccessBlock).build())
 
     }
@@ -117,10 +117,15 @@ class PartialLoadFromCursorAccessCombiner(
         }
     }
 
-    fun addIndexCheckStatement(code: CodeBlock.Builder, index: Int) {
+    fun addIndexCheckStatement(code: CodeBlock.Builder, index: Int,
+                               isLast: Boolean) {
         if (!orderedCursorLookup) {
             code.add("\$L != -1 && ", getIndexName(index))
         }
         code.add("!cursor.isNull(\$L)", getIndexName(index))
+
+        if (!isLast) {
+            code.add(" && ")
+        }
     }
 }

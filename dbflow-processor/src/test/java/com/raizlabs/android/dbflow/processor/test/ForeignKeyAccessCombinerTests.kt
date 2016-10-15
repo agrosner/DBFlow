@@ -104,20 +104,23 @@ class ForeignKeyAccessCombinerTest {
     @Test
     fun test_canLoadFromCursor() {
         val foreignKeyAccessCombiner = ForeignKeyLoadFromCursorCombiner(VisibleScopeColumnAccessor("testModel1"),
-                ClassName.get("com.raizlabs.android.dbflow.test.structure", "TestModel1"))
-        foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testModel1_name",
-                "name", TypeName.get(String::class.java), false,
-                ClassName.get("com.raizlabs.android.dbflow.test.structure", "TestModel1_Table"), null)
+                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel"),
+                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel_Table"))
+        foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_id",
+                "name", TypeName.get(String::class.java), false, null)
+        foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_type",
+                "type", TypeName.get(String::class.java), false, null)
 
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(0))
 
-
-        assertEquals("int index_testModel1_name = cursor.getColumnIndex(\"testModel1_name\");" +
-                "\nif (index_testModel1_name != -1 && !cursor.isNull(index_testModel1_name)) {" +
-                "\n  model.testModel1 = com.raizlabs.android.dbflow.sql.language.SQLite.select().from(com.raizlabs.android.dbflow.test.structure.TestModel1.class).where()" +
-                "\n    .and(com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name.eq(cursor.getString(index_testModel1_name)))" +
-                "\n    .querySingle();" +
+        assertEquals("int index_testmodel_id = cursor.getColumnIndex(\"testmodel_id\");" +
+                "\nint index_testmodel_type = cursor.getColumnIndex(\"testmodel_type\");" +
+                "\nif (index_testmodel_id != -1 && !cursor.isNull(index_testmodel_id) && index_testmodel_type != -1 && !cursor.isNull(index_testmodel_type)) {" +
+                "\n  model.testModel1 = com.raizlabs.android.dbflow.sql.language.SQLite.select().from(com.raizlabs.android.dbflow.test.container.ParentModel.class).where()" +
+                "\n      .and(com.raizlabs.android.dbflow.test.container.ParentModel_Table.name.eq(cursor.getString(index_testmodel_id)))" +
+                "\n      .and(com.raizlabs.android.dbflow.test.container.ParentModel_Table.type.eq(cursor.getString(index_testmodel_type)))" +
+                "\n      .querySingle();" +
                 "\n} else {" +
                 "\n  model.testModel1 = null;" +
                 "\n}", builder.build().toString().trim())
