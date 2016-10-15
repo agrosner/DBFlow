@@ -5,6 +5,7 @@ import android.location.Location;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.test.FlowTestCase;
 
 import org.json.JSONException;
@@ -13,6 +14,7 @@ import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -144,5 +146,33 @@ public class TypeConverterTest extends FlowTestCase {
         assertFalse(retrieved.nativeBoolean);
     }
 
+    /**
+     * Explicit test based on {@link GregorianCalendar} (subclass of {@link Calendar}). <br/>
+     * Cause {@link Calendar#getInstance()} return a {@link GregorianCalendar} instance.
+     */
+    @Test
+    public void testConvertersQuerySubClass(){
+        final GregorianCalendar gregorianCalendar = new GregorianCalendar();
+        gregorianCalendar.setTimeInMillis(100000);
+
+        final TestType testType = new TestType();
+        testType.setName("Name");
+        testType.calendar = gregorianCalendar;
+        testType.save();
+
+        final Where<TestType> whereQuery = new Select().from(TestType.class)
+            .where(TestType_Table.name.is("Name"), TestType_Table.calendar.eq(gregorianCalendar));
+
+        final String query = whereQuery.getQuery();
+
+        assertNotNull(query);
+        assertTrue(query.trim().equals("SELECT * FROM `TestType` WHERE `name`='Name' AND `calendar`=100000"));
+
+        final TestType retrieved = whereQuery.querySingle();
+
+        assertNotNull(retrieved);
+        assertNotNull(retrieved.calendar);
+        assertTrue(retrieved.calendar.equals(gregorianCalendar));
+    }
 }
 

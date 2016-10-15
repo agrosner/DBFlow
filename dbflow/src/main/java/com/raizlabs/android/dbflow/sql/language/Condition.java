@@ -371,6 +371,9 @@ public class Condition extends BaseCondition implements ITypeConditional {
         operation = new QueryBuilder(Operation.EQUALS).append(columnName()).toString();
         if (value != null) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+            if(typeConverter == null){
+                typeConverter = FlowManager.getTypeConverterForClass(value.getClass().getSuperclass());
+            }
             if (typeConverter != null) {
                 //noinspection unchecked
                 value = typeConverter.getDBValue(value);

@@ -44,6 +44,9 @@ public abstract class BaseCondition implements SQLCondition {
         } else {
             String stringVal;
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+            if(typeConverter == null){
+                typeConverter = FlowManager.getTypeConverterForClass(value.getClass().getSuperclass());
+            }
             if (typeConverter != null) {
                 value = typeConverter.getDBValue(value);
             }
