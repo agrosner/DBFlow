@@ -262,8 +262,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         elementTypeName?.let { elementTypeName ->
             val propParam: TypeName
-            val wrapperAccessor = this.wrapperAccessor
-            if (wrapperAccessor != null && !wrapperAccessor.isPrimitiveTarget) {
+            if (!wrapperAccessor.isPrimitiveTarget()) {
                 propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, elementTypeName.box(),
                         wrapperTypeName)
             } else if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {

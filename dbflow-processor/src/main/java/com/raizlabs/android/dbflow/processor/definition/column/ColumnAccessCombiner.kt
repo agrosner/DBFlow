@@ -13,7 +13,8 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
                                     val subWrapperAccessor: ColumnAccessor? = null) {
 
     fun getFieldAccessBlock(existingBuilder: CodeBlock.Builder,
-                            modelBlock: CodeBlock): CodeBlock {
+                            modelBlock: CodeBlock,
+                            useWrapper: Boolean = true): CodeBlock {
         val fieldAccess: CodeBlock
         if (wrapperLevelAccessor != null && !fieldTypeName.isPrimitive) {
             fieldAccess = CodeBlock.of("ref" + fieldLevelAccessor.propertyName)
@@ -23,7 +24,7 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
                     fieldLevelAccessor.get(modelBlock),
                     wrapperLevelAccessor.get(fieldLevelAccessor.get(modelBlock)))
         } else {
-            if (wrapperLevelAccessor != null) {
+            if (useWrapper && wrapperLevelAccessor != null) {
                 fieldAccess = wrapperLevelAccessor.get(fieldLevelAccessor.get(modelBlock))
             } else {
                 fieldAccess = fieldLevelAccessor.get(modelBlock)
@@ -191,9 +192,10 @@ class PrimaryReferenceAccessCombiner(fieldLevelAccessor: ColumnAccessor,
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
                          defaultValue: CodeBlock?, index: Int,
                          modelBlock: CodeBlock) {
+        val wrapperLevelAccessor = this.wrapperLevelAccessor
         code.addStatement("clause.and(\$L.\$Leq(\$L))", columnRepresentation,
-                if (wrapperLevelAccessor is TypeConverterScopeColumnAccessor) "databaseProperty()." else "",
-                getFieldAccessBlock(code, modelBlock))
+                if (!wrapperLevelAccessor.isPrimitiveTarget()) "databaseProperty()." else "",
+                getFieldAccessBlock(code, modelBlock, wrapperLevelAccessor !is BooleanColumnAccessor))
     }
 
     override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {

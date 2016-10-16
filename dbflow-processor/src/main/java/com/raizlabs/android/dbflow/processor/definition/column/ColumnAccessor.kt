@@ -46,6 +46,8 @@ abstract class ColumnAccessor(val propertyName: String?) {
     }
 }
 
+fun ColumnAccessor?.isPrimitiveTarget(): Boolean = this?.isPrimitiveTarget ?: true
+
 interface GetterSetter {
 
     val getterName: String
