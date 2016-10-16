@@ -49,6 +49,7 @@ class ForeignKeyReferenceDefinition {
     var subWrapperAccessor: ColumnAccessor? = null
 
     var partialAccessor: PartialLoadFromCursorAccessCombiner
+    var primaryReferenceField: ForeignKeyAccessField
 
     var isBoolean = false
 
@@ -105,7 +106,7 @@ class ForeignKeyReferenceDefinition {
                     ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName())
             PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, foreignColumnName)
 
-            columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName,
+            columnAccessor = PackagePrivateScopeColumnAccessor(foreignColumnName,
                     referencedColumn.packageName,
                     foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
                     ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName())
@@ -128,6 +129,10 @@ class ForeignKeyReferenceDefinition {
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, columnName,
                 columnClassName!!, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
                 columnAccessor, wrapperAccessor, wrapperTypeName)
+
+        primaryReferenceField = ForeignKeyAccessField(columnName,
+                PrimaryReferenceAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                        wrapperTypeName, subWrapperAccessor))
 
     }
 
@@ -166,7 +171,7 @@ class ForeignKeyReferenceDefinition {
                         it.simpleName())
                 PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, foreignColumnName)
 
-                columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName,
+                columnAccessor = PackagePrivateScopeColumnAccessor(foreignColumnName,
                         it.packageName(),
                         foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
                         it.simpleName())
@@ -185,6 +190,10 @@ class ForeignKeyReferenceDefinition {
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, columnName,
                 columnClassName!!, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
                 columnAccessor, wrapperAccessor, wrapperTypeName)
+
+        primaryReferenceField = ForeignKeyAccessField(columnName,
+                PrimaryReferenceAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                        wrapperTypeName, subWrapperAccessor))
     }
 
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?) {
@@ -237,21 +246,6 @@ class ForeignKeyReferenceDefinition {
                     foreignKeyColumnVariable, null).build()
         }
 
-    val primaryReferenceString: CodeBlock
-        get() {
-            var shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false)
-            shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess)
-            val columnShortAccess = getShortColumnAccess(false, shortAccess)
-            val combined: CodeBlock
-            if (columnAccess !is PackagePrivateAccess && columnAccess !is TypeConverterAccess) {
-                combined = CodeBlock.of("\$L.\$L.\$L", ModelUtils.variable,
-                        shortAccess, columnShortAccess)
-            } else {
-                combined = columnShortAccess
-            }
-            return combined
-        }
-
     internal fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
         var shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, true)
         shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess)
@@ -262,15 +256,6 @@ class ForeignKeyReferenceDefinition {
                 index, columnShortAccess.toString(), combined.toString(),
                 columnClassName, simpleColumnAccess,
                 foreignKeyColumnVariable, false, null).build()
-    }
-
-    internal fun getForeignKeyContainerMethod(referenceFieldName: String, loadFromCursorBlock: CodeBlock): CodeBlock {
-
-        val codeBlock = columnAccess?.setColumnAccessString(columnClassName, foreignColumnName, foreignColumnName,
-                referenceFieldName, loadFromCursorBlock)
-        val codeBuilder = CodeBlock.builder()
-        codeBuilder.addStatement("\$L", codeBlock)
-        return codeBuilder.build()
     }
 
     private fun getShortColumnAccess(isSqliteMethod: Boolean, shortAccess: CodeBlock): CodeBlock {

@@ -25,10 +25,6 @@ import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 
-/**
- * Author: andrewgrosner
- * Description:
- */
 open class ColumnDefinition @JvmOverloads
 constructor(processorManager: ProcessorManager, element: Element,
             var baseTableDefinition: BaseTableDefinition, isPackagePrivate: Boolean,

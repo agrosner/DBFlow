@@ -217,31 +217,6 @@ object DefinitionUtils {
         return codeBuilder
     }
 
-    fun getUpdateAutoIncrementMethod(elementName: String, fullElementName: String,
-                                     elementTypeName: TypeName?,
-                                     columnAccess: BaseColumnAccess): CodeBlock.Builder {
-        var method = ""
-        var shouldCastUp = false
-        if (SQLiteHelper.containsNumberMethod(elementTypeName?.unbox())) {
-            method = elementTypeName?.unbox().toString()
-
-            shouldCastUp = elementTypeName != null && !elementTypeName.isPrimitive
-        }
-
-        val codeBuilder = CodeBlock.builder()
-
-        val accessBuilder = CodeBlock.builder()
-        if (shouldCastUp) {
-            accessBuilder.add("(\$T)", elementTypeName)
-        }
-        accessBuilder.add("id.\$LValue()", method)
-
-        codeBuilder.add(columnAccess.setColumnAccessString(elementTypeName, elementName, fullElementName,
-                ModelUtils.variable, accessBuilder.build()).toBuilder().add(";\n").build())
-
-        return codeBuilder
-    }
-
     fun getCreationStatement(elementTypeName: TypeName?,
                              columnAccess: BaseColumnAccess?,
                              columnName: String): CodeBlock.Builder {

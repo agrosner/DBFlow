@@ -291,26 +291,13 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         if (nonModelColumn || columnAccess is TypeConverterAccess) {
             super.appendPropertyComparisonAccessStatement(codeBuilder)
         } else {
-            val origStatement = getColumnAccessString(false)
-            if (isPrimaryKey) {
-                var statement: CodeBlock
-                val variableName = "container" + elementName
-                val typeName = elementTypeName
-                codeBuilder.addStatement("\n\$T \$L = (\$T) \$L", typeName, variableName, typeName, origStatement)
-                codeBuilder.beginControlFlow("if (\$L != null)", variableName)
-                val elseBuilder = CodeBlock.builder()
-                for (referenceDefinition in getForeignKeyReferenceDefinitionList()) {
-                    if (isModel) {
-                        statement = referenceDefinition.primaryReferenceString
-                    } else {
-                        statement = origStatement
-                    }
-                    codeBuilder.addStatement("clause.and(\$T.\$L.eq(\$L))", baseTableDefinition.propertyClassName, referenceDefinition.columnName, statement)
-                    elseBuilder.addStatement("clause.and(\$T.\$L.eq((\$T) \$L))", baseTableDefinition.propertyClassName, referenceDefinition.columnName, referenceDefinition.columnClassName, DefinitionUtils.getDefaultValueString(referenceDefinition.columnClassName))
+
+            referencedTableClassName?.let {
+                val foreignKeyCombiner = ForeignKeyAccessCombiner(columnAccessor)
+                _foreignKeyReferenceDefinitionList.forEach {
+                    foreignKeyCombiner.fieldAccesses += it.primaryReferenceField
                 }
-                codeBuilder.nextControlFlow("else")
-                codeBuilder.add(elseBuilder.build())
-                codeBuilder.endControlFlow()
+                foreignKeyCombiner.addCode(codeBuilder, AtomicInteger(0))
             }
         }
     }
