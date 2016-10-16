@@ -102,7 +102,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             needsReferences = true
         } else {
             for (reference in references) {
-                val referenceDefinition = ForeignKeyReferenceDefinition(manager, elementName, reference, columnAccess, this)
+                val referenceDefinition = ForeignKeyReferenceDefinition(manager, elementName, reference, this)
                 // TODO: add validation
                 _foreignKeyReferenceDefinitionList.add(referenceDefinition)
             }
@@ -331,7 +331,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                 val primaryColumns = referencedTableDefinition.primaryColumnDefinitions
                 primaryColumns.forEach {
                     val foreignKeyReferenceDefinition = ForeignKeyReferenceDefinition(manager,
-                            elementName, it, columnAccess, this, primaryColumns.size)
+                            elementName, it, this, primaryColumns.size)
                     _foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition)
                 }
                 if (nonModelColumn) {
