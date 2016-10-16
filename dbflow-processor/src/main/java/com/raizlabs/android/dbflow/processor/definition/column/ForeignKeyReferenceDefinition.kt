@@ -10,7 +10,6 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
-import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
@@ -50,6 +49,8 @@ class ForeignKeyReferenceDefinition {
 
     var partialAccessor: PartialLoadFromCursorAccessCombiner
     var primaryReferenceField: ForeignKeyAccessField
+    var contentValuesField: ForeignKeyAccessField
+    var sqliteStatementField: ForeignKeyAccessField
 
     var isBoolean = false
 
@@ -134,6 +135,14 @@ class ForeignKeyReferenceDefinition {
                 PrimaryReferenceAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
                         wrapperTypeName, subWrapperAccessor))
 
+        contentValuesField = ForeignKeyAccessField(columnName,
+                ContentValuesCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                        wrapperTypeName, subWrapperAccessor))
+
+        sqliteStatementField = ForeignKeyAccessField("start",
+                SqliteStatementAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                        wrapperTypeName, subWrapperAccessor))
+
     }
 
     constructor(manager: ProcessorManager, foreignKeyFieldName: String,
@@ -194,6 +203,15 @@ class ForeignKeyReferenceDefinition {
         primaryReferenceField = ForeignKeyAccessField(columnName,
                 PrimaryReferenceAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
                         wrapperTypeName, subWrapperAccessor))
+
+        contentValuesField = ForeignKeyAccessField(columnName,
+                ContentValuesCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                        wrapperTypeName, subWrapperAccessor))
+
+        sqliteStatementField = ForeignKeyAccessField("start",
+                SqliteStatementAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                        wrapperTypeName, subWrapperAccessor))
+
     }
 
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?) {
@@ -226,37 +244,6 @@ class ForeignKeyReferenceDefinition {
         }
     }
 
-
-    internal val contentValuesStatement: CodeBlock
-        get() {
-            var shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, false)
-            shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess)
-
-            val columnShortAccess = getShortColumnAccess(false, shortAccess)
-
-            val combined: CodeBlock
-            if (columnAccess !is PackagePrivateAccess && columnAccess !is TypeConverterAccess) {
-                combined = CodeBlock.of("\$L.\$L", shortAccess, columnShortAccess)
-            } else {
-                combined = columnShortAccess
-            }
-            return DefinitionUtils.getContentValuesStatement(columnShortAccess.toString(),
-                    combined.toString(),
-                    columnName, columnClassName, simpleColumnAccess,
-                    foreignKeyColumnVariable, null).build()
-        }
-
-    internal fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
-        var shortAccess = tableColumnAccess.getShortAccessString(foreignKeyColumnDefinition.elementClassName, foreignKeyFieldName, true)
-        shortAccess = foreignKeyColumnDefinition.getForeignKeyReferenceAccess(shortAccess)
-
-        val columnShortAccess = getShortColumnAccess(true, shortAccess)
-        val combined = shortAccess.toBuilder().add(".").add(columnShortAccess).build()
-        return DefinitionUtils.getSQLiteStatementMethod(
-                index, columnShortAccess.toString(), combined.toString(),
-                columnClassName, simpleColumnAccess,
-                foreignKeyColumnVariable, false, null).build()
-    }
 
     private fun getShortColumnAccess(isSqliteMethod: Boolean, shortAccess: CodeBlock): CodeBlock {
         columnAccess.let {

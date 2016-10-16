@@ -4,10 +4,7 @@ import com.raizlabs.android.dbflow.annotation.*
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
-import com.raizlabs.android.dbflow.processor.definition.BindToContentValuesMethod
-import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
@@ -218,24 +215,15 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             super.contentValuesStatement
         } else {
             checkNeedsReferences()
-            val builder = CodeBlock.builder()
-            val statement = columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.variable, false)
-            val finalAccessStatement = getFinalAccessStatement(builder, statement)
-            builder.beginControlFlow("if (\$L != null)", finalAccessStatement)
-
-            if (saveForeignKeyModel) {
-                builder.addStatement("\$L.save()", finalAccessStatement)
+            val codeBuilder = CodeBlock.builder()
+            referencedTableClassName?.let {
+                val foreignKeyCombiner = ForeignKeyAccessCombiner(columnAccessor)
+                _foreignKeyReferenceDefinitionList.forEach {
+                    foreignKeyCombiner.fieldAccesses += it.contentValuesField
+                }
+                foreignKeyCombiner.addCode(codeBuilder, AtomicInteger(0))
             }
-
-            val elseBuilder = CodeBlock.builder()
-            for (referenceDefinition in _foreignKeyReferenceDefinitionList) {
-                builder.add(referenceDefinition.contentValuesStatement)
-                elseBuilder.addStatement("\$L.putNull(\$S)", BindToContentValuesMethod.PARAM_CONTENT_VALUES, QueryBuilder.quote(referenceDefinition.columnName))
-            }
-
-            builder.nextControlFlow("else").add(elseBuilder.build()).endControlFlow()
-            builder.build()
+            codeBuilder.build()
         }
 
     override fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
@@ -243,28 +231,15 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             return super.getSQLiteStatementMethod(index)
         } else {
             checkNeedsReferences()
-            val builder = CodeBlock.builder()
-            val statement = columnAccess.getColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.variable, true)
-            val finalAccessStatement = getFinalAccessStatement(builder, statement)
-            builder.beginControlFlow("if (\$L != null)", finalAccessStatement)
-
-            if (saveForeignKeyModel) {
-                builder.addStatement("\$L.save()", finalAccessStatement)
-            }
-
-            val elseBuilder = CodeBlock.builder()
-            for (i in _foreignKeyReferenceDefinitionList.indices) {
-                if (i > 0) {
-                    index.incrementAndGet()
+            val codeBuilder = CodeBlock.builder()
+            referencedTableClassName?.let {
+                val foreignKeyCombiner = ForeignKeyAccessCombiner(columnAccessor)
+                _foreignKeyReferenceDefinitionList.forEach {
+                    foreignKeyCombiner.fieldAccesses += it.sqliteStatementField
                 }
-                val referenceDefinition = _foreignKeyReferenceDefinitionList[i]
-                builder.add(referenceDefinition.getSQLiteStatementMethod(index))
-                elseBuilder.addStatement("\$L.bindNull(\$L)", BindToStatementMethod.PARAM_STATEMENT, "${index.toInt()} + ${BindToStatementMethod.PARAM_START}")
+                foreignKeyCombiner.addCode(codeBuilder, index)
             }
-
-            builder.nextControlFlow("else").add(elseBuilder.build()).endControlFlow()
-            return builder.build()
+            return codeBuilder.build()
         }
     }
 

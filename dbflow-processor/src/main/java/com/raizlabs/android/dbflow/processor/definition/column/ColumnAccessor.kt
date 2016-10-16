@@ -146,12 +146,7 @@ class PackagePrivateScopeColumnAccessor(
 
     init {
         helperClassName = ClassName.get(packageName, "$tableClassName$separator$classSuffix")
-
-        var setSeparator = separator
-        if (setSeparator != null && setSeparator.matches("[$]+".toRegex())) {
-            setSeparator += setSeparator // duplicate to be safe
-        }
-        internalHelperClassName = ClassName.get(packageName, "$tableClassName$setSeparator$classSuffix")
+        internalHelperClassName = ClassName.get(packageName, "$tableClassName$separator$classSuffix")
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
