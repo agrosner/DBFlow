@@ -421,6 +421,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             typeBuilder.addMethod(MethodSpec.methodBuilder("saveForeignKeys")
                     .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(elementClassName, ModelUtils.variable)
+                    .addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                     .addCode(code.build())
                     .build())
         }

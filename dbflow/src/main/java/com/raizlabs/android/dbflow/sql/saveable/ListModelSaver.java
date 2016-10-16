@@ -54,7 +54,7 @@ public class ListModelSaver<TModel> {
         DatabaseStatement statement = modelSaver.getModelAdapter().getInsertStatement(wrapper);
         try {
             for (TModel model : tableCollection) {
-                modelSaver.insert(model, statement);
+                modelSaver.insert(model, statement, wrapper);
             }
         } finally {
             statement.close();

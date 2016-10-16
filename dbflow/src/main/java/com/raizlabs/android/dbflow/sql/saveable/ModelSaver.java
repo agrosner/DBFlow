@@ -45,7 +45,7 @@ public class ModelSaver<TModel> {
         }
 
         if (!exists) {
-            exists = insert(model, insertStatement) > INSERT_FAILED;
+            exists = insert(model, insertStatement, wrapper) > INSERT_FAILED;
         }
 
         if (exists) {
@@ -67,7 +67,7 @@ public class ModelSaver<TModel> {
     @SuppressWarnings("unchecked")
     public synchronized boolean update(@NonNull TModel model, @NonNull DatabaseWrapper wrapper,
                                        @NonNull ContentValues contentValues) {
-        modelAdapter.saveForeignKeys(model);
+        modelAdapter.saveForeignKeys(model, wrapper);
         modelAdapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
                 modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
@@ -80,7 +80,7 @@ public class ModelSaver<TModel> {
 
     @SuppressWarnings("unchecked")
     public synchronized long insert(@NonNull TModel model) {
-        return insert(model, modelAdapter.getInsertStatement());
+        return insert(model, modelAdapter.getInsertStatement(), getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
@@ -88,7 +88,7 @@ public class ModelSaver<TModel> {
         DatabaseStatement insertStatement = modelAdapter.getInsertStatement(wrapper);
         long result = 0;
         try {
-            result = insert(model, insertStatement);
+            result = insert(model, insertStatement, wrapper);
         } finally {
             // since we generate an insert every time, we can safely close the statement here.
             insertStatement.close();
@@ -97,8 +97,9 @@ public class ModelSaver<TModel> {
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized long insert(@NonNull TModel model, @NonNull DatabaseStatement insertStatement) {
-        modelAdapter.saveForeignKeys(model);
+    public synchronized long insert(@NonNull TModel model, @NonNull DatabaseStatement insertStatement,
+                                    DatabaseWrapper wrapper) {
+        modelAdapter.saveForeignKeys(model, wrapper);
         modelAdapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
         if (id > INSERT_FAILED) {

@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.addStatement
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.ClassName
@@ -282,18 +283,20 @@ class CachingIdAccessCombiner(combiner: Combiner)
 }
 
 class SaveModelAccessCombiner(combiner: Combiner,
-                              val isModel: Boolean)
+                              val implementsModel: Boolean,
+                              val extendsBaseModel: Boolean)
 : ColumnAccessCombiner(combiner) {
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
                          defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
         combiner.apply {
             val access = getFieldAccessBlock(code, modelBlock)
             code.beginControlFlow("if (\$L != null)", access)
-            if (isModel) {
-                code.addStatement("\$L.save()", access)
+            if (implementsModel) {
+                code.addStatement("\$L.save(\$L)", access,
+                        if (extendsBaseModel) ModelUtils.wrapper else "")
             } else {
-                code.addStatement("\$T.getModelAdapter(\$T.class).save(\$L)", ClassNames.FLOW_MANAGER,
-                        fieldTypeName, access)
+                code.addStatement("\$T.getModelAdapter(\$T.class).save(\$L, \$L)",
+                        ClassNames.FLOW_MANAGER, fieldTypeName, access, ModelUtils.wrapper)
             }
             code.endControlFlow()
         }

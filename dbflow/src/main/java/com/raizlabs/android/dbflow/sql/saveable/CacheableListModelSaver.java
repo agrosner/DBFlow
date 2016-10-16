@@ -50,7 +50,7 @@ public class CacheableListModelSaver<TModel>
         DatabaseStatement statement = getModelSaver().getModelAdapter().getInsertStatement(wrapper);
         try {
             for (TModel model : tableCollection) {
-                if (getModelSaver().insert(model, statement) > 0) {
+                if (getModelSaver().insert(model, statement, wrapper) > 0) {
                     getModelSaver().getModelAdapter().storeModelInCache(model);
                 }
             }

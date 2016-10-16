@@ -22,8 +22,8 @@ import javax.lang.model.type.MirroredTypeException
  * Description:
  */
 class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: TableDefinition,
-                                 typeElement: Element, isPackagePrivate: Boolean)
-: ColumnDefinition(manager, typeElement, tableDefinition, isPackagePrivate) {
+                                 element: Element, isPackagePrivate: Boolean)
+: ColumnDefinition(manager, element, tableDefinition, isPackagePrivate) {
 
     val _foreignKeyReferenceDefinitionList: MutableList<ForeignKeyReferenceDefinition> = ArrayList()
 
@@ -35,7 +35,8 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
     var isStubbedRelationship: Boolean = false
 
     var isReferencingTableObject: Boolean = false
-    var implementsModel: Boolean = false
+    var implementsModel: Boolean
+    var extendsBaseModel: Boolean
 
     var needsReferences: Boolean = false
 
@@ -49,7 +50,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
     init {
 
-        val foreignKey = typeElement.getAnnotation(ForeignKey::class.java)
+        val foreignKey = element.getAnnotation(ForeignKey::class.java)
         onUpdate = foreignKey.onUpdate
         onDelete = foreignKey.onDelete
 
@@ -62,7 +63,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         }
 
         val erasedElement: TypeElement? = manager.elements.getTypeElement(
-                manager.typeUtils.erasure(typeElement.asType()).toString())
+                manager.typeUtils.erasure(element.asType()).toString())
 
         // hopefully intentionally left blank
         if (referencedTableClassName == TypeName.OBJECT) {
@@ -79,9 +80,11 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         }
 
         if (referencedTableClassName == null) {
-            manager.logError("Referenced was null for %1s within %1s", typeElement, elementTypeName)
+            manager.logError("Referenced was null for %1s within %1s", element, elementTypeName)
         }
 
+        extendsBaseModel = ProcessorUtils.isSubclass(manager.processingEnvironment,
+                ClassNames.BASE_MODEL.toString(), erasedElement)
         implementsModel = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.MODEL.toString(), erasedElement)
         isReferencingTableObject = implementsModel || erasedElement?.getAnnotation(Table::class.java) != null
 
@@ -281,7 +284,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             referencedTableClassName?.let { referencedTableClassName ->
                 val saveAccessor = ForeignKeyAccessField(columnName,
                         SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
-                                wrapperTypeName, subWrapperAccessor), implementsModel))
+                                wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
                 saveAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }

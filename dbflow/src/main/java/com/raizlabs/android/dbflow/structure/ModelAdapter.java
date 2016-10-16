@@ -227,7 +227,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * Called when we want tosave our {@link ForeignKey} objects. usually during insert + update.
      * This method is overridden when {@link ForeignKey} specified
      */
-    public void saveForeignKeys(TModel model) {
+    public void saveForeignKeys(TModel model, DatabaseWrapper wrapper) {
 
     }
 
