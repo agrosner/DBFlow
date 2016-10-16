@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -77,6 +78,10 @@ public class FlowCursorList<TModel> implements
         if (cacheModels) {
             cacheSize = builder.cacheSize;
             modelCache = builder.modelCache;
+            if (modelCache == null) {
+                // new cache with default size
+                modelCache = ModelLruCache.newInstance(0);
+            }
         }
         //noinspection unchecked
         instanceAdapter = FlowManager.getInstanceAdapter(builder.modelClass);

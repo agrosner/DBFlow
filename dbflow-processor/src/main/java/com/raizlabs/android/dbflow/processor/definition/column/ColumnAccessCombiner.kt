@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.column
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.addStatement
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
@@ -167,9 +168,19 @@ class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTyp
                 if (subWrapperAccessor != null) {
                     subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
                 }
-                code.addStatement("statement.bind\$L(\$L + \$L, \$L != null ? \$L : \$L)",
-                        SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod, index, columnRepresentation,
-                        storedFieldAccess, subWrapperFieldAccess, defaultValue)
+                code.beginControlFlow("if (\$L != null) ", storedFieldAccess)
+                        .addStatement("statement.bind\$L(\$L + \$L, \$L)",
+                                SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod,
+                                index, columnRepresentation, subWrapperFieldAccess)
+                        .nextControlFlow("else")
+                if (!defaultValue.toString().isNullOrEmpty()) {
+                    code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
+                            SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod,
+                            index, columnRepresentation, defaultValue)
+                } else {
+                    code.addStatement("statement.bindNull(\$L + \$L)", index, columnRepresentation)
+                }
+                code.endControlFlow()
             } else {
                 code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
                         SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod, index,
