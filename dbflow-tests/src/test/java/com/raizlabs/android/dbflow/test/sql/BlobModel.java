@@ -15,8 +15,7 @@ import java.util.Date;
 @Table(database = TestDatabase.class)
 public class BlobModel extends BaseModel {
 
-    @Column
-    @PrimaryKey(autoincrement = true)
+    @PrimaryKey
     int key;
 
     @Column(name = "image_blob")

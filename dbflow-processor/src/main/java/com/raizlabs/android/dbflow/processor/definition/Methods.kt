@@ -106,6 +106,7 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                 if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
                     val autoIncrement = tableDefinition.autoIncrementColumn
                     autoIncrement?.let {
+                        methodBuilder.addStatement("int start = 0")
                         methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start)))
                     }
                 }
@@ -262,9 +263,11 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
         val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
         globalTypeConverters.forEach {
             val def = baseTableDefinition.globalTypeConverters[it]
-            val firstTypeName = def?.get(0)?.elementTypeName
-            code.addStatement("global_typeConverter\$L = (\$T) \$L.getTypeConverterForClass(\$T.class)",
-                    it.simpleName(), it, "holder", firstTypeName).build()
+            val firstDef = def?.get(0)
+            firstDef?.typeConverterElementNames?.forEach { elementName ->
+                code.addStatement("global_typeConverter\$L = (\$T) \$L.getTypeConverterForClass(\$T.class)",
+                        it.simpleName(), it, "holder", elementName).build()
+            }
         }
     }
 }
@@ -282,37 +285,14 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
                     .addParameter(ClassNames.DATABASE_WRAPPER, "wrapper")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL).returns(TypeName.BOOLEAN)
             // only quick check if enabled.
-            val autoincrementColumn = tableDefinition.autoIncrementColumn
-
-            if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                val incrementBuilder = CodeBlock.builder().add("return ")
-                val columnAccess = autoincrementColumn!!.getColumnAccessString(false)
-                val autoElementType = autoincrementColumn.elementTypeName
-                autoElementType?.let {
-                    if (!it.isPrimitive) {
-                        incrementBuilder.add("(\$L != null && ", columnAccess)
-                    }
-                    incrementBuilder.add("\$L > 0", columnAccess)
-                    if (!it.isPrimitive) {
-                        incrementBuilder.add(" || \$L == null)", columnAccess)
-                    }
-                }
-                methodBuilder.addCode(incrementBuilder.build())
+            var primaryColumn = tableDefinition.autoIncrementColumn
+            if (primaryColumn == null) {
+                primaryColumn = tableDefinition.primaryColumnDefinitions[0]
             }
 
-            if (!tableDefinition.hasRowID && !tableDefinition.hasAutoIncrement ||
-                    autoincrementColumn != null &&
-                            !autoincrementColumn.isQuickCheckPrimaryKeyAutoIncrement) {
-                if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                    methodBuilder.addCode(" && ")
-                } else {
-                    methodBuilder.addCode("return ")
-                }
-                methodBuilder.addCode("\$T.selectCountOf()\n.from(\$T.class)\n.where(getPrimaryConditionClause(\$L))\n.hasData(wrapper)",
-                        ClassNames.SQLITE, tableDefinition.elementClassName, ModelUtils.variable)
-            }
-            methodBuilder.addCode(";\n")
-
+            val code = CodeBlock.builder()
+            primaryColumn.appendExistenceMethod(code)
+            methodBuilder.addCode(code.build())
             return methodBuilder.build()
         }
 }
@@ -532,7 +512,7 @@ class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) :
                     .addParameter(tableDefinition.parameterClassName,
                             ModelUtils.variable).returns(ClassNames.CONDITION_GROUP)
             val code = CodeBlock.builder()
-            code.add("\$T clause = \$T.clause();", ClassNames.CONDITION_GROUP, ClassNames.CONDITION_GROUP)
+            code.addStatement("\$T clause = \$T.clause()", ClassNames.CONDITION_GROUP, ClassNames.CONDITION_GROUP)
             tableDefinition.primaryColumnDefinitions.forEach {
                 val codeBuilder = CodeBlock.builder()
                 it.appendPropertyComparisonAccessStatement(codeBuilder)

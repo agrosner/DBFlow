@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
@@ -223,6 +224,14 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     /**
+     * Called when we want tosave our {@link ForeignKey} objects. usually during insert + update.
+     * This method is overridden when {@link ForeignKey} specified
+     */
+    public void saveForeignKeys(TModel model) {
+
+    }
+
+    /**
      * @return A set of columns that represent the caching columns.
      */
     public String[] createCachingColumns() {
@@ -422,4 +431,5 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
                                 "an auto-incrementing or one primary key (if used in a ModelCache, this method may be called)",
                         getModelClass()));
     }
+
 }

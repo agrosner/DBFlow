@@ -6,6 +6,8 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.test.TestDatabase;
+import com.raizlabs.android.dbflow.test.structure.TestModel2;
+import com.raizlabs.android.dbflow.test.structure.TestModel2_Table;
 
 import java.util.List;
 
@@ -18,12 +20,13 @@ public class OneToManyModel extends BaseModel {
     @PrimaryKey
     String name;
 
-    List<OneToManyModelNonModel> orders;
+    List<TestModel2> orders;
 
     @OneToMany(methods = {OneToMany.Method.ALL})
-    public List<OneToManyModelNonModel> getOrders() {
+    public List<TestModel2> getOrders() {
         if (orders == null) {
-            orders = new Select().from(OneToManyModelNonModel.class)
+            orders = new Select().from(TestModel2.class)
+                    .where(TestModel2_Table.model_order.greaterThan(3))
                     .queryList();
         }
         return orders;

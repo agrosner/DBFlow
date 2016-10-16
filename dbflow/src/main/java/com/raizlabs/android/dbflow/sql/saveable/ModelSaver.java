@@ -67,6 +67,7 @@ public class ModelSaver<TModel> {
     @SuppressWarnings("unchecked")
     public synchronized boolean update(@NonNull TModel model, @NonNull DatabaseWrapper wrapper,
                                        @NonNull ContentValues contentValues) {
+        modelAdapter.saveForeignKeys(model);
         modelAdapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
                 modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
@@ -97,6 +98,7 @@ public class ModelSaver<TModel> {
 
     @SuppressWarnings("unchecked")
     public synchronized long insert(@NonNull TModel model, @NonNull DatabaseStatement insertStatement) {
+        modelAdapter.saveForeignKeys(model);
         modelAdapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
         if (id > INSERT_FAILED) {

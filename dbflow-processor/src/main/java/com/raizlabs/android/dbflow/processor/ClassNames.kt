@@ -88,6 +88,8 @@ object ClassNames {
     val DELETE = ClassName.get(LANGUAGE, "Delete")
     val METHOD = ClassName.get(LANGUAGE, "Method")
 
+    val ICONDITIONAL = ClassName.get(LANGUAGE, "IConditional")
+
     val BASE_CONTENT_PROVIDER = ClassName.get(RUNTIME, "BaseContentProvider")
     val PROPERTY_CONVERTER = ClassName.get(RUNTIME + ".BaseContentProvider", "PropertyConverter")
 

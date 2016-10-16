@@ -1,9 +1,8 @@
 package com.raizlabs.android.dbflow.processor.utils
 
-import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.squareup.javapoet.JavaFile
-
 import java.io.IOException
 
 /**
@@ -18,7 +17,9 @@ object WriterUtils {
             javaFile.writeTo(processorManager.processingEnvironment.filer)
             success = true
         } catch (e: IOException) {
-            // ignore
+            // ignored
+        } catch (i: IllegalStateException) {
+            processorManager.logError(WriterUtils::class, "Found error for class:" + baseDefinition.elementName)
         }
 
         return success

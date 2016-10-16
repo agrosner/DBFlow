@@ -5,12 +5,10 @@ import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
-import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
@@ -21,14 +19,11 @@ import java.util.regex.Pattern
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 
-/**
- * Author: andrewgrosner
- * Description:
- */
 open class ColumnDefinition @JvmOverloads
 constructor(processorManager: ProcessorManager, element: Element,
             var baseTableDefinition: BaseTableDefinition, isPackagePrivate: Boolean,
@@ -58,9 +53,15 @@ constructor(processorManager: ProcessorManager, element: Element,
     var collate = Collate.NONE
     var defaultValue: String? = null
 
-    var isBoolean = false
+    var columnAccessor: ColumnAccessor
+    var wrapperAccessor: ColumnAccessor? = null
+    var wrapperTypeName: TypeName? = null
 
-    var columnAccess: BaseColumnAccess
+    // Wraps for special cases such as for a Blob converter since we cannot use conventional converter
+    var subWrapperAccessor: ColumnAccessor? = null
+
+    var combiner: Combiner
+
     var hasCustomConverter: Boolean = false
 
     var typeConverterDefinition: TypeConverterDefinition? = null
@@ -70,11 +71,20 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open val insertStatementValuesString: CodeBlock? = CodeBlock.builder().add("?").build()
 
-    open val contentValuesStatement: CodeBlock
-        get() = DefinitionUtils.getContentValuesStatement(elementName, elementName, columnName, elementTypeName, columnAccess,
-                ModelUtils.variable, defaultValue).build()
+
+    open val typeConverterElementNames: List<TypeName?>
+        get() = arrayListOf(elementTypeName)
+
+    open val primaryKeyName: String?
+        get() = QueryBuilder.quote(columnName)
 
     init {
+        val notNullAnno = element.getAnnotation<NotNull>(NotNull::class.java)
+        if (notNullAnno != null) {
+            notNull = true
+            onNullConflict = notNullAnno.onNullConflict
+        }
+
         column?.let {
             this.columnName = if (it.name == "")
                 element.simpleName.toString()
@@ -84,7 +94,12 @@ constructor(processorManager: ProcessorManager, element: Element,
             collate = it.collate
             defaultValue = it.defaultValue
 
-            if (elementClassName == ClassName.get(String::class.java)
+            if (defaultValue?.isBlank() ?: false) {
+                defaultValue = null
+            }
+
+            if (defaultValue != null
+                    && elementClassName == ClassName.get(String::class.java)
                     && !QUOTE_PATTERN.matcher(defaultValue).find()) {
                 defaultValue = "\"" + defaultValue + "\""
             }
@@ -94,19 +109,28 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
         if (isPackagePrivate) {
-            columnAccess = PackagePrivateAccess.from(processorManager, element,
-                    baseTableDefinition.databaseDefinition?.classSeparator)
+            columnAccessor = PackagePrivateScopeColumnAccessor(elementName, packageName,
+                    baseTableDefinition.databaseDefinition?.classSeparator,
+                    ClassName.get(element.enclosingElement as TypeElement).simpleName())
 
-            // register to ensure we only generate methods that are referenced by these columns.
-            PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, columnName)
+            PackagePrivateScopeColumnAccessor.putElement(
+                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                    columnName)
+
         } else {
             val isPrivate = element.modifiers.contains(Modifier.PRIVATE)
             if (isPrivate) {
-                val useIs = elementTypeName?.box() == TypeName.BOOLEAN.box()
+                val isBoolean = elementTypeName?.box() == TypeName.BOOLEAN.box()
+                val useIs = isBoolean
                         && baseTableDefinition is TableDefinition && (baseTableDefinition as TableDefinition).useIsForPrivateBooleans
-                columnAccess = PrivateColumnAccess(column, useIs)
+                columnAccessor = PrivateScopeColumnAccessor(elementName, object : GetterSetter {
+                    override val getterName: String = column?.getterName ?: ""
+                    override val setterName: String = column?.setterName ?: ""
+
+                }, isBoolean, useIs)
+
             } else {
-                columnAccess = SimpleColumnAccess()
+                columnAccessor = VisibleScopeColumnAccessor(elementName)
             }
         }
 
@@ -126,12 +150,6 @@ constructor(processorManager: ProcessorManager, element: Element,
             unique = uniqueColumn.unique
             onUniqueConflict = uniqueColumn.onUniqueConflict
             uniqueColumn.uniqueGroups.forEach { uniqueGroups.add(it) }
-        }
-
-        val notNullAnno = element.getAnnotation<NotNull>(NotNull::class.java)
-        if (notNullAnno != null) {
-            notNull = true
-            onNullConflict = notNullAnno.onNullConflict
         }
 
         val index = element.getAnnotation<Index>(Index::class.java)
@@ -157,25 +175,17 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (typeConverterClassName != null && typeMirror != null &&
                 typeConverterClassName != ClassNames.TYPE_CONVERTER) {
             typeConverterDefinition = TypeConverterDefinition(typeConverterClassName, typeMirror, manager)
-            typeConverterDefinition?.let {
-                if (it.modelTypeName != elementTypeName) {
-                    manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                            it.modelTypeName, typeConverterClassName, elementTypeName)
-                } else {
-                    hasCustomConverter = true
-                    val fieldName = baseTableDefinition.addColumnForCustomTypeConverter(this, typeConverterClassName!!)
-                    hasTypeConverter = true
-                    columnAccess = TypeConverterAccess(manager, this, it, fieldName)
-                }
-            }
+            evaluateTypeConverter(typeConverterDefinition, true)
         }
 
         if (!hasCustomConverter) {
             val typeElement = ProcessorUtils.getTypeElement(element)
             if (typeElement != null && typeElement.kind == ElementKind.ENUM) {
-                columnAccess = EnumColumnAccess(this)
+                wrapperAccessor = EnumColumnAccessor(elementTypeName!!)
+                wrapperTypeName = ClassName.get(String::class.java)
             } else if (elementTypeName == ClassName.get(Blob::class.java)) {
-                columnAccess = BlobColumnAccess(this)
+                wrapperAccessor = BlobColumnAccessor()
+                wrapperTypeName = ArrayTypeName.of(TypeName.BYTE)
             } else {
                 if (elementTypeName is ParameterizedTypeName) {
                     // do nothing, for now.
@@ -183,28 +193,50 @@ constructor(processorManager: ProcessorManager, element: Element,
                     processorManager.messager.printMessage(Diagnostic.Kind.ERROR,
                             "Columns cannot be of array type.")
                 } else {
-                    if (elementTypeName == TypeName.BOOLEAN.box()) {
-                        isBoolean = true
-                        columnAccess = BooleanColumnAccess(manager, this)
-                    } else if (elementTypeName == TypeName.BOOLEAN) {
-                        // lower case boolean, we don't box up and down, we just check true or false.
-                        columnAccess = BooleanTypeColumnAccess(this)
+                    if (elementTypeName == TypeName.BOOLEAN) {
+                        wrapperAccessor = BooleanColumnAccessor()
+                        wrapperTypeName = TypeName.BOOLEAN
+                    } else if (elementTypeName == TypeName.CHAR) {
+                        wrapperAccessor = CharColumnAccessor()
+                        wrapperTypeName = TypeName.CHAR
+                    } else if (elementTypeName == TypeName.BYTE) {
+                        wrapperAccessor = ByteColumnAccessor()
+                        wrapperTypeName = TypeName.BYTE
                     } else {
-                        // Any annotated members, otherwise we will use the scanner to find other ones
                         typeConverterDefinition = elementTypeName?.let { processorManager.getTypeConverterDefinition(it) }
-                        typeConverterDefinition.let {
-
-                            if (it != null || !SQLiteHelper.containsType(elementTypeName)) {
-                                hasTypeConverter = true
-                                if (it != null) {
-                                    val fieldName = baseTableDefinition.addColumnForTypeConverter(this, it.className)
-                                    columnAccess = TypeConverterAccess(manager, this, it, fieldName)
-                                } else {
-                                    columnAccess = TypeConverterAccess(manager, this)
-                                }
-                            }
-                        }
+                        evaluateTypeConverter(typeConverterDefinition, false)
                     }
+                }
+            }
+        }
+
+        combiner = Combiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
+                subWrapperAccessor)
+    }
+
+    private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?,
+                                      isCustom: Boolean) {
+        // Any annotated members, otherwise we will use the scanner to find other ones
+        typeConverterDefinition?.let {
+
+            if (it.modelTypeName != elementTypeName) {
+                manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
+                        it.modelTypeName, it.className, elementTypeName)
+            } else {
+                hasTypeConverter = true
+                hasCustomConverter = isCustom
+
+                val fieldName = if (hasCustomConverter) {
+                    baseTableDefinition.addColumnForCustomTypeConverter(this, it.className)
+                } else {
+                    baseTableDefinition.addColumnForTypeConverter(this, it.className)
+                }
+                wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
+                wrapperTypeName = it.dbTypeName
+
+                // special case of blob
+                if (wrapperTypeName == ClassName.get(Blob::class.java)) {
+                    subWrapperAccessor = BlobColumnAccessor()
                 }
             }
         }
@@ -217,11 +249,11 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         elementTypeName?.let { elementTypeName ->
             val propParam: TypeName
-            if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
-                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, elementTypeName.toString().capitalizeFirstLetter() + "Property")
-            } else if (hasCustomConverter || hasTypeConverter) {
+            if (!wrapperAccessor.isPrimitiveTarget()) {
                 propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, elementTypeName.box(),
-                        typeConverterDefinition?.dbTypeName)
+                        wrapperTypeName)
+            } else if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
+                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, elementTypeName.toString().capitalizeFirstLetter() + "Property")
             } else {
                 propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
             }
@@ -251,17 +283,32 @@ constructor(processorManager: ProcessorManager, element: Element,
         codeBuilder.add(columnName)
     }
 
+    open val contentValuesStatement: CodeBlock
+        get() {
+            val code = CodeBlock.builder()
+
+            ContentValuesCombiner(combiner)
+                    .addCode(code, columnName, getDefaultValueBlock(), 0, modelBlock)
+
+            return code.build()
+        }
+
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
-        return DefinitionUtils.getSQLiteStatementMethod(index, elementName, elementName,
-                elementTypeName, columnAccess,
-                ModelUtils.variable, isPrimaryKeyAutoIncrement || isRowId, defaultValue).build()
+
+        val builder = CodeBlock.builder()
+        SqliteStatementAccessCombiner(combiner)
+                .addCode(builder, "start", getDefaultValueBlock(), index.get(), modelBlock)
+        return builder.build()
     }
 
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger): CodeBlock {
-        return DefinitionUtils.getLoadFromCursorMethod(index.toInt(), elementName,
-                elementTypeName, columnName, true, columnAccess,
-                baseTableDefinition.orderedCursorLookUp, baseTableDefinition.assignDefaultValuesFromCursor,
-                elementName).build()
+
+        val builder = CodeBlock.builder()
+        LoadFromCursorAccessCombiner(combiner,
+                baseTableDefinition.orderedCursorLookUp,
+                baseTableDefinition.assignDefaultValuesFromCursor)
+                .addCode(builder, columnName, getDefaultValueBlock(), index.get(), modelBlock)
+        return builder.build()
     }
 
     /**
@@ -270,55 +317,43 @@ constructor(processorManager: ProcessorManager, element: Element,
      * @return The statement to use.
      */
     val updateAutoIncrementMethod: CodeBlock
-        get() = DefinitionUtils.getUpdateAutoIncrementMethod(elementName, elementName, elementTypeName,
-                columnAccess).build()
+        get() {
+            val code = CodeBlock.builder()
+            UpdateAutoIncrementAccessCombiner(combiner)
+                    .addCode(code, columnName, getDefaultValueBlock(),
+                            0, modelBlock)
+            return code.build()
+        }
 
-    fun setColumnAccessString(formattedAccess: CodeBlock): CodeBlock {
-        return columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                ModelUtils.variable, formattedAccess)
+    fun getColumnAccessString(index: Int): CodeBlock {
+        val codeBlock = CodeBlock.builder()
+        CachingIdAccessCombiner(combiner)
+                .addCode(codeBlock, columnName, getDefaultValueBlock(), index, modelBlock)
+        return codeBlock.build()
     }
 
-    fun getColumnAccessString(isSqliteStatment: Boolean): CodeBlock {
-        return columnAccess.getColumnAccessString(elementTypeName, elementName,
-                elementName, ModelUtils.variable, isSqliteStatment)
+    fun getSimpleAccessString(): CodeBlock {
+        val codeBlock = CodeBlock.builder()
+        SimpleAccessCombiner(combiner)
+                .addCode(codeBlock, columnName, getDefaultValueBlock(), 0, modelBlock)
+        return codeBlock.build()
+    }
+
+    open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
+        ExistenceAccessCombiner(combiner, isRowId || isPrimaryKeyAutoIncrement,
+                isQuickCheckPrimaryKeyAutoIncrement, baseTableDefinition.elementClassName!!)
+                .addCode(codeBuilder, columnName, getDefaultValueBlock(), 0, modelBlock)
     }
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
-        codeBuilder.add("\nclause.and(\$L.eq(", columnName)
-        if (columnAccess is TypeConverterAccess) {
-            val converterAccess = columnAccess as TypeConverterAccess
-            val converterDefinition = converterAccess.typeConverterDefinition
-            converterDefinition?.let {
-                codeBuilder.add(converterAccess.existingColumnAccess
-                        .getColumnAccessString(converterDefinition.dbTypeName,
-                                elementName, elementName, ModelUtils.variable, false))
-            }
-        } else {
-            var columnAccessBlock = getColumnAccessString(false)
-            val columnAccessString = columnAccessBlock.toString()
-            var subAccessIndex = -1
-            if (columnAccess is BlobColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(".getBlob()")
-            } else if (columnAccess is EnumColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(".name()")
-            } else if (columnAccess is BooleanTypeColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(" ? 1 : 0")
-            }
-            if (subAccessIndex > 0) {
-                columnAccessBlock = CodeBlock.of(columnAccessString.substring(0, subAccessIndex))
-            }
-            codeBuilder.add(columnAccessBlock)
-        }
-        codeBuilder.add("));")
-    }
-
-    fun getReferenceColumnName(reference: ForeignKeyReference): String {
-        return (columnName + "_" + reference.columnName).toUpperCase()
+        PrimaryReferenceAccessCombiner(combiner)
+                .addCode(codeBuilder, columnName, getDefaultValueBlock(),
+                        0, modelBlock)
     }
 
     open val creationName: CodeBlock
         get() {
-            val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName)
+            val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, wrapperTypeName, columnName)
 
             if (isPrimaryKeyAutoIncrement && !isRowId) {
                 codeBlockBuilder.add(" PRIMARY KEY ")
@@ -352,6 +387,24 @@ constructor(processorManager: ProcessorManager, element: Element,
             return codeBlockBuilder.build()
         }
 
-    open val primaryKeyName: String
-        get() = QueryBuilder.quote(columnName)
+
+    fun getDefaultValueBlock(): CodeBlock {
+        var defaultValue = defaultValue
+        if (defaultValue.isNullOrEmpty()) {
+            defaultValue = "null"
+        }
+        val elementTypeName = this.elementTypeName
+        if (elementTypeName != null && elementTypeName.isPrimitive) {
+            if (elementTypeName == TypeName.BOOLEAN) {
+                defaultValue = "false"
+            } else if (elementTypeName == TypeName.BYTE || elementTypeName == TypeName.INT
+                    || elementTypeName == TypeName.DOUBLE || elementTypeName == TypeName.FLOAT
+                    || elementTypeName == TypeName.LONG || elementTypeName == TypeName.SHORT) {
+                defaultValue = "0"
+            } else if (elementTypeName == TypeName.CHAR) {
+                defaultValue = "'\\u0000'"
+            }
+        }
+        return CodeBlock.of(defaultValue)
+    }
 }

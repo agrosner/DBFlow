@@ -4,7 +4,7 @@ import com.google.common.collect.Lists
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateAccess
+import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateScopeColumnAccessor
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
@@ -106,7 +106,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                 }
                 val className = ElementUtility.getClassName(helperClassName, manager)
 
-                if (className != null && PackagePrivateAccess.containsColumn(className, columnDefinition.columnName)) {
+                if (className != null && PackagePrivateScopeColumnAccessor.containsColumn(className, columnDefinition.columnName)) {
 
                     var method: MethodSpec.Builder = MethodSpec.methodBuilder("get" + columnDefinition.columnName.capitalizeFirstLetter())
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
