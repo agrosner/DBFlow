@@ -63,13 +63,17 @@ class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
             code.addStatement("values.put(\$1S, \$2L)", columnRepresentation, fieldAccess)
         } else {
             if (defaultValue != null) {
-                var storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName).toString()
+                var storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName)
                 if (useStoredFieldRef()) {
                     code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
                 } else {
-                    storedFieldAccess = fieldAccess.toString()
+                    storedFieldAccess = fieldAccess
                 }
-                code.addStatement("values.put(\$1S, \$2L != null ? \$2L : \$3L)", columnRepresentation, storedFieldAccess, defaultValue)
+                var subWrapperFieldAccess = storedFieldAccess
+                if (subWrapperAccessor != null) {
+                    subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
+                }
+                code.addStatement("values.put(\$S, \$L != null ? \$L : \$L)", columnRepresentation, storedFieldAccess, subWrapperFieldAccess, defaultValue)
             } else {
                 code.addStatement("values.put(\$S, \$L)", columnRepresentation, fieldAccess)
             }

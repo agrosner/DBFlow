@@ -77,9 +77,6 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open val insertStatementValuesString: CodeBlock? = CodeBlock.builder().add("?").build()
 
-    open val contentValuesStatement: CodeBlock
-        get() = DefinitionUtils.getContentValuesStatement(elementName, elementName, columnName, elementTypeName, columnAccess,
-                ModelUtils.variable, defaultValue).build()
 
     open val typeConverterElementNames: List<TypeName?>
         get() = arrayListOf(elementTypeName)
@@ -298,6 +295,18 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun addColumnName(codeBuilder: CodeBlock.Builder) {
         codeBuilder.add(columnName)
     }
+
+    open val contentValuesStatement: CodeBlock
+        get() {
+            val code = CodeBlock.builder()
+
+            ContentValuesCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
+                    wrapperTypeName, subWrapperAccessor)
+                    .addCode(code, columnName, CodeBlock.of(getDefaultValueString()), 0,
+                            CodeBlock.of("model"))
+
+            return code.build()
+        }
 
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
 
