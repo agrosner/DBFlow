@@ -9,7 +9,8 @@ import com.squareup.javapoet.TypeName
 abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
                                     val fieldTypeName: TypeName,
                                     val wrapperLevelAccessor: ColumnAccessor? = null,
-                                    val wrapperFieldTypeName: TypeName? = null) {
+                                    val wrapperFieldTypeName: TypeName? = null,
+                                    val subWrapperAccessor: ColumnAccessor? = null) {
 
     fun getFieldAccessBlock(existingBuilder: CodeBlock.Builder,
                             modelBlock: CodeBlock): CodeBlock {
@@ -49,8 +50,10 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
 class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
                             fieldTypeName: TypeName,
                             wrapperLevelAccessor: ColumnAccessor? = null,
-                            wrapperFieldTypeName: TypeName? = null)
-: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
+                            wrapperFieldTypeName: TypeName? = null,
+                            subWrapperAccessor: ColumnAccessor? = null)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor,
+        wrapperFieldTypeName, subWrapperAccessor) {
 
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
                          defaultValue: CodeBlock?, index: Int,
@@ -80,8 +83,10 @@ class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
 
 class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTypeName: TypeName,
                                     wrapperLevelAccessor: ColumnAccessor? = null,
-                                    wrapperFieldTypeName: TypeName? = null)
-: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
+                                    wrapperFieldTypeName: TypeName? = null,
+                                    subWrapperAccessor: ColumnAccessor? = null)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor,
+        wrapperFieldTypeName, subWrapperAccessor) {
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
                          defaultValue: CodeBlock?, index: Int,
                          modelBlock: CodeBlock) {
@@ -93,19 +98,24 @@ class SqliteStatementAccessCombiner(fieldLevelAccessor: ColumnAccessor, fieldTyp
                     index, columnRepresentation, fieldAccess)
         } else {
             if (defaultValue != null) {
-                var storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName).toString()
+                var storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName)
 
                 if (useStoredFieldRef()) {
                     code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
                 } else {
-                    storedFieldAccess = fieldAccess.toString()
+                    storedFieldAccess = fieldAccess
                 }
-                code.addStatement("statement.bind\$1L(\$2L + \$3L, \$4L != null ? \$4L : \$5L)",
-                        SQLiteHelper[fieldTypeName].sqLiteStatementMethod, index, columnRepresentation,
-                        storedFieldAccess, defaultValue)
+
+                var subWrapperFieldAccess = storedFieldAccess
+                if (subWrapperAccessor != null) {
+                    subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
+                }
+                code.addStatement("statement.bind\$L(\$L + \$L, \$L != null ? \$L : \$L)",
+                        SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod, index, columnRepresentation,
+                        storedFieldAccess, subWrapperFieldAccess, defaultValue)
             } else {
                 code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
-                        SQLiteHelper[fieldTypeName].sqLiteStatementMethod, index,
+                        SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod, index,
                         columnRepresentation, fieldAccess)
             }
         }
@@ -122,8 +132,9 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
                                    val assignDefaultValuesFromCursor: Boolean = true,
                                    wrapperLevelAccessor: ColumnAccessor? = null,
                                    wrapperFieldTypeName: TypeName? = null,
-                                   val subWrapperAccessor: ColumnAccessor? = null)
-: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
+                                   subWrapperAccessor: ColumnAccessor? = null)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor,
+        wrapperFieldTypeName, subWrapperAccessor) {
 
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
                          defaultValue: CodeBlock?, index: Int,
@@ -169,8 +180,10 @@ class LoadFromCursorAccessCombiner(fieldLevelAccessor: ColumnAccessor,
 class PrimaryReferenceAccessCombiner(fieldLevelAccessor: ColumnAccessor,
                                      fieldTypeName: TypeName,
                                      wrapperLevelAccessor: ColumnAccessor? = null,
-                                     wrapperFieldTypeName: TypeName? = null)
-: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName) {
+                                     wrapperFieldTypeName: TypeName? = null,
+                                     subWrapperAccessor: ColumnAccessor? = null)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor,
+        wrapperFieldTypeName, subWrapperAccessor) {
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
                          defaultValue: CodeBlock?, index: Int,
                          modelBlock: CodeBlock) {

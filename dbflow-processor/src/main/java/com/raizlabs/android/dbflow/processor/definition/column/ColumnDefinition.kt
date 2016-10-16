@@ -300,9 +300,13 @@ constructor(processorManager: ProcessorManager, element: Element,
     }
 
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
-        return DefinitionUtils.getSQLiteStatementMethod(index, elementName, elementName,
-                elementTypeName, columnAccess,
-                ModelUtils.variable, isPrimaryKeyAutoIncrement || isRowId, defaultValue).build()
+
+        val builder = CodeBlock.builder()
+        SqliteStatementAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
+                wrapperTypeName, subWrapperAccessor)
+                .addCode(builder, "start", CodeBlock.of(getDefaultValueString()), index.get(),
+                        CodeBlock.of("model"))
+        return builder.build()
     }
 
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger): CodeBlock {

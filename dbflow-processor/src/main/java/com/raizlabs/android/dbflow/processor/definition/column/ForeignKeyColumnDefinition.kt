@@ -275,13 +275,9 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             checkNeedsReferences()
 
             val code = CodeBlock.builder()
-
             referencedTableClassName?.let {
                 val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
                         it, baseTableDefinition.outputClassName, isStubbedRelationship)
-                if (baseTableDefinition.elementClassName.toString() == "com.raizlabs.android.dbflow.test.example.Ant") {
-                    val success = true
-                }
                 _foreignKeyReferenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.partialAccessor
                 }
