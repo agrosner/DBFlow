@@ -36,17 +36,15 @@ class ForeignKeyReferenceDefinition {
     private var isReferencedFieldPrivate: Boolean = false
     private var isReferencedFieldPackagePrivate: Boolean = false
 
-    var columnAccessor: ColumnAccessor? = null
+    lateinit var columnAccessor: ColumnAccessor
     var wrapperAccessor: ColumnAccessor? = null
     var wrapperTypeName: TypeName? = null
     var subWrapperAccessor: ColumnAccessor? = null
 
-    var partialAccessor: PartialLoadFromCursorAccessCombiner
-    var primaryReferenceField: ForeignKeyAccessField
-    var contentValuesField: ForeignKeyAccessField
-    var sqliteStatementField: ForeignKeyAccessField
-
-    var isBoolean = false
+    lateinit var partialAccessor: PartialLoadFromCursorAccessCombiner
+    lateinit var primaryReferenceField: ForeignKeyAccessField
+    lateinit var contentValuesField: ForeignKeyAccessField
+    lateinit var sqliteStatementField: ForeignKeyAccessField
 
     private val foreignKeyColumnDefinition: ForeignKeyColumnDefinition
 
@@ -78,46 +76,15 @@ class ForeignKeyReferenceDefinition {
 
         isReferencedFieldPackagePrivate = isReferencedFieldPackagePrivate || isPackagePrivateNotInSamePackage
 
-        if (isReferencedFieldPrivate) {
-            val isBoolean = columnClassName?.box() == TypeName.BOOLEAN.box()
 
-            columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, object : GetterSetter {
-                override val getterName: String = referencedColumn.column?.getterName ?: ""
-                override val setterName: String = referencedColumn.column?.setterName ?: ""
-            }, isBoolean, false)
+        val packageName = referencedColumn.packageName
+        val name = ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName()
 
-        } else if (isReferencedFieldPackagePrivate) {
-            columnAccessor = PackagePrivateScopeColumnAccessor(foreignColumnName,
-                    referencedColumn.packageName,
-                    foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
-                    ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName())
-
-            PackagePrivateAccess.putElement((columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
-                    foreignColumnName)
-
-        } else {
-            columnAccessor = VisibleScopeColumnAccessor(foreignColumnName)
-        }
-
-        val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
-        evaluateTypeConverter(typeConverterDefinition)
-
-        partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, columnName,
-                columnClassName!!, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
-                columnAccessor, wrapperAccessor, wrapperTypeName)
-
-        primaryReferenceField = ForeignKeyAccessField(columnName,
-                PrimaryReferenceAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor))
-
-        contentValuesField = ForeignKeyAccessField(columnName,
-                ContentValuesCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor))
-
-        sqliteStatementField = ForeignKeyAccessField("start",
-                SqliteStatementAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor))
-
+        createScopes(foreignKeyColumnDefinition, foreignKeyFieldName, object : GetterSetter {
+            override val getterName: String = referencedColumn.column?.getterName ?: ""
+            override val setterName: String = referencedColumn.column?.setterName ?: ""
+        }, name, packageName)
+        createForeignKeyFields(columnClassName, foreignKeyColumnDefinition, manager)
     }
 
     constructor(manager: ProcessorManager, foreignKeyFieldName: String,
@@ -137,25 +104,42 @@ class ForeignKeyReferenceDefinition {
             columnClass = mte.typeMirror
         }
 
+        val referencedClassName = foreignKeyColumnDefinition.referencedTableClassName
+        val packageName = referencedClassName?.packageName() ?: ""
+        val name = referencedClassName?.simpleName() ?: ""
+
         columnClassName = TypeName.get(columnClass!!)
         isReferencedFieldPrivate = foreignKeyReference.referencedFieldIsPrivate
         isReferencedFieldPackagePrivate = foreignKeyReference.referencedFieldIsPackagePrivate
+
+        createScopes(foreignKeyColumnDefinition, foreignKeyFieldName, object : GetterSetter {
+            override val getterName: String = foreignKeyReference.referencedGetterName
+            override val setterName: String = foreignKeyReference.referencedSetterName
+        }, name, packageName)
+        createForeignKeyFields(columnClassName, foreignKeyColumnDefinition, manager)
+    }
+
+    private fun createScopes(foreignKeyColumnDefinition: ForeignKeyColumnDefinition,
+                             foreignKeyFieldName: String, getterSetter: GetterSetter,
+                             name: String, packageName: String) {
         if (isReferencedFieldPrivate) {
-            columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, object : GetterSetter {
-                override val getterName: String = foreignKeyReference.referencedGetterName
-                override val setterName: String = foreignKeyReference.referencedSetterName
-            }, isBoolean, false)
+            val isBoolean = columnClassName?.box() == TypeName.BOOLEAN.box()
+            columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, isBoolean, false)
         } else if (isReferencedFieldPackagePrivate) {
-            foreignKeyColumnDefinition.referencedTableClassName?.let {
-                columnAccessor = PackagePrivateScopeColumnAccessor(foreignColumnName,
-                        it.packageName(),
-                        foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
-                        it.simpleName())
-            }
+            columnAccessor = PackagePrivateScopeColumnAccessor(foreignColumnName, packageName,
+                    foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                    name)
+
+            PackagePrivateAccess.putElement(
+                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                    foreignColumnName)
         } else {
             columnAccessor = VisibleScopeColumnAccessor(foreignColumnName)
         }
+    }
 
+
+    private fun createForeignKeyFields(columnClassName: TypeName?, foreignKeyColumnDefinition: ForeignKeyColumnDefinition, manager: ProcessorManager) {
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
         evaluateTypeConverter(typeConverterDefinition)
 
@@ -174,7 +158,6 @@ class ForeignKeyReferenceDefinition {
         sqliteStatementField = ForeignKeyAccessField("start",
                 SqliteStatementAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
                         wrapperTypeName, subWrapperAccessor))
-
     }
 
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?) {
@@ -189,10 +172,6 @@ class ForeignKeyReferenceDefinition {
 
                 val fieldName = foreignKeyColumnDefinition.baseTableDefinition
                         .addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
-                if (columnClassName == TypeName.BOOLEAN.box()) {
-                    isBoolean = true
-                }
-
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
 
