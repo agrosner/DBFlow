@@ -332,13 +332,14 @@ constructor(processorManager: ProcessorManager, element: Element,
      * @return The statement to use.
      */
     val updateAutoIncrementMethod: CodeBlock
-        get() = DefinitionUtils.getUpdateAutoIncrementMethod(elementName, elementName, elementTypeName,
-                columnAccess).build()
-
-    fun setColumnAccessString(formattedAccess: CodeBlock): CodeBlock {
-        return columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                ModelUtils.variable, formattedAccess)
-    }
+        get() {
+            val code = CodeBlock.builder()
+            UpdateAutoIncrementAccessCombiner(columnAccessor, elementTypeName!!,
+                    wrapperAccessor, wrapperTypeName, subWrapperAccessor)
+                    .addCode(code, columnName, CodeBlock.of(getDefaultValueString()),
+                            0, modelBlock)
+            return code.build()
+        }
 
     fun getColumnAccessString(isSqliteStatment: Boolean): CodeBlock {
         return columnAccess.getColumnAccessString(elementTypeName, elementName,

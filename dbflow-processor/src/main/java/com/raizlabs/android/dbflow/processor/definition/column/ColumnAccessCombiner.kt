@@ -203,3 +203,22 @@ class PrimaryReferenceAccessCombiner(fieldLevelAccessor: ColumnAccessor,
                 ClassNames.ICONDITIONAL, "null")
     }
 }
+
+class UpdateAutoIncrementAccessCombiner(fieldLevelAccessor: ColumnAccessor,
+                                        fieldTypeName: TypeName,
+                                        wrapperLevelAccessor: ColumnAccessor?,
+                                        wrapperFieldTypeName: TypeName?,
+                                        subWrapperAccessor: ColumnAccessor?)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor,
+        wrapperFieldTypeName, subWrapperAccessor) {
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        var method = ""
+        if (SQLiteHelper.containsNumberMethod(fieldTypeName.unbox())) {
+            method = fieldTypeName.unbox().toString()
+        }
+
+        code.addStatement(fieldLevelAccessor.set(CodeBlock.of("id.\$LValue()", method), modelBlock))
+    }
+
+}
