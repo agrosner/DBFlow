@@ -224,10 +224,18 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     /**
-     * Called when we want tosave our {@link ForeignKey} objects. usually during insert + update.
+     * Called when we want to save our {@link ForeignKey} objects. usually during insert + update.
      * This method is overridden when {@link ForeignKey} specified
      */
     public void saveForeignKeys(TModel model, DatabaseWrapper wrapper) {
+
+    }
+
+    /**
+     * Called when we want to delete our {@link ForeignKey} objects. During deletion {@link #delete(Object, DatabaseWrapper)}
+     * This method is overridden when {@link ForeignKey} specified
+     */
+    public void deleteForeignKeys(TModel model, DatabaseWrapper wrapper) {
 
     }
 

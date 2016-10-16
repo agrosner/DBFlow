@@ -115,6 +115,8 @@ public class ModelSaver<TModel> {
 
     @SuppressWarnings("unchecked")
     public synchronized boolean delete(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
+        modelAdapter.deleteForeignKeys(model, wrapper);
+
         boolean successful = SQLite.delete(modelAdapter.getModelClass())
                 .where(modelAdapter.getPrimaryConditionClause(model))
                 .count(wrapper) != 0;

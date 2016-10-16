@@ -303,3 +303,25 @@ class SaveModelAccessCombiner(combiner: Combiner,
     }
 
 }
+
+class DeleteModelAccessCombiner(combiner: Combiner,
+                                val implementsModel: Boolean,
+                                val extendsBaseModel: Boolean)
+: ColumnAccessCombiner(combiner) {
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        combiner.apply {
+            val access = getFieldAccessBlock(code, modelBlock)
+            code.beginControlFlow("if (\$L != null)", access)
+            if (implementsModel) {
+                code.addStatement("\$L.delete(\$L)", access,
+                        if (extendsBaseModel) ModelUtils.wrapper else "")
+            } else {
+                code.addStatement("\$T.getModelAdapter(\$T.class).delete(\$L, \$L)",
+                        ClassNames.FLOW_MANAGER, fieldTypeName, access, ModelUtils.wrapper)
+            }
+            code.endControlFlow()
+        }
+    }
+
+}

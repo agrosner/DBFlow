@@ -43,7 +43,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
     var nonModelColumn: Boolean = false
 
     var saveForeignKeyModel: Boolean = false
-
+    var deleteForeignKeyModel: Boolean = false
 
     override val typeConverterElementNames: List<TypeName?>
         get() = _foreignKeyReferenceDefinitionList.filter { it.hasTypeConverter }.map { it.columnClassName }
@@ -91,6 +91,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         nonModelColumn = !isReferencingTableObject
 
         saveForeignKeyModel = foreignKey.saveForeignKeyModel
+        deleteForeignKeyModel = foreignKey.deleteForeignKeyModel
 
         val references = foreignKey.references
         if (references.size == 0) {
@@ -286,6 +287,17 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                         SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
                                 wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
                 saveAccessor.addCode(codeBuilder, 0, modelBlock)
+            }
+        }
+    }
+
+    fun appendDeleteMethod(codeBuilder: CodeBlock.Builder) {
+        if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
+            referencedTableClassName?.let { referencedTableClassName ->
+                val deleteAccessor = ForeignKeyAccessField(columnName,
+                        DeleteModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
+                                wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
+                deleteAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }
     }

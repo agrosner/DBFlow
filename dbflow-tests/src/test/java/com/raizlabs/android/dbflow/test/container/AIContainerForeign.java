@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase;
 /**
  * Description:
  */
-@Table(database = TestDatabase.class, cachingEnabled = true, useBooleanGetterSetters = true)
+@Table(database = TestDatabase.class, cachingEnabled = true)
 public class AIContainerForeign extends AutoIncrementContainer {
 
 

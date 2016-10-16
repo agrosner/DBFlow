@@ -410,11 +410,11 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
         }
 
-        val foreignkeys = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.saveForeignKeyModel }
+        val saveForeignKeyFields = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.saveForeignKeyModel }
                 .map { it as ForeignKeyColumnDefinition }
-        if (foreignkeys.isNotEmpty()) {
+        if (saveForeignKeyFields.isNotEmpty()) {
             val code = CodeBlock.builder()
-            foreignkeys.forEach {
+            saveForeignKeyFields.forEach {
                 it.appendSaveMethod(code)
             }
 
@@ -425,6 +425,23 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     .addCode(code.build())
                     .build())
         }
+
+        val deleteForeignKeyFields = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.deleteForeignKeyModel }
+                .map { it as ForeignKeyColumnDefinition }
+        if (deleteForeignKeyFields.isNotEmpty()) {
+            val code = CodeBlock.builder()
+            deleteForeignKeyFields.forEach {
+                it.appendDeleteMethod(code)
+            }
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("deleteForeignKeys")
+                    .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(elementClassName, ModelUtils.variable)
+                    .addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
+                    .addCode(code.build())
+                    .build())
+        }
+
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getAllColumnProperties")
                 .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)

@@ -21,12 +21,20 @@ public @interface ForeignKey {
     ForeignKeyReference[] references() default {};
 
     /**
-     * @return Default false. When this column is a {@link ForeignKey} and a Model, returning true with save the model
-     * before adding the fields to save as a foreign key. If false, we expect the field to not change
-     * and must save the model manually outside of the ModelAdapter. This also applies to ModelContainer objects
-     * as foreign key fields.
+     * @return Default false. When this column is a {@link ForeignKey} and table object,
+     * returning true will save the model before adding the fields to save as a foreign key.
+     * If false, we expect the field to not change and must save the model manually outside
+     * of the ModelAdapter before saving the child class.
      */
     boolean saveForeignKeyModel() default false;
+
+    /**
+     * @return Default false. When this column is a {@link ForeignKey} and table object,
+     * returning true will delte the model before deleting its enclosing child class.
+     * If false, we expect the field to not change and must delete the model manually outside
+     * of the ModelAdapter before saving the child class.
+     */
+    boolean deleteForeignKeyModel() default false;
 
     /**
      * @return Replaces legacy ForeignKeyContainer, this method instructs the code generator to only
