@@ -18,9 +18,6 @@ public class BlobModel extends BaseModel {
     @PrimaryKey
     int key;
 
-    @PrimaryKey
-    Blob primaryBlob;
-
     @Column(name = "image_blob")
     private Blob blob;
 
