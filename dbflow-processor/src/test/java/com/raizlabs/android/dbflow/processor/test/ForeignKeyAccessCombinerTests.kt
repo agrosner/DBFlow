@@ -23,9 +23,9 @@ class ForeignKeyAccessCombinerTest {
     fun test_canCombineSimpleCase() {
         val foreignKeyAccessCombiner = ForeignKeyAccessCombiner(VisibleScopeColumnAccessor("name"))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("test",
-                ContentValuesCombiner(VisibleScopeColumnAccessor("test"), TypeName.get(String::class.java)))
+                ContentValuesCombiner(Combiner(VisibleScopeColumnAccessor("test"), TypeName.get(String::class.java))))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("test2",
-                ContentValuesCombiner(PrivateScopeColumnAccessor("test2"), TypeName.get(Int::class.java)))
+                ContentValuesCombiner(Combiner(PrivateScopeColumnAccessor("test2"), TypeName.get(Int::class.java))))
 
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(4))
@@ -44,7 +44,7 @@ class ForeignKeyAccessCombinerTest {
     fun test_canCombineSimplePrivateCase() {
         val foreignKeyAccessCombiner = ForeignKeyAccessCombiner(PrivateScopeColumnAccessor("name"))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("start",
-                SqliteStatementAccessCombiner(VisibleScopeColumnAccessor("test"), TypeName.get(String::class.java)))
+                SqliteStatementAccessCombiner(Combiner(VisibleScopeColumnAccessor("test"), TypeName.get(String::class.java))))
 
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(4))
@@ -62,9 +62,9 @@ class ForeignKeyAccessCombinerTest {
         val foreignKeyAccessCombiner = ForeignKeyAccessCombiner(PackagePrivateScopeColumnAccessor("name",
                 "com.fuzz.android", "_", "TestHelper"))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("test",
-                PrimaryReferenceAccessCombiner(PackagePrivateScopeColumnAccessor("test",
+                PrimaryReferenceAccessCombiner(Combiner(PackagePrivateScopeColumnAccessor("test",
                         "com.fuzz.android", "_", "TestHelper2"),
-                        TypeName.get(String::class.java)))
+                        TypeName.get(String::class.java))))
 
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(4))
@@ -81,18 +81,18 @@ class ForeignKeyAccessCombinerTest {
     fun test_canDoComplexCase() {
         val foreignKeyAccessCombiner = ForeignKeyAccessCombiner(VisibleScopeColumnAccessor("modem"))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("number",
-                ContentValuesCombiner(PackagePrivateScopeColumnAccessor("number",
+                ContentValuesCombiner(Combiner(PackagePrivateScopeColumnAccessor("number",
                         "com.fuzz", "\$", "AnotherHelper"),
-                        TypeName.INT))
+                        TypeName.INT)))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("date",
-                ContentValuesCombiner(TypeConverterScopeColumnAccessor("global_converter", "date"),
-                        TypeName.get(Date::class.java)))
+                ContentValuesCombiner(Combiner(TypeConverterScopeColumnAccessor("global_converter", "date"),
+                        TypeName.get(Date::class.java))))
 
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(1))
 
         assertEquals("if (model.modem != null) {" +
-                "\n  values.put(\"number\", com.fuzz.AnotherHelper\$\$Helper.getNumber(model.modem));" +
+                "\n  values.put(\"number\", com.fuzz.AnotherHelper\$Helper.getNumber(model.modem));" +
                 "\n  values.put(\"date\", global_converter.getDBValue(model.modem.date));" +
                 "\n} else {" +
                 "\n  values.putNull(\"number\");" +
