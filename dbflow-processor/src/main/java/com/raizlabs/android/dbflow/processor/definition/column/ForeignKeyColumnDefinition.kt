@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.BindToContentValuesMethod
 import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod
-import com.raizlabs.android.dbflow.processor.definition.LoadFromCursorMethod
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
@@ -274,94 +273,21 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             return super.getLoadFromCursorMethod(endNonPrimitiveIf, index)
         } else {
             checkNeedsReferences()
-            val builder = CodeBlock.builder()
-            val ifNullBuilder = CodeBlock.builder().add("if (")
-            val selectBuilder = CodeBlock.builder()
 
-            // used for foreignkey containers only.
-            val foreignKeyContainerRefName = "ref" + columnName
+            val code = CodeBlock.builder()
 
-            _foreignKeyReferenceDefinitionList.indices.forEach { i ->
-                if (i > 0) {
-                    index.incrementAndGet()
+            referencedTableClassName?.let {
+                val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
+                        it, baseTableDefinition.outputClassName, isStubbedRelationship)
+                if (baseTableDefinition.elementClassName.toString() == "com.raizlabs.android.dbflow.test.example.Ant") {
+                    val success = true
                 }
-                val referenceDefinition = _foreignKeyReferenceDefinitionList[i]
-
-                val indexName: String
-                if (!baseTableDefinition.orderedCursorLookUp || index.toInt() == -1) {
-                    indexName = "index" + referenceDefinition.columnName
-                    builder.addStatement("int \$L = \$L.getColumnIndex(\$S)", indexName, LoadFromCursorMethod.PARAM_CURSOR, referenceDefinition.columnName)
-                } else {
-                    indexName = index.toInt().toString()
+                _foreignKeyReferenceDefinitionList.forEach {
+                    foreignKeyCombiner.fieldAccesses += it.partialAccessor
                 }
-                if (i > 0) {
-                    ifNullBuilder.add(" && ")
-                }
-
-                if (!baseTableDefinition.orderedCursorLookUp || index.toInt() == -1) {
-                    ifNullBuilder.add("\$L != -1 && !\$L.isNull(\$L)", indexName, LoadFromCursorMethod.PARAM_CURSOR, indexName)
-                } else {
-                    ifNullBuilder.add("!\$L.isNull(\$L)", LoadFromCursorMethod.PARAM_CURSOR, indexName)
-                }
-
-                val loadFromCursorString = DefinitionUtils.getLoadFromCursorMethodString(
-                        referenceDefinition.columnClassName, referenceDefinition.columnAccess)
-                val loadFromCursorBlock: CodeBlock? =
-                        if (referenceDefinition.columnAccess is TypeConverterAccess) {
-                            referenceDefinition.columnAccess?.let {
-                                it.setColumnAccessString(referenceDefinition.columnClassName,
-                                        referenceDefinition.foreignColumnName,
-                                        referenceDefinition.foreignColumnName,
-                                        ModelUtils.variable, CodeBlock.of(loadFromCursorString))
-                            }
-                        } else {
-                            CodeBlock.builder().add("\$L.\$L(\$L)", LoadFromCursorMethod.PARAM_CURSOR,
-                                    loadFromCursorString, indexName).build()
-                        }
-
-                if (i > 0) {
-                    selectBuilder.add("\n")
-                }
-
-                if (!isStubbedRelationship) {
-                    val generatedTableRef = ClassName.get(
-                            referencedTableClassName!!.packageName(),
-                            referencedTableClassName!!.simpleName()
-                                    + baseTableDefinition.databaseDefinition?.fieldRefSeparator
-                                    + TableDefinition.DBFLOW_TABLE_TAG)
-                    selectBuilder.add("\n.and(\$L.\$L.eq(\$L))", generatedTableRef,
-                            referenceDefinition.foreignColumnName, loadFromCursorBlock)
-                } else if (loadFromCursorBlock != null) {
-                    selectBuilder.add(referenceDefinition.getForeignKeyContainerMethod(foreignKeyContainerRefName,
-                            loadFromCursorBlock))
-                }
+                foreignKeyCombiner.addCode(code, index)
             }
-            ifNullBuilder.add(")")
-            builder.beginControlFlow(ifNullBuilder.build().toString())
-
-            val initializer = CodeBlock.builder()
-
-
-            val selectBlock = selectBuilder.build()
-
-            if (isStubbedRelationship) {
-                builder.addStatement("\$T \$L = new \$T()", elementTypeName,
-                        foreignKeyContainerRefName, referencedTableClassName)
-                builder.add(selectBlock).add("\n")
-
-                initializer.add(foreignKeyContainerRefName)
-            } else {
-                initializer.add("new \$T().from(\$T.class).where()",
-                        ClassNames.SELECT, referencedTableClassName).add(selectBuilder.build()).add(".querySingle()")
-            }
-
-            builder.add(columnAccess.setColumnAccessString(elementTypeName, elementName, elementName,
-                    ModelUtils.variable, initializer.build()).toBuilder().add(";\n").build())
-
-            if (endNonPrimitiveIf || !baseTableDefinition.assignDefaultValuesFromCursor) {
-                builder.endControlFlow()
-            }
-            return builder.build()
+            return code.build()
         }
     }
 

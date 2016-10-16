@@ -499,16 +499,13 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             val loadStatements = CodeBlock.builder()
             val noIndex = AtomicInteger(-1)
+
+            if (elementClassName.toString() == "com.raizlabs.android.dbflow.test.container.AIContainerForeign") {
+                val success = true
+            }
+
             foreignKeyDefinitions.forEach {
-                val codeBuilder = it.getLoadFromCursorMethod(false, noIndex).toBuilder()
-                val typeName = it.elementTypeName
-                if (typeName != null && !typeName.isPrimitive) {
-                    codeBuilder.nextControlFlow("else")
-                    codeBuilder.add(it.setColumnAccessString(CodeBlock.builder().add("null").build())
-                            .toBuilder().add(";\n").build())
-                    codeBuilder.endControlFlow()
-                }
-                loadStatements.add(codeBuilder.build())
+                loadStatements.add(it.getLoadFromCursorMethod(false, noIndex))
             }
             reloadMethod.addCode(loadStatements.build())
             typeBuilder.addMethod(reloadMethod.build())

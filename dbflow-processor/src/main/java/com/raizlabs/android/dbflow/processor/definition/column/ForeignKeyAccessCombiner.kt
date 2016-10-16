@@ -93,7 +93,8 @@ class PartialLoadFromCursorAccessCombiner(
         val fieldTypeName: TypeName,
         val orderedCursorLookup: Boolean = false,
         val fieldLevelAccessor: ColumnAccessor? = null,
-        val subWrapperAccessor: ColumnAccessor? = null) {
+        val subWrapperAccessor: ColumnAccessor? = null,
+        val subWrapperTypeName: TypeName? = null) {
 
     fun getIndexName(index: Int): CodeBlock {
         return if (!orderedCursorLookup) {
@@ -107,7 +108,7 @@ class PartialLoadFromCursorAccessCombiner(
     fun addRetrieval(code: CodeBlock.Builder, index: Int, referencedTableTypeName: TypeName,
                      isStubbed: Boolean, parentAccessor: ColumnAccessor) {
         val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
-                SQLiteHelper.getMethod(fieldTypeName), getIndexName(index))
+                SQLiteHelper.getMethod(subWrapperTypeName ?: fieldTypeName), getIndexName(index))
         val fieldAccessBlock = subWrapperAccessor?.set(cursorAccess) ?: cursorAccess
 
         if (!isStubbed) {

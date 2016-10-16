@@ -43,10 +43,12 @@ class ForeignKeyReferenceDefinition {
 
     var columnAccess: BaseColumnAccess? = null
 
-    var columnAccessor: ColumnAccessor
+    var columnAccessor: ColumnAccessor? = null
     var wrapperAccessor: ColumnAccessor? = null
     var wrapperTypeName: TypeName? = null
     var subWrapperAccessor: ColumnAccessor? = null
+
+    var partialAccessor: PartialLoadFromCursorAccessCombiner
 
     var isBoolean = false
 
@@ -114,7 +116,7 @@ class ForeignKeyReferenceDefinition {
         } else {
             columnAccess = SimpleColumnAccess()
 
-            columnAccessor = VisibleScopeColumnAccessor(foreignKeyFieldName)
+            columnAccessor = VisibleScopeColumnAccessor(foreignColumnName)
         }
 
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
@@ -122,6 +124,10 @@ class ForeignKeyReferenceDefinition {
 
         simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess
                 || columnAccess is TypeConverterAccess)
+
+        partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, columnName,
+                columnClassName!!, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
+                columnAccessor, wrapperAccessor, wrapperTypeName)
 
     }
 
@@ -148,21 +154,37 @@ class ForeignKeyReferenceDefinition {
         isReferencedFieldPackagePrivate = foreignKeyReference.referencedFieldIsPackagePrivate
         if (isReferencedFieldPrivate) {
             columnAccess = PrivateColumnAccess(foreignKeyReference)
+
+            columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, object : GetterSetter {
+                override val getterName: String = foreignKeyReference.referencedGetterName
+                override val setterName: String = foreignKeyReference.referencedSetterName
+            }, isBoolean, false)
         } else if (isReferencedFieldPackagePrivate) {
             foreignKeyColumnDefinition.referencedTableClassName?.let {
                 columnAccess = PackagePrivateAccess(it.packageName(),
                         foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
                         it.simpleName())
                 PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, foreignColumnName)
+
+                columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName,
+                        it.packageName(),
+                        foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                        it.simpleName())
             }
         } else {
             columnAccess = SimpleColumnAccess()
+
+            columnAccessor = VisibleScopeColumnAccessor(foreignColumnName)
         }
 
         simpleColumnAccess = SimpleColumnAccess(columnAccess is PackagePrivateAccess)
 
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
         evaluateTypeConverter(typeConverterDefinition)
+
+        partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, columnName,
+                columnClassName!!, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
+                columnAccessor, wrapperAccessor, wrapperTypeName)
     }
 
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?) {
