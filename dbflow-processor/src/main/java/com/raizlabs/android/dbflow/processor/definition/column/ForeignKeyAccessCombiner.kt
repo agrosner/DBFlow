@@ -21,10 +21,14 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
         val modelAccessBlock = fieldAccessor.get(modelBlock)
         code.beginControlFlow("if (\$L != null)", modelAccessBlock)
         val nullAccessBlock = CodeBlock.builder()
-        fieldAccesses.forEach {
+        for ((i, it) in fieldAccesses.withIndex()) {
             it.addCode(code, index.get(), modelAccessBlock)
             it.addNull(nullAccessBlock, index.get())
-            index.incrementAndGet()
+
+            // do not increment last
+            if (i < fieldAccesses.size - 1) {
+                index.incrementAndGet()
+            }
         }
         code.nextControlFlow("else")
                 .add(nullAccessBlock.build().toString())
