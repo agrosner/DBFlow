@@ -280,8 +280,8 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
             referencedTableClassName?.let { referencedTableClassName ->
                 val saveAccessor = ForeignKeyAccessField(columnName,
-                        SaveModelAccessCombiner(columnAccessor, referencedTableClassName, wrapperAccessor,
-                                wrapperTypeName, subWrapperAccessor, implementsModel))
+                        SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
+                                wrapperTypeName, subWrapperAccessor), implementsModel))
                 saveAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }

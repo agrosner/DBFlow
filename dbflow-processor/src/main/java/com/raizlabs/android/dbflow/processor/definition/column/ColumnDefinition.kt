@@ -60,6 +60,8 @@ constructor(processorManager: ProcessorManager, element: Element,
     // Wraps for special cases such as for a Blob converter since we cannot use conventional converter
     var subWrapperAccessor: ColumnAccessor? = null
 
+    var combiner: Combiner
+
     var hasCustomConverter: Boolean = false
 
     var typeConverterDefinition: TypeConverterDefinition? = null
@@ -207,6 +209,9 @@ constructor(processorManager: ProcessorManager, element: Element,
                 }
             }
         }
+
+        combiner = Combiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
+                subWrapperAccessor)
     }
 
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?,
@@ -282,8 +287,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() {
             val code = CodeBlock.builder()
 
-            ContentValuesCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
-                    wrapperTypeName, subWrapperAccessor)
+            ContentValuesCombiner(combiner)
                     .addCode(code, columnName, getDefaultValueBlock(), 0, modelBlock)
 
             return code.build()
@@ -292,8 +296,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
 
         val builder = CodeBlock.builder()
-        SqliteStatementAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
-                wrapperTypeName, subWrapperAccessor)
+        SqliteStatementAccessCombiner(combiner)
                 .addCode(builder, "start", getDefaultValueBlock(), index.get(), modelBlock)
         return builder.build()
     }
@@ -301,9 +304,9 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger): CodeBlock {
 
         val builder = CodeBlock.builder()
-        LoadFromCursorAccessCombiner(columnAccessor, elementTypeName!!,
-                baseTableDefinition.orderedCursorLookUp, baseTableDefinition.assignDefaultValuesFromCursor,
-                wrapperAccessor, wrapperTypeName, subWrapperAccessor)
+        LoadFromCursorAccessCombiner(combiner,
+                baseTableDefinition.orderedCursorLookUp,
+                baseTableDefinition.assignDefaultValuesFromCursor)
                 .addCode(builder, columnName, getDefaultValueBlock(), index.get(), modelBlock)
         return builder.build()
     }
@@ -316,8 +319,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     val updateAutoIncrementMethod: CodeBlock
         get() {
             val code = CodeBlock.builder()
-            UpdateAutoIncrementAccessCombiner(columnAccessor, elementTypeName!!,
-                    wrapperAccessor, wrapperTypeName, subWrapperAccessor)
+            UpdateAutoIncrementAccessCombiner(combiner)
                     .addCode(code, columnName, getDefaultValueBlock(),
                             0, modelBlock)
             return code.build()
@@ -325,30 +327,26 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     fun getColumnAccessString(index: Int): CodeBlock {
         val codeBlock = CodeBlock.builder()
-        CachingIdAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
-                subWrapperAccessor)
+        CachingIdAccessCombiner(combiner)
                 .addCode(codeBlock, columnName, getDefaultValueBlock(), index, modelBlock)
         return codeBlock.build()
     }
 
     fun getSimpleAccessString(): CodeBlock {
         val codeBlock = CodeBlock.builder()
-        SimpleAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
-                subWrapperAccessor)
+        SimpleAccessCombiner(combiner)
                 .addCode(codeBlock, columnName, getDefaultValueBlock(), 0, modelBlock)
         return codeBlock.build()
     }
 
     open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
-        ExistenceAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
-                subWrapperAccessor, isRowId || isPrimaryKeyAutoIncrement, isQuickCheckPrimaryKeyAutoIncrement,
-                baseTableDefinition.elementClassName!!)
+        ExistenceAccessCombiner(combiner, isRowId || isPrimaryKeyAutoIncrement,
+                isQuickCheckPrimaryKeyAutoIncrement, baseTableDefinition.elementClassName!!)
                 .addCode(codeBuilder, columnName, getDefaultValueBlock(), 0, modelBlock)
     }
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
-        PrimaryReferenceAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
-                wrapperTypeName, subWrapperAccessor)
+        PrimaryReferenceAccessCombiner(combiner)
                 .addCode(codeBuilder, columnName, getDefaultValueBlock(),
                         0, modelBlock)
     }

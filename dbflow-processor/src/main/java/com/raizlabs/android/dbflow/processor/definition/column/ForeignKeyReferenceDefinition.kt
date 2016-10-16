@@ -143,21 +143,17 @@ class ForeignKeyReferenceDefinition {
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
         evaluateTypeConverter(typeConverterDefinition)
 
+        val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
+                wrapperTypeName, subWrapperAccessor)
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
-                columnClassName!!, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
+                columnClassName, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
                 columnAccessor, wrapperAccessor, wrapperTypeName)
 
-        primaryReferenceField = ForeignKeyAccessField(columnName,
-                PrimaryReferenceAccessCombiner(columnAccessor, columnClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor))
+        primaryReferenceField = ForeignKeyAccessField(columnName, PrimaryReferenceAccessCombiner(combiner))
 
-        contentValuesField = ForeignKeyAccessField(columnName,
-                ContentValuesCombiner(columnAccessor, columnClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor))
+        contentValuesField = ForeignKeyAccessField(columnName, ContentValuesCombiner(combiner))
 
-        sqliteStatementField = ForeignKeyAccessField("start",
-                SqliteStatementAccessCombiner(columnAccessor, columnClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor))
+        sqliteStatementField = ForeignKeyAccessField("start", SqliteStatementAccessCombiner(combiner))
 
     }
 
