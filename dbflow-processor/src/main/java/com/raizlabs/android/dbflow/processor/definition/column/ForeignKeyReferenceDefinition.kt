@@ -148,16 +148,17 @@ class ForeignKeyReferenceDefinition {
                 columnAccessor, wrapperAccessor, wrapperTypeName)
 
         primaryReferenceField = ForeignKeyAccessField(columnName,
-                PrimaryReferenceAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                PrimaryReferenceAccessCombiner(columnAccessor, columnClassName, wrapperAccessor,
                         wrapperTypeName, subWrapperAccessor))
 
         contentValuesField = ForeignKeyAccessField(columnName,
-                ContentValuesCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                ContentValuesCombiner(columnAccessor, columnClassName, wrapperAccessor,
                         wrapperTypeName, subWrapperAccessor))
 
         sqliteStatementField = ForeignKeyAccessField("start",
-                SqliteStatementAccessCombiner(columnAccessor!!, columnClassName, wrapperAccessor,
+                SqliteStatementAccessCombiner(columnAccessor, columnClassName, wrapperAccessor,
                         wrapperTypeName, subWrapperAccessor))
+
     }
 
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?) {

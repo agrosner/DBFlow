@@ -54,7 +54,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     var allFields = false
     var useIsForPrivateBooleans: Boolean = false
 
-    val mColumnMap: MutableMap<String, ColumnDefinition> = Maps.newHashMap<String, ColumnDefinition>()
+    val columnMap: MutableMap<String, ColumnDefinition> = Maps.newHashMap<String, ColumnDefinition>()
 
     var columnUniqueMap: MutableMap<Int, MutableList<ColumnDefinition>>
             = Maps.newHashMap<Int, MutableList<ColumnDefinition>>()
@@ -145,7 +145,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     override fun prepareForWrite() {
         columnDefinitions = ArrayList<ColumnDefinition>()
-        mColumnMap.clear()
+        columnMap.clear()
         classElementLookUpMap.clear()
         _primaryColumnDefinitions.clear()
         uniqueGroupsDefinitions.clear()
@@ -265,7 +265,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition)
-                    mColumnMap.put(columnDefinition.columnName, columnDefinition)
+                    columnMap.put(columnDefinition.columnName, columnDefinition)
                     if (columnDefinition.isPrimaryKey) {
                         _primaryColumnDefinitions.add(columnDefinition)
                     } else if (columnDefinition.isPrimaryKeyAutoIncrement) {
@@ -408,6 +408,21 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                         .addStatement("return \$S", QueryBuilder.stripQuotes(autoIncrement.columnName))
                         .returns(ClassName.get(String::class.java)).build())
             }
+        }
+
+        val foreignkeys = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.saveForeignKeyModel }
+                .map { it as ForeignKeyColumnDefinition }
+        if (foreignkeys.isNotEmpty()) {
+            val code = CodeBlock.builder()
+            foreignkeys.forEach {
+                it.appendSaveMethod(code)
+            }
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("saveForeignKeys")
+                    .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(elementClassName, ModelUtils.variable)
+                    .addCode(code.build())
+                    .build())
         }
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getAllColumnProperties")

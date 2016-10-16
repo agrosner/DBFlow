@@ -34,7 +34,8 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
     var isStubbedRelationship: Boolean = false
 
-    var isModel: Boolean = false
+    var isReferencingTableObject: Boolean = false
+    var implementsModel: Boolean = false
 
     var needsReferences: Boolean = false
 
@@ -81,10 +82,10 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             manager.logError("Referenced was null for %1s within %1s", typeElement, elementTypeName)
         }
 
-        isModel = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.MODEL.toString(), erasedElement)
-        isModel = isModel || erasedElement?.getAnnotation(Table::class.java) != null
+        implementsModel = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.MODEL.toString(), erasedElement)
+        isReferencingTableObject = implementsModel || erasedElement?.getAnnotation(Table::class.java) != null
 
-        nonModelColumn = !isModel
+        nonModelColumn = !isReferencingTableObject
 
         saveForeignKeyModel = foreignKey.saveForeignKeyModel
 
@@ -271,6 +272,17 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                     foreignKeyCombiner.fieldAccesses += it.primaryReferenceField
                 }
                 foreignKeyCombiner.addCode(codeBuilder, AtomicInteger(0))
+            }
+        }
+    }
+
+    fun appendSaveMethod(codeBuilder: CodeBlock.Builder) {
+        if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
+            referencedTableClassName?.let { referencedTableClassName ->
+                val saveAccessor = ForeignKeyAccessField(columnName,
+                        SaveModelAccessCombiner(columnAccessor, referencedTableClassName, wrapperAccessor,
+                                wrapperTypeName, subWrapperAccessor, implementsModel))
+                saveAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }
     }

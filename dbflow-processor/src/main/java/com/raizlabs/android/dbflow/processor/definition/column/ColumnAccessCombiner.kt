@@ -296,3 +296,25 @@ class CachingIdAccessCombiner(fieldLevelAccessor: ColumnAccessor,
     }
 
 }
+
+class SaveModelAccessCombiner(fieldLevelAccessor: ColumnAccessor,
+                              fieldTypeName: TypeName,
+                              wrapperLevelAccessor: ColumnAccessor?,
+                              wrapperFieldTypeName: TypeName?,
+                              subWrapperAccessor: ColumnAccessor?,
+                              val isModel: Boolean)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName, subWrapperAccessor) {
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        val access = getFieldAccessBlock(code, modelBlock)
+        code.beginControlFlow("if (\$L != null)", access)
+        if (isModel) {
+            code.addStatement("\$L.save()", access)
+        } else {
+            code.addStatement("\$T.getModelAdapter(\$T.class).save(\$L)", ClassNames.FLOW_MANAGER,
+                    fieldTypeName, access)
+        }
+        code.endControlFlow()
+    }
+
+}

@@ -57,7 +57,7 @@ class ColumnValidator : Validator<ColumnDefinition> {
 
         if (!validatorDefinition.defaultValue.isNullOrEmpty()) {
             val typeName = validatorDefinition.elementTypeName
-            if (validatorDefinition is ForeignKeyColumnDefinition && validatorDefinition.isModel) {
+            if (validatorDefinition is ForeignKeyColumnDefinition && validatorDefinition.isReferencingTableObject) {
                 processorManager.logError(ColumnValidator::class, "Default values cannot be specified for model fields")
             } else if (typeName != null && typeName.isPrimitive) {
                 processorManager.logWarning(ColumnValidator::class.java, "Primitive column types will not respect default values")
