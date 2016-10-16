@@ -242,13 +242,19 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             checkNeedsReferences()
 
             val code = CodeBlock.builder()
-            referencedTableClassName?.let {
-                val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
-                        it, baseTableDefinition.outputClassName, isStubbedRelationship)
-                _foreignKeyReferenceDefinitionList.forEach {
-                    foreignKeyCombiner.fieldAccesses += it.partialAccessor
+            referencedTableClassName?.let { referencedTableClassName ->
+
+                val tableDefinition = manager.getTableDefinition(baseTableDefinition.databaseDefinition?.elementTypeName,
+                        referencedTableClassName)
+                val outputClassName = tableDefinition?.outputClassName
+                outputClassName?.let {
+                    val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
+                            referencedTableClassName, outputClassName, isStubbedRelationship)
+                    _foreignKeyReferenceDefinitionList.forEach {
+                        foreignKeyCombiner.fieldAccesses += it.partialAccessor
+                    }
+                    foreignKeyCombiner.addCode(code, index)
                 }
-                foreignKeyCombiner.addCode(code, index)
             }
             return code.build()
         }

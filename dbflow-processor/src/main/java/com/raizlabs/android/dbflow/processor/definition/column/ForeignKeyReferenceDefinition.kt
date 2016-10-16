@@ -143,7 +143,7 @@ class ForeignKeyReferenceDefinition {
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
         evaluateTypeConverter(typeConverterDefinition)
 
-        partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, columnName,
+        partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
                 columnClassName!!, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
                 columnAccessor, wrapperAccessor, wrapperTypeName)
 
