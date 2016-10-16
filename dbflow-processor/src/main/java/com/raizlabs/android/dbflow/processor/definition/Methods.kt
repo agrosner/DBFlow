@@ -103,10 +103,10 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                 }
             } else {
                 var start = 0
-                methodBuilder.addStatement("int start = 0")
                 if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
                     val autoIncrement = tableDefinition.autoIncrementColumn
                     autoIncrement?.let {
+                        methodBuilder.addStatement("int start = 0")
                         methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start)))
                     }
                 }
