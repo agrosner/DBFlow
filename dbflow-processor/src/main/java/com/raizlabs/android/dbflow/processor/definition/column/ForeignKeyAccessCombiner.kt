@@ -72,7 +72,10 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
             it.addRetrieval(setterBlock, index.get(), referencedTableTypeName, isStubbed, fieldAccessor)
             it.addColumnIndex(code, index.get())
             it.addIndexCheckStatement(ifChecker, index.get(), i == fieldAccesses.size - 1)
-            index.incrementAndGet()
+
+            if (i < fieldAccesses.size - 1) {
+                index.incrementAndGet()
+            }
         }
 
         if (!isStubbed) setterBlock.add("\n.querySingle()")

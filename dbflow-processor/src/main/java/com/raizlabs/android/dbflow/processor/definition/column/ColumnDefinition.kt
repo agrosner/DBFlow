@@ -77,6 +77,12 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() = QueryBuilder.quote(columnName)
 
     init {
+        val notNullAnno = element.getAnnotation<NotNull>(NotNull::class.java)
+        if (notNullAnno != null) {
+            notNull = true
+            onNullConflict = notNullAnno.onNullConflict
+        }
+
         column?.let {
             this.columnName = if (it.name == "")
                 element.simpleName.toString()
@@ -86,7 +92,12 @@ constructor(processorManager: ProcessorManager, element: Element,
             collate = it.collate
             defaultValue = it.defaultValue
 
-            if (elementClassName == ClassName.get(String::class.java)
+            if (defaultValue?.isBlank() ?: false) {
+                defaultValue = null
+            }
+
+            if (defaultValue != null
+                    && elementClassName == ClassName.get(String::class.java)
                     && !QUOTE_PATTERN.matcher(defaultValue).find()) {
                 defaultValue = "\"" + defaultValue + "\""
             }
@@ -137,12 +148,6 @@ constructor(processorManager: ProcessorManager, element: Element,
             unique = uniqueColumn.unique
             onUniqueConflict = uniqueColumn.onUniqueConflict
             uniqueColumn.uniqueGroups.forEach { uniqueGroups.add(it) }
-        }
-
-        val notNullAnno = element.getAnnotation<NotNull>(NotNull::class.java)
-        if (notNullAnno != null) {
-            notNull = true
-            onNullConflict = notNullAnno.onNullConflict
         }
 
         val index = element.getAnnotation<Index>(Index::class.java)
@@ -279,7 +284,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
             ContentValuesCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
                     wrapperTypeName, subWrapperAccessor)
-                    .addCode(code, columnName, CodeBlock.of(getDefaultValueString()), 0, modelBlock)
+                    .addCode(code, columnName, getDefaultValueBlock(), 0, modelBlock)
 
             return code.build()
         }
@@ -289,7 +294,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         val builder = CodeBlock.builder()
         SqliteStatementAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
                 wrapperTypeName, subWrapperAccessor)
-                .addCode(builder, "start", CodeBlock.of(getDefaultValueString()), index.get(), modelBlock)
+                .addCode(builder, "start", getDefaultValueBlock(), index.get(), modelBlock)
         return builder.build()
     }
 
@@ -299,7 +304,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         LoadFromCursorAccessCombiner(columnAccessor, elementTypeName!!,
                 baseTableDefinition.orderedCursorLookUp, baseTableDefinition.assignDefaultValuesFromCursor,
                 wrapperAccessor, wrapperTypeName, subWrapperAccessor)
-                .addCode(builder, columnName, CodeBlock.of(getDefaultValueString()), index.get(), modelBlock)
+                .addCode(builder, columnName, getDefaultValueBlock(), index.get(), modelBlock)
         return builder.build()
     }
 
@@ -313,7 +318,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             val code = CodeBlock.builder()
             UpdateAutoIncrementAccessCombiner(columnAccessor, elementTypeName!!,
                     wrapperAccessor, wrapperTypeName, subWrapperAccessor)
-                    .addCode(code, columnName, CodeBlock.of(getDefaultValueString()),
+                    .addCode(code, columnName, getDefaultValueBlock(),
                             0, modelBlock)
             return code.build()
         }
@@ -322,7 +327,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         val codeBlock = CodeBlock.builder()
         CachingIdAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
                 subWrapperAccessor)
-                .addCode(codeBlock, columnName, CodeBlock.of(getDefaultValueString()), index, modelBlock)
+                .addCode(codeBlock, columnName, getDefaultValueBlock(), index, modelBlock)
         return codeBlock.build()
     }
 
@@ -330,7 +335,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         val codeBlock = CodeBlock.builder()
         SimpleAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
                 subWrapperAccessor)
-                .addCode(codeBlock, columnName, CodeBlock.of(getDefaultValueString()), 0, modelBlock)
+                .addCode(codeBlock, columnName, getDefaultValueBlock(), 0, modelBlock)
         return codeBlock.build()
     }
 
@@ -338,13 +343,13 @@ constructor(processorManager: ProcessorManager, element: Element,
         ExistenceAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
                 subWrapperAccessor, isRowId || isPrimaryKeyAutoIncrement, isQuickCheckPrimaryKeyAutoIncrement,
                 baseTableDefinition.elementClassName!!)
-                .addCode(codeBuilder, columnName, CodeBlock.of(getDefaultValueString()), 0, modelBlock)
+                .addCode(codeBuilder, columnName, getDefaultValueBlock(), 0, modelBlock)
     }
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
         PrimaryReferenceAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
                 wrapperTypeName, subWrapperAccessor)
-                .addCode(codeBuilder, columnName, CodeBlock.of(getDefaultValueString()),
+                .addCode(codeBuilder, columnName, getDefaultValueBlock(),
                         0, modelBlock)
     }
 
@@ -385,7 +390,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
 
-    fun getDefaultValueString(): String {
+    fun getDefaultValueBlock(): CodeBlock {
         var defaultValue = defaultValue
         if (defaultValue.isNullOrEmpty()) {
             defaultValue = "null"
@@ -402,6 +407,6 @@ constructor(processorManager: ProcessorManager, element: Element,
                 defaultValue = "'\\u0000'"
             }
         }
-        return defaultValue ?: ""
+        return CodeBlock.of(defaultValue)
     }
 }
