@@ -262,11 +262,12 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         elementTypeName?.let { elementTypeName ->
             val propParam: TypeName
-            if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
-                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, elementTypeName.toString().capitalizeFirstLetter() + "Property")
-            } else if (hasCustomConverter || hasTypeConverter) {
+            val wrapperAccessor = this.wrapperAccessor
+            if (wrapperAccessor != null && !wrapperAccessor.isPrimitiveTarget) {
                 propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, elementTypeName.box(),
-                        typeConverterDefinition?.dbTypeName)
+                        wrapperTypeName)
+            } else if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
+                propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, elementTypeName.toString().capitalizeFirstLetter() + "Property")
             } else {
                 propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
             }
@@ -302,8 +303,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
             ContentValuesCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
                     wrapperTypeName, subWrapperAccessor)
-                    .addCode(code, columnName, CodeBlock.of(getDefaultValueString()), 0,
-                            CodeBlock.of("model"))
+                    .addCode(code, columnName, CodeBlock.of(getDefaultValueString()), 0, modelBlock)
 
             return code.build()
         }
@@ -313,8 +313,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         val builder = CodeBlock.builder()
         SqliteStatementAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
                 wrapperTypeName, subWrapperAccessor)
-                .addCode(builder, "start", CodeBlock.of(getDefaultValueString()), index.get(),
-                        CodeBlock.of("model"))
+                .addCode(builder, "start", CodeBlock.of(getDefaultValueString()), index.get(), modelBlock)
         return builder.build()
     }
 
@@ -324,8 +323,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         LoadFromCursorAccessCombiner(columnAccessor, elementTypeName!!,
                 baseTableDefinition.orderedCursorLookUp, baseTableDefinition.assignDefaultValuesFromCursor,
                 wrapperAccessor, wrapperTypeName, subWrapperAccessor)
-                .addCode(builder, columnName, CodeBlock.of(getDefaultValueString()), index.get(),
-                        CodeBlock.of("model"))
+                .addCode(builder, columnName, CodeBlock.of(getDefaultValueString()), index.get(), modelBlock)
         return builder.build()
     }
 
@@ -349,32 +347,10 @@ constructor(processorManager: ProcessorManager, element: Element,
     }
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
-        codeBuilder.add("\nclause.and(\$L.eq(", columnName)
-        if (columnAccess is TypeConverterAccess) {
-            val converterAccess = columnAccess as TypeConverterAccess
-            val converterDefinition = converterAccess.typeConverterDefinition
-            converterDefinition?.let {
-                codeBuilder.add(converterAccess.existingColumnAccess
-                        .getColumnAccessString(converterDefinition.dbTypeName,
-                                elementName, elementName, ModelUtils.variable, false))
-            }
-        } else {
-            var columnAccessBlock = getColumnAccessString(false)
-            val columnAccessString = columnAccessBlock.toString()
-            var subAccessIndex = -1
-            if (columnAccess is BlobColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(".getBlob()")
-            } else if (columnAccess is EnumColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(".name()")
-            } else if (columnAccess is BooleanTypeColumnAccess) {
-                subAccessIndex = columnAccessString.lastIndexOf(" ? 1 : 0")
-            }
-            if (subAccessIndex > 0) {
-                columnAccessBlock = CodeBlock.of(columnAccessString.substring(0, subAccessIndex))
-            }
-            codeBuilder.add(columnAccessBlock)
-        }
-        codeBuilder.add("));")
+        PrimaryReferenceAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
+                wrapperTypeName, subWrapperAccessor)
+                .addCode(codeBuilder, columnName, CodeBlock.of(getDefaultValueString()),
+                        0, modelBlock)
     }
 
     open val creationName: CodeBlock

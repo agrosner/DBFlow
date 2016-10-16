@@ -11,6 +11,8 @@ import com.raizlabs.android.dbflow.sql.language.NameAlias;
 
 public class TypeConvertedProperty<T, V> extends Property<T> {
 
+    private Property<V> databaseProperty;
+
     public TypeConvertedProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
@@ -24,6 +26,9 @@ public class TypeConvertedProperty<T, V> extends Property<T> {
      * Provides a convenience for supplying type converted methods within the DataClass of the {@link TypeConverter}
      */
     public Property<V> databaseProperty() {
-        return new Property<>(table, nameAlias);
+        if (databaseProperty == null) {
+            databaseProperty = new Property<>(table, nameAlias);
+        }
+        return databaseProperty;
     }
 }

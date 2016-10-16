@@ -535,7 +535,7 @@ class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) :
                     .addParameter(tableDefinition.parameterClassName,
                             ModelUtils.variable).returns(ClassNames.CONDITION_GROUP)
             val code = CodeBlock.builder()
-            code.add("\$T clause = \$T.clause();", ClassNames.CONDITION_GROUP, ClassNames.CONDITION_GROUP)
+            code.addStatement("\$T clause = \$T.clause()", ClassNames.CONDITION_GROUP, ClassNames.CONDITION_GROUP)
             tableDefinition.primaryColumnDefinitions.forEach {
                 val codeBuilder = CodeBlock.builder()
                 it.appendPropertyComparisonAccessStatement(codeBuilder)

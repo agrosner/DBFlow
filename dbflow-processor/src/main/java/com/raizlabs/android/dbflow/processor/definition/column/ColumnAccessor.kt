@@ -10,12 +10,16 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import java.util.*
 
+val modelBlock: CodeBlock = CodeBlock.of("model")
+
 /**
  * Description: Base interface for accessing columns
  *
  * @author Andrew Grosner (fuzz)
  */
 abstract class ColumnAccessor(val propertyName: String?) {
+
+    open val isPrimitiveTarget: Boolean = false
 
     abstract fun get(existingBlock: CodeBlock? = null): CodeBlock
 
@@ -259,6 +263,7 @@ class BooleanColumnAccessor(propertyName: String? = null) : ColumnAccessor(prope
         }
     }
 
+    override val isPrimitiveTarget: Boolean = true
 }
 
 class CharColumnAccessor(propertyName: String? = null) : ColumnAccessor(propertyName) {
@@ -275,6 +280,8 @@ class CharColumnAccessor(propertyName: String? = null) : ColumnAccessor(property
         }
     }
 
+    override val isPrimitiveTarget: Boolean = true
+
 }
 
 class ByteColumnAccessor(propertyName: String? = null) : ColumnAccessor(propertyName) {
@@ -289,4 +296,6 @@ class ByteColumnAccessor(propertyName: String? = null) : ColumnAccessor(property
             else add("(\$T) \$L", TypeName.BYTE, existingBlock)
         }
     }
+
+    override val isPrimitiveTarget: Boolean = true
 }

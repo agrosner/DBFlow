@@ -191,7 +191,8 @@ class PrimaryReferenceAccessCombiner(fieldLevelAccessor: ColumnAccessor,
     override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
                          defaultValue: CodeBlock?, index: Int,
                          modelBlock: CodeBlock) {
-        code.addStatement("clause.and(\$L.eq(\$L))", columnRepresentation,
+        code.addStatement("clause.and(\$L.\$Leq(\$L))", columnRepresentation,
+                if (wrapperLevelAccessor is TypeConverterScopeColumnAccessor) "databaseProperty()." else "",
                 getFieldAccessBlock(code, modelBlock))
     }
 

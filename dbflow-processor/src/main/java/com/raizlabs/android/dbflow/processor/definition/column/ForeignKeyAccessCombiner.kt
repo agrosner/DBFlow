@@ -7,8 +7,6 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import java.util.concurrent.atomic.AtomicInteger
 
-val modelBlock: CodeBlock = CodeBlock.of("model")
-
 /**
  * Description: Provides structured way to combine ForeignKey for both SQLiteStatement and ContentValues
  * bindings.
