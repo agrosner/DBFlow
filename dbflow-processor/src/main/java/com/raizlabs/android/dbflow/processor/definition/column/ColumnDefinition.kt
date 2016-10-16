@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
@@ -337,9 +336,20 @@ constructor(processorManager: ProcessorManager, element: Element,
             return code.build()
         }
 
-    fun getColumnAccessString(isSqliteStatment: Boolean): CodeBlock {
-        return columnAccess.getColumnAccessString(elementTypeName, elementName,
-                elementName, ModelUtils.variable, isSqliteStatment)
+    fun getColumnAccessString(index: Int): CodeBlock {
+        val codeBlock = CodeBlock.builder()
+        CachingIdAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
+                subWrapperAccessor)
+                .addCode(codeBlock, columnName, CodeBlock.of(getDefaultValueString()), index, modelBlock)
+        return codeBlock.build()
+    }
+
+    fun getSimpleAccessString(): CodeBlock {
+        val codeBlock = CodeBlock.builder()
+        SimpleAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
+                subWrapperAccessor)
+                .addCode(codeBlock, columnName, CodeBlock.of(getDefaultValueString()), 0, modelBlock)
+        return codeBlock.build()
     }
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {

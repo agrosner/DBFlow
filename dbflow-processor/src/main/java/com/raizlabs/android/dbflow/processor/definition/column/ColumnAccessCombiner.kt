@@ -48,6 +48,16 @@ abstract class ColumnAccessCombiner(val fieldLevelAccessor: ColumnAccessor,
 
 }
 
+class SimpleAccessCombiner(fieldLevelAccessor: ColumnAccessor,
+                           fieldTypeName: TypeName, wrapperLevelAccessor: ColumnAccessor?,
+                           wrapperFieldTypeName: TypeName?, subWrapperAccessor: ColumnAccessor?)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName, subWrapperAccessor) {
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String, defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        code.addStatement(getFieldAccessBlock(code, modelBlock))
+    }
+
+}
+
 class ContentValuesCombiner(fieldLevelAccessor: ColumnAccessor,
                             fieldTypeName: TypeName,
                             wrapperLevelAccessor: ColumnAccessor? = null,
@@ -219,6 +229,17 @@ class UpdateAutoIncrementAccessCombiner(fieldLevelAccessor: ColumnAccessor,
         }
 
         code.addStatement(fieldLevelAccessor.set(CodeBlock.of("id.\$LValue()", method), modelBlock))
+    }
+
+}
+
+class CachingIdAccessCombiner(fieldLevelAccessor: ColumnAccessor,
+                              fieldTypeName: TypeName, wrapperLevelAccessor: ColumnAccessor?,
+                              wrapperFieldTypeName: TypeName?, subWrapperAccessor: ColumnAccessor?)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName, subWrapperAccessor) {
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        code.addStatement("inValues[\$L] = \$L", index, getFieldAccessBlock(code, modelBlock))
     }
 
 }

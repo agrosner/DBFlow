@@ -289,7 +289,7 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
 
             if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
                 val incrementBuilder = CodeBlock.builder().add("return ")
-                val columnAccess = autoincrementColumn!!.getColumnAccessString(false)
+                val columnAccess = autoincrementColumn!!.getColumnAccessString()
                 val autoElementType = autoincrementColumn.elementTypeName
                 autoElementType?.let {
                     if (!it.isPrimitive) {

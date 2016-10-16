@@ -1,6 +1,9 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.ForeignKey
+import com.raizlabs.android.dbflow.annotation.ForeignKeyAction
+import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
@@ -84,17 +87,6 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         nonModelColumn = !isModel
 
         saveForeignKeyModel = foreignKey.saveForeignKeyModel
-
-        // we need to recheck for this instance
-        if (columnAccess is TypeConverterAccess) {
-            // is a type converted field
-            if (typeElement.modifiers.contains(Modifier.PRIVATE)) {
-                val useIs = elementTypeName?.box() == TypeName.BOOLEAN.box() && tableDefinition.useIsForPrivateBooleans
-                columnAccess = PrivateColumnAccess(typeElement.getAnnotation(Column::class.java), useIs)
-            } else {
-                columnAccess = SimpleColumnAccess()
-            }
-        }
 
         val references = foreignKey.references
         if (references.size == 0) {
@@ -263,7 +255,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
     }
 
     override fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
-        if (nonModelColumn || columnAccess is TypeConverterAccess) {
+        if (nonModelColumn || columnAccessor is TypeConverterScopeColumnAccessor) {
             super.appendPropertyComparisonAccessStatement(codeBuilder)
         } else {
 
@@ -275,42 +267,6 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                 foreignKeyCombiner.addCode(codeBuilder, AtomicInteger(0))
             }
         }
-    }
-
-    internal fun getFinalAccessStatement(codeBuilder: CodeBlock.Builder, statement: CodeBlock): CodeBlock {
-        var finalAccessStatement = statement
-        if (columnAccess is TypeConverterAccess) {
-            finalAccessStatement = CodeBlock.of(refName)
-
-            val typeName: TypeName?
-            if (columnAccess is TypeConverterAccess) {
-                typeName = (columnAccess as TypeConverterAccess).typeConverterDefinition?.dbTypeName
-            } else {
-                typeName = referencedTableClassName
-            }
-
-            typeName?.let {
-                codeBuilder.addStatement("\$T \$L = \$L", it, finalAccessStatement, statement)
-            }
-        }
-
-        return finalAccessStatement
-    }
-
-    internal fun getForeignKeyReferenceAccess(statement: CodeBlock): CodeBlock {
-        if (columnAccess is TypeConverterAccess) {
-            return CodeBlock.of(refName)
-        } else {
-            return statement
-        }
-    }
-
-    val refName: String
-        get() = "ref" + elementName
-
-    fun getForeignKeyReferenceDefinitionList(): List<ForeignKeyReferenceDefinition> {
-        checkNeedsReferences()
-        return _foreignKeyReferenceDefinitionList
     }
 
     /**
