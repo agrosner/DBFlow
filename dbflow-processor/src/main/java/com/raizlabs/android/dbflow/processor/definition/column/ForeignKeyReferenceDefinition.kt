@@ -130,7 +130,7 @@ class ForeignKeyReferenceDefinition {
                     foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
                     name)
 
-            PackagePrivateAccess.putElement(
+            PackagePrivateScopeColumnAccessor.putElement(
                     (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
                     foreignColumnName)
         } else {

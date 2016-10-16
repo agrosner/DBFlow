@@ -5,10 +5,9 @@ import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
-import com.raizlabs.android.dbflow.processor.definition.column.BaseColumnAccess
-import com.raizlabs.android.dbflow.processor.definition.column.PrivateColumnAccess
-import com.raizlabs.android.dbflow.processor.definition.column.SimpleColumnAccess
+import com.raizlabs.android.dbflow.processor.definition.column.*
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
+import com.raizlabs.android.dbflow.processor.utils.addStatement
 import com.raizlabs.android.dbflow.processor.utils.controlFlow
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -42,7 +41,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
     val isSave: Boolean
         get() = isAll || methods.contains(OneToMany.Method.SAVE)
 
-    private var columnAccess: BaseColumnAccess? = null
+    private var columnAccessor: ColumnAccessor
     private var extendsBaseModel: Boolean = false
     private var extendsModel: Boolean = false
     private var referencedTableType: TypeName? = null
@@ -61,9 +60,12 @@ class OneToManyDefinition(typeElement: ExecutableElement,
         methods.addAll(Arrays.asList<OneToMany.Method>(*oneToMany.methods))
 
         if (oneToMany.isVariablePrivate) {
-            columnAccess = PrivateColumnAccess(false)
+            columnAccessor = PrivateScopeColumnAccessor(_variableName, object : GetterSetter {
+                override val getterName: String = ""
+                override val setterName: String = ""
+            })
         } else {
-            columnAccess = SimpleColumnAccess()
+            columnAccessor = VisibleScopeColumnAccessor(_variableName)
         }
 
         extendsBaseModel = false
@@ -102,11 +104,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
     fun writeDelete(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
         if (isDelete) {
             writeLoopWithMethod(codeBuilder, "delete", useWrapper && extendsBaseModel)
-
-            columnAccess?.let {
-                codeBuilder.add(it.setColumnAccessString(null, _variableName, _variableName,
-                        ModelUtils.variable, CodeBlock.builder().add("null").build()).toBuilder().add(";\n").build())
-            }
+            codeBuilder.addStatement(columnAccessor.set(CodeBlock.of("null"), modelBlock))
         }
     }
 
