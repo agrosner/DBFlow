@@ -53,9 +53,6 @@ constructor(processorManager: ProcessorManager, element: Element,
     var collate = Collate.NONE
     var defaultValue: String? = null
 
-    var isBoolean = false
-
-    var columnAccess: BaseColumnAccess
     var columnAccessor: ColumnAccessor
     var wrapperAccessor: ColumnAccessor? = null
     var wrapperTypeName: TypeName? = null
@@ -106,19 +103,12 @@ constructor(processorManager: ProcessorManager, element: Element,
                     (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
                     columnName)
 
-            columnAccess = PackagePrivateAccess.from(processorManager, element,
-                    baseTableDefinition.databaseDefinition?.classSeparator)
-
-            // register to ensure we only generate methods that are referenced by these columns.
-            PackagePrivateAccess.putElement((columnAccess as PackagePrivateAccess).helperClassName, columnName)
         } else {
             val isPrivate = element.modifiers.contains(Modifier.PRIVATE)
             if (isPrivate) {
                 val isBoolean = elementTypeName?.box() == TypeName.BOOLEAN.box()
                 val useIs = isBoolean
                         && baseTableDefinition is TableDefinition && (baseTableDefinition as TableDefinition).useIsForPrivateBooleans
-                columnAccess = PrivateColumnAccess(column, useIs)
-
                 columnAccessor = PrivateScopeColumnAccessor(elementName, object : GetterSetter {
                     override val getterName: String = column?.getterName ?: ""
                     override val setterName: String = column?.setterName ?: ""
@@ -127,7 +117,6 @@ constructor(processorManager: ProcessorManager, element: Element,
 
             } else {
                 columnAccessor = VisibleScopeColumnAccessor(elementName)
-                columnAccess = SimpleColumnAccess()
             }
         }
 
@@ -184,11 +173,9 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (!hasCustomConverter) {
             val typeElement = ProcessorUtils.getTypeElement(element)
             if (typeElement != null && typeElement.kind == ElementKind.ENUM) {
-                columnAccess = EnumColumnAccess(this)
                 wrapperAccessor = EnumColumnAccessor(elementTypeName!!)
                 wrapperTypeName = ClassName.get(String::class.java)
             } else if (elementTypeName == ClassName.get(Blob::class.java)) {
-                columnAccess = BlobColumnAccess(this)
                 wrapperAccessor = BlobColumnAccessor()
                 wrapperTypeName = ArrayTypeName.of(TypeName.BYTE)
             } else {
@@ -199,9 +186,6 @@ constructor(processorManager: ProcessorManager, element: Element,
                             "Columns cannot be of array type.")
                 } else {
                     if (elementTypeName == TypeName.BOOLEAN) {
-                        // lower case boolean, we don't box up and down, we just check true or false.
-                        columnAccess = BooleanTypeColumnAccess(this)
-
                         wrapperAccessor = BooleanColumnAccessor()
                         wrapperTypeName = TypeName.BOOLEAN
                     } else if (elementTypeName == TypeName.CHAR) {
@@ -232,13 +216,6 @@ constructor(processorManager: ProcessorManager, element: Element,
                 hasCustomConverter = isCustom
 
                 val fieldName = baseTableDefinition.addColumnForTypeConverter(this, it.className)
-                if (elementTypeName == TypeName.BOOLEAN.box()) {
-                    isBoolean = true
-                    columnAccess = BooleanColumnAccess(manager, this)
-                } else {
-                    columnAccess = TypeConverterAccess(manager, this, it, fieldName)
-                }
-
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
 
