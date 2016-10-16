@@ -73,7 +73,8 @@ constructor(processorManager: ProcessorManager, element: Element,
     open val typeConverterElementNames: List<TypeName?>
         get() = arrayListOf(elementTypeName)
 
-    open val primaryKeyName: String? = QueryBuilder.quote(columnName)
+    open val primaryKeyName: String?
+        get() = QueryBuilder.quote(columnName)
 
     init {
         column?.let {
@@ -215,7 +216,11 @@ constructor(processorManager: ProcessorManager, element: Element,
                 hasTypeConverter = true
                 hasCustomConverter = isCustom
 
-                val fieldName = baseTableDefinition.addColumnForTypeConverter(this, it.className)
+                val fieldName = if (hasCustomConverter) {
+                    baseTableDefinition.addColumnForCustomTypeConverter(this, it.className)
+                } else {
+                    baseTableDefinition.addColumnForTypeConverter(this, it.className)
+                }
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
 
