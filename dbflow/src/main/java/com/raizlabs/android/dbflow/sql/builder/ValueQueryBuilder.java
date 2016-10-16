@@ -71,9 +71,6 @@ public class ValueQueryBuilder extends QueryBuilder<ValueQueryBuilder> {
         Object value = modelValue;
         if (value != null) {
             TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
-            if(typeConverter == null){
-                typeConverter = FlowManager.getTypeConverterForClass(value.getClass().getSuperclass());
-            }
             if (typeConverter != null) {
                 value = typeConverter.getDBValue(value);
             }
