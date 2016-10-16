@@ -60,7 +60,7 @@ object InternalAdapterHelper {
                     .addParameter(ClassNames.CURSOR, "cursor")
             for (i in primaryColumns.indices) {
                 val column = primaryColumns[i]
-                val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.columnAccess)
+                val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
                 methodBuilder.addStatement("inValues[\$L] = \$L.\$L(\$L.getColumnIndex(\$S))", i, LoadFromCursorMethod.PARAM_CURSOR,
                         method, LoadFromCursorMethod.PARAM_CURSOR, column.columnName)
             }
@@ -71,15 +71,15 @@ object InternalAdapterHelper {
             var methodBuilder: MethodSpec.Builder = MethodSpec.methodBuilder("getCachingColumnValueFromModel")
                     .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(modelClassName, ModelUtils.variable)
-            methodBuilder.addStatement("return \$L",
-                    primaryColumns[0].getSimpleAccessString()).returns(Any::class.java)
+            methodBuilder.addCode(primaryColumns[0].getSimpleAccessString())
+                    .returns(Any::class.java)
             typeBuilder.addMethod(methodBuilder.build())
 
             methodBuilder = MethodSpec.methodBuilder("getCachingColumnValueFromCursor")
                     .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ClassNames.CURSOR, "cursor")
             val column = primaryColumns[0]
-            val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.columnAccess)
+            val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
             methodBuilder.addStatement("return \$L.\$L(\$L.getColumnIndex(\$S))", LoadFromCursorMethod.PARAM_CURSOR,
                     method, LoadFromCursorMethod.PARAM_CURSOR, column.columnName).returns(Any::class.java)
             typeBuilder.addMethod(methodBuilder.build())

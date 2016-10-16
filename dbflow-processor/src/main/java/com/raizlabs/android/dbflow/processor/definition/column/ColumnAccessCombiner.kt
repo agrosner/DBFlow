@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.column
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.addStatement
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 
@@ -52,8 +53,49 @@ class SimpleAccessCombiner(fieldLevelAccessor: ColumnAccessor,
                            fieldTypeName: TypeName, wrapperLevelAccessor: ColumnAccessor?,
                            wrapperFieldTypeName: TypeName?, subWrapperAccessor: ColumnAccessor?)
 : ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName, subWrapperAccessor) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String, defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
-        code.addStatement(getFieldAccessBlock(code, modelBlock))
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        code.addStatement("return \$L", getFieldAccessBlock(code, modelBlock))
+    }
+
+}
+
+class ExistenceAccessCombiner(fieldLevelAccessor: ColumnAccessor,
+                              fieldTypeName: TypeName,
+                              wrapperLevelAccessor: ColumnAccessor?,
+                              wrapperFieldTypeName: TypeName?,
+                              subWrapperAccessor: ColumnAccessor?,
+                              val autoRowId: Boolean,
+                              val quickCheckPrimaryKey: Boolean,
+                              val tableClassName: ClassName)
+: ColumnAccessCombiner(fieldLevelAccessor, fieldTypeName, wrapperLevelAccessor, wrapperFieldTypeName, subWrapperAccessor) {
+    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
+                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        val access = getFieldAccessBlock(code, modelBlock)
+        if (autoRowId) {
+            code.add("return ")
+
+            if (!fieldTypeName.isPrimitive) {
+                code.add("(\$L != null && ", access)
+            }
+            code.add("\$L > 0", access)
+
+            if (!fieldTypeName.isPrimitive) {
+                code.add(" || \$L == null)", access)
+            }
+        }
+
+        if (!autoRowId || !quickCheckPrimaryKey) {
+            if (autoRowId) {
+                code.add("\n&& ")
+            } else {
+                code.add("return ")
+            }
+
+            code.add("\$T.selectCountOf()\n.from(\$T.class)\n.where(getPrimaryConditionClause(\$L))\n.hasData(wrapper)",
+                    ClassNames.SQLITE, tableClassName, modelBlock)
+        }
+        code.add(";\n")
     }
 
 }

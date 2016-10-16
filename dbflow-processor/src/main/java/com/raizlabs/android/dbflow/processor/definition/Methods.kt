@@ -285,37 +285,14 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
                     .addParameter(ClassNames.DATABASE_WRAPPER, "wrapper")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL).returns(TypeName.BOOLEAN)
             // only quick check if enabled.
-            val autoincrementColumn = tableDefinition.autoIncrementColumn
-
-            if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                val incrementBuilder = CodeBlock.builder().add("return ")
-                val columnAccess = autoincrementColumn!!.getColumnAccessString()
-                val autoElementType = autoincrementColumn.elementTypeName
-                autoElementType?.let {
-                    if (!it.isPrimitive) {
-                        incrementBuilder.add("(\$L != null && ", columnAccess)
-                    }
-                    incrementBuilder.add("\$L > 0", columnAccess)
-                    if (!it.isPrimitive) {
-                        incrementBuilder.add(" || \$L == null)", columnAccess)
-                    }
-                }
-                methodBuilder.addCode(incrementBuilder.build())
+            var primaryColumn = tableDefinition.autoIncrementColumn
+            if (primaryColumn == null) {
+                primaryColumn = tableDefinition.primaryColumnDefinitions[0]
             }
 
-            if (!tableDefinition.hasRowID && !tableDefinition.hasAutoIncrement ||
-                    autoincrementColumn != null &&
-                            !autoincrementColumn.isQuickCheckPrimaryKeyAutoIncrement) {
-                if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                    methodBuilder.addCode(" && ")
-                } else {
-                    methodBuilder.addCode("return ")
-                }
-                methodBuilder.addCode("\$T.selectCountOf()\n.from(\$T.class)\n.where(getPrimaryConditionClause(\$L))\n.hasData(wrapper)",
-                        ClassNames.SQLITE, tableDefinition.elementClassName, ModelUtils.variable)
-            }
-            methodBuilder.addCode(";\n")
-
+            val code = CodeBlock.builder()
+            primaryColumn.appendExistenceMethod(code)
+            methodBuilder.addCode(code.build())
             return methodBuilder.build()
         }
 }

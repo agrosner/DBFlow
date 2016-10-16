@@ -352,6 +352,13 @@ constructor(processorManager: ProcessorManager, element: Element,
         return codeBlock.build()
     }
 
+    open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
+        ExistenceAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
+                subWrapperAccessor, isRowId || isPrimaryKeyAutoIncrement, isQuickCheckPrimaryKeyAutoIncrement,
+                baseTableDefinition.elementClassName!!)
+                .addCode(codeBuilder, columnName, CodeBlock.of(getDefaultValueString()), 0, modelBlock)
+    }
+
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
         PrimaryReferenceAccessCombiner(columnAccessor, elementTypeName!!, wrapperAccessor,
                 wrapperTypeName, subWrapperAccessor)

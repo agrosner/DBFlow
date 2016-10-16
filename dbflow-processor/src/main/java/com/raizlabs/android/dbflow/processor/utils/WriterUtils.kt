@@ -18,6 +18,8 @@ object WriterUtils {
             success = true
         } catch (e: IOException) {
             // ignored
+        } catch (i: IllegalStateException) {
+            processorManager.logError(WriterUtils::class, "Found error for class:" + baseDefinition.elementName)
         }
 
         return success

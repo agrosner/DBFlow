@@ -399,7 +399,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingId")
                         .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         .addParameter(elementClassName, ModelUtils.variable)
-                        .addStatement("return \$L", autoIncrement.getColumnAccessString())
+                        .addCode(autoIncrement.getSimpleAccessString())
                         .returns(ClassName.get(Number::class.java)).build())
 
                 typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingColumnName")
