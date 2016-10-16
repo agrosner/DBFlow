@@ -361,7 +361,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open val creationName: CodeBlock
         get() {
-            val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, columnAccess, columnName)
+            val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, wrapperTypeName, columnName)
 
             if (isPrimaryKeyAutoIncrement && !isRowId) {
                 codeBlockBuilder.add(" PRIMARY KEY ")

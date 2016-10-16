@@ -28,7 +28,7 @@ class ForeignKeyReferenceDefinition {
     var hasTypeConverter: Boolean = false
 
     internal val creationStatement: CodeBlock
-        get() = DefinitionUtils.getCreationStatement(columnClassName, null, columnName).build()
+        get() = DefinitionUtils.getCreationStatement(columnClassName, wrapperTypeName, columnName).build()
 
     internal val primaryKeyName: String
         get() = QueryBuilder.quote(columnName)

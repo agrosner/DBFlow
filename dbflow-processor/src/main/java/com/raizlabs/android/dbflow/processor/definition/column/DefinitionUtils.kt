@@ -12,16 +12,13 @@ import com.squareup.javapoet.TypeName
 object DefinitionUtils {
 
     fun getCreationStatement(elementTypeName: TypeName?,
-                             columnAccess: BaseColumnAccess?,
+                             wrapperTypeName: TypeName?,
                              columnName: String): CodeBlock.Builder {
         var statement: String? = null
 
-        if (SQLiteHelper.containsType(elementTypeName)) {
+        if (SQLiteHelper.containsType(wrapperTypeName ?: elementTypeName)) {
             statement = SQLiteHelper[elementTypeName].toString()
-        } else if (columnAccess is TypeConverterAccess && columnAccess.typeConverterDefinition != null) {
-            statement = SQLiteHelper[columnAccess.typeConverterDefinition.dbTypeName].toString()
         }
-
 
         return CodeBlock.builder().add("\$L \$L", QueryBuilder.quote(columnName), statement)
 
