@@ -33,9 +33,8 @@ To enable caching on a single-primary key table, simply specify that it is enabl
 
 
 @Table(database = AppDatabase.class, cachingEnabled = true)
-public class CacheableModel extends BaseModel {
+public class CacheableModel {
 
-    @Column
     @PrimaryKey(autoincrement = true)
     long id;
 
@@ -90,7 +89,7 @@ for example we have a `Coordinate` class:
 
 
 @Table(database = AppDatabase.class, cachingEnabled = true)
-public class Coordinate extends BaseModel {
+public class Coordinate {
 
     @MultiCacheField
     public static final IMultiKeyCacheConverter<String> multiKeyCacheModel = new IMultiKeyCacheConverter<String>() {

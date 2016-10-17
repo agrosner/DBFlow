@@ -181,8 +181,6 @@ tableName<TestModel>
 
 modelAdapter<TestModel>
 
-containerAdapter<TestModel>
-
 ```
 
 
