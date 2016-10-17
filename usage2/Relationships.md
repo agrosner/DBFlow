@@ -26,35 +26,31 @@ public class Dog extends BaseModel {
 ```
 
 `@ForeignKey` can only be a subset of types:
-  1. `Model` or `ModelContainer`
-  2. Any field not requiring a `TypeConverter`. If not a `Model`, you _must_ specify the `tableClass` it points to.
+  1. `Model`
+  2. Any field not requiring a `TypeConverter`. If not a `Model` or a table class, you _must_ specify the `tableClass` it points to.
   3. Cannot inherit `@ForeignKey` from non-model classes (see [Inherited Columns](/usage2/Models.md#inherited-columns))
-
 
 If you create a circular reference (i.e. two tables with strong references to `Model` as `@ForeignKey` to each other), read on.
 
-## Foreign Key Containers
+## Stubbed Relationships
 
-For efficiency reasons we recommend using `ForeignKeyContainer<>`. A `ForeignKeyContainer`
-is foreign key that only contains the foreign key reference data within itself. If you
-desire thread-safety and prefer this to happen immediately, replace with the `Model` object.
+For efficiency reasons we recommend specifying `@ForeignKey(stubbedRelationship = true)`. What this will do is only _preset_ the primary key references into a table object. All other fields will not be set. If you need to access the full object, you will have to call `load()` for `Model`, or use the `ModelAdapter` to load the object from the DB.
 
 From our previous example of `Dog`, instead of using a  `String` field for **breed**
-we recommended by using a `ForeignKeyContainer<Breed>`. It is nearly identical, but the difference being
+we recommended by using a `Breed`. It is nearly identical, but the difference being
 we would then only need to call `load()` on the reference and it would query the `Breed`
 table for a row with the `breed` id. This also makes it easier if the table you
 reference has multiple primary keys, since DBFlow will handle the work for you.
 
-Multiple calls to `load()` will have no performance impact,
-as the reference will cache the relationship. If you need to get up-to-date data, use `reload()`.
+Multiple calls to `load()` will query the DB every time, so call when needed. Also if you don't specify `@Database(foreignKeysSupported = true)`, calling `load()` may not have any effect. Essentially without enforcing `@ForeignKey` at a SQLite level, you can end up with floating key references that do not exist in the referenced table.
 
-Second, for every load of a `Dog` object from the database,
+In normal circumstances, for every load of a `Dog` object from the database,
 we would also do a load of related `Owner`. This means that even if multiple `Dog` say (50)
 all point to same owner we end up doing 2x retrievals for every load of `Dog`. Replacing
-that model field of `Owner` with `ForeignKeyContainer<Owner>` prevents the extra N lookup time,
+that model field of `Owner` with a stubbed relationship prevents the extra N lookup time,
 leading to much faster loads of `Dog`.
 
-__Note__: using `ForeignKeyContainer` also helps to prevent circular references that can
+__Note__: using stubbed relationships also helps to prevent circular references that can
 get you in a `StackOverFlowError` if two tables strongly reference each other in `@ForeignKey`.
 
 Our modified example now looks like this:
@@ -66,29 +62,15 @@ public class Dog extends BaseModel {
     @PrimaryKey
     String name;
 
-    @ForeignKey
+    @ForeignKey(stubbedRelationship = true)
     @PrimaryKey
-    ForeignKeyContainer<Breed> breed; // tableClass only needed for single-field refs that are not Model.
+    Breed breed; // tableClass only needed for single-field refs that are not Model.
 
-    @ForeignKey
-    ForeignKeyContainer<Owner> owner;
-
-    public void associateOwner(Owner owner) {
-        this.owner = FlowManager.getContainerAdapter(Owner.class)
-                        .toForeignKeyContainer(owner); // convenience conversion
-    }
-
-    public void associateBreed(Breed breed) {
-        this.breed = FlowManager.getContainerAdapter(Breed.class)
-                      .toForeignKeyContainer(breed); // convenience conversion
-    }
+    @ForeignKey(stubbedRelationship = true)
+    Owner owner;
 }
 
 ```
-
-Since `ForeignKeyContainer` only contain fields that are relevant to the relationship,
-a handy method in `ModelContainerAdapter` converts an object to the `ForeignKeyContainer` via
-`toForeignKeyContainer()`.
 
 ## One To Many
 
