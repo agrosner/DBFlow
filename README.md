@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JitPack.io](https://img.shields.io/badge/JitPack.io-3.1.0-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+[![JitPack.io](https://img.shields.io/badge/JitPack.io-4.0.0-beta1-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
@@ -69,6 +69,8 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
     // sql-cipher database encryption (optional)
     compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
+
+    compile "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
 
     // kotlin extensions
     compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}"
