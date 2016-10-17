@@ -2,39 +2,8 @@
 
 DBFlow supports Kotlin out of the box and is fairly easily to use and implement.
 
-
-## Classes
-
-DBFlow Classes are beautifully concise to write:
-
-```kotlin
-@Table(database = KotlinDatabase::class)
-class Person() : BaseModel() {
-    @PrimaryKey var id: Int = 0
-
-    @Column var name: String? = null
-}
-```
-
-Also `data` classes are supported, but they (for now) _must_ define `Model` implementation:
-
-```kotlin
-@Table(database = KotlinTestDatabase::class)
-data class Car(@PrimaryKey var id: Int = 0, @Column var name: String? = null) : Model {
-
-    override fun save() = modelAdapter<Car>().save(this)
-
-    override fun delete() = modelAdapter<Car>().delete(this)
-
-    override fun update() = modelAdapter<Car>().update(this)
-
-    override fun insert() = modelAdapter<Car>().insert(this)
-
-    override fun exists() = modelAdapter<Car>().exists(this)
-}
-```
-
-Once we can use `default` methods on an interface in `Kotlin` `data` classes, this boilerplate will go away.
+Currently, we cannot write DBFlow classes in Kotlin, due to some bugs with the generated
+Java classes that DBFlow creates are not found in Kotlin files when compiling.
 
 ## Extensions
 
