@@ -11,13 +11,19 @@ it has little effect.
 
 ```java
 
+FlowManager.getModelAdapter(SomeTable.class).save(model);
+
+FlowManager.getModelAdapter(SomeTable.class).insert(model);
+
+FlowManager.getModelAdapter(SomeTable.class).update(model);
+
 model.insert(); // inserts
 model.update(); // updates
 model.save(); // checks if exists, if true update, else insert.
 
 ```
 
-Code like this should be avoided:
+Code (without running in a transaction) like this should be avoided:
 
 ```java
 
@@ -26,6 +32,8 @@ for (int i = 0; i < models.size(), i++) {
 }
 
 ```
+
+Doing operations on the main thread can block it if you read and write to the DB on a different thread while accessing DB on the main.
 
 ## Synchronous Transactions
 

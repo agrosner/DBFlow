@@ -10,7 +10,7 @@ import java.util.ListIterator;
 /**
  * Description: Provides iteration capabilitie to a {@link FlowCursorList}.
  */
-public class FlowCursorIterator<TModel extends Model> implements ListIterator<TModel> {
+public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
 
     private final IFlowCursorIterator<TModel> cursorList;
     private int reverseIndex;

@@ -89,41 +89,7 @@ To read more on transactions and subclassing `BaseTransactionManager` go [here](
 
 ## Create Models
 
-All your database tables _must_ implement `Model`, which is simply an interface:
-
-```java
-
-public interface Model {
-
-    /**
-     * Saves the object in the DB.
-     */
-    void save();
-
-    /**
-     * Deletes the object in the DB
-     */
-    void delete();
-
-    /**
-     * Updates an object in the DB. Does not insert on failure.
-     */
-    void update();
-
-    /**
-     * Inserts the object into the DB
-     */
-    void insert();
-
-    /**
-     * @return true if this object exists in the DB. It combines all of it's primary key fields
-     * into a SELECT query and checks to see if any results occur.
-     */
-    boolean exists();
-
-```
-
-As a convenience (and recommended for most uses), you should extend `BaseModel`, which provides the default implementation. If for some reason you must implement `Model`, you should reference its implementation. **Also** you don't need to directly extend `BaseModel`, in fact you can extend other tables to combine their columns. However those fields must be package-private, public, or private with accessible java-bean getters and setters.
+Creating models are as simple as defining the model class, and adding the `@Table` annotation.
 To read more on this, read [here](/usage2/Models.md).
 
 An example:
@@ -132,7 +98,7 @@ An example:
 
 
 @Table(database = TestDatabase.class)
-public class Currency extends BaseModel {
+public class Currency {
 
     @PrimaryKey(autoincrement = true)
     long id; // package-private recommended, not required

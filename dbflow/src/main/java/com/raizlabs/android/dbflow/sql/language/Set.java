@@ -7,13 +7,13 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
-public class Set<TModel extends Model> extends BaseQueriable<TModel> implements WhereBase<TModel>, Queriable, Transformable<TModel> {
+public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TModel>,
+        Queriable, Transformable<TModel> {
 
     private ConditionGroup conditionGroup;
 
@@ -111,6 +111,16 @@ public class Set<TModel extends Model> extends BaseQueriable<TModel> implements 
     @Override
     public long count(DatabaseWrapper databaseWrapper) {
         return where().count(databaseWrapper);
+    }
+
+    @Override
+    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+        return where().executeUpdateDelete(databaseWrapper);
+    }
+
+    @Override
+    public long executeUpdateDelete() {
+        return where().executeUpdateDelete();
     }
 
     @Override

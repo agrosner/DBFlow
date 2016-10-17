@@ -30,11 +30,11 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
         }
     };
 
-    public Property(Class<? extends Model> table, NameAlias nameAlias) {
+    public Property(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public Property(Class<? extends Model> table, String columnName) {
+    public Property(Class<?> table, String columnName) {
         super(table, null);
         if (columnName != null) {
             nameAlias = new NameAlias.Builder(columnName).build();
@@ -121,6 +121,11 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
     @Override
     public Condition like(String value) {
         return column(getNameAlias()).like(value);
+    }
+
+    @Override
+    public Condition notLike(String value) {
+        return column(getNameAlias()).notLike(value);
     }
 
     @Override

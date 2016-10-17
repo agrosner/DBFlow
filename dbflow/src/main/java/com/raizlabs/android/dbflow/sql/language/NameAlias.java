@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.sql.language;
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 
 /**
  * Description: Rewritten from the ground up, this class makes it easier to build an alias.
@@ -158,7 +157,7 @@ public class NameAlias implements Query {
     }
 
     /**
-     * @return The value used as a key in a {@link ModelContainer}. Uses either the {@link #aliasNameRaw()}
+     * @return The value used as a key. Uses either the {@link #aliasNameRaw()}
      * or the {@link #nameRaw()}, depending on what's specified.
      */
     public String getNameAsKey() {

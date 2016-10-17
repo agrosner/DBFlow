@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.config;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
+import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
@@ -16,7 +16,6 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
-import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.HashSet;
@@ -63,7 +62,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
 
-    public static String getTableName(Class<? extends Model> table) {
+    public static String getTableName(Class<?> table) {
         ModelAdapter modelAdapter = getModelAdapter(table);
         String tableName = null;
         if (modelAdapter == null) {
@@ -83,13 +82,13 @@ public class FlowManager {
      * @param tableName    The name of the table in the DB.
      * @return The associated table class for the specified name.
      */
-    public static Class<? extends Model> getTableClassForName(String databaseName, String tableName) {
+    public static Class<?> getTableClassForName(String databaseName, String tableName) {
         DatabaseDefinition databaseDefinition = getDatabase(databaseName);
         if (databaseDefinition == null) {
             throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
                     "Did you forget to add the @Database?", databaseName));
         }
-        Class<? extends Model> modelClass = databaseDefinition.getModelClassForName(tableName);
+        Class<?> modelClass = databaseDefinition.getModelClassForName(tableName);
         if (modelClass == null) {
             throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
                             "Did you forget to add the @Table annotation and point it to %1s?",
@@ -102,7 +101,7 @@ public class FlowManager {
      * @param table The table to lookup the database for.
      * @return the corresponding {@link DatabaseDefinition} for the specified model
      */
-    public static DatabaseDefinition getDatabaseForTable(Class<? extends Model> table) {
+    public static DatabaseDefinition getDatabaseForTable(Class<?> table) {
         DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabaseForTable(table);
         if (databaseDefinition == null) {
             throw new InvalidDBConfiguration("Model object: " + table.getName() +
@@ -120,7 +119,7 @@ public class FlowManager {
         return databaseDefinition;
     }
 
-    public static DatabaseWrapper getWritableDatabaseForTable(Class<? extends Model> table) {
+    public static DatabaseWrapper getWritableDatabaseForTable(Class<?> table) {
         return getDatabaseForTable(table).getWritableDatabase();
     }
 
@@ -217,6 +216,16 @@ public class FlowManager {
     }
 
     /**
+     * Helper method to simplify the {@link #init(FlowConfig)}. Use {@link #init(FlowConfig)} to provide
+     * more customization.
+     *
+     * @param context - should be application context, but not necessary as we retrieve it anyways.
+     */
+    public static void init(@NotNull Context context) {
+        init(new FlowConfig.Builder(context).build());
+    }
+
+    /**
      * Initializes DBFlow, loading the main application Database holder via reflection one time only.
      * This will trigger all creations, updates, and instantiation for each database defined.
      *
@@ -282,12 +291,12 @@ public class FlowManager {
      * it checks both the {@link ModelViewAdapter} and {@link QueryModelAdapter}.
      */
     @SuppressWarnings("unchecked")
-    public static InstanceAdapter getInstanceAdapter(Class<? extends Model> modelClass) {
+    public static InstanceAdapter getInstanceAdapter(Class<?> modelClass) {
         InstanceAdapter internalAdapter = getModelAdapter(modelClass);
         if (internalAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getModelViewAdapter(
-                        (Class<? extends BaseModelView<? extends Model>>) modelClass);
+                        (Class<? extends BaseModelView<?>>) modelClass);
             } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getQueryModelAdapter(
                         (Class<? extends BaseQueryModel>) modelClass);
@@ -305,20 +314,8 @@ public class FlowManager {
      * We strongly prefer you use the built-in methods associated with {@link Model} and {@link BaseModel}.
      */
     @SuppressWarnings("unchecked")
-    public static <TModel extends Model> ModelAdapter<TModel> getModelAdapter(Class<TModel> modelClass) {
+    public static <TModel> ModelAdapter<TModel> getModelAdapter(Class<TModel> modelClass) {
         return FlowManager.getDatabaseForTable(modelClass).getModelAdapterForTable(modelClass);
-    }
-
-    /**
-     * @param modelClass The class of the table
-     * @param <TModel>   The class that implements {@link Model}
-     * @return the container adapter for the specified table. These are only generated when you specify {@link ModelContainer}
-     * in your model class so it can be used for containers. These are not generated by default as a means to keep app size down.
-     */
-    @SuppressWarnings("unchecked")
-    public static <TModel extends Model> ModelContainerAdapter<TModel> getContainerAdapter(
-            Class<TModel> modelClass) {
-        return FlowManager.getDatabaseForTable(modelClass).getModelContainerAdapterForTable(modelClass);
     }
 
     /**
@@ -329,7 +326,7 @@ public class FlowManager {
      * @return The model view adapter for the specified model view.
      */
     @SuppressWarnings("unchecked")
-    public static <TModelView extends BaseModelView<? extends Model>> ModelViewAdapter<? extends Model, TModelView> getModelViewAdapter(
+    public static <TModelView extends BaseModelView<?>> ModelViewAdapter<?, TModelView> getModelViewAdapter(
             Class<TModelView> modelViewClass) {
         return FlowManager.getDatabaseForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
     }

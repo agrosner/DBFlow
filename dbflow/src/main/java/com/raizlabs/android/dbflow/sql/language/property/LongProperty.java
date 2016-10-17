@@ -14,15 +14,15 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class LongProperty extends BaseProperty<LongProperty> {
 
-    public LongProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public LongProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public LongProperty(Class<? extends Model> table, String columnName) {
+    public LongProperty(Class<?> table, String columnName) {
         this(table, new NameAlias.Builder(columnName).build());
     }
 
-    public LongProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public LongProperty(Class<?> table, String columnName, String aliasName) {
         this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 
@@ -101,6 +101,10 @@ public class LongProperty extends BaseProperty<LongProperty> {
 
     public Condition like(long value) {
         return column(nameAlias).like(String.valueOf(value));
+    }
+
+    public Condition notLike(long value) {
+        return column(nameAlias).notLike(String.valueOf(value));
     }
 
     public Condition glob(long value) {

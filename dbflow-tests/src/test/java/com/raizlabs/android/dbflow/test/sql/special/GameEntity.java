@@ -7,16 +7,12 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
-@ModelContainer
 @Table(name = GameEntity.NAME, database = TestDatabase.class)
 public class GameEntity extends BaseModel {
 
@@ -27,13 +23,13 @@ public class GameEntity extends BaseModel {
     Long id;
 
     @NotNull(onNullConflict = ConflictAction.ROLLBACK)
-    @ForeignKey(saveForeignKeyModel = false,
+    @ForeignKey(
             onDelete = ForeignKeyAction.CASCADE,
             references = @ForeignKeyReference(columnName = "MATCH_ID",
                     foreignKeyColumnName = "ID",
                     columnType = Long.class,
                     referencedFieldIsPackagePrivate = true))
-    ForeignKeyContainer<MatchEntity> match;
+    MatchEntity match;
 
     public GameEntity(@NonNull final MatchEntity match) {
         setMatch(match);
@@ -50,10 +46,10 @@ public class GameEntity extends BaseModel {
     @NonNull
     @SuppressWarnings("ConstantConditions")
     public MatchEntity getMatch() {
-        return match.load();
+        return match;
     }
 
     public void setMatch(@NonNull final MatchEntity match) {
-        this.match = FlowManager.getContainerAdapter(MatchEntity.class).toForeignKeyContainer(match);
+        this.match = match;
     }
 }

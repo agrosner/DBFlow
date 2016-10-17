@@ -36,7 +36,7 @@ public class SQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A new UPDATE statement.
      */
-    public static <TModel extends Model> Update<TModel> update(Class<TModel> table) {
+    public static <TModel> Update<TModel> update(Class<TModel> table) {
         return new Update<>(table);
     }
 
@@ -45,7 +45,7 @@ public class SQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A new INSERT statement.
      */
-    public static <TModel extends Model> Insert<TModel> insert(Class<TModel> table) {
+    public static <TModel> Insert<TModel> insert(Class<TModel> table) {
         return new Insert<>(table);
     }
 
@@ -63,7 +63,7 @@ public class SQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A {@link From} with specified DELETE on table.
      */
-    public static <TModel extends Model> From<TModel> delete(Class<TModel> table) {
+    public static <TModel> From<TModel> delete(Class<TModel> table) {
         return delete().from(table);
     }
 
@@ -74,7 +74,7 @@ public class SQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A new INDEX statement.
      */
-    public static <TModel extends Model> Index<TModel> index(String name) {
+    public static <TModel> Index<TModel> index(String name) {
         return new Index<>(name);
     }
 

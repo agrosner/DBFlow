@@ -29,10 +29,10 @@ val Short.property: ShortProperty
 val Byte.property: ByteProperty
     get() = PropertyFactory.from(this)
 
-val <T> T.property: Property<T>
+val <T : Any> T.property: Property<T>
     get() = PropertyFactory.from(this)
 
-val <T : Model> ModelQueriable<T>.property: Property<T>
+val <T : Any> ModelQueriable<T>.property: Property<T>
     get() = PropertyFactory.from(this)
 
 inline fun <reified T : Any> T.propertyString(stringRepresentation: String?): Property<T> {

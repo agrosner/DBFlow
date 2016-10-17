@@ -47,6 +47,17 @@ public class BaseModel implements Model {
 
     @SuppressWarnings("unchecked")
     @Override
+    public void load() {
+        getModelAdapter().load(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void load(DatabaseWrapper databaseWrapper) {
+        getModelAdapter().load(this, databaseWrapper);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public void save() {
         getModelAdapter().save(this);
     }
@@ -80,8 +91,8 @@ public class BaseModel implements Model {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void insert() {
-        getModelAdapter().insert(this);
+    public long insert() {
+        return getModelAdapter().insert(this);
     }
 
     @SuppressWarnings("unchecked")

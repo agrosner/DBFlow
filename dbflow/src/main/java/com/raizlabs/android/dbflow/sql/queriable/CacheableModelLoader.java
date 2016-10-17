@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.cache.ModelCache;
  * Description: Loads model data that is backed by a {@link ModelCache}. Used when {@link Table#cachingEnabled()}
  * is true.
  */
-public class CacheableModelLoader<TModel extends Model> extends SingleModelLoader<TModel> {
+public class CacheableModelLoader<TModel> extends SingleModelLoader<TModel> {
 
     private ModelAdapter<TModel> modelAdapter;
     private ModelCache<TModel, ?> modelCache;

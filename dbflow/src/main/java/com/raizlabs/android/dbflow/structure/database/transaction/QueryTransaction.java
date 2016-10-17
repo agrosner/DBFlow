@@ -13,14 +13,14 @@ import java.util.List;
 /**
  * Description: Provides an easy way to query for data asynchronously.
  */
-public class QueryTransaction<TResult extends Model> implements ITransaction {
+public class QueryTransaction<TResult > implements ITransaction {
 
     /**
      * Simple interface that provides callback on result.
      *
      * @param <TResult> The result that we got from querying.
      */
-    public interface QueryResultCallback<TResult extends Model> {
+    public interface QueryResultCallback<TResult > {
 
         /**
          * Called when the query completes.
@@ -36,7 +36,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
      *
      * @param <TResult> The result that we got from querying.
      */
-    public interface QueryResultListCallback<TResult extends Model> {
+    public interface QueryResultListCallback<TResult> {
 
         /**
          * Called when the query completes.
@@ -52,7 +52,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
      *
      * @param <TResult> The result that we got from querying.
      */
-    public interface QueryResultSingleCallback<TResult extends Model> {
+    public interface QueryResultSingleCallback<TResult > {
 
         /**
          * Called when the query completes.
@@ -127,7 +127,7 @@ public class QueryTransaction<TResult extends Model> implements ITransaction {
      *
      * @param <TResult>
      */
-    public static final class Builder<TResult extends Model> {
+    public static final class Builder<TResult > {
 
         final ModelQueriable<TResult> modelQueriable;
         QueryResultCallback<TResult> queryResultCallback;

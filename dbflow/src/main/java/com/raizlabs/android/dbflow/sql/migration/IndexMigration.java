@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 /**
  * Description: Defines and enables an Index structurally through a migration.
  */
-public abstract class IndexMigration<TModel extends Model> extends BaseMigration {
+public abstract class IndexMigration<TModel> extends BaseMigration {
 
     /**
      * The table to index on

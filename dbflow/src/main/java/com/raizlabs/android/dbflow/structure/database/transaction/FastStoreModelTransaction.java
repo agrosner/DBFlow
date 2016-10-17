@@ -16,9 +16,9 @@ import java.util.List;
  * {@link Model}, except that it performs it as efficiently as possible. Also due to way the class operates,
  * only one kind of {@link TModel} is allowed.
  */
-public class FastStoreModelTransaction<TModel extends Model> implements ITransaction {
+public class FastStoreModelTransaction<TModel> implements ITransaction {
 
-    public static <TModel extends Model> Builder<TModel> saveBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
+    public static <TModel> Builder<TModel> saveBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
         return new Builder<>(new ProcessModelList<TModel>() {
             @Override
             public void processModel(@NonNull List<TModel> tModels, InternalAdapter<TModel> adapter, DatabaseWrapper wrapper) {
@@ -27,7 +27,7 @@ public class FastStoreModelTransaction<TModel extends Model> implements ITransac
         }, internalAdapter);
     }
 
-    public static <TModel extends Model> Builder<TModel> insertBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
+    public static <TModel> Builder<TModel> insertBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
         return new Builder<>(new ProcessModelList<TModel>() {
             @Override
             public void processModel(@NonNull List<TModel> tModels, InternalAdapter<TModel> adapter, DatabaseWrapper wrapper) {
@@ -36,7 +36,7 @@ public class FastStoreModelTransaction<TModel extends Model> implements ITransac
         }, internalAdapter);
     }
 
-    public static <TModel extends Model> Builder<TModel> updateBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
+    public static <TModel> Builder<TModel> updateBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
         return new Builder<>(new ProcessModelList<TModel>() {
             @Override
             public void processModel(@NonNull List<TModel> tModels, InternalAdapter<TModel> adapter, DatabaseWrapper wrapper) {
@@ -48,7 +48,7 @@ public class FastStoreModelTransaction<TModel extends Model> implements ITransac
     /**
      * Description: Simple interface for acting on a model in a Transaction or list of {@link Model}
      */
-    interface ProcessModelList<TModel extends Model> {
+    interface ProcessModelList<TModel> {
 
         /**
          * Called when processing models
@@ -81,7 +81,7 @@ public class FastStoreModelTransaction<TModel extends Model> implements ITransac
      *
      * @param <TModel>
      */
-    public static final class Builder<TModel extends Model> {
+    public static final class Builder<TModel> {
 
         private final ProcessModelList<TModel> processModelList;
         @NonNull private final InternalAdapter<TModel> internalAdapter;

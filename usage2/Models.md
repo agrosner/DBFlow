@@ -1,8 +1,18 @@
 # Models
 
-In DBFlow `Model` is simply an interface. No subclassing required, and inheritance
-is fully supported. As a convenience we recommend subclassing `BaseModel` on
+In DBFlow we dont have any restrictions on what your table class is. We do, however recommend you subclass `BaseModel` on
 your highest-order base-class, which provides a default implementation for you.
+
+When using regular models:
+```java
+FlowManager.getModelAdapter(MyTable.class).save(myTableObject);
+```
+
+When using `BaseModel`, it is much cleaner:
+
+```java
+myTableObject.save();
+```
 
 ## Columns
 
@@ -19,7 +29,7 @@ Here is an example of a "nice" `private` field:
 
 ```java
 @Table(database = AppDatabase.class)
-public class Dog extends BaseModel {
+public class Dog {
 
   @PrimaryKey
   private String name;
@@ -42,11 +52,11 @@ Columns have a wide-range of supported types in the `Model` classes:
   2. All java boxed primitive classes
   3. String, Date, java.sql.Date, Calendar, Blob, Boolean
   4. Custom data types via a [TypeConverter](/usage2/TypeConverters.md)
-  5. `Model`/`ModelContainer`/`ForeignKeyContainer` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
+  5. `Model` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
 
 **Unsupported Types**:
   1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
-  2. Anything that is generically typed (even with an associated `TypeConverter`), **except** `ModelContainer` and `ForeignKeyContainer` fields. If you need to include the field, subclass the generic object and provide a `TypeConverter`.
+  2. Anything that is generically typed (even with an associated `TypeConverter`). If you need to include the field, subclass the generic object and provide a `TypeConverter`.
 
 ## Inherited Columns
 
@@ -104,7 +114,7 @@ We declare the annotations as such:
 @Table(database = AppDatabase.class,
   uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.FAIL),
                         @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.ROLLBACK))
-public class UniqueModel extends BaseModel {
+public class UniqueModel {
 
   @PrimaryKey
   @Unique(unique = false, uniqueGroups = {1,2})

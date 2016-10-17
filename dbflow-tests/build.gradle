@@ -8,8 +8,8 @@ android {
 
     useLibrary 'org.apache.http.legacy'
 
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 24
+    buildToolsVersion dbflow_build_tools_version
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -17,8 +17,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 23
+        minSdkVersion 9
+        targetSdkVersion 24
         versionCode 1
         versionName "1.0"
     }
@@ -44,7 +44,7 @@ android {
 dependencies {
     kapt project(':dbflow-processor')
     compile project(':dbflow')
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
     testCompile 'com.jayway.awaitility:awaitility:1.6.5'
@@ -54,10 +54,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile "org.robolectric:robolectric:3.1"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-}
-
-android.applicationVariants.all { variant ->
-    variant.javaCompile.dependsOn ':dbflow-processor:jar'
 }
 
 android.applicationVariants.all { variant ->
@@ -73,7 +69,7 @@ android.applicationVariants.all { variant ->
 }
 
 buildscript {
-    ext.kotlin_version = '1.0.2'
+    ext.kotlin_version = '1.0.4'
     repositories {
         mavenCentral()
     }

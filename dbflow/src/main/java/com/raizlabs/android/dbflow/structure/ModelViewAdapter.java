@@ -7,8 +7,8 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 /**
  * Description: The base class for a {@link TModelView} adapter that defines how it interacts with the DB.
  */
-public abstract class ModelViewAdapter<TModel extends Model, TModelView extends BaseModelView<TModel>>
-        extends InstanceAdapter<TModelView, TModelView> {
+public abstract class ModelViewAdapter<TModel, TModelView extends BaseModelView<TModel>>
+        extends InstanceAdapter<TModelView> {
 
     public ModelViewAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);

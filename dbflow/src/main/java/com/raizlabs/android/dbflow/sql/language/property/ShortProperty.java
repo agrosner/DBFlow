@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
@@ -14,15 +13,15 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class ShortProperty extends BaseProperty<ShortProperty> {
 
-    public ShortProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public ShortProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public ShortProperty(Class<? extends Model> table, String columnName) {
+    public ShortProperty(Class<?> table, String columnName) {
         this(table, new NameAlias.Builder(columnName).build());
     }
 
-    public ShortProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public ShortProperty(Class<?> table, String columnName, String aliasName) {
         this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 
@@ -100,6 +99,10 @@ public class ShortProperty extends BaseProperty<ShortProperty> {
 
     public Condition like(short value) {
         return column(nameAlias).like(String.valueOf(value));
+    }
+
+    public Condition notLike(short value) {
+        return column(nameAlias).notLike(String.valueOf(value));
     }
 
     public Condition glob(short value) {

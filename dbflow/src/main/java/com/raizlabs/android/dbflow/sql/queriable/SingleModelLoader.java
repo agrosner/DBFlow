@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: Responsible for loading data into a single object.
  */
-public class SingleModelLoader<TModel extends Model> extends ModelLoader<TModel, TModel> {
+public class SingleModelLoader<TModel> extends ModelLoader<TModel, TModel> {
 
     public SingleModelLoader(Class<TModel> modelClass) {
         super(modelClass);

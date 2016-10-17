@@ -44,7 +44,7 @@ public class MockOnModelStateChangedListener implements FlowContentObserver.OnMo
     }
 
     @Override
-    public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
+    public void onModelStateChanged(@Nullable Class<?> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
         switch (action) {
             case CHANGE:
                 for (int i = 0; i < methodCalls.length; i++) {

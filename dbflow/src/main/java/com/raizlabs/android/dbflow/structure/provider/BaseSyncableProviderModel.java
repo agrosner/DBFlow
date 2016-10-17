@@ -14,9 +14,10 @@ public abstract class BaseSyncableProviderModel
         extends BaseModel implements ModelProvider {
 
     @Override
-    public void insert() {
-        super.insert();
+    public long insert() {
+        long rowId = super.insert();
         ContentUtils.insert(getInsertUri(), this);
+        return rowId;
     }
 
     @Override
