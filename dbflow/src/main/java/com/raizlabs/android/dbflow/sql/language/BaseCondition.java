@@ -95,34 +95,12 @@ public abstract class BaseCondition implements SQLCondition {
      * values for a query.
      *
      * @param delimiter The text to join the text with.
-     * @param tokens    an array objects to be joined. Strings will be formed from
-     *                  the objects by calling {@link #convertValueToString(Object, boolean)}.
-     * @return A joined string
-     */
-    public static String joinArguments(CharSequence delimiter, Object[] tokens) {
-        StringBuilder sb = new StringBuilder();
-        boolean firstTime = true;
-        for (Object token : tokens) {
-            if (firstTime) {
-                firstTime = false;
-            } else {
-                sb.append(delimiter);
-            }
-            sb.append(convertValueToString(token, false));
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Returns a string containing the tokens joined by delimiters and converted into the property
-     * values for a query.
-     *
-     * @param delimiter The text to join the text with.
      * @param tokens    an {@link Iterable} of objects to be joined. Strings will be formed from
      *                  the objects by calling {@link #convertValueToString(Object, boolean)}.
      * @return A joined string
      */
-    public static String joinArguments(CharSequence delimiter, Iterable tokens) {
+    public static String joinArguments(CharSequence delimiter, Iterable tokens,
+                                       BaseCondition condition) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
         for (Object token : tokens) {
@@ -131,7 +109,7 @@ public abstract class BaseCondition implements SQLCondition {
             } else {
                 sb.append(delimiter);
             }
-            sb.append(convertValueToString(token, false));
+            sb.append(condition.convertObjectToString(token, false));
         }
         return sb.toString();
     }
