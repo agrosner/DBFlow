@@ -111,9 +111,9 @@ class PrivateScopeColumnAccessor : ColumnAccessor {
     fun getGetterNameElement(): String {
         return if (getterName.isNullOrEmpty()) {
             if (propertyName != null) {
-                if (useIsForPrivateBooleans && !propertyName.startsWith("is")) {
+                if (useIsForPrivateBooleans && !propertyName.startsWith("is", ignoreCase = true)) {
                     "is" + propertyName.capitalizeFirstLetter()
-                } else if (!useIsForPrivateBooleans && !propertyName.startsWith("get")) {
+                } else if (!useIsForPrivateBooleans && !propertyName.startsWith("get", ignoreCase = true)) {
                     "get" + propertyName.capitalizeFirstLetter()
                 } else propertyName.lower()
             } else {
@@ -126,9 +126,11 @@ class PrivateScopeColumnAccessor : ColumnAccessor {
         if (propertyName != null) {
             var setElementName = propertyName
             return if (setterName.isNullOrEmpty()) {
-                if (!setElementName.startsWith("set")) {
+                if (!setElementName.startsWith("set", ignoreCase = true)) {
                     if (useIsForPrivateBooleans && setElementName.startsWith("is")) {
                         setElementName = setElementName.replaceFirst("is".toRegex(), "")
+                    } else if (useIsForPrivateBooleans && setElementName.startsWith("Is")) {
+                        setElementName = setElementName.replaceFirst("Is".toRegex(), "")
                     }
                     "set" + setElementName.capitalizeFirstLetter()
                 } else setElementName.lower()
