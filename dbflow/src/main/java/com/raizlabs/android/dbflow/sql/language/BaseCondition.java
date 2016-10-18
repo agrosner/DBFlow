@@ -14,6 +14,10 @@ import com.raizlabs.android.dbflow.sql.SqlUtils;
  */
 public abstract class BaseCondition implements SQLCondition {
 
+    public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
+        return convertValueToString(value, appendInnerQueryParenthesis, true);
+    }
+
     /**
      * Converts a value input into a String representation of that.
      * <p>
@@ -38,14 +42,17 @@ public abstract class BaseCondition implements SQLCondition {
      * @return Returns the result as a string that's safe for SQLite.
      */
     @SuppressWarnings("unchecked")
-    public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
+    public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis,
+                                              boolean typeConvert) {
         if (value == null) {
             return "NULL";
         } else {
             String stringVal;
-            TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
-            if (typeConverter != null) {
-                value = typeConverter.getDBValue(value);
+            if (typeConvert) {
+                TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+                if (typeConverter != null) {
+                    value = typeConverter.getDBValue(value);
+                }
             }
 
             if (value instanceof Number) {
@@ -215,6 +222,10 @@ public abstract class BaseCondition implements SQLCondition {
      */
     NameAlias columnAlias() {
         return nameAlias;
+    }
+
+    public String convertObjectToString(Object object, boolean appendInnerParenthesis) {
+        return convertValueToString(object, appendInnerParenthesis);
     }
 
 }

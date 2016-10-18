@@ -249,9 +249,10 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         elementTypeName?.let { elementTypeName ->
             val propParam: TypeName
-            if (!wrapperAccessor.isPrimitiveTarget()) {
-                propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, elementTypeName.box(),
-                        wrapperTypeName)
+
+            val isNonPrimitiveTypeConverter = !wrapperAccessor.isPrimitiveTarget()
+            if (isNonPrimitiveTypeConverter) {
+                propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, wrapperTypeName, elementTypeName.box())
             } else if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
                 propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, elementTypeName.toString().capitalizeFirstLetter() + "Property")
             } else {
@@ -261,7 +262,19 @@ constructor(processorManager: ProcessorManager, element: Element,
             val fieldBuilder = FieldSpec.builder(propParam,
                     columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
 
-            fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+            if (isNonPrimitiveTypeConverter) {
+                val codeBlock = CodeBlock.builder()
+                codeBlock.add("new \$T(\$T.class, \$S, true,")
+                codeBlock.add("\nnew \$T() {" +
+                        "\n@Override" +
+                        "\npublic TypeConverter getTypeConverter(Class<?> modelClass) {" +
+                        "\nreturn getter.getTypeConverter(modelClass);" +
+                        "\n}" +
+                        "\n}", ClassNames.TYPE_CONVERTER_GETTER)
+                fieldBuilder.initializer(codeBlock.build())
+            } else {
+                fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+            }
             if (isPrimaryKey) {
                 fieldBuilder.addJavadoc("Primary Key")
             } else if (isPrimaryKeyAutoIncrement) {

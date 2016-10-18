@@ -247,7 +247,7 @@ class PrimaryReferenceAccessCombiner(combiner: Combiner)
                          modelBlock: CodeBlock) {
         val wrapperLevelAccessor = this.combiner.wrapperLevelAccessor
         code.addStatement("clause.and(\$L.\$Leq(\$L))", columnRepresentation,
-                if (!wrapperLevelAccessor.isPrimitiveTarget()) "databaseProperty()." else "",
+                if (!wrapperLevelAccessor.isPrimitiveTarget()) "invertProperty()." else "",
                 getFieldAccessBlock(code, modelBlock, wrapperLevelAccessor !is BooleanColumnAccessor))
     }
 
