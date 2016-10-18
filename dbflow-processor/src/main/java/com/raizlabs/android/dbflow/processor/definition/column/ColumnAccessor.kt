@@ -224,7 +224,9 @@ class EnumColumnAccessor(val propertyTypeName: TypeName,
                      isDefault: Boolean): CodeBlock {
         return appendAccess {
             if (isDefault) add(existingBlock)
-            else add("\$T.valueOf(\$L)", propertyTypeName, existingBlock)
+            else {
+                add("\$T.valueOf(\$L)", propertyTypeName, existingBlock)
+            }
         }
     }
 

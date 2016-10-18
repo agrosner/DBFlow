@@ -216,12 +216,27 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
             val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
                     SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
             if (wrapperLevelAccessor != null) {
+                // special case where we need to append try catch hack
+                val isEnum = wrapperLevelAccessor is EnumColumnAccessor
+                if (isEnum) {
+                    code.beginControlFlow("try")
+                }
                 if (subWrapperAccessor != null) {
                     code.addStatement(fieldLevelAccessor.set(
                             wrapperLevelAccessor.set(subWrapperAccessor.set(cursorAccess)), modelBlock))
                 } else {
                     code.addStatement(fieldLevelAccessor.set(
                             wrapperLevelAccessor.set(cursorAccess), modelBlock))
+                }
+                if (isEnum) {
+                    code.nextControlFlow("catch (\$T i)", IllegalArgumentException::class.java)
+                    if (assignDefaultValuesFromCursor) {
+                        code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
+                                isDefault = true), modelBlock))
+                    } else {
+                        code.addStatement(fieldLevelAccessor.set(defaultValue, modelBlock))
+                    }
+                    code.endControlFlow()
                 }
             } else {
                 code.addStatement(fieldLevelAccessor.set(cursorAccess, modelBlock))
