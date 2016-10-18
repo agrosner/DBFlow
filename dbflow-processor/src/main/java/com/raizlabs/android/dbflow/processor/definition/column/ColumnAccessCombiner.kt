@@ -74,8 +74,9 @@ class ExistenceAccessCombiner(combiner: Combiner,
                          defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
 
         combiner.apply {
-            val access = getFieldAccessBlock(code, modelBlock)
             if (autoRowId) {
+                val access = getFieldAccessBlock(code, modelBlock)
+
                 code.add("return ")
 
                 if (!fieldTypeName.isPrimitive) {
