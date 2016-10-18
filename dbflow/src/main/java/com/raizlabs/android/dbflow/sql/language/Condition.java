@@ -444,7 +444,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
     @Override
     public String convertObjectToString(Object object, boolean appendInnerParenthesis) {
         if (typeConverter != null) {
-            Object converted = convertToDB ? typeConverter.getDBValue(object) : typeConverter.getModelValue(object);
+            Object converted = convertToDB ? typeConverter.getDBValue(object) : object;
             return BaseCondition.convertValueToString(converted, appendInnerParenthesis, false);
         } else {
             return super.convertObjectToString(object, appendInnerParenthesis);
