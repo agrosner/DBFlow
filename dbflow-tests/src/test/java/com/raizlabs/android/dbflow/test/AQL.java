@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.test.sql.BoxedModel;
 
 import java.util.Date;
 
-@Table(database = TestDatabase.class, name = AQL.ENDPOINT)
+@Table(database = TestDatabase.class, name = AQL.ENDPOINT, cachingEnabled = true)
 public class AQL extends BaseModel {
 
     public static final String ENDPOINT = "AQL";
