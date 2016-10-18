@@ -57,6 +57,8 @@ public abstract class BaseCondition implements SQLCondition {
 
             if (value instanceof Number) {
                 stringVal = String.valueOf(value);
+            } else if (value instanceof Enum) {
+                stringVal = ((Enum) value).name();
             } else {
                 if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
                     stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());

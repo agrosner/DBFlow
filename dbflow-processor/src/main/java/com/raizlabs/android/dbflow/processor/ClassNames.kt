@@ -48,7 +48,8 @@ object ClassNames {
     val QUERY = ClassName.get(SQL, "Query")
 
     val TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter")
-    val TYPE_CONVERTER_GETTER: ClassName = ClassName.get(CONVERTER, "TypeConverterGetter")
+    val TYPE_CONVERTER_GETTER: ClassName = ClassName.get(PROPERTY_PACKAGE,
+            "TypeConvertedProperty.TypeConverterGetter")
 
     val MIGRATION = ClassName.get(MIGRATION_PACKAGE, "Migration")
 
@@ -61,6 +62,7 @@ object ClassNames {
 
     val PROPERTY = ClassName.get(PROPERTY_PACKAGE, "Property")
     val TYPE_CONVERTED_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "TypeConvertedProperty")
+    val WRAPPER_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "WrapperProperty")
 
     val IPROPERTY = ClassName.get(PROPERTY_PACKAGE, "IProperty")
     val BASE_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "BaseProperty")
