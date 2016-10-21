@@ -266,12 +266,14 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                     continue
                 }
 
-                val validator = ContentProviderValidator()
-                val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
-                contentProviderDefinitions.forEach { contentProviderDefinition ->
-                    contentProviderDefinition.prepareForWrite()
-                    if (validator.validate(processorManager, contentProviderDefinition)) {
-                        WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager)
+                if (roundEnvironment.processingOver()) {
+                    val validator = ContentProviderValidator()
+                    val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
+                    contentProviderDefinitions.forEach { contentProviderDefinition ->
+                        contentProviderDefinition.prepareForWrite()
+                        if (validator.validate(processorManager, contentProviderDefinition)) {
+                            WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager)
+                        }
                     }
                 }
 
