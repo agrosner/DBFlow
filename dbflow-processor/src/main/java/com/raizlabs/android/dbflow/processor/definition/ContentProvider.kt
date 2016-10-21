@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.TableEndpointValidator
 import com.raizlabs.android.dbflow.processor.utils.controlFlow
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.*
 import javax.lang.model.element.*
 import javax.lang.model.type.MirroredTypeException
@@ -388,9 +387,6 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
-        typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java), AUTHORITY,
-                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL).initializer("\$S", authority).build())
-
         var code = 0
         for (endpointDefinition in endpointDefinitions) {
             endpointDefinition.contentUriDefinitions.forEach {
@@ -402,10 +398,20 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
         }
 
         val uriField = FieldSpec.builder(ClassNames.URI_MATCHER, URI_MATCHER,
-                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                Modifier.PRIVATE, Modifier.FINAL)
+                .initializer("new \$T(\$T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER)
 
-        val initializer = CodeBlock.builder().addStatement("new \$T(\$T.NO_MATCH)", ClassNames.URI_MATCHER,
-                ClassNames.URI_MATCHER).add("static {\n")
+        typeBuilder.addField(uriField.build())
+
+        val onCreate = MethodSpec.methodBuilder("onCreate")
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .returns(TypeName.BOOLEAN)
+                .addStatement("final \$T $AUTHORITY = \$L", String::class.java,
+                    if (authority.contains("R.string."))
+                        "getContext().getString($authority)"
+                    else
+                        "\"$authority\"")
 
         for (endpointDefinition in endpointDefinitions) {
             endpointDefinition.contentUriDefinitions.forEach {
@@ -416,12 +422,12 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
                     path = CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
                             it.name).build().toString()
                 }
-                initializer.addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY,
-                        path, it.name)
+                onCreate.addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY, path, it.name)
             }
         }
-        initializer.add("}\n")
-        typeBuilder.addField(uriField.initializer(initializer.build()).build())
+
+        onCreate.addStatement("return super.onCreate()")
+        typeBuilder.addMethod(onCreate.build())
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
                 .addAnnotation(Override::class.java)
