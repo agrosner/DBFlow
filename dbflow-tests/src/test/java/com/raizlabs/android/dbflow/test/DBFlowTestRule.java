@@ -30,7 +30,6 @@ public class DBFlowTestRule implements TestRule {
                 try {
                     base.evaluate();
                 } finally {
-                    FlowManager.reset();
                     FlowManager.destroy();
                 }
             }
