@@ -143,19 +143,32 @@ public class SqlUtils {
     /**
      * Drops an active TRIGGER by specifying the onTable and triggerName
      *
-     * @param mOnTable    The table that this trigger runs on
+     * @param onTable     The table that this trigger runs on
      * @param triggerName The name of the trigger
      */
-    public static void dropTrigger(Class<?> mOnTable, String triggerName) {
+    public static void dropTrigger(Class<?> onTable, String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
             .append(triggerName);
-        FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
+        FlowManager.getDatabaseForTable(onTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 
     /**
-     * Drops an active INDEX by specifying the onTable and indexName
+     * Drops an active TRIGGER by specifying the databaseWrapper and triggerName
      *
-     * @param indexName The name of the index.
+     * @param databaseWrapper The manually specified wrapper.
+     * @param triggerName     The name of the trigger
+     */
+    public static void dropTrigger(DatabaseWrapper databaseWrapper, String triggerName) {
+        QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
+            .append(triggerName);
+        databaseWrapper.execSQL(queryBuilder.getQuery());
+    }
+
+    /**
+     * Drops an active INDEX by specifying the databaseWrapper and indexName
+     *
+     * @param databaseWrapper The manually specified wrapper.
+     * @param indexName       The name of the index.
      */
     public static void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
@@ -163,6 +176,12 @@ public class SqlUtils {
         databaseWrapper.execSQL(queryBuilder.getQuery());
     }
 
+    /**
+     * Drops an active INDEX by specifying the onTable and indexName
+     *
+     * @param onTable   The table that this trigger runs on
+     * @param indexName The name of the index.
+     */
     public static void dropIndex(Class<?> onTable, String indexName) {
         dropIndex(FlowManager.getDatabaseForTable(onTable).getWritableDatabase(), indexName);
     }
