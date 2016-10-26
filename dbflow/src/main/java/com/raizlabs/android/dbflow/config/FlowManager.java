@@ -278,6 +278,12 @@ public class FlowManager {
      * Release reference to context and {@link FlowConfig}
      */
     public static synchronized void destroy() {
+        Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet = globalDatabaseHolder.databaseClassLookupMap.entrySet();
+        for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
+            value.getValue().getTransactionManager().stopQueue();
+            value.getValue().getHelper().closeDB();
+        }
+
         config = null;
 
         // Reset the global database holder.
