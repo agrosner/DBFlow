@@ -159,7 +159,8 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
                 DateConverter::class.java, SqlDateConverter::class.java,
-                BooleanConverter::class.java, UUIDConverter::class.java)
+                BooleanConverter::class.java, UUIDConverter::class.java,
+                BigDecimalConverter::class.java)
     }
 }
 
