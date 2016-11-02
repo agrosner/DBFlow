@@ -49,6 +49,7 @@ class ForeignKeyReferenceDefinition {
     private val foreignKeyColumnDefinition: ForeignKeyColumnDefinition
 
     constructor(manager: ProcessorManager, foreignKeyFieldName: String,
+                foreignKeyElementName: String,
                 referencedColumn: ColumnDefinition,
                 foreignKeyColumnDefinition: ForeignKeyColumnDefinition,
                 referenceCount: Int) {
@@ -80,7 +81,7 @@ class ForeignKeyReferenceDefinition {
         val packageName = referencedColumn.packageName
         val name = ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName()
 
-        createScopes(foreignKeyColumnDefinition, foreignKeyFieldName, object : GetterSetter {
+        createScopes(foreignKeyColumnDefinition, foreignKeyElementName, object : GetterSetter {
             override val getterName: String = referencedColumn.column?.getterName ?: ""
             override val setterName: String = referencedColumn.column?.setterName ?: ""
         }, name, packageName)
