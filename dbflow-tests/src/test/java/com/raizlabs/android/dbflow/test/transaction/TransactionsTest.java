@@ -128,7 +128,8 @@ public class TransactionsTest extends FlowTestCase {
                         .where(TestModel1_Table.name.like("%test1"))
         ).queryResult(new QueryTransaction.QueryResultCallback<TestModel1>() {
             @Override
-            public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
+            public void onQueryResult(QueryTransaction<TestModel1> transaction,
+                                      @NonNull CursorResult<TestModel1> tResult) {
                 List<TestModel1> results = tResult.toList();
                 assertEquals(results.size(), 2);
                 called.set(true);

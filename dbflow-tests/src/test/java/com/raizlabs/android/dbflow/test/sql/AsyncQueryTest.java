@@ -31,7 +31,8 @@ public class AsyncQueryTest extends FlowTestCase {
                 .async()
                 .queryResultCallback(new QueryTransaction.QueryResultCallback<TestModel1>() {
                     @Override
-                    public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
+                    public void onQueryResult(QueryTransaction<TestModel1> transaction,
+                                              @NonNull CursorResult<TestModel1> tResult) {
 
                     }
                 }).execute();
