@@ -269,7 +269,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
 
             queryBuilder.append(" VALUES(");
             for (int i = 0; i < valuesList.size(); i++) {
-                if (i > 1) {
+                if (i > 0) {
                     queryBuilder.append(",(");
                 }
                 queryBuilder.appendModelArray(valuesList.get(i)).append(")");

@@ -49,9 +49,9 @@ public class EnumModelTest extends FlowTestCase {
         hard.save();
 
         EnumModel result = SQLite.select()
-            .from(EnumModel.class)
-            .where(EnumModel_Table.difficulty.eq(EnumModel.Difficulty.MEDIUM))
-            .querySingle();
+                .from(EnumModel.class)
+                .where(EnumModel_Table.difficulty.eq(EnumModel.Difficulty.MEDIUM))
+                .querySingle();
 
         assertNotNull(result);
         assertEquals(result.id, medium.id);
@@ -76,10 +76,10 @@ public class EnumModelTest extends FlowTestCase {
         hard.save();
 
         List<EnumModel> result = SQLite.select()
-            .from(EnumModel.class)
-            .where(EnumModel_Table.difficulty.in(EnumModel.Difficulty.MEDIUM, EnumModel.Difficulty.HARD))
-            .orderBy(OrderBy.fromProperty(EnumModel_Table.difficulty).ascending())
-            .queryList();
+                .from(EnumModel.class)
+                .where(EnumModel_Table.difficulty.in(EnumModel.Difficulty.MEDIUM, EnumModel.Difficulty.HARD))
+                .orderBy(OrderBy.fromProperty(EnumModel_Table.id).ascending())
+                .queryList();
 
         assertNotNull(result);
         assertEquals(result.get(0).id, medium.id);
