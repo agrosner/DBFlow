@@ -60,7 +60,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             setOutputClassName(databaseName + classSeparator + "Database")
 
             databaseVersion = database.version
-            foreignKeysSupported = database.foreignKeysSupported
+            foreignKeysSupported = database.foreignKeyConstraintsEnforced
 
             insertConflict = database.insertConflict
             updateConflict = database.updateConflict

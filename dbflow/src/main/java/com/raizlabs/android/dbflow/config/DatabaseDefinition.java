@@ -250,7 +250,7 @@ public abstract class DatabaseDefinition {
     public abstract boolean areConsistencyChecksEnabled();
 
     /**
-     * @return True if the {@link Database#foreignKeysSupported()} annotation is true.
+     * @return True if the {@link Database#foreignKeyConstraintsEnforced()} annotation is true.
      */
     public abstract boolean isForeignKeysSupported();
 
