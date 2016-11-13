@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.ListView;
 
@@ -333,10 +334,8 @@ public class FlowCursorList<TModel> implements
             this.modelClass = modelClass;
         }
 
-        public Builder(@Nullable ModelQueriable<TModel> modelQueriable) {
-            if (modelQueriable != null) {
-                this.modelClass = modelQueriable.getTable();
-            }
+        public Builder(@NonNull ModelQueriable<TModel> modelQueriable) {
+            this.modelClass = modelQueriable.getTable();
             modelQueriable(modelQueriable);
         }
 
