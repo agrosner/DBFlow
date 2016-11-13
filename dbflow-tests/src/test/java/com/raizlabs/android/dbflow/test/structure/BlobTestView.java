@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.test.TestDatabase;
 
 @ModelView(database = TestDatabase.class, priority = 2)
-public class BlobTestView extends BaseModelView<BlobTestView.DataTable> {
+public class BlobTestView extends BaseModelView {
 
     @ModelViewQuery
     public static final Query QUERY = new Select(DataTable_Table.data).from(DataTable.class);

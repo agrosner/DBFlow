@@ -245,9 +245,9 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             try {
 
                 if (databaseHolderDefinition.databaseDefinition == null) {
-                    manager.logError("Found null db with: %1s tables, %1s modelviews. " + "Attempt to rebuild project should fix this intermittant issue.",
-                            databaseHolderDefinition.tableNameMap.values.size,
-                            databaseHolderDefinition.modelViewDefinitionMap.values.size)
+                    manager.logError("Found null db with: ${databaseHolderDefinition.tableNameMap.values.size} tables," +
+                            " ${databaseHolderDefinition.modelViewDefinitionMap.values.size} modelviews. " +
+                            "Attempt to rebuild project should fix this intermittant issue.")
                     manager.logError("Found tables: " + databaseHolderDefinition.tableNameMap.values)
                     continue
                 }
@@ -266,12 +266,14 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                     continue
                 }
 
-                val validator = ContentProviderValidator()
-                val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
-                contentProviderDefinitions.forEach { contentProviderDefinition ->
-                    contentProviderDefinition.prepareForWrite()
-                    if (validator.validate(processorManager, contentProviderDefinition)) {
-                        WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager)
+                if (roundEnvironment.processingOver()) {
+                    val validator = ContentProviderValidator()
+                    val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
+                    contentProviderDefinitions.forEach { contentProviderDefinition ->
+                        contentProviderDefinition.prepareForWrite()
+                        if (validator.validate(processorManager, contentProviderDefinition)) {
+                            WriterUtils.writeBaseDefinition(contentProviderDefinition, processorManager)
+                        }
                     }
                 }
 

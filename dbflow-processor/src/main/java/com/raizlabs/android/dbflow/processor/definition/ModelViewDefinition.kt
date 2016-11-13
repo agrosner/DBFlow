@@ -12,7 +12,6 @@ import com.squareup.javapoet.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.MirroredTypeException
 
 /**
@@ -27,8 +26,6 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     private var queryFieldName: String? = null
 
     private var name: String? = null
-
-    private var modelReferenceClass: ClassName? = null
 
     private val methods: Array<MethodDefinition>
 
@@ -53,24 +50,6 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 name = modelClassName
             }
             this.priority = modelView.priority
-        }
-
-        var typeAdapterInterface: DeclaredType? = null
-        val modelViewType = manager.typeUtils.getDeclaredType(
-                manager.elements.getTypeElement(ClassNames.MODEL_VIEW.toString()),
-                manager.typeUtils.getWildcardType(manager.elements.getTypeElement(ClassName.OBJECT.toString()).asType(), null))
-
-
-        for (superType in manager.typeUtils.directSupertypes(element.asType())) {
-            if (manager.typeUtils.isAssignable(superType, modelViewType)) {
-                typeAdapterInterface = superType as DeclaredType
-                break
-            }
-        }
-
-        if (typeAdapterInterface != null) {
-            val typeArguments = typeAdapterInterface.typeArguments
-            modelReferenceClass = ClassName.get(manager.elements.getTypeElement(typeArguments[0].toString()))
         }
 
         if (element is TypeElement) {
@@ -164,7 +143,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         get() = outputClassName
 
     override val extendsClass: TypeName?
-        get() = ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, modelReferenceClass, elementClassName)
+        get() = ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 

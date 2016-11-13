@@ -47,8 +47,10 @@ public abstract class RetrievalAdapter<TModel> {
 
     public void load(TModel model, DatabaseWrapper databaseWrapper) {
         getSingleModelLoader().load(databaseWrapper,
-                SQLite.select().from(getModelClass())
-                        .where(getPrimaryConditionClause(model)).getQuery());
+                SQLite.select()
+                        .from(getModelClass())
+                        .where(getPrimaryConditionClause(model)).getQuery(),
+                model);
     }
 
     /**

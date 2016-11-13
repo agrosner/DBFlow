@@ -52,6 +52,34 @@ public class InsertTest extends FlowTestCase {
     }
 
     @Test
+    public void testInsertMultipleValues() {
+        Delete.table(InsertModel.class);
+
+        Insert<InsertModel> insert = SQLite.insert(InsertModel.class).orFail()
+            .columnValues(InsertModel_Table.name.eq("Test"), InsertModel_Table.value.eq("Test1"))
+            .columnValues(InsertModel_Table.name.eq("Test2"), InsertModel_Table.value.eq("Test3"));
+
+        assertEquals("INSERT OR FAIL INTO `InsertModel`(`name`, `value`) VALUES('Test','Test1'),('Test2','Test3')", insert.getQuery());
+
+        FlowManager.getWritableDatabase(TestDatabase.class).execSQL(insert.getQuery());
+
+        InsertModel model = new Select().from(InsertModel.class)
+            .where(InsertModel_Table.name.is("Test")).querySingle();
+        assertNotNull(model);
+
+        insert = SQLite.insert(InsertModel.class).orAbort()
+            .values("Test2", "Test3")
+            .values("Test4", "Test5");
+        assertEquals("INSERT OR ABORT INTO `InsertModel` VALUES('Test2','Test3'),('Test4','Test5')", insert.getQuery());
+
+        FlowManager.getWritableDatabase(TestDatabase.NAME).execSQL(insert.getQuery());
+
+        model = new Select().from(InsertModel.class)
+            .where(InsertModel_Table.name.is("Test3")).querySingle();
+        assertNotNull(model);
+    }
+
+    @Test
     public void testInsertAutoIncNotFirst() {
         Delete.table(InsertModelAutoIncPrimaryKeyNotFirst.class);
 

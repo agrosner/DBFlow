@@ -9,8 +9,10 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Description: The SQLite INSERT command
@@ -26,7 +28,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
     /**
      * The values to specify in this query
      */
-    private Object[] values;
+    private List<Object[]> valuesList;
 
     /**
      * The conflict algorithm to use to resolve inserts.
@@ -93,7 +95,10 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      * @param values The non type-converted values
      */
     public Insert<TModel> values(Object... values) {
-        this.values = values;
+        if (this.valuesList == null) {
+            this.valuesList = new ArrayList<>();
+        }
+        this.valuesList.add(values);
         return this;
     }
 
@@ -250,15 +255,25 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         if (selectFrom != null) {
             queryBuilder.appendSpace().append(selectFrom.getQuery());
         } else {
-            if (columns != null && values != null && columns.length != values.length) {
-                throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
-                        "columns needs to have the same amount of values and columns");
-            } else if (values == null) {
+            if (valuesList == null || valuesList.size() < 1) {
                 throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
-                        "at least one value specified for the insert");
+                    "at least one value specified for the insert");
+            } else if (columns != null) {
+                for (Object[] values : valuesList) {
+                    if (values.length != columns.length) {
+                        throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
+                            "columns needs to have the same amount of values and columns");
+                    }
+                }
             }
 
-            queryBuilder.append(" VALUES(").appendModelArray(values).append(")");
+            queryBuilder.append(" VALUES(");
+            for (int i = 0; i < valuesList.size(); i++) {
+                if (i > 0) {
+                    queryBuilder.append(",(");
+                }
+                queryBuilder.appendModelArray(valuesList.get(i)).append(")");
+            }
         }
 
         return queryBuilder.getQuery();

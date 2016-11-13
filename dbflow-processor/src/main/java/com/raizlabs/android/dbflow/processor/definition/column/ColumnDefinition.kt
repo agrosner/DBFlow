@@ -249,9 +249,12 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         elementTypeName?.let { elementTypeName ->
             val propParam: TypeName
-            if (!wrapperAccessor.isPrimitiveTarget()) {
-                propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, elementTypeName.box(),
-                        wrapperTypeName)
+
+            val isNonPrimitiveTypeConverter = !wrapperAccessor.isPrimitiveTarget() && wrapperAccessor is TypeConverterScopeColumnAccessor
+            if (isNonPrimitiveTypeConverter) {
+                propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, wrapperTypeName, elementTypeName.box())
+            } else if (!wrapperAccessor.isPrimitiveTarget()) {
+                propParam = ParameterizedTypeName.get(ClassNames.WRAPPER_PROPERTY, wrapperTypeName, elementTypeName.box())
             } else if (elementTypeName.isPrimitive && elementTypeName != TypeName.BOOLEAN) {
                 propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE, elementTypeName.toString().capitalizeFirstLetter() + "Property")
             } else {
@@ -261,7 +264,23 @@ constructor(processorManager: ProcessorManager, element: Element,
             val fieldBuilder = FieldSpec.builder(propParam,
                     columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
 
-            fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+            if (isNonPrimitiveTypeConverter) {
+                val codeBlock = CodeBlock.builder()
+                codeBlock.add("new \$T(\$T.class, \$S, true,", propParam, tableClass, columnName)
+                codeBlock.add("\nnew \$T() {" +
+                        "\n@Override" +
+                        "\npublic \$T getTypeConverter(Class<?> modelClass) {" +
+                        "\n  \$T adapter = (\$T) \$T.getInstanceAdapter(modelClass);" +
+                        "\nreturn adapter.\$L;" +
+                        "\n}" +
+                        "\n})", ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
+                        baseTableDefinition.outputClassName, baseTableDefinition.outputClassName,
+                        ClassNames.FLOW_MANAGER,
+                        (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
+                fieldBuilder.initializer(codeBlock.build())
+            } else {
+                fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+            }
             if (isPrimaryKey) {
                 fieldBuilder.addJavadoc("Primary Key")
             } else if (isPrimaryKeyAutoIncrement) {

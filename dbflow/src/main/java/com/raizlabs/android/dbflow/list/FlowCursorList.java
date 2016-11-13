@@ -55,7 +55,10 @@ public class FlowCursorList<TModel> implements
     private Class<TModel> table;
     private ModelCache<TModel, ?> modelCache;
     private boolean cacheModels;
+
+    @Nullable
     private ModelQueriable<TModel> modelQueriable;
+
     private int cacheSize;
     private InstanceAdapter<TModel> instanceAdapter;
 
@@ -174,6 +177,10 @@ public class FlowCursorList<TModel> implements
         if (cursor != null) {
             cursor.close();
         }
+        if (modelQueriable == null) {
+            throw new IllegalStateException("Cannot refresh this FlowCursorList. This list was instantiated from a Cursor. Once closed, we cannot reopen " +
+                    "it. Construct a new instance and swap with this instance.");
+        }
         cursor = modelQueriable.query();
 
         if (cacheModels) {
@@ -188,6 +195,7 @@ public class FlowCursorList<TModel> implements
         }
     }
 
+    @Nullable
     public ModelQueriable<TModel> modelQueriable() {
         return modelQueriable;
     }
@@ -327,7 +335,7 @@ public class FlowCursorList<TModel> implements
         }
 
         public Builder(@NonNull ModelQueriable<TModel> modelQueriable) {
-            this(modelQueriable.getTable());
+            this.modelClass = modelQueriable.getTable();
             modelQueriable(modelQueriable);
         }
 

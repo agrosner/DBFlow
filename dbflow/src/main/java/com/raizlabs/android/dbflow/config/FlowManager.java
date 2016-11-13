@@ -278,6 +278,12 @@ public class FlowManager {
      * Release reference to context and {@link FlowConfig}
      */
     public static synchronized void destroy() {
+        Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet =
+                globalDatabaseHolder.databaseClassLookupMap.entrySet();
+        for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
+            value.getValue().destroy(getContext());
+        }
+
         config = null;
 
         // Reset the global database holder.
@@ -296,7 +302,7 @@ public class FlowManager {
         if (internalAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getModelViewAdapter(
-                        (Class<? extends BaseModelView<?>>) modelClass);
+                        (Class<? extends BaseModelView>) modelClass);
             } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getQueryModelAdapter(
                         (Class<? extends BaseQueryModel>) modelClass);
@@ -326,7 +332,7 @@ public class FlowManager {
      * @return The model view adapter for the specified model view.
      */
     @SuppressWarnings("unchecked")
-    public static <TModelView extends BaseModelView<?>> ModelViewAdapter<?, TModelView> getModelViewAdapter(
+    public static <TModelView extends BaseModelView> ModelViewAdapter<TModelView> getModelViewAdapter(
             Class<TModelView> modelViewClass) {
         return FlowManager.getDatabaseForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
     }

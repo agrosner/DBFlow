@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.structure.BaseModelView;
  * Description:
  */
 @ModelView(database = AppDatabase.class)
-public class AModelView extends BaseModelView<AModel> {
+public class AModelView extends BaseModelView {
 
     @ModelViewQuery
     public static final Query QUERY = new Select(AModel_Table.time)

@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
@@ -251,7 +250,7 @@ public abstract class DatabaseDefinition {
     public abstract boolean areConsistencyChecksEnabled();
 
     /**
-     * @return True if the {@link Database#foreignKeysSupported()} annotation is true.
+     * @return True if the {@link Database#foreignKeyConstraintsEnforced()} annotation is true.
      */
     public abstract boolean isForeignKeysSupported();
 
@@ -286,6 +285,18 @@ public abstract class DatabaseDefinition {
             openHelper = null;
             isResetting = false;
             getHelper().getDatabase();
+        }
+    }
+
+    public void destroy(Context context) {
+        if (!isResetting) {
+            isResetting = true;
+            getTransactionManager().stopQueue();
+            getHelper().closeDB();
+            context.deleteDatabase(getDatabaseFileName());
+
+            openHelper = null;
+            isResetting = false;
         }
     }
 

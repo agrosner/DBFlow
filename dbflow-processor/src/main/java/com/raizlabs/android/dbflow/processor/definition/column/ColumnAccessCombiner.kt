@@ -74,8 +74,9 @@ class ExistenceAccessCombiner(combiner: Combiner,
                          defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
 
         combiner.apply {
-            val access = getFieldAccessBlock(code, modelBlock)
             if (autoRowId) {
+                val access = getFieldAccessBlock(code, modelBlock)
+
                 code.add("return ")
 
                 if (!fieldTypeName.isPrimitive) {
@@ -215,12 +216,27 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
             val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
                     SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
             if (wrapperLevelAccessor != null) {
+                // special case where we need to append try catch hack
+                val isEnum = wrapperLevelAccessor is EnumColumnAccessor
+                if (isEnum) {
+                    code.beginControlFlow("try")
+                }
                 if (subWrapperAccessor != null) {
                     code.addStatement(fieldLevelAccessor.set(
                             wrapperLevelAccessor.set(subWrapperAccessor.set(cursorAccess)), modelBlock))
                 } else {
                     code.addStatement(fieldLevelAccessor.set(
                             wrapperLevelAccessor.set(cursorAccess), modelBlock))
+                }
+                if (isEnum) {
+                    code.nextControlFlow("catch (\$T i)", IllegalArgumentException::class.java)
+                    if (assignDefaultValuesFromCursor) {
+                        code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
+                                isDefault = true), modelBlock))
+                    } else {
+                        code.addStatement(fieldLevelAccessor.set(defaultValue, modelBlock))
+                    }
+                    code.endControlFlow()
                 }
             } else {
                 code.addStatement(fieldLevelAccessor.set(cursorAccess, modelBlock))
@@ -247,7 +263,7 @@ class PrimaryReferenceAccessCombiner(combiner: Combiner)
                          modelBlock: CodeBlock) {
         val wrapperLevelAccessor = this.combiner.wrapperLevelAccessor
         code.addStatement("clause.and(\$L.\$Leq(\$L))", columnRepresentation,
-                if (!wrapperLevelAccessor.isPrimitiveTarget()) "databaseProperty()." else "",
+                if (!wrapperLevelAccessor.isPrimitiveTarget()) "invertProperty()." else "",
                 getFieldAccessBlock(code, modelBlock, wrapperLevelAccessor !is BooleanColumnAccessor))
     }
 

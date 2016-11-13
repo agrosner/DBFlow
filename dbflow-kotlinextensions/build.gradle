@@ -9,12 +9,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion dbflow_build_tools_version
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 24
+        targetSdkVersion 25
     }
     buildTypes {
         debug {

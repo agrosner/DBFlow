@@ -29,7 +29,10 @@ public class ContentProviderTest extends FlowTestCase {
 
     @Before
     public void setUp() {
-        ShadowContentResolver.registerProvider(TestContentProvider.AUTHORITY, new TestContentProvider_Provider());
+        TestContentProvider_Provider provider = new TestContentProvider_Provider();
+        provider.onCreate();
+
+        ShadowContentResolver.registerProvider(TestContentProvider.AUTHORITY, provider);
     }
 
     @Test

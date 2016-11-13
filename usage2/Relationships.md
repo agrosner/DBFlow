@@ -42,7 +42,7 @@ we would then only need to call `load()` on the reference and it would query the
 table for a row with the `breed` id. This also makes it easier if the table you
 reference has multiple primary keys, since DBFlow will handle the work for you.
 
-Multiple calls to `load()` will query the DB every time, so call when needed. Also if you don't specify `@Database(foreignKeysSupported = true)`, calling `load()` may not have any effect. Essentially without enforcing `@ForeignKey` at a SQLite level, you can end up with floating key references that do not exist in the referenced table.
+Multiple calls to `load()` will query the DB every time, so call when needed. Also if you don't specify `@Database(foreignKeyConstraintsEnforced = true)`, calling `load()` may not have any effect. Essentially without enforcing `@ForeignKey` at a SQLite level, you can end up with floating key references that do not exist in the referenced table.
 
 In normal circumstances, for every load of a `Dog` object from the database,
 we would also do a load of related `Owner`. This means that even if multiple `Dog` say (50)

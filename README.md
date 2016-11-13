@@ -20,9 +20,7 @@ DBFlow is built from a collection of the best features of many database librarie
 
 # Changelog
 
-Starting with 3.0.0-beta1+, Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases).
-
-For pre-3.0 changes, check out [here](https://github.com/Raizlabs/DBFlow/wiki)
+Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases).
 
 # Usage Docs
 For more detailed usage, check out it out [here](/usage2/Intro.md)
@@ -57,7 +55,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
   apply plugin: 'com.neenbedankt.android-apt'
 
-  def dbflow_version = "4.0.0-beta1"
+  def dbflow_version = "4.0.0-beta2"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
