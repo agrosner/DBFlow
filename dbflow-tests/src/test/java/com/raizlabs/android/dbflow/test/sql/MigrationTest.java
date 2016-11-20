@@ -95,6 +95,7 @@ public class MigrationTest extends FlowTestCase {
         // broken with junit tests
     }
 
+    @Test
     public void testIndexMigration() {
         IndexMigration<TestModel3> indexMigration
                 = new IndexMigration<TestModel3>(TestModel3.class) {
