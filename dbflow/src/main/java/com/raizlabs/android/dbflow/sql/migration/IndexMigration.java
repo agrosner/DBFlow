@@ -18,11 +18,6 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
     private Class<TModel> onTable;
 
     /**
-     * The name of this index
-     */
-    private String name;
-
-    /**
      * The underlying index object.
      */
     private Index<TModel> index;
@@ -49,7 +44,6 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
     @Override
     public void onPostMigrate() {
         onTable = null;
-        name = null;
         index = null;
     }
 
@@ -79,7 +73,7 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
      */
     public Index<TModel> getIndex() {
         if (index == null) {
-            index = new Index<TModel>(name).on(onTable);
+            index = new Index<TModel>(getName()).on(onTable);
         }
         return index;
     }
@@ -90,5 +84,4 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
     public String getIndexQuery() {
         return getIndex().getQuery();
     }
-
 }
