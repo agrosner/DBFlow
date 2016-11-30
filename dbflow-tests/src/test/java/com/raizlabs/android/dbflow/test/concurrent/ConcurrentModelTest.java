@@ -49,7 +49,9 @@ public class ConcurrentModelTest extends FlowTestCase {
 
             TestModel1 indexModel = new TestModel1();
             indexModel.setName(uuid);
-            indexModel.insert();
+
+            FlowManager.getModelAdapter(TestModel1.class)
+                    .insert(indexModel);
         }
     }
 
@@ -62,7 +64,7 @@ public class ConcurrentModelTest extends FlowTestCase {
             String uuid = UUID.randomUUID().toString();
 
             Insert insert = SQLite.insert(TestModel1.class).orFail()
-                .values(uuid);
+                    .values(uuid);
 
             FlowManager.getDatabase(TestDatabase.NAME).getWritableDatabase().execSQL(insert.getQuery());
         }

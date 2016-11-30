@@ -1,23 +1,24 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Description: A class that contains a {@link Cursor} and handy methods for retrieving data from it.
  * You must close this object post use via {@link #close()}.
  */
-public class CursorResult<TModel extends Model> implements Closeable {
+public class CursorResult<TModel> implements Closeable {
 
-    private final InstanceAdapter<?, TModel> retrievalAdapter;
+    private final InstanceAdapter<TModel> retrievalAdapter;
 
     @Nullable
     private Cursor cursor;
@@ -43,49 +44,55 @@ public class CursorResult<TModel extends Model> implements Closeable {
     /**
      * @return A {@link List} of items from this object. You must call {@link #close()} when finished.
      */
-    @Nullable
+    @NonNull
     public List<TModel> toList() {
         if (cursor != null) {
-            return retrievalAdapter.getListModelLoader().convertToData(cursor, null);
+            List<TModel> modelList = retrievalAdapter.getListModelLoader()
+                    .convertToData(cursor, null);
+            return modelList != null ? modelList : new ArrayList<TModel>();
         } else {
-            return null;
+            return new ArrayList<>();
         }
     }
 
     /**
      * @return Converts the {@link Cursor} to a {@link List} of {@link TModel} and then closes it.
      */
-    @Nullable
+    @NonNull
     public List<TModel> toListClose() {
         if (cursor != null) {
-            return retrievalAdapter.getListModelLoader().load(cursor);
+            List<TModel> load = retrievalAdapter.getListModelLoader().load(cursor);
+            return load != null ? load : new ArrayList<TModel>();
         } else {
-            return null;
+            return new ArrayList<>();
         }
     }
 
     /**
      * @return A {@link List} of items from this object. You must call {@link #close()} when finished.
      */
-    @Nullable
+    @NonNull
     public <TCustom extends BaseQueryModel> List<TCustom> toCustomList(Class<TCustom> customClass) {
         if (cursor != null) {
-            return FlowManager.getQueryModelAdapter(customClass)
-                .getListModelLoader().convertToData(cursor, null);
+            List<TCustom> customList = FlowManager.getQueryModelAdapter(customClass)
+                    .getListModelLoader().convertToData(cursor, null);
+            return customList != null ? customList : new ArrayList<TCustom>();
         } else {
-            return null;
+            return new ArrayList<>();
         }
     }
 
     /**
      * @return Converts the {@link Cursor} to a {@link List} of {@link TModel} and then closes it.
      */
-    @Nullable
+    @NonNull
     public <TCustom extends BaseQueryModel> List<TCustom> toCustomListClose(Class<TCustom> customClass) {
         if (cursor != null) {
-            return FlowManager.getQueryModelAdapter(customClass).getListModelLoader().load(cursor);
+            List<TCustom> customList = FlowManager.getQueryModelAdapter(customClass)
+                    .getListModelLoader().load(cursor);
+            return customList != null ? customList : new ArrayList<TCustom>();
         } else {
-            return null;
+            return new ArrayList<>();
         }
     }
 

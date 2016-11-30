@@ -44,6 +44,6 @@ class QueryExtensionsAsyncTest {
     @Test
     fun test_asyncQuery() {
         val query = (select from KotlinModel::class).async
-        assertTrue(query is AsyncQuery)
+        assertTrue(query is AsyncQuery<*>)
     }
 }

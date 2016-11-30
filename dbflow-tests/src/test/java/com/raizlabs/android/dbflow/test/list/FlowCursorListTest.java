@@ -37,7 +37,7 @@ public class FlowCursorListTest extends FlowTestCase {
                         .modelQueriable(SQLite.select().from(TestModel1.class))
                         .build();
 
-        assertEquals(TestModel1.class, cursorList.getTable());
+        assertEquals(TestModel1.class, cursorList.table());
         assertEquals(50, cursorList.cacheSize());
         assertTrue(cursorList.modelCache() instanceof ModelLruCache);
         assertEquals(true, cursorList.cachingEnabled());

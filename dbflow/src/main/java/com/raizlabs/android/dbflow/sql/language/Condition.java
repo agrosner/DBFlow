@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.sql.language.property.Property;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,11 +12,15 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Description: The class that contains a column name, operator, and value. The operator can be any Sqlite conditional
- * operator. The value is the {@link Model} value of the column and WILL be
- * converted into the database value when we run the query.
+ * Description: The class that contains a column name, operator, and value.
+ * This class is mostly reserved for internal use at this point. Using this class directly should be avoided
+ * and use the generated {@link Property} instead.
  */
 public class Condition extends BaseCondition implements ITypeConditional {
+
+
+    private TypeConverter typeConverter;
+    private boolean convertToDB;
 
     public static String convertValueToString(Object value) {
         return BaseCondition.convertValueToString(value, false);
@@ -24,6 +28,10 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     public static Condition column(NameAlias column) {
         return new Condition(column);
+    }
+
+    public static Condition column(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
+        return new Condition(alias, typeConverter, convertToDB);
     }
 
     /**
@@ -35,6 +43,12 @@ public class Condition extends BaseCondition implements ITypeConditional {
         super(nameAlias);
     }
 
+    Condition(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
+        super(alias);
+        this.typeConverter = typeConverter;
+        this.convertToDB = convertToDB;
+    }
+
     @Override
     public void appendConditionToQuery(QueryBuilder queryBuilder) {
         queryBuilder.append(columnName()).append(operation());
@@ -42,7 +56,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         // Do not use value for certain operators
         // If is raw, we do not want to convert the value to a string.
         if (isValueSet) {
-            queryBuilder.append(BaseCondition.convertValueToString(value(), true));
+            queryBuilder.append(convertObjectToString(value(), true));
         }
 
         if (postArgument() != null) {
@@ -85,6 +99,22 @@ public class Condition extends BaseCondition implements ITypeConditional {
     @Override
     public Condition like(String value) {
         operation = String.format(" %1s ", Operation.LIKE);
+        return value(value);
+    }
+
+    /**
+     * Uses the NOT LIKE operation. Case insensitive comparisons.
+     *
+     * @param value Uses sqlite LIKE regex to inversely match rows.
+     *              It must be a string to escape it properly.
+     *              There are two wildcards: % and _
+     *              % represents [0,many) numbers or characters.
+     *              The _ represents a single number or character.
+     * @return This condition
+     */
+    @Override
+    public Condition notLike(String value) {
+        operation = String.format(" %1s ", Operation.NOT_LIKE);
         return value(value);
     }
 
@@ -366,7 +396,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
             operation = String.format("%1s %1s ", operation, Operation.PLUS);
         } else {
             throw new IllegalArgumentException(
-                String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
+                    String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
         }
         this.value = value;
         isValueSet = true;
@@ -408,6 +438,17 @@ public class Condition extends BaseCondition implements ITypeConditional {
     @Override
     public In notIn(Collection values) {
         return new In(this, values, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public String convertObjectToString(Object object, boolean appendInnerParenthesis) {
+        if (typeConverter != null) {
+            Object converted = convertToDB ? typeConverter.getDBValue(object) : object;
+            return BaseCondition.convertValueToString(converted, appendInnerParenthesis, false);
+        } else {
+            return super.convertObjectToString(object, appendInnerParenthesis);
+        }
     }
 
     /**
@@ -453,6 +494,14 @@ public class Condition extends BaseCondition implements ITypeConditional {
          * The _ represents a single number or character.
          */
         public static final String LIKE = "LIKE";
+
+        /**
+         * If something is NOT LIKE another (a case insensitive search).
+         * There are two wildcards: % and _
+         * % represents [0,many) numbers or characters.
+         * The _ represents a single number or character.
+         */
+        public static final String NOT_LIKE = "NOT LIKE";
 
         /**
          * If something is case sensitive like another.
@@ -561,10 +610,10 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                .append(BaseCondition.convertValueToString(value(), true))
-                .appendSpaceSeparated(Operation.AND)
-                .append(BaseCondition.convertValueToString(secondValue(), true))
-                .appendSpace().appendOptional(postArgument());
+                    .append(convertObjectToString(value(), true))
+                    .appendSpaceSeparated(Operation.AND)
+                    .append(convertObjectToString(secondValue(), true))
+                    .appendSpace().appendOptional(postArgument());
         }
 
     }
@@ -613,7 +662,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                .append("(").append(ConditionGroup.joinArguments(",", inArguments)).append(")");
+                    .append("(").append(ConditionGroup.joinArguments(",", inArguments, this)).append(")");
         }
     }
 

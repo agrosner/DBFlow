@@ -5,11 +5,15 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Description: Provides transaction with priority. Meant to be used in a {@link PriorityTransactionQueue}.
  */
 public class PriorityTransactionWrapper implements ITransaction, Comparable<PriorityTransactionWrapper> {
 
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({PRIORITY_LOW, PRIORITY_NORMAL, PRIORITY_HIGH, PRIORITY_UI})
     public @interface Priority {
     }

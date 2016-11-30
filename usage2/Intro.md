@@ -6,7 +6,7 @@ expressive and concise.
 ```java
 
 @Table(database = AppDatabase.class)
-public class Automobile extends BaseModel { // extending BaseModel not required, you can also implement Model
+public class Automobile extends BaseModel { // convenience, but not required to interact with db
 
   @PrimaryKey
   String vin;
@@ -81,7 +81,7 @@ the configuration is highly minimal:
 
 ## Sections
 
-For migrating from 2.x to 3.0, read [here](/usage2/Migration3Guide.md)
+For migrating from 3.x to 4.0, read [here](/usage2/Migration4Guide.md)
 
 The list of documentation is listed here:
 
@@ -119,8 +119,6 @@ For advanced DBFlow usages:
 
   [Query Models](/usage2/QueryModels.md)
 
-  [Model Containers](/usage2/ModelContainers.md)
-
   [Indexing](/usage2/Indexing.md)
-  
+
   [SQLCipher](/usage2/SQLCipherSupport.md)

@@ -10,8 +10,6 @@ import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
-import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
@@ -20,7 +18,7 @@ import java.util.List;
  * Description: An interface for query objects to enable you to query from the database in a structured way.
  * Examples of such statements are: {@link From}, {@link Where}, {@link StringQuery}
  */
-public interface ModelQueriable<TModel extends Model> extends Queriable {
+public interface ModelQueriable<TModel> extends Queriable {
 
     /**
      * @return A wrapper class around {@link Cursor} that allows you to convert its data into results.
@@ -55,15 +53,6 @@ public interface ModelQueriable<TModel extends Model> extends Queriable {
      */
     @Nullable
     TModel querySingle(DatabaseWrapper wrapper);
-
-    /**
-     * Queries and populates the specified {@link ModelContainer} from the database.
-     *
-     * @param instance A non-null instance to populate from the DB.
-     * @return The specified instance populated from the DB.
-     */
-    <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass
-    queryModelContainer(@NonNull ModelContainerClass instance);
 
     /**
      * @return the table that this query comes from.

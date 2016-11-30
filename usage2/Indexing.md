@@ -21,7 +21,7 @@ You can define as many `@IndexGroup` you want within a `@Table` as long as one f
                @IndexGroup(number = 2, name = "secondIndex"),
                @IndexGroup(number = 3, name = "thirdIndex")
        })
-public class IndexModel2 extends BaseModel {
+public class IndexModel2 {
 
    @Index(indexGroups = {1, 2, 3})
    @PrimaryKey

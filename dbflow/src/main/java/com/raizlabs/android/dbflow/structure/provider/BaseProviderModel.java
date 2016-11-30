@@ -36,8 +36,9 @@ public abstract class BaseProviderModel<TProviderModel extends BaseProviderModel
     }
 
     @Override
-    public void insert() {
+    public long insert() {
         ContentUtils.insert(getInsertUri(), this);
+        return 0;
     }
 
     /**

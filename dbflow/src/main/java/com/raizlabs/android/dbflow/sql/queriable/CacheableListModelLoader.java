@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Description: Loads a {@link List} of {@link TModel} with {@link Table#cachingEnabled()} true.
  */
-public class CacheableListModelLoader<TModel extends Model> extends ListModelLoader<TModel> {
+public class CacheableListModelLoader<TModel> extends ListModelLoader<TModel> {
 
     private ModelAdapter<TModel> modelAdapter;
     private ModelCache<TModel, ?> modelCache;

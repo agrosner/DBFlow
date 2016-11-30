@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Description: Loads a {@link List} of {@link TModel}.
  */
-public class ListModelLoader<TModel extends Model> extends ModelLoader<TModel, List<TModel>> {
+public class ListModelLoader<TModel> extends ModelLoader<TModel, List<TModel>> {
 
     public ListModelLoader(Class<TModel> modelClass) {
         super(modelClass);

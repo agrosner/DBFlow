@@ -1,17 +1,33 @@
 apply plugin: 'java'
+apply plugin: 'kotlin'
 
 project.ext.artifactId = bt_name
-
-group= 'com.raizlabs.android'
 
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     compile project("${dbflow_project_prefix}dbflow-core")
-    compile 'com.squareup:javapoet:1.7.0'
+    compile 'com.squareup:javapoet:1.8.0'
     compile 'com.google.auto.service:auto-service:1.0-rc2'
-    compile 'com.google.guava:guava:19.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    testCompile 'junit:junit:4.12'
 }
 
 apply from: '../java-artifacts.gradle'
+buildscript {
+    ext.kotlin_version = '1.0.4'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+repositories {
+    mavenCentral()
+}
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
+}

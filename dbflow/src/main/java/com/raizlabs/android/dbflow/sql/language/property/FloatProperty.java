@@ -14,15 +14,15 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class FloatProperty extends BaseProperty<FloatProperty> {
 
-    public FloatProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public FloatProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public FloatProperty(Class<? extends Model> table, String columnName) {
+    public FloatProperty(Class<?> table, String columnName) {
         this(table, new NameAlias.Builder(columnName).build());
     }
 
-    public FloatProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public FloatProperty(Class<?> table, String columnName, String aliasName) {
         this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 
@@ -101,6 +101,10 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
 
     public Condition like(float value) {
         return column(nameAlias).like(String.valueOf(value));
+    }
+
+    public Condition notLike(float value) {
+        return column(nameAlias).notLike(String.valueOf(value));
     }
 
     public Condition glob(float value) {

@@ -32,7 +32,9 @@ public class ListTest extends FlowTestCase {
     @Before
     public void setupTest() {
         Delete.table(ListModel.class);
-        modelList = new FlowQueryList<>(SQLite.select().from(ListModel.class));
+        modelList = new FlowQueryList.Builder<>(ListModel.class)
+                .modelQueriable(SQLite.select().from(ListModel.class))
+                .build();
     }
 
     @After
@@ -51,7 +53,8 @@ public class ListTest extends FlowTestCase {
                         .addAll(testModel1s)
                         .build());
 
-        modelList = new FlowQueryList<>(SQLite.select().from(ListModel.class));
+        modelList = new FlowQueryList.Builder<>(SQLite.select().from(ListModel.class))
+                .build();
 
         assertTrue(modelList.size() == 100);
 

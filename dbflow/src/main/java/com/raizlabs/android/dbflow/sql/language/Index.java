@@ -17,7 +17,7 @@ import java.util.List;
  * Description: an INDEX class that enables you to index a specific column from a table. This enables
  * faster retrieval on tables, while increasing the database file size. So enable/disable these as necessary.
  */
-public class Index<TModel extends Model> implements Query {
+public class Index<TModel> implements Query {
 
     private final String indexName;
     private Class<TModel> table;

@@ -31,11 +31,10 @@ public @interface Database {
     String name() default "";
 
     /**
-     * In order to use Foreign keys, set this to true.
-     *
-     * @return if key constraints are enabled.
+     * @return If true, SQLite will throw exceptions when {@link ForeignKey} constraints are not respected.
+     * Default is false and will not throw exceptions.
      */
-    boolean foreignKeysSupported() default false;
+    boolean foreignKeyConstraintsEnforced() default false;
 
     /**
      * @return Checks for consistency in the DB, if true it will recopy over the prepackage database.

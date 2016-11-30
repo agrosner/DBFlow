@@ -14,6 +14,10 @@ import com.raizlabs.android.dbflow.sql.SqlUtils;
  */
 public abstract class BaseCondition implements SQLCondition {
 
+    public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
+        return convertValueToString(value, appendInnerQueryParenthesis, true);
+    }
+
     /**
      * Converts a value input into a String representation of that.
      * <p>
@@ -38,18 +42,23 @@ public abstract class BaseCondition implements SQLCondition {
      * @return Returns the result as a string that's safe for SQLite.
      */
     @SuppressWarnings("unchecked")
-    public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
+    public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis,
+                                              boolean typeConvert) {
         if (value == null) {
             return "NULL";
         } else {
             String stringVal;
-            TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
-            if (typeConverter != null) {
-                value = typeConverter.getDBValue(value);
+            if (typeConvert) {
+                TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+                if (typeConverter != null) {
+                    value = typeConverter.getDBValue(value);
+                }
             }
 
             if (value instanceof Number) {
                 stringVal = String.valueOf(value);
+            } else if (value instanceof Enum) {
+                stringVal = DatabaseUtils.sqlEscapeString(((Enum) value).name());
             } else {
                 if (appendInnerQueryParenthesis && value instanceof BaseModelQueriable) {
                     stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
@@ -86,34 +95,12 @@ public abstract class BaseCondition implements SQLCondition {
      * values for a query.
      *
      * @param delimiter The text to join the text with.
-     * @param tokens    an array objects to be joined. Strings will be formed from
-     *                  the objects by calling {@link #convertValueToString(Object, boolean)}.
-     * @return A joined string
-     */
-    public static String joinArguments(CharSequence delimiter, Object[] tokens) {
-        StringBuilder sb = new StringBuilder();
-        boolean firstTime = true;
-        for (Object token : tokens) {
-            if (firstTime) {
-                firstTime = false;
-            } else {
-                sb.append(delimiter);
-            }
-            sb.append(convertValueToString(token, false));
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Returns a string containing the tokens joined by delimiters and converted into the property
-     * values for a query.
-     *
-     * @param delimiter The text to join the text with.
      * @param tokens    an {@link Iterable} of objects to be joined. Strings will be formed from
      *                  the objects by calling {@link #convertValueToString(Object, boolean)}.
      * @return A joined string
      */
-    public static String joinArguments(CharSequence delimiter, Iterable tokens) {
+    public static String joinArguments(CharSequence delimiter, Iterable tokens,
+                                       BaseCondition condition) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
         for (Object token : tokens) {
@@ -122,7 +109,7 @@ public abstract class BaseCondition implements SQLCondition {
             } else {
                 sb.append(delimiter);
             }
-            sb.append(convertValueToString(token, false));
+            sb.append(condition.convertObjectToString(token, false));
         }
         return sb.toString();
     }
@@ -215,6 +202,10 @@ public abstract class BaseCondition implements SQLCondition {
      */
     NameAlias columnAlias() {
         return nameAlias;
+    }
+
+    public String convertObjectToString(Object object, boolean appendInnerParenthesis) {
+        return convertValueToString(object, appendInnerParenthesis);
     }
 
 }

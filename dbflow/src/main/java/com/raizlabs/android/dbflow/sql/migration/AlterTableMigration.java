@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
-public class AlterTableMigration<TModel extends Model> extends BaseMigration {
+public class AlterTableMigration<TModel> extends BaseMigration {
 
     /**
      * The table to ALTER

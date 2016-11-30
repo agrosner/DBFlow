@@ -5,17 +5,15 @@ import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.IntRange;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.Collection;
 
 /**
- * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}
- * or {@link ModelContainerAdapter}
+ * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}.
  */
-public interface InternalAdapter<TModel extends Model> {
+public interface InternalAdapter<TModel> {
 
     /**
      * @return The table name of this adapter.
@@ -57,15 +55,14 @@ public interface InternalAdapter<TModel extends Model> {
      *
      * @param model The model to insert.
      */
-    void insert(TModel model);
+    long insert(TModel model);
 
     /**
      * Inserts the specified model into the DB.
-     *
-     * @param model           The model to insert.
+     *  @param model           The model to insert.
      * @param databaseWrapper The manually specified wrapper.
      */
-    void insert(TModel model, DatabaseWrapper databaseWrapper);
+    long insert(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
      * Inserts a {@link Collection} of models into the DB.
@@ -126,6 +123,21 @@ public interface InternalAdapter<TModel extends Model> {
      * @param databaseWrapper The manually specified wrapper.
      */
     void delete(TModel model, DatabaseWrapper databaseWrapper);
+
+    /**
+     * Updates a {@link Collection} of models in the DB.
+     *
+     * @param models The {@link Collection} of models to save.
+     */
+    void deleteAll(Collection<TModel> models);
+
+    /**
+     * Updates a {@link Collection} of models in the DB.
+     *
+     * @param models          The {@link Collection} of models to save.
+     * @param databaseWrapper The manually specified wrapper
+     */
+    void deleteAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
 
     /**
      * Binds a {@link TModel} to the specified db statement

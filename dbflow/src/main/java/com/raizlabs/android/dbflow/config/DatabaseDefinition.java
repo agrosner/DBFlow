@@ -3,18 +3,15 @@ package com.raizlabs.android.dbflow.config;
 import android.content.Context;
 
 import com.raizlabs.android.dbflow.annotation.Database;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
-import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.FlowSQLiteOpenHelper;
@@ -39,13 +36,11 @@ public abstract class DatabaseDefinition {
 
     final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
 
-    final List<Class<? extends Model>> models = new ArrayList<>();
+    final List<Class<?>> models = new ArrayList<>();
 
-    final Map<Class<? extends Model>, ModelAdapter> modelAdapters = new HashMap<>();
+    final Map<Class<?>, ModelAdapter> modelAdapters = new HashMap<>();
 
-    final Map<String, Class<? extends Model>> modelTableNames = new HashMap<>();
-
-    final Map<Class<? extends Model>, ModelContainerAdapter> modelContainerAdapters = new HashMap<>();
+    final Map<String, Class<?>> modelTableNames = new HashMap<>();
 
     final List<Class<? extends BaseModelView>> modelViews = new ArrayList<>();
 
@@ -75,7 +70,7 @@ public abstract class DatabaseDefinition {
     @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
         databaseConfig = FlowManager.getConfig()
-            .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+                .databaseConfigMap().get(getAssociatedDatabaseClassFile());
 
 
         if (databaseConfig != null) {
@@ -111,7 +106,7 @@ public abstract class DatabaseDefinition {
     /**
      * @return a list of all model classes in this database.
      */
-    public List<Class<? extends Model>> getModelClasses() {
+    public List<Class<?>> getModelClasses() {
         return models;
     }
 
@@ -136,7 +131,7 @@ public abstract class DatabaseDefinition {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    public ModelAdapter getModelAdapterForTable(Class<? extends Model> table) {
+    public ModelAdapter getModelAdapterForTable(Class<?> table) {
         return modelAdapters.get(table);
     }
 
@@ -145,18 +140,8 @@ public abstract class DatabaseDefinition {
      * @return The associated {@link ModelAdapter} within this database for the specified table name.
      * If the Model is missing the {@link Table} annotation, this will return null.
      */
-    public Class<? extends Model> getModelClassForName(String tableName) {
+    public Class<?> getModelClassForName(String tableName) {
         return modelTableNames.get(tableName);
-    }
-
-    /**
-     * @param table The table that has a {@link ModelContainer} annotation.
-     * @return the associated {@link ModelContainerAdapter} within this
-     * database for the specified table. These are used for {@link com.raizlabs.android.dbflow.structure.container.ModelContainer}
-     * and require {@link Model} to add the {@link ModelContainer}.
-     */
-    public ModelContainerAdapter getModelContainerAdapterForTable(Class<? extends Model> table) {
-        return modelContainerAdapters.get(table);
     }
 
     /**
@@ -207,7 +192,7 @@ public abstract class DatabaseDefinition {
     public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                .get(getAssociatedDatabaseClassFile());
+                    .get(getAssociatedDatabaseClassFile());
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {
@@ -265,7 +250,7 @@ public abstract class DatabaseDefinition {
     public abstract boolean areConsistencyChecksEnabled();
 
     /**
-     * @return True if the {@link Database#foreignKeysSupported()} annotation is true.
+     * @return True if the {@link Database#foreignKeyConstraintsEnforced()} annotation is true.
      */
     public abstract boolean isForeignKeysSupported();
 
@@ -300,6 +285,18 @@ public abstract class DatabaseDefinition {
             openHelper = null;
             isResetting = false;
             getHelper().getDatabase();
+        }
+    }
+
+    public void destroy(Context context) {
+        if (!isResetting) {
+            isResetting = true;
+            getTransactionManager().stopQueue();
+            getHelper().closeDB();
+            context.deleteDatabase(getDatabaseFileName());
+
+            openHelper = null;
+            isResetting = false;
         }
     }
 

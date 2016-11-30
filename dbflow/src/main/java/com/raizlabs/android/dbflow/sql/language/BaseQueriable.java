@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 /**
  * Description: Base implementation of something that can be queried from the database.
  */
-public abstract class BaseQueriable<TModel extends Model> implements Queriable {
+public abstract class BaseQueriable<TModel> implements Queriable {
 
 
     private final Class<TModel> table;

@@ -13,7 +13,7 @@ public class DefaultModel extends TestModel1 {
     @Column(defaultValue = "55")
     Integer count;
 
-    @Column(defaultValue = "\"this is\"")
+    @Column(defaultValue = "this is")
     String test;
 
     @Column(defaultValue = "1000L")

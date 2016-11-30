@@ -9,8 +9,6 @@ can lazy-load each row from the query/table.
 DBFlow makes it easy using the `FlowCursorList`, for simple `BaseAdapter`-like methods,
 or the `FlowQueryList`, which implements the `List` interface.
 
-As of 3.1.+, we recommend using the corresponding `Builder` classes to make constructing these collections even easier.
-
 Getting one of these lists is as simple as:
 
 ```java

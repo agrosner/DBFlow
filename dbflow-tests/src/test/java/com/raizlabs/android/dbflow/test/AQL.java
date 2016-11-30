@@ -1,10 +1,8 @@
 package com.raizlabs.android.dbflow.test;
 
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ContainerKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -12,8 +10,7 @@ import com.raizlabs.android.dbflow.test.sql.BoxedModel;
 
 import java.util.Date;
 
-@Table(database = TestDatabase.class, name = AQL.ENDPOINT)
-@ModelContainer
+@Table(database = TestDatabase.class, name = AQL.ENDPOINT, cachingEnabled = true)
 public class AQL extends BaseModel {
 
     public static final String ENDPOINT = "AQL";
@@ -38,7 +35,6 @@ public class AQL extends BaseModel {
     @Column(name = Columns.AQL_TIMESTAMP)
     private Date timestamp;
 
-    @ContainerKey("boxedLodo")
     @Column
     @ForeignKey(references = {@ForeignKeyReference(columnName = "id1", columnType = long.class, foreignKeyColumnName = "id", referencedFieldIsPackagePrivate = true),
             @ForeignKeyReference(columnName = "id2", columnType = String.class, foreignKeyColumnName = "name", referencedFieldIsPackagePrivate = true)})

@@ -78,7 +78,7 @@ public class FlowContentObserver extends ContentObserver {
          * @param primaryKeyValues The array of primary {@link SQLCondition} of what changed. Call {@link SQLCondition#columnName()}
          *                         and {@link SQLCondition#value()} to get each information.
          */
-        void onModelStateChanged(@Nullable Class<? extends Model> table, Action action, @NonNull SQLCondition[] primaryKeyValues);
+        void onModelStateChanged(@Nullable Class<?> table, Action action, @NonNull SQLCondition[] primaryKeyValues);
     }
 
     /**
@@ -93,12 +93,12 @@ public class FlowContentObserver extends ContentObserver {
          *                     or higher.
          * @param action       The action that occurred.
          */
-        void onTableChanged(@Nullable Class<? extends Model> tableChanged, Action action);
+        void onTableChanged(@Nullable Class<?> tableChanged, Action action);
     }
 
     private final Set<OnModelStateChangedListener> modelChangeListeners = new CopyOnWriteArraySet<>();
     private final Set<OnTableChangedListener> onTableChangedListeners = new CopyOnWriteArraySet<>();
-    private final Map<String, Class<? extends Model>> registeredTables = new HashMap<>();
+    private final Map<String, Class<?>> registeredTables = new HashMap<>();
     private final Set<Uri> notificationUris = new HashSet<>();
     private final Set<Uri> tableUris = new HashSet<>();
 
@@ -192,14 +192,14 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Registers the observer for model change events for specific class.
      */
-    public void registerForContentChanges(Context context, Class<? extends Model> table) {
+    public void registerForContentChanges(Context context, Class<?> table) {
         registerForContentChanges(context.getContentResolver(), table);
     }
 
     /**
      * Registers the observer for model change events for specific class.
      */
-    public void registerForContentChanges(ContentResolver contentResolver, Class<? extends Model> table) {
+    public void registerForContentChanges(ContentResolver contentResolver, Class<?> table) {
         contentResolver.registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
         REGISTERED_COUNT.incrementAndGet();
         if (!registeredTables.containsValue(table)) {
@@ -254,7 +254,7 @@ public class FlowContentObserver extends ContentObserver {
             }
         }
 
-        Class<? extends Model> table = registeredTables.get(tableName);
+        Class<?> table = registeredTables.get(tableName);
         Action action = Action.valueOf(fragment);
         if (!isInTransaction) {
 

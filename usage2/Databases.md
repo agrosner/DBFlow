@@ -62,7 +62,7 @@ the column to the `Model` class and this migration runs only on existing dbs.
 ## Advanced Database features
 
 This section goes through features that are for more advanced use of a database,
-but may be very useful.
+and may be very useful.
 
 ### Prepackaged Databases
 To include a prepackaged database for your application, simply include the ".db" file in `src/main/assets/{databaseName}.db`. On creation of the database, we copy over the file into the application for usage. Since this is prepackaged within the APK, we cannot delete it once it's copied over,
@@ -70,7 +70,7 @@ which can bulk up your raw APK size. _Note_ this is only copied over on initial 
 of the database for the app.
 
 ### Global Conflict Handling
-In DBFlow when an INSERT or UPDATE are performed, by default, we use `ABORT`. If you wish to configure this globally, you can define it to apply for all tables from a given database:
+In DBFlow when an INSERT or UPDATE are performed, by default, we use `NONE`. If you wish to configure this globally, you can define it to apply for all tables from a given database:
 
 
 ```java

@@ -5,7 +5,6 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -13,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * code where this library does not provide. It only runs a
  * {@link android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])}.
  */
-public class StringQuery<TModel extends Model> extends BaseModelQueriable<TModel> implements Query, ModelQueriable<TModel> {
+public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Query, ModelQueriable<TModel> {
 
     /**
      * The full SQLite query to use
