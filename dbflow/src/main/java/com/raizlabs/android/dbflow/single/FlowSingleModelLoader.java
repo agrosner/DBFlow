@@ -23,19 +23,19 @@ import java.util.HashSet;
 public abstract class FlowSingleModelLoader <TModel extends Model>
     extends AsyncTaskLoader<TModel> {
     /// Model type being loaded.
-    private final Class<TModel> mModel;
+    private final Class<TModel> model;
 
     /// Adapter for converting cursor into target model.
-    private final InstanceAdapter<TModel> mAdapter;
+    private final InstanceAdapter<TModel> adapter;
 
     /// Queriable operation that the loader executes.
-    private Queriable mQueriable;
+    private Queriable queriable;
 
     /// Cursor for the loader.
-    private TModel mResult;
+    private TModel result;
 
     /// Observe changes to the model.
-    private boolean mObserveModel = true;
+    private boolean observeModel = true;
 
     /// Collection of models to be observed.
     private final HashSet<Class<? extends Model>> mModels = new HashSet<>();
@@ -66,22 +66,22 @@ public abstract class FlowSingleModelLoader <TModel extends Model>
     protected FlowSingleModelLoader(Context context, Class<TModel> model, InstanceAdapter<TModel> adapter, Queriable queriable) {
         super(context);
 
-        this.mQueriable = queriable;
-        this.mModel = model;
-        this.mAdapter = adapter;
+        this.queriable = queriable;
+        this.model = model;
+        this.adapter = adapter;
     }
 
     /* Runs on a worker thread */
     @Override
     public TModel loadInBackground() {
-        Cursor cursor = this.mQueriable.query();
+        Cursor cursor = this.queriable.query();
 
         if (cursor == null || !cursor.moveToFirst()) {
             return null;
         }
 
-        TModel model = this.mAdapter.newInstance();
-        this.mAdapter.loadFromCursor(cursor, model);
+        TModel model = this.adapter.newInstance();
+        this.adapter.loadFromCursor(cursor, model);
 
         return model;
     }
@@ -89,7 +89,7 @@ public abstract class FlowSingleModelLoader <TModel extends Model>
     /* Runs on the UI thread */
     @Override
     public void deliverResult(TModel result) {
-        this.mResult = result;
+        this.result = result;
 
         if (this.isStarted()) {
             super.deliverResult(result);
@@ -105,16 +105,16 @@ public abstract class FlowSingleModelLoader <TModel extends Model>
      */
     @Override
     protected void onStartLoading() {
-        if (mResult != null) {
-            this.deliverResult(mResult);
+        if (result != null) {
+            this.deliverResult(result);
         }
 
         // Start watching for changes to the model.
-        if (this.mObserveModel) {
-            this.registerForContentChanges(this.mModel);
+        if (this.observeModel) {
+            this.registerForContentChanges(this.model);
         }
 
-        if (this.takeContentChanged() || this.mResult == null) {
+        if (this.takeContentChanged() || this.result == null) {
             this.forceLoad();
         }
     }
@@ -134,8 +134,8 @@ public abstract class FlowSingleModelLoader <TModel extends Model>
         // Ensure the loader is stopped
         this.onStopLoading();
 
-        if (this.mResult != null) {
-            this.mResult = null;
+        if (this.result != null) {
+            this.result = null;
         }
 
         // Unregister the loader for content changes.
@@ -143,11 +143,11 @@ public abstract class FlowSingleModelLoader <TModel extends Model>
     }
 
     public Class<TModel> getModel() {
-        return this.mModel;
+        return this.model;
     }
 
     public void setObserveModel(boolean observeModel) {
-        this.mObserveModel = observeModel;
+        this.observeModel = observeModel;
     }
 
     public void registerForContentChanges(Class<? extends Model> model) {
