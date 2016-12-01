@@ -23,19 +23,19 @@ import java.util.HashSet;
 @TargetApi(11)
 public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
     /// Models to be observed for changes.
-    private final HashSet<Class<? extends Model>> mModels = new HashSet<>();
+    private final HashSet<Class<? extends Model>> models = new HashSet<>();
 
     /// Queriable operation that the loader executes.
-    private Queriable mQueriable;
+    private Queriable queriable;
 
     /// Cursor for the loader.
-    private Cursor mCursor;
+    private Cursor cursor;
 
     /// The observer that triggers the loader to reload anytime if it receives
     /// notification of a change.
-    private final ForceLoadContentObserver mObserver = new ForceLoadContentObserver();
+    private final ForceLoadContentObserver observer = new ForceLoadContentObserver();
 
-    private boolean mListening = false;
+    private boolean listening = false;
 
     /**
      * Creates a fully-specified CursorLoader.  See {@link android.content.ContentResolver#query(Uri,
@@ -45,12 +45,12 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
     public FlowCursorLoader(Context context, Queriable queriable) {
         super(context);
 
-        this.mQueriable = queriable;
+        this.queriable = queriable;
     }
 
     @Override
     public Cursor loadInBackground() {
-        Cursor cursor = this.mQueriable.query();
+        Cursor cursor = this.queriable.query();
 
         if (cursor != null) {
             cursor.getCount();
@@ -70,8 +70,8 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
             return;
         }
 
-        Cursor oldCursor = this.mCursor;
-        this.mCursor = cursor;
+        Cursor oldCursor = this.cursor;
+        this.cursor = cursor;
 
         if (this.isStarted()) {
             super.deliverResult(cursor);
@@ -94,21 +94,21 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
      * @param model
      */
     public void registerForContentChanges(Class<? extends Model> model) {
-        if (this.mModels.contains(model)) {
+        if (this.models.contains(model)) {
             return;
         }
 
-        this.mModels.add(model);
-        this.mObserver.registerForContentChanges(this.getContext(), model);
+        this.models.add(model);
+        this.observer.registerForContentChanges(this.getContext(), model);
     }
 
     @Override
     protected void onStartLoading() {
-        if (this.mCursor != null) {
-            this.deliverResult(this.mCursor);
+        if (this.cursor != null) {
+            this.deliverResult(this.cursor);
         }
 
-        if (this.takeContentChanged() || this.mCursor == null) {
+        if (this.takeContentChanged() || this.cursor == null) {
             this.forceLoad();
         }
     }
@@ -134,35 +134,35 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
 
         this.startLoading();
 
-        if (mCursor != null && !mCursor.isClosed()) {
-            mCursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
         }
 
-        mCursor = null;
+        cursor = null;
 
-        this.mObserver.unregisterForContentChanges(this.getContext());
+        this.observer.unregisterForContentChanges(this.getContext());
     }
 
     private void startListeningForChanges() {
-        if (!this.mListening) {
-            this.mObserver.addModelChangeListener(this.mObserver);
-            this.mListening = true;
+        if (!this.listening) {
+            this.observer.addModelChangeListener(this.observer);
+            this.listening = true;
         }
     }
 
     private void stopListeningForChanges() {
-        if (this.mListening) {
-            this.mObserver.removeModelChangeListener(this.mObserver);
-            this.mListening = false;
+        if (this.listening) {
+            this.observer.removeModelChangeListener(this.observer);
+            this.listening = false;
         }
     }
 
     public Collection<Class<? extends Model>> getModels() {
-        return this.mModels;
+        return this.models;
     }
 
     public FlowContentObserver getContentObserver() {
-        return this.mObserver;
+        return this.observer;
     }
 
     private final class ForceLoadContentObserver extends FlowContentObserver
