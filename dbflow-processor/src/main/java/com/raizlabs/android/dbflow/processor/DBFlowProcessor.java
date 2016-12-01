@@ -29,6 +29,14 @@ public class DBFlowProcessor extends AbstractProcessor {
 
     private ProcessorManager manager;
 
+    @Override
+    public Set<String> getSupportedOptions() {
+        Set <String> supportedOptions = new LinkedHashSet<>();
+        supportedOptions.add("targetModuleName");
+
+        return supportedOptions;
+    }
+
     /**
      * If the processor class is annotated with {@link
      * javax.annotation.processing.SupportedAnnotationTypes}, return an unmodifiable set with the

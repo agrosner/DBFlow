@@ -131,7 +131,6 @@ fun <T : Any> update(modelClass: KClass<T>): Update<T> = SQLite.update(modelClas
 
 infix fun <T : Any> Update<T>.set(sqlCondition: SQLCondition) = set(sqlCondition)
 
-
 // delete
 
 inline fun <reified T : Any> delete() = SQLite.delete(T::class.java)

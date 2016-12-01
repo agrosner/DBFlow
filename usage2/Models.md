@@ -55,8 +55,13 @@ Columns have a wide-range of supported types in the `Model` classes:
   5. `Model` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
 
 **Unsupported Types**:
+<<<<<<< HEAD
+  1. `List<TModel>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
+  2. Anything that is generically typed (even with an associated `TypeConverter`), **except** `ModelContainer` and `ForeignKeyContainer` fields. If you need to include the field, subclass the generic object and provide a `TypeConverter`.
+=======
   1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
   2. Anything that is generically typed (even with an associated `TypeConverter`). If you need to include the field, subclass the generic object and provide a `TypeConverter`.
+>>>>>>> raizlabs/develop
 
 ## Inherited Columns
 
