@@ -16,16 +16,6 @@ public class ForeignInteractionModel extends TestModel1 {
 
     @Column
     @ForeignKey(
-<<<<<<< HEAD
-        onDelete = ForeignKeyAction.CASCADE,
-        onUpdate = ForeignKeyAction.CASCADE,
-        references = {
-            @ForeignKeyReference(columnName = "testmodel_id", foreignKeyColumnName = "name", columnType = String.class),
-            @ForeignKeyReference(columnName = "testmodel_type", foreignKeyColumnName = "type", columnType = String.class)
-        },
-        saveForeignKeyModel = true)
-    ForeignKeyContainer<ParentModel> testModel1;
-=======
             onDelete = ForeignKeyAction.CASCADE,
             onUpdate = ForeignKeyAction.CASCADE,
             references =
@@ -39,7 +29,6 @@ public class ForeignInteractionModel extends TestModel1 {
                                     columnType = String.class)}
     )
     ParentModel testModel1;
->>>>>>> raizlabs/develop
 
     public TestModel1 getTestModel1() {
         return testModel1 != null ? testModel1 : null;
