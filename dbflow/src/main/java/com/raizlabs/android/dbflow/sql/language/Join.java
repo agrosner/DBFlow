@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +16,7 @@ import java.util.List;
 /**
  * Description: Specifies a SQLite JOIN statement
  */
-public class Join<TModel extends Model, TFromModel extends Model> implements Query {
+public class Join<TModel, TFromModel> implements Query {
 
     /**
      * The specific type of JOIN that is used.

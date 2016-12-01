@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Description: Describes a 1-many relationship. It applies to some method that returns a {@link List} of Model objects.
  * This annotation can handle loading, deleting, and saving when the current data changes. By default it will call the
- * associated method when the
+ * associated method when the containing class operates.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)

@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: Provides conversion for model values into DB values for specific values as well as model-backed methods.
@@ -101,7 +100,7 @@ public class ValueQueryBuilder extends QueryBuilder<ValueQueryBuilder> {
      * @param table
      * @return
      */
-    public ValueQueryBuilder appendTableName(Class<? extends Model> table) {
+    public ValueQueryBuilder appendTableName(Class<?> table) {
         return append(FlowManager.getTableName(table));
     }
 

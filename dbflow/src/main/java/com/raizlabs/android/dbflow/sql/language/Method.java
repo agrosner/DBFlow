@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
+import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,10 @@ public class Method extends Property {
      */
     public static Cast cast(@NonNull IProperty property) {
         return new Cast(property);
+    }
+
+    public static Method replace(IProperty property, String findString, String replacement) {
+        return new Method("REPLACE", property, PropertyFactory.from(findString), PropertyFactory.from(replacement));
     }
 
     private final List<IProperty> propertyList = new ArrayList<>();

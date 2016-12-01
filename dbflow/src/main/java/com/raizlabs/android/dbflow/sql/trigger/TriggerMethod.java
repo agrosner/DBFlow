@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 /**
  * Description: Describes the method that the trigger uses.
  */
-public class TriggerMethod<TModel extends Model> implements Query {
+public class TriggerMethod<TModel> implements Query {
 
     public static final String DELETE = "DELETE";
     public static final String INSERT = "INSERT";

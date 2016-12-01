@@ -4,6 +4,7 @@ import android.os.Looper;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -33,14 +34,14 @@ public class DBBatchSaveQueue extends Thread {
     private int modelSaveSize = MODEL_SAVE_SIZE;
 
     /**
-     * Sets the time we check periodically for leftover {@link Model} in our queue to save.
+     * Sets the time we check periodically for leftover DB objects in our queue to save.
      */
     private long modelSaveCheckTime = sMODEL_SAVE_CHECK_TIME;
 
     /**
-     * The list of {@link Model} that we will save here
+     * The list of DB objects that we will save here
      */
-    private final ArrayList<Model> models;
+    private final ArrayList<Object> models;
 
     /**
      * If true, this queue will quit.
@@ -49,11 +50,12 @@ public class DBBatchSaveQueue extends Thread {
 
     private Transaction.Error errorListener;
     private Transaction.Success successListener;
+    private Runnable emptyTransactionListener;
 
     private DatabaseDefinition databaseDefinition;
 
     /**
-     * Creates a new instance of this class to batch save {@link Model} classes.
+     * Creates a new instance of this class to batch save DB object classes.
      */
     DBBatchSaveQueue(DatabaseDefinition databaseDefinition) {
         super("DBBatchSaveQueue");
@@ -65,18 +67,16 @@ public class DBBatchSaveQueue extends Thread {
      * Sets how many models to save at a time in this queue.
      * Increase it for larger batches, but slower recovery time.
      * Smaller the batch, the more time it takes to save overall.
-     *
-     * @param mModelSaveSize
      */
     public void setModelSaveSize(int mModelSaveSize) {
         this.modelSaveSize = mModelSaveSize;
     }
 
     /**
-     * Sets how long, in millis that this queue will check for leftover {@link Model} that have not been saved yet.
+     * Sets how long, in millis that this queue will check for leftover DB objects that have not been saved yet.
      * The default is {@link #sMODEL_SAVE_CHECK_TIME}
      *
-     * @param time The time, in millis that queue automatically checks for leftover {@link Model} in this queue.
+     * @param time The time, in millis that queue automatically checks for leftover DB objects in this queue.
      */
     public void setModelSaveCheckTime(long time) {
         this.modelSaveCheckTime = time;
@@ -84,7 +84,7 @@ public class DBBatchSaveQueue extends Thread {
 
 
     /**
-     * Listener for errors in each batch {@link Transaction}.
+     * Listener for errors in each batch {@link Transaction}. Called from the DBBatchSaveQueue thread.
      *
      * @param errorListener The listener to use.
      */
@@ -93,12 +93,21 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Listener for batch updates.
+     * Listener for batch updates. Called from the DBBatchSaveQueue thread.
      *
      * @param successListener The listener to get notified when changes are successful.
      */
     public void setSuccessListener(Transaction.Success successListener) {
         this.successListener = successListener;
+    }
+
+    /**
+     * Listener for when there is no work done. Called from the DBBatchSaveQueue thread.
+     *
+     * @param emptyTransactionListener The listener to get notified when the save queue thread ran but was empty.
+     */
+    public void setEmptyTransactionListener(Runnable emptyTransactionListener) {
+        this.emptyTransactionListener = emptyTransactionListener;
     }
 
     @SuppressWarnings("unchecked")
@@ -108,7 +117,7 @@ public class DBBatchSaveQueue extends Thread {
         Looper.prepare();
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         while (true) {
-            final ArrayList<Model> tmpModels;
+            final ArrayList<Object> tmpModels;
             synchronized (models) {
                 tmpModels = new ArrayList<>(models);
                 models.clear();
@@ -122,6 +131,8 @@ public class DBBatchSaveQueue extends Thread {
                         .error(errorCallback)
                         .build()
                         .execute();
+            } else if (emptyTransactionListener != null) {
+                emptyTransactionListener.run();
             }
 
             try {
@@ -145,11 +156,9 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Adds a {@link Model} to this queue.
-     *
-     * @param inModel
+     * Adds an object to this queue.
      */
-    public void add(final Model inModel) {
+    public void add(final Object inModel) {
         synchronized (models) {
             models.add(inModel);
 
@@ -160,12 +169,9 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Adds a {@link java.util.Collection} of {@link Model} to this queue
-     *
-     * @param list
-     * @param <TModel>
+     * Adds a {@link java.util.Collection} of DB objects to this queue
      */
-    public void addAll(final Collection<Model> list) {
+    public void addAll(final Collection<Object> list) {
         synchronized (models) {
             models.addAll(list);
 
@@ -176,21 +182,42 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Removes a {@link Model} from this queue before it is processed.
-     *
-     * @param outModel
+     * Adds a {@link java.util.Collection} of class that extend Object to this queue
      */
-    public void remove(final Model outModel) {
+    public void addAll2(final Collection<?> list) {
+        synchronized (models) {
+            models.addAll(list);
+
+            if (models.size() > modelSaveSize) {
+                interrupt();
+            }
+        }
+    }
+
+    /**
+     * Removes a DB object from this queue before it is processed.
+     */
+    public void remove(final Object outModel) {
         synchronized (models) {
             models.remove(outModel);
         }
     }
 
     /**
-     * Removes a {@link java.util.Collection} of {@link Model} from this queue
+     * Removes a {@link java.util.Collection} of DB object from this queue
      * before it is processed.
      */
-    public void removeAll(final Collection<Model> outCollection) {
+    public void removeAll(final Collection<Object> outCollection) {
+        synchronized (models) {
+            models.removeAll(outCollection);
+        }
+    }
+
+    /**
+     * Removes a {@link java.util.Collection} of DB objects from this queue
+     * before it is processed.
+     */
+    public void removeAll2(final Collection<?> outCollection) {
         synchronized (models) {
             models.removeAll(outCollection);
         }
@@ -205,8 +232,14 @@ public class DBBatchSaveQueue extends Thread {
 
     private final ProcessModelTransaction.ProcessModel modelSaver = new ProcessModelTransaction.ProcessModel() {
         @Override
-        public void processModel(Model model) {
-            model.save();
+        public void processModel(Object model) {
+            if (model instanceof Model) {
+                ((Model) model).save();
+            } else if (model != null) {
+                Class modelClass = model.getClass();
+                //noinspection unchecked
+                FlowManager.getModelAdapter(modelClass).save(model);
+            }
         }
     };
 

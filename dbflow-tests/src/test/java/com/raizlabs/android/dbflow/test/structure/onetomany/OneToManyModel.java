@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.test.structure.onetomany;
 
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -16,11 +14,9 @@ import java.util.List;
 /**
  * Description:
  */
-@ModelContainer
 @Table(database = TestDatabase.class)
 public class OneToManyModel extends BaseModel {
 
-    @Column
     @PrimaryKey
     String name;
 

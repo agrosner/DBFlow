@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.structure.BaseQueryModel
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter
-import com.raizlabs.android.dbflow.structure.container.ModelContainerAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
@@ -14,44 +13,37 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
 /**
  * Easily get access to its [DatabaseDefinition] directly.
  */
-inline fun <reified TModel : Model> database(): DatabaseDefinition {
-    return FlowManager.getDatabaseForTable(TModel::class.java)
+inline fun <reified T : Any> database(): DatabaseDefinition {
+    return FlowManager.getDatabaseForTable(T::class.java)
 }
 
 /**
  * Easily get its table name.
  */
-inline fun <reified TModel : Model> tableName(): String {
-    return FlowManager.getTableName(TModel::class.java)
+inline fun <reified T : Any> tableName(): String {
+    return FlowManager.getTableName(T::class.java)
 }
 
 /**
  * Easily get its [ModelAdapter].
  */
-inline fun <reified TModel : Model> modelAdapter(): ModelAdapter<TModel> {
-    return FlowManager.getModelAdapter(TModel::class.java)
-}
-
-/**
- * Easily get its [ModelContainerAdapter].
- */
-inline fun <reified TModel : Model> containerAdapter(): ModelContainerAdapter<TModel> {
-    return FlowManager.getContainerAdapter(TModel::class.java)
+inline fun <reified T : Any> modelAdapter(): ModelAdapter<T> {
+    return FlowManager.getModelAdapter(T::class.java)
 }
 
 /**
  * Easily get its [QueryModelAdapter].
  */
-inline fun <reified TModel : BaseQueryModel> queryModelAdapter(): QueryModelAdapter<TModel> {
-    return FlowManager.getQueryModelAdapter(TModel::class.java)
+inline fun <reified T : BaseQueryModel> queryModelAdapter(): QueryModelAdapter<T> {
+    return FlowManager.getQueryModelAdapter(T::class.java)
 }
 
 
 /**
- * Enables a collection of TModel objects to easily operate on them within a synchronous database transaction.
+ * Enables a collection of T objects to easily operate on them within a synchronous database transaction.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit) {
-    val wrapper = database<TModel>()
+inline fun <reified T : Any> Collection<T>.processInTransaction(crossinline processFunction: (T, DatabaseWrapper) -> Unit) {
+    val wrapper = database<T>()
     wrapper.executeTransaction {
         forEach { processFunction(it, wrapper.writableDatabase) }
     }
@@ -61,10 +53,10 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransaction(cros
  * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit) {
-    val wrapper = database<TModel>()
+inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline processFunction: (T, DatabaseWrapper) -> Unit) {
+    val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> {
                 processFunction(it, wrapper.writableDatabase)
             }).addAll(this).build()
     ).build().execute();
@@ -74,12 +66,12 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync
  * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit,
-                                                                                 success: Transaction.Success? = null,
-                                                                                 error: Transaction.Error? = null) {
-    val wrapper = database<TModel>()
+inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline processFunction: (T, DatabaseWrapper) -> Unit,
+                                                                     success: Transaction.Success? = null,
+                                                                     error: Transaction.Error? = null) {
+    val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> {
                 processFunction(it, wrapper.writableDatabase)
             }).addAll(this).build()
     ).success(success).error(error).build().execute();
@@ -89,13 +81,13 @@ inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync
  * Places the [Collection] of items on the [ITransactionQueue]. Use the [processFunction] to perform
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
-inline fun <reified TModel : Model> Collection<TModel>.processInTransactionAsync(crossinline processFunction: (TModel, DatabaseWrapper) -> Unit,
-                                                                                 processListener: ProcessModelTransaction.OnModelProcessListener<TModel>? = null,
-                                                                                 success: Transaction.Success? = null,
-                                                                                 error: Transaction.Error? = null) {
-    val wrapper = database<TModel>()
+inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline processFunction: (T, DatabaseWrapper) -> Unit,
+                                                                     processListener: ProcessModelTransaction.OnModelProcessListener<T>? = null,
+                                                                     success: Transaction.Success? = null,
+                                                                     error: Transaction.Error? = null) {
+    val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<TModel> {
+            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> {
                 processFunction(it, wrapper.writableDatabase)
             }).addAll(this).processListener(processListener).build()
     ).success(success).error(error).build().execute();

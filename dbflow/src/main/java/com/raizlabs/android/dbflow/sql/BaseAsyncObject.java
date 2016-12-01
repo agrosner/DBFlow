@@ -16,7 +16,7 @@ public class BaseAsyncObject<TAsync> {
     private Transaction currentTransaction;
     private final DatabaseDefinition databaseDefinition;
 
-    public BaseAsyncObject(Class<? extends Model> modelClass) {
+    public BaseAsyncObject(Class<?> modelClass) {
         databaseDefinition = FlowManager.getDatabaseForTable(modelClass);
     }
 

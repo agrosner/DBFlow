@@ -187,7 +187,11 @@ items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapp
 
 ```
 
+<<<<<<< HEAD
 The extension method on `Collection<TModel : Model>` allows you to perform this on all
+=======
+The extension method on `Collection<T>` allows you to perform this on all
+>>>>>>> raizlabs/develop
 collections from your Table!
 
 If you wish to easily do them _synchronously_ then use:
@@ -211,8 +215,6 @@ database<TestModel>
 tableName<TestModel>
 
 modelAdapter<TestModel>
-
-containerAdapter<TestModel>
 
 ```
 

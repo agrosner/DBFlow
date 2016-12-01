@@ -14,15 +14,15 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class IntProperty extends BaseProperty<IntProperty> {
 
-    public IntProperty(Class<? extends Model> table, NameAlias nameAlias) {
+    public IntProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public IntProperty(Class<? extends Model> table, String columnName) {
+    public IntProperty(Class<?> table, String columnName) {
         this(table, new NameAlias.Builder(columnName).build());
     }
 
-    public IntProperty(Class<? extends Model> table, String columnName, String aliasName) {
+    public IntProperty(Class<?> table, String columnName, String aliasName) {
         this(table, new NameAlias.Builder(columnName).as(aliasName).build());
     }
 
@@ -101,6 +101,10 @@ public class IntProperty extends BaseProperty<IntProperty> {
 
     public Condition like(int value) {
         return column(nameAlias).like(String.valueOf(value));
+    }
+
+    public Condition notLike(int value) {
+        return column(nameAlias).notLike(String.valueOf(value));
     }
 
     public Condition glob(int value) {

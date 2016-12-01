@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ContainerKey;
-import com.raizlabs.android.dbflow.annotation.ExternalForeignKey;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.IndexGroup;
 import com.raizlabs.android.dbflow.annotation.InheritedColumn;
@@ -339,7 +338,6 @@ public class TableDefinition extends BaseTableDefinition {
             boolean isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element);
 
             boolean isForeign = element.getAnnotation(ForeignKey.class) != null;
-            boolean isExternalForeign = element.getAnnotation(ExternalForeignKey.class) != null;
             boolean isPrimary = element.getAnnotation(PrimaryKey.class) != null;
             boolean isInherited = inheritedColumnMap.containsKey(element.getSimpleName().toString());
             boolean isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.getSimpleName().toString());

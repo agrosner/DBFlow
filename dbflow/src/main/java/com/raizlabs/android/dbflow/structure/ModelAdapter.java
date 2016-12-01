@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.structure;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
@@ -25,21 +25,20 @@ import java.util.Collection;
 /**
  * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
  */
-public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter<TModel, TModel>
+public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         implements InternalAdapter<TModel> {
 
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
-    private ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver;
-    private ListModelSaver<TModel, TModel, ModelAdapter<TModel>> listModelSaver;
+    private ModelSaver<TModel> modelSaver;
+    private ListModelSaver<TModel> listModelSaver;
 
     public ModelAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
         if (getTableConfig() != null && getTableConfig().modelSaver() != null) {
             modelSaver = getTableConfig().modelSaver();
-            modelSaver.setAdapter(this);
             modelSaver.setModelAdapter(this);
         }
     }
@@ -59,7 +58,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled {@link DatabaseStatement} representing insert. Not cached, always generated.
-     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Object)}.
      */
     public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getInsertStatementQuery());
@@ -80,7 +79,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled {@link DatabaseStatement} representing insert.
-     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Model)}.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Object)}.
      */
     public DatabaseStatement getCompiledStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getCompiledStatementQuery());
@@ -125,13 +124,13 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     }
 
     @Override
-    public void insert(TModel model) {
-        getModelSaver().insert(model);
+    public long insert(TModel model) {
+        return getModelSaver().insert(model);
     }
 
     @Override
-    public void insert(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().insert(model, databaseWrapper);
+    public long insert(TModel model, DatabaseWrapper databaseWrapper) {
+        return getModelSaver().insert(model, databaseWrapper);
     }
 
     @Override
@@ -175,6 +174,16 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
     }
 
     @Override
+    public void deleteAll(Collection<TModel> tModels, DatabaseWrapper databaseWrapper) {
+        getListModelSaver().deleteAll(tModels, databaseWrapper);
+    }
+
+    @Override
+    public void deleteAll(Collection<TModel> tModels) {
+        getListModelSaver().deleteAll(tModels);
+    }
+
+    @Override
     public void bindToInsertStatement(DatabaseStatement sqLiteStatement, TModel model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
     }
@@ -212,6 +221,22 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
                 String.format("This method may have been called in error. The model class %1s must contain " +
                                 "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
                         getModelClass()));
+    }
+
+    /**
+     * Called when we want to save our {@link ForeignKey} objects. usually during insert + update.
+     * This method is overridden when {@link ForeignKey} specified
+     */
+    public void saveForeignKeys(TModel model, DatabaseWrapper wrapper) {
+
+    }
+
+    /**
+     * Called when we want to delete our {@link ForeignKey} objects. During deletion {@link #delete(Object, DatabaseWrapper)}
+     * This method is overridden when {@link ForeignKey} specified
+     */
+    public void deleteForeignKeys(TModel model, DatabaseWrapper wrapper) {
+
     }
 
     /**
@@ -300,23 +325,22 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
         return getCachingId(getCachingColumnValuesFromModel(new Object[getCachingColumns().length], model));
     }
 
-    public ModelSaver<TModel, TModel, ModelAdapter<TModel>> getModelSaver() {
+    public ModelSaver<TModel> getModelSaver() {
         if (modelSaver == null) {
             modelSaver = new ModelSaver<>();
-            modelSaver.setAdapter(this);
             modelSaver.setModelAdapter(this);
         }
         return modelSaver;
     }
 
-    public ListModelSaver<TModel, TModel, ModelAdapter<TModel>> getListModelSaver() {
+    public ListModelSaver<TModel> getListModelSaver() {
         if (listModelSaver == null) {
             listModelSaver = createListModelSaver();
         }
         return listModelSaver;
     }
 
-    protected ListModelSaver<TModel, TModel, ModelAdapter<TModel>> createListModelSaver() {
+    protected ListModelSaver<TModel> createListModelSaver() {
         return new ListModelSaver<>(getModelSaver());
     }
 
@@ -325,7 +349,7 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver<TModel, TModel, ModelAdapter<TModel>> modelSaver) {
+    public void setModelSaver(ModelSaver<TModel> modelSaver) {
         this.modelSaver = modelSaver;
     }
 
@@ -415,4 +439,5 @@ public abstract class ModelAdapter<TModel extends Model> extends InstanceAdapter
                                 "an auto-incrementing or one primary key (if used in a ModelCache, this method may be called)",
                         getModelClass()));
     }
+
 }

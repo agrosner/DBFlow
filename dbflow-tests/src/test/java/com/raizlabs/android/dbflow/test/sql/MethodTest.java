@@ -12,6 +12,7 @@ import static com.raizlabs.android.dbflow.sql.language.Method.count;
 import static com.raizlabs.android.dbflow.sql.language.Method.group_concat;
 import static com.raizlabs.android.dbflow.sql.language.Method.max;
 import static com.raizlabs.android.dbflow.sql.language.Method.min;
+import static com.raizlabs.android.dbflow.sql.language.Method.replace;
 import static com.raizlabs.android.dbflow.sql.language.Method.sum;
 import static com.raizlabs.android.dbflow.sql.language.Method.total;
 import static com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name;
@@ -68,5 +69,11 @@ public class MethodTest extends FlowTestCase {
     public void test_castMethod() {
         String query = cast(name).as(SQLiteType.INTEGER).getQuery();
         assertEquals("CAST(`name` AS INTEGER)", query);
+    }
+
+    @Test
+    public void test_replaceMethod() {
+        String query = replace(name, "ro", "or").getQuery();
+        assertEquals("REPLACE(`name` , 'ro' , 'or')", query);
     }
 }

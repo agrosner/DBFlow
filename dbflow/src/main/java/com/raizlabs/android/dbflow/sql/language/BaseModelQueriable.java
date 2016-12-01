@@ -11,8 +11,6 @@ import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
-import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.container.ModelContainer;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
@@ -22,9 +20,9 @@ import java.util.List;
  * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code. It provides the
  * default implementation for convenience.
  */
-public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueriable<TModel> implements ModelQueriable<TModel>, Query {
+public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> implements ModelQueriable<TModel>, Query {
 
-    private InstanceAdapter<?, TModel> retrievalAdapter;
+    private InstanceAdapter<TModel> retrievalAdapter;
 
     /**
      * Constructs new instance of this class and is meant for subclasses only.
@@ -35,7 +33,7 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
         super(table);
     }
 
-    private InstanceAdapter<?, TModel> getRetrievalAdapter() {
+    private InstanceAdapter<TModel> getRetrievalAdapter() {
         if (retrievalAdapter == null) {
             //noinspection unchecked
             retrievalAdapter = FlowManager.getInstanceAdapter(getTable());
@@ -78,16 +76,6 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
         return list == null ? new ArrayList<TModel>() : list;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <ModelContainerClass extends ModelContainer<TModel, ?>> ModelContainerClass
-    queryModelContainer(@NonNull ModelContainerClass instance) {
-        String query = getQuery();
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
-        return (ModelContainerClass) FlowManager.getContainerAdapter(getTable())
-                .getModelContainerLoader().load(query, instance);
-    }
-
     @Override
     public FlowCursorList<TModel> cursorList() {
         return new FlowCursorList.Builder<>(getTable())
@@ -99,6 +87,16 @@ public abstract class BaseModelQueriable<TModel extends Model> extends BaseQueri
         return new FlowQueryList.Builder<>(getTable())
                 .modelQueriable(this)
                 .build();
+    }
+
+    @Override
+    public long executeUpdateDelete() {
+        return executeUpdateDelete(FlowManager.getWritableDatabase(getTable()));
+    }
+
+    @Override
+    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
     }
 
     @Override

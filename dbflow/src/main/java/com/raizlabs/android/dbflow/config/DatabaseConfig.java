@@ -27,7 +27,7 @@ public final class DatabaseConfig {
     private final Class<?> databaseClass;
     private final TransactionManagerCreator transactionManagerCreator;
     private final DatabaseHelperListener helperListener;
-    private final Map<Class<? extends Model>, TableConfig> tableConfigMap;
+    private final Map<Class<?>, TableConfig> tableConfigMap;
 
 
     DatabaseConfig(Builder builder) {
@@ -54,12 +54,12 @@ public final class DatabaseConfig {
         return transactionManagerCreator;
     }
 
-    public Map<Class<? extends Model>, TableConfig> tableConfigMap() {
+    public Map<Class<?>, TableConfig> tableConfigMap() {
         return tableConfigMap;
     }
 
     @SuppressWarnings("unchecked")
-    public <TModel extends Model> TableConfig<TModel> getTableConfigForTable(Class<TModel> modelClass) {
+    public <TModel> TableConfig<TModel> getTableConfigForTable(Class<TModel> modelClass) {
         return tableConfigMap().get(modelClass);
     }
 
@@ -69,7 +69,7 @@ public final class DatabaseConfig {
         final Class<?> databaseClass;
         TransactionManagerCreator transactionManagerCreator;
         DatabaseHelperListener helperListener;
-        final Map<Class<? extends Model>, TableConfig> tableConfigMap = new HashMap<>();
+        final Map<Class<?>, TableConfig> tableConfigMap = new HashMap<>();
 
 
         public Builder(Class<?> databaseClass) {

@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.sql.language.property;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import java.util.Collection;
 
@@ -22,7 +21,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  */
 public class Property<T> extends BaseProperty<Property<T>> implements ITypeConditional<T> {
 
-    public static final Property ALL_PROPERTY = new Property(null, "*") {
+    public static final Property<?> ALL_PROPERTY = new Property<Object>(null, "*") {
         @Override
         public String toString() {
             // don't tick the *
@@ -30,11 +29,11 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
         }
     };
 
-    public Property(Class<? extends Model> table, NameAlias nameAlias) {
+    public Property(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
     }
 
-    public Property(Class<? extends Model> table, String columnName) {
+    public Property(Class<?> table, String columnName) {
         super(table, null);
         if (columnName != null) {
             nameAlias = new NameAlias.Builder(columnName).build();
@@ -100,81 +99,86 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
 
     @Override
     public Condition is(T value) {
-        return column(getNameAlias()).is(value);
+        return getCondition().is(value);
     }
 
     @Override
     public Condition eq(T value) {
-        return column(getNameAlias()).eq(value);
+        return getCondition().eq(value);
     }
 
     @Override
     public Condition isNot(T value) {
-        return column(getNameAlias()).isNot(value);
+        return getCondition().isNot(value);
     }
 
     @Override
     public Condition notEq(T value) {
-        return column(getNameAlias()).notEq(value);
+        return getCondition().notEq(value);
     }
 
     @Override
     public Condition like(String value) {
-        return column(getNameAlias()).like(value);
+        return getCondition().like(value);
+    }
+
+    @Override
+    public Condition notLike(String value) {
+        return getCondition().notLike(value);
     }
 
     @Override
     public Condition glob(String value) {
-        return column(getNameAlias()).glob(value);
+        return getCondition().glob(value);
     }
 
     @Override
     public Condition greaterThan(T value) {
-        return column(getNameAlias()).greaterThan(value);
+        return getCondition().greaterThan(value);
     }
 
     @Override
     public Condition greaterThanOrEq(T value) {
-        return column(getNameAlias()).greaterThanOrEq(value);
+        return getCondition().greaterThanOrEq(value);
     }
 
     @Override
     public Condition lessThan(T value) {
-        return column(getNameAlias()).lessThan(value);
+        return getCondition().lessThan(value);
     }
 
     @Override
     public Condition lessThanOrEq(T value) {
-        return column(getNameAlias()).lessThanOrEq(value);
+        return getCondition().lessThanOrEq(value);
     }
 
     @Override
     public Condition.Between between(T value) {
-        return column(getNameAlias()).between(value);
+        return getCondition().between(value);
     }
 
     @Override
     public Condition.In in(T firstValue, T... values) {
-        return column(getNameAlias()).in(firstValue, values);
+        return getCondition().in(firstValue, values);
     }
 
     @Override
     public Condition.In notIn(T firstValue, T... values) {
-        return column(getNameAlias()).notIn(firstValue, values);
+        return getCondition().notIn(firstValue, values);
     }
 
     @Override
     public Condition.In in(Collection<T> values) {
-        return column(getNameAlias()).in(values);
+        return getCondition().in(values);
     }
 
     @Override
     public Condition.In notIn(Collection<T> values) {
-        return column(getNameAlias()).notIn(values);
+        return getCondition().notIn(values);
     }
 
     @Override
     public Condition concatenate(T value) {
-        return column(getNameAlias()).concatenate(value);
+        return getCondition().concatenate(value);
     }
 }

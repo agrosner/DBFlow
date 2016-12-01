@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Set;
+import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -44,18 +45,28 @@ public interface Queriable extends Query {
     DatabaseStatement compileStatement(DatabaseWrapper databaseWrapper);
 
     /**
-     * @return the count of the results of the query. This may return the
-     * number of rows affected from a {@link Set} or {@link Delete} statement.
+     * @return the count of the results of the query.
      */
     long count();
 
     /**
      * Allows you to pass in a {@link DatabaseWrapper} manually.
      *
-     * @return the count of the results of the query. This may return the
-     * number of rows affected from a {@link Set} or {@link Delete} statement.
+     * @return the count of the results of the query.
      */
     long count(DatabaseWrapper databaseWrapper);
+
+    /**
+     * @return This may return the number of rows affected from a {@link Set} or {@link Delete} statement.
+     * If not, returns {@link Model#INVALID_ROW_ID}
+     */
+    long executeUpdateDelete(DatabaseWrapper databaseWrapper);
+
+    /**
+     * @return This may return the number of rows affected from a {@link Set} or {@link Delete} statement.
+     * If not, returns {@link Model#INVALID_ROW_ID}
+     */
+    long executeUpdateDelete();
 
     /**
      * @return True if this query has data. It will run a {@link #count()} greater than 0.

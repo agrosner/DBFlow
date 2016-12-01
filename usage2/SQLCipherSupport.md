@@ -7,7 +7,15 @@ To add the library add the library to your `build.gradle` with same version you 
 ```groovy
 dependencies {
   compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${version}"
+  compile "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
+
 }
+```
+
+You also need to add the Proguard rule:
+```
+-keep class net.sqlcipher.** { *; }
+-dontwarn net.sqlcipher.**
 ```
 
 Next, you need to subclass the provided `SQLCipherOpenHelper` (taken from test files):

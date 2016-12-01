@@ -57,7 +57,7 @@ public final class FlowConfig {
         boolean openDatabasesOnInit;
 
         public Builder(Context context) {
-            this.context = context;
+            this.context = context.getApplicationContext();
         }
 
         public Builder addDatabaseHolder(Class<? extends DatabaseHolder> databaseHolderClass) {
