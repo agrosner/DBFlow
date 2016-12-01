@@ -38,7 +38,7 @@ public abstract class FlowSingleModelLoader <TModel extends Model>
     private boolean observeModel = true;
 
     /// Collection of models to be observed.
-    private final HashSet<Class<? extends Model>> mModels = new HashSet<>();
+    private final HashSet<Class<? extends Model>> models = new HashSet<>();
 
     private class ForceLoadContentObserver extends FlowContentObserver {
         @Override
@@ -151,11 +151,11 @@ public abstract class FlowSingleModelLoader <TModel extends Model>
     }
 
     public void registerForContentChanges(Class<? extends Model> model) {
-        if (this.mModels.contains(model)) {
+        if (this.models.contains(model)) {
             return;
         }
 
-        this.mModels.add(model);
+        this.models.add(model);
         this.mObserver.registerForContentChanges(this.getContext(), model);
     }
 }
