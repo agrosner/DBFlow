@@ -269,7 +269,7 @@ Delete.tables(MyTable1.class, MyTable2.class);
 
 // Delete using query
 SQLite.delete(MyTable.class)
-  .where(DeviceObject_Table.carrier.is("TModel-MOBILE"))
+  .where(DeviceObject_Table.carrier.is("T-MOBILE"))
     .and(DeviceObject_Table.device.is("Samsung-Galaxy-S5"))
   .async()
   .execute();
