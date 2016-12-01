@@ -34,6 +34,6 @@ val <T : Any> T.property: Property<T>
 val <T : Any> ModelQueriable<T>.property: Property<T>
     get() = PropertyFactory.from(this)
 
-inline fun <reified TModel : Any> TModel.propertyString(stringRepresentation: String?): Property<TModel> {
-    return PropertyFactory.from(TModel::class.java, stringRepresentation)
+inline fun <reified T : Any> T.propertyString(stringRepresentation: String?): Property<T> {
+    return PropertyFactory.from(T::class.java, stringRepresentation)
 }
