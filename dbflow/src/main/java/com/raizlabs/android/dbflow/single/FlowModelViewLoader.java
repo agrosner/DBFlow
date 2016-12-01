@@ -15,11 +15,11 @@ import com.raizlabs.android.dbflow.structure.Model;
  * @param <TModel>
  */
 @TargetApi(11)
-public class FlowModelViewLoader <TModel extends Model, TModelView extends BaseModelView<TModel>>
-    extends FlowSingleModelLoader<TModel, TModelView> {
+public class FlowModelViewLoader <TModel extends Model, TModelView extends BaseModelView>
+    extends FlowSingleModelLoader<TModel> {
 
     @SuppressWarnings ("unchecked")
     public FlowModelViewLoader (Context context, Class<TModel> model, Class<TModelView> modelView, Queriable queriable) {
-        super (context, model, (InstanceAdapter<TModel, TModelView>) FlowManager.getModelViewAdapter (modelView), queriable);
+        super (context, model, (InstanceAdapter<TModel>) FlowManager.getModelViewAdapter (modelView), queriable);
     }
 }

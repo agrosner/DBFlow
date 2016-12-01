@@ -1,10 +1,12 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.annotation.TargetApi;
+import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.content.AsyncTaskLoader;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
@@ -19,7 +21,8 @@ import java.util.HashSet;
  * Specialization of AsyncTaskLoader for Cursor objects in DBFlow.
  */
 @TargetApi(11)
-public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
+public class FlowCursorLoader extends AsyncTaskLoader<Cursor>
+{
     /// Models to be observed for changes.
     private HashSet<Class<? extends Model>> mModels = new HashSet<> ();
 
@@ -161,7 +164,7 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
         return this.mObserver;
     }
 
-    final class ForceLoadContentObserver extends FlowContentObserver
+    private final class ForceLoadContentObserver extends FlowContentObserver
         implements FlowContentObserver.OnModelStateChangedListener {
         private boolean endOfTransaction = false;
 
@@ -171,9 +174,7 @@ public class FlowCursorLoader extends AsyncTaskLoader<Cursor> {
         }
 
         @Override
-        public void onModelStateChanged (Class<? extends Model> table,
-                                         BaseModel.Action action,
-                                         SQLCondition[] primaryKeyValues) {
+        public void onModelStateChanged (@Nullable Class<?> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
             if (!this.endOfTransaction) {
                 if (action == BaseModel.Action.INSERT || action == BaseModel.Action.DELETE || action == BaseModel.Action.UPDATE) {
                     onContentChanged ();

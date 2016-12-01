@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.single;
 
 import android.annotation.TargetApi;
+import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.content.AsyncTaskLoader;
 
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
@@ -20,14 +20,14 @@ import java.util.HashSet;
  * @param <TModel>
  */
 @TargetApi(11)
-public abstract class FlowSingleModelLoader <TModel extends Model, TTable extends Model>
-    extends AsyncTaskLoader<TModel> {
-
+public abstract class FlowSingleModelLoader <TModel extends Model>
+    extends AsyncTaskLoader<TModel>
+{
     /// Model type being loaded.
     private final Class<TModel> mModel;
 
     /// Adapter for converting cursor into target model.
-    private final InstanceAdapter<TModel, TTable> mAdapter;
+    private final InstanceAdapter<TModel> mAdapter;
 
     /// Queriable operation that the loader executes.
     private Queriable mQueriable;
@@ -64,7 +64,7 @@ public abstract class FlowSingleModelLoader <TModel extends Model, TTable extend
 
     protected final FlowContentObserver mObserver = new ForceLoadContentObserver ();
 
-    protected FlowSingleModelLoader (Context context, Class<TModel> model, InstanceAdapter<TModel, TTable> adapter, Queriable queriable) {
+    protected FlowSingleModelLoader (Context context, Class<TModel> model, InstanceAdapter<TModel> adapter, Queriable queriable) {
         super (context);
 
         this.mQueriable = queriable;
