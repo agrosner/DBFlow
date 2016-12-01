@@ -449,7 +449,7 @@ Perhaps the most significant external change to this library is making queries, 
 ### Property
 Properties replace `String` column names generated in the "$Table" classes. They also match exact case to the column name. They have methods that generate `Condition` that drastically simplify queries. (Please note the `Condition` class has moved to the `.language` package).
 
-Properties are represented by the interface `IProperty` which are subclassed into `Property<TModel>`, `Method`, and the primitive properties (`IntProperty`, `CharProperty`, etc).
+Properties are represented by the interface `IProperty` which are subclassed into `Property<T>`, `Method`, and the primitive properties (`IntProperty`, `CharProperty`, etc).
 
 Properties can also be represented by values via the `PropertyFactory` class, enabling  values to appear first in queries:
 
