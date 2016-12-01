@@ -16,7 +16,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 public class FlowModelLoader <TModel extends Model>
     extends FlowSingleModelLoader<TModel> {
 
-    public FlowModelLoader (Context context, Class<TModel> model, Queriable queriable) {
-        super (context, model, FlowManager.getModelAdapter (model), queriable);
+    public FlowModelLoader(Context context, Class<TModel> model, Queriable queriable) {
+        super(context, model, FlowManager.getModelAdapter(model), queriable);
     }
 }

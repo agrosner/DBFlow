@@ -18,8 +18,8 @@ import com.raizlabs.android.dbflow.structure.Model;
 public class FlowModelViewLoader <TModel extends Model, TModelView extends BaseModelView>
     extends FlowSingleModelLoader<TModel> {
 
-    @SuppressWarnings ("unchecked")
-    public FlowModelViewLoader (Context context, Class<TModel> model, Class<TModelView> modelView, Queriable queriable) {
-        super (context, model, (InstanceAdapter<TModel>) FlowManager.getModelViewAdapter (modelView), queriable);
+    @SuppressWarnings("unchecked")
+    public FlowModelViewLoader(Context context, Class<TModel> model, Class<TModelView> modelView, Queriable queriable) {
+        super(context, model, (InstanceAdapter<TModel>) FlowManager.getModelViewAdapter(modelView), queriable);
     }
 }
