@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.structure.Model
 /**
  * Description: Provides property methods in via infix functions.
  */
-
 infix fun <T : Any> Property<T>.eq(value: T) = this.eq(value)
 
 infix fun <T : Any> Property<T>.`is`(value: T) = this.`is`(value)
