@@ -119,7 +119,7 @@ public class ModelSaver<TModel> {
 
         boolean successful = SQLite.delete(modelAdapter.getModelClass())
                 .where(modelAdapter.getPrimaryConditionClause(model))
-                .count(wrapper) != 0;
+                .executeUpdateDelete(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE);
         }
