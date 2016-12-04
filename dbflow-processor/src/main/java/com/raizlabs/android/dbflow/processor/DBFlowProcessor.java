@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.TypeConverter;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
+import com.raizlabs.android.dbflow.processor.definition.DatabaseHolderDefinition;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -53,6 +54,13 @@ public class DBFlowProcessor extends AbstractProcessor {
         return supportedTypes;
     }
 
+    @Override
+    public Set<String> getSupportedOptions() {
+        Set<String> supportedOptions = new LinkedHashSet<>();
+        supportedOptions.add(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME);
+        return supportedOptions;
+    }
+
     /**
      * If the processor class is annotated with {@link
      * javax.annotation.processing.SupportedSourceVersion}, return the source version in the
@@ -71,14 +79,14 @@ public class DBFlowProcessor extends AbstractProcessor {
         super.init(processingEnv);
         manager = new ProcessorManager(processingEnv);
         manager.addHandlers(
-                new MigrationHandler(),
-                new TypeConverterHandler(),
-                new DatabaseHandler(),
-                new TableHandler(),
-                new QueryModelHandler(),
-                new ModelViewHandler(),
-                new ContentProviderHandler(),
-                new TableEndpointHandler());
+            new MigrationHandler(),
+            new TypeConverterHandler(),
+            new DatabaseHandler(),
+            new TableHandler(),
+            new QueryModelHandler(),
+            new ModelViewHandler(),
+            new ContentProviderHandler(),
+            new TableEndpointHandler());
     }
 
     @Override
