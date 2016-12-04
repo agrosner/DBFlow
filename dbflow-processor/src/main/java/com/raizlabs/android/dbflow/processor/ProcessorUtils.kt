@@ -1,9 +1,11 @@
 package com.raizlabs.android.dbflow.processor
 
+import com.raizlabs.android.dbflow.processor.ProcessorManager.Companion.manager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.squareup.javapoet.ClassName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
@@ -28,7 +30,7 @@ object ProcessorUtils {
         val typeElement = processingEnvironment.elementUtils.getTypeElement(fqTn)
         if (typeElement == null) {
             processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR, "Type Element was null for: " + fqTn + "" +
-                    "ensure that the visibility of the class is not private.")
+                "ensure that the visibility of the class is not private.")
             return false
         } else {
             var classMirror: TypeMirror? = typeElement.asType()
@@ -36,7 +38,7 @@ object ProcessorUtils {
                 classMirror = processingEnvironment.typeUtils.erasure(classMirror)
             }
             return classMirror != null && element != null && element.asType() != null &&
-                    processingEnvironment.typeUtils.isAssignable(element.asType(), classMirror)
+                processingEnvironment.typeUtils.isAssignable(element.asType(), classMirror)
         }
     }
 
@@ -55,7 +57,7 @@ object ProcessorUtils {
         val typeElement = processingEnvironment.elementUtils.getTypeElement(fqTn)
         if (typeElement == null) {
             processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR, "Type Element was null for: " + fqTn + "" +
-                    "ensure that the visibility of the class is not private.")
+                "ensure that the visibility of the class is not private.")
             return false
         } else {
             val classMirror = typeElement.asType()
@@ -94,4 +96,18 @@ object ProcessorUtils {
         return typeElement
     }
 
+    fun ensureVisibleStatic(element: Element, typeElement: TypeElement,
+                            name: String) {
+        if (element.modifiers.contains(Modifier.PRIVATE)
+            || element.modifiers.contains(Modifier.PROTECTED)) {
+            manager.logError("$name must be visible from: " + typeElement)
+        }
+        if (!element.modifiers.contains(Modifier.STATIC)) {
+            manager.logError("$name must be static from: " + typeElement)
+        }
+
+        if (!element.modifiers.contains(Modifier.FINAL)) {
+            manager.logError("The $name must be final")
+        }
+    }
 }

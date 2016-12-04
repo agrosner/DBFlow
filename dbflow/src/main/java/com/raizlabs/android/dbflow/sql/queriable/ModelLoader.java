@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -31,10 +30,12 @@ public abstract class ModelLoader<TModel, TReturn> {
      * @param query The query to call.
      * @return The data loaded from the database.
      */
+    @Nullable
     public TReturn load(String query) {
         return load(getDatabaseDefinition().getWritableDatabase(), query);
     }
 
+    @Nullable
     public TReturn load(String query, @Nullable TReturn data) {
         return load(getDatabaseDefinition().getWritableDatabase(), query, data);
     }

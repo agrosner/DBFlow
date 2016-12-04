@@ -1,0 +1,24 @@
+package com.raizlabs.android.dbflow.test
+
+import android.content.Context
+import android.os.Build
+
+import org.junit.Rule
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+
+/**
+ * Description:
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(constants = BuildConfig::class, sdk = intArrayOf(Build.VERSION_CODES.LOLLIPOP))
+abstract class FlowTestCase {
+
+    @Rule
+    var dbFlowTestRule = DBFlowTestRule.create()
+
+    protected val context: Context
+        get() = RuntimeEnvironment.application
+}
