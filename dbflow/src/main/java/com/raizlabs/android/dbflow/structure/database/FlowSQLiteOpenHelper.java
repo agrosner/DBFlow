@@ -50,7 +50,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
 
     @Override
     public DatabaseWrapper getDatabase() {
-        if (androidDatabase == null) {
+         if (androidDatabase == null || !androidDatabase.getDatabase().isOpen()) {
             androidDatabase = AndroidDatabase.from(getWritableDatabase());
         }
         return androidDatabase;
