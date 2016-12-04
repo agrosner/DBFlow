@@ -15,24 +15,24 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /**
  * Description:
  */
-@RunWith(RobolectricGradleTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(Build.VERSION_CODES.LOLLIPOP))
 class QueryExtensionsAsyncTest {
 
     @Before
     fun setup_test() {
         FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
-                .addDatabaseConfig(DatabaseConfig.Builder(KotlinDatabase::class.java)
-                        .transactionManagerCreator { ImmediateTransactionManager(it) }
-                        .build())
+            .addDatabaseConfig(DatabaseConfig.Builder(KotlinDatabase::class.java)
+                .transactionManagerCreator { ImmediateTransactionManager(it) }
                 .build())
+            .build())
     }
 
     @Test

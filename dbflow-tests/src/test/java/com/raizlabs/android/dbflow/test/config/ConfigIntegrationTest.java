@@ -25,7 +25,7 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Description: Tests to ensure DBFlow is set up properly.
  */
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.LOLLIPOP, shadows = {ShadowContentResolver2.class})
 public class ConfigIntegrationTest {
 
@@ -53,8 +53,8 @@ public class ConfigIntegrationTest {
     @Test
     public void test_flowConfig() {
         FlowManager.init(builder
-                .openDatabasesOnInit(true)
-                .build());
+            .openDatabasesOnInit(true)
+            .build());
 
         FlowConfig config = FlowManager.getConfig();
         assertNotNull(config);
@@ -84,12 +84,12 @@ public class ConfigIntegrationTest {
         final CustomTransactionManagerCreator managerCreator = new CustomTransactionManagerCreator();
 
         FlowManager.init(builder
-                .addDatabaseConfig(new DatabaseConfig.Builder(TestDatabase.class)
-                        .helperListener(helperListener)
-                        .openHelper(openHelperCreator)
-                        .transactionManagerCreator(managerCreator)
-                        .build())
-                .build());
+            .addDatabaseConfig(new DatabaseConfig.Builder(TestDatabase.class)
+                .helperListener(helperListener)
+                .openHelper(openHelperCreator)
+                .transactionManagerCreator(managerCreator)
+                .build())
+            .build());
 
         FlowConfig flowConfig = FlowManager.getConfig();
         assertNotNull(flowConfig);
@@ -106,7 +106,7 @@ public class ConfigIntegrationTest {
 
         DatabaseDefinition databaseDefinition = FlowManager.getDatabase(TestDatabase.class);
         assertEquals(databaseDefinition.getTransactionManager(),
-                managerCreator.getTestTransactionManager());
+            managerCreator.getTestTransactionManager());
         assertEquals(databaseDefinition.getHelper(), openHelperCreator.getCustomOpenHelper());
     }
 
@@ -118,14 +118,14 @@ public class ConfigIntegrationTest {
         ModelSaver<TestModel1> modelSaver = new ModelSaver<>();
 
         FlowManager.init(builder
-                .addDatabaseConfig(new DatabaseConfig.Builder(TestDatabase.class)
-                        .addTableConfig(new TableConfig.Builder<>(TestModel1.class)
-                                .singleModelLoader(singleModelLoader)
-                                .listModelLoader(customListModelLoader)
-                                .modelAdapterModelSaver(modelSaver)
-                                .build())
-                        .build())
-                .build());
+            .addDatabaseConfig(new DatabaseConfig.Builder(TestDatabase.class)
+                .addTableConfig(new TableConfig.Builder<>(TestModel1.class)
+                    .singleModelLoader(singleModelLoader)
+                    .listModelLoader(customListModelLoader)
+                    .modelAdapterModelSaver(modelSaver)
+                    .build())
+                .build())
+            .build());
 
         FlowConfig flowConfig = FlowManager.getConfig();
         assertNotNull(flowConfig);
