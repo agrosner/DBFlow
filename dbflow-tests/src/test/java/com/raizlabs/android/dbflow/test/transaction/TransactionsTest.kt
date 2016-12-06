@@ -2,14 +2,9 @@ package com.raizlabs.android.dbflow.test.transaction
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.language.CursorResult
 import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.SQLite
-import com.raizlabs.android.dbflow.structure.ModelAdapter
-import com.raizlabs.android.dbflow.structure.cache.ModelCache
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
@@ -19,25 +14,19 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table
 import com.raizlabs.android.dbflow.test.structure.TestModel2
 import com.raizlabs.android.dbflow.test.utils.GenerationUtils
-
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-
-import java.util.ArrayList
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 
 /**
  * Description:
  */
 class TransactionsTest : FlowTestCase() {
 
-    var database: DatabaseDefinition
-
+    lateinit var database: DatabaseDefinition
 
     @Before
     fun beforeTests() {
@@ -99,9 +88,9 @@ class TransactionsTest : FlowTestCase() {
 
         val called = AtomicBoolean(false)
         val queryTransaction = QueryTransaction.Builder(
-                SQLite.select()
-                        .from(TestModel1::class.java)
-                        .where(TestModel1_Table.name.like("%test1"))
+            SQLite.select()
+                .from(TestModel1::class.java)
+                .where(TestModel1_Table.name.like("%test1"))
         ).queryResult(QueryTransaction.QueryResultCallback<TestModel1> { transaction, tResult ->
             val results = tResult.toList()
             assertEquals(results.size.toLong(), 2)
@@ -125,18 +114,18 @@ class TransactionsTest : FlowTestCase() {
         var startTime = System.currentTimeMillis()
 
         FlowManager.getDatabase(TestDatabase::class.java)
-                .executeTransaction(ProcessModelTransaction.Builder(
-                        ProcessModelTransaction.ProcessModel<TestModel2> { model -> model.save() })
-                        .addAll(modelList).build())
+            .executeTransaction(ProcessModelTransaction.Builder(
+                ProcessModelTransaction.ProcessModel<TestModel2> { model -> model.save() })
+                .addAll(modelList).build())
 
         println("Transaction completed in: " + (System.currentTimeMillis() - startTime))
 
         Delete.tables(TestModel2::class.java)
         startTime = System.currentTimeMillis()
         FlowManager.getDatabase(TestDatabase::class.java)
-                .executeTransaction(FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(TestModel2::class.java))
-                        .addAll(modelList)
-                        .build())
+            .executeTransaction(FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(TestModel2::class.java))
+                .addAll(modelList)
+                .build())
 
         println("Faster Transaction completed in: " + (System.currentTimeMillis() - startTime))
 
@@ -155,9 +144,9 @@ class TransactionsTest : FlowTestCase() {
         var startTime = System.currentTimeMillis()
 
         FlowManager.getDatabase(TestDatabase::class.java)
-                .executeTransaction(ProcessModelTransaction.Builder(
-                        ProcessModelTransaction.ProcessModel<TrCacheableModel> { model -> model.save() })
-                        .addAll(modelList).build())
+            .executeTransaction(ProcessModelTransaction.Builder(
+                ProcessModelTransaction.ProcessModel<TrCacheableModel> { model -> model.save() })
+                .addAll(modelList).build())
 
         println("Transaction completed in: " + (System.currentTimeMillis() - startTime))
 
@@ -170,10 +159,10 @@ class TransactionsTest : FlowTestCase() {
         modelCache.clear()
         startTime = System.currentTimeMillis()
         FlowManager.getDatabase(TestDatabase::class.java)
-                .executeTransaction(FastStoreModelTransaction
-                        .insertBuilder(modelAdapter)
-                        .addAll(modelList)
-                        .build())
+            .executeTransaction(FastStoreModelTransaction
+                .insertBuilder(modelAdapter)
+                .addAll(modelList)
+                .build())
 
         // exists in cache
         for (model in modelList) {

@@ -20,14 +20,17 @@ class OneToManyModel : BaseModel() {
 
     var orders: List<TestModel2>? = null
 
-    @OneToMany(methods = arrayOf(OneToMany.Method.ALL))
-    fun getOrders(): List<TestModel2> {
-        if (orders == null) {
-            orders = Select().from(TestModel2::class.java)
-                    .where(TestModel2_Table.model_order.greaterThan(3))
-                    .queryList()
+    @OneToMany(methods = arrayOf(OneToMany.Method.ALL), isVariablePrivate = true,
+        variableName = "orders")
+    fun getRelatedOrders(): List<TestModel2> {
+        var localOrders = orders;
+        if (localOrders == null) {
+            localOrders = Select().from(TestModel2::class.java)
+                .where(TestModel2_Table.model_order.greaterThan(3))
+                .queryList()
         }
-        return orders
+        orders = localOrders
+        return localOrders
     }
 
 }

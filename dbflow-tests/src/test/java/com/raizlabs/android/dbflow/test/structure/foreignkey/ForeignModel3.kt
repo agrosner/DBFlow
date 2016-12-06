@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.test.structure.autoincrement.TestModelAI
 class ForeignModel3 : TestModel1() {
 
     @Column
-    @ForeignKey(tableClass = TestModelAI::class, references = arrayOf(ForeignKeyReference(columnName = "testmodel_id", columnType = Long::class, foreignKeyColumnName = "id")))
+    @ForeignKey(tableClass = TestModelAI::class, references = arrayOf(
+        ForeignKeyReference(columnName = "testmodel_id", foreignKeyColumnName = "id")))
     var testModelAI: Long? = null
 }

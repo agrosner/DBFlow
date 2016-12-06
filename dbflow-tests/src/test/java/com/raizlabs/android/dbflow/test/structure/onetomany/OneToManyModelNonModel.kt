@@ -16,5 +16,5 @@ class OneToManyModelNonModel {
     var id: Int = 0
 
     @PrimaryKey
-    var name: String
+    var name: String? = null
 }

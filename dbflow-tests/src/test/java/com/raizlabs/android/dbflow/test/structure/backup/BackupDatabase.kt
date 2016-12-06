@@ -5,10 +5,11 @@ import com.raizlabs.android.dbflow.annotation.Database
 /**
  * Description:
  */
-@Database(name = BackupDatabase.NAME, version = BackupDatabase.VERSION, backupEnabled = true, consistencyCheckEnabled = true)
+@Database(name = BackupDatabase.NAME, version = BackupDatabase.VERSION,
+    backupEnabled = true, consistencyCheckEnabled = true)
 object BackupDatabase {
 
-    val NAME = "BackupDB"
+    const val NAME = "BackupDB"
 
-    val VERSION = 1
+    const val VERSION = 1
 }

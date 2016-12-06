@@ -35,12 +35,14 @@ class OneToManyModel2 : BaseModel() {
         @OneToMany(methods = arrayOf(OneToMany.Method.ALL), variableName = "tags",
             isVariablePrivate = true)
         get() {
-            if (tags == null) {
-                tags = SQLite.select()
+            var localTags = tags
+            if (localTags == null) {
+                localTags = SQLite.select()
                     .from(TaskTag::class.java)
                     .queryList()
             }
-            return tags
+            tags = localTags
+            return localTags
         }
 
 }

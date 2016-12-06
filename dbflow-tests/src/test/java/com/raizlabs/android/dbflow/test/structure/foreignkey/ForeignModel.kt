@@ -11,6 +11,6 @@ import com.raizlabs.android.dbflow.test.structure.TestModel1
 class ForeignModel : TestModel1() {
     @Column
     @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "testmodel_id",
-        foreignKeyColumnName = "name", referencedFieldIsPrivate = true, columnType = String::class)))
+        foreignKeyColumnName = "name")))
     var testModel1: ForeignParentModel? = null
 }

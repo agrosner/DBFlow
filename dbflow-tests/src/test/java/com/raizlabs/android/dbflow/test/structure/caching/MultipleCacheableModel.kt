@@ -19,15 +19,15 @@ class MultipleCacheableModel : BaseModel() {
     var longitude: Double = 0.toDouble()
 
     @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "associatedModel",
-        columnType = String::class, foreignKeyColumnName = "name",
-        referencedFieldIsPrivate = true)))
+        foreignKeyColumnName = "name")))
     var associatedModel: TestModel1? = null
 
     companion object {
 
         @JvmField
         @MultiCacheField
-        val multiKeyCacheModel: IMultiKeyCacheConverter<String> = IMultiKeyCacheConverter { values -> "(" + values[0] + "," + values[1] + ")" }
+        val multiKeyCacheModel: IMultiKeyCacheConverter<String>
+            = IMultiKeyCacheConverter { values -> "(" + values[0] + "," + values[1] + ")" }
     }
 
 }

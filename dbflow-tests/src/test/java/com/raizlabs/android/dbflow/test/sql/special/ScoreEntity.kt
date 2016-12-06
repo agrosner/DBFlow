@@ -14,15 +14,13 @@ class ScoreEntity : BaseModel {
     @NotNull(onNullConflict = ConflictAction.ROLLBACK)
     @ForeignKey(onDelete = ForeignKeyAction.CASCADE,
         references = arrayOf(ForeignKeyReference(columnName = "GAME_ID",
-            foreignKeyColumnName = "ID", columnType = Long::class,
-            referencedFieldIsPrivate = true)))
+            foreignKeyColumnName = "ID")))
     var game: GameEntity? = null
 
     @NotNull(onNullConflict = ConflictAction.ROLLBACK)
     @ForeignKey(onDelete = ForeignKeyAction.CASCADE,
         references = arrayOf(ForeignKeyReference(columnName = "PLAYER_ID",
-            foreignKeyColumnName = "ID", columnType = Long::class,
-            referencedFieldIsPrivate = true)))
+            foreignKeyColumnName = "ID")))
     var player: PlayerEntity? = null
 
     @Column(name = "SCORE")

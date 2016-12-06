@@ -1,23 +1,18 @@
 package com.raizlabs.android.dbflow.test.structure
 
 import android.content.ContentValues
-import android.database.Cursor
-
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.Select
-import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.listener.ContentValuesListener
 import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
 import com.raizlabs.android.dbflow.test.FlowTestCase
-
-import org.junit.Test
-
 import com.raizlabs.android.dbflow.test.structure.ListenerModel_Table.name
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class ListenerModelTest : FlowTestCase() {
 
@@ -29,25 +24,25 @@ class ListenerModelTest : FlowTestCase() {
         listenerModel.name = "This is a test"
         val called = booleanArrayOf(false, false, false)
         listenerModel.registerListeners(
-                object : SQLiteStatementListener {
-                    override fun onBindToStatement(databaseStatement: DatabaseStatement) {
-                        called[1] = true
-                    }
+            object : SQLiteStatementListener {
+                override fun onBindToStatement(databaseStatement: DatabaseStatement) {
+                    called[1] = true
+                }
 
-                    override fun onBindToInsertStatement(databaseStatement: DatabaseStatement) {
-                        called[1] = true
-                    }
-                },
-                object : ContentValuesListener {
-                    override fun onBindToContentValues(contentValues: ContentValues) {
-                        called[2] = true
-                    }
+                override fun onBindToInsertStatement(databaseStatement: DatabaseStatement) {
+                    called[1] = true
+                }
+            },
+            object : ContentValuesListener {
+                override fun onBindToContentValues(contentValues: ContentValues) {
+                    called[2] = true
+                }
 
-                    override fun onBindToInsertValues(contentValues: ContentValues) {
-                        called[2] = true
-                    }
-                })
-        listenerModel.registerLoadFromCursorListener { called[0] = true }
+                override fun onBindToInsertValues(contentValues: ContentValues) {
+                    called[2] = true
+                }
+            })
+        listenerModel.registerLoadFromCursorListener(LoadFromCursorListener { called[0] = true })
         listenerModel.insert()
         listenerModel.update()
 

@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.test.TestDatabase
 @QueryModel(database = TestDatabase::class)
 class CustomBlobModel : BaseQueryModel() {
 
-    class MyBlob(private val blob: ByteArray)
+    class MyBlob(val blob: ByteArray)
 
     @com.raizlabs.android.dbflow.annotation.TypeConverter
     class MyTypeConverter : TypeConverter<Blob, MyBlob>() {

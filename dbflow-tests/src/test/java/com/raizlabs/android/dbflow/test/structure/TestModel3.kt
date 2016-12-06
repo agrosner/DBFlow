@@ -20,7 +20,6 @@ class TestModel3 : BaseModel() {
 
     @Column
     @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "testAI_name",
-        foreignKeyColumnName = "name", columnType = String::class,
-        referencedFieldIsPrivate = true)))
+        foreignKeyColumnName = "name")))
     var testAutoIncrement: TestModel1? = null
 }

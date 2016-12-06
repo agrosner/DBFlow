@@ -13,12 +13,9 @@ import com.raizlabs.android.dbflow.structure.provider.BaseProviderModel
 @Table(database = ContentDatabase::class)
 class NoteModel : BaseProviderModel<NoteModel>() {
 
-
-    @Column
     @PrimaryKey(autoincrement = true)
     var id: Long = 0
 
-    @Column
     @ForeignKey
     var contentProviderModel: ContentProviderModel? = null
 

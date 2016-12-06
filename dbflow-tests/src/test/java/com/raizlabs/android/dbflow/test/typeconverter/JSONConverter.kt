@@ -15,7 +15,7 @@ class JSONConverter : TypeConverter<String, JSONObject>() {
         return model?.toString()
     }
 
-    override fun getModelValue(data: String): JSONObject {
+    override fun getModelValue(data: String): JSONObject? {
         var jsonObject: JSONObject? = null
         try {
             jsonObject = JSONObject(data)

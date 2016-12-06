@@ -14,15 +14,13 @@ class ComplexModel : BaseModel() {
     @Column
     @ForeignKey(saveForeignKeyModel = true,
         references = arrayOf(ForeignKeyReference(columnName = "testmodel_id",
-            columnType = String::class, foreignKeyColumnName = "name",
-            referencedFieldIsPrivate = true)))
+            foreignKeyColumnName = "name")))
     var testModel1: TestModel1? = null
 
     @Column
     @ForeignKey(saveForeignKeyModel = true,
         references = arrayOf(ForeignKeyReference(columnName = "mapmodel_id",
-            columnType = String::class, foreignKeyColumnName = "name",
-            referencedFieldIsPrivate = true)))
+            foreignKeyColumnName = "name")))
     var mapModelContainer: TestModel2? = null
 
 }

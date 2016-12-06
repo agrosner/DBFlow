@@ -475,7 +475,9 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             val primaries = primaryColumnDefinitions
             InternalAdapterHelper.writeGetCachingId(typeBuilder, elementClassName, primaries)
 
-            val cachingbuilder = MethodSpec.methodBuilder("createCachingColumns").addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            val cachingbuilder = MethodSpec.methodBuilder("createCachingColumns")
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             var columns = "return new String[]{"
             primaries.indices.forEach { i ->
                 val column = primaries[i]
@@ -522,10 +524,6 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             val loadStatements = CodeBlock.builder()
             val noIndex = AtomicInteger(-1)
-
-            if (elementClassName.toString() == "com.raizlabs.android.dbflow.test.container.AIContainerForeign") {
-                val success = true
-            }
 
             foreignKeyDefinitions.forEach {
                 loadStatements.add(it.getLoadFromCursorMethod(false, noIndex))

@@ -11,5 +11,5 @@ import com.raizlabs.android.dbflow.test.TestDatabase
 class TestSubclassAllFields : TestAllFields() {
 
     @Column(name = "model_order")
-    var order: Int = 0
+    var order2: Int = 0
 }

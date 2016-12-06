@@ -19,20 +19,18 @@ class MatchEntity : BaseModel {
     @NotNull(onNullConflict = ConflictAction.ROLLBACK)
     @ForeignKey(saveForeignKeyModel = false, onDelete = ForeignKeyAction.CASCADE,
         references = arrayOf(ForeignKeyReference(columnName = "PLAYER_ONE_ID",
-            foreignKeyColumnName = "ID", columnType = Long::class,
-            referencedFieldIsPrivate = true)))
+            foreignKeyColumnName = "ID")))
     var playerOne: PlayerEntity? = null
 
     @NotNull(onNullConflict = ConflictAction.ROLLBACK)
     @ForeignKey(onDelete = ForeignKeyAction.CASCADE,
         references = arrayOf(ForeignKeyReference(columnName = "PLAYER_TWO_ID",
-            foreignKeyColumnName = "ID", columnType = Long::class,
-            referencedFieldIsPrivate = true)))
+            foreignKeyColumnName = "ID")))
     var playerTwo: PlayerEntity? = null
 
     @ForeignKey(onDelete = ForeignKeyAction.CASCADE,
         references = arrayOf(ForeignKeyReference(columnName = "PLAYER_WINNER_ID",
-            foreignKeyColumnName = "ID", columnType = Long::class)))
+            foreignKeyColumnName = "ID")))
     var playerWinner: PlayerEntity? = null
 
     constructor(date: Date, playerOne: PlayerEntity, playerTwo: PlayerEntity) {

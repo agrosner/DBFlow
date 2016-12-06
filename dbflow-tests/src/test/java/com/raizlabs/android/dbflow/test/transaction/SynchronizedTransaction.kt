@@ -14,9 +14,18 @@ class SynchronizedTransaction(transaction: Transaction.Builder) {
 
     private val countDownLatch = CountDownLatch(1)
 
+    private val errorCallback = Transaction.Error { transaction, error -> countDownLatch.countDown() }
+
+    private val success = Transaction.Success { transaction ->
+        countDownLatch.countDown()
+        if (successCallback != null) {
+            successCallback!!.onSuccess(transaction)
+        }
+    }
+
     init {
         this.transaction = transaction.runCallbacksOnSameThread(true)
-                .error(errorCallback).success(success).build()
+            .error(errorCallback).success(success).build()
     }
 
     fun successCallback(successCallback: Transaction.Success): SynchronizedTransaction {
@@ -33,15 +42,4 @@ class SynchronizedTransaction(transaction: Transaction.Builder) {
         }
 
     }
-
-    private val errorCallback = Transaction.Error { transaction, error -> countDownLatch.countDown() }
-
-    private val success = Transaction.Success { transaction ->
-        countDownLatch.countDown()
-        if (successCallback != null) {
-            successCallback!!.onSuccess(transaction)
-        }
-    }
-
-
 }

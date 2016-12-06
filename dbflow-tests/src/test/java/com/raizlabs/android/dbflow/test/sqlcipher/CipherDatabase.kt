@@ -8,6 +8,6 @@ import com.raizlabs.android.dbflow.annotation.Database
 @Database(name = CipherDatabase.NAME, version = CipherDatabase.VERSION)
 object CipherDatabase {
 
-    val NAME = "CipherDatabase"
-    val VERSION = 1
+    const val NAME = "CipherDatabase"
+    const val VERSION = 1
 }

@@ -2,19 +2,17 @@ package com.raizlabs.android.dbflow.test.sql.unique
 
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.test.FlowTestCase
-
-import org.junit.Before
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
 
 /**
  * Description:
  */
 class UniqueTest : FlowTestCase() {
 
-    var uniqueModel: UniqueModel
+    lateinit var uniqueModel: UniqueModel
 
     @Before
     fun createModel() {

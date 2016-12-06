@@ -1,29 +1,19 @@
 package com.raizlabs.android.dbflow.test.sql
 
 import android.content.ContentValues
-import android.net.Uri
-
 import com.raizlabs.android.dbflow.sql.SqlUtils
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup
-import com.raizlabs.android.dbflow.sql.language.SQLCondition
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.sql.language.Update
-import com.raizlabs.android.dbflow.sql.language.Where
 import com.raizlabs.android.dbflow.test.FlowTestCase
+import com.raizlabs.android.dbflow.test.provider.NoteModel_Table.contentProviderModel_id
+import com.raizlabs.android.dbflow.test.provider.NoteModel_Table.note
 import com.raizlabs.android.dbflow.test.provider.TestContentProvider
+import com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.*
 import com.raizlabs.android.dbflow.test.structure.TestModel1
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table
-
+import org.junit.Assert.*
 import org.junit.Test
-
-import com.raizlabs.android.dbflow.test.provider.NoteModel_Table.note
-import com.raizlabs.android.dbflow.test.provider.NoteModel_Table.providerModel
-import com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.id
-import com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.integerField
-import com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.name
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 
 class UpdateTest : FlowTestCase() {
 
@@ -44,34 +34,38 @@ class UpdateTest : FlowTestCase() {
         assertEquals("UPDATE `TestModel1`", from.query.trim { it <= ' ' })
 
         val where = from.set(TestModel1_Table.name.`is`("newvalue"))
-                .where(TestModel1_Table.name.`is`("oldvalue"))
+            .where(TestModel1_Table.name.`is`("oldvalue"))
 
-        assertEquals("UPDATE `TestModel1` SET `name`='newvalue' WHERE `name`='oldvalue'", where.query.trim { it <= ' ' })
+        assertEquals("UPDATE `TestModel1` SET `name`='newvalue' WHERE `name`='oldvalue'",
+            where.query.trim { it <= ' ' })
         where.query()
 
         var query = SQLite.update(BoxedModel::class.java).set(integerField.concatenate(1)).query
-        assertEquals("UPDATE `BoxedModel` SET `integerField`=`integerField` + 1", query.trim { it <= ' ' })
+        assertEquals("UPDATE `BoxedModel` SET `integerField`=`integerField` + 1",
+            query.trim { it <= ' ' })
 
         query = SQLite.update(BoxedModel::class.java).set(name.concatenate("Test")).query
-        assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'", query.trim { it <= ' ' })
+        assertEquals("UPDATE `BoxedModel` SET `name`=`name` || 'Test'",
+            query.trim { it <= ' ' })
 
         query = SQLite.update(BoxedModel::class.java).set(name.eq("Test"))
-                .where(name.eq(name.withTable()))
-                .query
-        assertEquals("UPDATE `BoxedModel` SET `name`='Test' WHERE `name`=`BoxedModel`.`name`", query.trim { it <= ' ' })
+            .where(name.eq(name.withTable()))
+            .query
+        assertEquals("UPDATE `BoxedModel` SET `name`='Test' WHERE `name`=`BoxedModel`.`name`",
+            query.trim { it <= ' ' })
 
         val uri = TestContentProvider.NoteModel.withOpenId(1, true)
 
         val contentValues = ContentValues()
         contentValues.put(note.query, "Test")
         contentValues.put(id.query, 1)
-        contentValues.put(providerModel.query, 1)
+        contentValues.put(contentProviderModel_id.query, 1)
 
         val group = ConditionGroup.clause()
         SqlUtils.addContentValues(contentValues, group)
         for (condition in group) {
             assertTrue(condition.columnName() == "`id`" || condition.columnName() == "`providerModel`" ||
-                    condition.columnName() == "`note`")
+                condition.columnName() == "`note`")
         }
     }
 
@@ -83,13 +77,15 @@ class UpdateTest : FlowTestCase() {
         testUpdateModel.save()
 
         assertNotNull(SQLite.select().from(TestUpdateModel::class.java)
-                .where(TestUpdateModel_Table.name.`is`("Test")))
+            .where(TestUpdateModel_Table.name.`is`("Test")))
 
-        SQLite.update(TestUpdateModel::class.java).set(TestUpdateModel_Table.value.`is`("newvalue")).where().count()
+        SQLite.update(TestUpdateModel::class.java)
+            .set(TestUpdateModel_Table.value.`is`("newvalue"))
+            .where().count()
 
         val newUpdateModel = SQLite.select().from(TestUpdateModel::class.java)
-                .where(TestUpdateModel_Table.name.`is`("Test"))
-                .querySingle()
+            .where(TestUpdateModel_Table.name.`is`("Test"))
+            .querySingle()
         assertEquals("newvalue", newUpdateModel!!.value)
 
     }
