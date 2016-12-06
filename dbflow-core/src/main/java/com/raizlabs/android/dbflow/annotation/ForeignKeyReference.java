@@ -20,39 +20,8 @@ public @interface ForeignKeyReference {
     String columnName();
 
     /**
-     * Needs to match both tables!
-     *
-     * @return The type of columns between tables
-     */
-    Class<?> columnType();
-
-    /**
      * @return The column name in the referenced table
      */
     String foreignKeyColumnName();
 
-    /**
-     * @return True here if the referenced field is private. It must have a getter with the same name available such
-     * that a field "name" has "getName()".
-     */
-    boolean referencedFieldIsPrivate() default false;
-
-    /**
-     * @return True here if the referenced field is package private. It will use the "_Helper" class
-     * generated automatically to access the value of the field. Also, its required that the {@link ForeignKey#tableClass()}
-     * is set or known at compile time via a Model object.
-     */
-    boolean referencedFieldIsPackagePrivate() default false;
-
-    /**
-     * @return sets the name of the referenced field getter.
-     * @see Column#getterName() for more information.
-     */
-    String referencedGetterName() default "";
-
-    /**
-     * @return Sets the name of the referenced field setter.
-     * @see Column#setterName() for more information.
-     */
-    String referencedSetterName() default "";
 }

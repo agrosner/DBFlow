@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*
@@ -23,7 +24,7 @@ import javax.lang.model.type.MirroredTypeException
  */
 class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: TableDefinition,
                                  element: Element, isPackagePrivate: Boolean)
-: ColumnDefinition(manager, element, tableDefinition, isPackagePrivate) {
+    : ColumnDefinition(manager, element, tableDefinition, isPackagePrivate) {
 
     val _foreignKeyReferenceDefinitionList: MutableList<ForeignKeyReferenceDefinition> = ArrayList()
 
@@ -38,12 +39,14 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
     var implementsModel: Boolean
     var extendsBaseModel: Boolean
 
-    var needsReferences: Boolean = false
+    var references: List<ForeignKeyReference>? = null
 
     var nonModelColumn: Boolean = false
 
     var saveForeignKeyModel: Boolean = false
     var deleteForeignKeyModel: Boolean = false
+
+    var needsReferences = true
 
     override val typeConverterElementNames: List<TypeName?>
         get() = _foreignKeyReferenceDefinitionList.filter { it.hasTypeConverter }.map { it.columnClassName }
@@ -63,7 +66,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         }
 
         val erasedElement: TypeElement? = manager.elements.getTypeElement(
-                manager.typeUtils.erasure(element.asType()).toString())
+            manager.typeUtils.erasure(element.asType()).toString())
 
         // hopefully intentionally left blank
         if (referencedTableClassName == TypeName.OBJECT) {
@@ -84,7 +87,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         }
 
         extendsBaseModel = ProcessorUtils.isSubclass(manager.processingEnvironment,
-                ClassNames.BASE_MODEL.toString(), erasedElement)
+            ClassNames.BASE_MODEL.toString(), erasedElement)
         implementsModel = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.MODEL.toString(), erasedElement)
         isReferencingTableObject = implementsModel || erasedElement?.getAnnotation(Table::class.java) != null
 
@@ -93,22 +96,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         saveForeignKeyModel = foreignKey.saveForeignKeyModel
         deleteForeignKeyModel = foreignKey.deleteForeignKeyModel
 
-        val references = foreignKey.references
-        if (references.size == 0) {
-            // no references specified we will delegate references call to post-evaluation
-            needsReferences = true
-        } else {
-            for (reference in references) {
-                val referenceDefinition = ForeignKeyReferenceDefinition(manager, elementName, reference, this)
-                // TODO: add validation
-                _foreignKeyReferenceDefinitionList.add(referenceDefinition)
-            }
-
-            if (nonModelColumn && _foreignKeyReferenceDefinitionList.size == 1) {
-                val foreignKeyReferenceDefinition = _foreignKeyReferenceDefinitionList[0]
-                columnName = foreignKeyReferenceDefinition.columnName
-            }
-        }
+        references = foreignKey.references.asList()
     }
 
     override fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
@@ -119,15 +107,19 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             colClassName?.let {
                 if (it.isPrimitive && it != TypeName.BOOLEAN) {
                     propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE,
-                            it.toString().capitalizeFirstLetter() + "Property")
+                        it.toString().capitalizeFirstLetter() + "Property")
                 } else {
                     propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, it.box())
                 }
             }
+            if (it.columnName.isNullOrEmpty()) {
+                manager.logError("Found empty reference name at ${it.foreignColumnName}" +
+                    " from tablet ${baseTableDefinition.elementName}")
+            }
             typeBuilder.addField(FieldSpec.builder(propParam, it.columnName,
-                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, it.columnName)
-                    .addJavadoc("Foreign Key" + if (isPrimaryKey) " / Primary Key" else "").build())
+                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, it.columnName)
+                .addJavadoc("Foreign Key" + if (isPrimaryKey) " / Primary Key" else "").build())
         }
     }
 
@@ -250,11 +242,11 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             referencedTableClassName?.let { referencedTableClassName ->
 
                 val tableDefinition = manager.getTableDefinition(baseTableDefinition.databaseDefinition?.elementTypeName,
-                        referencedTableClassName)
+                    referencedTableClassName)
                 val outputClassName = tableDefinition?.outputClassName
                 outputClassName?.let {
                     val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
-                            referencedTableClassName, outputClassName, isStubbedRelationship)
+                        referencedTableClassName, outputClassName, isStubbedRelationship)
                     _foreignKeyReferenceDefinitionList.forEach {
                         foreignKeyCombiner.fieldAccesses += it.partialAccessor
                     }
@@ -284,8 +276,8 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
             referencedTableClassName?.let { referencedTableClassName ->
                 val saveAccessor = ForeignKeyAccessField(columnName,
-                        SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
-                                wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
+                    SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
+                        wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
                 saveAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }
@@ -295,8 +287,8 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
             referencedTableClassName?.let { referencedTableClassName ->
                 val deleteAccessor = ForeignKeyAccessField(columnName,
-                        DeleteModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
-                                wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
+                    DeleteModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
+                        wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
                 deleteAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }
@@ -309,22 +301,34 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
     private fun checkNeedsReferences() {
         val tableDefinition = (baseTableDefinition as TableDefinition)
         val referencedTableDefinition = manager.getTableDefinition(
-                tableDefinition.databaseTypeName, referencedTableClassName)
+            tableDefinition.databaseTypeName, referencedTableClassName)
         if (referencedTableDefinition == null) {
             manager.logError(ForeignKeyColumnDefinition::class,
-                    "Could not find the referenced table definition $referencedTableClassName" +
-                            " from ${tableDefinition.tableName}. " +
-                            "Ensure it exists in the samedatabase ${tableDefinition.databaseTypeName}")
-        } else {
-            if (needsReferences) {
-                val primaryColumns = referencedTableDefinition.primaryColumnDefinitions
+                "Could not find the referenced table definition $referencedTableClassName" +
+                    " from ${tableDefinition.tableName}. " +
+                    "Ensure it exists in the samedatabase ${tableDefinition.databaseTypeName}")
+        } else if (needsReferences) {
+            val primaryColumns = referencedTableDefinition.primaryColumnDefinitions
+            if (references?.isEmpty() ?: true) {
                 primaryColumns.forEach {
                     val foreignKeyReferenceDefinition = ForeignKeyReferenceDefinition(manager,
-                            elementName, it.elementName, it, this, primaryColumns.size)
+                        elementName, it.elementName, it, this, primaryColumns.size)
                     _foreignKeyReferenceDefinitionList.add(foreignKeyReferenceDefinition)
                 }
-                if (nonModelColumn) {
-                    columnName = _foreignKeyReferenceDefinitionList[0].columnName
+                needsReferences = false
+            } else {
+                references?.forEach { reference ->
+                    val foundDefinition = primaryColumns.find { it.columnName == reference.foreignKeyColumnName }
+                    if (foundDefinition == null) {
+                        manager.logError(ForeignKeyColumnDefinition::class,
+                            "Could not find referenced column ${reference.foreignKeyColumnName} " +
+                                "from reference named ${reference.columnName}")
+                    } else {
+                        _foreignKeyReferenceDefinitionList.add(
+                            ForeignKeyReferenceDefinition(manager, elementName,
+                                foundDefinition.elementName, foundDefinition, this,
+                                primaryColumns.size, reference.columnName))
+                    }
                 }
                 needsReferences = false
             }
