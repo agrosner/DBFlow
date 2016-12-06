@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.annotation.Database
 @Database(name = ColonyDatabase.NAME, version = ColonyDatabase.VERSION)
 object ColonyDatabase {
 
-    val NAME = "Colonies"
+    const val NAME = "Colonies"
 
-    val VERSION = 1
+    const val VERSION = 1
 }

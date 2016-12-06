@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.test.list
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.list.FlowCursorList
 import com.raizlabs.android.dbflow.list.FlowQueryList
@@ -12,27 +11,25 @@ import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction
 import com.raizlabs.android.dbflow.test.FlowTestCase
 import com.raizlabs.android.dbflow.test.utils.GenerationUtils
-
 import org.junit.After
-import org.junit.Before
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
 
 /**
  * Description:
  */
 class ListTest : FlowTestCase() {
 
-    var modelList: FlowQueryList<ListModel>
+    lateinit var modelList: FlowQueryList<ListModel>
 
     @Before
     fun setupTest() {
         Delete.table(ListModel::class.java)
         modelList = FlowQueryList.Builder(ListModel::class.java)
-                .modelQueriable(SQLite.select().from(ListModel::class.java))
-                .build()
+            .modelQueriable(SQLite.select().from(ListModel::class.java))
+            .build()
     }
 
     @After
@@ -46,13 +43,13 @@ class ListTest : FlowTestCase() {
         val testModel1s = GenerationUtils.generateRandomModels(ListModel::class.java, 100)
 
         FlowManager.getDatabaseForTable(ListModel::class.java)
-                .executeTransaction(FastStoreModelTransaction
-                        .saveBuilder(FlowManager.getModelAdapter(ListModel::class.java))
-                        .addAll(testModel1s)
-                        .build())
+            .executeTransaction(FastStoreModelTransaction
+                .saveBuilder(FlowManager.getModelAdapter(ListModel::class.java))
+                .addAll(testModel1s)
+                .build())
 
         modelList = FlowQueryList.Builder(SQLite.select().from(ListModel::class.java))
-                .build()
+            .build()
 
         assertTrue(modelList.size == 100)
 
@@ -106,16 +103,16 @@ class ListTest : FlowTestCase() {
 
         val testModel1s = GenerationUtils.generateRandomModels(ListModel::class.java, 50)
         FlowManager.getDatabase(ListDatabase::class.java)
-                .executeTransaction(FastStoreModelTransaction
-                        .insertBuilder(FlowManager.getModelAdapter(ListModel::class.java))
-                        .addAll(testModel1s)
-                        .build())
+            .executeTransaction(FastStoreModelTransaction
+                .insertBuilder(FlowManager.getModelAdapter(ListModel::class.java))
+                .addAll(testModel1s)
+                .build())
 
         val flowCursorList = FlowCursorList.Builder(ListModel::class.java)
-                .cacheModels(true)
-                .modelQueriable(SQLite.select()
-                        .from(ListModel::class.java))
-                .build()
+            .cacheModels(true)
+            .modelQueriable(SQLite.select()
+                .from(ListModel::class.java))
+            .build()
 
         val modelAdapter = TestModelAdapter(flowCursorList)
 

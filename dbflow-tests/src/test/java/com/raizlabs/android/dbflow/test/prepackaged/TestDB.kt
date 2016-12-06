@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.annotation.Database
 @Database(version = TestDB.VERSION, name = TestDB.NAME)
 object TestDB {
 
-    val NAME = "testdb"
+    const val NAME = "testdb"
 
-    val VERSION = 1
+    const val VERSION = 1
 }

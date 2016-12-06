@@ -8,5 +8,5 @@ import com.raizlabs.android.dbflow.annotation.Database
 @Database(version = 1, name = ListDatabase.NAME)
 object ListDatabase {
 
-    val NAME = "List"
+    const val NAME = "List"
 }

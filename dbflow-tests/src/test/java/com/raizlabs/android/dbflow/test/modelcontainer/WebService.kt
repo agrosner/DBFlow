@@ -12,8 +12,8 @@ class WebService : BaseModel() {
     var pid: Long = 0
 
     @Column
-    @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "pass_type_pid",
-        columnType = Long::class, foreignKeyColumnName = "pid", referencedFieldIsPrivate = true)),
+    @ForeignKey(references = arrayOf(
+        ForeignKeyReference(columnName = "pass_type_pid", foreignKeyColumnName = "pid")),
         saveForeignKeyModel = false)
     var passType: PassType? = null
 

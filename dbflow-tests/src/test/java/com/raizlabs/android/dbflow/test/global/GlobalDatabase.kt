@@ -6,10 +6,11 @@ import com.raizlabs.android.dbflow.annotation.Database
 /**
  * Description:
  */
-@Database(name = GlobalDatabase.NAME, version = GlobalDatabase.VERSION, insertConflict = ConflictAction.REPLACE, updateConflict = ConflictAction.REPLACE)
+@Database(name = GlobalDatabase.NAME, version = GlobalDatabase.VERSION,
+    insertConflict = ConflictAction.REPLACE, updateConflict = ConflictAction.REPLACE)
 object GlobalDatabase {
 
-    val NAME = "GlobalDatabase"
+    const val NAME = "GlobalDatabase"
 
-    val VERSION = 1
+    const val VERSION = 1
 }

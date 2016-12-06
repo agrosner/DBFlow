@@ -14,16 +14,9 @@ class Dog : BaseModel() {
 
     @ForeignKey
     @PrimaryKey
-    var breed: Breed // tableClass only needed for single-field refs that are not Model.
+    var breed: Breed? = null
 
     @ForeignKey
-    var owner: Owner
+    var owner: Owner? = null
 
-    fun associateOwner(owner: Owner) {
-        this.owner = owner // convenience conversion
-    }
-
-    fun associateBreed(breed: Breed) {
-        this.breed = breed // convenience conversion
-    }
 }

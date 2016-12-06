@@ -5,10 +5,11 @@ import com.raizlabs.android.dbflow.annotation.Database
 /**
  * Description: Shows example for support for Kotlin
  */
-@Database(version = KotlinDatabase.VERSION, name = KotlinDatabase.NAME, generatedClassSeparator = "_")
+@Database(version = KotlinDatabase.VERSION, name = KotlinDatabase.NAME,
+    generatedClassSeparator = "_")
 object KotlinDatabase {
 
-    val NAME = "KotlinDatabase"
+    const val NAME = "KotlinDatabase"
 
-    val VERSION = 1
+    const val VERSION = 1
 }

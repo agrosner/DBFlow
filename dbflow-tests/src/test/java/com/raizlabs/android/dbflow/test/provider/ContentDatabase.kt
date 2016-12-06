@@ -6,16 +6,17 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 /**
  * Description:
  */
-@ContentProvider(authority = ContentDatabase.AUTHORITY, database = ContentDatabase::class, baseContentUri = ContentDatabase.BASE_CONTENT_URI)
+@ContentProvider(authority = ContentDatabase.AUTHORITY, database = ContentDatabase::class,
+    baseContentUri = ContentDatabase.BASE_CONTENT_URI)
 @Database(version = ContentDatabase.VERSION, name = ContentDatabase.NAME)
 object ContentDatabase {
 
-    val BASE_CONTENT_URI = "content://"
+    const val BASE_CONTENT_URI = "content://"
 
-    val AUTHORITY = "com.raizlabs.android.content.test.ContentDatabase"
+    const val AUTHORITY = "com.raizlabs.android.content.test.ContentDatabase"
 
-    val NAME = "content"
+    const val NAME = "content"
 
-    val VERSION = 1
+    const val VERSION = 1
 
 }

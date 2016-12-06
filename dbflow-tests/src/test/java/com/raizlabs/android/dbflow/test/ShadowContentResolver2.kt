@@ -1,38 +1,25 @@
 package com.raizlabs.android.dbflow.test
 
 import android.accounts.Account
-import android.content.ContentProvider
-import android.content.ContentProviderOperation
-import android.content.ContentProviderResult
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.OperationApplicationException
-import android.content.PeriodicSync
+import android.content.*
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
-
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 import org.robolectric.annotation.RealObject
 import org.robolectric.annotation.Resetter
 import org.robolectric.fakes.BaseCursor
-import org.robolectric.manifest.AndroidManifest
 import org.robolectric.manifest.ContentProviderData
 import org.robolectric.util.NamedStream
-
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.ArrayList
-import java.util.Collections
-import java.util.HashMap
-import java.util.Objects
+import java.util.*
 import java.util.concurrent.CopyOnWriteArraySet
-
-import org.robolectric.Shadows.shadowOf
 
 /**
  * Shadow for [android.content.ContentResolver].
@@ -52,11 +39,11 @@ class ShadowContentResolver2 {
     private val uriCursorMap = HashMap<Uri, BaseCursor>()
     private val inputStreamMap = HashMap<Uri, InputStream>()
     private val contentProviderOperations = HashMap<String, ArrayList<ContentProviderOperation>>()
-    private var contentProviderResults: Array<ContentProviderResult>? = null
+    private var contentProviderResults: Array<ContentProviderResult> = arrayOf()
 
     private val contentObservers = HashMap<Uri, CopyOnWriteArraySet<ContentObserver>>()
 
-    class NotifiedUri(val uri: Uri, val observer: ContentObserver, val syncToNetwork: Boolean)
+    class NotifiedUri(val uri: Uri, val observer: ContentObserver?, val syncToNetwork: Boolean)
 
     class Status {
         var syncRequests: Int = 0
@@ -128,7 +115,7 @@ class ShadowContentResolver2 {
             val returnCursor = getCursor(uri) ?: return null
 
             returnCursor.setQuery(uri, projection, selection, selectionArgs,
-                    sortOrder)
+                sortOrder)
             return returnCursor
         }
     }
@@ -197,7 +184,8 @@ class ShadowContentResolver2 {
 
     @Implementation
     @Throws(OperationApplicationException::class)
-    fun applyBatch(authority: String, operations: ArrayList<ContentProviderOperation>): Array<ContentProviderResult> {
+    fun applyBatch(authority: String, operations: ArrayList<ContentProviderOperation>)
+        : Array<ContentProviderResult> {
         val provider = getProvider(authority)
         if (provider != null) {
             return provider.applyBatch(operations)
@@ -298,7 +286,6 @@ class ShadowContentResolver2 {
      * @return The content observer
      * *
      */
-    @Deprecated("")
     @Deprecated("This method return random observer, {@link #getContentObservers} should be used instead.")
     fun getContentObserver(uri: Uri): ContentObserver? {
         val observers = getContentObservers(uri)
@@ -349,7 +336,7 @@ class ShadowContentResolver2 {
 
     companion object {
 
-        private val syncableAccounts = HashMap<String, Map<Account, Status>>()
+        private val syncableAccounts: MutableMap<String, MutableMap<Account, Status>> = mutableMapOf()
         private val providers = HashMap<String, ContentProvider>()
         var masterSyncAutomatically: Boolean = false
 
@@ -433,7 +420,7 @@ class ShadowContentResolver2 {
         }
 
         @Implementation
-        fun getPeriodicSyncs(account: Account, authority: String): List<PeriodicSync> {
+        fun getPeriodicSyncs(account: Account, authority: String): List<PeriodicSync>? {
             return getStatus(account, authority, true).syncs
         }
 
@@ -491,7 +478,8 @@ class ShadowContentResolver2 {
             providers.put(authority, provider)
         }
 
-        @JvmOverloads fun getStatus(account: Account, authority: String, create: Boolean = false): Status {
+        @JvmOverloads fun getStatus(account: Account, authority: String, create: Boolean = false)
+            : Status {
             var map: MutableMap<Account, Status>? = syncableAccounts[authority]
             if (map == null) {
                 map = HashMap<Account, Status>()
@@ -502,7 +490,7 @@ class ShadowContentResolver2 {
                 status = Status()
                 map.put(account, status)
             }
-            return status
+            return status!!
         }
 
         private fun createAndInitialize(providerData: ContentProviderData): ContentProvider {

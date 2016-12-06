@@ -31,9 +31,9 @@ class BoxedModel : TestModel1() {
 
     @Column
     @NotNull
-    var stringFieldNotNull = "1"
+    var stringFieldNotNull: String? = "1"
 
     @Column
-    var stringField = "1"
+    var stringField: String? = "1"
 
 }

@@ -5,11 +5,9 @@ import com.raizlabs.android.dbflow.sql.language.OrderBy
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.sql.language.Select
 import com.raizlabs.android.dbflow.test.FlowTestCase
-
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Test
 
 /**
  * Description: Tests enums
@@ -24,7 +22,7 @@ class EnumModelTest : FlowTestCase() {
         enumModel.difficulty = EnumModel.Difficulty.EASY
         enumModel.save()
 
-        enumModel = Select().from(EnumModel::class.java).querySingle()
+        enumModel = Select().from(EnumModel::class.java).querySingle()!!
         assertEquals(EnumModel.Difficulty.EASY, enumModel.difficulty)
 
         Delete.table(EnumModel::class.java)
@@ -48,9 +46,9 @@ class EnumModelTest : FlowTestCase() {
         hard.save()
 
         val result = SQLite.select()
-                .from(EnumModel::class.java)
-                .where(EnumModel_Table.difficulty.eq(EnumModel.Difficulty.MEDIUM))
-                .querySingle()
+            .from(EnumModel::class.java)
+            .where(EnumModel_Table.difficulty.eq(EnumModel.Difficulty.MEDIUM))
+            .querySingle()
 
         assertNotNull(result)
         assertEquals(result!!.id, medium.id)
@@ -76,10 +74,10 @@ class EnumModelTest : FlowTestCase() {
         hard.save()
 
         val result = SQLite.select()
-                .from(EnumModel::class.java)
-                .where(EnumModel_Table.difficulty.`in`(EnumModel.Difficulty.MEDIUM, EnumModel.Difficulty.HARD))
-                .orderBy(OrderBy.fromProperty(EnumModel_Table.id).ascending())
-                .queryList()
+            .from(EnumModel::class.java)
+            .where(EnumModel_Table.difficulty.`in`(EnumModel.Difficulty.MEDIUM, EnumModel.Difficulty.HARD))
+            .orderBy(OrderBy.fromProperty(EnumModel_Table.id).ascending())
+            .queryList()
 
         assertNotNull(result)
         assertEquals(result[0].id, medium.id)

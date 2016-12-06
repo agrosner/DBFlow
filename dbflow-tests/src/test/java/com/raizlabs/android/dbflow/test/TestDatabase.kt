@@ -8,5 +8,5 @@ import com.raizlabs.android.dbflow.annotation.Database
 @Database(name = TestDatabase.NAME, version = 3, foreignKeyConstraintsEnforced = true)
 object TestDatabase {
 
-    val NAME = "Test"
+    const val NAME = "Test"
 }

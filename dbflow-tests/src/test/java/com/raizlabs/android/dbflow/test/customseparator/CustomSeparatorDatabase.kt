@@ -5,10 +5,11 @@ import com.raizlabs.android.dbflow.annotation.Database
 /**
  * Description:
  */
-@Database(name = CustomSeparatorDatabase.NAME, version = CustomSeparatorDatabase.VERSION, generatedClassSeparator = "$$")
+@Database(name = CustomSeparatorDatabase.NAME, version = CustomSeparatorDatabase.VERSION,
+    generatedClassSeparator = "$$")
 object CustomSeparatorDatabase {
 
-    val NAME = "Custom"
+    const val NAME = "Custom"
 
-    val VERSION = 1
+    const val VERSION = 1
 }

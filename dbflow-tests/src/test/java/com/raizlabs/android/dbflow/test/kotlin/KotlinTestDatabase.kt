@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.annotation.Database
 @Database(name = KotlinTestDatabase.NAME, version = KotlinTestDatabase.VERSION)
 object KotlinTestDatabase {
 
-    val NAME = "KotlinTest"
+    const val NAME = "KotlinTest"
 
-    val VERSION = 1
+    const val VERSION = 1
 }

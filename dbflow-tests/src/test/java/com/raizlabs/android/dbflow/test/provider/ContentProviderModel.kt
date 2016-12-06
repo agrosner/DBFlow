@@ -45,7 +45,7 @@ class ContentProviderModel : BaseProviderModel<ContentProviderModel>() {
 
     companion object {
 
-        val NAME = "ContentProviderModel"
+        const val NAME = "ContentProviderModel"
 
         @ContentUri(path = NAME, type = ContentUri.ContentType.VND_MULTIPLE + NAME)
         val CONTENT_URI = ContentUtils.buildUriWithAuthority(ContentDatabase.AUTHORITY)

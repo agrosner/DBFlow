@@ -17,5 +17,5 @@ class GlobalModel : BaseModel() {
     var id: Int = 0
 
     @Column
-    var name: String
+    var name: String? = null
 }

@@ -31,10 +31,9 @@ class AQL : BaseModel() {
     var timestamp: Date? = null
 
     @Column
-    @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "id1", columnType = Long::class,
-        foreignKeyColumnName = "id", referencedFieldIsPrivate = true),
-        ForeignKeyReference(columnName = "id2", columnType = String::class,
-            foreignKeyColumnName = "name", referencedFieldIsPrivate = true)))
+    @ForeignKey(references = arrayOf(
+        ForeignKeyReference(columnName = "id1", foreignKeyColumnName = "id"),
+        ForeignKeyReference(columnName = "id2", foreignKeyColumnName = "name")))
     var boxedModel: BoxedModel? = null
 
     companion object {

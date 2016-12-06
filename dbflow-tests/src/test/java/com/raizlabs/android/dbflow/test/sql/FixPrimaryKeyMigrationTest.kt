@@ -6,26 +6,22 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.test.FlowTestCase
 import com.raizlabs.android.dbflow.test.global.GlobalModel
 import com.raizlabs.android.dbflow.test.global.GlobalModel_Table
-
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 
 /**
  * Description:
  */
 class FixPrimaryKeyMigrationTest : FlowTestCase() {
 
-    var fixPrimaryKeyMigration: FixPrimaryKeyMigration<GlobalModel>
-    var modelAdapter: ModelAdapter<*>
+    lateinit var fixPrimaryKeyMigration: FixPrimaryKeyMigration<GlobalModel>
+    lateinit var modelAdapter: ModelAdapter<*>
 
     @Before
     fun setUpMigration() {
         fixPrimaryKeyMigration = object : FixPrimaryKeyMigration<GlobalModel>() {
-            protected override val tableClass: Class<GlobalModel>
+            override val tableClass: Class<GlobalModel>
                 get() = GlobalModel::class.java
         }
         modelAdapter = FlowManager.getModelAdapter(fixPrimaryKeyMigration.tableClass)
@@ -61,7 +57,7 @@ class FixPrimaryKeyMigrationTest : FlowTestCase() {
 
 
         globalModel = SQLite.select().from(GlobalModel::class.java)
-                .where(GlobalModel_Table.id.eq(globalModel.id)).querySingle()
+            .where(GlobalModel_Table.id.eq(globalModel.id)).querySingle()!!
         assertNotNull(globalModel)
     }
 }

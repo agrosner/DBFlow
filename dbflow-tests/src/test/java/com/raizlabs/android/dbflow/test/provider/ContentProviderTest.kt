@@ -1,21 +1,15 @@
 package com.raizlabs.android.dbflow.test.provider
 
 import android.content.ContentResolver
-import android.net.Uri
-
 import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.Select
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils
 import com.raizlabs.android.dbflow.test.FlowTestCase
-
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.shadows.ShadowContentResolver
-
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 
 
 /**
@@ -117,7 +111,7 @@ class ContentProviderTest : FlowTestCase() {
         assertEquals(testSyncableModel.name, "TestName")
 
         testSyncableModel = Select().from(TestSyncableModel::class.java)
-                .where(TestSyncableModel_Table.id.`is`(testSyncableModel.id)).querySingle()
+            .where(TestSyncableModel_Table.id.`is`(testSyncableModel.id)).querySingle()!!
 
         val fromContentProvider = TestSyncableModel()
         fromContentProvider.id = testSyncableModel.id

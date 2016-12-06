@@ -16,7 +16,7 @@ import com.raizlabs.android.dbflow.test.sql.index.IndexModel_Table
 @Database(version = 2, name = MigrationDatabase.NAME)
 object MigrationDatabase {
 
-    val NAME = "Migrations"
+    const val NAME = "Migrations"
 
     @Migration(version = 2, database = MigrationDatabase::class)
     class Migration2 : BaseMigration() {

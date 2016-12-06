@@ -17,7 +17,7 @@ class RealContentProvider : ContentProvider() {
 
     var databaseName = TestDatabase.NAME
 
-    var database: DatabaseWrapper
+    lateinit var database: DatabaseWrapper
 
     override fun onCreate(): Boolean {
         FlowManager.init(FlowConfig.Builder(context).build())
