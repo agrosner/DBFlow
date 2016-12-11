@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.config;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.annotation.NotNull;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
@@ -49,10 +48,10 @@ public class FlowManager {
     private static final String DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder";
 
     private static final String DEFAULT_DATABASE_HOLDER_PACKAGE_NAME =
-            FlowManager.class.getPackage().getName();
+        FlowManager.class.getPackage().getName();
 
     private static final String DEFAULT_DATABASE_HOLDER_CLASSNAME =
-            DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
+        DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
 
     /**
      * Returns the table name for the specific model class
@@ -67,7 +66,7 @@ public class FlowManager {
         String tableName = null;
         if (modelAdapter == null) {
             ModelViewAdapter modelViewAdapter = getDatabaseForTable(table).getModelViewAdapterForTable(
-                    (Class<? extends BaseModelView>) table);
+                (Class<? extends BaseModelView>) table);
             if (modelViewAdapter != null) {
                 tableName = modelViewAdapter.getViewName();
             }
@@ -86,13 +85,13 @@ public class FlowManager {
         DatabaseDefinition databaseDefinition = getDatabase(databaseName);
         if (databaseDefinition == null) {
             throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
-                    "Did you forget to add the @Database?", databaseName));
+                "Did you forget to add the @Database?", databaseName));
         }
         Class<?> modelClass = databaseDefinition.getModelClassForName(tableName);
         if (modelClass == null) {
             throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
-                            "Did you forget to add the @Table annotation and point it to %1s?",
-                    tableName, databaseName));
+                    "Did you forget to add the @Table annotation and point it to %1s?",
+                tableName, databaseName));
         }
         return modelClass;
     }
@@ -105,7 +104,7 @@ public class FlowManager {
         DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabaseForTable(table);
         if (databaseDefinition == null) {
             throw new InvalidDBConfiguration("Model object: " + table.getName() +
-                    " is not registered with a Database. " + "Did you forget an annotation?");
+                " is not registered with a Database. " + "Did you forget an annotation?");
         }
         return databaseDefinition;
     }
@@ -114,7 +113,7 @@ public class FlowManager {
         DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabase(databaseClass);
         if (databaseDefinition == null) {
             throw new InvalidDBConfiguration("Database: " + databaseClass.getName() + " is not a registered Database. " +
-                    "Did you forget the @Database annotation?");
+                "Did you forget the @Database annotation?");
         }
         return databaseDefinition;
     }
@@ -135,7 +134,7 @@ public class FlowManager {
         }
 
         throw new InvalidDBConfiguration("The specified database" + databaseName + " was not found. " +
-                "Did you forget the @Database annotation?");
+            "Did you forget the @Database annotation?");
     }
 
     public static DatabaseWrapper getWritableDatabase(String databaseName) {
@@ -160,7 +159,7 @@ public class FlowManager {
     public static FlowConfig getConfig() {
         if (config == null) {
             throw new IllegalStateException("Configuration is not initialized. " +
-                    "Please call init(FlowConfig) in your application class.");
+                "Please call init(FlowConfig) in your application class.");
         }
         return config;
     }
@@ -210,7 +209,7 @@ public class FlowManager {
     public static Context getContext() {
         if (config == null) {
             throw new IllegalStateException("You must provide a valid FlowConfig instance. " +
-                    "We recommend calling init() in your application class.");
+                "We recommend calling init() in your application class.");
         }
         return config.getContext();
     }
@@ -221,7 +220,7 @@ public class FlowManager {
      *
      * @param context - should be application context, but not necessary as we retrieve it anyways.
      */
-    public static void init(@NotNull Context context) {
+    public static void init(@NonNull Context context) {
         init(new FlowConfig.Builder(context).build());
     }
 
@@ -279,7 +278,7 @@ public class FlowManager {
      */
     public static synchronized void destroy() {
         Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet =
-                globalDatabaseHolder.databaseClassLookupMap.entrySet();
+            globalDatabaseHolder.databaseClassLookupMap.entrySet();
         for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
             value.getValue().destroy(getContext());
         }
@@ -302,10 +301,10 @@ public class FlowManager {
         if (internalAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getModelViewAdapter(
-                        (Class<? extends BaseModelView>) modelClass);
+                    (Class<? extends BaseModelView>) modelClass);
             } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
                 internalAdapter = FlowManager.getQueryModelAdapter(
-                        (Class<? extends BaseQueryModel>) modelClass);
+                    (Class<? extends BaseQueryModel>) modelClass);
             }
         }
 
@@ -333,7 +332,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <TModelView extends BaseModelView> ModelViewAdapter<TModelView> getModelViewAdapter(
-            Class<TModelView> modelViewClass) {
+        Class<TModelView> modelViewClass) {
         return FlowManager.getDatabaseForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
     }
 
@@ -346,7 +345,7 @@ public class FlowManager {
      */
     @SuppressWarnings("unchecked")
     public static <TQueryModel extends BaseQueryModel> QueryModelAdapter<TQueryModel> getQueryModelAdapter(
-            Class<TQueryModel> queryModel) {
+        Class<TQueryModel> queryModel) {
         return FlowManager.getDatabaseForTable(queryModel).getQueryModelAdapterForQueryClass(queryModel);
     }
 

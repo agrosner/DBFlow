@@ -64,7 +64,7 @@ class UpdateTest : FlowTestCase() {
         val group = ConditionGroup.clause()
         SqlUtils.addContentValues(contentValues, group)
         for (condition in group) {
-            assertTrue(condition.columnName() == "`id`" || condition.columnName() == "`providerModel`" ||
+            assertTrue(condition.columnName() == "`id`" || condition.columnName() == "`contentProviderModel_id`" ||
                 condition.columnName() == "`note`")
         }
     }

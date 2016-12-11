@@ -60,10 +60,10 @@ android.applicationVariants.all { variant ->
     String taskName = "copy${variant.name.capitalize()}ResDirectoryToClasses"
     task(taskName, type: Copy) {
         from "${projectDir}/src/test/res"
-        into "${buildDir}/intermediates/res/${variant.buildType.name}/"
+        into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/res"
 
         from "${projectDir}/src/test/assets"
-        into "${buildDir}/intermediates/assets/${variant.buildType.name}/"
+        into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/assets"
     }
     project.getTasksByName("generate${variant.name.capitalize()}Resources", false)[0].dependsOn(taskName)
 }

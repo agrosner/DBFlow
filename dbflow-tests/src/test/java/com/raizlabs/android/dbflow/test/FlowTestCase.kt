@@ -13,9 +13,11 @@ import org.robolectric.annotation.Config
  * Description:
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(Build.VERSION_CODES.LOLLIPOP))
+@Config(constants = BuildConfig::class, sdk = intArrayOf(Build.VERSION_CODES.LOLLIPOP),
+    assetDir = "build/intermediates/classes/test/")
 abstract class FlowTestCase {
 
+    @JvmField
     @Rule
     var dbFlowTestRule = DBFlowTestRule.create()
 

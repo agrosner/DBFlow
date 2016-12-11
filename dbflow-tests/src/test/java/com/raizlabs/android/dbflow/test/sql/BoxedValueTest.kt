@@ -1,77 +1,72 @@
 package com.raizlabs.android.dbflow.test.sql
 
 import android.database.sqlite.SQLiteException
-
 import com.raizlabs.android.dbflow.sql.language.Select
 import com.raizlabs.android.dbflow.test.FlowTestCase
-
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-
 import java.util.concurrent.atomic.AtomicLong
-
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.fail
 
 /**
  * Description: Test to ensure that passing null to non-null fields does not cause a NPE and that it
  * will fail.
  */
 class BoxedValueTest : FlowTestCase() {
-    private var testObject: BoxedModel? = null
+
+    private lateinit var testObject: BoxedModel
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
         testObject = BoxedModel()
-        testObject!!.id = SEQUENCE_ID.andIncrement
+        testObject.id = SEQUENCE_ID.andIncrement
     }
 
     @Test
     fun testBoxedValues_nullId() {
-        testObject!!.id = null
+        testObject.id = null
         assertCannotSaveModel()
     }
 
     @Test
     fun testBoxedValues_integerFieldNotNull() {
-        testObject!!.integerFieldNotNull = null
+        testObject.integerFieldNotNull = null
         assertCannotSaveModel()
     }
 
     @Test
     fun testBoxedValues_integerField() {
-        testObject!!.integerField = null
+        testObject.integerField = null
         assertCanSaveModel()
-        loadModel()
-        assertNull(testObject!!.integerField)
+        val loaded = loadModel()
+        assertNull(loaded!!.integerField)
     }
 
     @Test
     fun testBoxedValues_stringFieldNotNull() {
-        testObject!!.stringFieldNotNull = null
+        testObject.stringFieldNotNull = null
         assertCannotSaveModel()
     }
 
     @Test
     fun testBoxedValues_stringField() {
-        testObject!!.stringField = null
+        testObject.stringField = null
         assertCanSaveModel()
-        loadModel()
-        assertNull(testObject!!.stringField)
+        val loaded = loadModel()
+        assertNull(loaded!!.stringField)
     }
 
-    private fun loadModel() {
-        testObject = Select()
-                .from(BoxedModel::class.java)
-                .where(BoxedModel_Table.id.eq(testObject!!.id))
-                .querySingle()
+    private fun loadModel(): BoxedModel? {
+        return Select()
+            .from(BoxedModel::class.java)
+            .where(BoxedModel_Table.id.eq(testObject.id))
+            .querySingle()
     }
 
     private fun assertCannotSaveModel() {
         try {
-            testObject!!.save()
+            testObject.save()
             fail("Was able to save model")
         } catch (s: SQLiteException) {
             // not null should fail
@@ -82,7 +77,7 @@ class BoxedValueTest : FlowTestCase() {
 
     private fun assertCanSaveModel() {
         try {
-            testObject!!.save()
+            testObject.save()
         } catch (s: SQLiteException) {
             s.printStackTrace(System.err)
             fail("Was unable to save model: " + s.message)

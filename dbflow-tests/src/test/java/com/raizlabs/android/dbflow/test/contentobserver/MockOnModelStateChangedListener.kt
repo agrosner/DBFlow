@@ -11,7 +11,7 @@ import java.util.concurrent.Callable
 class MockOnModelStateChangedListener : FlowContentObserver.OnModelStateChangedListener {
 
     val methodcalled = arrayOf(false, false, false, false)
-    val methodCalls: Array<Callable<Boolean>> = arrayOf()
+    val methodCalls: Array<Callable<Boolean>?> = arrayOfNulls(4)
     val conditions: Array<Array<SQLCondition>> = arrayOf()
 
     init {
@@ -28,7 +28,7 @@ class MockOnModelStateChangedListener : FlowContentObserver.OnModelStateChangedL
                 try {
                     methodcalled[i] = true
                     conditions[i] = primaryKeyValues
-                    methodCalls[i].call()
+                    methodCalls[i]!!.call()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -36,7 +36,7 @@ class MockOnModelStateChangedListener : FlowContentObserver.OnModelStateChangedL
             BaseModel.Action.SAVE -> try {
                 conditions[2] = primaryKeyValues
                 methodcalled[2] = true
-                methodCalls[2].call()
+                methodCalls[2]!!.call()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -44,7 +44,7 @@ class MockOnModelStateChangedListener : FlowContentObserver.OnModelStateChangedL
             BaseModel.Action.DELETE -> try {
                 conditions[3] = primaryKeyValues
                 methodcalled[3] = true
-                methodCalls[3].call()
+                methodCalls[3]!!.call()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -52,7 +52,7 @@ class MockOnModelStateChangedListener : FlowContentObserver.OnModelStateChangedL
             BaseModel.Action.INSERT -> try {
                 conditions[0] = primaryKeyValues
                 methodcalled[0] = true
-                methodCalls[0].call()
+                methodCalls[0]!!.call()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -60,7 +60,7 @@ class MockOnModelStateChangedListener : FlowContentObserver.OnModelStateChangedL
             BaseModel.Action.UPDATE -> try {
                 conditions[1] = primaryKeyValues
                 methodcalled[1] = true
-                methodCalls[1].call()
+                methodCalls[1]!!.call()
             } catch (e: Exception) {
                 e.printStackTrace()
             }

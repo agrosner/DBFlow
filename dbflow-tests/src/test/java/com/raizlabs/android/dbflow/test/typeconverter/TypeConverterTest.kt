@@ -1,23 +1,15 @@
 package com.raizlabs.android.dbflow.test.typeconverter
 
 import android.location.Location
-
 import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.sql.language.Select
 import com.raizlabs.android.dbflow.test.FlowTestCase
-
 import org.json.JSONException
 import org.json.JSONObject
+import org.junit.Assert.*
 import org.junit.Test
-
-import java.util.Calendar
-import java.util.Date
-
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import java.util.*
 
 /**
  * Description:
@@ -62,8 +54,8 @@ class TypeConverterTest : FlowTestCase() {
         testType.save()
 
         val retrieved = Select().from(TestType::class.java)
-                .where(TestType_Table.name.`is`("Name"))
-                .querySingle()
+            .where(TestType_Table.name.`is`("Name"))
+            .querySingle()
 
         assertNotNull(retrieved)
 
@@ -101,8 +93,8 @@ class TypeConverterTest : FlowTestCase() {
         testType.save()
 
         val retrieved = Select().from(TestType::class.java)
-                .where(TestType_Table.name.`is`("Name"))
-                .querySingle()
+            .where(TestType_Table.name.`is`("Name"))
+            .querySingle()
 
         assertNotNull(retrieved)
 
@@ -133,13 +125,13 @@ class TypeConverterTest : FlowTestCase() {
          */
 
         SQLite.update(TestType::class.java)
-                .set(TestType_Table.nativeBoolean.`is`(null as Boolean))
-                .where(TestType_Table.name.eq(testType.name))
-                .execute()
+            .set(TestType_Table.nativeBoolean.`is`(null as Boolean?))
+            .where(TestType_Table.name.eq(testType.name))
+            .execute()
 
         val retrieved = Select().from(TestType::class.java)
-                .where(TestType_Table.name.`is`("Name"))
-                .querySingle()
+            .where(TestType_Table.name.`is`("Name"))
+            .querySingle()
         assertNotNull(retrieved)
 
         assertFalse(retrieved!!.nativeBoolean)
