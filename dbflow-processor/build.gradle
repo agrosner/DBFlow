@@ -18,7 +18,7 @@ dependencies {
 
 apply from: '../java-artifacts.gradle'
 buildscript {
-    ext.kotlin_version = '1.0.4'
+    ext.kotlin_version = '1.0.5-2'
     repositories {
         mavenCentral()
     }
