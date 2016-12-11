@@ -9,9 +9,9 @@ import java.util.*
  * Description:
  */
 @Table(database = TestDatabase::class, indexGroups = arrayOf(
-    IndexGroup(number = 1, name = "firstIndex"),
-    IndexGroup(number = 2, name = "secondIndex"),
-    IndexGroup(number = 3, name = "thirdIndex")))
+        IndexGroup(number = 1, name = "firstIndex"),
+        IndexGroup(number = 2, name = "secondIndex"),
+        IndexGroup(number = 3, name = "thirdIndex")))
 class IndexModel2 : BaseModel() {
 
     @Index(indexGroups = intArrayOf(1, 2, 3))
@@ -34,4 +34,10 @@ class IndexModel2 : BaseModel() {
     @Index(indexGroups = intArrayOf(2, 3))
     @Column
     var isPro: Boolean = false
+
+    @ForeignKey(stubbedRelationship = true,
+            references = arrayOf(ForeignKeyReference(columnName = "entityID",
+                    foreignKeyColumnName = "id")))
+    @Index(indexGroups = intArrayOf(2))
+    var indexModel: IndexModel? = null
 }
