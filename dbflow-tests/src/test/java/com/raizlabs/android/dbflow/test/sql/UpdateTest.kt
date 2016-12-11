@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.sql.language.ConditionGroup
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.sql.language.Update
 import com.raizlabs.android.dbflow.test.FlowTestCase
-import com.raizlabs.android.dbflow.test.provider.NoteModel_Table.contentProviderModel_id
+import com.raizlabs.android.dbflow.test.provider.NoteModel_Table.providerModel
 import com.raizlabs.android.dbflow.test.provider.NoteModel_Table.note
 import com.raizlabs.android.dbflow.test.provider.TestContentProvider
 import com.raizlabs.android.dbflow.test.sql.BoxedModel_Table.*
@@ -59,12 +59,12 @@ class UpdateTest : FlowTestCase() {
         val contentValues = ContentValues()
         contentValues.put(note.query, "Test")
         contentValues.put(id.query, 1)
-        contentValues.put(contentProviderModel_id.query, 1)
+        contentValues.put(providerModel.query, 1)
 
         val group = ConditionGroup.clause()
         SqlUtils.addContentValues(contentValues, group)
         for (condition in group) {
-            assertTrue(condition.columnName() == "`id`" || condition.columnName() == "`contentProviderModel_id`" ||
+            assertTrue(condition.columnName() == "`id`" || condition.columnName() == "`providerModel`" ||
                 condition.columnName() == "`note`")
         }
     }
