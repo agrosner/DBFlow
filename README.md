@@ -26,20 +26,8 @@ Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases)
 For more detailed usage, check out it out [here](/usage2/Intro.md)
 
 # Including in your project
-If you use KAPT (Kotlin's APT), then skip this first step.
-
-We need to include the [apt plugin](https://bitbucket.org/hvisser/android-apt) in our classpath to enable Annotation Processing:
 
 ```groovy
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
-}
 
 allProjects {
   repositories {
@@ -53,15 +41,16 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
 ```groovy
 
-  apply plugin: 'com.neenbedankt.android-apt'
-
-  def dbflow_version = "4.0.0-beta2"
+  def dbflow_version = "4.0.0-beta3"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
-    apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
-    // use kapt for kotlin apt
+    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
+
+    // use kapt for kotlin apt if you're a Kotlin user
+    kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
+
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
