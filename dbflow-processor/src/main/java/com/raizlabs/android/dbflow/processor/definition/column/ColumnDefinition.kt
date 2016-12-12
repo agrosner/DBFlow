@@ -29,7 +29,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             var baseTableDefinition: BaseTableDefinition, isPackagePrivate: Boolean,
             var column: Column? = element.getAnnotation<Column>(Column::class.java),
             primaryKey: PrimaryKey? = element.getAnnotation<PrimaryKey>(PrimaryKey::class.java))
-: BaseDefinition(element, processorManager) {
+    : BaseDefinition(element, processorManager) {
 
     private val QUOTE_PATTERN = Pattern.compile("\".*\"")
 
@@ -220,8 +220,8 @@ constructor(processorManager: ProcessorManager, element: Element,
         typeConverterDefinition?.let {
 
             if (it.modelTypeName != elementTypeName) {
-                manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                        it.modelTypeName, it.className, elementTypeName)
+                manager.logError("The specified custom TypeConverter's Model Value ${it.modelTypeName}" +
+                        " from ${it.className} must match the type of the column $elementTypeName. ")
             } else {
                 hasTypeConverter = true
                 hasCustomConverter = isCustom
@@ -311,6 +311,14 @@ constructor(processorManager: ProcessorManager, element: Element,
 
             return code.build()
         }
+
+    open fun appendIndexInitializer(initializer: CodeBlock.Builder, index: AtomicInteger) {
+        if (index.get() > 0) {
+            initializer.add(", ")
+        }
+        initializer.add(columnName)
+        index.incrementAndGet()
+    }
 
     open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
 
@@ -419,7 +427,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             } else if (elementTypeName == TypeName.BYTE || elementTypeName == TypeName.INT
                     || elementTypeName == TypeName.DOUBLE || elementTypeName == TypeName.FLOAT
                     || elementTypeName == TypeName.LONG || elementTypeName == TypeName.SHORT) {
-                defaultValue = "0"
+                defaultValue = "($elementTypeName) 0"
             } else if (elementTypeName == TypeName.CHAR) {
                 defaultValue = "'\\u0000'"
             }

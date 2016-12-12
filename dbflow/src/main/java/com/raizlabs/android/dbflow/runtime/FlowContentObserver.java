@@ -249,7 +249,7 @@ public class FlowContentObserver extends ContentObserver {
                 param = Uri.decode(uri.getQueryParameter(key));
                 columnName = Uri.decode(key);
                 columnsChanged[index] = Condition.column(new NameAlias.Builder(columnName).build())
-                        .value(param);
+                        .eq(param);
                 index++;
             }
         }
@@ -258,10 +258,8 @@ public class FlowContentObserver extends ContentObserver {
         Action action = Action.valueOf(fragment);
         if (!isInTransaction) {
 
-            if (action != null) {
-                for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
-                    modelChangeListener.onModelStateChanged(table, action, columnsChanged);
-                }
+            for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
+                modelChangeListener.onModelStateChanged(table, action, columnsChanged);
             }
 
             if (!calledInternally) {

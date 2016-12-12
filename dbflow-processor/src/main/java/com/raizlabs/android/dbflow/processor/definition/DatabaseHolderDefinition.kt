@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.DatabaseHandler
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.MethodSpec
@@ -30,14 +29,14 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
     override val typeSpec: TypeSpec
         get() {
             val typeBuilder = TypeSpec.classBuilder(this.className)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .superclass(ClassNames.DATABASE_HOLDER)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .superclass(ClassNames.DATABASE_HOLDER)
 
             val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 
             processorManager.getTypeConverters().forEach {
                 constructor.addStatement("\$L.put(\$T.class, new \$T())",
-                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, it.modelTypeName, it.className)
+                    DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, it.modelTypeName, it.className)
             }
 
             processorManager.getDatabaseHolderDefinitionMap().forEach { databaseDefinition ->
@@ -52,6 +51,7 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
 
     companion object {
 
-        private val OPTION_TARGET_MODULE_NAME = "targetModuleName"
+        @JvmField
+        val OPTION_TARGET_MODULE_NAME = "targetModuleName"
     }
 }

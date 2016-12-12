@@ -18,6 +18,7 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
      * The full SQLite query to use
      */
     private final String query;
+    private String[] args;
 
     /**
      * Creates an instance of this class
@@ -43,7 +44,15 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
 
     @Override
     public Cursor query(DatabaseWrapper databaseWrapper) {
-        return databaseWrapper.rawQuery(query, null);
+        return databaseWrapper.rawQuery(query, args);
+    }
+
+    /**
+     * Set selection arguments to execute on this raw query.
+     */
+    public StringQuery<TModel> setSelectionArgs(String[] args) {
+        this.args = args;
+        return this;
     }
 
 }

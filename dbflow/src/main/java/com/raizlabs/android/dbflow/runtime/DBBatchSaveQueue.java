@@ -50,6 +50,7 @@ public class DBBatchSaveQueue extends Thread {
 
     private Transaction.Error errorListener;
     private Transaction.Success successListener;
+    private Runnable emptyTransactionListener;
 
     private DatabaseDefinition databaseDefinition;
 
@@ -83,7 +84,7 @@ public class DBBatchSaveQueue extends Thread {
 
 
     /**
-     * Listener for errors in each batch {@link Transaction}.
+     * Listener for errors in each batch {@link Transaction}. Called from the DBBatchSaveQueue thread.
      *
      * @param errorListener The listener to use.
      */
@@ -92,12 +93,21 @@ public class DBBatchSaveQueue extends Thread {
     }
 
     /**
-     * Listener for batch updates.
+     * Listener for batch updates. Called from the DBBatchSaveQueue thread.
      *
      * @param successListener The listener to get notified when changes are successful.
      */
     public void setSuccessListener(Transaction.Success successListener) {
         this.successListener = successListener;
+    }
+
+    /**
+     * Listener for when there is no work done. Called from the DBBatchSaveQueue thread.
+     *
+     * @param emptyTransactionListener The listener to get notified when the save queue thread ran but was empty.
+     */
+    public void setEmptyTransactionListener(Runnable emptyTransactionListener) {
+        this.emptyTransactionListener = emptyTransactionListener;
     }
 
     @SuppressWarnings("unchecked")
@@ -121,6 +131,8 @@ public class DBBatchSaveQueue extends Thread {
                         .error(errorCallback)
                         .build()
                         .execute();
+            } else if (emptyTransactionListener != null) {
+                emptyTransactionListener.run();
             }
 
             try {

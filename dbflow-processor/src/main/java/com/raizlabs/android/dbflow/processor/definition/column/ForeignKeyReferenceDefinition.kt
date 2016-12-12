@@ -1,17 +1,15 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
-import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
-import javax.lang.model.type.TypeMirror
 
 /**
  * Description:
@@ -52,13 +50,16 @@ class ForeignKeyReferenceDefinition {
                 foreignKeyElementName: String,
                 referencedColumn: ColumnDefinition,
                 foreignKeyColumnDefinition: ForeignKeyColumnDefinition,
-                referenceCount: Int) {
+                referenceCount: Int,
+                localColumnName: String = "") {
         this.manager = manager
         this.foreignKeyColumnDefinition = foreignKeyColumnDefinition
         this.foreignKeyFieldName = foreignKeyFieldName
 
-        if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement
-                && !foreignKeyColumnDefinition.isRowId || referenceCount > 0) {
+        if (!localColumnName.isNullOrEmpty()) {
+            this.columnName = localColumnName
+        } else if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement
+            && !foreignKeyColumnDefinition.isRowId || referenceCount > 0) {
             this.columnName = foreignKeyFieldName + "_" + referencedColumn.columnName
         } else {
             this.columnName = foreignKeyFieldName
@@ -72,8 +73,8 @@ class ForeignKeyReferenceDefinition {
         // fix here to ensure we can access it otherwise we generate helper
         val isPackagePrivate = ElementUtility.isPackagePrivate(referencedColumn.element)
         val isPackagePrivateNotInSamePackage = isPackagePrivate &&
-                !ElementUtility.isInSamePackage(manager, referencedColumn.element,
-                        foreignKeyColumnDefinition.element)
+            !ElementUtility.isInSamePackage(manager, referencedColumn.element,
+                foreignKeyColumnDefinition.element)
 
         isReferencedFieldPackagePrivate = isReferencedFieldPackagePrivate || isPackagePrivateNotInSamePackage
 
@@ -88,38 +89,6 @@ class ForeignKeyReferenceDefinition {
         createForeignKeyFields(columnClassName, foreignKeyColumnDefinition, manager)
     }
 
-    constructor(manager: ProcessorManager, foreignKeyFieldName: String,
-                foreignKeyReference: ForeignKeyReference,
-                foreignKeyColumnDefinition: ForeignKeyColumnDefinition) {
-        this.manager = manager
-        this.foreignKeyColumnDefinition = foreignKeyColumnDefinition
-        this.foreignKeyFieldName = foreignKeyFieldName
-
-        columnName = foreignKeyReference.columnName
-        foreignColumnName = foreignKeyReference.foreignKeyColumnName
-
-        var columnClass: TypeMirror? = null
-        try {
-            foreignKeyReference.columnType
-        } catch (mte: MirroredTypeException) {
-            columnClass = mte.typeMirror
-        }
-
-        val referencedClassName = foreignKeyColumnDefinition.referencedTableClassName
-        val packageName = referencedClassName?.packageName() ?: ""
-        val name = referencedClassName?.simpleName() ?: ""
-
-        columnClassName = TypeName.get(columnClass!!)
-        isReferencedFieldPrivate = foreignKeyReference.referencedFieldIsPrivate
-        isReferencedFieldPackagePrivate = foreignKeyReference.referencedFieldIsPackagePrivate
-
-        createScopes(foreignKeyColumnDefinition, foreignKeyFieldName, object : GetterSetter {
-            override val getterName: String = foreignKeyReference.referencedGetterName
-            override val setterName: String = foreignKeyReference.referencedSetterName
-        }, name, packageName)
-        createForeignKeyFields(columnClassName, foreignKeyColumnDefinition, manager)
-    }
-
     private fun createScopes(foreignKeyColumnDefinition: ForeignKeyColumnDefinition,
                              foreignKeyFieldName: String, getterSetter: GetterSetter,
                              name: String, packageName: String) {
@@ -128,12 +97,12 @@ class ForeignKeyReferenceDefinition {
             columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, isBoolean, false)
         } else if (isReferencedFieldPackagePrivate) {
             columnAccessor = PackagePrivateScopeColumnAccessor(foreignColumnName, packageName,
-                    foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
-                    name)
+                foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                name)
 
             PackagePrivateScopeColumnAccessor.putElement(
-                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
-                    foreignColumnName)
+                (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                foreignColumnName)
         } else {
             columnAccessor = VisibleScopeColumnAccessor(foreignColumnName)
         }
@@ -145,10 +114,10 @@ class ForeignKeyReferenceDefinition {
         evaluateTypeConverter(typeConverterDefinition)
 
         val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
-                wrapperTypeName, subWrapperAccessor)
+            wrapperTypeName, subWrapperAccessor)
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
-                columnClassName, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
-                columnAccessor, wrapperAccessor, wrapperTypeName)
+            columnClassName, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
+            columnAccessor, wrapperAccessor, wrapperTypeName)
 
         primaryReferenceField = ForeignKeyAccessField(columnName, PrimaryReferenceAccessCombiner(combiner))
 
@@ -164,12 +133,12 @@ class ForeignKeyReferenceDefinition {
 
             if (it.modelTypeName != columnClassName) {
                 manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                        it.modelTypeName, it.className, columnClassName)
+                    it.modelTypeName, it.className, columnClassName)
             } else {
                 hasTypeConverter = true
 
                 val fieldName = foreignKeyColumnDefinition.baseTableDefinition
-                        .addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
+                    .addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
 

@@ -54,7 +54,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
-                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
+                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
         } else {
             implementsLoadFromCursorListener = false
         }
@@ -104,23 +104,14 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
 
                 if (columnDefinition.isPrimaryKey || columnDefinition is ForeignKeyColumnDefinition
-                        || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                    || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys")
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery::class.java) != null) {
                 if (!queryFieldName.isNullOrEmpty()) {
                     manager.logError("Found duplicate ")
                 }
-                if (!variableElement.modifiers.contains(Modifier.PUBLIC)) {
-                    manager.logError("The ModelViewQuery must be public")
-                }
-                if (!variableElement.modifiers.contains(Modifier.STATIC)) {
-                    manager.logError("The ModelViewQuery must be static")
-                }
-
-                if (!variableElement.modifiers.contains(Modifier.FINAL)) {
-                    manager.logError("The ModelViewQuery must be final")
-                }
+                ProcessorUtils.ensureVisibleStatic(variableElement, typeElement, "ModelViewQuery")
 
                 val element = manager.elements.getTypeElement(variableElement.asType().toString())
                 if (!ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.QUERY.toString(), element)) {
@@ -148,7 +139,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
         typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java),
-                "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
+            "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
         elementClassName?.let {
             columnDefinitions.forEach {
                 columnDefinition ->
@@ -175,22 +166,22 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getCreationQuery")
-                .addAnnotation(Override::class.java)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$T.\$L.getQuery()", elementClassName, queryFieldName)
-                .returns(ClassName.get(String::class.java)).build())
+            .addAnnotation(Override::class.java)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return \$T.\$L.getQuery()", elementClassName, queryFieldName)
+            .returns(ClassName.get(String::class.java)).build())
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getViewName")
-                .addAnnotation(Override::class.java)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$S", name!!)
-                .returns(ClassName.get(String::class.java)).build())
+            .addAnnotation(Override::class.java)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return \$S", name!!)
+            .returns(ClassName.get(String::class.java)).build())
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
-                .addAnnotation(Override::class.java)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return new \$T()", elementClassName)
-                .returns(elementClassName).build())
+            .addAnnotation(Override::class.java)
+            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+            .addStatement("return new \$T()", elementClassName)
+            .returns(elementClassName).build())
     }
 
     override fun compareTo(other: ModelViewDefinition): Int {

@@ -7,6 +7,7 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Modifier
 
 /**
@@ -33,7 +34,11 @@ class IndexGroupsDefinition(private val tableDefinition: TableDefinition, indexG
             val initializer = CodeBlock.builder().add("new \$T<>(\$S, \$L, \$T.class", ClassNames.INDEX_PROPERTY,
                     indexName, isUnique, tableDefinition.elementTypeName)
 
-            columnDefinitionList.forEach { initializer.add(", \$L", it.columnName) }
+            if (columnDefinitionList.isNotEmpty()) {
+                initializer.add(",")
+            }
+            val index = AtomicInteger(0)
+            columnDefinitionList.forEach { it.appendIndexInitializer(initializer, index) }
             initializer.add(")")
 
             fieldBuilder.initializer(initializer.build())

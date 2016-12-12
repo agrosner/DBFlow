@@ -59,7 +59,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
 
     @Override
     public DatabaseWrapper getDatabase() {
-        if (cipherDatabase == null) {
+        if (cipherDatabase == null || !cipherDatabase.getDatabase().isOpen()) {
             cipherDatabase = SQLCipherDatabase.from(getWritableDatabase(getCipherSecret()));
         }
         return cipherDatabase;

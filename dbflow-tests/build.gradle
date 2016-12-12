@@ -44,7 +44,7 @@ android {
 dependencies {
     kapt project(':dbflow-processor')
     compile project(':dbflow')
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:appcompat-v7:25.0.1'
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
     testCompile 'com.jayway.awaitility:awaitility:1.6.5'
@@ -52,7 +52,7 @@ dependencies {
     testCompile project("${dbflow_project_prefix}dbflow-sqlcipher")
     testCompile project("${dbflow_project_prefix}dbflow-kotlinextensions")
     testCompile 'junit:junit:4.12'
-    testCompile "org.robolectric:robolectric:3.1"
+    testCompile "org.robolectric:robolectric:3.1.4"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
@@ -60,16 +60,16 @@ android.applicationVariants.all { variant ->
     String taskName = "copy${variant.name.capitalize()}ResDirectoryToClasses"
     task(taskName, type: Copy) {
         from "${projectDir}/src/test/res"
-        into "${buildDir}/intermediates/res/${variant.buildType.name}/"
+        into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/res"
 
         from "${projectDir}/src/test/assets"
-        into "${buildDir}/intermediates/assets/${variant.buildType.name}/"
+        into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/assets"
     }
     project.getTasksByName("generate${variant.name.capitalize()}Resources", false)[0].dependsOn(taskName)
 }
 
 buildscript {
-    ext.kotlin_version = '1.0.4'
+    ext.kotlin_version = '1.0.5-2'
     repositories {
         mavenCentral()
     }

@@ -79,7 +79,6 @@ This can allow you to combine a relationship of objects to a single `Model` to h
 
 ```java
 
-@ModelContainer
 @Table(database = ColonyDatabase.class)
 public class Queen extends BaseModel {
 
