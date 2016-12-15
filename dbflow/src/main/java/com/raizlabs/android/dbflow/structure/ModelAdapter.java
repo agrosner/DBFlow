@@ -84,6 +84,14 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         return compiledStatement;
     }
 
+    public void closeCompiledStatement() {
+        if (compiledStatement == null) {
+            return;
+        }
+        compiledStatement.close();
+        compiledStatement = null;
+    }
+
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled {@link DatabaseStatement} representing insert.

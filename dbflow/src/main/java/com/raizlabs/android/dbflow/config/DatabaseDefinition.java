@@ -276,6 +276,7 @@ public abstract class DatabaseDefinition {
             getHelper().closeDB();
             for (ModelAdapter modelAdapter : modelAdapters.values()) {
                 modelAdapter.closeInsertStatement();
+                modelAdapter.closeCompiledStatement();
             }
             context.deleteDatabase(getDatabaseFileName());
 
