@@ -51,7 +51,7 @@ In other applications or your current's `AndroidManifest.xml` add the **generate
 <provider
             android:authorities="com.raizlabs.android.dbflow.test.provider"
             android:exported="true|false"
-            android:name=".provider.TestContentProvider$Provider"/>
+            android:name=".provider.TestContentProvider_Provider"/>
 ```
 
 `android:exported`: setting this to true, enables other applications to make use of it.

@@ -273,6 +273,10 @@ public abstract class DatabaseDefinition {
             isResetting = true;
             getTransactionManager().stopQueue();
             getHelper().closeDB();
+            for (ModelAdapter modelAdapter : modelAdapters.values()) {
+                modelAdapter.closeInsertStatement();
+                modelAdapter.closeCompiledStatement();
+            }
             context.deleteDatabase(getDatabaseFileName());
 
             // recreate queue after interrupting it.
