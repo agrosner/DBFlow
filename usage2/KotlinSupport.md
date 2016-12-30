@@ -43,7 +43,7 @@ are defined in a separate dependency:
 
 ```
 dependencies {
-  compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}"
+  compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}@aar"
 }
 
 ```
