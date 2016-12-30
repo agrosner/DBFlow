@@ -5,11 +5,10 @@ import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.SQLite
-import com.raizlabs.android.dbflow.structure.BaseModelView
 import com.raizlabs.android.dbflow.test.TestDatabase
 
 @ModelView(database = TestDatabase::class, name = "v_view", priority = 3)
-class MyView : BaseModelView() {
+class MyView {
 
     enum class TestEnum {
         YES, NO

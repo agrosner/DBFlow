@@ -299,9 +299,8 @@ public class FlowManager {
     public static InstanceAdapter getInstanceAdapter(Class<?> modelClass) {
         InstanceAdapter internalAdapter = getModelAdapter(modelClass);
         if (internalAdapter == null) {
-            if (BaseModelView.class.isAssignableFrom(modelClass)) {
-                internalAdapter = FlowManager.getModelViewAdapter(modelClass);
-            } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
+            internalAdapter = FlowManager.getModelViewAdapter(modelClass);
+            if (internalAdapter == null) {
                 internalAdapter = FlowManager.getQueryModelAdapter(modelClass);
             }
         }
