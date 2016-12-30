@@ -38,7 +38,9 @@ public class EmployeeModel {
 ```
 
 We need someway to retrieve the results of this query, since we want to avoid
-dealing with the `Cursor` directly:
+dealing with the `Cursor` directly. We can use a SQLite query with our existing models, but
+we have no way to map it currently to our tables, since the query returns new Columns
+that do not represent any existing table:
 
 ```java
 
@@ -50,7 +52,7 @@ SQLite.select(EmployeeModel_Table.department,
 
 ```
 
-Now we define a `QueryModel`:
+So we must define a `QueryModel`, representing the results of the query:
 
 ```java
 @QueryModel(database = AppDatabase.class)
