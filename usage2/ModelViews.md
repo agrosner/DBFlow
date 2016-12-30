@@ -29,13 +29,12 @@ what field is the query. This query is used only once when the database is creat
 
 
 The full list of limitations/supported types are:
-  1. Must extend `BaseModelView`
-  2. Only `@Column` are allowed
-  3. No `@PrimaryKey` or `@ForeignKey`
-  4. Supports all fields, and accessibility modifiers that `Model` support
-  5. Does not support `@InheritedField`, `@InheritedPrimaryKey`
-  6. Basic, type-converted, non-model `@Column`.
-  7. __Cannot__: update, insert, or delete
+  1. Only `@Column` are allowed
+  2. No `@PrimaryKey` or `@ForeignKey`
+  3. Supports all fields, and accessibility modifiers that `Model` support
+  4. Does not support `@InheritedField`, `@InheritedPrimaryKey`
+  5. Basic, type-converted, non-model `@Column`.
+  6. __Cannot__: update, insert, or delete
 
 `ModelView` are used identical to `Model` when retrieving from the database:
 
