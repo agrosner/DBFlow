@@ -10,7 +10,7 @@ read-only. It is a virtual "view" placed on top of a regular table as a prepacka
 ```java
 
 @ModelView(database = TestDatabase.class)
-public class TestModelView extends BaseModelView<TestModel2> {
+public class TestModelView {
 
     @ModelViewQuery
     public static final Query QUERY = SQLite.select().from(TestModel2.class)

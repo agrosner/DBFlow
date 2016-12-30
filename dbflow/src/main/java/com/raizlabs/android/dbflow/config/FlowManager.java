@@ -65,8 +65,8 @@ public class FlowManager {
         ModelAdapter modelAdapter = getModelAdapter(table);
         String tableName = null;
         if (modelAdapter == null) {
-            ModelViewAdapter modelViewAdapter = getDatabaseForTable(table).getModelViewAdapterForTable(
-                    (Class<? extends BaseModelView>) table);
+            ModelViewAdapter modelViewAdapter = getDatabaseForTable(table)
+                    .getModelViewAdapterForTable(table);
             if (modelViewAdapter != null) {
                 tableName = modelViewAdapter.getViewName();
             }
@@ -300,11 +300,9 @@ public class FlowManager {
         InstanceAdapter internalAdapter = getModelAdapter(modelClass);
         if (internalAdapter == null) {
             if (BaseModelView.class.isAssignableFrom(modelClass)) {
-                internalAdapter = FlowManager.getModelViewAdapter(
-                        (Class<? extends BaseModelView>) modelClass);
+                internalAdapter = FlowManager.getModelViewAdapter(modelClass);
             } else if (BaseQueryModel.class.isAssignableFrom(modelClass)) {
-                internalAdapter = FlowManager.getQueryModelAdapter(
-                        (Class<? extends BaseQueryModel>) modelClass);
+                internalAdapter = FlowManager.getQueryModelAdapter(modelClass);
             }
         }
 
@@ -331,7 +329,7 @@ public class FlowManager {
      * @return The model view adapter for the specified model view.
      */
     @SuppressWarnings("unchecked")
-    public static <TModelView extends BaseModelView> ModelViewAdapter<TModelView> getModelViewAdapter(
+    public static <TModelView> ModelViewAdapter<TModelView> getModelViewAdapter(
             Class<TModelView> modelViewClass) {
         return FlowManager.getDatabaseForTable(modelViewClass).getModelViewAdapterForTable(modelViewClass);
     }

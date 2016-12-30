@@ -41,9 +41,9 @@ public abstract class DatabaseDefinition {
 
     final Map<String, Class<?>> modelTableNames = new HashMap<>();
 
-    final List<Class<? extends BaseModelView>> modelViews = new ArrayList<>();
+    final List<Class<?>> modelViews = new ArrayList<>();
 
-    final Map<Class<? extends BaseModelView>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
+    final Map<Class<?>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
 
     final Map<Class<?>, QueryModelAdapter> queryModelAdapterMap = new LinkedHashMap<>();
 
@@ -146,7 +146,7 @@ public abstract class DatabaseDefinition {
     /**
      * @return the {@link BaseModelView} list for this database.
      */
-    public List<Class<? extends BaseModelView>> getModelViews() {
+    public List<Class<?>> getModelViews() {
         return modelViews;
     }
 
@@ -154,7 +154,7 @@ public abstract class DatabaseDefinition {
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated {@link ModelViewAdapter} for the specified table.
      */
-    public ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
+    public ModelViewAdapter getModelViewAdapterForTable(Class<?> table) {
         return modelViewAdapterMap.get(table);
     }
 
