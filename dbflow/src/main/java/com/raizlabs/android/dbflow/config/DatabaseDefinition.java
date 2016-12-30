@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
-import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
@@ -46,7 +45,7 @@ public abstract class DatabaseDefinition {
 
     final Map<Class<? extends BaseModelView>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
 
-    final Map<Class<? extends BaseQueryModel>, QueryModelAdapter> queryModelAdapterMap = new LinkedHashMap<>();
+    final Map<Class<?>, QueryModelAdapter> queryModelAdapterMap = new LinkedHashMap<>();
 
     /**
      * The helper that manages database changes and initialization
@@ -178,7 +177,7 @@ public abstract class DatabaseDefinition {
      * @param queryModel The {@link QueryModel} class
      * @return The adapter that corresponds to the specified class.
      */
-    public QueryModelAdapter getQueryModelAdapterForQueryClass(Class<? extends BaseQueryModel> queryModel) {
+    public QueryModelAdapter getQueryModelAdapterForQueryClass(Class<?> queryModel) {
         return queryModelAdapterMap.get(queryModel);
     }
 

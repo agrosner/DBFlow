@@ -83,7 +83,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A list of custom models that are not tied to a table.
      */
-    <TQueryModel extends BaseQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
+    <TQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
 
     /**
      * Returns a single {@link TQueryModel} from this query.
@@ -92,6 +92,6 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A single model from the query.
      */
-    <TQueryModel extends BaseQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
+    <TQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
 
 }

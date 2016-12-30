@@ -1,6 +1,12 @@
 package com.raizlabs.android.dbflow.processor
 
-import com.raizlabs.android.dbflow.processor.definition.*
+import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
+import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
+import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.EnumColumnAccessor
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition

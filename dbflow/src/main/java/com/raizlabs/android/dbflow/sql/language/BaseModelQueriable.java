@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -105,7 +104,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
     }
 
     @Override
-    public <QueryClass extends BaseQueryModel> List<QueryClass>
+    public <QueryClass> List<QueryClass>
     queryCustomList(Class<QueryClass> queryModelClass) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
@@ -113,7 +112,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
     }
 
     @Override
-    public <QueryClass extends BaseQueryModel> QueryClass
+    public <QueryClass> QueryClass
     queryCustomSingle(Class<QueryClass> queryModelClass) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);

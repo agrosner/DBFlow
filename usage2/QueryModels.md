@@ -3,12 +3,8 @@
 A `QueryModel` is purely an ORM object that maps rows from a `Cursor` into
 a `Model` such that when loading from the DB, we can easily use the data from it.
 
-We use a different annotation, `@QueryModel`, to define it separately.
-
-We _must_ extend `BaseQueryModel` in this case, in order to enforce that it
-does not allow modifications. Since `BaseQueryModel` implements `Model`, we
-enforce the restriction of _no modifications_. This is because the result set
-does not always correspond to a table.
+We use a different annotation, `@QueryModel`, to define it separately. These
+do not allow for modifications in the DB, rather act as a marshal agent out of the DB.
 
 ## Define a QueryModel
 
@@ -20,7 +16,7 @@ We defined an `Employee` table:
 ```java
 
 @Table(database = AppDatabase.class)
-public class EmployeeModel extends BaseModel {
+public class EmployeeModel {
 
     @Column
     @PrimaryKey
@@ -58,7 +54,7 @@ Now we define a `QueryModel`:
 
 ```java
 @QueryModel(database = AppDatabase.class)
-public class AverageSalary extends BaseQueryModel {
+public class AverageSalary {
 
     @Column
     String title;
@@ -96,8 +92,10 @@ SQLite.select(EmployeeModel_Table.department,
 
 `QueryModel` support only a limited subset of `Model` features.
 
-Modifications such as `insert()`, `update()`, `save()`, and `delete()` will throw
-an `InvalidSqlViewOperationException` if called.
+If you use the optional base class of `BaseQueryModel`,
+ Modifications such as `insert()`, `update()`, `save()`, and `delete()` will throw
+ an `InvalidSqlViewOperationException`. Otherwise, `RetrievalAdapter` do not
+ contain modification methods.
 
 They support `allFields` and inheritance and visibility modifiers as defined by [Models](/usage2/Models.md).
 
@@ -105,4 +103,4 @@ They support `allFields` and inheritance and visibility modifiers as defined by 
   1. `InheritedField`/`InheritedPrimaryKey`
   2. `@PrimaryKey`/`@ForeignKey`
   3. caching
-  4. use "is" for private boolean fields.
+  4. changing "useBooleanGetterSetters" for private boolean fields.
