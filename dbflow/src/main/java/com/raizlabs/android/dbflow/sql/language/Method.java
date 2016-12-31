@@ -179,9 +179,6 @@ public class Method extends Property {
      * @param property The property to add.
      */
     public Method addProperty(@NonNull IProperty property) {
-        if (propertyList.size() == 1 && propertyList.get(0) == Property.ALL_PROPERTY) {
-            propertyList.remove(0);
-        }
         return append(property, ",");
     }
 
@@ -190,6 +187,10 @@ public class Method extends Property {
      * the property specified.
      */
     public Method append(IProperty property, String operation) {
+        // remove all property since its not needed when we specify a property.
+        if (propertyList.size() == 1 && propertyList.get(0) == Property.ALL_PROPERTY) {
+            propertyList.remove(0);
+        }
         propertyList.add(property);
         operationsList.add(operation);
         return this;
