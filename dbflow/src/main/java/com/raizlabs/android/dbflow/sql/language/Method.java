@@ -86,6 +86,43 @@ public class Method extends Property {
         return new Method("REPLACE", property, PropertyFactory.from(findString), PropertyFactory.from(replacement));
     }
 
+    /**
+     * SQLite standard "strftime()" method. See SQLite documentation on this method.
+     */
+    public static Method strftime(String formatString, String timeString, String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(formatString));
+        propertyList.add(PropertyFactory.from(timeString));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("strftime", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
+    /**
+     * Sqlite "datetime" method. See SQLite documentation on this method.
+     */
+    public static Method datetime(long timeStamp, String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(timeStamp));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("datetime", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
+    /**
+     * Sqlite "date" method. See SQLite documentation on this method.
+     */
+    public static Method date(String timeString, String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(timeString));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("date", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
     private final List<IProperty> propertyList = new ArrayList<>();
     private List<String> operationsList = new ArrayList<>();
     private final IProperty methodProperty;

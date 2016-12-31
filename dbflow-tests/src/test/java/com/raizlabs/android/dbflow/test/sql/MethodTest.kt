@@ -2,21 +2,11 @@ package com.raizlabs.android.dbflow.test.sql
 
 import com.raizlabs.android.dbflow.sql.SQLiteType
 import com.raizlabs.android.dbflow.sql.language.Method
+import com.raizlabs.android.dbflow.sql.language.Method.*
 import com.raizlabs.android.dbflow.test.FlowTestCase
-
-import org.junit.Test
-
-import com.raizlabs.android.dbflow.sql.language.Method.avg
-import com.raizlabs.android.dbflow.sql.language.Method.cast
-import com.raizlabs.android.dbflow.sql.language.Method.count
-import com.raizlabs.android.dbflow.sql.language.Method.group_concat
-import com.raizlabs.android.dbflow.sql.language.Method.max
-import com.raizlabs.android.dbflow.sql.language.Method.min
-import com.raizlabs.android.dbflow.sql.language.Method.replace
-import com.raizlabs.android.dbflow.sql.language.Method.sum
-import com.raizlabs.android.dbflow.sql.language.Method.total
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table.name
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 /**
  * Description: Tests a [Method] class.
@@ -75,5 +65,23 @@ class MethodTest : FlowTestCase() {
     fun test_replaceMethod() {
         val query = replace(name, "ro", "or").query
         assertEquals("REPLACE(`name` , 'ro' , 'or')", query)
+    }
+
+    @Test
+    fun test_strftime() {
+        assertEquals("strftime('%s' , 'now')",
+                strftime("%s", "now").query)
+    }
+
+    @Test
+    fun test_dateMethod() {
+        assertEquals("date('now' , 'start of month' , '+1 month')",
+                date("now", "start of month", "+1 month").query)
+    }
+
+    @Test
+    fun test_datetimeMethod() {
+        assertEquals("datetime(1092941466 , 'unix epoch')",
+                datetime(1092941466, "unix epoch").query)
     }
 }
