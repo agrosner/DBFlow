@@ -37,8 +37,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     /**
-     * Call before {@link #save()}, {@link #delete()}, {@link #update()}, or {@link #insert()} since post
-     * call to those the listener is nulled out.
+     * Call before {@link #save()}, {@link #delete()}, {@link #update()}, or {@link #insert()}.
      *
      * @param onModelChangedListener The listener to use for a corresponding call to a method.
      */

@@ -24,7 +24,7 @@ class CipherTestRule private constructor() : TestRule {
             override fun evaluate() {
                 FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
                         .addDatabaseConfig(DatabaseConfig.Builder(CipherDatabase::class.java)
-                                .openHelper { databaseDefinition, helperListener -> SQLCipherHelperImpl(databaseDefinition, helperListener) }.build()).build())
+                                .openHelper(::SQLCipherHelperImpl).build()).build())
                 try {
                     base.evaluate()
                 } finally {

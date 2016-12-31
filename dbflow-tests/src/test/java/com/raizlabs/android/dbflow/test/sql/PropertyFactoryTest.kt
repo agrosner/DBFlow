@@ -31,7 +31,7 @@ class PropertyFactoryTest : FlowTestCase() {
         assertEquals("'c'", charProperty.query)
         val queryBuilder = QueryBuilder<QueryBuilder<*>>()
         charProperty.between('d').and('e').appendConditionToQuery(queryBuilder)
-        assertEquals("'c' BETWEEN 'd' AND 'e'", queryBuilder.getQuery().trim({ it <= ' ' }))
+        assertEquals("'c' BETWEEN 'd' AND 'e'", queryBuilder.query.trim({ it <= ' ' }))
     }
 
     @Test
@@ -40,7 +40,7 @@ class PropertyFactoryTest : FlowTestCase() {
         assertEquals("'MyGirl'", stringProperty.query)
         val queryBuilder = QueryBuilder<QueryBuilder<*>>()
         stringProperty.concatenate("Talkin' About").appendConditionToQuery(queryBuilder)
-        assertEquals("'MyGirl'='MyGirl' || 'Talkin'' About'", queryBuilder.getQuery().trim({ it <= ' ' }))
+        assertEquals("'MyGirl'='MyGirl' || 'Talkin'' About'", queryBuilder.query.trim({ it <= ' ' }))
     }
 
     @Test
@@ -49,7 +49,7 @@ class PropertyFactoryTest : FlowTestCase() {
         assertEquals("5", byteProperty.query)
         val queryBuilder = QueryBuilder<QueryBuilder<*>>()
         byteProperty.`in`(6.toByte(), 7.toByte(), 8.toByte(), 9.toByte()).appendConditionToQuery(queryBuilder)
-        assertEquals("5 IN (6,7,8,9)", queryBuilder.getQuery().trim({ it <= ' ' }))
+        assertEquals("5 IN (6,7,8,9)", queryBuilder.query.trim({ it <= ' ' }))
     }
 
     @Test
@@ -58,7 +58,7 @@ class PropertyFactoryTest : FlowTestCase() {
         assertEquals("5", intProperty.query)
         val queryBuilder = QueryBuilder<QueryBuilder<*>>()
         intProperty.greaterThan(TestModel2_Table.model_order).appendConditionToQuery(queryBuilder)
-        assertEquals("5>`model_order`", queryBuilder.getQuery().trim({ it <= ' ' }))
+        assertEquals("5>`model_order`", queryBuilder.query.trim({ it <= ' ' }))
     }
 
     @Test
@@ -67,7 +67,7 @@ class PropertyFactoryTest : FlowTestCase() {
         assertEquals("10.0", doubleProperty.query)
         val queryBuilder = QueryBuilder<QueryBuilder<*>>()
         doubleProperty.plus(ConditionModel_Table.fraction).lessThan(ConditionModel_Table.fraction).appendConditionToQuery(queryBuilder)
-        assertEquals("10.0 + `fraction`<`fraction`", queryBuilder.getQuery().trim({ it <= ' ' }))
+        assertEquals("10.0 + `fraction`<`fraction`", queryBuilder.query.trim({ it <= ' ' }))
     }
 
     @Test
@@ -85,7 +85,7 @@ class PropertyFactoryTest : FlowTestCase() {
         assertEquals("(SELECT * FROM `TestModel1` WHERE `name`='Test') AS `Cool`", model1Property.definition)
         val queryBuilder = QueryBuilder<QueryBuilder<*>>()
         model1Property.minus(ConditionModel_Table.fraction).plus(TestModel1_Table.name.withTable()).like("%somethingnotvalid%").appendConditionToQuery(queryBuilder)
-        assertEquals("(SELECT * FROM `TestModel1` WHERE `name`='Test') - `fraction` + `TestModel1`.`name` LIKE '%somethingnotvalid%'", queryBuilder.getQuery().trim({ it <= ' ' }))
+        assertEquals("(SELECT * FROM `TestModel1` WHERE `name`='Test') - `fraction` + `TestModel1`.`name` LIKE '%somethingnotvalid%'", queryBuilder.query.trim({ it <= ' ' }))
 
     }
 }

@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Description: The SQLite INSERT command

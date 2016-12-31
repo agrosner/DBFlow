@@ -30,7 +30,7 @@ class QueryExtensionsAsyncTest {
     fun setup_test() {
         FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
             .addDatabaseConfig(DatabaseConfig.Builder(KotlinDatabase::class.java)
-                .transactionManagerCreator { ImmediateTransactionManager(it) }
+                .transactionManagerCreator(::ImmediateTransactionManager)
                 .build())
             .build())
     }

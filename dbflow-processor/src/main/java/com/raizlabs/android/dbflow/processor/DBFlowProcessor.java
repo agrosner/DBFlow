@@ -22,9 +22,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 
-/**
- * Author: andrewgrosner
- */
 @AutoService(Processor.class)
 public class DBFlowProcessor extends AbstractProcessor {
 
@@ -79,14 +76,14 @@ public class DBFlowProcessor extends AbstractProcessor {
         super.init(processingEnv);
         manager = new ProcessorManager(processingEnv);
         manager.addHandlers(
-            new MigrationHandler(),
-            new TypeConverterHandler(),
-            new DatabaseHandler(),
-            new TableHandler(),
-            new QueryModelHandler(),
-            new ModelViewHandler(),
-            new ContentProviderHandler(),
-            new TableEndpointHandler());
+                new MigrationHandler(),
+                new TypeConverterHandler(),
+                new DatabaseHandler(),
+                new TableHandler(),
+                new QueryModelHandler(),
+                new ModelViewHandler(),
+                new ContentProviderHandler(),
+                new TableEndpointHandler());
     }
 
     @Override

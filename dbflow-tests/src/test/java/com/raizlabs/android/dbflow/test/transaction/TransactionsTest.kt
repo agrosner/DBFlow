@@ -115,7 +115,7 @@ class TransactionsTest : FlowTestCase() {
 
         FlowManager.getDatabase(TestDatabase::class.java)
             .executeTransaction(ProcessModelTransaction.Builder(
-                ProcessModelTransaction.ProcessModel<TestModel2> { model -> model.save() })
+                ProcessModelTransaction.ProcessModel<TestModel2>(TestModel2::save))
                 .addAll(modelList).build())
 
         println("Transaction completed in: " + (System.currentTimeMillis() - startTime))
@@ -145,7 +145,7 @@ class TransactionsTest : FlowTestCase() {
 
         FlowManager.getDatabase(TestDatabase::class.java)
             .executeTransaction(ProcessModelTransaction.Builder(
-                ProcessModelTransaction.ProcessModel<TrCacheableModel> { model -> model.save() })
+                ProcessModelTransaction.ProcessModel<TrCacheableModel>(TrCacheableModel::save))
                 .addAll(modelList).build())
 
         println("Transaction completed in: " + (System.currentTimeMillis() - startTime))

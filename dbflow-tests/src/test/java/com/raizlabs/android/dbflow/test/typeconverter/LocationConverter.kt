@@ -18,7 +18,7 @@ class LocationConverter : TypeConverter<String, Location>() {
         if (data == null) {
             return null
         }
-        val values = data.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val values = data.split(",".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
         val location = Location("")
         location.latitude = java.lang.Double.valueOf(values[0])!!
         location.longitude = java.lang.Double.valueOf(values[1])!!

@@ -72,26 +72,12 @@ class VisibleScopeColumnAccessor(propertyName: String) : ColumnAccessor(property
     }
 }
 
-class PrivateScopeColumnAccessor : ColumnAccessor {
-
-    private val useIsForPrivateBooleans: Boolean
-    private val isBoolean: Boolean
+class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSetter? = null,
+                                 private val useIsForPrivateBooleans: Boolean = false)
+    : ColumnAccessor(propertyName) {
 
     private var getterName: String = ""
     private var setterName: String = ""
-
-    constructor(propertyName: String,
-                getterSetter: GetterSetter? = null,
-                isBoolean: Boolean = false,
-                useIsForPrivateBooleans: Boolean = false) : super(propertyName) {
-        this.isBoolean = isBoolean
-        this.useIsForPrivateBooleans = useIsForPrivateBooleans
-
-        getterSetter?.let {
-            getterName = getterSetter.getterName
-            setterName = getterSetter.setterName
-        }
-    }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         val codeBlock: CodeBlock.Builder = CodeBlock.builder()
@@ -136,6 +122,13 @@ class PrivateScopeColumnAccessor : ColumnAccessor {
                 } else setElementName.lower()
             } else setterName
         } else return ""
+    }
+
+    init {
+        getterSetter?.let {
+            getterName = getterSetter.getterName
+            setterName = getterSetter.setterName
+        }
     }
 }
 

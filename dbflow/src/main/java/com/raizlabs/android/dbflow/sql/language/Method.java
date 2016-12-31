@@ -131,10 +131,11 @@ public class Method extends Property {
         this(null, properties);
     }
 
+    @SuppressWarnings("unchecked")
     public Method(String methodName, IProperty... properties) {
         super(null, (String) null);
 
-        methodProperty = new Property(null, NameAlias.rawBuilder(methodName).build());
+        methodProperty = new Property<>(null, NameAlias.rawBuilder(methodName).build());
 
         if (properties.length == 0) {
             propertyList.add(Property.ALL_PROPERTY);

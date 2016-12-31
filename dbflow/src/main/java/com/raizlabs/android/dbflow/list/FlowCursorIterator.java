@@ -2,13 +2,11 @@ package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
 
-import com.raizlabs.android.dbflow.structure.Model;
-
 import java.util.ConcurrentModificationException;
 import java.util.ListIterator;
 
 /**
- * Description: Provides iteration capabilitie to a {@link FlowCursorList}.
+ * Description: Provides iteration capabilities to a {@link FlowCursorList}.
  */
 public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
 

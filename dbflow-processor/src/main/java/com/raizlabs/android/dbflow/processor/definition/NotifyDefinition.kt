@@ -12,12 +12,12 @@ import javax.lang.model.element.TypeElement
  * Description:
  */
 class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
-: BaseDefinition(typeElement, processorManager) {
+    : BaseDefinition(typeElement, processorManager) {
 
     var paths: Array<String>
     var method: Notify.Method
-    var parent: String
-    var methodName: String
+    val parent = (typeElement.enclosingElement as TypeElement).qualifiedName.toString()
+    val methodName = typeElement.simpleName.toString()
     var params: String
     var returnsArray: Boolean = false
     var returnsSingle: Boolean = false
@@ -29,9 +29,6 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
         paths = notify.paths
 
         method = notify.method
-
-        parent = (typeElement.enclosingElement as TypeElement).qualifiedName.toString()
-        methodName = typeElement.simpleName.toString()
 
         val executableElement = typeElement as ExecutableElement
 

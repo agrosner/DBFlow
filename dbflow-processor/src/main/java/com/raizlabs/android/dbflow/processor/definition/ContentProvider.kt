@@ -9,8 +9,18 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.TableEndpointValidator
 import com.raizlabs.android.dbflow.processor.utils.controlFlow
-import com.squareup.javapoet.*
-import javax.lang.model.element.*
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.MirroredTypeException
 
 internal fun appendDefault(code: CodeBlock.Builder) {
@@ -335,7 +345,7 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
  * Description:
  */
 class ContentProviderDefinition(typeElement: Element, processorManager: ProcessorManager)
-: BaseDefinition(typeElement, processorManager) {
+    : BaseDefinition(typeElement, processorManager) {
 
     var databaseName: TypeName? = null
     var databaseNameString: String = ""
@@ -344,7 +354,11 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
     var endpointDefinitions: MutableList<TableEndpointDefinition> = Lists.newArrayList<TableEndpointDefinition>()
 
-    private val methods: Array<MethodDefinition>
+    private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
+            InsertMethod(this, false),
+            InsertMethod(this, true),
+            DeleteMethod(this, manager),
+            UpdateMethod(this, manager))
 
     init {
 
@@ -371,9 +385,6 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
         }
 
-        methods = arrayOf(QueryMethod(this, manager), InsertMethod(this, false),
-                InsertMethod(this, true), DeleteMethod(this, manager),
-                UpdateMethod(this, manager))
     }
 
     override val extendsClass: TypeName?
@@ -408,10 +419,10 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .returns(TypeName.BOOLEAN)
                 .addStatement("final \$T $AUTHORITY = \$L", String::class.java,
-                    if (authority.contains("R.string."))
-                        "getContext().getString($authority)"
-                    else
-                        "\"$authority\"")
+                        if (authority.contains("R.string."))
+                            "getContext().getString($authority)"
+                        else
+                            "\"$authority\"")
 
         for (endpointDefinition in endpointDefinitions) {
             endpointDefinition.contentUriDefinitions.forEach {
@@ -483,7 +494,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
  */
 class ContentUriDefinition(typeElement: Element, processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
 
-    var name: String
+    var name = typeElement.enclosingElement.simpleName.toString() + "_" + typeElement.simpleName.toString()
 
     var path: String
 
@@ -503,7 +514,6 @@ class ContentUriDefinition(typeElement: Element, processorManager: ProcessorMana
         val contentUri = typeElement.getAnnotation(ContentUri::class.java)
         path = contentUri.path
         type = contentUri.type
-        name = typeElement.enclosingElement.simpleName.toString() + "_" + typeElement.simpleName.toString()
         queryEnabled = contentUri.queryEnabled
         insertEnabled = contentUri.insertEnabled
         deleteEnabled = contentUri.deleteEnabled

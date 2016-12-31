@@ -139,7 +139,7 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
 
     override fun processElements(processorManager: ProcessorManager, annotatedElements: MutableSet<Element>) {
         for (clazz in DEFAULT_TYPE_CONVERTERS) {
-            annotatedElements.add(processorManager.elements.getTypeElement(clazz.getName()))
+            annotatedElements.add(processorManager.elements.getTypeElement(clazz.name))
         }
     }
 

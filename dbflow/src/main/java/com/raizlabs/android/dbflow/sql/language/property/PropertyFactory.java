@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: Provides some useful methods for creating {@link IProperty} from non-property types.

@@ -96,6 +96,7 @@ public interface ITypeConditional<ValueType> extends Query, IConditional {
      * @param values     The rest of the values to pass optionally.
      * @return A new {@link Condition.In} built from this {@link ITypeConditional}.
      */
+    @SuppressWarnings("unchecked")
     Condition.In in(ValueType firstValue, ValueType... values);
 
     /**
@@ -106,6 +107,7 @@ public interface ITypeConditional<ValueType> extends Query, IConditional {
      * @param values     The rest of the values to pass optionally.
      * @return A new {@link Condition.In} (not) built from this {@link ITypeConditional}.
      */
+    @SuppressWarnings("unchecked")
     Condition.In notIn(ValueType firstValue, ValueType... values);
 
     /**

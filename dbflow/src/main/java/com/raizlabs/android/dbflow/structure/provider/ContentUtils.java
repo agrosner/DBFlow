@@ -38,7 +38,7 @@ public class ContentUtils {
     }
 
     /**
-     * Constructs an Uri with the specified basecontent uri and authority. Add paths to append to the Uri.
+     * Constructs an Uri with the specified baseContent uri and authority. Add paths to append to the Uri.
      *
      * @param baseContentUri The base content URI for a {@link ContentProvider}
      * @param authority      The authority for a {@link ContentProvider}
@@ -59,10 +59,10 @@ public class ContentUtils {
      *
      * @param insertUri    A {@link android.net.Uri} from the {@link ContentProvider} class definition.
      * @param model        The model to insert.
-     * @param <TableClass> The class that implemets {@link Model}
+     * @param <TableClass> The class that implements {@link Model}
      * @return A Uri of the inserted data.
      */
-    public static <TableClass > Uri insert(Uri insertUri, TableClass model) {
+    public static <TableClass> Uri insert(Uri insertUri, TableClass model) {
         return insert(FlowManager.getContext().getContentResolver(), insertUri, model);
     }
 
@@ -77,7 +77,7 @@ public class ContentUtils {
      * @return The Uri of the inserted data.
      */
     @SuppressWarnings("unchecked")
-    public static <TableClass > Uri insert(ContentResolver contentResolver, Uri insertUri, TableClass model) {
+    public static <TableClass> Uri insert(ContentResolver contentResolver, Uri insertUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
 
         ContentValues contentValues = new ContentValues();
@@ -90,8 +90,8 @@ public class ContentUtils {
     /**
      * Inserts the list of model into the {@link ContentResolver}. Binds all of the models to {@link ContentValues}
      * and runs the {@link ContentResolver#bulkInsert(Uri, ContentValues[])} method. Note: if any of these use
-     * autoincrementing primary keys the ROWID will not be properly updated from this method. If you care
-     * use {@link #insert(ContentResolver, Uri, Model)} instead.
+     * autoIncrementing primary keys the ROWID will not be properly updated from this method. If you care
+     * use {@link #insert(ContentResolver, Uri, Object)} instead.
      *
      * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param bulkInsertUri   The URI to bulk insert with
@@ -100,7 +100,8 @@ public class ContentUtils {
      * @param <TableClass>    The class that implements {@link Model}
      * @return The count of the rows affected by the insert.
      */
-    public static <TableClass > int bulkInsert(ContentResolver contentResolver, Uri bulkInsertUri, Class<TableClass> table, List<TableClass> models) {
+    public static <TableClass> int bulkInsert(ContentResolver contentResolver, Uri bulkInsertUri,
+                                              Class<TableClass> table, List<TableClass> models) {
         ContentValues[] contentValues = new ContentValues[models == null ? 0 : models.size()];
         ModelAdapter<TableClass> adapter = FlowManager.getModelAdapter(table);
 
@@ -116,8 +117,8 @@ public class ContentUtils {
     /**
      * Inserts the list of model into the {@link ContentResolver}. Binds all of the models to {@link ContentValues}
      * and runs the {@link ContentResolver#bulkInsert(Uri, ContentValues[])} method. Note: if any of these use
-     * autoincrementing primary keys the ROWID will not be properly updated from this method. If you care
-     * use {@link #insert(Uri, Model)} instead.
+     * autoincrement primary keys the ROWID will not be properly updated from this method. If you care
+     * use {@link #insert(Uri, Object)} instead.
      *
      * @param bulkInsertUri The URI to bulk insert with
      * @param table         The table to insert into
@@ -125,7 +126,7 @@ public class ContentUtils {
      * @param <TableClass>  The class that implements {@link Model}
      * @return The count of the rows affected by the insert.
      */
-    public static <TableClass > int bulkInsert(Uri bulkInsertUri, Class<TableClass> table, List<TableClass> models) {
+    public static <TableClass> int bulkInsert(Uri bulkInsertUri, Class<TableClass> table, List<TableClass> models) {
         return bulkInsert(FlowManager.getContext().getContentResolver(), bulkInsertUri, table, models);
     }
 
@@ -138,7 +139,7 @@ public class ContentUtils {
      * @param <TableClass> The class that implements {@link Model}
      * @return The number of rows updated.
      */
-    public static <TableClass > int update(Uri updateUri, TableClass model) {
+    public static <TableClass> int update(Uri updateUri, TableClass model) {
         return update(FlowManager.getContext().getContentResolver(), updateUri, model);
     }
 
@@ -153,7 +154,7 @@ public class ContentUtils {
      * @return The number of rows updated.
      */
     @SuppressWarnings("unchecked")
-    public static <TableClass > int update(ContentResolver contentResolver, Uri updateUri, TableClass model) {
+    public static <TableClass> int update(ContentResolver contentResolver, Uri updateUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
 
         ContentValues contentValues = new ContentValues();
@@ -175,7 +176,7 @@ public class ContentUtils {
      * @return The number of rows deleted.
      */
     @SuppressWarnings("unchecked")
-    public static <TableClass > int delete(Uri deleteUri, TableClass model) {
+    public static <TableClass> int delete(Uri deleteUri, TableClass model) {
         return delete(FlowManager.getContext().getContentResolver(), deleteUri, model);
     }
 
@@ -190,7 +191,7 @@ public class ContentUtils {
      * @return The number of rows deleted.
      */
     @SuppressWarnings("unchecked")
-    public static <TableClass > int delete(ContentResolver contentResolver, Uri deleteUri, TableClass model) {
+    public static <TableClass> int delete(ContentResolver contentResolver, Uri deleteUri, TableClass model) {
         ModelAdapter<TableClass> adapter = (ModelAdapter<TableClass>) FlowManager.getModelAdapter(model.getClass());
 
         int count = contentResolver.delete(deleteUri, adapter.getPrimaryConditionClause(model).getQuery(), null);
@@ -233,9 +234,9 @@ public class ContentUtils {
      * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
-    public static <TableClass > List<TableClass> queryList(Uri queryUri, Class<TableClass> table,
-                                                                        ConditionGroup whereConditions,
-                                                                        String orderBy, String... columns) {
+    public static <TableClass> List<TableClass> queryList(Uri queryUri, Class<TableClass> table,
+                                                          ConditionGroup whereConditions,
+                                                          String orderBy, String... columns) {
         return queryList(FlowManager.getContext().getContentResolver(), queryUri, table, whereConditions, orderBy, columns);
     }
 
@@ -253,14 +254,14 @@ public class ContentUtils {
      * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
-    public static <TableClass > List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
-                                                                        ConditionGroup whereConditions,
-                                                                        String orderBy, String... columns) {
+    public static <TableClass> List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
+                                                          ConditionGroup whereConditions,
+                                                          String orderBy, String... columns) {
         Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
         if (cursor != null) {
             return FlowManager.getModelAdapter(table)
-                .getListModelLoader()
-                .load(cursor);
+                    .getListModelLoader()
+                    .load(cursor);
         }
 
         return new ArrayList<>();
@@ -278,9 +279,9 @@ public class ContentUtils {
      * @param <TableClass>    The class that implements {@link Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
-    public static <TableClass > TableClass querySingle(Uri queryUri, Class<TableClass> table,
-                                                                    ConditionGroup whereConditions,
-                                                                    String orderBy, String... columns) {
+    public static <TableClass> TableClass querySingle(Uri queryUri, Class<TableClass> table,
+                                                      ConditionGroup whereConditions,
+                                                      String orderBy, String... columns) {
         return querySingle(FlowManager.getContext().getContentResolver(), queryUri, table, whereConditions, orderBy, columns);
     }
 
@@ -297,9 +298,9 @@ public class ContentUtils {
      * @param <TableClass>    The class that implements {@link Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
-    public static <TableClass > TableClass querySingle(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
-                                                                    ConditionGroup whereConditions,
-                                                                    String orderBy, String... columns) {
+    public static <TableClass> TableClass querySingle(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
+                                                      ConditionGroup whereConditions,
+                                                      String orderBy, String... columns) {
         List<TableClass> list = queryList(contentResolver, queryUri, table, whereConditions, orderBy, columns);
         return list.size() > 0 ? list.get(0) : null;
     }

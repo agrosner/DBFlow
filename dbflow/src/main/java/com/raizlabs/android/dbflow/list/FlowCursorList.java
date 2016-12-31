@@ -227,7 +227,7 @@ public class FlowCursorList<TModel> implements
 
     /**
      * @return the full, converted {@link TModel} list from the database on this list. For large
-     * datasets that require a large conversion, consider calling this on a BG thread.
+     * data sets that require a large conversion, consider calling this on a BG thread.
      */
     public List<TModel> getAll() {
         throwIfCursorClosed();
