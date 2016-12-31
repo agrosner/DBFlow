@@ -58,9 +58,7 @@ public class BaseDatabaseHelper {
     }
 
     /**
-     * If foreign keys are supported, we turn it on the DB.
-     *
-     * @param database
+     * If foreign keys are supported, we turn it on the DB specified.
      */
     protected void checkForeignKeySupport(DatabaseWrapper database) {
         if (databaseDefinition.isForeignKeysSupported()) {
@@ -70,9 +68,7 @@ public class BaseDatabaseHelper {
     }
 
     /**
-     * This generates the SQLite commands to create the DB
-     *
-     * @param database
+     * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
      */
     protected void executeCreations(final DatabaseWrapper database) {
         try {

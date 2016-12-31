@@ -1,8 +1,22 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
 import android.database.Cursor
-import com.raizlabs.android.dbflow.sql.language.*
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable
+import com.raizlabs.android.dbflow.sql.language.Case
+import com.raizlabs.android.dbflow.sql.language.CaseCondition
+import com.raizlabs.android.dbflow.sql.language.CursorResult
+import com.raizlabs.android.dbflow.sql.language.From
+import com.raizlabs.android.dbflow.sql.language.Insert
+import com.raizlabs.android.dbflow.sql.language.Join
+import com.raizlabs.android.dbflow.sql.language.NameAlias
+import com.raizlabs.android.dbflow.sql.language.OrderBy
+import com.raizlabs.android.dbflow.sql.language.SQLCondition
+import com.raizlabs.android.dbflow.sql.language.SQLite
+import com.raizlabs.android.dbflow.sql.language.Select
 import com.raizlabs.android.dbflow.sql.language.Set
+import com.raizlabs.android.dbflow.sql.language.Transformable
+import com.raizlabs.android.dbflow.sql.language.Update
+import com.raizlabs.android.dbflow.sql.language.Where
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
@@ -47,9 +61,9 @@ infix fun <T : Any> CaseCondition<T>.then(value: T?): Case<T> = then(value)
 
 infix fun <T : Any> CaseCondition<T>.then(property: IProperty<*>): Case<T> = then(property)
 
-infix fun <T : Any> Case<T>.`else`(value: T?): Case<T>? = _else(value)
+infix fun <T : Any> Case<T>.`else`(value: T?): Case<T> = _else(value)
 
-infix fun <T : Any> Case<T>.end(columnName: String): Property<Case<T>>? = end(columnName)
+infix fun <T : Any> Case<T>.end(columnName: String): Property<Case<T>> = end(columnName)
 
 // queriable extensions
 
@@ -104,44 +118,45 @@ infix fun <T : Any> AsyncModel<T>.save(listener: (T) -> Unit) = withListener { l
 
 // Transformable methods
 
-infix fun <T : Any> Transformable<T>.groupBy(nameAlias: NameAlias): Where<T>? = groupBy(nameAlias)
+infix fun <T : Any> Transformable<T>.groupBy(nameAlias: NameAlias): Where<T> = groupBy(nameAlias)
 
-infix fun <T : Any> Transformable<T>.groupBy(property: IProperty<*>): Where<T>? = groupBy(property)
+infix fun <T : Any> Transformable<T>.groupBy(property: IProperty<*>): Where<T> = groupBy(property)
 
-infix fun <T : Any> Transformable<T>.orderBy(orderBy: OrderBy): Where<T>? = orderBy(orderBy)
+infix fun <T : Any> Transformable<T>.orderBy(orderBy: OrderBy): Where<T> = orderBy(orderBy)
 
-infix fun <T : Any> Transformable<T>.limit(limit: Int): Where<T>? = limit(limit)
+infix fun <T : Any> Transformable<T>.limit(limit: Int): Where<T> = limit(limit)
 
-infix fun <T : Any> Transformable<T>.offset(offset: Int): Where<T>? = offset(offset)
+infix fun <T : Any> Transformable<T>.offset(offset: Int): Where<T> = offset(offset)
 
-infix fun <T : Any> Transformable<T>.having(sqlCondition: SQLCondition): Where<T>? = having(sqlCondition)
+infix fun <T : Any> Transformable<T>.having(sqlCondition: SQLCondition): Where<T> = having(sqlCondition)
 
 // join
 
-infix fun <T : Any, V : Any> From<V>.innerJoin(joinTable: KClass<T>): Join<T, V>? = join(joinTable.java, Join.JoinType.INNER)
+infix fun <T : Any, V : Any> From<V>.innerJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.INNER)
 
-infix fun <T : Any, V : Any> From<V>.crossJoin(joinTable: KClass<T>): Join<T, V>? = join(joinTable.java, Join.JoinType.CROSS)
+infix fun <T : Any, V : Any> From<V>.crossJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.CROSS)
 
-infix fun <T : Any, V : Any> From<V>.leftOuterJoin(joinTable: KClass<T>): Join<T, V>? = join(joinTable.java, Join.JoinType.LEFT_OUTER)
+infix fun <T : Any, V : Any> From<V>.leftOuterJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.LEFT_OUTER)
 
-infix fun <T : Any, V : Any> Join<T, V>.on(sqlCondition: SQLCondition): From<V>? = on(sqlCondition)
+infix fun <T : Any, V : Any> Join<T, V>.on(sqlCondition: SQLCondition): From<V> = on(sqlCondition)
 
 // update methods
 
 fun <T : Any> update(modelClass: KClass<T>): Update<T> = SQLite.update(modelClass.java)
 
-infix fun <T : Any> Update<T>.set(sqlCondition: SQLCondition): Set<T>? = set(sqlCondition)
+infix fun <T : Any> Update<T>.set(sqlCondition: SQLCondition): Set<T> = set(sqlCondition)
 
 
 // delete
 
-inline fun <reified T : Any> delete(): From<T>? = SQLite.delete(T::class.java)
+inline fun <reified T : Any> delete(): From<T> = SQLite.delete(T::class.java)
 
-inline fun <reified T : Any> delete(deleteClause: From<T>.() -> BaseModelQueriable<T>) = deleteClause(SQLite.delete(T::class.java))
+inline fun <reified T : Any> delete(deleteClause: From<T>.() -> BaseModelQueriable<T>)
+        = deleteClause(SQLite.delete(T::class.java))
 
 // insert methods
 
-fun <T : Any> insert(modelClass: KClass<T>): Insert<T>? = SQLite.insert(modelClass.java)
+fun <T : Any> insert(modelClass: KClass<T>): Insert<T> = SQLite.insert(modelClass.java)
 
 infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().into(*into)
 
@@ -153,7 +168,7 @@ infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = o
 
 infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().into(*into)
 
-infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T>? = select(from)
+infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T> = select(from)
 
 fun into(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
 
@@ -183,15 +198,16 @@ fun <T : Any> select(init: Select.() -> BaseModelQueriable<T>):
 inline fun <reified T : Any> Select.from(fromClause: From<T>.() -> Where<T>):
         BaseModelQueriable<T> = fromClause(from(T::class.java))
 
-inline fun <T : Any> From<T>.where(sqlConditionClause: () -> SQLCondition): Where<T>? = where(sqlConditionClause())
+inline fun <T : Any> From<T>.where(sqlConditionClause: () -> SQLCondition): Where<T> = where(sqlConditionClause())
 
-inline fun <T : Any> Set<T>.where(sqlConditionClause: () -> SQLCondition): Where<T>? = where(sqlConditionClause())
+inline fun <T : Any> Set<T>.where(sqlConditionClause: () -> SQLCondition): Where<T> = where(sqlConditionClause())
 
-inline fun <T : Any> Where<T>.and(sqlConditionClause: () -> SQLCondition): Where<T>? = and(sqlConditionClause())
+inline fun <T : Any> Where<T>.and(sqlConditionClause: () -> SQLCondition): Where<T> = and(sqlConditionClause())
 
-inline fun <T : Any> Where<T>.or(sqlConditionClause: () -> SQLCondition): Where<T>? = or(sqlConditionClause())
+inline fun <T : Any> Where<T>.or(sqlConditionClause: () -> SQLCondition): Where<T> = or(sqlConditionClause())
 
-inline fun <T : Any, reified TJoin : Any> From<T>.join(joinType: Join.JoinType, function: Join<TJoin, T>.() -> Unit): Where<T> {
+inline fun <T : Any, reified TJoin : Any> From<T>.join(joinType: Join.JoinType,
+                                                       function: Join<TJoin, T>.() -> Unit): Where<T> {
     function(join(TJoin::class.java, joinType))
     return where()
 }
@@ -202,7 +218,7 @@ inline fun <reified T : Any> insert(insertMethod: Insert<T>.() -> Unit): Insert<
     return insert
 }
 
-inline infix fun <T : Any, TJoin : Any> Join<TJoin, T>.on(conditionFunction: () -> Array<out SQLCondition>): From<T>? = on(*conditionFunction())
+inline infix fun <T : Any, TJoin : Any> Join<TJoin, T>.on(conditionFunction: () -> Array<out SQLCondition>): From<T> = on(*conditionFunction())
 
 inline fun <reified T : Any> update(setMethod: Update<T>.() -> BaseModelQueriable<T>): BaseModelQueriable<T> {
     val update = SQLite.update(T::class.java)
