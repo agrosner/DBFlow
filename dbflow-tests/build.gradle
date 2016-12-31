@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.getkeepsafe.dexcount'
+
 repositories {
     mavenCentral()
 }
@@ -31,11 +33,6 @@ android {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
 
-    buildTypes {
-        debug {
-            minifyEnabled true
-        }
-    }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -80,4 +77,9 @@ buildscript {
 
 kapt {
     generateStubs = true
+}
+
+dexcount {
+    includeClasses = true
+    orderByMethodCount = true
 }

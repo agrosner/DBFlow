@@ -2,14 +2,13 @@ package com.raizlabs.android.dbflow.sql.language.property;
 
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
 /**
  * Description:
  */
-public class CharProperty extends BaseProperty<CharProperty> {
+public class CharProperty extends PrimitiveProperty<CharProperty> {
 
     public CharProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
@@ -24,60 +23,8 @@ public class CharProperty extends BaseProperty<CharProperty> {
     }
 
     @Override
-    public CharProperty plus(IProperty iProperty) {
-        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public CharProperty minus(IProperty iProperty) {
-        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public CharProperty dividedBy(IProperty iProperty) {
-        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public CharProperty multipliedBy(IProperty iProperty) {
-        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public CharProperty mod(IProperty iProperty) {
-        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public CharProperty concatenate(IProperty iProperty) {
-        return new CharProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public CharProperty as(String aliasName) {
-        return new CharProperty(table, nameAlias
-                .newBuilder()
-                .as(aliasName)
-                .build());
-    }
-
-    @Override
-    public CharProperty distinct() {
-        return new CharProperty(table, getDistinctAliasName());
-    }
-
-    @Override
-    public CharProperty withTable(NameAlias tableNameAlias) {
-        return new CharProperty(table, nameAlias
-                .newBuilder()
-                .withTable(tableNameAlias.getQuery())
-                .build());
+    protected CharProperty newPropertyInstance(Class<?> table, NameAlias nameAlias) {
+        return new CharProperty(table, nameAlias);
     }
 
     public Condition is(char value) {
@@ -148,35 +95,4 @@ public class CharProperty extends BaseProperty<CharProperty> {
         return column(nameAlias).concatenate(value);
     }
 
-    public Condition is(CharProperty property) {
-        return column(nameAlias).is(property);
-    }
-
-    public Condition isNot(CharProperty property) {
-        return column(nameAlias).isNot(property);
-    }
-
-    public Condition eq(CharProperty property) {
-        return is(property);
-    }
-
-    public Condition notEq(CharProperty property) {
-        return isNot(property);
-    }
-
-    public Condition greaterThan(CharProperty property) {
-        return column(nameAlias).greaterThan(property);
-    }
-
-    public Condition greaterThanOrEq(CharProperty property) {
-        return column(nameAlias).greaterThanOrEq(property);
-    }
-
-    public Condition lessThan(CharProperty property) {
-        return column(nameAlias).lessThan(property);
-    }
-
-    public Condition lessThanOrEq(CharProperty property) {
-        return column(nameAlias).lessThanOrEq(property);
-    }
 }

@@ -11,7 +11,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  * Description: Basic {@link float} property. Accepts only float, {@link BaseModelQueriable}, and
  * {@link ITypeConditional} objects.
  */
-public class DoubleProperty extends BaseProperty<DoubleProperty> {
+public class DoubleProperty extends PrimitiveProperty<DoubleProperty> {
 
     public DoubleProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
@@ -26,59 +26,8 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
     }
 
     @Override
-    public DoubleProperty plus(IProperty iProperty) {
-        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public DoubleProperty minus(IProperty iProperty) {
-        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public DoubleProperty dividedBy(IProperty iProperty) {
-        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public DoubleProperty multipliedBy(IProperty iProperty) {
-        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public DoubleProperty mod(IProperty iProperty) {
-        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public DoubleProperty concatenate(IProperty iProperty) {
-        return new DoubleProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public DoubleProperty as(String aliasName) {
-        return new DoubleProperty(table, nameAlias
-                .newBuilder()
-                .as(aliasName).build());
-    }
-
-    @Override
-    public DoubleProperty distinct() {
-        return new DoubleProperty(table, getDistinctAliasName());
-    }
-
-    @Override
-    public DoubleProperty withTable(NameAlias tableNameAlias) {
-        return new DoubleProperty(table, nameAlias
-                .newBuilder()
-                .withTable(tableNameAlias.getQuery())
-                .build());
+    protected DoubleProperty newPropertyInstance(Class<?> table, NameAlias nameAlias) {
+        return new DoubleProperty(table, nameAlias);
     }
 
     public Condition is(double value) {
@@ -149,35 +98,4 @@ public class DoubleProperty extends BaseProperty<DoubleProperty> {
         return column(nameAlias).concatenate(value);
     }
 
-    public Condition is(DoubleProperty property) {
-        return column(nameAlias).is(property);
-    }
-
-    public Condition isNot(DoubleProperty property) {
-        return column(nameAlias).isNot(property);
-    }
-
-    public Condition eq(DoubleProperty property) {
-        return is(property);
-    }
-
-    public Condition notEq(DoubleProperty property) {
-        return isNot(property);
-    }
-
-    public Condition greaterThan(DoubleProperty property) {
-        return column(nameAlias).greaterThan(property);
-    }
-
-    public Condition greaterThanOrEq(DoubleProperty property) {
-        return column(nameAlias).greaterThanOrEq(property);
-    }
-
-    public Condition lessThan(DoubleProperty property) {
-        return column(nameAlias).lessThan(property);
-    }
-
-    public Condition lessThanOrEq(DoubleProperty property) {
-        return column(nameAlias).lessThanOrEq(property);
-    }
 }
