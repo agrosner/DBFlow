@@ -203,7 +203,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
      * Writes the {@link InputStream} of the existing db to the file specified.
      *
      * @param dbPath     The file to write to.
-     * @param existingDB The existing database file's input stream
+     * @param existingDB The existing database file's input stream¬
      * @throws IOException
      */
     private void writeDB(File dbPath, InputStream existingDB) throws IOException {

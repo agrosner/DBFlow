@@ -123,6 +123,22 @@ public class Method extends Property {
         return new Method("date", propertyList.toArray(new IProperty[propertyList.size()]));
     }
 
+    /**
+     * @return Constructs using the "IFNULL" method in SQLite. It will pick the first non null
+     * value and set that. If both are NULL then it will use NULL.
+     */
+    public static Method ifNull(IProperty first, IProperty secondIfFirstNull) {
+        return new Method("IFNULL", first, secondIfFirstNull);
+    }
+
+    /**
+     * @return Constructs using the "NULLIF" method in SQLite. If both expressions are equal, then
+     * NULL is set into the DB.
+     */
+    public static Method nullIf(IProperty first, IProperty second) {
+        return new Method("NULLIF", first, second);
+    }
+
     private final List<IProperty> propertyList = new ArrayList<>();
     private List<String> operationsList = new ArrayList<>();
     private final IProperty methodProperty;
