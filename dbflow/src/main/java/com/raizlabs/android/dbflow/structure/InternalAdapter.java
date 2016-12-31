@@ -25,7 +25,7 @@ public interface InternalAdapter<TModel> {
      *
      * @param model The model to save/insert/update
      */
-    void save(TModel model);
+    boolean save(TModel model);
 
     /**
      * Saves the specified model to the DB.
@@ -33,7 +33,7 @@ public interface InternalAdapter<TModel> {
      * @param model           The model to save/insert/update
      * @param databaseWrapper The manually specified wrapper.
      */
-    void save(TModel model, DatabaseWrapper databaseWrapper);
+    boolean save(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
      * Saves a {@link Collection} of models to the DB.
@@ -84,7 +84,7 @@ public interface InternalAdapter<TModel> {
      *
      * @param model The model to update.
      */
-    void update(TModel model);
+    boolean update(TModel model);
 
     /**
      * Updates the specified model into the DB.
@@ -92,7 +92,7 @@ public interface InternalAdapter<TModel> {
      * @param model           The model to update.
      * @param databaseWrapper The manually specified wrapper.
      */
-    void update(TModel model, DatabaseWrapper databaseWrapper);
+    boolean update(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
      * Updates a {@link Collection} of models in the DB.

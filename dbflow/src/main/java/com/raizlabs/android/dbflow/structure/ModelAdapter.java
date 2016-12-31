@@ -114,13 +114,13 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     @Override
-    public void save(TModel model) {
-        getModelSaver().save(model);
+    public boolean save(TModel model) {
+        return getModelSaver().save(model);
     }
 
     @Override
-    public void save(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().save(model, databaseWrapper);
+    public boolean save(TModel model, DatabaseWrapper databaseWrapper) {
+        return getModelSaver().save(model, databaseWrapper);
     }
 
     @Override
@@ -160,13 +160,13 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     @Override
-    public void update(TModel model) {
-        getModelSaver().update(model);
+    public boolean update(TModel model) {
+        return getModelSaver().update(model);
     }
 
     @Override
-    public void update(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().update(model, databaseWrapper);
+    public boolean update(TModel model, DatabaseWrapper databaseWrapper) {
+        return getModelSaver().update(model, databaseWrapper);
     }
 
     @Override

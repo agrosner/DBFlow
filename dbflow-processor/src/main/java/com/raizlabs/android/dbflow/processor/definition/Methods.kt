@@ -4,8 +4,13 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
-import com.squareup.javapoet.*
-import java.util.*
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Modifier
 
@@ -239,7 +244,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
  * Description: Writes out the custom type converter fields.
  */
 class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTableDefinition)
-: TypeAdder, CodeAdder {
+    : TypeAdder, CodeAdder {
 
 
     override fun addToType(typeBuilder: TypeSpec.Builder) {
@@ -453,6 +458,8 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
 
                 if (methodName == METHOD_INSERT) {
                     code.add("long rowId = ")
+                } else if (methodName == METHOD_UPDATE || methodName == METHOD_SAVE) {
+                    code.add("boolean successful = ")
                 }
 
                 code.addStatement("super.\$L(\$L\$L)", methodName,
@@ -480,6 +487,9 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 if (methodName == METHOD_INSERT) {
                     builder.returns(ClassName.LONG)
                     builder.addStatement("return rowId")
+                } else if (methodName == METHOD_UPDATE || methodName == METHOD_SAVE) {
+                    builder.returns(TypeName.BOOLEAN)
+                    builder.addStatement("return successful")
                 }
                 if (useWrapper) {
                     builder.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
