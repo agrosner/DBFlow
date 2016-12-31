@@ -2,10 +2,21 @@ package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
-import com.raizlabs.android.dbflow.processor.*
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.DatabaseHandler
+import com.raizlabs.android.dbflow.processor.ModelViewValidator
+import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.TableValidator
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.squareup.javapoet.*
-import java.util.*
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
+import java.util.ArrayList
+import java.util.Collections
+import java.util.HashMap
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
@@ -37,12 +48,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     var objectHolder: DatabaseObjectHolder? = null
 
+    var databaseExtensionName = ""
+
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
 
         val database = element.getAnnotation(Database::class.java)
         if (database != null) {
             databaseName = database.name
+            databaseExtensionName = database.databaseExtension;
             if (databaseName.isNullOrEmpty()) {
                 databaseName = element.simpleName.toString()
             }
@@ -211,6 +225,14 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
                 .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
                 .addStatement("return \$S", databaseName!!).returns(ClassName.get(String::class.java)).build())
+
+        if (databaseExtensionName.isNullOrBlank().not()) {
+            typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseExtensionName")
+                    .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                    .addStatement("return \$S", databaseExtensionName)
+                    .returns(String::class.java)
+                    .build())
+        }
     }
 
     /**

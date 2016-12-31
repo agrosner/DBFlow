@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
 
+import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -230,7 +231,15 @@ public abstract class DatabaseDefinition {
      * @return The file name that this database points to
      */
     public String getDatabaseFileName() {
-        return getDatabaseName() + ".db";
+        return getDatabaseName() + (StringUtils.isNotNullOrEmpty(getDatabaseExtensionName()) ?
+                "." + getDatabaseExtensionName() : "");
+    }
+
+    /**
+     * @return the extension for the file name.
+     */
+    public String getDatabaseExtensionName() {
+        return "db";
     }
 
     /**
