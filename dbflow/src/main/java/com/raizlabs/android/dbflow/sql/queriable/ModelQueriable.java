@@ -94,4 +94,10 @@ public interface ModelQueriable<TModel> extends Queriable {
      */
     <TQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
 
+    /**
+     * Disables caching on this query for the object retrieved from DB (if caching enabled). If
+     * caching is not enabled, this method is ignored. This also disables caching in a {@link FlowCursorList}
+     * or {@link FlowQueryList} if you {@link #flowQueryList()} or {@link #cursorList()}
+     */
+    ModelQueriable<TModel> disableCaching();
 }
