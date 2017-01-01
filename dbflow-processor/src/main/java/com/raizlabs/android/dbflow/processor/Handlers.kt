@@ -158,17 +158,12 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
             val converterDefinition = className?.let { TypeConverterDefinition(it, element.asType(), processorManager) }
             converterDefinition?.let {
                 if (VALIDATOR.validate(processorManager, converterDefinition)) {
-                    var containsType = false
-                    for ((key, value) in processorManager.typeConverters) {
-                        if (value.modelTypeName == converterDefinition.modelTypeName) {
-                            containsType = true
-                            break
-                        }
-                    }
-
-                    // allow user overrides, if we specify TypeConverters with annotation of same type,
-                    // the first is taken.
-                    if (!containsType) {
+                    // allow user overrides from default.
+                    // Check here if user already placed definition of same type, since default converters
+                    // are added last.
+                    if (processorManager.typeConverters
+                            .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
+                            .isEmpty()) {
                         processorManager.addTypeConverterDefinition(converterDefinition)
                     }
                 }
