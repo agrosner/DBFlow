@@ -238,5 +238,12 @@ public final class Transaction {
         public Transaction build() {
             return new Transaction(this);
         }
+
+        /**
+         * Convenience method to simply execute a transaction.
+         */
+        public void execute() {
+            build().execute();
+        }
     }
 }
