@@ -155,7 +155,7 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
         if (element is TypeElement) {
             val className = ProcessorUtils.fromTypeMirror(element.asType(), processorManager)
-            val converterDefinition = className?.let { TypeConverterDefinition(it, element.asType(), processorManager) }
+            val converterDefinition = className?.let { TypeConverterDefinition(it, element.asType(), processorManager, element) }
             converterDefinition?.let {
                 if (VALIDATOR.validate(processorManager, converterDefinition)) {
                     // allow user overrides from default.
