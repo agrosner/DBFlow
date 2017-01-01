@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
@@ -202,6 +203,11 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @Override
     public void bindToInsertStatement(DatabaseStatement sqLiteStatement, TModel model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
+    }
+
+    @Override
+    public void bindToContentValues(ContentValues contentValues, TModel tModel) {
+        bindToInsertValues(contentValues, tModel);
     }
 
     /**

@@ -34,7 +34,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                                 private val isInsert: Boolean,
                                 private val implementsContentValuesListener: Boolean) : MethodDefinition {
 
-    override val methodSpec: MethodSpec
+    override val methodSpec: MethodSpec?
         get() {
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertValues" else "bindToContentValues")
                     .addAnnotation(Override::class.java)
@@ -42,6 +42,8 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
                     .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
                     .returns(TypeName.VOID)
+
+            var retMethodBuilder: MethodSpec.Builder? = methodBuilder
 
             if (isInsert) {
                 baseTableDefinition.columnDefinitions.forEach {
@@ -60,6 +62,8 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     autoIncrement?.let {
                         methodBuilder.addCode(autoIncrement.contentValuesStatement)
                     }
+                } else if (!implementsContentValuesListener) {
+                    retMethodBuilder = null
                 }
 
                 methodBuilder.addStatement("bindToInsertValues(\$L, \$L)", PARAM_CONTENT_VALUES, ModelUtils.variable)
@@ -69,7 +73,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                 }
             }
 
-            return methodBuilder.build()
+            return retMethodBuilder?.build()
         }
 
     companion object {
