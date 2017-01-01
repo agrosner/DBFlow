@@ -180,13 +180,13 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     @Override
-    public void delete(TModel model) {
-        getModelSaver().delete(model);
+    public boolean delete(TModel model) {
+        return getModelSaver().delete(model);
     }
 
     @Override
-    public void delete(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().delete(model, databaseWrapper);
+    public boolean delete(TModel model, DatabaseWrapper databaseWrapper) {
+        return getModelSaver().delete(model, databaseWrapper);
     }
 
     @Override

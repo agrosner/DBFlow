@@ -426,15 +426,19 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
                     builder.addStatement("getModelCache().removeModel(getCachingId(\$L))", ModelUtils.variable)
                 }
 
-                builder.addStatement("super.delete(\$L\$L)", ModelUtils.variable,
+                builder.addStatement("boolean successful = super.delete(\$L\$L)", ModelUtils.variable,
                         if (useWrapper) ", " + ModelUtils.wrapper else "")
 
                 tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(builder, useWrapper) }
 
-                val delete = MethodSpec.methodBuilder("delete").addAnnotation(Override::class.java)
+                builder.addStatement("return successful")
+
+                val delete = MethodSpec.methodBuilder("delete")
+                        .addAnnotation(Override::class.java)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         .addParameter(tableDefinition.elementClassName, ModelUtils.variable)
-                        .addCode(builder.build()).returns(TypeName.VOID)
+                        .addCode(builder.build())
+                        .returns(TypeName.BOOLEAN)
                 if (useWrapper) {
                     delete.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                 }

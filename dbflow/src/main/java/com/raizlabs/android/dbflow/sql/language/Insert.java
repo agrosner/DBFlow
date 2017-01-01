@@ -8,6 +8,8 @@ import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -234,6 +236,20 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
     }
 
+    /**
+     * @return A {@link Transaction.Builder} handle to begin an async transaction.
+     * A simple helper method.
+     */
+    public Transaction.Builder async() {
+        return FlowManager.getDatabaseForTable(getTable())
+                .beginTransactionAsync(new ITransaction() {
+                    @Override
+                    public void execute(DatabaseWrapper databaseWrapper) {
+                        Insert.this.execute(databaseWrapper);
+                    }
+                });
+    }
+
     @Override
     public String getQuery() {
         ValueQueryBuilder queryBuilder = new ValueQueryBuilder("INSERT ");
@@ -256,12 +272,12 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         } else {
             if (valuesList == null || valuesList.size() < 1) {
                 throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
-                    "at least one value specified for the insert");
+                        "at least one value specified for the insert");
             } else if (columns != null) {
                 for (Object[] values : valuesList) {
                     if (values.length != columns.length) {
                         throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
-                            "columns needs to have the same amount of values and columns");
+                                "columns needs to have the same amount of values and columns");
                     }
                 }
             }

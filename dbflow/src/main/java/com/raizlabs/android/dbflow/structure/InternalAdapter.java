@@ -114,7 +114,7 @@ public interface InternalAdapter<TModel> {
      *
      * @param model The model to delete
      */
-    void delete(TModel model);
+    boolean delete(TModel model);
 
     /**
      * Deletes the model from the DB
@@ -122,7 +122,7 @@ public interface InternalAdapter<TModel> {
      * @param model           The model to delete
      * @param databaseWrapper The manually specified wrapper.
      */
-    void delete(TModel model, DatabaseWrapper databaseWrapper);
+    boolean delete(TModel model, DatabaseWrapper databaseWrapper);
 
     /**
      * Updates a {@link Collection} of models in the DB.

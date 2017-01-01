@@ -2,12 +2,15 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
@@ -130,6 +133,20 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
                         .append("SET ")
                         .append(conditionGroup.getQuery()).appendSpace();
         return queryBuilder.getQuery();
+    }
+
+    /**
+     * @return A {@link Transaction.Builder} handle to begin an async transaction.
+     * A simple helper method.
+     */
+    public Transaction.Builder async() {
+        return FlowManager.getDatabaseForTable(getTable())
+                .beginTransactionAsync(new ITransaction() {
+                    @Override
+                    public void execute(DatabaseWrapper databaseWrapper) {
+                        Set.this.executeUpdateDelete(databaseWrapper);
+                    }
+                });
     }
 
     @Override
