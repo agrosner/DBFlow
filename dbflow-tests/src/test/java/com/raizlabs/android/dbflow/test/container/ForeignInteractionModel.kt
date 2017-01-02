@@ -12,7 +12,7 @@ class ForeignInteractionModel : TestModel1() {
 
     @Column
     @ForeignKey(onDelete = ForeignKeyAction.CASCADE,
-        onUpdate = ForeignKeyAction.CASCADE)
+            onUpdate = ForeignKeyAction.CASCADE)
     var testModel1: ParentModel? = null
 
 }

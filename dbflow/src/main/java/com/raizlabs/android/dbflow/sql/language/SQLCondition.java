@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: Basic interface for all of the Condition classes.
@@ -11,7 +10,6 @@ public interface SQLCondition {
     /**
      * Appends itself to the {@link QueryBuilder}
      *
-     * @param <ModelClass> The class that implements {@link Model}
      * @param queryBuilder The builder to append to.
      */
     void appendConditionToQuery(QueryBuilder queryBuilder);
@@ -24,7 +22,7 @@ public interface SQLCondition {
     String columnName();
 
     /**
-     * The separator for this condition when paired with a {@link ConditionQueryBuilder}
+     * The separator for this condition when paired with a {@link ConditionGroup}
      *
      * @return The separator, an AND, OR, or other kinds.
      */

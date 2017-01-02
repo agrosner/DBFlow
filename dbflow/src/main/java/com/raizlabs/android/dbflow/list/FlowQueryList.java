@@ -17,6 +17,7 @@ import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
@@ -581,7 +582,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     private final ProcessModelTransaction.ProcessModel<TModel> saveModel =
             new ProcessModelTransaction.ProcessModel<TModel>() {
                 @Override
-                public void processModel(TModel model) {
+                public void processModel(TModel model, DatabaseWrapper wrapper) {
                     getModelAdapter().save(model);
                 }
             };
@@ -589,7 +590,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     private final ProcessModelTransaction.ProcessModel<TModel> updateModel =
             new ProcessModelTransaction.ProcessModel<TModel>() {
                 @Override
-                public void processModel(TModel model) {
+                public void processModel(TModel model, DatabaseWrapper wrapper) {
                     getModelAdapter().update(model);
                 }
             };
@@ -597,7 +598,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     private final ProcessModelTransaction.ProcessModel<TModel> deleteModel =
             new ProcessModelTransaction.ProcessModel<TModel>() {
                 @Override
-                public void processModel(TModel model) {
+                public void processModel(TModel model, DatabaseWrapper wrapper) {
                     getModelAdapter().delete(model);
                 }
             };

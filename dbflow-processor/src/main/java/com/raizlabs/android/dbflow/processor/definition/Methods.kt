@@ -4,8 +4,13 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
-import com.squareup.javapoet.*
-import java.util.*
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Modifier
 
@@ -29,7 +34,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                                 private val isInsert: Boolean,
                                 private val implementsContentValuesListener: Boolean) : MethodDefinition {
 
-    override val methodSpec: MethodSpec
+    override val methodSpec: MethodSpec?
         get() {
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertValues" else "bindToContentValues")
                     .addAnnotation(Override::class.java)
@@ -37,6 +42,8 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
                     .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
                     .returns(TypeName.VOID)
+
+            var retMethodBuilder: MethodSpec.Builder? = methodBuilder
 
             if (isInsert) {
                 baseTableDefinition.columnDefinitions.forEach {
@@ -55,6 +62,8 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     autoIncrement?.let {
                         methodBuilder.addCode(autoIncrement.contentValuesStatement)
                     }
+                } else if (!implementsContentValuesListener) {
+                    retMethodBuilder = null
                 }
 
                 methodBuilder.addStatement("bindToInsertValues(\$L, \$L)", PARAM_CONTENT_VALUES, ModelUtils.variable)
@@ -64,7 +73,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                 }
             }
 
-            return methodBuilder.build()
+            return retMethodBuilder?.build()
         }
 
     companion object {
@@ -239,7 +248,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
  * Description: Writes out the custom type converter fields.
  */
 class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTableDefinition)
-: TypeAdder, CodeAdder {
+    : TypeAdder, CodeAdder {
 
 
     override fun addToType(typeBuilder: TypeSpec.Builder) {
@@ -421,15 +430,19 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
                     builder.addStatement("getModelCache().removeModel(getCachingId(\$L))", ModelUtils.variable)
                 }
 
-                builder.addStatement("super.delete(\$L\$L)", ModelUtils.variable,
+                builder.addStatement("boolean successful = super.delete(\$L\$L)", ModelUtils.variable,
                         if (useWrapper) ", " + ModelUtils.wrapper else "")
 
                 tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(builder, useWrapper) }
 
-                val delete = MethodSpec.methodBuilder("delete").addAnnotation(Override::class.java)
+                builder.addStatement("return successful")
+
+                val delete = MethodSpec.methodBuilder("delete")
+                        .addAnnotation(Override::class.java)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         .addParameter(tableDefinition.elementClassName, ModelUtils.variable)
-                        .addCode(builder.build()).returns(TypeName.VOID)
+                        .addCode(builder.build())
+                        .returns(TypeName.BOOLEAN)
                 if (useWrapper) {
                     delete.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                 }
@@ -453,6 +466,8 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
 
                 if (methodName == METHOD_INSERT) {
                     code.add("long rowId = ")
+                } else if (methodName == METHOD_UPDATE || methodName == METHOD_SAVE) {
+                    code.add("boolean successful = ")
                 }
 
                 code.addStatement("super.\$L(\$L\$L)", methodName,
@@ -480,6 +495,9 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 if (methodName == METHOD_INSERT) {
                     builder.returns(ClassName.LONG)
                     builder.addStatement("return rowId")
+                } else if (methodName == METHOD_UPDATE || methodName == METHOD_SAVE) {
+                    builder.returns(TypeName.BOOLEAN)
+                    builder.addStatement("return successful")
                 }
                 if (useWrapper) {
                     builder.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)

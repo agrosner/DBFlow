@@ -1,34 +1,16 @@
 package com.raizlabs.android.dbflow.structure;
 
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
- * Description: All modificatioon operations throw a {@link InvalidSqlViewOperationException}
+ * Description: A convenience class for {@link ReadOnlyModel}.
  */
-abstract class NoModificationModel implements Model {
+abstract class NoModificationModel implements ReadOnlyModel {
 
-    @Override
-    public void save() {
-        throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not saveable");
-    }
-
-    @Override
-    public void delete() {
-        throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not deleteable");
-    }
-
-    @Override
-    public void update() {
-        throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not updateable");
-    }
-
-    @Override
-    public long insert() {
-        throw new InvalidSqlViewOperationException("View " + getClass().getName() + " is not insertable");
-    }
+    private transient RetrievalAdapter adapter;
 
     @SuppressWarnings("unchecked")
-    @Override
     public boolean exists() {
         return getRetrievalAdapter().exists(this);
     }
@@ -39,7 +21,6 @@ abstract class NoModificationModel implements Model {
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public void load() {
         getRetrievalAdapter().load(this);
     }
@@ -49,7 +30,12 @@ abstract class NoModificationModel implements Model {
         getRetrievalAdapter().load(this, databaseWrapper);
     }
 
-    abstract RetrievalAdapter getRetrievalAdapter();
+    public RetrievalAdapter getRetrievalAdapter() {
+        if (adapter == null) {
+            adapter = FlowManager.getInstanceAdapter(getClass());
+        }
+        return adapter;
+    }
 
     /**
      * Gets thrown when an operation is not valid for the SQL View

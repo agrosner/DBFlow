@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.structure.cache;
 import android.util.SparseArray;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: A cache backed by a {@link android.util.SparseArray}

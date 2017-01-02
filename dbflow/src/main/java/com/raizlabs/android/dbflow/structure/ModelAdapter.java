@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
@@ -55,6 +56,14 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         return insertStatement;
     }
 
+    public void closeInsertStatement() {
+        if (insertStatement == null) {
+            return;
+        }
+        insertStatement.close();
+        insertStatement = null;
+    }
+
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled {@link DatabaseStatement} representing insert. Not cached, always generated.
@@ -74,6 +83,14 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         }
 
         return compiledStatement;
+    }
+
+    public void closeCompiledStatement() {
+        if (compiledStatement == null) {
+            return;
+        }
+        compiledStatement.close();
+        compiledStatement = null;
     }
 
     /**
@@ -98,13 +115,13 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     @Override
-    public void save(TModel model) {
-        getModelSaver().save(model);
+    public boolean save(TModel model) {
+        return getModelSaver().save(model);
     }
 
     @Override
-    public void save(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().save(model, databaseWrapper);
+    public boolean save(TModel model, DatabaseWrapper databaseWrapper) {
+        return getModelSaver().save(model, databaseWrapper);
     }
 
     @Override
@@ -144,13 +161,13 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     @Override
-    public void update(TModel model) {
-        getModelSaver().update(model);
+    public boolean update(TModel model) {
+        return getModelSaver().update(model);
     }
 
     @Override
-    public void update(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().update(model, databaseWrapper);
+    public boolean update(TModel model, DatabaseWrapper databaseWrapper) {
+        return getModelSaver().update(model, databaseWrapper);
     }
 
     @Override
@@ -164,13 +181,13 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     @Override
-    public void delete(TModel model) {
-        getModelSaver().delete(model);
+    public boolean delete(TModel model) {
+        return getModelSaver().delete(model);
     }
 
     @Override
-    public void delete(TModel model, DatabaseWrapper databaseWrapper) {
-        getModelSaver().delete(model, databaseWrapper);
+    public boolean delete(TModel model, DatabaseWrapper databaseWrapper) {
+        return getModelSaver().delete(model, databaseWrapper);
     }
 
     @Override
@@ -186,6 +203,11 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @Override
     public void bindToInsertStatement(DatabaseStatement sqLiteStatement, TModel model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
+    }
+
+    @Override
+    public void bindToContentValues(ContentValues contentValues, TModel tModel) {
+        bindToInsertValues(contentValues, tModel);
     }
 
     /**

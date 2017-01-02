@@ -154,13 +154,14 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     public boolean isDatabaseIntegrityOk(DatabaseWrapper databaseWrapper) {
         boolean integrityOk = true;
 
-        DatabaseStatement prog = null;
+        DatabaseStatement statement = null;
         try {
-            prog = databaseWrapper.compileStatement("PRAGMA quick_check(1)");
-            String rslt = prog.simpleQueryForString();
-            if (!rslt.equalsIgnoreCase("ok")) {
+            statement = databaseWrapper.compileStatement("PRAGMA quick_check(1)");
+            String result = statement.simpleQueryForString();
+            if (!result.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases
-                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " + getDatabaseDefinition().getDatabaseName() + " returned: " + rslt);
+                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " +
+                        getDatabaseDefinition().getDatabaseName() + " returned: " + result);
 
                 integrityOk = false;
 
@@ -169,8 +170,8 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
                 }
             }
         } finally {
-            if (prog != null) {
-                prog.close();
+            if (statement != null) {
+                statement.close();
             }
         }
         return integrityOk;
@@ -199,10 +200,10 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     /**
-     * Writes the inputstream of the existing db to the file specified.
+     * Writes the {@link InputStream} of the existing db to the file specified.
      *
      * @param dbPath     The file to write to.
-     * @param existingDB The existing databasefile's input stream¬
+     * @param existingDB The existing database file's input stream¬
      * @throws IOException
      */
     private void writeDB(File dbPath, InputStream existingDB) throws IOException {

@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
@@ -12,7 +11,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  * Description: Basic {@link int} property. Accepts only int, {@link BaseModelQueriable}, and
  * {@link ITypeConditional} objects.
  */
-public class IntProperty extends BaseProperty<IntProperty> {
+public class IntProperty extends PrimitiveProperty<IntProperty> {
 
     public IntProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
@@ -27,60 +26,8 @@ public class IntProperty extends BaseProperty<IntProperty> {
     }
 
     @Override
-    public IntProperty plus(IProperty iProperty) {
-        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public IntProperty minus(IProperty iProperty) {
-        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public IntProperty dividedBy(IProperty iProperty) {
-        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public IntProperty multipliedBy(IProperty iProperty) {
-        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public IntProperty mod(IProperty iProperty) {
-        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public IntProperty concatenate(IProperty iProperty) {
-        return new IntProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public IntProperty as(String aliasName) {
-        return new IntProperty(table, nameAlias
-                .newBuilder()
-                .as(aliasName)
-                .build());
-    }
-
-    @Override
-    public IntProperty distinct() {
-        return new IntProperty(table, getDistinctAliasName());
-    }
-
-    @Override
-    public IntProperty withTable(NameAlias tableNameAlias) {
-        return new IntProperty(table, nameAlias
-                .newBuilder()
-                .withTable(tableNameAlias.getQuery())
-                .build());
+    protected IntProperty newPropertyInstance(Class<?> table, NameAlias nameAlias) {
+        return new IntProperty(table, nameAlias);
     }
 
     public Condition is(int value) {
@@ -149,38 +96,6 @@ public class IntProperty extends BaseProperty<IntProperty> {
 
     public Condition concatenate(int value) {
         return column(nameAlias).concatenate(value);
-    }
-
-    public Condition is(IntProperty property) {
-        return column(nameAlias).is(property);
-    }
-
-    public Condition isNot(IntProperty property) {
-        return column(nameAlias).isNot(property);
-    }
-
-    public Condition eq(IntProperty property) {
-        return is(property);
-    }
-
-    public Condition notEq(IntProperty property) {
-        return isNot(property);
-    }
-
-    public Condition greaterThan(IntProperty property) {
-        return column(nameAlias).greaterThan(property);
-    }
-
-    public Condition greaterThanOrEq(IntProperty property) {
-        return column(nameAlias).greaterThanOrEq(property);
-    }
-
-    public Condition lessThan(IntProperty property) {
-        return column(nameAlias).lessThan(property);
-    }
-
-    public Condition lessThanOrEq(IntProperty property) {
-        return column(nameAlias).lessThanOrEq(property);
     }
 
 }

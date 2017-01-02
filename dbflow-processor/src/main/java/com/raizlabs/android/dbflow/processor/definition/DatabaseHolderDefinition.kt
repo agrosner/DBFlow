@@ -29,14 +29,21 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
     override val typeSpec: TypeSpec
         get() {
             val typeBuilder = TypeSpec.classBuilder(this.className)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .superclass(ClassNames.DATABASE_HOLDER)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .superclass(ClassNames.DATABASE_HOLDER)
 
             val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 
             processorManager.getTypeConverters().forEach {
                 constructor.addStatement("\$L.put(\$T.class, new \$T())",
-                    DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, it.modelTypeName, it.className)
+                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, it.modelTypeName, it.className)
+
+                if (it.allowedSubTypes?.isNotEmpty() ?: false) {
+                    it.allowedSubTypes?.forEach { subType ->
+                        constructor.addStatement("\$L.put(\$T.class, new \$T())",
+                                DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, subType, it.className)
+                    }
+                }
             }
 
             processorManager.getDatabaseHolderDefinitionMap().forEach { databaseDefinition ->

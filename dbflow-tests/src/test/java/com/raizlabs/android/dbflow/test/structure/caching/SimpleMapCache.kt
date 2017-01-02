@@ -35,7 +35,7 @@ class SimpleMapCache<TModel> : ModelCache<TModel, MutableMap<String, TModel>> {
     }
 
     override fun get(id: Any): TModel? {
-        return cache.get(id)
+        return cache[id]
     }
 
     override fun setCacheSize(size: Int) {

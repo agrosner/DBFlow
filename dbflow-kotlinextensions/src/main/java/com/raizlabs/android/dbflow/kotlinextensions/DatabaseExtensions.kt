@@ -56,10 +56,10 @@ inline fun <reified T : Any> Collection<T>.processInTransaction(crossinline proc
 inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline processFunction: (T, DatabaseWrapper) -> Unit) {
     val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> {
-                processFunction(it, wrapper.writableDatabase)
+            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> { it, wrapper ->
+                processFunction(it, wrapper)
             }).addAll(this).build()
-    ).build().execute();
+    ).execute()
 }
 
 /**
@@ -71,10 +71,10 @@ inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline
                                                                      error: Transaction.Error? = null) {
     val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> {
-                processFunction(it, wrapper.writableDatabase)
-            }).addAll(this).build()
-    ).success(success).error(error).build().execute();
+            ProcessModelTransaction.Builder(
+                    ProcessModelTransaction.ProcessModel<T> { it, wrapper -> processFunction(it, wrapper) })
+                    .addAll(this).build())
+            .success(success).error(error).execute()
 }
 
 /**
@@ -87,10 +87,10 @@ inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline
                                                                      error: Transaction.Error? = null) {
     val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> {
-                processFunction(it, wrapper.writableDatabase)
+            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> { it, wrapper ->
+                processFunction(it, wrapper)
             }).addAll(this).processListener(processListener).build()
-    ).success(success).error(error).build().execute();
+    ).success(success).error(error).execute()
 }
 
 /**

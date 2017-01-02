@@ -34,7 +34,6 @@ class PrivateScopeColumnAccessorTest {
     @Test
     fun test_canGetPrivateIsAccess() {
         val privateAccess = PrivateScopeColumnAccessor("isTest",
-                isBoolean = true,
                 useIsForPrivateBooleans = true)
 
         assertEquals("isTest()", privateAccess.get().toString())

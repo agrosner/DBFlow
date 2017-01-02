@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.structure.provider.ContentUtils
  */
 @TableEndpoint(name = ContentProviderModel.NAME, contentProvider = ContentDatabase::class)
 @Table(database = ContentDatabase::class, name = ContentProviderModel.NAME)
-class ContentProviderModel : BaseProviderModel<ContentProviderModel>() {
+class ContentProviderModel : BaseProviderModel() {
 
     @Column
     @PrimaryKey(autoincrement = true)

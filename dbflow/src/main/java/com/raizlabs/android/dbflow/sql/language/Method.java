@@ -86,6 +86,59 @@ public class Method extends Property {
         return new Method("REPLACE", property, PropertyFactory.from(findString), PropertyFactory.from(replacement));
     }
 
+    /**
+     * SQLite standard "strftime()" method. See SQLite documentation on this method.
+     */
+    public static Method strftime(String formatString, String timeString, String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(formatString));
+        propertyList.add(PropertyFactory.from(timeString));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("strftime", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
+    /**
+     * Sqlite "datetime" method. See SQLite documentation on this method.
+     */
+    public static Method datetime(long timeStamp, String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(timeStamp));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("datetime", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
+    /**
+     * Sqlite "date" method. See SQLite documentation on this method.
+     */
+    public static Method date(String timeString, String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(timeString));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("date", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
+    /**
+     * @return Constructs using the "IFNULL" method in SQLite. It will pick the first non null
+     * value and set that. If both are NULL then it will use NULL.
+     */
+    public static Method ifNull(IProperty first, IProperty secondIfFirstNull) {
+        return new Method("IFNULL", first, secondIfFirstNull);
+    }
+
+    /**
+     * @return Constructs using the "NULLIF" method in SQLite. If both expressions are equal, then
+     * NULL is set into the DB.
+     */
+    public static Method nullIf(IProperty first, IProperty second) {
+        return new Method("NULLIF", first, second);
+    }
+
     private final List<IProperty> propertyList = new ArrayList<>();
     private List<String> operationsList = new ArrayList<>();
     private final IProperty methodProperty;
@@ -94,10 +147,11 @@ public class Method extends Property {
         this(null, properties);
     }
 
+    @SuppressWarnings("unchecked")
     public Method(String methodName, IProperty... properties) {
         super(null, (String) null);
 
-        methodProperty = new Property(null, NameAlias.rawBuilder(methodName).build());
+        methodProperty = new Property<>(null, NameAlias.rawBuilder(methodName).build());
 
         if (properties.length == 0) {
             propertyList.add(Property.ALL_PROPERTY);
@@ -125,9 +179,6 @@ public class Method extends Property {
      * @param property The property to add.
      */
     public Method addProperty(@NonNull IProperty property) {
-        if (propertyList.size() == 1 && propertyList.get(0) == Property.ALL_PROPERTY) {
-            propertyList.remove(0);
-        }
         return append(property, ",");
     }
 
@@ -136,6 +187,10 @@ public class Method extends Property {
      * the property specified.
      */
     public Method append(IProperty property, String operation) {
+        // remove all property since its not needed when we specify a property.
+        if (propertyList.size() == 1 && propertyList.get(0) == Property.ALL_PROPERTY) {
+            propertyList.remove(0);
+        }
         propertyList.add(property);
         operationsList.add(operation);
         return this;

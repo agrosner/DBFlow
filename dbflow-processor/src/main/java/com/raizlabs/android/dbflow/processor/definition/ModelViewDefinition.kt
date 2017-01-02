@@ -3,12 +3,22 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
-import com.raizlabs.android.dbflow.processor.*
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ColumnValidator
+import com.raizlabs.android.dbflow.processor.DatabaseHandler
+import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -27,7 +37,8 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
     private var name: String? = null
 
-    private val methods: Array<MethodDefinition>
+    private val methods: Array<MethodDefinition> =
+            arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -54,12 +65,11 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
+                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
         } else {
             implementsLoadFromCursorListener = false
         }
 
-        methods = arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
     }
 
     override fun prepareForWrite() {
@@ -104,7 +114,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
 
                 if (columnDefinition.isPrimaryKey || columnDefinition is ForeignKeyColumnDefinition
-                    || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                        || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys")
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery::class.java) != null) {
@@ -139,7 +149,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
         typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java),
-            "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
+                "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
         elementClassName?.let {
             columnDefinitions.forEach {
                 columnDefinition ->
@@ -166,22 +176,22 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getCreationQuery")
-            .addAnnotation(Override::class.java)
-            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-            .addStatement("return \$T.\$L.getQuery()", elementClassName, queryFieldName)
-            .returns(ClassName.get(String::class.java)).build())
+                .addAnnotation(Override::class.java)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return \$T.\$L.getQuery()", elementClassName, queryFieldName)
+                .returns(ClassName.get(String::class.java)).build())
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("getViewName")
-            .addAnnotation(Override::class.java)
-            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-            .addStatement("return \$S", name!!)
-            .returns(ClassName.get(String::class.java)).build())
+                .addAnnotation(Override::class.java)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return \$S", name!!)
+                .returns(ClassName.get(String::class.java)).build())
 
         typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
-            .addAnnotation(Override::class.java)
-            .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-            .addStatement("return new \$T()", elementClassName)
-            .returns(elementClassName).build())
+                .addAnnotation(Override::class.java)
+                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return new \$T()", elementClassName)
+                .returns(elementClassName).build())
     }
 
     override fun compareTo(other: ModelViewDefinition): Int {

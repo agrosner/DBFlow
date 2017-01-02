@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * Description: The baseclass for adapters to {@link QueryModel} that defines how it interacts with the DB. The
  * where query is not defined here, rather its determined by the query used.
  */
-public abstract class QueryModelAdapter<TQueryModel extends BaseQueryModel> extends
+public abstract class QueryModelAdapter<TQueryModel> extends
         InstanceAdapter<TQueryModel> {
 
     public QueryModelAdapter(DatabaseDefinition databaseDefinition) {

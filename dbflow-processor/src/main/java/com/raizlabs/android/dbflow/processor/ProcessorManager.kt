@@ -3,13 +3,25 @@ package com.raizlabs.android.dbflow.processor
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
-import com.raizlabs.android.dbflow.processor.definition.*
+import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseHolderDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseObjectHolder
+import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition
+import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition
+import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
+import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
+import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import java.io.IOException
-import java.util.*
+import java.util.ArrayList
+import java.util.Arrays
+import java.util.Collections
 import javax.annotation.processing.FilerException
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
@@ -31,7 +43,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     private val uniqueDatabases = Lists.newArrayList<TypeName>()
     private val modelToDatabaseMap = Maps.newHashMap<TypeName, TypeName>()
-    private val typeConverters = Maps.newHashMap<TypeName, TypeConverterDefinition>()
+    val typeConverters = Maps.newHashMap<TypeName, TypeConverterDefinition>()
     private val migrations = Maps.newHashMap<TypeName, MutableMap<Int, MutableList<MigrationDefinition>>>()
 
     private val databaseDefinitionMap = Maps.newHashMap<TypeName, DatabaseObjectHolder>()
@@ -43,11 +55,9 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     }
 
     fun addHandlers(vararg containerHandlers: BaseContainerHandler<*>) {
-        for (containerHandler in containerHandlers) {
-            if (!handlers.contains(containerHandler)) {
-                handlers.add(containerHandler)
-            }
-        }
+        containerHandlers
+                .filterNot { handlers.contains(it) }
+                .forEach { handlers.add(it) }
     }
 
     val messager: Messager = processingEnvironment.messager

@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -37,8 +38,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     /**
-     * Call before {@link #save()}, {@link #delete()}, {@link #update()}, or {@link #insert()} since post
-     * call to those the listener is nulled out.
+     * Call before {@link #save()}, {@link #delete()}, {@link #update()}, or {@link #insert()}.
      *
      * @param onModelChangedListener The listener to use for a corresponding call to a method.
      */
@@ -56,36 +56,39 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     @Override
-    public void save() {
+    public boolean save() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
-                    public void processModel(TModel model) {
+                    public void processModel(TModel model, DatabaseWrapper wrapper) {
                         getModelAdapter().save(model);
                     }
                 }).add(model).build());
+        return false;
     }
 
     @Override
-    public void delete() {
+    public boolean delete() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
-                    public void processModel(TModel model) {
+                    public void processModel(TModel model, DatabaseWrapper wrapper) {
                         getModelAdapter().delete(model);
                     }
                 }).add(model).build());
+        return false;
     }
 
     @Override
-    public void update() {
+    public boolean update() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
-                    public void processModel(TModel model) {
+                    public void processModel(TModel model, DatabaseWrapper wrapper) {
                         getModelAdapter().update(model);
                     }
                 }).add(model).build());
+        return false;
     }
 
     @Override
@@ -93,7 +96,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
-                    public void processModel(TModel model) {
+                    public void processModel(TModel model, DatabaseWrapper wrapper) {
                         getModelAdapter().insert(model);
                     }
                 }).add(model).build());
@@ -105,7 +108,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
-                    public void processModel(TModel model) {
+                    public void processModel(TModel model, DatabaseWrapper wrapper) {
                         getModelAdapter().load(model);
                     }
                 }).add(model).build());

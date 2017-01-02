@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
-import com.raizlabs.android.dbflow.structure.Model;
-
 /**
  * Description: A generic cache for models that is implemented or can be implemented to your liking.
  */

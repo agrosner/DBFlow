@@ -380,15 +380,17 @@ public class Condition extends BaseCondition implements ITypeConditional {
         return queryBuilder.getQuery();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Condition concatenate(Object value) {
         operation = new QueryBuilder(Operation.EQUALS).append(columnName()).toString();
-        if (value != null) {
-            TypeConverter typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
-            if (typeConverter != null) {
-                //noinspection unchecked
-                value = typeConverter.getDBValue(value);
-            }
+
+        TypeConverter typeConverter = this.typeConverter;
+        if (typeConverter == null && value != null) {
+            typeConverter = FlowManager.getTypeConverterForClass(value.getClass());
+        }
+        if (typeConverter != null && convertToDB) {
+            value = typeConverter.getDBValue(value);
         }
         if (value instanceof String || value instanceof ITypeConditional) {
             operation = String.format("%1s %1s ", operation, Operation.CONCATENATE);

@@ -2,8 +2,6 @@ package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
 
-import com.raizlabs.android.dbflow.structure.Model;
-
 /**
  * Description: Simple interface that allows you to iterate a {@link Cursor}.
  */

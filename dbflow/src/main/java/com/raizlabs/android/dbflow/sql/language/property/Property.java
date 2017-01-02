@@ -6,8 +6,6 @@ import com.raizlabs.android.dbflow.sql.language.NameAlias;
 
 import java.util.Collection;
 
-import static com.raizlabs.android.dbflow.sql.language.Condition.column;
-
 /**
  * Description: The main, immutable property class that gets generated from a table definition.
  * <p/>
@@ -118,21 +116,6 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
     }
 
     @Override
-    public Condition like(String value) {
-        return getCondition().like(value);
-    }
-
-    @Override
-    public Condition notLike(String value) {
-        return getCondition().notLike(value);
-    }
-
-    @Override
-    public Condition glob(String value) {
-        return getCondition().glob(value);
-    }
-
-    @Override
     public Condition greaterThan(T value) {
         return getCondition().greaterThan(value);
     }
@@ -157,11 +140,13 @@ public class Property<T> extends BaseProperty<Property<T>> implements ITypeCondi
         return getCondition().between(value);
     }
 
+    @SuppressWarnings({"ConfusingArgumentToVarargsMethod", "unchecked"})
     @Override
     public Condition.In in(T firstValue, T... values) {
         return getCondition().in(firstValue, values);
     }
 
+    @SuppressWarnings({"ConfusingArgumentToVarargsMethod", "unchecked"})
     @Override
     public Condition.In notIn(T firstValue, T... values) {
         return getCondition().notIn(firstValue, values);

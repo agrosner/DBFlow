@@ -39,10 +39,9 @@ public class JSONConverter extends TypeConverter<String, JSONObject> {
         try {
             jsonObject = new JSONObject(data);
         } catch (JSONException e) {
-          // maybe log this?
-        } finally {
-            return jsonObject;
+          // you should consider logging or throwing exception.
         }
+        return jsonObject;
     }
 }
 

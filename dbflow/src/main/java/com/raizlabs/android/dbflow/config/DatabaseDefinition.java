@@ -2,13 +2,13 @@ package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
 
+import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
-import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
@@ -42,11 +42,11 @@ public abstract class DatabaseDefinition {
 
     final Map<String, Class<?>> modelTableNames = new HashMap<>();
 
-    final List<Class<? extends BaseModelView>> modelViews = new ArrayList<>();
+    final List<Class<?>> modelViews = new ArrayList<>();
 
-    final Map<Class<? extends BaseModelView>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
+    final Map<Class<?>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
 
-    final Map<Class<? extends BaseQueryModel>, QueryModelAdapter> queryModelAdapterMap = new LinkedHashMap<>();
+    final Map<Class<?>, QueryModelAdapter> queryModelAdapterMap = new LinkedHashMap<>();
 
     /**
      * The helper that manages database changes and initialization
@@ -147,7 +147,7 @@ public abstract class DatabaseDefinition {
     /**
      * @return the {@link BaseModelView} list for this database.
      */
-    public List<Class<? extends BaseModelView>> getModelViews() {
+    public List<Class<?>> getModelViews() {
         return modelViews;
     }
 
@@ -155,7 +155,7 @@ public abstract class DatabaseDefinition {
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated {@link ModelViewAdapter} for the specified table.
      */
-    public ModelViewAdapter getModelViewAdapterForTable(Class<? extends BaseModelView> table) {
+    public ModelViewAdapter getModelViewAdapterForTable(Class<?> table) {
         return modelViewAdapterMap.get(table);
     }
 
@@ -178,7 +178,7 @@ public abstract class DatabaseDefinition {
      * @param queryModel The {@link QueryModel} class
      * @return The adapter that corresponds to the specified class.
      */
-    public QueryModelAdapter getQueryModelAdapterForQueryClass(Class<? extends BaseQueryModel> queryModel) {
+    public QueryModelAdapter getQueryModelAdapterForQueryClass(Class<?> queryModel) {
         return queryModelAdapterMap.get(queryModel);
     }
 
@@ -231,7 +231,15 @@ public abstract class DatabaseDefinition {
      * @return The file name that this database points to
      */
     public String getDatabaseFileName() {
-        return getDatabaseName() + ".db";
+        return getDatabaseName() + (StringUtils.isNotNullOrEmpty(getDatabaseExtensionName()) ?
+                "." + getDatabaseExtensionName() : "");
+    }
+
+    /**
+     * @return the extension for the file name.
+     */
+    public String getDatabaseExtensionName() {
+        return "db";
     }
 
     /**
@@ -274,6 +282,10 @@ public abstract class DatabaseDefinition {
             isResetting = true;
             getTransactionManager().stopQueue();
             getHelper().closeDB();
+            for (ModelAdapter modelAdapter : modelAdapters.values()) {
+                modelAdapter.closeInsertStatement();
+                modelAdapter.closeCompiledStatement();
+            }
             context.deleteDatabase(getDatabaseFileName());
 
             // recreate queue after interrupting it.

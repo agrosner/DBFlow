@@ -83,7 +83,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A list of custom models that are not tied to a table.
      */
-    <TQueryModel extends BaseQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
+    <TQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
 
     /**
      * Returns a single {@link TQueryModel} from this query.
@@ -92,6 +92,12 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A single model from the query.
      */
-    <TQueryModel extends BaseQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
+    <TQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
 
+    /**
+     * Disables caching on this query for the object retrieved from DB (if caching enabled). If
+     * caching is not enabled, this method is ignored. This also disables caching in a {@link FlowCursorList}
+     * or {@link FlowQueryList} if you {@link #flowQueryList()} or {@link #cursorList()}
+     */
+    ModelQueriable<TModel> disableCaching();
 }

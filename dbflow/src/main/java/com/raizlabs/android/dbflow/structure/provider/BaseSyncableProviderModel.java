@@ -21,26 +21,22 @@ public abstract class BaseSyncableProviderModel
     }
 
     @Override
-    public void save() {
-        super.save();
-
+    public boolean save() {
         if (exists()) {
-            ContentUtils.update(getUpdateUri(), this);
+            return super.save() && ContentUtils.update(getUpdateUri(), this) > 0;
         } else {
-            ContentUtils.insert(getInsertUri(), this);
+            return super.save() && ContentUtils.insert(getInsertUri(), this) != null;
         }
     }
 
     @Override
-    public void delete() {
-        super.delete();
-        ContentUtils.delete(getDeleteUri(), this);
+    public boolean delete() {
+        return super.delete() && ContentUtils.delete(getDeleteUri(), this) > 0;
     }
 
     @Override
-    public void update() {
-        super.update();
-        ContentUtils.update(getUpdateUri(), this);
+    public boolean update() {
+        return super.update() && ContentUtils.update(getUpdateUri(), this) > 0;
     }
 
     @Override

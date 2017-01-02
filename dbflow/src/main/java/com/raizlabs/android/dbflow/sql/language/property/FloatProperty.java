@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.ITypeConditional;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import static com.raizlabs.android.dbflow.sql.language.Condition.column;
 
@@ -12,7 +11,7 @@ import static com.raizlabs.android.dbflow.sql.language.Condition.column;
  * Description: Basic {@link float} property. Accepts only float, {@link BaseModelQueriable}, and
  * {@link ITypeConditional} objects.
  */
-public class FloatProperty extends BaseProperty<FloatProperty> {
+public class FloatProperty extends PrimitiveProperty<FloatProperty> {
 
     public FloatProperty(Class<?> table, NameAlias nameAlias) {
         super(table, nameAlias);
@@ -27,60 +26,8 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
     }
 
     @Override
-    public FloatProperty plus(IProperty iProperty) {
-        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.PLUS,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public FloatProperty minus(IProperty iProperty) {
-        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MINUS,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public FloatProperty dividedBy(IProperty iProperty) {
-        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.DIVISION,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public FloatProperty multipliedBy(IProperty iProperty) {
-        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MULTIPLY,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public FloatProperty mod(IProperty iProperty) {
-        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.MOD,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public FloatProperty concatenate(IProperty iProperty) {
-        return new FloatProperty(table, NameAlias.joinNames(Condition.Operation.CONCATENATE,
-                nameAlias.fullName(), iProperty.toString()));
-    }
-
-    @Override
-    public FloatProperty as(String aliasName) {
-        return new FloatProperty(table, nameAlias
-                .newBuilder()
-                .as(aliasName)
-                .build());
-    }
-
-    @Override
-    public FloatProperty distinct() {
-        return new FloatProperty(table, getDistinctAliasName());
-    }
-
-    @Override
-    public FloatProperty withTable(NameAlias tableNameAlias) {
-        return new FloatProperty(table, nameAlias
-                .newBuilder()
-                .withTable(tableNameAlias.getQuery())
-                .build());
+    protected FloatProperty newPropertyInstance(Class<?> table, NameAlias nameAlias) {
+        return new FloatProperty(table, nameAlias);
     }
 
     public Condition is(float value) {
@@ -151,35 +98,4 @@ public class FloatProperty extends BaseProperty<FloatProperty> {
         return column(nameAlias).concatenate(value);
     }
 
-    public Condition is(FloatProperty property) {
-        return column(nameAlias).is(property);
-    }
-
-    public Condition isNot(FloatProperty property) {
-        return column(nameAlias).isNot(property);
-    }
-
-    public Condition eq(FloatProperty property) {
-        return is(property);
-    }
-
-    public Condition notEq(FloatProperty property) {
-        return isNot(property);
-    }
-
-    public Condition greaterThan(FloatProperty property) {
-        return column(nameAlias).greaterThan(property);
-    }
-
-    public Condition greaterThanOrEq(FloatProperty property) {
-        return column(nameAlias).greaterThanOrEq(property);
-    }
-
-    public Condition lessThan(FloatProperty property) {
-        return column(nameAlias).lessThan(property);
-    }
-
-    public Condition lessThanOrEq(FloatProperty property) {
-        return column(nameAlias).lessThanOrEq(property);
-    }
 }

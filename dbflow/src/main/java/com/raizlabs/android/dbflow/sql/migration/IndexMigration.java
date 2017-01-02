@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.Index;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**

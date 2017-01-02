@@ -1,12 +1,31 @@
 package com.raizlabs.android.dbflow.processor
 
 import com.google.common.collect.Sets
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.Database
+import com.raizlabs.android.dbflow.annotation.ManyToMany
+import com.raizlabs.android.dbflow.annotation.Migration
+import com.raizlabs.android.dbflow.annotation.ModelView
+import com.raizlabs.android.dbflow.annotation.MultipleManyToMany
+import com.raizlabs.android.dbflow.annotation.QueryModel
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.annotation.TypeConverter
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
-import com.raizlabs.android.dbflow.converter.*
-import com.raizlabs.android.dbflow.processor.definition.*
+import com.raizlabs.android.dbflow.converter.BigDecimalConverter
+import com.raizlabs.android.dbflow.converter.BooleanConverter
+import com.raizlabs.android.dbflow.converter.CalendarConverter
+import com.raizlabs.android.dbflow.converter.DateConverter
+import com.raizlabs.android.dbflow.converter.SqlDateConverter
+import com.raizlabs.android.dbflow.converter.UUIDConverter
+import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition
+import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition
+import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
+import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
+import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
@@ -14,18 +33,13 @@ import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
 
 /**
- * Description:
- *
- * @author Andrew Grosner (fuzz)
- */
-/**
  * Description: The main base-level handler for performing some action when the
- * [Processor.process] is called.
+ * [DBFlowProcessor.process] is called.
  */
 interface Handler {
 
     /**
-     * Called when the process of the [Processor] is called
+     * Called when the process of the [DBFlowProcessor] is called
 
      * @param processorManager The manager that holds processing information
      * *
@@ -35,8 +49,8 @@ interface Handler {
 }
 
 /**
- * Description: Handles [com.raizlabs.android.dbflow.annotation.Migration] by creating [com.raizlabs.android.dbflow.processor.definition.MigrationDefinition]
- * and adds them to the [com.raizlabs.android.dbflow.processor.model.ProcessorManager]
+ * Description: Handles [Migration] by creating [MigrationDefinition]
+ * and adds them to the [ProcessorManager]
  */
 class MigrationHandler : BaseContainerHandler<Migration>() {
 
@@ -80,9 +94,6 @@ class QueryModelHandler : BaseContainerHandler<QueryModel>() {
     }
 }
 
-/**
- * Description:
- */
 class TableEndpointHandler : BaseContainerHandler<TableEndpoint>() {
 
     private val validator: TableEndpointValidator = TableEndpointValidator()
@@ -102,8 +113,8 @@ class TableEndpointHandler : BaseContainerHandler<TableEndpoint>() {
 }
 
 /**
- * Description: Handles [com.raizlabs.android.dbflow.annotation.Table] annotations, writing ModelAdapters,
- * and adding them to the [com.raizlabs.android.dbflow.processor.model.ProcessorManager]
+ * Description: Handles [Table] annotations, writing ModelAdapters,
+ * and adding them to the [ProcessorManager]
  */
 class TableHandler : BaseContainerHandler<Table>() {
 
@@ -130,26 +141,31 @@ class TableHandler : BaseContainerHandler<Table>() {
 }
 
 /**
- * Description: Handles [com.raizlabs.android.dbflow.annotation.TypeConverter] annotations,
- * adding default methods and adding them to the [com.raizlabs.android.dbflow.processor.model.ProcessorManager]
+ * Description: Handles [TypeConverter] annotations,
+ * adding default methods and adding them to the [ProcessorManager]
  */
 class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
 
     override val annotationClass = TypeConverter::class.java
 
     override fun processElements(processorManager: ProcessorManager, annotatedElements: MutableSet<Element>) {
-        for (clazz in DEFAULT_TYPE_CONVERTERS) {
-            annotatedElements.add(processorManager.elements.getTypeElement(clazz.getName()))
-        }
+        DEFAULT_TYPE_CONVERTERS.mapTo(annotatedElements) { processorManager.elements.getTypeElement(it.name) }
     }
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
         if (element is TypeElement) {
             val className = ProcessorUtils.fromTypeMirror(element.asType(), processorManager)
-            val converterDefinition = className?.let { TypeConverterDefinition(it, element.asType(), processorManager) }
+            val converterDefinition = className?.let { TypeConverterDefinition(it, element.asType(), processorManager, element) }
             converterDefinition?.let {
                 if (VALIDATOR.validate(processorManager, converterDefinition)) {
-                    processorManager.addTypeConverterDefinition(converterDefinition)
+                    // allow user overrides from default.
+                    // Check here if user already placed definition of same type, since default converters
+                    // are added last.
+                    if (processorManager.typeConverters
+                            .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
+                            .isEmpty()) {
+                        processorManager.addTypeConverterDefinition(converterDefinition)
+                    }
                 }
             }
         }
@@ -186,9 +202,6 @@ abstract class BaseContainerHandler<AnnotationClass : Annotation> : Handler {
     protected abstract fun onProcessElement(processorManager: ProcessorManager, element: Element)
 }
 
-/**
- * Description:
- */
 class ContentProviderHandler : BaseContainerHandler<ContentProvider>() {
 
     override val annotationClass = ContentProvider::class.java

@@ -24,22 +24,22 @@ class DatabaseExtensionsTest : FlowTestCase() {
                 .from<TestModel1>().queryList()
 
         // easily delete all these items.
-        items.processInTransaction { it, databaseWrapper -> it.delete(databaseWrapper) }
+        items.processInTransaction({ model, databaseWrapper -> model.delete(databaseWrapper) })
 
         database<TestModel1>().executeTransaction {
             // do something here
         }
 
-        items.processInTransactionAsync { it, databaseWrapper -> it.save(databaseWrapper) }
+        items.processInTransactionAsync({ model, databaseWrapper -> model.save(databaseWrapper) })
 
-        items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
+        items.processInTransactionAsync({ model, databaseWrapper -> model.delete(databaseWrapper) },
                 Transaction.Success {
                     // do something here
                 },
                 Transaction.Error { transaction, throwable ->
 
                 })
-        items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
+        items.processInTransactionAsync({ model, databaseWrapper -> model.delete(databaseWrapper) },
                 ProcessModelTransaction.OnModelProcessListener { current, size, model ->
                     // do something here
                 })

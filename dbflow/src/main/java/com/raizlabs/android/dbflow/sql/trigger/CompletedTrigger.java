@@ -5,7 +5,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: The last piece of a TRIGGER statement, this class contains the BEGIN...END and the logic in between.

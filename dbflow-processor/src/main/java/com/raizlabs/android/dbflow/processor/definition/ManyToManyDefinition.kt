@@ -9,7 +9,11 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.lower
-import com.squareup.javapoet.*
+import com.squareup.javapoet.AnnotationSpec
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
@@ -20,16 +24,16 @@ import javax.lang.model.type.TypeMirror
  */
 class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, processorManager: ProcessorManager,
                                                      manyToMany: ManyToMany = element.getAnnotation(ManyToMany::class.java))
-: BaseDefinition(element, processorManager) {
+    : BaseDefinition(element, processorManager) {
 
     internal var referencedTable: TypeName
     var databaseTypeName: TypeName? = null
     internal var generateAutoIncrement: Boolean = false
     internal var sameTableReferenced: Boolean = false
-    internal var generatedTableClassName: String
+    internal val generatedTableClassName = manyToMany.generatedTableClassName
     internal var saveForeignKeyModels: Boolean = false
-    internal var thisColumnName: String
-    internal var referencedColumnName: String
+    internal val thisColumnName = manyToMany.thisTableColumnName
+    internal val referencedColumnName = manyToMany.referencedTableColumnName
 
     init {
 
@@ -41,7 +45,6 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
         }
         referencedTable = TypeName.get(clazz)
         generateAutoIncrement = manyToMany.generateAutoIncrement
-        generatedTableClassName = manyToMany.generatedTableClassName
         saveForeignKeyModels = manyToMany.saveForeignKeyModels
 
         sameTableReferenced = referencedTable == elementTypeName
@@ -52,9 +55,6 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
         } catch (mte: MirroredTypeException) {
             databaseTypeName = TypeName.get(mte.typeMirror)
         }
-
-        thisColumnName = manyToMany.thisTableColumnName
-        referencedColumnName = manyToMany.referencedTableColumnName
 
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
                 && thisColumnName == referencedColumnName) {

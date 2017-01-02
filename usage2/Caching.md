@@ -60,6 +60,20 @@ If you operate on a model object, that change gets reflected in the cache. But b
 modifying them in a separate thread might result in state state returned if the cache is not synchronized
 properly.
 
+## Disable Caching For Some Queries
+
+To disable caching on certain queries as you might want to project on only a few columns,
+rather than the full dataset. Just call `disableCaching()`:
+
+```java
+
+select(My_Table.column, My_Table.column2)
+  .from(My.class)
+  .disableCaching()
+  .queryList();
+
+```
+
 ## Advanced
 
 ### Specifying cache Size

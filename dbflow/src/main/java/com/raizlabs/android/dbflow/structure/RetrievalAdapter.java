@@ -101,10 +101,17 @@ public abstract class RetrievalAdapter<TModel> {
     }
 
     /**
-     * @return
+     * @return A new {@link ListModelLoader}, caching will override this loader instance.
      */
     protected ListModelLoader<TModel> createListModelLoader() {
         return new ListModelLoader<>(getModelClass());
+    }
+
+    /**
+     * @return A new {@link SingleModelLoader}, caching will override this loader instance.
+     */
+    protected SingleModelLoader<TModel> createSingleModelLoader() {
+        return new SingleModelLoader<>(getModelClass());
     }
 
     public SingleModelLoader<TModel> getSingleModelLoader() {
@@ -112,6 +119,22 @@ public abstract class RetrievalAdapter<TModel> {
             singleModelLoader = createSingleModelLoader();
         }
         return singleModelLoader;
+    }
+
+    /**
+     * @return A new instance of a {@link SingleModelLoader}. Subsequent calls do not cache
+     * this object so it's recommended only calling this in bulk if possible.
+     */
+    public SingleModelLoader<TModel> getNonCacheableSingleModelLoader() {
+        return new SingleModelLoader<>(getModelClass());
+    }
+
+    /**
+     * @return A new instance of a {@link ListModelLoader}. Subsequent calls do not cache
+     * this object so it's recommended only calling this in bulk if possible.
+     */
+    public ListModelLoader<TModel> getNonCacheableListModelLoader() {
+        return new ListModelLoader<>(getModelClass());
     }
 
     /**
@@ -134,10 +157,4 @@ public abstract class RetrievalAdapter<TModel> {
         this.listModelLoader = listModelLoader;
     }
 
-    /**
-     * @return A new {@link SingleModelLoader}, caching will override this loader instance.
-     */
-    protected SingleModelLoader<TModel> createSingleModelLoader() {
-        return new SingleModelLoader<>(getModelClass());
-    }
 }

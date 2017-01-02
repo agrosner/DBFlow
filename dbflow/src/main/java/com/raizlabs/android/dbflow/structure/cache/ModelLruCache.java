@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: Provides an {@link com.raizlabs.android.dbflow.structure.cache.LruCache} under its hood

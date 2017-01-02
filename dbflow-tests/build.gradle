@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.getkeepsafe.dexcount'
+
 repositories {
     mavenCentral()
 }
@@ -31,11 +33,6 @@ android {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
 
-    buildTypes {
-        debug {
-            minifyEnabled true
-        }
-    }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -44,7 +41,7 @@ android {
 dependencies {
     kapt project(':dbflow-processor')
     compile project(':dbflow')
-    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:appcompat-v7:25.1.0'
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
     testCompile 'com.jayway.awaitility:awaitility:1.6.5'
@@ -80,4 +77,9 @@ buildscript {
 
 kapt {
     generateStubs = true
+}
+
+dexcount {
+    includeClasses = true
+    orderByMethodCount = true
 }
