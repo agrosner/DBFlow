@@ -9,21 +9,29 @@ public interface Model extends ReadOnlyModel {
 
     /**
      * Saves the object in the DB.
+     *
+     * @return true if successful
      */
-    void save();
+    boolean save();
 
     /**
      * Deletes the object in the DB
+     *
+     * @return true if successful
      */
-    void delete();
+    boolean delete();
 
     /**
      * Updates an object in the DB. Does not insert on failure.
+     *
+     * @return true if successful
      */
-    void update();
+    boolean update();
 
     /**
      * Inserts the object into the DB
+     *
+     * @return the count of the rows affected, should only be 1 here, or -1 if failed.
      */
     long insert();
 

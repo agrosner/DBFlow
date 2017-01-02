@@ -55,7 +55,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     @Override
-    public void save() {
+    public boolean save() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
@@ -63,10 +63,11 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                         getModelAdapter().save(model);
                     }
                 }).add(model).build());
+        return false;
     }
 
     @Override
-    public void delete() {
+    public boolean delete() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
@@ -74,10 +75,11 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                         getModelAdapter().delete(model);
                     }
                 }).add(model).build());
+        return false;
     }
 
     @Override
-    public void update() {
+    public boolean update() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
@@ -85,6 +87,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                         getModelAdapter().update(model);
                     }
                 }).add(model).build());
+        return false;
     }
 
     @Override

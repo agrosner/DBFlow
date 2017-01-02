@@ -58,30 +58,30 @@ public class BaseModel implements Model {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void save() {
-        getModelAdapter().save(this);
+    public boolean save() {
+        return getModelAdapter().save(this);
     }
 
     @SuppressWarnings("unchecked")
-    public void save(DatabaseWrapper databaseWrapper) {
-        getModelAdapter().save(this, databaseWrapper);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void delete() {
-        getModelAdapter().delete(this);
-    }
-
-    @SuppressWarnings("unchecked")
-    public void delete(DatabaseWrapper databaseWrapper) {
-        getModelAdapter().delete(this, databaseWrapper);
+    public boolean save(DatabaseWrapper databaseWrapper) {
+        return getModelAdapter().save(this, databaseWrapper);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void update() {
-        getModelAdapter().update(this);
+    public boolean delete() {
+        return getModelAdapter().delete(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean delete(DatabaseWrapper databaseWrapper) {
+        return getModelAdapter().delete(this, databaseWrapper);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean update() {
+        return getModelAdapter().update(this);
     }
 
     @SuppressWarnings("unchecked")

@@ -14,25 +14,27 @@ import com.raizlabs.android.dbflow.structure.Model;
  * Consider using a {@link BaseSyncableProviderModel} if you wish to
  * keep modifications locally from the {@link ContentProvider}
  */
-public abstract class BaseProviderModel<TProviderModel extends BaseProviderModel>
+public abstract class BaseProviderModel
         extends BaseModel implements ModelProvider {
 
     @Override
-    public void delete() {
-        ContentUtils.delete(getDeleteUri(), this);
+    public boolean delete() {
+        return ContentUtils.delete(getDeleteUri(), this) > 0;
     }
 
     @Override
-    public void save() {
+    public boolean save() {
         int count = ContentUtils.update(getUpdateUri(), this);
         if (count == 0) {
-            ContentUtils.insert(getInsertUri(), this);
+            return ContentUtils.insert(getInsertUri(), this) != null;
+        } else {
+            return count > 0;
         }
     }
 
     @Override
-    public void update() {
-        ContentUtils.update(getUpdateUri(), this);
+    public boolean update() {
+        return ContentUtils.update(getUpdateUri(), this) > 0;
     }
 
     @Override
