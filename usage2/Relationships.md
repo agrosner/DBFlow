@@ -1,7 +1,7 @@
 # Relationships
 
 We can link `@Table` in DBFlow via 1-1, 1-many, or many-to-many. For 1-1 we use
-`@PrimaryKey`, for 1-many we use `@OneToMany`, and for many-to-many we use the `@ManyToMany` annotation.
+`@ForeignKey`, for 1-many we use `@OneToMany`, and for many-to-many we use the `@ManyToMany` annotation.
 
 
 ## One To One
