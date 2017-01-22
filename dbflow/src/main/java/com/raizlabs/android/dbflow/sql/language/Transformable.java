@@ -2,26 +2,29 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 
+import java.util.List;
+
 /**
  * Description: Provides a standard set of methods for ending a SQLite query method. These include
  * groupby, orderby, having, limit and offset.
  */
-public interface Transformable<T > {
+public interface Transformable<T> {
 
-    Where<T> groupBy(NameAlias... nameAliases);
+    IWhere<T> groupBy(NameAlias... nameAliases);
 
-    Where<T> groupBy(IProperty... properties);
+    IWhere<T> groupBy(IProperty... properties);
 
-    Where<T> orderBy(NameAlias nameAlias, boolean ascending);
+    IWhere<T> orderBy(NameAlias nameAlias, boolean ascending);
 
-    Where<T> orderBy(IProperty property, boolean ascending);
+    IWhere<T> orderBy(IProperty property, boolean ascending);
 
-    Where<T> orderBy(OrderBy orderBy);
+    IWhere<T> orderBy(OrderBy orderBy);
 
-    Where<T> limit(int count);
+    IWhere<T> limit(int count);
 
-    Where<T> offset(int offset);
+    IWhere<T> offset(int offset);
 
-    Where<T> having(SQLCondition... conditions);
+    IWhere<T> having(SQLCondition... conditions);
 
+    IWhere<T> orderByAll(List<OrderBy> orderBies);
 }

@@ -23,7 +23,8 @@ import java.util.List;
  * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code. It provides the
  * default implementation for convenience.
  */
-public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> implements ModelQueriable<TModel>, Query {
+public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
+        implements ModelQueriable<TModel>, Query {
 
     private InstanceAdapter<TModel> retrievalAdapter;
 

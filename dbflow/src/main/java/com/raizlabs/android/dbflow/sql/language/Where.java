@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -19,7 +18,7 @@ import java.util.List;
  * Description: Defines the SQL WHERE statement of the query.
  */
 public class Where<TModel> extends BaseModelQueriable<TModel>
-        implements Query, ModelQueriable<TModel>, Transformable<TModel> {
+        implements IWhere<TModel>, ModelQueriable<TModel> {
 
     private static final int VALUE_UNSET = -1;
 
@@ -51,7 +50,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      *
      * @param whereBase The FROM or SET statement chunk
      */
-    Where(WhereBase<TModel> whereBase, SQLCondition... conditions) {
+    public Where(WhereBase<TModel> whereBase, SQLCondition... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
         conditionGroup = new ConditionGroup();
@@ -61,44 +60,36 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     }
 
     /**
-     * Adds a param to the WHERE clause with the custom {@link SQLCondition}
-     *
-     * @param condition The {@link SQLCondition} to use
-     * @return
+     * Joins the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
      */
+    @Override
     public Where<TModel> and(SQLCondition condition) {
         conditionGroup.and(condition);
         return this;
     }
 
     /**
-     * Appends an OR with a Condition to the WHERE clause with the specified {@link SQLCondition}
-     *
-     * @param condition
-     * @return
+     * Joins the {@link SQLCondition} by the prefix of "OR" (unless its the first condition).
      */
+    @Override
     public Where<TModel> or(SQLCondition condition) {
         conditionGroup.or(condition);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link Condition} to this builder.
-     *
-     * @param conditions The list of {@link SQLCondition}
-     * @return
+     * Joins all of the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
      */
+    @Override
     public Where<TModel> andAll(List<SQLCondition> conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link SQLCondition} to this builder.
-     *
-     * @param conditions The array of {@link SQLCondition}
-     * @return
+     * Joins all of the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
      */
+    @Override
     public Where<TModel> andAll(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
         return this;
@@ -154,6 +145,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      * @param orderBies The order by.
      * @return this instance.
      */
+    @Override
     public Where<TModel> orderByAll(List<OrderBy> orderBies) {
         if (orderBies != null) {
             orderByList.addAll(orderBies);
@@ -179,7 +171,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      * @param where The query to use in the EXISTS clause. Such as SELECT * FROM `MyTable` WHERE ... etc.
      * @return This where with an EXISTS clause.
      */
-    public Where<TModel> exists(@NonNull Where where) {
+    public Where<TModel> exists(@NonNull IWhere where) {
         conditionGroup.and(new ExistenceCondition()
                 .where(where));
         return this;

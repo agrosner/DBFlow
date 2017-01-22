@@ -17,8 +17,8 @@ import java.util.List;
 /**
  * Description: The SQL FROM query wrapper that must have a {@link Query} base.
  */
-public class From<TModel> extends BaseModelQueriable<TModel> implements
-        WhereBase<TModel>, ModelQueriable<TModel>, Transformable<TModel> {
+public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TModel>,
+        ModelQueriable<TModel> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!
@@ -47,12 +47,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements
         tableAlias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
     }
 
-    /**
-     * The alias that this table name we use
-     *
-     * @param alias
-     * @return This FROM statement
-     */
+    @Override
     public From<TModel> as(String alias) {
         tableAlias = tableAlias
                 .newBuilder()
@@ -61,19 +56,14 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements
         return this;
     }
 
-    /**
-     * Adds a join on a specific table for this query
-     *
-     * @param table    The table this corresponds to
-     * @param joinType The type of join to use
-     * @return The join contained in this FROM statement
-     */
+    @Override
     public <TJoin> Join<TJoin, TModel> join(Class<TJoin> table, @NonNull Join.JoinType joinType) {
         Join<TJoin, TModel> join = new Join<>(this, table, joinType);
         joins.add(join);
         return join;
     }
 
+    @Override
     public <TJoin> Join<TJoin, TModel>
     join(ModelQueriable<TJoin> modelQueriable, @NonNull Join.JoinType joinType) {
         Join<TJoin, TModel> join = new Join<>(this, joinType, modelQueriable);
@@ -81,83 +71,42 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements
         return join;
     }
 
-    /**
-     * Adds a {@link Join.JoinType#CROSS} join on a specific table for this query.
-     *
-     * @param table   The table to join on.
-     * @param <TJoin> The class of the join table.
-     * @return The join contained in this FROM statement.
-     */
+    @Override
     public <TJoin> Join<TJoin, TModel> crossJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.CROSS);
     }
 
-    /**
-     * Adds a {@link Join.JoinType#CROSS} join on a specific table for this query.
-     *
-     * @param modelQueriable The query to join on.
-     * @param <TJoin>        The class of the join table.
-     * @return The join contained in this FROM statement.
-     */
+    @Override
     public <TJoin> Join<TJoin, TModel> crossJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.CROSS);
     }
 
-    /**
-     * Adds a {@link Join.JoinType#INNER} join on a specific table for this query.
-     *
-     * @param table   The table to join on.
-     * @param <TJoin> The class of the join table.
-     * @return The join contained in this FROM statement.
-     */
+    @Override
     public <TJoin> Join<TJoin, TModel> innerJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.INNER);
     }
 
-    /**
-     * Adds a {@link Join.JoinType#INNER} join on a specific table for this query.
-     *
-     * @param modelQueriable The query to join on.
-     * @param <TJoin>        The class of the join table.
-     * @return The join contained in this FROM statement.
-     */
+    @Override
     public <TJoin> Join<TJoin, TModel> innerJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.INNER);
     }
 
-    /**
-     * Adds a {@link Join.JoinType#LEFT_OUTER} join on a specific table for this query.
-     *
-     * @param table   The table to join on.
-     * @param <TJoin> The class of the join table.
-     * @return The join contained in this FROM statement.
-     */
+    @Override
     public <TJoin> Join<TJoin, TModel> leftOuterJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.LEFT_OUTER);
     }
 
-    /**
-     * Adds a {@link Join.JoinType#LEFT_OUTER} join on a specific table for this query.
-     *
-     * @param modelQueriable The query to join on.
-     * @param <TJoin>        The class of the join table.
-     * @return The join contained in this FROM statement.
-     */
+    @Override
     public <TJoin> Join<TJoin, TModel> leftOuterJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.LEFT_OUTER);
     }
 
-    /**
-     * @return an empty {@link Where} statement
-     */
+    @Override
     public Where<TModel> where() {
         return new Where<>(this);
     }
 
-    /**
-     * @param conditions The array of conditions that define this WHERE statement
-     * @return A {@link Where} statement with the specified array of {@link Condition}.
-     */
+    @Override
     public Where<TModel> where(SQLCondition... conditions) {
         return where().andAll(conditions);
     }
@@ -192,12 +141,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements
         return where().executeUpdateDelete(databaseWrapper);
     }
 
-    /**
-     * Begins an INDEXED BY piece of this query with the specified name.
-     *
-     * @param indexProperty The index property generated.
-     * @return An INDEXED BY piece of this statement
-     */
+    @Override
     public IndexedBy<TModel> indexedBy(IndexProperty<TModel> indexProperty) {
         return new IndexedBy<>(indexProperty, this);
     }
@@ -270,5 +214,10 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements
     @Override
     public Where<TModel> having(SQLCondition... conditions) {
         return where().having(conditions);
+    }
+
+    @Override
+    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
+        return where().orderByAll(orderBies);
     }
 }

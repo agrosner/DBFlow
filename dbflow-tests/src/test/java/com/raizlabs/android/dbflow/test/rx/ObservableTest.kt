@@ -24,7 +24,10 @@ class ObservableTest : FlowTestCase() {
         var count = 0
 
         val toObservable = RXExtension.toObservable(select from TestModel1::class)
-        toObservable.subscribe { count++ }
+        toObservable.subscribe {
+            count++
+            assert(it != null)
+        }
 
         assert(count == 10)
 

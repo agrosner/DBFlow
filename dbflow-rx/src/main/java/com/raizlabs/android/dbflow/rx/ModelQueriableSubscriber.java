@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.list.FlowCursorIterator;
-import com.raizlabs.android.dbflow.list.IFlowCursorIterator;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,14 +16,13 @@ import rx.internal.operators.BackpressureUtils;
 /**
  * Description:
  */
-
-public class FlowCursorCallable<T> implements Observable.OnSubscribe<T> {
+public class ModelQueriableSubscriber<T> implements Observable.OnSubscribe<T> {
 
     @NonNull
-    private final IFlowCursorIterator<T> cursorIterator;
+    private final ModelQueriable<T> modelQueriable;
 
-    public FlowCursorCallable(@NonNull IFlowCursorIterator<T> cursorIterator) {
-        this.cursorIterator = cursorIterator;
+    public ModelQueriableSubscriber(@NonNull ModelQueriable<T> modelQueriable) {
+        this.modelQueriable = modelQueriable;
     }
 
     @Override
@@ -48,7 +47,7 @@ public class FlowCursorCallable<T> implements Observable.OnSubscribe<T> {
             if (n == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)) {
                 // emitting all elements
                 try {
-                    try (FlowCursorIterator<T> iterator = cursorIterator.iterator()) {
+                    try (FlowCursorIterator<T> iterator = modelQueriable.cursorList().iterator()) {
                         while (!subscriber.isUnsubscribed()) {
                             if (iterator.hasNext()) {
                                 subscriber.onNext(iterator.next());
@@ -68,7 +67,7 @@ public class FlowCursorCallable<T> implements Observable.OnSubscribe<T> {
                 /*long count = n;
                 while (count > 0) {
                     try (FlowCursorIterator<T> iterator =
-                                 cursorIterator.iterator(emitted.intValue(), (int) n)) {
+                                 modelQueriable.iterator(emitted.intValue(), (int) n)) {
                         long i = 0;
                         while (!subscriber.isUnsubscribed() && iterator.hasNext()) {
                             if (i++ < count) {

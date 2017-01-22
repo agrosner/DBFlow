@@ -7,16 +7,16 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
-import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
+import java.util.List;
+
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
-public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TModel>,
-        Queriable, Transformable<TModel> {
+public class Set<TModel> extends BaseQueriable<TModel> implements ISet<TModel> {
 
     private ConditionGroup conditionGroup;
 
@@ -35,28 +35,19 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
      * @param conditions The varg of conditions
      * @return This instance.
      */
+    @Override
     public Set<TModel> conditions(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
 
-    /**
-     * Specifies a set of content values to append to this SET as Conditions
-     *
-     * @param contentValues The set of values to append.
-     * @return This instance.
-     */
+    @Override
     public Set<TModel> conditionValues(ContentValues contentValues) {
         SqlUtils.addContentValues(contentValues, conditionGroup);
         return this;
     }
 
-    /**
-     * Begins completing the rest of this SET statement.
-     *
-     * @param conditions The conditions to fill the WHERE with.
-     * @return The where piece of this query.
-     */
+    @Override
     public Where<TModel> where(SQLCondition... conditions) {
         return new Where<>(this, conditions);
     }
@@ -84,6 +75,11 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
     @Override
     public Where<TModel> orderBy(OrderBy orderBy) {
         return where().orderBy(orderBy);
+    }
+
+    @Override
+    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
+        return where().orderByAll(orderBies);
     }
 
     @Override

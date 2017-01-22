@@ -14,6 +14,6 @@ public class RXExtension {
      * events get emitted.
      */
     public static <T> Observable<T> toObservable(ModelQueriable<T> queriable) {
-        return Observable.create(new FlowCursorCallable<>(queriable.cursorList()));
+        return Observable.create(new ModelQueriableSubscriber<>(queriable));
     }
 }
