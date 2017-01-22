@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.rx.language;
 
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.IWhere;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.OrderBy;
@@ -15,12 +16,18 @@ import java.util.List;
 /**
  * Description:
  */
-public class RXWhere<T> implements IWhere<T> {
+public class RXWhere<T> extends BaseRXModelQueriable<T> implements IWhere<T> {
 
     private final Where<T> innerWhere;
 
     public RXWhere(WhereBase<T> whereBase, SQLCondition... conditions) {
+        super(whereBase.getTable());
         innerWhere = new Where<>(whereBase, conditions);
+    }
+
+    @Override
+    protected BaseModelQueriable<T> getInnerModelQueriable() {
+        return innerWhere;
     }
 
     @Override
@@ -106,4 +113,5 @@ public class RXWhere<T> implements IWhere<T> {
         innerWhere.orderByAll(orderBies);
         return this;
     }
+
 }

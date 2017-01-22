@@ -22,7 +22,7 @@ public class Set<TModel> extends BaseQueriable<TModel> implements ISet<TModel> {
 
     private Query update;
 
-    Set(Query update, Class<TModel> table) {
+    public Set(Query update, Class<TModel> table) {
         super(table);
         this.update = update;
         conditionGroup = new ConditionGroup();

@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.rx.language;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.IFrom;
 import com.raizlabs.android.dbflow.sql.language.IWhere;
@@ -21,12 +22,18 @@ import java.util.List;
  * Description:
  */
 
-public class RXFrom<T> implements IFrom<T> {
+public class RXFrom<T> extends BaseRXModelQueriable<T> implements IFrom<T> {
 
     private final From<T> innerFrom;
 
     public RXFrom(Query q, Class<T> table) {
+        super(table);
         innerFrom = new From<>(q, table);
+    }
+
+    @Override
+    protected BaseModelQueriable<T> getInnerModelQueriable() {
+        return innerFrom;
     }
 
     @Override
