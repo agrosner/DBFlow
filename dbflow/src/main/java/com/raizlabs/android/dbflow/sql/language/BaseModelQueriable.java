@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -45,11 +46,13 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
         return retrievalAdapter;
     }
 
+    @NonNull
     @Override
     public CursorResult<TModel> queryResults() {
         return new CursorResult<>(getRetrievalAdapter().getModelClass(), query());
     }
 
+    @NonNull
     @Override
     public List<TModel> queryList() {
         String query = getQuery();
@@ -58,6 +61,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
         return list == null ? new ArrayList<TModel>() : list;
     }
 
+    @Nullable
     @Override
     public TModel querySingle() {
         String query = getQuery();
