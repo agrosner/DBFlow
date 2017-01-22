@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.rx.language;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.From;
-import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
@@ -47,8 +46,8 @@ public class RXSQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A new INSERT statement.
      */
-    public static <TModel> Insert<TModel> insert(Class<TModel> table) {
-        return new Insert<>(table);
+    public static <TModel> RXInsert<TModel> insert(Class<TModel> table) {
+        return new RXInsert<>(table);
     }
 
     /**

@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Description: The SQLite INSERT command
  */
-public class Insert<TModel> extends BaseQueriable<TModel> {
+public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TModel> {
 
 
     /**
@@ -36,7 +36,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      */
     private ConflictAction conflictAction = ConflictAction.NONE;
 
-    private From<?> selectFrom;
+    private IFrom<?> selectFrom;
 
     /**
      * Constructs a new INSERT command
@@ -53,6 +53,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param columns The columns to use
      */
+    @Override
     public Insert<TModel> columns(String... columns) {
         this.columns = new IProperty[columns.length];
         ModelAdapter<TModel> modelClassModelAdapter = FlowManager.getModelAdapter(getTable());
@@ -63,6 +64,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         return this;
     }
 
+    @Override
     public Insert<TModel> columns(IProperty... properties) {
         this.columns = new IProperty[properties.length];
         for (int i = 0; i < properties.length; i++) {
@@ -71,6 +73,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         return this;
     }
 
+    @Override
     public Insert<TModel> columns(List<IProperty> properties) {
         if (properties != null) {
             this.columns = new IProperty[properties.size()];
@@ -84,6 +87,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
     /**
      * @return Appends a list of columns to this INSERT statement from the associated {@link TModel}.
      */
+    @Override
     public Insert<TModel> asColumns() {
         columns(FlowManager.getModelAdapter(getTable()).getAllColumnProperties());
         return this;
@@ -95,6 +99,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param values The non type-converted values
      */
+    @Override
     public Insert<TModel> values(Object... values) {
         if (this.valuesList == null) {
             this.valuesList = new ArrayList<>();
@@ -108,6 +113,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
+    @Override
     public Insert<TModel> columnValues(SQLCondition... conditions) {
 
         String[] columns = new String[conditions.length];
@@ -127,6 +133,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param conditionGroup The ConditionGroup to use
      */
+    @Override
     public Insert<TModel> columnValues(ConditionGroup conditionGroup) {
 
         int size = conditionGroup.size();
@@ -142,6 +149,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         return columns(columns).values(values);
     }
 
+    @Override
     public Insert<TModel> columnValues(ContentValues contentValues) {
         java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
         int count = 0;
@@ -162,7 +170,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param selectFrom The from that is continuation of {@link Select}.
      */
-    public Insert<TModel> select(From<?> selectFrom) {
+    @Override
+    public Insert<TModel> select(IFrom<?> selectFrom) {
         this.selectFrom = selectFrom;
         return this;
     }
@@ -174,6 +183,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      * @param action The conflict action to use
      * @return
      */
+    @Override
     public Insert<TModel> or(ConflictAction action) {
         conflictAction = action;
         return this;
@@ -184,6 +194,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @Override
     public Insert<TModel> orReplace() {
         return or(ConflictAction.REPLACE);
     }
@@ -193,6 +204,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @Override
     public Insert<TModel> orRollback() {
         return or(ConflictAction.ROLLBACK);
     }
@@ -203,6 +215,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @Override
     public Insert<TModel> orAbort() {
         return or(ConflictAction.ABORT);
     }
@@ -213,6 +226,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @Override
     public Insert<TModel> orFail() {
         return or(ConflictAction.FAIL);
     }
@@ -222,6 +236,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @Override
     public Insert<TModel> orIgnore() {
         return or(ConflictAction.IGNORE);
     }
