@@ -9,9 +9,9 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.concurrent.Callable;
 
-import rx.Observable;
+import rx.Single;
 
-import static rx.Observable.fromCallable;
+import static rx.Single.fromCallable;
 
 /**
  * Description:
@@ -28,7 +28,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
 
     @Nullable
     @Override
-    public Observable<Cursor> query() {
+    public Single<Cursor> query() {
         return fromCallable(new Callable<Cursor>() {
             @Override
             public Cursor call() throws Exception {
@@ -39,7 +39,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
 
     @Nullable
     @Override
-    public Observable<Cursor> query(final DatabaseWrapper databaseWrapper) {
+    public Single<Cursor> query(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Cursor>() {
             @Override
             public Cursor call() throws Exception {
@@ -49,7 +49,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<DatabaseStatement> compileStatement() {
+    public Single<DatabaseStatement> compileStatement() {
         return fromCallable(new Callable<DatabaseStatement>() {
             @Override
             public DatabaseStatement call() throws Exception {
@@ -59,7 +59,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<DatabaseStatement> compileStatement(final DatabaseWrapper databaseWrapper) {
+    public Single<DatabaseStatement> compileStatement(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<DatabaseStatement>() {
             @Override
             public DatabaseStatement call() throws Exception {
@@ -69,7 +69,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<Long> count() {
+    public Single<Long> count() {
         return fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
@@ -79,7 +79,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<Long> count(final DatabaseWrapper databaseWrapper) {
+    public Single<Long> count(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
@@ -89,7 +89,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<Long> executeUpdateDelete(final DatabaseWrapper databaseWrapper) {
+    public Single<Long> executeUpdateDelete(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
@@ -99,7 +99,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<Long> executeUpdateDelete() {
+    public Single<Long> executeUpdateDelete() {
         return fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
@@ -109,7 +109,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<Boolean> hasData() {
+    public Single<Boolean> hasData() {
         return fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
@@ -119,7 +119,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<Boolean> hasData(final DatabaseWrapper databaseWrapper) {
+    public Single<Boolean> hasData(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
@@ -129,7 +129,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<Void> execute() {
+    public Single<Void> execute() {
         return fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -140,7 +140,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
     }
 
     @Override
-    public Observable<Void> execute(final DatabaseWrapper databaseWrapper) {
+    public Single<Void> execute(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

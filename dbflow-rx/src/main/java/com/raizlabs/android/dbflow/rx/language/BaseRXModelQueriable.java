@@ -10,9 +10,9 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import rx.Observable;
+import rx.Single;
 
-import static rx.Observable.fromCallable;
+import static rx.Single.fromCallable;
 
 /**
  * Description:
@@ -32,7 +32,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public Observable<CursorResult<T>> queryResults() {
+    public Single<CursorResult<T>> queryResults() {
         return fromCallable(new Callable<CursorResult<T>>() {
             @Override
             public CursorResult<T> call() throws Exception {
@@ -42,7 +42,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public Observable<List<T>> queryList() {
+    public Single<List<T>> queryList() {
         return fromCallable(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
@@ -52,7 +52,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public Observable<List<T>> queryList(final DatabaseWrapper wrapper) {
+    public Single<List<T>> queryList(final DatabaseWrapper wrapper) {
         return fromCallable(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
@@ -62,7 +62,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public Observable<T> querySingle() {
+    public Single<T> querySingle() {
         return fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
@@ -72,7 +72,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public Observable<T> querySingle(final DatabaseWrapper wrapper) {
+    public Single<T> querySingle(final DatabaseWrapper wrapper) {
         return fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
@@ -87,7 +87,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public Observable<FlowCursorList<T>> cursorList() {
+    public Single<FlowCursorList<T>> cursorList() {
         return fromCallable(new Callable<FlowCursorList<T>>() {
             @Override
             public FlowCursorList<T> call() throws Exception {
@@ -97,7 +97,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public Observable<FlowQueryList<T>> flowQueryList() {
+    public Single<FlowQueryList<T>> flowQueryList() {
         return fromCallable(new Callable<FlowQueryList<T>>() {
             @Override
             public FlowQueryList<T> call() throws Exception {
@@ -107,7 +107,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public <TQueryModel> Observable<List<TQueryModel>> queryCustomList(
+    public <TQueryModel> Single<List<TQueryModel>> queryCustomList(
             final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<List<TQueryModel>>() {
             @Override
@@ -118,7 +118,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     }
 
     @Override
-    public <TQueryModel> Observable<TQueryModel> queryCustomSingle(
+    public <TQueryModel> Single<TQueryModel> queryCustomSingle(
             final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<TQueryModel>() {
             @Override
