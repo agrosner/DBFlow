@@ -8,7 +8,7 @@ import java.util.ListIterator;
 /**
  * Description: Provides iteration capabilities to a {@link FlowCursorList}.
  */
-public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
+public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoCloseable {
 
     private final IFlowCursorIterator<TModel> cursorList;
     private int reverseIndex;
@@ -30,6 +30,11 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
                 reverseIndex = 0;
             }
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        cursorList.close();
     }
 
     @Override
