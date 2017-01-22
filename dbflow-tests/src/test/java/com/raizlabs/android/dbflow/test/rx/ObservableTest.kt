@@ -30,6 +30,5 @@ class ObservableTest : FlowTestCase() {
         }
 
         assert(count == 10)
-
     }
 }

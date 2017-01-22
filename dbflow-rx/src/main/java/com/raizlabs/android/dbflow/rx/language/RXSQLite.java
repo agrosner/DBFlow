@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.rx.language;
 
-import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -53,8 +52,8 @@ public class RXSQLite {
     /**
      * @return Begins a DELETE statement.
      */
-    public static Delete delete() {
-        return new Delete();
+    public static RXDelete delete() {
+        return new RXDelete();
     }
 
     /**
@@ -64,7 +63,7 @@ public class RXSQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A {@link From} with specified DELETE on table.
      */
-    public static <TModel> From<TModel> delete(Class<TModel> table) {
+    public static <TModel> RXFrom<TModel> delete(Class<TModel> table) {
         return delete().from(table);
     }
 
