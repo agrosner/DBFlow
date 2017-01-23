@@ -63,7 +63,7 @@ public class Select implements ISelect {
      * @return
      */
     @Override
-    public ISelect distinct() {
+    public Select distinct() {
         return selectQualifier(DISTINCT);
     }
 

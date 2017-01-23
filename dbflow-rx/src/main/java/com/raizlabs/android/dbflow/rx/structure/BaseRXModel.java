@@ -54,7 +54,6 @@ public class BaseRXModel {
         return getRXModelAdapter().insert(this);
     }
 
-
     public Single<Void> insert(DatabaseWrapper databaseWrapper) {
         return getRXModelAdapter().insert(this, databaseWrapper);
     }

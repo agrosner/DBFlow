@@ -114,4 +114,8 @@ public class RXWhere<T> extends BaseRXModelQueriable<T> implements IWhere<T> {
         return this;
     }
 
+    @Override
+    public String getQuery() {
+        return innerWhere.getQuery();
+    }
 }

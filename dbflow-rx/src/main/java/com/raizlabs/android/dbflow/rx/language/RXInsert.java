@@ -14,7 +14,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
 
-import rx.Observable;
+import rx.Single;
 
 /**
  * Description:
@@ -125,12 +125,12 @@ public class RXInsert<T> extends BaseRXQueriable<T> implements IInsert<T> {
     }
 
     @Override
-    public Observable<Long> executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+    public Single<Long> executeUpdateDelete(DatabaseWrapper databaseWrapper) {
         throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
     }
 
     @Override
-    public Observable<Long> executeUpdateDelete() {
+    public Single<Long> executeUpdateDelete() {
         throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
     }
 }

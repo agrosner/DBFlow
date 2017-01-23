@@ -28,8 +28,8 @@ class ListTest : FlowTestCase() {
     fun setupTest() {
         Delete.table(ListModel::class.java)
         modelList = FlowQueryList.Builder(ListModel::class.java)
-            .modelQueriable(SQLite.select().from(ListModel::class.java))
-            .build()
+                .modelQueriable(SQLite.select().from(ListModel::class.java))
+                .build()
     }
 
     @After
@@ -43,13 +43,13 @@ class ListTest : FlowTestCase() {
         val testModel1s = GenerationUtils.generateRandomModels(ListModel::class.java, 100)
 
         FlowManager.getDatabaseForTable(ListModel::class.java)
-            .executeTransaction(FastStoreModelTransaction
-                .saveBuilder(FlowManager.getModelAdapter(ListModel::class.java))
-                .addAll(testModel1s)
-                .build())
+                .executeTransaction(FastStoreModelTransaction
+                        .saveBuilder(FlowManager.getModelAdapter(ListModel::class.java))
+                        .addAll(testModel1s)
+                        .build())
 
         modelList = FlowQueryList.Builder(SQLite.select().from(ListModel::class.java))
-            .build()
+                .build()
 
         assertTrue(modelList.size == 100)
 
@@ -82,7 +82,7 @@ class ListTest : FlowTestCase() {
     private inner class TestModelAdapter(private val mFlowCursorList: FlowCursorList<ListModel>) : BaseAdapter() {
 
         override fun getCount(): Int {
-            return mFlowCursorList.count
+            return mFlowCursorList.count.toInt()
         }
 
         override fun getItem(position: Int): ListModel {
@@ -103,16 +103,16 @@ class ListTest : FlowTestCase() {
 
         val testModel1s = GenerationUtils.generateRandomModels(ListModel::class.java, 50)
         FlowManager.getDatabase(ListDatabase::class.java)
-            .executeTransaction(FastStoreModelTransaction
-                .insertBuilder(FlowManager.getModelAdapter(ListModel::class.java))
-                .addAll(testModel1s)
-                .build())
+                .executeTransaction(FastStoreModelTransaction
+                        .insertBuilder(FlowManager.getModelAdapter(ListModel::class.java))
+                        .addAll(testModel1s)
+                        .build())
 
         val flowCursorList = FlowCursorList.Builder(ListModel::class.java)
-            .cacheModels(true)
-            .modelQueriable(SQLite.select()
-                .from(ListModel::class.java))
-            .build()
+                .cacheModels(true)
+                .modelQueriable(SQLite.select()
+                        .from(ListModel::class.java))
+                .build()
 
         val modelAdapter = TestModelAdapter(flowCursorList)
 

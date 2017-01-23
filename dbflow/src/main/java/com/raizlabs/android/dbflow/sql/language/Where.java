@@ -171,6 +171,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      * @param where The query to use in the EXISTS clause. Such as SELECT * FROM `MyTable` WHERE ... etc.
      * @return This where with an EXISTS clause.
      */
+    @Override
     public Where<TModel> exists(@NonNull IWhere where) {
         conditionGroup.and(new ExistenceCondition()
                 .where(where));
