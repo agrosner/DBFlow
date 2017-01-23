@@ -15,7 +15,8 @@ import rx.functions.Action1;
 import rx.internal.operators.BackpressureUtils;
 
 /**
- * Description:
+ * Description: Wraps a {@link RXModelQueriable} into a {@link Observable.OnSubscribe}
+ * for each element represented by the query.
  */
 public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
 
@@ -44,7 +45,7 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
         }
 
         @Override
-        public void request(long n) {
+        public void request(final long n) {
             if (n == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)) {
                 // emitting all elements
                 modelQueriable.queryResults().subscribe(new Action1<CursorResult<T>>() {
@@ -69,28 +70,35 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
 
             } else if (n > 0 && BackpressureUtils.getAndAddRequest(requested, n) == 0) {
                 // emitting with limit/offset
-                // TODO: activate
-                /*long count = n;
-                while (count > 0) {
-                    try (FlowCursorIterator<T> iterator =
-                                 modelQueriable.iterator(emitted.intValue(), (int) n)) {
-                        long i = 0;
-                        while (!subscriber.isUnsubscribed() && iterator.hasNext()) {
-                            if (i++ < count) {
-                                subscriber.onNext(iterator.next());
-                            } else {
-                                break;
+
+                modelQueriable.queryResults().subscribe(new Action1<CursorResult<T>>() {
+                    @Override
+                    public void call(CursorResult<T> tCursorResult) {
+                        long count = n;
+                        while (count > 0) {
+                            try (FlowCursorIterator<T> iterator =
+                                         tCursorResult.iterator(emitted.intValue(), (int) n)) {
+                                long i = 0;
+                                while (!subscriber.isUnsubscribed() && iterator.hasNext()) {
+                                    if (i++ < count) {
+                                        subscriber.onNext(iterator.next());
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                emitted.addAndGet(i);
+                                // no more items
+                                if (!subscriber.isUnsubscribed() && i < count) {
+                                    subscriber.onCompleted();
+                                    break;
+                                }
+                                count = requested.addAndGet(-count);
+                            } catch (Exception e) {
+                                FlowLog.logError(e);
                             }
                         }
-                        emitted.addAndGet(i);
-                        // no more items
-                        if (!subscriber.isUnsubscribed() && i < count) {
-                            subscriber.onCompleted();
-                            break;
-                        }
-                        count = requested.addAndGet(-count);
                     }
-                }*/
+                });
             }
         }
     }

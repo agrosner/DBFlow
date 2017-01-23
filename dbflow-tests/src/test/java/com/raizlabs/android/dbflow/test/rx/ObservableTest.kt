@@ -1,8 +1,6 @@
 package com.raizlabs.android.dbflow.test.rx
 
-import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.select
-import com.raizlabs.android.dbflow.rx.RXExtension
+import com.raizlabs.android.dbflow.rx.language.RXSQLite
 import com.raizlabs.android.dbflow.test.FlowTestCase
 import com.raizlabs.android.dbflow.test.structure.TestModel1
 import org.junit.Test
@@ -23,7 +21,9 @@ class ObservableTest : FlowTestCase() {
 
         var count = 0
 
-        val toObservable = RXExtension.toObservable(select from TestModel1::class)
+        val toObservable = RXSQLite.select()
+                .from(TestModel1::class.java)
+                .queryStreamResults()
         toObservable.subscribe {
             count++
             assert(it != null)

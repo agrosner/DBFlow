@@ -103,6 +103,11 @@ public class FlowCursorList<TModel> implements
         return new FlowCursorIterator<>(this);
     }
 
+    @Override
+    public FlowCursorIterator<TModel> iterator(int startingLocation, int limit) {
+        return new FlowCursorIterator<>(this, startingLocation, limit);
+    }
+
     /**
      * Register listener for when cursor refreshes.
      */

@@ -373,6 +373,11 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     }
 
     @Override
+    public FlowCursorIterator<TModel> iterator(int startingLocation, int limit) {
+        return new FlowCursorIterator<>(this, startingLocation, limit);
+    }
+
+    @Override
     public int lastIndexOf(Object object) {
         throw new UnsupportedOperationException(
                 "We cannot determine which index in the table this item exists at efficiently");
@@ -547,7 +552,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
 
     @Override
     public int size() {
-        return internalCursorList.getCount();
+        return (int) internalCursorList.getCount();
     }
 
     @NonNull

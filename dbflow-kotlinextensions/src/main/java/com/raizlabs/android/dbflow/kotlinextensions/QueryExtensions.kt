@@ -1,22 +1,8 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
 import android.database.Cursor
-import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable
-import com.raizlabs.android.dbflow.sql.language.Case
-import com.raizlabs.android.dbflow.sql.language.CaseCondition
-import com.raizlabs.android.dbflow.sql.language.CursorResult
-import com.raizlabs.android.dbflow.sql.language.From
-import com.raizlabs.android.dbflow.sql.language.Insert
-import com.raizlabs.android.dbflow.sql.language.Join
-import com.raizlabs.android.dbflow.sql.language.NameAlias
-import com.raizlabs.android.dbflow.sql.language.OrderBy
-import com.raizlabs.android.dbflow.sql.language.SQLCondition
-import com.raizlabs.android.dbflow.sql.language.SQLite
-import com.raizlabs.android.dbflow.sql.language.Select
+import com.raizlabs.android.dbflow.sql.language.*
 import com.raizlabs.android.dbflow.sql.language.Set
-import com.raizlabs.android.dbflow.sql.language.Transformable
-import com.raizlabs.android.dbflow.sql.language.Update
-import com.raizlabs.android.dbflow.sql.language.Where
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
@@ -118,17 +104,17 @@ infix fun <T : Any> AsyncModel<T>.save(listener: (T) -> Unit) = withListener { l
 
 // Transformable methods
 
-infix fun <T : Any> Transformable<T>.groupBy(nameAlias: NameAlias): Where<T> = groupBy(nameAlias)
+infix fun <T : Any> Transformable<T>.groupBy(nameAlias: NameAlias): IWhere<T> = groupBy(nameAlias)
 
-infix fun <T : Any> Transformable<T>.groupBy(property: IProperty<*>): Where<T> = groupBy(property)
+infix fun <T : Any> Transformable<T>.groupBy(property: IProperty<*>): IWhere<T> = groupBy(property)
 
-infix fun <T : Any> Transformable<T>.orderBy(orderBy: OrderBy): Where<T> = orderBy(orderBy)
+infix fun <T : Any> Transformable<T>.orderBy(orderBy: OrderBy): IWhere<T> = orderBy(orderBy)
 
-infix fun <T : Any> Transformable<T>.limit(limit: Int): Where<T> = limit(limit)
+infix fun <T : Any> Transformable<T>.limit(limit: Int): IWhere<T> = limit(limit)
 
-infix fun <T : Any> Transformable<T>.offset(offset: Int): Where<T> = offset(offset)
+infix fun <T : Any> Transformable<T>.offset(offset: Int): IWhere<T> = offset(offset)
 
-infix fun <T : Any> Transformable<T>.having(sqlCondition: SQLCondition): Where<T> = having(sqlCondition)
+infix fun <T : Any> Transformable<T>.having(sqlCondition: SQLCondition): IWhere<T> = having(sqlCondition)
 
 // join
 

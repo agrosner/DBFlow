@@ -136,6 +136,11 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
     }
 
     @Override
+    public FlowCursorIterator<TModel> iterator(int startingLocation, int limit) {
+        return new FlowCursorIterator<>(this, startingLocation, limit);
+    }
+
+    @Override
     public long getCount() {
         return cursor == null ? 0 : cursor.getCount();
     }
