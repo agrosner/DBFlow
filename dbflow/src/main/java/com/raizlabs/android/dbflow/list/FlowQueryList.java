@@ -324,7 +324,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     }
 
     @Override
-    public int getCount() {
+    public long getCount() {
         return internalCursorList.getCount();
     }
 

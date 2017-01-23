@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
 
-import rx.Single;
+import rx.Observable;
 import rx.Single;
 
 /**
@@ -34,6 +34,11 @@ public interface RXModelQueriable<TModel> extends RXQueriable {
      * @return Single model, the first of potentially many results
      */
     Single<TModel> querySingle(DatabaseWrapper wrapper);
+
+    /**
+     * @return Queries for {@link #queryResults()}, and returns one at a time from this {@link Observable}
+     */
+    Observable<TModel> queryStreamResults();
 
     /**
      * @return the table that this query comes from.

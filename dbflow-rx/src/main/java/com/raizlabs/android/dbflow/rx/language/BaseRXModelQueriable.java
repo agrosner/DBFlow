@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import rx.Observable;
 import rx.Single;
 
 import static rx.Single.fromCallable;
@@ -29,6 +30,11 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
     @Override
     protected Queriable getInnerQueriable() {
         return getInnerModelQueriable();
+    }
+
+    @Override
+    public Observable<T> queryStreamResults() {
+        return Observable.create(new CursorResultSubscriber<>(this));
     }
 
     @Override

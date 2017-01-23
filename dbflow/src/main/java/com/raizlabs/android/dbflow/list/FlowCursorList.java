@@ -247,7 +247,7 @@ public class FlowCursorList<TModel> implements
      * @return the count of the rows in the {@link android.database.Cursor} backed by this list.
      */
     @Override
-    public int getCount() {
+    public long getCount() {
         throwIfCursorClosed();
         warnEmptyCursor();
         return cursor != null ? cursor.getCount() : 0;

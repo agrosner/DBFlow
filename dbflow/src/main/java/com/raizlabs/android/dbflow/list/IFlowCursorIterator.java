@@ -13,7 +13,7 @@ public interface IFlowCursorIterator<TModel> extends Closeable {
     /**
      * @return Count of the {@link Cursor}.
      */
-    int getCount();
+    long getCount();
 
     /**
      * @param position The position within the {@link Cursor} to retrieve and convert into a {@link TModel}
