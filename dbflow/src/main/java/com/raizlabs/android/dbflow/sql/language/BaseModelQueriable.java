@@ -41,7 +41,6 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
     private InstanceAdapter<TModel> getRetrievalAdapter() {
         if (retrievalAdapter == null) {
-            //noinspection unchecked
             retrievalAdapter = FlowManager.getInstanceAdapter(getTable());
         }
         return retrievalAdapter;

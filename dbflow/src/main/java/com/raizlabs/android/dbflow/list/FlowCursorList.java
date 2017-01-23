@@ -84,7 +84,6 @@ public class FlowCursorList<TModel> implements
                 modelCache = ModelLruCache.newInstance(0);
             }
         }
-        //noinspection unchecked
         instanceAdapter = FlowManager.getInstanceAdapter(builder.modelClass);
 
         setCacheModels(cacheModels);

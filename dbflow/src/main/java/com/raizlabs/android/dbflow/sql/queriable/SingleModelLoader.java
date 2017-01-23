@@ -18,7 +18,7 @@ public class SingleModelLoader<TModel> extends ModelLoader<TModel, TModel> {
     public TModel convertToData(@NonNull final Cursor cursor, @Nullable TModel data, boolean moveToFirst) {
         if (!moveToFirst || cursor.moveToFirst()) {
             if (data == null) {
-                data = (TModel) getInstanceAdapter().newInstance();
+                data = getInstanceAdapter().newInstance();
             }
             getInstanceAdapter().loadFromCursor(cursor, data);
         }

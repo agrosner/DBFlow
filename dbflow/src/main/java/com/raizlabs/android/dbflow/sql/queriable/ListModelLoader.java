@@ -27,7 +27,7 @@ public class ListModelLoader<TModel> extends ModelLoader<TModel, List<TModel>> {
 
         if (cursor.moveToFirst()) {
             do {
-                TModel model = (TModel) getInstanceAdapter().newInstance();
+                TModel model = getInstanceAdapter().newInstance();
                 getInstanceAdapter().loadFromCursor(cursor, model);
                 data.add(model);
             } while (cursor.moveToNext());
