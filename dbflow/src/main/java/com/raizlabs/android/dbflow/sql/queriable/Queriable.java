@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Set;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -69,6 +70,18 @@ public interface Queriable extends Query {
     long executeUpdateDelete();
 
     /**
+     * @return This may return the number of rows affected from a {@link Insert}  statement.
+     * If not, returns {@link Model#INVALID_ROW_ID}
+     */
+    long executeInsert();
+
+    /**
+     * @return This may return the number of rows affected from a {@link Insert}  statement.
+     * If not, returns {@link Model#INVALID_ROW_ID}
+     */
+    long executeInsert(DatabaseWrapper databaseWrapper);
+
+    /**
      * @return True if this query has data. It will run a {@link #count()} greater than 0.
      */
     boolean hasData();
@@ -92,4 +105,5 @@ public interface Queriable extends Query {
      */
     void execute(DatabaseWrapper databaseWrapper);
 
+    BaseModel.Action getPrimaryAction();
 }

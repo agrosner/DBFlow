@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.Set;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
 
@@ -107,4 +108,9 @@ public class RXSet<T> extends BaseRXQueriable<T> implements ISet<T> {
         return new RXWhere<>(this, conditions);
     }
 
+
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return innerSet.getPrimaryAction();
+    }
 }

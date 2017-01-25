@@ -27,7 +27,7 @@ import java.util.Collection;
  * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
  */
 public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
-        implements InternalAdapter<TModel> {
+    implements InternalAdapter<TModel> {
 
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
@@ -50,7 +50,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
             insertStatement = getInsertStatement(
-                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return insertStatement;
@@ -79,7 +79,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     public DatabaseStatement getCompiledStatement() {
         if (compiledStatement == null) {
             compiledStatement = getCompiledStatement(
-                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return compiledStatement;
@@ -229,9 +229,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @Override
     public Number getAutoIncrementingId(TModel model) {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "a single primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "a single primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     /**
@@ -240,9 +240,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain " +
-                                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain " +
+                    "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     /**
@@ -373,6 +373,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public void setModelSaver(ModelSaver<TModel> modelSaver) {
         this.modelSaver = modelSaver;
+        this.modelSaver.setModelAdapter(this);
     }
 
     /**
@@ -396,8 +397,8 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     public IMultiKeyCacheConverter<?> getCacheConverter() {
         throw new InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
-                "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
-                "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
+            "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
+            "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
     }
 
     public ModelCache<TModel, ?> createModelCache() {
@@ -450,16 +451,16 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     private void throwCachingError() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "an auto-incrementing or at least one primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "an auto-incrementing or at least one primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     private void throwSingleCachingError() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "an auto-incrementing or one primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "an auto-incrementing or one primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
 }

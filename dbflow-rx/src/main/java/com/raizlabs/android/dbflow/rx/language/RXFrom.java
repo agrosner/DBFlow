@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
 
@@ -156,6 +157,11 @@ public class RXFrom<T> extends BaseRXModelQueriable<T> implements IFrom<T> {
     public IndexedBy<T> indexedBy(IndexProperty<T> indexProperty) {
         // TODO: RX
         return new IndexedBy<>(indexProperty, this);
+    }
+
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return innerFrom.getPrimaryAction();
     }
 
     From<T> getInnerFrom() {

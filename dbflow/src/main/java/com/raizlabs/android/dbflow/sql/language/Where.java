@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.List;
  * Description: Defines the SQL WHERE statement of the query.
  */
 public class Where<TModel> extends BaseModelQueriable<TModel>
-        implements IWhere<TModel>, ModelQueriable<TModel> {
+    implements IWhere<TModel>, ModelQueriable<TModel> {
 
     private static final int VALUE_UNSET = -1;
 
@@ -174,18 +175,23 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     @Override
     public Where<TModel> exists(@NonNull IWhere where) {
         conditionGroup.and(new ExistenceCondition()
-                .where(where));
+            .where(where));
         return this;
+    }
+
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return whereBase.getPrimaryAction();
     }
 
     @Override
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-                .appendQualifier("WHERE", conditionGroup.getQuery())
-                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-                .appendQualifier("HAVING", havingGroup.getQuery())
-                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
+            .appendQualifier("WHERE", conditionGroup.getQuery())
+            .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+            .appendQualifier("HAVING", havingGroup.getQuery())
+            .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
@@ -203,12 +209,11 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     @Override
     public Cursor query(DatabaseWrapper wrapper) {
         // Query the sql here
-        Cursor cursor = null;
-        String query = getQuery();
+        Cursor cursor;
         if (whereBase.getQueryBuilderBase() instanceof Select) {
-            cursor = wrapper.rawQuery(query, null);
+            cursor = wrapper.rawQuery(getQuery(), null);
         } else {
-            wrapper.execSQL(query);
+            cursor = super.query(wrapper);
         }
 
         return cursor;

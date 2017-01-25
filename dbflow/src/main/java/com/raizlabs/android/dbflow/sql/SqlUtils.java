@@ -63,12 +63,11 @@ public class SqlUtils {
     /**
      * Notifies listeners of table-level changes from the SQLite-wrapper language.
      *
-     * @param model
      * @param table
      * @param action
      * @param <TModel>
      */
-    public static <TModel> void notifyTableChanged(TModel model, Class<TModel> table,
+    public static <TModel> void notifyTableChanged(Class<TModel> table,
                                                    Action action) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.getContext().getContentResolver()
