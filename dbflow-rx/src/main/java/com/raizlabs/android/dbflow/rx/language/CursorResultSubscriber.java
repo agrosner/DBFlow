@@ -51,8 +51,8 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
                 modelQueriable.queryResults().subscribe(new Action1<CursorResult<T>>() {
                     @Override
                     public void call(CursorResult<T> ts) {
-                        try (FlowCursorIterator<T> iterator = ts.iterator()) {
-
+                        FlowCursorIterator<T> iterator = ts.iterator();
+                        try {
                             while (!subscriber.isUnsubscribed()) {
                                 if (iterator.hasNext()) {
                                     subscriber.onNext(iterator.next());
@@ -64,6 +64,14 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
                             }
                         } catch (Exception e) {
                             FlowLog.logError(e);
+                            subscriber.onError(e);
+                        } finally {
+                            try {
+                                iterator.close();
+                            } catch (Exception e) {
+                                FlowLog.logError(e);
+                                subscriber.onError(e);
+                            }
                         }
                     }
                 });
@@ -76,8 +84,9 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
                     public void call(CursorResult<T> tCursorResult) {
                         long count = n;
                         while (count > 0) {
-                            try (FlowCursorIterator<T> iterator =
-                                         tCursorResult.iterator(emitted.intValue(), (int) n)) {
+                            FlowCursorIterator<T> iterator =
+                                tCursorResult.iterator(emitted.intValue(), (int) n);
+                            try {
                                 long i = 0;
                                 while (!subscriber.isUnsubscribed() && iterator.hasNext()) {
                                     if (i++ < count) {
@@ -95,6 +104,14 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
                                 count = requested.addAndGet(-count);
                             } catch (Exception e) {
                                 FlowLog.logError(e);
+                                subscriber.onError(e);
+                            } finally {
+                                try {
+                                    iterator.close();
+                                } catch (Exception e) {
+                                    FlowLog.logError(e);
+                                    subscriber.onError(e);
+                                }
                             }
                         }
                     }
