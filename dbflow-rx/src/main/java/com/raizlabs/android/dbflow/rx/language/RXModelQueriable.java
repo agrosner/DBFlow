@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.rx.language;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
+import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -84,6 +85,7 @@ public interface RXModelQueriable<TModel> extends RXQueriable {
 
     /**
      * @return A new {@link Observable} that observes when the {@link TModel} table changes.
+     * This can also be multiple tables, given if it results from a {@link Join} (one for each join table).
      */
     Observable<ModelQueriable<TModel>> observeOnTableChanges();
 }
