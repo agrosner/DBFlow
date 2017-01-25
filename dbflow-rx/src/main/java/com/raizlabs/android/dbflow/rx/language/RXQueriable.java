@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Set;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -55,6 +56,18 @@ public interface RXQueriable {
      * @return the count of the results of the query.
      */
     Single<Long> count(DatabaseWrapper databaseWrapper);
+
+    /**
+     * @return This may return the number of rows affected from a {@link Insert}  statement.
+     * If not, returns {@link Model#INVALID_ROW_ID}
+     */
+    Single<Long> executeInsert();
+
+    /**
+     * @return This may return the number of rows affected from a {@link Insert}  statement.
+     * If not, returns {@link Model#INVALID_ROW_ID}
+     */
+    Single<Long> executeInsert(DatabaseWrapper databaseWrapper);
 
     /**
      * @return This may return the number of rows affected from a {@link Set} or {@link Delete} statement.
