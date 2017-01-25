@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -109,7 +110,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
         // only notify for affected.
         if (affected > 0) {
-            SqlUtils.notifyModelChanged();
+            SqlUtils.notifyTableChanged(getTable(), getPrimaryAction());
         }
         return affected;
     }
@@ -156,5 +157,6 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
             ? getRetrievalAdapter().getSingleModelLoader()
             : getRetrievalAdapter().getNonCacheableSingleModelLoader();
     }
+
 
 }

@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
@@ -211,6 +212,11 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements
     }
 
     @Override
+    public BaseModel.Action getPrimaryAction() {
+        return (queryBase instanceof Delete) ? BaseModel.Action.DELETE : BaseModel.Action.CHANGE;
+    }
+
+    @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
             .append(queryBase.getQuery());
@@ -279,4 +285,5 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements
     public Where<TModel> having(SQLCondition... conditions) {
         return where().having(conditions);
     }
+
 }

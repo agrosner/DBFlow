@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
  * Description: Defines the SQL WHERE statement of the query.
  */
 public class Where<TModel> extends BaseModelQueriable<TModel>
-        implements Query, ModelQueriable<TModel>, Transformable<TModel> {
+    implements Query, ModelQueriable<TModel>, Transformable<TModel> {
 
     private static final int VALUE_UNSET = -1;
 
@@ -181,18 +182,23 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      */
     public Where<TModel> exists(@NonNull Where where) {
         conditionGroup.and(new ExistenceCondition()
-                .where(where));
+            .where(where));
         return this;
+    }
+
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return whereBase.getPrimaryAction();
     }
 
     @Override
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-                .appendQualifier("WHERE", conditionGroup.getQuery())
-                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-                .appendQualifier("HAVING", havingGroup.getQuery())
-                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
+            .appendQualifier("WHERE", conditionGroup.getQuery())
+            .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+            .appendQualifier("HAVING", havingGroup.getQuery())
+            .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
@@ -235,6 +241,10 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     public List<TModel> queryList() {
         checkSelect("query");
         return super.queryList();
+    }
+
+    public WhereBase<TModel> getWhereBase() {
+        return whereBase;
     }
 
     protected void checkSelect(String methodName) {
