@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -22,7 +23,8 @@ import java.util.List;
  * Description: Provides a base implementation of {@link ModelQueriable} to simplify a lot of code. It provides the
  * default implementation for convenience.
  */
-public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> implements ModelQueriable<TModel>, Query {
+public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
+    implements ModelQueriable<TModel>, Query {
 
     private InstanceAdapter<TModel> retrievalAdapter;
 
@@ -84,16 +86,16 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
     @Override
     public FlowCursorList<TModel> cursorList() {
         return new FlowCursorList.Builder<>(getTable())
-                .cacheModels(cachingEnabled)
-                .modelQueriable(this).build();
+            .cacheModels(cachingEnabled)
+            .modelQueriable(this).build();
     }
 
     @Override
     public FlowQueryList<TModel> flowQueryList() {
         return new FlowQueryList.Builder<>(getTable())
-                .cacheModels(cachingEnabled)
-                .modelQueriable(this)
-                .build();
+            .cacheModels(cachingEnabled)
+            .modelQueriable(this)
+            .build();
     }
 
     @Override
@@ -103,7 +105,13 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
 
     @Override
     public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
-        return databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
+        long affected = databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
+
+        // only notify for affected.
+        if (affected > 0) {
+            SqlUtils.notifyModelChanged();
+        }
+        return affected;
     }
 
     @Override
@@ -117,8 +125,8 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         QueryModelAdapter<QueryClass> adapter = FlowManager.getQueryModelAdapter(queryModelClass);
         return cachingEnabled
-                ? adapter.getListModelLoader().load(query)
-                : adapter.getNonCacheableListModelLoader().load(query);
+            ? adapter.getListModelLoader().load(query)
+            : adapter.getNonCacheableListModelLoader().load(query);
     }
 
     @Override
@@ -127,8 +135,8 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         QueryModelAdapter<QueryClass> adapter = FlowManager.getQueryModelAdapter(queryModelClass);
         return cachingEnabled
-                ? adapter.getSingleModelLoader().load(query)
-                : adapter.getNonCacheableSingleModelLoader().load(query);
+            ? adapter.getSingleModelLoader().load(query)
+            : adapter.getNonCacheableSingleModelLoader().load(query);
     }
 
     @Override
@@ -139,14 +147,14 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel> i
 
     private ListModelLoader<TModel> getListModelLoader() {
         return cachingEnabled
-                ? getRetrievalAdapter().getListModelLoader()
-                : getRetrievalAdapter().getNonCacheableListModelLoader();
+            ? getRetrievalAdapter().getListModelLoader()
+            : getRetrievalAdapter().getNonCacheableListModelLoader();
     }
 
     private SingleModelLoader<TModel> getSingleModelLoader() {
         return cachingEnabled
-                ? getRetrievalAdapter().getSingleModelLoader()
-                : getRetrievalAdapter().getNonCacheableSingleModelLoader();
+            ? getRetrievalAdapter().getSingleModelLoader()
+            : getRetrievalAdapter().getNonCacheableSingleModelLoader();
     }
 
 }
