@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -18,7 +19,7 @@ import java.util.List;
  * Description: The SQL FROM query wrapper that must have a {@link Query} base.
  */
 public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TModel>,
-        ModelQueriable<TModel> {
+    ModelQueriable<TModel> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!
@@ -28,12 +29,20 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
     /**
      * An alias for the table
      */
+    @Nullable
     private NameAlias tableAlias;
 
     /**
      * Enables the SQL JOIN statement
      */
     private List<Join> joins = new ArrayList<>();
+
+    private NameAlias getTableAlias() {
+        if (tableAlias == null) {
+            tableAlias = new NameAlias.Builder(FlowManager.getTableName(getTable())).build();
+        }
+        return tableAlias;
+    }
 
     /**
      * The SQL from statement constructed.
@@ -44,15 +53,14 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
     public From(Query querybase, Class<TModel> table) {
         super(table);
         queryBase = querybase;
-        tableAlias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
     }
 
     @Override
     public From<TModel> as(String alias) {
-        tableAlias = tableAlias
-                .newBuilder()
-                .as(alias)
-                .build();
+        tableAlias = getTableAlias()
+            .newBuilder()
+            .as(alias)
+            .build();
         return this;
     }
 
@@ -149,12 +157,12 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(queryBase.getQuery());
+            .append(queryBase.getQuery());
         if (!(queryBase instanceof Update)) {
             queryBuilder.append("FROM ");
         }
 
-        queryBuilder.append(tableAlias);
+        queryBuilder.append(getTableAlias());
 
         if (queryBase instanceof Select) {
             for (Join join : joins) {
