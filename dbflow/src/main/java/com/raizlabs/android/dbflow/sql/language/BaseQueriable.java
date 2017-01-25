@@ -80,6 +80,9 @@ public abstract class BaseQueriable<TModel> implements Queriable {
     public Cursor query(DatabaseWrapper databaseWrapper) {
         if (getPrimaryAction().equals(BaseModel.Action.INSERT)) {
             // inserting, let's compile and insert
+            DatabaseStatement databaseStatement = compileStatement(databaseWrapper);
+            databaseStatement.executeInsert();
+            databaseStatement.close();
         } else {
             String query = getQuery();
             FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
