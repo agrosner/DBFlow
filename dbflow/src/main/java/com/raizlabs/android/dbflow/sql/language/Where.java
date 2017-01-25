@@ -230,6 +230,10 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
         return super.queryList();
     }
 
+    public WhereBase<TModel> getWhereBase() {
+        return whereBase;
+    }
+
     protected void checkSelect(String methodName) {
         if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
             throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");

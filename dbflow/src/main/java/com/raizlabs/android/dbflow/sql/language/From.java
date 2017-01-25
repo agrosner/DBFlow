@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
     /**
      * Enables the SQL JOIN statement
      */
-    private List<Join> joins = new ArrayList<>();
+    private final List<Join> joins = new ArrayList<>();
 
     private NameAlias getTableAlias() {
         if (tableAlias == null) {
@@ -227,5 +228,18 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
     @Override
     public Where<TModel> orderByAll(List<OrderBy> orderBies) {
         return where().orderByAll(orderBies);
+    }
+
+    /**
+     * @return A list of {@link Class} that represents tables represented in this query. For every
+     * {@link Join} on another table, this adds another {@link Class}.
+     */
+    public java.util.Set<Class<?>> getAssociatedTables() {
+        java.util.Set<Class<?>> tables = new LinkedHashSet<>();
+        tables.add(getTable());
+        for (Join join : joins) {
+            tables.add(join.getTable());
+        }
+        return tables;
     }
 }

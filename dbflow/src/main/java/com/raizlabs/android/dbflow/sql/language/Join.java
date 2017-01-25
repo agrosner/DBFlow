@@ -49,6 +49,7 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
         CROSS,
     }
 
+    private final Class<TModel> table;
     /**
      * The type of JOIN to use
      */
@@ -81,11 +82,14 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
 
     public Join(From<TFromModel> from, Class<TModel> table, @NonNull JoinType joinType) {
         this.from = from;
+        this.table = table;
         type = joinType;
         alias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
     }
 
-    public Join(From<TFromModel> from, @NonNull JoinType joinType, ModelQueriable<TModel> modelQueriable) {
+    public Join(From<TFromModel> from, @NonNull JoinType joinType,
+                ModelQueriable<TModel> modelQueriable) {
+        table = modelQueriable.getTable();
         this.from = from;
         type = joinType;
         alias = PropertyFactory.from(modelQueriable).getNameAlias();
@@ -100,9 +104,9 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
     @Override
     public Join<TModel, TFromModel> as(String alias) {
         this.alias = this.alias
-                .newBuilder()
-                .as(alias)
-                .build();
+            .newBuilder()
+            .as(alias)
+            .build();
         return this;
     }
 
@@ -153,21 +157,24 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
         queryBuilder.append(type.name().replace("_", " ")).appendSpace();
 
         queryBuilder.append("JOIN")
-                .appendSpace()
-                .append(alias.getFullQuery())
-                .appendSpace();
+            .appendSpace()
+            .append(alias.getFullQuery())
+            .appendSpace();
 
         if (onGroup != null) {
             queryBuilder.append("ON")
-                    .appendSpace()
-                    .append(onGroup.getQuery())
-                    .appendSpace();
+                .appendSpace()
+                .append(onGroup.getQuery())
+                .appendSpace();
         } else if (!using.isEmpty()) {
             queryBuilder.append("USING (")
-                    .appendArray(using)
-                    .append(")").appendSpace();
+                .appendArray(using)
+                .append(")").appendSpace();
         }
         return queryBuilder.getQuery();
     }
 
+    public Class<TModel> getTable() {
+        return table;
+    }
 }

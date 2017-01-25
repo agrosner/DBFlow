@@ -4,12 +4,14 @@ import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
+import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import rx.Emitter;
 import rx.Observable;
 import rx.Single;
 
@@ -114,7 +116,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
 
     @Override
     public <TQueryModel> Single<List<TQueryModel>> queryCustomList(
-            final Class<TQueryModel> tQueryModelClass) {
+        final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<List<TQueryModel>>() {
             @Override
             public List<TQueryModel> call() throws Exception {
@@ -125,7 +127,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
 
     @Override
     public <TQueryModel> Single<TQueryModel> queryCustomSingle(
-            final Class<TQueryModel> tQueryModelClass) {
+        final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<TQueryModel>() {
             @Override
             public TQueryModel call() throws Exception {
@@ -140,4 +142,9 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> impleme
         return this;
     }
 
+    @Override
+    public Observable<ModelQueriable<T>> observeOnTableChanges() {
+        return Observable.fromEmitter(new TableChangeListenerEmitter<>(getInnerModelQueriable()),
+            Emitter.BackpressureMode.LATEST);
+    }
 }

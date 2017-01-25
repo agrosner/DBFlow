@@ -81,4 +81,9 @@ public interface RXModelQueriable<TModel> extends RXQueriable {
      * or {@link FlowQueryList} if you {@link #flowQueryList()} or {@link #cursorList()}
      */
     RXModelQueriable<TModel> disableCaching();
+
+    /**
+     * @return A new {@link Observable} that observes when the {@link TModel} table changes.
+     */
+    Observable<ModelQueriable<TModel>> observeOnTableChanges();
 }
